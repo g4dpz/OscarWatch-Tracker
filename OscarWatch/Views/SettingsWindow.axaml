@@ -297,7 +297,7 @@
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Default is 60 (hex) on most ICOM rigs. Use the address shown in the radio CI-V menu if CAT does not respond." />
+                       Text="IC-9700 default A2, IC-910 default 7C (hex). Use 60 if your radio is set that way in the CI-V menu." />
             <TextBlock Text="Region" />
             <ComboBox ItemsSource="{Binding RigRegionChoices}"
                       SelectedItem="{Binding SelectedRigRegionChoice, Mode=TwoWay}"

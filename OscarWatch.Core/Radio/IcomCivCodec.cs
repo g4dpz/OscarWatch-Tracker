@@ -58,7 +58,7 @@ public static class IcomCivCodec
             : null;
     }
 
-    /// <summary>True when <paramref name="hz"/> is in an amateur satellite band the IC-910 supports.</summary>
+    /// <summary>True when <paramref name="hz"/> is in an amateur satellite band (IC-910 / IC-9700).</summary>
     public static bool IsValidSatelliteFrequencyHz(long hz) =>
         hz is >= 144_000_000 and <= 148_000_000
             or >= 430_000_000 and <= 450_000_000

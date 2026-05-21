@@ -26,10 +26,11 @@ public sealed class RigSettings
     /// <summary>When true, automatic CAT frequency updates are suspended (SatPC32-style).</summary>
     public bool CatUpdatesPaused { get; set; }
 
+    /// <summary>Factory CI-V defaults per QTrig/icom.py (9700=A2, 910=7C). User may still use 60.</summary>
     public static string DefaultCivAddressFor(RigType type) => type switch
     {
-        RigType.IcomIc9700 => "60",
-        RigType.IcomIc910 => "60",
+        RigType.IcomIc9700 => "A2",
+        RigType.IcomIc910 => "7C",
         _ => "60"
     };
 }

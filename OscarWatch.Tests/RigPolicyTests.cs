@@ -40,7 +40,7 @@ public class RigSettingsSerializationTests
         var s = new RigSettings();
         Assert.Equal(RigType.None, s.Type);
         Assert.Equal(RigRegion.EU, s.Region);
-        Assert.Equal("60", RigSettings.DefaultCivAddressFor(RigType.IcomIc910));
-        Assert.Equal("60", RigSettings.DefaultCivAddressFor(RigType.IcomIc9700));
+        Assert.Equal("7C", RigSettings.DefaultCivAddressFor(RigType.IcomIc910));
+        Assert.Equal("A2", RigSettings.DefaultCivAddressFor(RigType.IcomIc9700));
     }
 }

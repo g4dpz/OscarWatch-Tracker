@@ -53,15 +53,6 @@ public sealed class RigController : IRigController, IDisposable
             return;
         }
 
-        if (settings.Type == RigType.IcomIc9700)
-        {
-            if (EnsureConnected(settings) && context is not null)
-                SyncDisplayFrequencies(context);
-            _statusMessage = "IC-9700 tracking not yet implemented";
-            _isTracking = false;
-            return;
-        }
-
         if (string.IsNullOrWhiteSpace(settings.Port) && settings.Type != RigType.Dummy)
         {
             Disconnect();

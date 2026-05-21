@@ -17,17 +17,55 @@ public class RigControllerTests
     }
 
     [Fact]
-    public void Icom9700_reports_not_implemented()
+    public void Icom9700_uses_same_tracking_path_as_ic910()
     {
-        var controller = new RigController();
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
         var settings = new RigSettings
         {
             Enabled = true,
             Type = RigType.IcomIc9700,
-            Port = "COM99"
+            Port = "COM1",
+            DopplerThresholdFmHz = 200,
+            CatDelayMs = 0,
+            TrackStartElevationDeg = -90
         };
-        controller.Update(settings, null);
-        Assert.Contains("not yet implemented", controller.GetStatus().StatusMessage ?? "", StringComparison.OrdinalIgnoreCase);
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 436_795,
+            UplinkKHz = 145_850,
+            DownlinkMode = "FMN",
+            UplinkMode = "FMN",
+            CtcssHz = 67.0
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "SO-50",
+            NoradId = "25544",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 2.5)
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = state,
+            Mode = mode,
+            Corrected = new CorrectedFrequencies(145852, 145952, 145850, 145950, 2, false),
+            SelectedCtcssHz = 67.0
+        };
+
+        controller.Update(settings, ctx);
+        var status = controller.GetStatus();
+        Assert.True(status.IsConnected);
+        Assert.True(status.IsTracking);
+        Assert.DoesNotContain("not yet implemented", status.StatusMessage ?? "", StringComparison.OrdinalIgnoreCase);
+        Assert.NotNull(status.LastReceiveHz);
+        Assert.NotNull(status.LastTransmitHz);
+        Assert.Equal(67.0, rig.LastToneHz);
+        Assert.Equal(RigVfo.Sub, rig.CurrentVfo);
     }
 
     [Fact]
