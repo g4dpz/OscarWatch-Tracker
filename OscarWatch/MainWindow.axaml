@@ -35,13 +35,23 @@
       </DockPanel>
     </Border>
 
-    <Grid ColumnDefinitions="*,320">
-      <ctrl:WorldMapControl Grid.Column="0"
-                            TabIndex="1"
-                            ClipToBounds="True"
-                            TrackStates="{Binding LiveStates}"
-                            GroundStation="{Binding GroundStation}"
-                            FocusedNoradId="{Binding FocusedNoradId, Mode=TwoWay}" />
+    <Grid ColumnDefinitions="*,320" ClipToBounds="False">
+      <Panel Grid.Column="0" ClipToBounds="False">
+        <ctrl:WorldMapControl TabIndex="1"
+                              ZIndex="0"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch"
+                              ClipToBounds="True"
+                              TrackStates="{Binding LiveStates}"
+                              GroundStation="{Binding GroundStation}"
+                              FocusedNoradId="{Binding FocusedNoradId, Mode=TwoWay}" />
+        <ctrl:FrequencyOverlayControl DataContext="{Binding Frequencies}"
+                                      ZIndex="10"
+                                      HorizontalAlignment="Left"
+                                      VerticalAlignment="Top"
+                                      Margin="{Binding OverlayMargin}"
+                                      IsHitTestVisible="True" />
+      </Panel>
 
       <Border Grid.Column="1"
               BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"

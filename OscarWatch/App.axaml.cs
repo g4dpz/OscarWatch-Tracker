@@ -29,6 +29,9 @@ public partial class App : Application
         services.AddSingleton<ITleService, TleService>();
         services.AddSingleton<ISpeechService, PlatformSpeechService>();
         services.AddSingleton<RisingPassAnnouncer>();
+        services.AddSingleton<ISatelliteDatabaseService>(_ =>
+            new SatelliteDatabaseService(Path.Combine(AppContext.BaseDirectory, "Assets", "satellite_database.json")));
+        services.AddSingleton<FrequencyOverlayViewModel>();
         services.AddSingleton<TrackingOrchestrator>();
         services.AddOscarWatchOrbit();
         services.AddTransient<MainViewModel>();

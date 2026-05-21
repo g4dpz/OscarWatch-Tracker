@@ -13,6 +13,9 @@ public sealed class AppSettings
     public TleAutoUpdateMode TleAutoUpdate { get; set; } = TleAutoUpdateMode.OnStartup;
     public AppThemePreference Theme { get; set; } = AppThemePreference.System;
     public VoiceAnnouncementSettings VoiceAnnouncements { get; set; } = new();
+    public Dictionary<string, SatelliteFrequencySelection> FrequencySelections { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public double FrequencyOverlayX { get; set; } = 12;
+    public double FrequencyOverlayY { get; set; } = 12;
     public RotatorSettingsStub Rotator { get; set; } = new();
     public RigSettingsStub Rig { get; set; } = new();
 }

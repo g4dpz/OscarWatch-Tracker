@@ -31,6 +31,7 @@ dotnet run -c Release --project OscarWatch/OscarWatch.csproj
 - **Mutual pass finder** — find passes visible from two stations at once (Passes → Mutual pass finder)
 - **Live telemetry** — azimuth, elevation, range, and altitude updated every second (UTC)
 - **Voice announcements** — optional spoken “rising” alerts when a satellite crosses a configurable elevation while ascending (e.g. “Alpha Oscar Zero Seven is rising”); Settings → Voice
+- **Doppler frequencies** — draggable overlay on the world map with transponder modes from `Assets/satellite_database.json`, live radio/sat uplink & downlink, and per-satellite TX/RX micro-adjustments (saved for future CAT control)
 - **Appearance** — light, dark, or system theme (sky plot adapts; world map image stays light)
 
 ## Settings

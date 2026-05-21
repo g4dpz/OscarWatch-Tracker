@@ -1,0 +1,228 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:OscarWatch.ViewModels"
+             xmlns:models="using:OscarWatch.Core.Models"
+             x:Class="OscarWatch.Controls.FrequencyOverlayControl"
+             x:DataType="vm:FrequencyOverlayViewModel"
+             MinWidth="380"
+             MaxWidth="520">
+  <UserControl.Styles>
+    <Style Selector="TextBlock.freq-mono">
+      <Setter Property="FontFamily" Value="Consolas,Courier New,monospace" />
+      <Setter Property="TextAlignment" Value="Right" />
+    </Style>
+    <Style Selector="NumericUpDown.offset-spin">
+      <Setter Property="FontFamily" Value="Consolas,Courier New,monospace" />
+      <Setter Property="MinHeight" Value="36" />
+      <Setter Property="MinWidth" Value="140" />
+      <Setter Property="FontSize" Value="15" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+    </Style>
+  </UserControl.Styles>
+
+  <Border Background="#FF121212"
+          BorderBrush="#FF505050"
+          BorderThickness="1"
+          CornerRadius="8"
+          Padding="0"
+          BoxShadow="0 6 20 0 #AA000000">
+    <StackPanel Spacing="0">
+      <Border x:Name="DragHandle"
+              Background="#FF1E1E1E"
+              BorderBrush="#FF404040"
+              BorderThickness="0,0,0,1"
+              Cursor="SizeAll"
+              Padding="10,8"
+              CornerRadius="8,8,0,0">
+        <DockPanel LastChildFill="True">
+          <TextBlock DockPanel.Dock="Right"
+                     Text="⠿"
+                     FontSize="14"
+                     Foreground="#FF909090"
+                     VerticalAlignment="Center"
+                     Margin="8,0,0,0" />
+          <TextBlock Text="{Binding SatelliteName}"
+                     FontWeight="Bold"
+                     FontSize="16"
+                     Foreground="#FFFFFFFF"
+                     VerticalAlignment="Center" />
+        </DockPanel>
+      </Border>
+
+      <StackPanel Spacing="12" Margin="14,12,14,14">
+        <TextBlock Text="No transponder data for this satellite"
+                   IsVisible="{Binding !HasTransponderData}"
+                   FontSize="13"
+                   TextWrapping="Wrap"
+                   Foreground="#FFE0E0E0" />
+
+        <StackPanel IsVisible="{Binding HasTransponderData}" Spacing="6">
+          <TextBlock Text="Transponder mode"
+                     FontSize="12"
+                     FontWeight="SemiBold"
+                     Foreground="#FFE0E0E0" />
+
+          <ComboBox ItemsSource="{Binding AvailableModes}"
+                    SelectedItem="{Binding SelectedMode, Mode=TwoWay}"
+                    HorizontalAlignment="Stretch"
+                    MinHeight="36"
+                    FontSize="13"
+                    Background="#FF1E1E1E"
+                    BorderBrush="#FF505050"
+                    Foreground="#FFFFFFFF">
+            <ComboBox.SelectionBoxItemTemplate>
+              <DataTemplate x:DataType="models:SatelliteTransponderMode">
+                <TextBlock Text="{Binding DisplayLabel}"
+                           FontWeight="SemiBold"
+                           FontSize="13"
+                           Foreground="#FFFFFFFF"
+                           VerticalAlignment="Center" />
+              </DataTemplate>
+            </ComboBox.SelectionBoxItemTemplate>
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="models:SatelliteTransponderMode">
+                <StackPanel Spacing="2" Margin="4,6">
+                  <TextBlock Text="{Binding DisplayLabel}"
+                             FontWeight="SemiBold"
+                             FontSize="13"
+                             Foreground="#FFFFFFFF" />
+                  <TextBlock Text="{Binding SummaryLine}"
+                             FontSize="11"
+                             TextWrapping="Wrap"
+                             Foreground="#FFB0B0B0" />
+                </StackPanel>
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </StackPanel>
+
+        <Grid IsVisible="{Binding HasTransponderData}"
+              ColumnDefinitions="52,*,*"
+              RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+              ColumnSpacing="14"
+              RowSpacing="8">
+          <TextBlock Grid.Row="0" Grid.Column="1" Text="Uplink (TX)" FontSize="12" FontWeight="SemiBold"
+                     Foreground="#FFB0B0B0" HorizontalAlignment="Right" />
+          <TextBlock Grid.Row="0" Grid.Column="2" Text="Downlink (RX)" FontSize="12" FontWeight="SemiBold"
+                     Foreground="#FFB0B0B0" HorizontalAlignment="Right" />
+
+          <TextBlock Grid.Row="1" Grid.Column="0" Text="Sat" FontSize="14" FontWeight="SemiBold"
+                     Foreground="#FFE0E0E0" VerticalAlignment="Center" />
+          <TextBlock Grid.Row="1" Grid.Column="1" Classes="freq-mono"
+                     Text="{Binding SatelliteTransmitText}"
+                     IsVisible="{Binding !IsBeaconOnly}"
+                     FontSize="18" FontWeight="SemiBold"
+                     Foreground="#FFFFFFFF" />
+          <TextBlock Grid.Row="1" Grid.Column="2" Classes="freq-mono"
+                     Text="{Binding SatelliteReceiveText}"
+                     FontSize="18" FontWeight="SemiBold"
+                     Foreground="#FFFFFFFF" />
+
+          <TextBlock Grid.Row="2" Grid.Column="0" Text="Radio" FontSize="14"
+                     Foreground="#FFE0E0E0" VerticalAlignment="Center" />
+          <TextBlock Grid.Row="2" Grid.Column="1" Classes="freq-mono"
+                     Text="{Binding RadioTransmitText}"
+                     IsVisible="{Binding !IsBeaconOnly}"
+                     FontSize="16"
+                     Foreground="#FF909090" />
+          <TextBlock Grid.Row="2" Grid.Column="2" Classes="freq-mono"
+                     Text="{Binding RadioReceiveText}"
+                     FontSize="16"
+                     Foreground="#FF909090" />
+
+          <TextBlock Grid.Row="3" Grid.Column="0" Text="CTCSS" FontSize="14"
+                     IsVisible="{Binding ShowCtcssRow}"
+                     Foreground="#FFE0E0E0" VerticalAlignment="Center" />
+
+          <ComboBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2"
+                    ItemsSource="{Binding CtcssToneOptions}"
+                    SelectedItem="{Binding SelectedCtcssTone, Mode=TwoWay}"
+                    IsVisible="{Binding ShowCtcssSelector}"
+                    HorizontalAlignment="Stretch"
+                    MinHeight="36"
+                    FontSize="13"
+                    Background="#FF1E1E1E"
+                    BorderBrush="#FF505050"
+                    Foreground="#FFFFFFFF">
+            <ComboBox.SelectionBoxItemTemplate>
+              <DataTemplate x:DataType="models:CtcssToneOption">
+                <TextBlock Text="{Binding DisplayText}"
+                           FontFamily="Consolas,Courier New,monospace"
+                           FontSize="13"
+                           Foreground="#FFFFFFFF"
+                           VerticalAlignment="Center" />
+              </DataTemplate>
+            </ComboBox.SelectionBoxItemTemplate>
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="models:CtcssToneOption">
+                <TextBlock Text="{Binding DisplayText}"
+                           FontFamily="Consolas,Courier New,monospace"
+                           FontSize="13"
+                           Foreground="#FFFFFFFF"
+                           VerticalAlignment="Center" />
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+
+          <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2"
+                     Text="{Binding SelectedCtcssText}"
+                     IsVisible="{Binding ShowCtcssStatic}"
+                     FontFamily="Consolas,Courier New,monospace"
+                     FontSize="16" FontWeight="SemiBold"
+                     Foreground="#FFFFFFFF"
+                     VerticalAlignment="Center" />
+
+          <TextBlock Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
+                     Text="{Binding CtcssHintText}"
+                     IsVisible="{Binding ShowCtcssHint}"
+                     FontSize="11"
+                     TextWrapping="Wrap"
+                     Foreground="#FFB0B0B0" />
+
+          <TextBlock Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Classes="freq-mono"
+                     Text="{Binding DopplerShiftText}"
+                     FontSize="13"
+                     Foreground="#FFB0B0B0"
+                     HorizontalAlignment="Right" />
+        </Grid>
+
+        <StackPanel IsVisible="{Binding HasTransponderData}" Spacing="10">
+          <Grid ColumnDefinitions="*,*"
+                ColumnSpacing="14"
+                IsVisible="{Binding !IsBeaconOnly}">
+            <StackPanel Grid.Column="0" Spacing="6">
+              <TextBlock Text="TX offset (kHz)" FontSize="12" FontWeight="SemiBold"
+                         Foreground="#FFE0E0E0" />
+              <NumericUpDown Classes="offset-spin"
+                             Value="{Binding TransmitOffsetKHz, Mode=TwoWay}"
+                             Minimum="-10" Maximum="10"
+                             Increment="0.001" FormatString="F3" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="6">
+              <TextBlock Text="RX offset (kHz)" FontSize="12" FontWeight="SemiBold"
+                         Foreground="#FFE0E0E0" />
+              <NumericUpDown Classes="offset-spin"
+                             Value="{Binding ReceiveOffsetKHz, Mode=TwoWay}"
+                             Minimum="-10" Maximum="10"
+                             Increment="0.001" FormatString="F3" />
+            </StackPanel>
+          </Grid>
+          <StackPanel Spacing="6" IsVisible="{Binding IsBeaconOnly}">
+            <TextBlock Text="RX offset (kHz)" FontSize="12" FontWeight="SemiBold"
+                       Foreground="#FFE0E0E0" />
+            <NumericUpDown Classes="offset-spin"
+                           Value="{Binding ReceiveOffsetKHz, Mode=TwoWay}"
+                           Minimum="-10" Maximum="10"
+                           Increment="0.001" FormatString="F3"
+                           MaxWidth="220"
+                           HorizontalAlignment="Left" />
+          </StackPanel>
+          <CheckBox Content="Remember offsets for this satellite"
+                    IsChecked="{Binding RememberOffsets, Mode=TwoWay}"
+                    FontSize="12"
+                    Foreground="#FFE0E0E0" />
+        </StackPanel>
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</UserControl>

@@ -1,0 +1,556 @@
+[
+    {
+      "name": "AO-07",
+      "modes": [
+        {
+          "type": "Mode B",
+          "downlink": 145950,
+          "uplink": 432146,
+          "downlink_mode": "USB",
+          "uplink_mode": "LSB",
+          "doppler": "REV"
+        },
+        {
+          "type": "CW",
+          "downlink": 145970,
+          "uplink": 0,
+          "downlink_mode": "CW",
+          "uplink_mode": "CW",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "AO-27",
+      "modes": [
+        {
+          "type": "FM",
+          "downlink": 436795,
+          "uplink": 145850,
+          "downlink_mode": "FMN",
+          "uplink_mode": "FMN",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "AO-73",
+      "modes": [
+        {
+          "type": "Voice U/V",
+          "downlink": 145960,
+          "uplink": 435148,
+          "downlink_mode": "USB",
+          "uplink_mode": "LSB",
+          "doppler": "REV"
+        },
+        {
+          "type": "1200bps BPSK Telemetry",
+          "downlink": 145935,
+          "uplink": 0,
+          "downlink_mode": "USB",
+          "uplink_mode": "USB",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "AO-91",
+      "modes": [
+        {
+          "type": "Voice U/V",
+          "downlink": 145960,
+          "uplink": 435250,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "ISS",
+      "modes": [
+        {
+          "type": "Cross band repeater",
+          "downlink": 437800,
+          "uplink": 145990,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR",
+          "ctcss": 67.0
+        },
+        {
+          "type": "Voice Region 1",
+          "downlink": 145800,
+          "uplink": 145200,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        },
+        {
+          "type": "Packet",
+          "downlink": 145825,
+          "uplink": 145825,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "PO-101",
+      "modes": [
+        {
+          "type": "FM",
+          "downlink": 145900,
+          "uplink": 437500,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "FO-29",
+      "modes": [
+        {
+          "type": "SSB Transponder",
+          "downlink": 435850.45,
+          "uplink": 145952.65,
+          "downlink_mode": "USB",
+          "uplink_mode": "LSB",
+          "doppler": "REV"
+        }
+      ]
+    },
+    {
+      "name": "IO-117",
+      "modes": [
+        {
+          "type": "Digipeater",
+          "downlink": 435309.3,
+          "uplink": 435309.3,
+          "downlink_mode": "DATA-USB",
+          "uplink_mode": "DATA-USB",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "JO-97",
+      "modes": [
+        {
+          "type": "SSB Transponder",
+          "downlink": 145865,
+          "uplink": 435110.1,
+          "downlink_mode": "USB",
+          "uplink_mode": "LSB",
+          "doppler": "REV"
+        },
+        {
+          "type": "CW Transponder",
+          "downlink": 145865,
+          "uplink": 435110.1,
+          "downlink_mode": "USB",
+          "uplink_mode": "CW",
+          "doppler": "REV"
+        },
+        {
+          "type": "Beacon",
+          "downlink": 145840,
+          "uplink": 0,
+          "downlink_mode": "USB",
+          "uplink_mode": "USB",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "NOAA-15",
+      "modes": [
+        {
+          "type": "weather sat",
+          "downlink": 137620,
+          "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "NOAA-16",
+      "modes": [
+        {
+          "type": "weather sat",
+          "downlink": 137620,
+          "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "NOAA-17",
+      "modes": [
+        {
+          "type": "weather sat",
+          "downlink": 137500,
+          "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "NOAA-18",
+      "modes": [
+        {
+          "type": "weather sat",
+          "downlink": 137913,
+          "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "NOAA-19",
+      "modes": [
+        {
+          "type": "weather sat",
+          "downlink": 137100,
+          "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "RADFXSAT (FOX-1B)",
+      "modes": [
+        {
+          "type": "Voice U/V",
+          "downlink": 145960,
+          "uplink": 435250,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "RS-44",
+      "modes": [
+        {
+          "type": "SSB Transponder",
+          "downlink": 435667,
+          "uplink": 145937.61,
+          "downlink_mode": "USB",
+          "uplink_mode": "LSB",
+          "doppler": "REV"
+        },
+        {
+          "type": "FT4",
+          "downlink": 435611,
+          "uplink": 145993.61,
+          "downlink_mode": "DATA-USB",
+          "uplink_mode": "DATA-LSB",
+          "doppler": "REV"
+        },
+        {
+          "type": "CW TLM",
+          "downlink": 435605,
+          "uplink": 0,
+          "downlink_mode": "CW",
+          "uplink_mode": "CW",
+          "doppler": "REV"
+        }
+      ]
+    },
+    {
+      "name": "SO-50",
+      "modes": [
+        {
+          "type": "FM VOICE",
+          "downlink": 436795,
+          "uplink": 145850,
+          "downlink_mode": "FMN",
+          "uplink_mode": "FMN",
+          "doppler": "NOR",
+          "ctcss": 67.0,
+          "ctcss_arm": 74.4
+        }
+      ]
+    },
+    {
+      "name": "CSS",
+      "modes": [
+        {
+          "type": "Cross Band Repeater V/U",
+          "downlink": 145875,
+          "uplink": 436510,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        },
+        {
+          "type": "Cross Band Repeater U/V",
+          "downlink": 435075,
+          "uplink": 145985,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "MO-122",
+      "modes": [
+        {
+          "type": "SSB Transponder",
+          "downlink": 435825.6,
+          "uplink": 145925,
+          "downlink_mode": "USB",
+          "uplink_mode": "LSB",
+          "doppler": "REV"
+        }
+      ]
+    },
+    {
+      "name": "AO-123",
+      "modes": [
+        {
+          "type": "FM Voice",
+          "downlink": 435400,
+          "uplink": 145850,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "SO-124",
+      "modes": [
+        {
+          "type": "FM Voice",
+          "downlink": 436888,
+          "uplink": 145925,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "SO-125",
+      "modes": [
+        {
+          "type": "FM Voice",
+          "downlink": 436666,
+          "uplink": 145875,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "SONATE-2",
+      "modes": [
+        {
+          "type": "SSTV",
+          "downlink": 145880,
+          "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        },
+        {
+          "type": "APRS",
+          "downlink": 145825,
+          "uplink": 145825,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        },
+        {
+          "type": "Telemetry GMSK9k6",
+          "downlink": 437025,
+          "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        },
+        {
+          "type": "CW Beacon",
+          "downlink": 145840,
+          "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "TEVEL2-1",
+      "modes": [
+        {
+          "type": "Voice",
+          "downlink": 436400,
+          "uplink": 145970,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "TEVEL2-2",
+      "modes": [
+        {
+          "type": "Voice",
+          "downlink": 436400,
+          "uplink": 145970,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "TEVEL2-3",
+      "modes": [
+        {
+          "type": "Voice",
+          "downlink": 436400,
+          "uplink": 145970,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "TEVEL2-4",
+      "modes": [
+        {
+          "type": "Voice",
+          "downlink": 436400,
+          "uplink": 145970,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "TEVEL2-5",
+      "modes": [
+        {
+          "type": "Voice",
+          "downlink": 436400,
+          "uplink": 145970,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "TEVEL2-6",
+      "modes": [
+        {
+          "type": "Voice",
+          "downlink": 436400,
+          "uplink": 145970,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "TEVEL2-7",
+      "modes": [
+        {
+          "type": "Voice",
+          "downlink": 436400,
+          "uplink": 145970,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "PARUS-T2",
+      "modes": [
+        {
+          "type": "Voice",
+          "downlink": 435250,
+          "uplink": 145980,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "QMR-KWT-2",
+      "modes": [
+        {
+          "type": "FM VOICE",
+          "downlink": 436950,
+          "uplink": 145920,
+          "downlink_mode": "FMN",
+          "uplink_mode": "FMN",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "Lobachevsky",
+      "modes": [
+        {
+          "type": "FM VOICE",
+          "downlink": 145910,
+          "uplink": 435500,
+          "downlink_mode": "FMN",
+          "uplink_mode": "FMN",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "BOTAN",
+      "modes": [
+        {
+          "type": "Packet",
+          "downlink": 145825,
+          "uplink": 145825,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "TEN-KOH2",
+      "modes": [
+        {
+          "type": "SSB Transponder",
+          "downlink": 435895,
+          "uplink": 145915,
+          "downlink_mode": "USB",
+          "uplink_mode": "LSB",
+          "doppler": "REV"
+        }
+      ]
+    }
+  ]

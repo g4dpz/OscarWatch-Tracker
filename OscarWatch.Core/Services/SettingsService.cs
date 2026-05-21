@@ -39,6 +39,9 @@ public sealed class SettingsService : ISettingsService
         Current = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new AppSettings();
         Current.GroundStation ??= new GroundStation();
         Current.VoiceAnnouncements ??= new VoiceAnnouncementSettings();
+        Current.FrequencySelections ??= new Dictionary<string, SatelliteFrequencySelection>(StringComparer.OrdinalIgnoreCase);
+        foreach (var selection in Current.FrequencySelections.Values)
+            selection.ModeOffsets ??= new Dictionary<string, ModeOffsetSettings>(StringComparer.OrdinalIgnoreCase);
         EnsureSavedStations();
 
         if (string.IsNullOrWhiteSpace(Current.GroundStation.GridSquare))

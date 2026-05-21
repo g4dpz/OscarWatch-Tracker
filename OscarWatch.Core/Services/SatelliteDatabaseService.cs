@@ -1,0 +1,103 @@
+using System.Text.Json;
+using OscarWatch.Core.Models;
+
+namespace OscarWatch.Core.Services;
+
+public sealed class SatelliteDatabaseService : ISatelliteDatabaseService
+{
+    private static readonly Dictionary<string, string> StaticAliases =
+        new(StringComparer.OrdinalIgnoreCase);
+
+    private readonly Dictionary<string, SatelliteRadioEntry> _byName =
+        new(StringComparer.OrdinalIgnoreCase);
+
+    public IReadOnlyList<SatelliteRadioEntry> Entries { get; }
+
+    static SatelliteDatabaseService()
+    {
+        RegisterStaticAlias("AO-7", "AO-07");
+        RegisterStaticAlias("AO-07 (OSCAR 7)", "AO-07");
+        RegisterStaticAlias("ISS (ZARYA)", "ISS");
+        RegisterStaticAlias("ZARYA", "ISS");
+        RegisterStaticAlias("FOX-1B", "RADFXSAT (FOX-1B)");
+        RegisterStaticAlias("RADFXSAT", "RADFXSAT (FOX-1B)");
+        RegisterStaticAlias("PO-101 (DIWATA2)", "PO-101");
+        RegisterStaticAlias("DIWATA2", "PO-101");
+    }
+
+    public SatelliteDatabaseService(string databasePath)
+    {
+        if (!File.Exists(databasePath))
+        {
+            Entries = [];
+            return;
+        }
+
+        var json = File.ReadAllText(databasePath);
+        var entries = JsonSerializer.Deserialize<List<SatelliteRadioEntry>>(json) ?? [];
+        Entries = entries;
+
+        foreach (var entry in entries)
+        {
+            if (string.IsNullOrWhiteSpace(entry.Name))
+                continue;
+
+            _byName[entry.Name.Trim()] = entry;
+            RegisterParentheticalAlias(entry.Name.Trim());
+        }
+    }
+
+    public SatelliteRadioEntry? TryGetEntry(string satelliteName)
+    {
+        if (string.IsNullOrWhiteSpace(satelliteName))
+            return null;
+
+        return ResolveEntry(satelliteName.Trim());
+    }
+
+    private static void RegisterStaticAlias(string tleName, string databaseName) =>
+        StaticAliases[tleName] = databaseName;
+
+    private void RegisterParentheticalAlias(string name)
+    {
+        var paren = name.IndexOf('(');
+        if (paren > 0)
+        {
+            var prefix = name[..paren].Trim();
+            if (!_byName.ContainsKey(prefix))
+                _byName[prefix] = _byName[name];
+        }
+    }
+
+    private SatelliteRadioEntry? ResolveEntry(string trimmed)
+    {
+        if (_byName.TryGetValue(trimmed, out var exact))
+            return exact;
+
+        if (StaticAliases.TryGetValue(trimmed, out var aliasKey)
+            && _byName.TryGetValue(aliasKey, out var byAlias))
+            return byAlias;
+
+        var paren = trimmed.IndexOf('(');
+        if (paren > 0)
+        {
+            var prefix = trimmed[..paren].Trim();
+            if (_byName.TryGetValue(prefix, out var byPrefix))
+                return byPrefix;
+        }
+
+        var normalized = NormalizeName(trimmed);
+        foreach (var key in _byName.Keys)
+        {
+            if (NormalizeName(key) == normalized)
+                return _byName[key];
+        }
+
+        return null;
+    }
+
+    private static string NormalizeName(string name) =>
+        name.Replace(" ", "", StringComparison.Ordinal)
+            .Replace("-", "", StringComparison.Ordinal)
+            .ToUpperInvariant();
+}

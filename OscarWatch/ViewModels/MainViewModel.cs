@@ -19,6 +19,8 @@ public partial class MainViewModel : ViewModelBase
     private readonly ISpeechService _speech;
     private readonly RisingPassAnnouncer _passAnnouncer;
     private readonly DispatcherTimer _timer;
+
+    public FrequencyOverlayViewModel Frequencies { get; }
     private DispatcherTimer? _tleRefreshTimer;
     private static readonly TimeSpan ImminentPassWindow = TimeSpan.FromMinutes(15);
 
@@ -68,13 +70,15 @@ public partial class MainViewModel : ViewModelBase
         ITleService tleService,
         TrackingOrchestrator tracking,
         ISpeechService speech,
-        RisingPassAnnouncer passAnnouncer)
+        RisingPassAnnouncer passAnnouncer,
+        FrequencyOverlayViewModel frequencies)
     {
         _settings = settings;
         _tleService = tleService;
         _tracking = tracking;
         _speech = speech;
         _passAnnouncer = passAnnouncer;
+        Frequencies = frequencies;
 
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += (_, _) => Tick();
@@ -121,10 +125,19 @@ public partial class MainViewModel : ViewModelBase
         SyncLiveStates(states);
 
         UpdateLiveTelemetry(states);
+        Frequencies.Update(GetFocusedTrackState(states, FocusedNoradId));
         UpdateNextPassCountdown();
         UpdatePassHighlightState();
         ProcessVoiceAnnouncements(states);
     }
+
+    private static SatelliteTrackState? GetFocusedTrackState(IReadOnlyList<SatelliteTrackState> states, string? focusedNoradId) =>
+        states.FirstOrDefault(s => s.NoradId == focusedNoradId)
+        ?? states
+            .Where(s => s.LookAngles is { ElevationDeg: > 0 })
+            .OrderByDescending(s => s.LookAngles!.ElevationDeg)
+            .FirstOrDefault()
+        ?? states.FirstOrDefault();
 
     private void ProcessVoiceAnnouncements(IReadOnlyList<SatelliteTrackState> states)
     {
@@ -169,12 +182,7 @@ public partial class MainViewModel : ViewModelBase
 
     private void UpdateLiveTelemetry(IReadOnlyList<SatelliteTrackState> states)
     {
-        var target = states.FirstOrDefault(s => s.NoradId == FocusedNoradId)
-            ?? states
-                .Where(s => s.LookAngles is { ElevationDeg: > 0 })
-                .OrderByDescending(s => s.LookAngles!.ElevationDeg)
-                .FirstOrDefault()
-            ?? states.FirstOrDefault();
+        var target = GetFocusedTrackState(states, FocusedNoradId);
 
         if (target is null)
             return;
@@ -204,7 +212,13 @@ public partial class MainViewModel : ViewModelBase
     partial void OnFocusedNoradIdChanged(string? value)
     {
         if (LiveStates.Count > 0)
+        {
             UpdateLiveTelemetry(LiveStates);
+            var focused = string.IsNullOrEmpty(value)
+                ? null
+                : LiveStates.FirstOrDefault(s => s.NoradId == value);
+            Frequencies.Update(focused);
+        }
 
         if (value is null)
             return;
