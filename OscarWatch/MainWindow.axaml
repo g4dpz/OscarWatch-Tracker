@@ -1,0 +1,184 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:ctrl="using:OscarWatch.Controls"
+        xmlns:theme="using:OscarWatch.Theme"
+        x:Class="OscarWatch.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="OscarWatch"
+        Width="1280" Height="556">
+  <DockPanel>
+    <Menu DockPanel.Dock="Top">
+      <MenuItem Header="_Satellites">
+        <MenuItem Header="_Select satellites…" Command="{Binding OpenSatellitesCommand}" />
+        <MenuItem Header="_Refresh TLEs" Command="{Binding RefreshTlesCommand}" />
+      </MenuItem>
+      <MenuItem Header="_Passes">
+        <MenuItem Header="_Pass planner…" Command="{Binding OpenPassPlanningCommand}" />
+      </MenuItem>
+      <MenuItem Header="_Settings" Command="{Binding OpenSettingsCommand}" />
+    </Menu>
+
+    <Border DockPanel.Dock="Bottom"
+            Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
+            Padding="8,4">
+      <DockPanel LastChildFill="True">
+        <TextBlock DockPanel.Dock="Right"
+                   Text="{Binding UtcClock}"
+                   VerticalAlignment="Center"
+                   FontFamily="Consolas,Courier New,monospace"
+                   Foreground="{DynamicResource ThemeForegroundBrush}" />
+        <TextBlock Text="{Binding StatusText}"
+                   VerticalAlignment="Center"
+                   Foreground="{DynamicResource ThemeForegroundBrush}" />
+      </DockPanel>
+    </Border>
+
+    <Grid ColumnDefinitions="*,320">
+      <ctrl:WorldMapControl Grid.Column="0"
+                            TabIndex="1"
+                            ClipToBounds="True"
+                            TrackStates="{Binding LiveStates}"
+                            GroundStation="{Binding GroundStation}"
+                            FocusedNoradId="{Binding FocusedNoradId, Mode=TwoWay}" />
+
+      <Border Grid.Column="1"
+              BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+              BorderThickness="1,0,0,0"
+              Padding="8">
+        <Grid RowDefinitions="Auto,Auto,Auto,*"
+              HorizontalAlignment="Stretch">
+          <Grid.Styles>
+            <Style Selector="Expander">
+              <Setter Property="HorizontalAlignment" Value="Stretch" />
+              <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            </Style>
+          </Grid.Styles>
+          <TextBlock Grid.Row="0" Text="Live" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8" />
+          <StackPanel Grid.Row="1" Spacing="4" Margin="0,0,0,8">
+            <TextBlock Text="{Binding SelectedSatelliteName}" FontWeight="SemiBold" FontSize="12" />
+            <TextBlock FontSize="12">
+              <Run Text="Az: " /><Run Text="{Binding AzimuthText}" />
+            </TextBlock>
+            <TextBlock FontSize="12">
+              <Run Text="El: " /><Run Text="{Binding ElevationText}" />
+            </TextBlock>
+            <TextBlock FontSize="12">
+              <Run Text="Range: " /><Run Text="{Binding RangeText}" />
+            </TextBlock>
+            <TextBlock FontSize="12">
+              <Run Text="Altitude: " /><Run Text="{Binding AltitudeText}" />
+            </TextBlock>
+            <TextBlock Text="{Binding NextPassText}"
+                       FontSize="12"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource PassHighlightBrush}"
+                       Margin="0,4,0,0" />
+          </StackPanel>
+
+          <Expander Grid.Row="2"
+                    Header="Sky plot"
+                    IsExpanded="True"
+                    Margin="0,0,0,10"
+                    Padding="0">
+            <StackPanel Spacing="4"
+                        HorizontalAlignment="Stretch"
+                        MinWidth="0">
+              <TextBlock FontSize="11"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                         Text="Click a satellite on the map or sky plot, or use arrow keys when focused." />
+              <ctrl:SkyPlotControl Height="220"
+                                   TabIndex="2"
+                                   MinWidth="0"
+                                   HorizontalAlignment="Stretch"
+                                   TrackStates="{Binding LiveStates}"
+                                   FocusedNoradId="{Binding FocusedNoradId, Mode=TwoWay}"
+                                   MinimumElevationDeg="{Binding MinimumElevationDeg}" />
+            </StackPanel>
+          </Expander>
+
+          <DockPanel Grid.Row="3"
+                     HorizontalAlignment="Stretch"
+                     LastChildFill="True"
+                     MinWidth="0">
+            <TextBlock DockPanel.Dock="Top"
+                       Text="Upcoming passes"
+                       FontWeight="SemiBold"
+                       FontSize="16"
+                       Margin="0,0,0,8" />
+            <ListBox x:Name="PassesListBox"
+                     ItemsSource="{Binding Passes}"
+                     TabIndex="3"
+                     Padding="0"
+                     MinWidth="0"
+                     HorizontalAlignment="Stretch"
+                     SelectedItem="{Binding SelectedListItem, Mode=TwoWay}">
+              <ListBox.Styles>
+                <Style Selector="ListBoxItem">
+                  <Setter Property="Padding" Value="0" />
+                  <Setter Property="Margin" Value="0,0,0,2" />
+                  <Setter Property="MinHeight" Value="0" />
+                  <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+                <Style Selector="ListBoxItem:disabled">
+                  <Setter Property="Padding" Value="0" />
+                  <Setter Property="Margin" Value="0,6,0,2" />
+                  <Setter Property="Background" Value="Transparent" />
+                </Style>
+              </ListBox.Styles>
+              <ListBox.DataTemplates>
+                <DataTemplate DataType="vm:PassDayHeaderViewModel">
+                  <Border Padding="0,4,0,2"
+                          BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                          BorderThickness="0,1,0,0">
+                    <TextBlock Text="{Binding DateLabel}"
+                               FontSize="15"
+                               FontWeight="SemiBold"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource ThemeForegroundBrush}" />
+                  </Border>
+                </DataTemplate>
+                <DataTemplate DataType="vm:PassRowViewModel">
+                  <Border Padding="6,4"
+                          CornerRadius="3"
+                          HorizontalAlignment="Stretch"
+                          Background="{Binding Highlight, Converter={x:Static theme:PassRowBackgroundConverter.Instance}}">
+                    <StackPanel Spacing="2">
+                      <DockPanel LastChildFill="True">
+                        <Border DockPanel.Dock="Right"
+                                Padding="10,4"
+                                CornerRadius="10"
+                                Margin="6,0,0,0"
+                                VerticalAlignment="Center"
+                                IsVisible="{Binding ShowBadge}"
+                                Background="{Binding Highlight, Converter={x:Static theme:PassRowBadgeBackgroundConverter.Instance}}">
+                          <TextBlock Text="{Binding BadgeText}"
+                                     FontSize="14"
+                                     FontWeight="SemiBold"
+                                     FontFamily="Consolas,Courier New,monospace"
+                                     Foreground="{DynamicResource PassImminentBadgeForegroundBrush}" />
+                        </Border>
+                        <TextBlock Text="{Binding SatelliteName}"
+                                   FontWeight="SemiBold"
+                                   FontSize="16"
+                                   TextTrimming="CharacterEllipsis" />
+                      </DockPanel>
+                      <TextBlock FontSize="15"
+                                 Text="{Binding TimeRangeLine}"
+                                 TextTrimming="CharacterEllipsis"
+                                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                      <TextBlock FontSize="15"
+                                 Text="{Binding DetailsLine}"
+                                 TextTrimming="CharacterEllipsis"
+                                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                    </StackPanel>
+                  </Border>
+                </DataTemplate>
+              </ListBox.DataTemplates>
+            </ListBox>
+          </DockPanel>
+        </Grid>
+      </Border>
+    </Grid>
+  </DockPanel>
+</Window>

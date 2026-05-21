@@ -1,0 +1,21 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="OscarWatch.App"
+             RequestedThemeVariant="Default">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+    </Application.Styles>
+
+    <Application.Resources>
+        <!-- Overridden per theme in AccessibilityThemeResources -->
+        <SolidColorBrush x:Key="PassHighlightBrush" Color="#2B6E1F" />
+        <SolidColorBrush x:Key="PassInProgressBackgroundBrush" Color="#D4EDCC" />
+        <SolidColorBrush x:Key="PassImminentBackgroundBrush" Color="#FFF0D4" />
+        <SolidColorBrush x:Key="PassImminentBadgeBackgroundBrush" Color="#E89B1E" />
+        <SolidColorBrush x:Key="PassImminentBadgeForegroundBrush" Color="#1A1A1A" />
+        <SolidColorBrush x:Key="StaleTleForegroundBrush" Color="#B45309" />
+    </Application.Resources>
+</Application>

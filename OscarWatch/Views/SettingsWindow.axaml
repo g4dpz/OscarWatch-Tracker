@@ -1,0 +1,131 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:models="using:OscarWatch.Core.Models"
+        x:Class="OscarWatch.Views.SettingsWindow"
+        x:DataType="vm:SettingsViewModel"
+        Title="Settings"
+        Width="480" Height="480"
+        MinWidth="420" MinHeight="360"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="0">
+    <Border DockPanel.Dock="Bottom"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="0,1,0,0"
+            Padding="12,10">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+        <Button Content="Cancel" Click="OnCancelClick" MinWidth="80" />
+        <Button Content="Save" Click="OnSaveClick" Classes="accent" MinWidth="80" IsDefault="True" />
+      </StackPanel>
+    </Border>
+
+    <TabControl Margin="12,12,12,8">
+      <TabControl.Styles>
+        <Style Selector="TabItem">
+          <Setter Property="FontSize" Value="14" />
+          <Setter Property="FontWeight" Value="SemiBold" />
+          <Setter Property="Padding" Value="10,7" />
+        </Style>
+        <Style Selector="TabItem TextBlock">
+          <Setter Property="FontSize" Value="14" />
+          <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style Selector="TabItem ScrollViewer StackPanel > TextBlock">
+          <Setter Property="FontSize" Value="12" />
+          <Setter Property="FontWeight" Value="Normal" />
+        </Style>
+        <Style Selector="TabItem ScrollViewer > TextBlock">
+          <Setter Property="FontSize" Value="11" />
+          <Setter Property="FontWeight" Value="Normal" />
+        </Style>
+      </TabControl.Styles>
+      <TabItem Header="Station">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+          <StackPanel Spacing="10" MaxWidth="420">
+            <TextBlock Text="Display name" />
+            <TextBox Text="{Binding DisplayName, Mode=TwoWay}" />
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+              <StackPanel Grid.Column="0" Spacing="4">
+                <TextBlock Text="Latitude (°)" />
+                <NumericUpDown Value="{Binding LatitudeDeg, Mode=TwoWay}"
+                               Minimum="-90" Maximum="90" FormatString="F4" />
+              </StackPanel>
+              <StackPanel Grid.Column="1" Spacing="4">
+                <TextBlock Text="Longitude (°)" />
+                <NumericUpDown Value="{Binding LongitudeDeg, Mode=TwoWay}"
+                               Minimum="-180" Maximum="180" FormatString="F4" />
+              </StackPanel>
+            </Grid>
+            <TextBlock Text="Maidenhead grid square" />
+            <TextBox Text="{Binding GridSquare, Mode=TwoWay}" MaxLength="8" />
+            <TextBlock Text="Altitude ASL (m)" />
+            <NumericUpDown Value="{Binding AltitudeMeters, Mode=TwoWay}"
+                           Minimum="0" Maximum="9000"
+                           Increment="0.1" FormatString="F1" />
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="Tracking">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+          <StackPanel Spacing="10" MaxWidth="420">
+            <TextBlock Text="Minimum elevation (°)" />
+            <NumericUpDown Value="{Binding MinimumElevationDeg, Mode=TwoWay}"
+                           Minimum="0" Maximum="90" FormatString="F1" />
+            <TextBlock Text="Pass prediction window (hours)" />
+            <NumericUpDown Value="{Binding PassPredictionHours, Mode=TwoWay}"
+                           Minimum="6" Maximum="168" FormatString="F0" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Used for the upcoming pass list and as defaults in the pass planner." />
+            <TextBlock Text="TLE updates" Margin="0,8,0,0" />
+            <ComboBox ItemsSource="{Binding TleAutoUpdateOptions}"
+                      SelectedItem="{Binding TleAutoUpdateOption, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:TleAutoUpdateOption">
+                  <TextBlock Text="{Binding Label}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="TLEs can also be refreshed anytime from Satellites → Refresh TLEs." />
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="Appearance">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+          <StackPanel Spacing="10" MaxWidth="420">
+            <TextBlock Text="Theme" />
+            <ComboBox ItemsSource="{Binding ThemeOptions}"
+                      SelectedItem="{Binding ThemePreference, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="models:AppThemePreference">
+                  <TextBlock Text="{Binding}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="System follows your OS light/dark setting. The world map image stays light in all modes for now." />
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="Rotator &amp; rig">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+          <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                     TextWrapping="Wrap"
+                     MaxWidth="420"
+                     Text="Rotator and rig control settings are reserved for a future release (Hamlib integration)." />
+        </ScrollViewer>
+      </TabItem>
+    </TabControl>
+  </DockPanel>
+</Window>
