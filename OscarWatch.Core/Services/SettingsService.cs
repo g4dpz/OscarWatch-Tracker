@@ -42,6 +42,8 @@ public sealed class SettingsService : ISettingsService
         Current.FrequencySelections ??= new Dictionary<string, SatelliteFrequencySelection>(StringComparer.OrdinalIgnoreCase);
         foreach (var selection in Current.FrequencySelections.Values)
             selection.ModeOffsets ??= new Dictionary<string, ModeOffsetSettings>(StringComparer.OrdinalIgnoreCase);
+        Current.Rotator ??= new RotatorSettings();
+        Current.Rig ??= new RigSettings();
         EnsureSavedStations();
 
         if (string.IsNullOrWhiteSpace(Current.GroundStation.GridSquare))

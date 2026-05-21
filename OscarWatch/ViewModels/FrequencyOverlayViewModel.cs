@@ -160,6 +160,28 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         DopplerShiftText = FrequencyDisplayFormat.FormatDopplerKHz(corrected.DopplerShiftKHz);
     }
 
+    public RigTrackingContext? TryBuildRigTrackingContext(SatelliteTrackState? state)
+    {
+        if (state is null || SelectedMode is null || state.LookAngles is null)
+            return null;
+
+        var corrected = DopplerFrequencyCalculator.Compute(
+            SelectedMode,
+            state.LookAngles.RangeRateKmPerSec,
+            TransmitOffsetKHz,
+            ReceiveOffsetKHz);
+
+        return new RigTrackingContext
+        {
+            TrackState = state,
+            Mode = SelectedMode,
+            Corrected = corrected,
+            TransmitOffsetKHz = TransmitOffsetKHz,
+            ReceiveOffsetKHz = ReceiveOffsetKHz,
+            SelectedCtcssHz = SelectedCtcssTone?.Hz
+        };
+    }
+
     public Thickness OverlayMargin => new(OverlayX, OverlayY, 0, 0);
 
     public void SetOverlayPosition(double x, double y, bool persist = false)

@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using OscarWatch.Core.Display;
+using OscarWatch.Core.Hardware;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
 using OscarWatch.Theme;
@@ -18,10 +19,14 @@ public partial class MainViewModel : ViewModelBase
     private readonly TrackingOrchestrator _tracking;
     private readonly ISpeechService _speech;
     private readonly RisingPassAnnouncer _passAnnouncer;
+    private readonly IRotatorController _rotator;
+    private readonly IRigController _rig;
     private readonly DispatcherTimer _timer;
 
     public FrequencyOverlayViewModel Frequencies { get; }
     private DispatcherTimer? _tleRefreshTimer;
+    private DispatcherTimer? _passListRefreshTimer;
+    private static readonly TimeSpan PassListRefreshInterval = TimeSpan.FromMinutes(15);
     private static readonly TimeSpan ImminentPassWindow = TimeSpan.FromMinutes(15);
 
     [ObservableProperty]
@@ -49,6 +54,36 @@ public partial class MainViewModel : ViewModelBase
     private string _nextPassText = "—";
 
     [ObservableProperty]
+    private bool _showRotatorStatus;
+
+    [ObservableProperty]
+    private string _rotatorAzimuthText = "—";
+
+    [ObservableProperty]
+    private string _rotatorElevationText = "—";
+
+    [ObservableProperty]
+    private bool _showRigStatus;
+
+    [ObservableProperty]
+    private string _rigStatusText = "—";
+
+    [ObservableProperty]
+    private string _rigReceiveText = "—";
+
+    [ObservableProperty]
+    private string _rigTransmitText = "—";
+
+    [ObservableProperty]
+    private bool _rigCatPaused;
+
+    [ObservableProperty]
+    private bool _showComPortConflict;
+
+    [ObservableProperty]
+    private string _comPortConflictText = "";
+
+    [ObservableProperty]
     private string? _focusedNoradId;
 
     public ObservableCollection<IPassListItem> Passes { get; } = [];
@@ -71,6 +106,8 @@ public partial class MainViewModel : ViewModelBase
         TrackingOrchestrator tracking,
         ISpeechService speech,
         RisingPassAnnouncer passAnnouncer,
+        IRotatorController rotator,
+        IRigController rig,
         FrequencyOverlayViewModel frequencies)
     {
         _settings = settings;
@@ -78,6 +115,8 @@ public partial class MainViewModel : ViewModelBase
         _tracking = tracking;
         _speech = speech;
         _passAnnouncer = passAnnouncer;
+        _rotator = rotator;
+        _rig = rig;
         Frequencies = frequencies;
 
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
@@ -90,6 +129,7 @@ public partial class MainViewModel : ViewModelBase
         await _settings.LoadAsync().ConfigureAwait(true);
         AppThemeManager.Apply(_settings.Current.Theme);
         RefreshGroundStationFromSettings();
+        RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
 
         StatusText = "Loading TLE catalog…";
         await _tleService.EnsureLoadedAsync().ConfigureAwait(true);
@@ -110,6 +150,7 @@ public partial class MainViewModel : ViewModelBase
         _tracking.ReloadEnabledSatellites();
         Tick();
         _timer.Start();
+        ConfigurePassListRefreshTimer();
 
         StatusText = "Computing passes…";
         await RefreshPassesAsync().ConfigureAwait(true);
@@ -127,8 +168,108 @@ public partial class MainViewModel : ViewModelBase
         UpdateLiveTelemetry(states);
         Frequencies.Update(GetFocusedTrackState(states, FocusedNoradId));
         UpdateNextPassCountdown();
+        PruneExpiredPasses();
         UpdatePassHighlightState();
         ProcessVoiceAnnouncements(states);
+        var focused = GetFocusedTrackState(states, FocusedNoradId);
+        UpdateComPortConflictState();
+        _rotator.Update(_settings.Current.Rotator, focused);
+        UpdateRotatorDisplay();
+        if (ShowComPortConflict)
+            _rig.Disconnect();
+        else
+            _rig.Update(_settings.Current.Rig, Frequencies.TryBuildRigTrackingContext(focused));
+        UpdateRigDisplay();
+    }
+
+    private void UpdateComPortConflictState()
+    {
+        ShowComPortConflict = SerialPortConflictHelper.TryDescribeConflict(
+            _settings.Current.Rotator,
+            _settings.Current.Rig,
+            out var message);
+        ComPortConflictText = message;
+    }
+
+    partial void OnRigCatPausedChanged(bool value)
+    {
+        if (_settings.Current.Rig.CatUpdatesPaused == value)
+            return;
+
+        _settings.Current.Rig.CatUpdatesPaused = value;
+        _ = _settings.SaveAsync();
+    }
+
+    private void UpdateRotatorDisplay()
+    {
+        if (!_settings.Current.Rotator.Enabled)
+        {
+            ShowRotatorStatus = false;
+            return;
+        }
+
+        ShowRotatorStatus = true;
+        var status = _rotator.GetPositionStatus();
+        RotatorAzimuthText = status is { IsConnected: true, AzimuthDeg: not null }
+            ? $"{status.AzimuthDeg.Value}°"
+            : "—";
+        RotatorElevationText = status is { IsConnected: true, ElevationDeg: not null }
+            ? $"{status.ElevationDeg.Value}°"
+            : "—";
+    }
+
+    private void UpdateRigDisplay()
+    {
+        if (!_settings.Current.Rig.Enabled)
+        {
+            ShowRigStatus = false;
+            return;
+        }
+
+        ShowRigStatus = true;
+        if (ShowComPortConflict)
+        {
+            RigStatusText = ComPortConflictText;
+            RigReceiveText = "—";
+            RigTransmitText = "—";
+            return;
+        }
+
+        var status = _rig.GetStatus();
+        RigCatPaused = status.CatUpdatesPaused;
+        RigStatusText = status.StatusMessage ?? (status.IsConnected ? "Connected" : "Disconnected");
+        RigReceiveText = status.LastReceiveHz is { } rx
+            ? FrequencyDisplayFormat.FormatMHz(rx / 1000.0)
+            : "—";
+        RigTransmitText = status.LastTransmitHz is { } tx
+            ? FrequencyDisplayFormat.FormatMHz(tx / 1000.0)
+            : "—";
+    }
+
+    private void ConfigurePassListRefreshTimer()
+    {
+        _passListRefreshTimer?.Stop();
+        _passListRefreshTimer = new DispatcherTimer { Interval = PassListRefreshInterval };
+        _passListRefreshTimer.Tick += async (_, _) => await RefreshPassesAsync();
+        _passListRefreshTimer.Start();
+    }
+
+    private void PruneExpiredPasses()
+    {
+        var now = DateTime.UtcNow;
+        var expired = Passes.OfType<PassRowViewModel>().Where(p => p.LosUtc < now).ToList();
+        if (expired.Count == 0)
+            return;
+
+        foreach (var pass in expired)
+            Passes.Remove(pass);
+
+        for (var i = Passes.Count - 1; i >= 0; i--)
+        {
+            if (Passes[i] is PassDayHeaderViewModel
+                && (i + 1 >= Passes.Count || Passes[i + 1] is PassDayHeaderViewModel))
+                Passes.RemoveAt(i);
+        }
     }
 
     private static SatelliteTrackState? GetFocusedTrackState(IReadOnlyList<SatelliteTrackState> states, string? focusedNoradId) =>
@@ -298,9 +439,12 @@ public partial class MainViewModel : ViewModelBase
         {
             ConfigureTleAutoUpdateTimer();
             _tracking.ReloadEnabledSatellites();
+            _rotator.Disconnect();
+            _rig.Disconnect();
             await RefreshPassesAsync();
             UpdateStatus();
             RefreshGroundStationFromSettings();
+            RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
             Tick();
         }
     }

@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using OscarWatch.Core.Services;
 using OscarWatch.Orbit;
 using OscarWatch.Core.Models;
+using OscarWatch.Rig;
+using OscarWatch.Rotator;
 using OscarWatch.Speech;
 using OscarWatch.Theme;
 using OscarWatch.ViewModels;
@@ -29,6 +31,8 @@ public partial class App : Application
         services.AddSingleton<ITleService, TleService>();
         services.AddSingleton<ISpeechService, PlatformSpeechService>();
         services.AddSingleton<RisingPassAnnouncer>();
+        services.AddSingleton<IRotatorController, RotatorController>();
+        services.AddSingleton<IRigController, RigController>();
         services.AddSingleton<ISatelliteDatabaseService>(_ =>
             new SatelliteDatabaseService(Path.Combine(AppContext.BaseDirectory, "Assets", "satellite_database.json")));
         services.AddSingleton<FrequencyOverlayViewModel>();

@@ -165,12 +165,178 @@
         </ScrollViewer>
       </TabItem>
 
-      <TabItem Header="Rotator &amp; rig">
+      <TabItem Header="Rotator">
         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
-          <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                     TextWrapping="Wrap"
-                     MaxWidth="420"
-                     Text="Rotator and rig control settings are reserved for a future release (Hamlib integration)." />
+          <StackPanel Spacing="10" MaxWidth="420">
+            <TextBlock Text="{Binding ComPortConflictText}"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding ShowComPortConflict}" />
+            <CheckBox Content="Enable rotator"
+                      IsChecked="{Binding RotatorEnabled, Mode=TwoWay}" />
+            <TextBlock Text="Rotator type" />
+            <ComboBox ItemsSource="{Binding RotatorTypeChoices}"
+                      SelectedItem="{Binding SelectedRotatorTypeChoice, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:RotatorTypeOption">
+                  <TextBlock Text="{Binding Label}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="GS-232 for Yaesu and many clones. EasyComm for SPID, M2, and other EasyComm-compatible controllers." />
+            <TextBlock Text="Serial port" />
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+              <ComboBox Grid.Column="0"
+                        ItemsSource="{Binding AvailableComPorts}"
+                        SelectedItem="{Binding SelectedComPort, Mode=TwoWay}"
+                        PlaceholderText="Select COM port"
+                        HorizontalAlignment="Stretch" />
+              <Button Grid.Column="1"
+                      Content="Refresh"
+                      Command="{Binding RefreshComPortsCommand}"
+                      MinWidth="72" />
+            </Grid>
+            <TextBlock Text="Baud rate" />
+            <ComboBox ItemsSource="{Binding BaudRateOptions}"
+                      SelectedItem="{Binding RotatorBaudRate, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch" />
+            <TextBlock Text="Azimuth range" />
+            <ComboBox ItemsSource="{Binding AzimuthRangeChoices}"
+                      SelectedItem="{Binding SelectedAzimuthRangeChoice, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:RotatorAzimuthOption">
+                  <TextBlock Text="{Binding Label}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Text="Elevation range" />
+            <ComboBox ItemsSource="{Binding ElevationRangeChoices}"
+                      SelectedItem="{Binding SelectedElevationRangeChoice, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:RotatorElevationOption">
+                  <TextBlock Text="{Binding Label}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Text="Start tracking at elevation (°)" Margin="0,8,0,0" />
+            <NumericUpDown Value="{Binding RotatorTrackStartElevationDeg, Mode=TwoWay}"
+                           Minimum="-30" Maximum="30"
+                           Increment="0.5" FormatString="F1" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Default is -3°. The rotator begins slewing when the tracked satellite rises above this elevation, and parks once it drops below." />
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,8,0,0">
+              <StackPanel Grid.Column="0" Spacing="4">
+                <TextBlock Text="Park azimuth (°)" />
+                <NumericUpDown Value="{Binding RotatorParkAzimuthDeg, Mode=TwoWay}"
+                               Minimum="0" Maximum="450"
+                               Increment="1" FormatString="F0" />
+              </StackPanel>
+              <StackPanel Grid.Column="1" Spacing="4">
+                <TextBlock Text="Park elevation (°)" />
+                <NumericUpDown Value="{Binding RotatorParkElevationDeg, Mode=TwoWay}"
+                               Minimum="0" Maximum="180"
+                               Increment="1" FormatString="F0" />
+              </StackPanel>
+            </Grid>
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Park position is used when no satellite is above the tracking threshold. The focused pass or live satellite is tracked automatically." />
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="Radio">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+          <StackPanel Spacing="10" MaxWidth="420">
+            <TextBlock Text="{Binding ComPortConflictText}"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding ShowComPortConflict}" />
+            <CheckBox Content="Enable radio control"
+                      IsChecked="{Binding RigEnabled, Mode=TwoWay}" />
+            <TextBlock Text="Radio driver" />
+            <ComboBox ItemsSource="{Binding RigTypeChoices}"
+                      SelectedItem="{Binding SelectedRigTypeChoice, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:RigTypeOption">
+                  <TextBlock Text="{Binding Label}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Text="Serial port" />
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+              <ComboBox Grid.Column="0"
+                        ItemsSource="{Binding AvailableComPorts}"
+                        SelectedItem="{Binding SelectedRigComPort, Mode=TwoWay}"
+                        PlaceholderText="Select COM port"
+                        HorizontalAlignment="Stretch" />
+              <Button Grid.Column="1"
+                      Content="Refresh"
+                      Command="{Binding RefreshComPortsCommand}"
+                      MinWidth="72" />
+            </Grid>
+            <TextBlock Text="Baud rate" />
+            <ComboBox ItemsSource="{Binding BaudRateOptions}"
+                      SelectedItem="{Binding RigBaudRate, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch" />
+            <TextBlock Text="CI-V address (hex)" />
+            <TextBox Text="{Binding RigCivAddress, Mode=TwoWay}"
+                     Watermark="60" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Default is 60 (hex) on most ICOM rigs. Use the address shown in the radio CI-V menu if CAT does not respond." />
+            <TextBlock Text="Region" />
+            <ComboBox ItemsSource="{Binding RigRegionChoices}"
+                      SelectedItem="{Binding SelectedRigRegionChoice, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:RigRegionOption">
+                  <TextBlock Text="{Binding Label}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="EU uses tone; USA uses tone squelch (subtone)." />
+            <TextBlock Text="Start tracking at elevation (°)" Margin="0,8,0,0" />
+            <NumericUpDown Value="{Binding RigTrackStartElevationDeg, Mode=TwoWay}"
+                           Minimum="-30" Maximum="30"
+                           Increment="0.5" FormatString="F1" />
+            <TextBlock Text="Doppler threshold FM (Hz)" />
+            <NumericUpDown Value="{Binding RigDopplerThresholdFmHz, Mode=TwoWay}"
+                           Minimum="0" Maximum="2000"
+                           Increment="10" FormatString="F0" />
+            <TextBlock Text="Doppler threshold SSB/CW (Hz)" />
+            <NumericUpDown Value="{Binding RigDopplerThresholdLinearHz, Mode=TwoWay}"
+                           Minimum="0" Maximum="500"
+                           Increment="5" FormatString="F0" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Frequencies are sent to the radio only when drift exceeds this interval (SatPC32-style)." />
+            <TextBlock Text="CAT delay (ms)" />
+            <NumericUpDown Value="{Binding RigCatDelayMs, Mode=TwoWay}"
+                           Minimum="0" Maximum="500"
+                           Increment="10" FormatString="F0" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Minimum time between CI-V commands to protect the serial link." />
+          </StackPanel>
         </ScrollViewer>
       </TabItem>
     </TabControl>

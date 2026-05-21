@@ -16,24 +16,6 @@ public sealed class AppSettings
     public Dictionary<string, SatelliteFrequencySelection> FrequencySelections { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public double FrequencyOverlayX { get; set; } = 12;
     public double FrequencyOverlayY { get; set; } = 12;
-    public RotatorSettingsStub Rotator { get; set; } = new();
-    public RigSettingsStub Rig { get; set; } = new();
-}
-
-public sealed class RotatorSettingsStub
-{
-    public bool Enabled { get; set; }
-    public string Port { get; set; } = "";
-    public string Type { get; set; } = "";
-    public double MinAzimuthDeg { get; set; }
-    public double MaxAzimuthDeg { get; set; } = 360;
-    public double MinElevationDeg { get; set; }
-    public double MaxElevationDeg { get; set; } = 90;
-}
-
-public sealed class RigSettingsStub
-{
-    public bool Enabled { get; set; }
-    public string Port { get; set; } = "";
-    public string Model { get; set; } = "";
+    public RotatorSettings Rotator { get; set; } = new();
+    public RigSettings Rig { get; set; } = new();
 }

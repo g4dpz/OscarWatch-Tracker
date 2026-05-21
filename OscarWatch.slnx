@@ -2,4 +2,5 @@
   <Project Path="OscarWatch.Core/OscarWatch.Core.csproj" />
   <Project Path="OscarWatch.Orbit/OscarWatch.Orbit.csproj" />
   <Project Path="OscarWatch/OscarWatch.csproj" />
+  <Project Path="OscarWatch.Tests/OscarWatch.Tests.csproj" />
 </Solution>

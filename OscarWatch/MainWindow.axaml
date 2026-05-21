@@ -85,6 +85,38 @@
                        TextWrapping="Wrap"
                        Foreground="{DynamicResource PassHighlightBrush}"
                        Margin="0,4,0,0" />
+            <StackPanel Spacing="4"
+                        Margin="0,8,0,0"
+                        IsVisible="{Binding ShowRotatorStatus}">
+              <TextBlock Text="Rotator" FontWeight="SemiBold" FontSize="12" />
+              <TextBlock FontSize="12">
+                <Run Text="Az: " /><Run Text="{Binding RotatorAzimuthText}" />
+              </TextBlock>
+              <TextBlock FontSize="12">
+                <Run Text="El: " /><Run Text="{Binding RotatorElevationText}" />
+              </TextBlock>
+            </StackPanel>
+            <TextBlock Text="{Binding ComPortConflictText}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       Margin="0,8,0,0"
+                       IsVisible="{Binding ShowComPortConflict}" />
+            <StackPanel Spacing="4"
+                        Margin="0,8,0,0"
+                        IsVisible="{Binding ShowRigStatus}">
+              <TextBlock Text="Radio" FontWeight="SemiBold" FontSize="12" />
+              <CheckBox Content="Pause CAT (manual tuning)"
+                        IsChecked="{Binding RigCatPaused, Mode=TwoWay}"
+                        FontSize="12" />
+              <TextBlock Text="{Binding RigStatusText}" FontSize="12" TextWrapping="Wrap" />
+              <TextBlock FontSize="12">
+                <Run Text="RX: " /><Run Text="{Binding RigReceiveText}" />
+              </TextBlock>
+              <TextBlock FontSize="12">
+                <Run Text="TX: " /><Run Text="{Binding RigTransmitText}" />
+              </TextBlock>
+            </StackPanel>
           </StackPanel>
 
           <Expander Grid.Row="2"
