@@ -225,6 +225,18 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private async Task OpenMutualPassFinderAsync()
+    {
+        var vm = App.Services.GetRequiredService<MutualPassViewModel>();
+        vm.Initialize();
+        var window = new MutualPassWindow { DataContext = vm };
+        if (App.MainWindow is null)
+            return;
+
+        await window.ShowDialog(App.MainWindow);
+    }
+
+    [RelayCommand]
     private async Task OpenSettingsAsync()
     {
         var vm = new SettingsViewModel(_settings);

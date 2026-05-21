@@ -9,6 +9,7 @@ namespace OscarWatch.Theme;
 /// </summary>
 public static class AccessibilityThemeResources
 {
+    public const string ThemeForegroundKey = "ThemeForegroundBrush";
     public const string PassHighlightKey = "PassHighlightBrush";
     public const string PassInProgressBackgroundKey = "PassInProgressBackgroundBrush";
     public const string PassImminentBackgroundKey = "PassImminentBackgroundBrush";
@@ -31,6 +32,8 @@ public static class AccessibilityThemeResources
             return;
 
         var isDark = Application.Current.ActualThemeVariant == ThemeVariant.Dark;
+        resources[ThemeForegroundKey] = new SolidColorBrush(
+            isDark ? Colors.White : Color.Parse("#1A1A1A"));
         resources[PassHighlightKey] = new SolidColorBrush(
             isDark ? Color.Parse("#9EDE6B") : Color.Parse("#2B6E1F"));
         resources[PassInProgressBackgroundKey] = new SolidColorBrush(

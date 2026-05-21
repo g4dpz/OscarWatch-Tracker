@@ -11,6 +11,7 @@
 
     <Application.Resources>
         <!-- Overridden per theme in AccessibilityThemeResources -->
+        <SolidColorBrush x:Key="ThemeForegroundBrush" Color="#1A1A1A" />
         <SolidColorBrush x:Key="PassHighlightBrush" Color="#2B6E1F" />
         <SolidColorBrush x:Key="PassInProgressBackgroundBrush" Color="#D4EDCC" />
         <SolidColorBrush x:Key="PassImminentBackgroundBrush" Color="#FFF0D4" />

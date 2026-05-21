@@ -143,6 +143,37 @@ public sealed class TrackingOrchestrator
             .ToList();
     }
 
+    public async Task<IReadOnlyList<MutualPassInfo>> GetMutualPassesAsync(
+        GroundStation localSite,
+        GroundStation remoteSite,
+        double minimumElevationDeg,
+        int predictionHours,
+        int minimumPassDurationMinutes,
+        int minimumMutualDurationMinutes,
+        CancellationToken cancellationToken = default)
+    {
+        var utcStart = DateTime.UtcNow;
+        var utcEnd = utcStart.AddHours(predictionHours);
+        var minPassDuration = TimeSpan.FromMinutes(Math.Max(0, minimumPassDurationMinutes));
+        var minMutualDuration = TimeSpan.FromMinutes(Math.Max(0, minimumMutualDurationMinutes));
+
+        var localPasses = new List<PassInfo>();
+        var remotePasses = new List<PassInfo>();
+
+        foreach (var sat in _tleService.GetEnabledSatellites(_settings.Current))
+        {
+            var passes = await _passPredictor.GetPassesAsync(
+                sat, localSite, utcStart, utcEnd, minimumElevationDeg, cancellationToken);
+            localPasses.AddRange(passes.Where(p => p.Duration >= minPassDuration));
+
+            passes = await _passPredictor.GetPassesAsync(
+                sat, remoteSite, utcStart, utcEnd, minimumElevationDeg, cancellationToken);
+            remotePasses.AddRange(passes.Where(p => p.Duration >= minPassDuration));
+        }
+
+        return MutualPassFinder.FindOverlaps(localPasses, remotePasses, minMutualDuration);
+    }
+
     private static double EstimatePeriodMinutes(SatelliteCatalogEntry sat)
     {
         if (sat.Line2.Length < 52)

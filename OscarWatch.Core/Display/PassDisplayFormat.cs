@@ -125,6 +125,22 @@ public static class PassDisplayFormat
         return $"Duration: {FormatDurationMinutes(duration)} | Max Elevation: {maxEl}";
     }
 
+    public static string FormatMutualWindowLine(
+        DateTime startUtc,
+        DateTime endUtc,
+        CultureInfo? culture = null)
+    {
+        culture ??= CultureInfo.CurrentCulture;
+        var timePattern = culture.DateTimeFormat.ShortTimePattern;
+        var startLocal = ToLocal(startUtc);
+        var endLocal = ToLocal(endUtc);
+        var startPart = startLocal.ToString(timePattern, culture);
+        var endPart = startLocal.Date == endLocal.Date
+            ? endLocal.ToString(timePattern, culture)
+            : endLocal.ToString($"dd/MM {timePattern}", culture);
+        return $"{startPart}–{endPart}";
+    }
+
     /// <summary>Minutes and seconds until AOS, e.g. <c>14:05</c>.</summary>
     public static string FormatCountdownToAos(DateTime utcNow, DateTime aosUtc)
     {
