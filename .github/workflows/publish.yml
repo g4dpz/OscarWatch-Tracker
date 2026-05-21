@@ -1,0 +1,143 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_VERSION: "10.0.x"
+  PROJECT: OscarWatch/OscarWatch.csproj
+
+jobs:
+  publish:
+    name: ${{ matrix.display_name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: win-x64
+            os: windows-latest
+            display_name: Windows x64
+            archive_ext: zip
+            publish_single_file: true
+          - rid: osx-arm64
+            os: macos-latest
+            display_name: macOS Apple Silicon
+            archive_ext: tar.gz
+            publish_single_file: false
+          - rid: osx-x64
+            os: macos-latest
+            display_name: macOS Intel
+            archive_ext: tar.gz
+            publish_single_file: false
+          - rid: linux-x64
+            os: ubuntu-latest
+            display_name: Linux x64
+            archive_ext: tar.gz
+            publish_single_file: false
+          - rid: linux-arm64
+            os: ubuntu-latest
+            display_name: Linux ARM64 (Raspberry Pi 64-bit)
+            archive_ext: tar.gz
+            publish_single_file: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Resolve version
+        id: version
+        shell: bash
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "value=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            short="${GITHUB_SHA::7}"
+            echo "value=0.0.0-ci.${short}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $out = "${{ runner.temp }}/publish-${{ matrix.rid }}"
+          $singleFile = "${{ matrix.publish_single_file }}"
+          dotnet publish "${{ env.PROJECT }}" `
+            -c Release `
+            -r "${{ matrix.rid }}" `
+            --self-contained true `
+            -p:Version="${{ steps.version.outputs.value }}" `
+            -p:AssemblyVersion="${{ steps.version.outputs.value }}" `
+            -p:FileVersion="${{ steps.version.outputs.value }}" `
+            -p:InformationalVersion="${{ steps.version.outputs.value }}" `
+            -p:PublishSingleFile=$singleFile `
+            -p:IncludeNativeLibrariesForSelfExtract=$singleFile `
+            -o $out
+
+      - name: Publish (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          out="${{ runner.temp }}/publish-${{ matrix.rid }}"
+          dotnet publish "${{ env.PROJECT }}" \
+            -c Release \
+            -r "${{ matrix.rid }}" \
+            --self-contained true \
+            -p:Version="${{ steps.version.outputs.value }}" \
+            -p:AssemblyVersion="${{ steps.version.outputs.value }}" \
+            -p:FileVersion="${{ steps.version.outputs.value }}" \
+            -p:InformationalVersion="${{ steps.version.outputs.value }}" \
+            -o "$out"
+
+      - name: Archive (zip)
+        if: matrix.archive_ext == 'zip'
+        shell: pwsh
+        run: |
+          $src = "${{ runner.temp }}/publish-${{ matrix.rid }}"
+          $dest = "${{ runner.temp }}/OscarWatch-${{ steps.version.outputs.value }}-${{ matrix.rid }}.zip"
+          Compress-Archive -Path "$src/*" -DestinationPath $dest -Force
+          echo "package=$dest" >> $env:GITHUB_OUTPUT
+        id: package
+
+      - name: Archive (tar.gz)
+        if: matrix.archive_ext == 'tar.gz'
+        shell: bash
+        run: |
+          src="${{ runner.temp }}/publish-${{ matrix.rid }}"
+          dest="${{ runner.temp }}/OscarWatch-${{ steps.version.outputs.value }}-${{ matrix.rid }}.tar.gz"
+          tar -czf "$dest" -C "$src" .
+          echo "package=$dest" >> "$GITHUB_OUTPUT"
+        id: package
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OscarWatch-${{ matrix.rid }}
+          path: ${{ steps.package.outputs.package }}
+          if-no-files-found: error
+
+  release:
+    name: GitHub Release
+    needs: publish
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**
+          generate_release_notes: true

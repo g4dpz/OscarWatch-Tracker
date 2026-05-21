@@ -67,12 +67,34 @@ If TTS is unavailable, the Voice tab shows a notice and announcements are skippe
 
 ## Cross-platform publish
 
+### GitHub Actions
+
+The [**Publish** workflow](.github/workflows/publish.yml) builds self-contained packages for:
+
+| Artifact | Runtime |
+|----------|---------|
+| `OscarWatch-win-x64` | Windows x64 |
+| `OscarWatch-osx-arm64` | macOS Apple Silicon |
+| `OscarWatch-osx-x64` | macOS Intel |
+| `OscarWatch-linux-x64` | Linux x64 |
+| `OscarWatch-linux-arm64` | Linux ARM64 (Raspberry Pi 64-bit OS) |
+
+- **Manual run:** GitHub → Actions → **Publish** → **Run workflow**
+- **Release:** push a tag like `v1.0.0` — artifacts are attached to a GitHub Release
+
+The [**Build** workflow](.github/workflows/build.yml) still compiles and runs tests on every push/PR.
+
+### Local publish
+
 ```bash
 # Windows
 dotnet publish OscarWatch/OscarWatch.csproj -c Release -r win-x64 --self-contained
 
 # macOS (Apple Silicon)
 dotnet publish OscarWatch/OscarWatch.csproj -c Release -r osx-arm64 --self-contained
+
+# macOS (Intel)
+dotnet publish OscarWatch/OscarWatch.csproj -c Release -r osx-x64 --self-contained
 
 # Linux x64
 dotnet publish OscarWatch/OscarWatch.csproj -c Release -r linux-x64 --self-contained
@@ -81,7 +103,7 @@ dotnet publish OscarWatch/OscarWatch.csproj -c Release -r linux-x64 --self-conta
 dotnet publish OscarWatch/OscarWatch.csproj -c Release -r linux-arm64 --self-contained
 ```
 
-Publish profiles are also available under `OscarWatch/Properties/PublishProfiles/`.
+Publish profiles are under `OscarWatch/Properties/PublishProfiles/` (e.g. `dotnet publish -p:PublishProfile=win-x64`).
 
 ## Orbit propagation
 
