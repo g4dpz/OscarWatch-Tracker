@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using OscarWatch.Core.Services;
 using OscarWatch.Orbit;
 using OscarWatch.Core.Models;
+using OscarWatch.Speech;
 using OscarWatch.Theme;
 using OscarWatch.ViewModels;
 
@@ -26,6 +27,8 @@ public partial class App : Application
         var services = new ServiceCollection();
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<ITleService, TleService>();
+        services.AddSingleton<ISpeechService, PlatformSpeechService>();
+        services.AddSingleton<RisingPassAnnouncer>();
         services.AddSingleton<TrackingOrchestrator>();
         services.AddOscarWatchOrbit();
         services.AddTransient<MainViewModel>();

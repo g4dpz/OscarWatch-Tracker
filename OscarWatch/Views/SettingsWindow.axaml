@@ -2,10 +2,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:OscarWatch.ViewModels"
         xmlns:models="using:OscarWatch.Core.Models"
+        xmlns:services="using:OscarWatch.Core.Services"
         x:Class="OscarWatch.Views.SettingsWindow"
         x:DataType="vm:SettingsViewModel"
         Title="Settings"
-        Width="480" Height="480"
+        Width="480" Height="520"
         MinWidth="420" MinHeight="360"
         WindowStartupLocation="CenterOwner">
   <DockPanel Margin="0">
@@ -114,6 +115,52 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="System follows your OS light/dark setting. The world map image stays light in all modes for now." />
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="Voice">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+          <StackPanel Spacing="10" MaxWidth="420">
+            <CheckBox Content="Enable voice announcements"
+                      IsChecked="{Binding VoiceAnnouncementsEnabled, Mode=TwoWay}" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Announces each enabled satellite once per pass when it crosses the elevation threshold while rising, for example: Alpha Oscar Zero Seven is rising." />
+            <TextBlock Text="Announce at elevation (°)" Margin="0,8,0,0" />
+            <NumericUpDown Value="{Binding AnnounceElevationDeg, Mode=TwoWay}"
+                           Minimum="-10" Maximum="30"
+                           Increment="0.5" FormatString="F1" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Default is -3°. The announcement fires when elevation rises through this value (negative values catch the satellite before it clears the horizon)." />
+            <TextBlock Text="Voice" Margin="0,8,0,0" />
+            <ComboBox ItemsSource="{Binding SpeechVoiceOptions}"
+                      SelectedItem="{Binding SelectedSpeechVoice, Mode=TwoWay}"
+                      IsEnabled="{Binding SpeechAvailable}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="services:SpeechVoiceOption">
+                  <TextBlock Text="{Binding DisplayName}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding SpeechUnavailable}"
+                       Text="Text-to-speech is not available on this system." />
+            <TextBlock Text="Preview" Margin="0,8,0,0" />
+            <TextBlock Text="{Binding VoicePreviewText}"
+                       TextWrapping="Wrap"
+                       FontStyle="Italic" />
+            <Button Content="Test announcement"
+                    Command="{Binding TestVoiceAnnouncementCommand}"
+                    IsEnabled="{Binding SpeechAvailable}"
+                    HorizontalAlignment="Left"
+                    MinWidth="140" />
           </StackPanel>
         </ScrollViewer>
       </TabItem>

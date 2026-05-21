@@ -21,14 +21,41 @@ dotnet run -c Release --project OscarWatch/OscarWatch.csproj
 
 ## Features
 
-- **World map** — equirectangular Earth texture with satellite subpoint, ground track, and footprint overlays
+- **World map** — equirectangular Earth texture with satellite subpoint, ground track, and visibility footprint overlays (including correct rendering near the poles)
+- **Sky plot** — polar view of satellite azimuth/elevation relative to your station; click to focus a spacecraft on the map
 - **TLE catalog** — fetched from `https://tle.oscarwatch.org/`, cached under `%AppData%/OscarWatch/`
+- **TLE auto-update** — manual refresh, on startup (if stale), or every 6 hours while running (Settings → Tracking)
 - **Satellite picker** — choose which spacecraft to track
-- **Ground station settings** — latitude, longitude, Maidenhead grid square, altitude ASL
-- **Appearance** — light, dark, or system theme (sky plot adapts; world map image stays light)
 - **Pass predictions** — upcoming passes with TCA (time of closest approach / max elevation), min-elevation and min-duration filters
 - **Pass planner** — multi-station profiles (home / portable), pass quality filters, and `.ics` calendar export for contest or field-day planning
-- **Live telemetry** — azimuth, elevation, range updated every second (UTC)
+- **Mutual pass finder** — find passes visible from two stations at once (Passes → Mutual pass finder)
+- **Live telemetry** — azimuth, elevation, range, and altitude updated every second (UTC)
+- **Voice announcements** — optional spoken “rising” alerts when a satellite crosses a configurable elevation while ascending (e.g. “Alpha Oscar Zero Seven is rising”); Settings → Voice
+- **Appearance** — light, dark, or system theme (sky plot adapts; world map image stays light)
+
+## Settings
+
+Open **Settings** from the menu. Tabs:
+
+| Tab | Purpose |
+|-----|---------|
+| **Station** | Display name, latitude/longitude, Maidenhead grid square, altitude ASL |
+| **Tracking** | Minimum pass elevation, prediction window, TLE auto-update mode |
+| **Appearance** | Light / dark / system theme |
+| **Voice** | Enable announcements, trigger elevation (default −3°), voice selection, test button |
+| **Rotator & rig** | Placeholder for future Hamlib integration |
+
+Settings are stored in `%AppData%/OscarWatch/settings.json`.
+
+### Voice announcements (platform notes)
+
+| Platform | Text-to-speech |
+|----------|----------------|
+| **Windows** | Built-in (`System.Speech`) |
+| **macOS** | Built-in (`/usr/bin/say`) |
+| **Linux** | Requires `espeak-ng` (preferred) or `spd-say` on `PATH` |
+
+If TTS is unavailable, the Voice tab shows a notice and announcements are skipped.
 
 ## Settings location
 
@@ -63,7 +90,7 @@ Uses [OrbitTools](http://www.zeptomoby.com/satellites/) Public Edition via [Zept
 
 | Project | Role |
 |---------|------|
-| `OscarWatch.Core` | Models, TLE parser, settings, Maidenhead grid, orbit interfaces |
+| `OscarWatch.Core` | Models, TLE parser, settings, Maidenhead grid, orbit interfaces, voice/phonetics |
 | `OscarWatch.Orbit` | OrbitTools adapters, pass predictor, ground geometry |
 | `OscarWatch` | Avalonia UI |
 

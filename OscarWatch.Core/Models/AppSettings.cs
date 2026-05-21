@@ -12,6 +12,7 @@ public sealed class AppSettings
     public int TleStaleHours { get; set; } = 6;
     public TleAutoUpdateMode TleAutoUpdate { get; set; } = TleAutoUpdateMode.OnStartup;
     public AppThemePreference Theme { get; set; } = AppThemePreference.System;
+    public VoiceAnnouncementSettings VoiceAnnouncements { get; set; } = new();
     public RotatorSettingsStub Rotator { get; set; } = new();
     public RigSettingsStub Rig { get; set; } = new();
 }

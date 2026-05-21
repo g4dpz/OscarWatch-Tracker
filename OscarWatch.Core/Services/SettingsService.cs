@@ -38,6 +38,7 @@ public sealed class SettingsService : ISettingsService
         var json = File.ReadAllText(SettingsPath);
         Current = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new AppSettings();
         Current.GroundStation ??= new GroundStation();
+        Current.VoiceAnnouncements ??= new VoiceAnnouncementSettings();
         EnsureSavedStations();
 
         if (string.IsNullOrWhiteSpace(Current.GroundStation.GridSquare))

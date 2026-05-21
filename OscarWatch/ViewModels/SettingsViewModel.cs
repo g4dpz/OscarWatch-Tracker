@@ -1,4 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using OscarWatch.Core.Display;
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
@@ -9,6 +11,7 @@ namespace OscarWatch.ViewModels;
 public partial class SettingsViewModel : ViewModelBase
 {
     private readonly ISettingsService _settings;
+    private readonly ISpeechService _speech;
     private readonly GroundStation _draft = new();
     private bool _isSynchronizing;
 
@@ -39,6 +42,23 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty]
     private TleAutoUpdateOption? _tleAutoUpdateOption;
 
+    [ObservableProperty]
+    private bool _voiceAnnouncementsEnabled;
+
+    [ObservableProperty]
+    private double _announceElevationDeg = -3;
+
+    [ObservableProperty]
+    private SpeechVoiceOption? _selectedSpeechVoice;
+
+    public bool SpeechAvailable { get; }
+
+    public bool SpeechUnavailable => !SpeechAvailable;
+
+    public string VoicePreviewText { get; } = SatelliteNamePhonetics.SampleAnnouncementText;
+
+    public IReadOnlyList<SpeechVoiceOption> SpeechVoiceOptions { get; }
+
     public AppThemePreference[] ThemeOptions { get; } =
         Enum.GetValues<AppThemePreference>();
 
@@ -49,9 +69,12 @@ public partial class SettingsViewModel : ViewModelBase
         new(TleAutoUpdateMode.EverySixHours, "Every 6 hours while running")
     ];
 
-    public SettingsViewModel(ISettingsService settings)
+    public SettingsViewModel(ISettingsService settings, ISpeechService speech)
     {
         _settings = settings;
+        _speech = speech;
+        SpeechAvailable = speech.IsAvailable;
+        SpeechVoiceOptions = speech.GetAvailableVoices();
         CopyGroundStation(settings.Current.GroundStation, _draft);
         LoadFromDraft();
     }
@@ -69,10 +92,29 @@ public partial class SettingsViewModel : ViewModelBase
         _settings.Current.MinimumElevationDeg = MinimumElevationDeg;
         _settings.Current.PassPredictionHours = PassPredictionHours;
         _settings.Current.Theme = ThemePreference;
+        if (TleAutoUpdateOption is not null)
+            _settings.Current.TleAutoUpdate = TleAutoUpdateOption.Mode;
+        _settings.Current.VoiceAnnouncements = new VoiceAnnouncementSettings
+        {
+            Enabled = VoiceAnnouncementsEnabled,
+            AnnounceElevationDeg = AnnounceElevationDeg,
+            VoiceName = SelectedSpeechVoice?.Id ?? ""
+        };
         _settings.SyncActiveStationFromGroundStation();
         AppThemeManager.Apply(ThemePreference);
         await _settings.SaveAsync().ConfigureAwait(true);
     }
+
+    [RelayCommand(CanExecute = nameof(CanTestVoiceAnnouncement))]
+    private async Task TestVoiceAnnouncementAsync()
+    {
+        var voiceName = SelectedSpeechVoice?.Id;
+        await _speech.SpeakAsync(
+            VoicePreviewText,
+            string.IsNullOrWhiteSpace(voiceName) ? null : voiceName).ConfigureAwait(true);
+    }
+
+    private bool CanTestVoiceAnnouncement() => SpeechAvailable;
 
     private void LoadFromDraft()
     {
@@ -89,6 +131,12 @@ public partial class SettingsViewModel : ViewModelBase
             ThemePreference = _settings.Current.Theme;
             TleAutoUpdateOption = TleAutoUpdateOptions.FirstOrDefault(o => o.Mode == _settings.Current.TleAutoUpdate)
                 ?? TleAutoUpdateOptions[1];
+
+            var voice = _settings.Current.VoiceAnnouncements ?? new VoiceAnnouncementSettings();
+            VoiceAnnouncementsEnabled = voice.Enabled;
+            AnnounceElevationDeg = voice.AnnounceElevationDeg;
+            SelectedSpeechVoice = SpeechVoiceOptions.FirstOrDefault(v => v.Id == voice.VoiceName)
+                ?? SpeechVoiceOptions.FirstOrDefault();
         }
         finally
         {

@@ -16,6 +16,8 @@ public partial class MainViewModel : ViewModelBase
     private readonly ISettingsService _settings;
     private readonly ITleService _tleService;
     private readonly TrackingOrchestrator _tracking;
+    private readonly ISpeechService _speech;
+    private readonly RisingPassAnnouncer _passAnnouncer;
     private readonly DispatcherTimer _timer;
     private DispatcherTimer? _tleRefreshTimer;
     private static readonly TimeSpan ImminentPassWindow = TimeSpan.FromMinutes(15);
@@ -64,11 +66,15 @@ public partial class MainViewModel : ViewModelBase
     public MainViewModel(
         ISettingsService settings,
         ITleService tleService,
-        TrackingOrchestrator tracking)
+        TrackingOrchestrator tracking,
+        ISpeechService speech,
+        RisingPassAnnouncer passAnnouncer)
     {
         _settings = settings;
         _tleService = tleService;
         _tracking = tracking;
+        _speech = speech;
+        _passAnnouncer = passAnnouncer;
 
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += (_, _) => Tick();
@@ -117,6 +123,34 @@ public partial class MainViewModel : ViewModelBase
         UpdateLiveTelemetry(states);
         UpdateNextPassCountdown();
         UpdatePassHighlightState();
+        ProcessVoiceAnnouncements(states);
+    }
+
+    private void ProcessVoiceAnnouncements(IReadOnlyList<SatelliteTrackState> states)
+    {
+        var voiceSettings = _settings.Current.VoiceAnnouncements;
+        if (voiceSettings is null || !voiceSettings.Enabled)
+            return;
+
+        _passAnnouncer.Process(states, voiceSettings, text =>
+        {
+            var voiceName = voiceSettings.VoiceName;
+            _ = SpeakAnnouncementAsync(text, voiceName);
+        });
+    }
+
+    private async Task SpeakAnnouncementAsync(string text, string voiceName)
+    {
+        try
+        {
+            await _speech.SpeakAsync(
+                text,
+                string.IsNullOrWhiteSpace(voiceName) ? null : voiceName).ConfigureAwait(false);
+        }
+        catch
+        {
+            // speech failures should not interrupt tracking
+        }
     }
 
     private void UpdatePassHighlightState()
@@ -239,7 +273,7 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private async Task OpenSettingsAsync()
     {
-        var vm = new SettingsViewModel(_settings);
+        var vm = App.Services.GetRequiredService<SettingsViewModel>();
         var window = new SettingsWindow { DataContext = vm };
         if (App.MainWindow is null)
             return;
