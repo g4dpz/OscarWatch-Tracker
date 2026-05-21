@@ -49,4 +49,24 @@ public partial class SettingsWindow : Window
     }
 
     private void OnCancelClick(object? sender, RoutedEventArgs e) => Close(false);
+
+    private async void OnTestCloudlogClick(object? sender, RoutedEventArgs e)
+    {
+        var testButton = sender as Button;
+        if (testButton is not null)
+            testButton.IsEnabled = false;
+
+        try
+        {
+            TopLevel.GetTopLevel(this)?.FocusManager?.ClearFocus();
+
+            if (DataContext is SettingsViewModel vm)
+                await vm.TestCloudlogAsync().ConfigureAwait(true);
+        }
+        finally
+        {
+            if (testButton is not null)
+                testButton.IsEnabled = true;
+        }
+    }
 }

@@ -48,6 +48,7 @@ Open **Settings** from the menu. Tabs:
 | **Voice** | Enable announcements, trigger elevation (default −3°), voice selection, test button |
 | **Rotator** | GS-232 serial rotator (manual + pass tracking) |
 | **Radio** | IC-910 / IC-9700 CI-V (COM port, region, doppler thresholds, pause CAT) |
+| **Cloudlog** | Radio API URL, API key, radio name (default OscarWatch); posts SAT uplink/downlink when tracking |
 
 Settings are stored in `%AppData%/OscarWatch/settings.json`.
 

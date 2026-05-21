@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using OscarWatch.Core.Cloudlog;
 using OscarWatch.Core.Display;
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Hardware;
@@ -15,6 +16,7 @@ public partial class SettingsViewModel : ViewModelBase
 {
     private readonly ISettingsService _settings;
     private readonly ISpeechService _speech;
+    private readonly ICloudlogRadioSyncService _cloudlog;
     private readonly GroundStation _draft = new();
     private bool _isSynchronizing;
 
@@ -157,6 +159,24 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty]
     private string _comPortConflictText = "";
 
+    [ObservableProperty]
+    private bool _cloudlogEnabled;
+
+    [ObservableProperty]
+    private string _cloudlogBaseUrl = "";
+
+    [ObservableProperty]
+    private string _cloudlogApiKey = "";
+
+    [ObservableProperty]
+    private string _cloudlogRadioName = "OscarWatch";
+
+    [ObservableProperty]
+    private int _cloudlogMinUpdateIntervalMs = 1000;
+
+    [ObservableProperty]
+    private string _cloudlogTestStatus = "";
+
     public IReadOnlyList<RigTypeOption> RigTypeChoices { get; } =
     [
         new(RigType.IcomIc910, "ICOM IC-910"),
@@ -170,10 +190,14 @@ public partial class SettingsViewModel : ViewModelBase
         new(RigRegion.USA, "USA")
     ];
 
-    public SettingsViewModel(ISettingsService settings, ISpeechService speech)
+    public SettingsViewModel(
+        ISettingsService settings,
+        ISpeechService speech,
+        ICloudlogRadioSyncService cloudlog)
     {
         _settings = settings;
         _speech = speech;
+        _cloudlog = cloudlog;
         SpeechAvailable = speech.IsAvailable;
         SpeechVoiceOptions = speech.GetAvailableVoices();
         CopyGroundStation(settings.Current.GroundStation, _draft);
@@ -241,6 +265,15 @@ public partial class SettingsViewModel : ViewModelBase
             CatDelayMs = RigCatDelayMs,
             CatUpdatesPaused = _settings.Current.Rig.CatUpdatesPaused
         };
+        _settings.Current.Cloudlog = new CloudlogSettings
+        {
+            Enabled = CloudlogEnabled,
+            BaseUrl = CloudlogUrlHelper.NormalizeBaseUrl(CloudlogBaseUrl),
+            ApiKey = CloudlogApiKey.Trim(),
+            RadioName = string.IsNullOrWhiteSpace(CloudlogRadioName) ? "OscarWatch" : CloudlogRadioName.Trim(),
+            MinUpdateIntervalMs = Math.Clamp(CloudlogMinUpdateIntervalMs, 250, 60_000)
+        };
+        _cloudlog.ResetThrottle();
         _settings.SyncActiveStationFromGroundStation();
         AppThemeManager.Apply(ThemePreference);
         await _settings.SaveAsync().ConfigureAwait(true);
@@ -306,11 +339,49 @@ public partial class SettingsViewModel : ViewModelBase
             RigDopplerThresholdFmHz = rig.DopplerThresholdFmHz;
             RigDopplerThresholdLinearHz = rig.DopplerThresholdLinearHz;
             RigCatDelayMs = rig.CatDelayMs;
+            var cloudlog = _settings.Current.Cloudlog ?? new CloudlogSettings();
+            CloudlogEnabled = cloudlog.Enabled;
+            CloudlogBaseUrl = cloudlog.BaseUrl;
+            CloudlogApiKey = cloudlog.ApiKey;
+            CloudlogRadioName = string.IsNullOrWhiteSpace(cloudlog.RadioName) ? "OscarWatch" : cloudlog.RadioName;
+            CloudlogMinUpdateIntervalMs = cloudlog.MinUpdateIntervalMs <= 0 ? 1000 : cloudlog.MinUpdateIntervalMs;
+            CloudlogTestStatus = "";
             RefreshComPortConflict();
         }
         finally
         {
             _isSynchronizing = false;
+        }
+    }
+
+    public async Task TestCloudlogAsync()
+    {
+        try
+        {
+            CloudlogTestStatus = "Testing…";
+            var settings = new CloudlogSettings
+            {
+                Enabled = true,
+                BaseUrl = CloudlogUrlHelper.NormalizeBaseUrl(CloudlogBaseUrl),
+                ApiKey = CloudlogApiKey.Trim(),
+                RadioName = string.IsNullOrWhiteSpace(CloudlogRadioName) ? "OscarWatch" : CloudlogRadioName.Trim()
+            };
+
+            if (string.IsNullOrWhiteSpace(settings.BaseUrl) || string.IsNullOrWhiteSpace(settings.ApiKey))
+            {
+                CloudlogTestStatus = "Enter URL and API key (tab out of each field or click Test again).";
+                return;
+            }
+
+            var endpoint = $"{settings.BaseUrl}/index.php/api/radio";
+            var ok = await _cloudlog.TestConnectionAsync(settings).ConfigureAwait(true);
+            CloudlogTestStatus = ok
+                ? $"Connection OK — posted test CAT to {endpoint}"
+                : _cloudlog.LastError ?? "Connection failed.";
+        }
+        catch (Exception ex)
+        {
+            CloudlogTestStatus = ex.Message;
         }
     }
 

@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
+using OscarWatch.Core.Cloudlog;
 using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Radio;
@@ -174,6 +175,21 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         SatelliteTransmitText = IsBeaconOnly ? "—" : FrequencyDisplayFormat.FormatMHz(corrected.SatelliteTransmitKHz);
         SatelliteReceiveText = FrequencyDisplayFormat.FormatMHz(corrected.SatelliteReceiveKHz);
         DopplerShiftText = FrequencyDisplayFormat.FormatDopplerKHz(corrected.DopplerShiftKHz);
+    }
+
+    public CloudlogRadioUpdate? TryBuildCloudlogUpdate(SatelliteTrackState? state)
+    {
+        if (state is null || SelectedMode is null)
+            return null;
+
+        var rangeRate = state.LookAngles?.RangeRateKmPerSec ?? _lastRangeRateKmPerSec;
+        var corrected = DopplerFrequencyCalculator.Compute(
+            SelectedMode,
+            rangeRate,
+            TransmitOffsetKHz,
+            ReceiveOffsetKHz);
+
+        return CloudlogRadioMapper.TryCreate(state.Name, SelectedMode, corrected);
     }
 
     public RigTrackingContext? TryBuildRigTrackingContext(SatelliteTrackState? state)

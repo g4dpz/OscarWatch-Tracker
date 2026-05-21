@@ -255,6 +255,44 @@
         </ScrollViewer>
       </TabItem>
 
+      <TabItem Header="Cloudlog">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+          <StackPanel Spacing="10" MaxWidth="420">
+            <TextBlock TextWrapping="Wrap"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       Text="Posts satellite TX/RX to Cloudlog CAT (API v2 /index.php/api/radio) when you select a satellite or frequencies update." />
+            <CheckBox Content="Enable Cloudlog radio API (required for live updates)"
+                      IsChecked="{Binding CloudlogEnabled, Mode=TwoWay}" />
+            <TextBlock Text="Cloudlog base URL" />
+            <TextBox Text="{Binding CloudlogBaseUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Watermark="https://your.cloudlog.site" />
+            <TextBlock Text="API key" />
+            <TextBox Text="{Binding CloudlogApiKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Watermark="read/write API key" />
+            <TextBlock Text="Radio name in Cloudlog" />
+            <TextBox Text="{Binding CloudlogRadioName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Watermark="OscarWatch" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Default is OscarWatch. Must match a radio entry Cloudlog can assign QSOs to." />
+            <TextBlock Text="Minimum update interval (ms)" />
+            <NumericUpDown Value="{Binding CloudlogMinUpdateIntervalMs, Mode=TwoWay}"
+                           Minimum="250" Maximum="60000"
+                           Increment="250" FormatString="F0" />
+            <Button Content="Test connection"
+                    Click="OnTestCloudlogClick"
+                    HorizontalAlignment="Left" />
+            <TextBlock Text="{Binding CloudlogTestStatus}"
+                       TextWrapping="Wrap"
+                       FontSize="12"
+                       MinHeight="20"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
       <TabItem Header="Radio">
         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
           <StackPanel Spacing="10" MaxWidth="420">

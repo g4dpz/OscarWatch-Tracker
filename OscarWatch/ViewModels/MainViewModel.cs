@@ -22,7 +22,9 @@ public partial class MainViewModel : ViewModelBase
     private readonly RisingPassAnnouncer _passAnnouncer;
     private readonly IRotatorController _rotator;
     private readonly IRigController _rig;
+    private readonly ICloudlogRadioSyncService _cloudlog;
     private readonly DispatcherTimer _timer;
+    private string? _lastCloudlogErrorShown;
 
     public FrequencyOverlayViewModel Frequencies { get; }
     private DispatcherTimer? _tleRefreshTimer;
@@ -112,6 +114,7 @@ public partial class MainViewModel : ViewModelBase
         RisingPassAnnouncer passAnnouncer,
         IRotatorController rotator,
         IRigController rig,
+        ICloudlogRadioSyncService cloudlog,
         FrequencyOverlayViewModel frequencies)
     {
         _settings = settings;
@@ -121,6 +124,7 @@ public partial class MainViewModel : ViewModelBase
         _passAnnouncer = passAnnouncer;
         _rotator = rotator;
         _rig = rig;
+        _cloudlog = cloudlog;
         Frequencies = frequencies;
         Frequencies.OffsetsChanged += (_, _) => ScheduleRigOffsetRefresh();
         Frequencies.CtcssChanged += (_, _) => RefreshRigFromOverlay();
@@ -157,6 +161,7 @@ public partial class MainViewModel : ViewModelBase
         var focused = GetFocusedTrackState(_tracking.GetLiveStates(DateTime.UtcNow), FocusedNoradId);
         _rig.Update(_settings.Current.Rig, Frequencies.TryBuildRigTrackingContext(focused));
         UpdateRigDisplay();
+        PushCloudlogRadio(focused);
     }
 
     public async Task InitializeAsync()
@@ -216,6 +221,22 @@ public partial class MainViewModel : ViewModelBase
         else
             _rig.Update(_settings.Current.Rig, Frequencies.TryBuildRigTrackingContext(focused));
         UpdateRigDisplay();
+        PushCloudlogRadio(focused);
+    }
+
+    private void PushCloudlogRadio(SatelliteTrackState? focused)
+    {
+        var update = Frequencies.TryBuildCloudlogUpdate(focused);
+        _cloudlog.Publish(_settings.Current.Cloudlog, update);
+
+        var error = _cloudlog.LastError;
+        if (!string.IsNullOrEmpty(error) && !string.Equals(_lastCloudlogErrorShown, error, StringComparison.Ordinal))
+        {
+            _lastCloudlogErrorShown = error;
+            StatusText = $"Cloudlog: {error}";
+        }
+        else if (string.IsNullOrEmpty(error))
+            _lastCloudlogErrorShown = null;
     }
 
     private void UpdateComPortConflictState()
@@ -402,6 +423,7 @@ public partial class MainViewModel : ViewModelBase
                 ? null
                 : LiveStates.FirstOrDefault(s => s.NoradId == value);
             Frequencies.Update(focused);
+            PushCloudlogRadio(focused);
         }
 
         if (value is null)
@@ -490,6 +512,7 @@ public partial class MainViewModel : ViewModelBase
             _tracking.ReloadEnabledSatellites();
             _rotator.Disconnect();
             _rig.Disconnect();
+            _cloudlog.ResetThrottle();
             await RefreshPassesAsync();
             UpdateStatus();
             RefreshGroundStationFromSettings();

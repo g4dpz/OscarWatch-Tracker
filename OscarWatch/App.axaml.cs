@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using OscarWatch.Core.Services;
 using OscarWatch.Orbit;
 using OscarWatch.Core.Models;
+using OscarWatch.Cloudlog;
 using OscarWatch.Rig;
 using OscarWatch.Rotator;
 using OscarWatch.Speech;
@@ -33,6 +34,7 @@ public partial class App : Application
         services.AddSingleton<RisingPassAnnouncer>();
         services.AddSingleton<IRotatorController, RotatorController>();
         services.AddSingleton<IRigController, RigController>();
+        services.AddSingleton<ICloudlogRadioSyncService, CloudlogRadioSyncService>();
         var bundledDb = Path.Combine(AppContext.BaseDirectory, "Assets", "satellite_database.json");
         services.AddSingleton<ISatelliteDatabaseService>(_ =>
             new SatelliteDatabaseService(bundledDb));

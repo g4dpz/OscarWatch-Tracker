@@ -44,6 +44,7 @@ public sealed class SettingsService : ISettingsService
             selection.ModeOffsets ??= new Dictionary<string, ModeOffsetSettings>(StringComparer.OrdinalIgnoreCase);
         Current.Rotator ??= new RotatorSettings();
         Current.Rig ??= new RigSettings();
+        Current.Cloudlog ??= new CloudlogSettings();
         EnsureSavedStations();
 
         if (string.IsNullOrWhiteSpace(Current.GroundStation.GridSquare))

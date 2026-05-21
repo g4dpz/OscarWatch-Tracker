@@ -74,6 +74,13 @@ Pull an authoritative `satellite_database.json` from a remote URL and merge it w
 
 ---
 
+## Cloudlog
+
+- [x] Radio API v2 (`/index.php/api/radio`) on satellite select / frequency update (Settings → Cloudlog).
+- [ ] Optional: Wavelog-specific testing; legacy satellite JSON fields (`uplink_freq`, `satmode`) if needed for older installs.
+
+---
+
 ## General
 
 - [ ] Document workflow: editing repo `satellite_database.json` vs user AppData copy vs future remote sync.

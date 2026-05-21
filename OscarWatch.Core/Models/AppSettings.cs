@@ -18,4 +18,5 @@ public sealed class AppSettings
     public double FrequencyOverlayY { get; set; } = 12;
     public RotatorSettings Rotator { get; set; } = new();
     public RigSettings Rig { get; set; } = new();
+    public CloudlogSettings Cloudlog { get; set; } = new();
 }
