@@ -69,7 +69,14 @@ If TTS is unavailable, the Voice tab shows a notice and announcements are skippe
 
 ### GitHub Actions
 
-The [**Publish** workflow](.github/workflows/publish.yml) builds self-contained packages for:
+Two workflows — different jobs:
+
+| Workflow | When it runs | What you get |
+|----------|----------------|--------------|
+| [**CI**](.github/workflows/build.yml) | Every push / PR to `main` | Build + tests only (one Linux job, no downloads) |
+| [**Publish**](.github/workflows/publish.yml) | Manual run, or tag `v*` | Installable packages per platform |
+
+**Publish** artifacts:
 
 | Artifact | Runtime |
 |----------|---------|
@@ -79,10 +86,8 @@ The [**Publish** workflow](.github/workflows/publish.yml) builds self-contained 
 | `OscarWatch-linux-x64` | Linux x64 |
 | `OscarWatch-linux-arm64` | Linux ARM64 (Raspberry Pi 64-bit OS) |
 
-- **Manual run:** GitHub → Actions → **Publish** → **Run workflow**
-- **Release:** push a tag like `v1.0.0` — artifacts are attached to a GitHub Release
-
-The [**Build** workflow](.github/workflows/build.yml) still compiles and runs tests on every push/PR.
+- **Manual run:** Actions → **Publish** → **Run workflow**
+- **Release:** `git tag v1.0.0 && git push origin v1.0.0` → GitHub Release with all archives
 
 ### Local publish
 

@@ -1,4 +1,7 @@
-name: Build
+# Compile and test on every push/PR. Does NOT produce release packages.
+# Installers for Windows, macOS, Linux, and Raspberry Pi: see publish.yml
+
+name: CI
 
 on:
   push:
@@ -7,15 +10,16 @@ on:
     branches: [main, master]
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+  build-and-test:
+    name: Build and test (Linux)
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: "10.0.x"
+
       - run: dotnet build OscarWatch.slnx -c Release
+
       - run: dotnet test OscarWatch.slnx -c Release --no-build

@@ -1,3 +1,6 @@
+# Self-contained release packages (zip/tar.gz) per platform. Not run on every push.
+# Day-to-day compile/test: see build.yml (CI)
+
 name: Publish
 
 on:
@@ -98,41 +101,27 @@ jobs:
             -p:InformationalVersion="${{ steps.version.outputs.value }}" \
             -o "$out"
 
-      - name: Archive (zip)
-        if: matrix.archive_ext == 'zip'
+      - name: Archive
+        id: archive
         shell: pwsh
         run: |
           $src = "${{ runner.temp }}/publish-${{ matrix.rid }}"
-          $dest = "${{ runner.temp }}/OscarWatch-${{ steps.version.outputs.value }}-${{ matrix.rid }}.zip"
-          Compress-Archive -Path "$src/*" -DestinationPath $dest -Force
-          echo "package=$dest" >> $env:GITHUB_OUTPUT
-        id: archive_zip
-
-      - name: Archive (tar.gz)
-        if: matrix.archive_ext == 'tar.gz'
-        shell: bash
-        run: |
-          src="${{ runner.temp }}/publish-${{ matrix.rid }}"
-          dest="${{ runner.temp }}/OscarWatch-${{ steps.version.outputs.value }}-${{ matrix.rid }}.tar.gz"
-          tar -czf "$dest" -C "$src" .
-          echo "package=$dest" >> "$GITHUB_OUTPUT"
-        id: archive_tar
-
-      - name: Resolve package path
-        id: package_path
-        shell: bash
-        run: |
-          if [[ "${{ matrix.archive_ext }}" == "zip" ]]; then
-            echo "path=${{ steps.archive_zip.outputs.package }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "path=${{ steps.archive_tar.outputs.package }}" >> "$GITHUB_OUTPUT"
-          fi
+          $version = "${{ steps.version.outputs.value }}"
+          $rid = "${{ matrix.rid }}"
+          if ("${{ matrix.archive_ext }}" -eq "zip") {
+            $dest = "${{ runner.temp }}/OscarWatch-${version}-${rid}.zip"
+            Compress-Archive -Path "$src/*" -DestinationPath $dest -Force
+          } else {
+            $dest = "${{ runner.temp }}/OscarWatch-${version}-${rid}.tar.gz"
+            tar -czf $dest -C $src .
+          }
+          echo "path=$dest" >> $env:GITHUB_OUTPUT
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: OscarWatch-${{ matrix.rid }}
-          path: ${{ steps.package_path.outputs.path }}
+          path: ${{ steps.archive.outputs.path }}
           if-no-files-found: error
 
   release:
