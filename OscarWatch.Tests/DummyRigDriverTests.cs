@@ -1,3 +1,4 @@
+using OscarWatch.Core.Models;
 using OscarWatch.Rig;
 
 namespace OscarWatch.Tests;
@@ -11,6 +12,6 @@ public class DummyRigDriverTests
         rig.Open();
         rig.SelectVfo(RigVfo.VfoA);
         rig.SetFrequencyHz(145_950_000);
-        Assert.Equal(145_950_000, rig.GetFrequencyHz());
+        Assert.Equal(145_950_000, rig.ReadFrequencyHz(RigVfo.VfoA));
     }
 }

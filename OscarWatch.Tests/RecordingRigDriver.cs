@@ -5,8 +5,8 @@ namespace OscarWatch.Tests;
 
 internal sealed class RecordingRigDriver : IRigDriver
 {
-    public long MainHz { get; private set; }
-    public long SubHz { get; private set; }
+    public long MainHz { get; set; }
+    public long SubHz { get; set; }
     public int SetFrequencyCallCount { get; private set; }
     public double? LastToneHz { get; private set; }
     public bool? LastToneSquelch { get; private set; }
@@ -19,7 +19,8 @@ internal sealed class RecordingRigDriver : IRigDriver
 
     public void Open() { }
 
-    public long? GetFrequencyHz() => MainHz;
+    public long? ReadFrequencyHz(RigVfo vfo) =>
+        vfo is RigVfo.VfoA or RigVfo.Main ? MainHz : SubHz;
 
     public bool SetFrequencyHz(long hz)
     {
@@ -35,6 +36,8 @@ internal sealed class RecordingRigDriver : IRigDriver
 
     public RigVfo CurrentVfo => _currentVfo;
 
+    public RigVfo? LastToneVfo { get; private set; }
+
     public void SelectVfo(RigVfo vfo) => _currentVfo = vfo;
 
     public void SetMode(string mode) { }
@@ -49,6 +52,7 @@ internal sealed class RecordingRigDriver : IRigDriver
     {
         LastToneHz = hz;
         LastToneSquelch = squelchTone;
+        LastToneVfo = _currentVfo;
     }
     public void Dispose() { }
 }

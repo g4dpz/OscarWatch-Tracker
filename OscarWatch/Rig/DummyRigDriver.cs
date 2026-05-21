@@ -14,8 +14,8 @@ public sealed class DummyRigDriver : IRigDriver
 
     public void Open() { }
 
-    public long? GetFrequencyHz() =>
-        _currentVfo is RigVfo.VfoA or RigVfo.Main ? _vfoA : _vfoB;
+    public long? ReadFrequencyHz(RigVfo vfo) =>
+        vfo is RigVfo.VfoA or RigVfo.Main ? _vfoA : _vfoB;
 
     public bool SetFrequencyHz(long hz)
     {

@@ -6,6 +6,14 @@ namespace OscarWatch.Rig;
 
 public sealed class RigController : IRigController, IDisposable
 {
+    private const int DialHistoryLength = 4;
+    private const int FmCompanionLegHz = 10;
+    private static readonly TimeSpan LoopInterval = TimeSpan.FromMilliseconds(150);
+
+    private readonly object _sync = new();
+    private readonly Func<RigSettings, IRigDriver>? _driverFactory;
+    private readonly long[] _rxDialHistory = new long[DialHistoryLength];
+
     private IRigDriver? _driver;
     private string? _connectedKey;
     private string? _passKey;
@@ -13,13 +21,14 @@ public sealed class RigController : IRigController, IDisposable
     private long _lastRigTxHz;
     private long _displayRxHz;
     private long _displayTxHz;
-    private readonly Func<RigSettings, IRigDriver>? _driverFactory;
     private DateTime _lastWriteUtc = DateTime.MinValue;
     private int _thresholdHz;
     private bool _interactive;
     private bool _useMainSub;
     private bool _isBeaconOnly;
-    private readonly Queue<long> _dialHistory = new();
+    private int _rxDialHistoryCount;
+    private bool _vfoNotMoving;
+    private bool _vfoNotMovingPrevious;
     private double _manualRxAdjustKHz;
     private double _manualTxAdjustKHz;
     private string? _statusMessage;
@@ -28,43 +37,122 @@ public sealed class RigController : IRigController, IDisposable
     private bool _passInitPending;
     private double? _lastAppliedCtcssHz;
     private bool? _lastAppliedCtcssSquelch;
+    private double _lastContextRxOffsetKHz;
+    private double _lastContextTxOffsetKHz;
+    private bool _forceFrequencyApply;
+    private bool _blockKnobCapture;
+    private DateTime _ignoreDialUntilUtc = DateTime.MinValue;
+
+    private RigSettings _cachedSettings = new();
+    private RigTrackingContext? _cachedContext;
+    private CancellationTokenSource? _loopCts;
+    private Task? _loopTask;
 
     public RigController(Func<RigSettings, IRigDriver>? driverFactory = null) =>
         _driverFactory = driverFactory;
 
-    public RigConnectionStatus GetStatus() => new(
-        _driver?.IsConnected == true,
-        _isTracking,
-        _statusMessage,
-        DisplayHz(_displayRxHz, _lastRigRxHz),
-        DisplayHz(_displayTxHz, _lastRigTxHz),
-        _catUpdatesPaused);
+    public RigConnectionStatus GetStatus()
+    {
+        lock (_sync)
+        {
+            return new RigConnectionStatus(
+                _driver?.IsConnected == true,
+                _isTracking,
+                _statusMessage,
+                DisplayHz(_displayRxHz, _lastRigRxHz),
+                DisplayHz(_displayTxHz, _lastRigTxHz),
+                _catUpdatesPaused,
+                _manualRxAdjustKHz,
+                _manualTxAdjustKHz);
+        }
+    }
 
-    private static long? DisplayHz(long displayHz, long lastWrittenHz) =>
-        displayHz > 0 ? displayHz : lastWrittenHz > 0 ? lastWrittenHz : null;
+    /// <summary>UI thread: refresh cached pass/settings (1 Hz). CAT runs on the doppler loop.</summary>
+    public void PublishContext(RigSettings settings, RigTrackingContext? context)
+    {
+        lock (_sync)
+        {
+            _cachedSettings = settings;
+            _cachedContext = context;
+            ApplyPublishState(settings, context);
+        }
+
+        if (settings.Enabled && settings.Type != RigType.None)
+            EnsureLoopRunning();
+        else
+            StopLoop();
+    }
+
+    /// <summary>Runs one doppler iteration (tests and legacy <see cref="Update"/>).</summary>
+    public void RunTrackingLoopOnce()
+    {
+        lock (_sync)
+            RunLoopIteration();
+    }
 
     public void Update(RigSettings settings, RigTrackingContext? context)
     {
+        PublishContext(settings, context);
+        RunTrackingLoopOnce();
+    }
+
+    public void ApplySelectedCtcss(RigSettings settings, RigTrackingContext? context)
+    {
+        lock (_sync)
+        {
+            if (!settings.Enabled || settings.Type == RigType.None || context is null)
+                return;
+
+            if (string.IsNullOrWhiteSpace(settings.Port) && settings.Type != RigType.Dummy)
+                return;
+
+            if (!EnsureConnected(settings))
+                return;
+
+            if (context.SelectedCtcssHz is not { } hz || hz <= 0 || context.Mode.IsBeaconOnly)
+                return;
+
+            _useMainSub = RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz);
+            ApplyCtcss(settings, context, force: true);
+            RestoreOperatorVfo();
+        }
+    }
+
+    public void Disconnect()
+    {
+        StopLoop();
+        lock (_sync)
+        {
+            _driver?.Dispose();
+            _driver = null;
+            _connectedKey = null;
+            _passKey = null;
+            _cachedContext = null;
+            ResetTrackingState();
+        }
+    }
+
+    public void Dispose() => Disconnect();
+
+    private void ApplyPublishState(RigSettings settings, RigTrackingContext? context)
+    {
         if (!settings.Enabled || settings.Type == RigType.None)
         {
-            Disconnect();
+            TearDownRig();
             _statusMessage = null;
-            _isTracking = false;
             return;
         }
 
         if (string.IsNullOrWhiteSpace(settings.Port) && settings.Type != RigType.Dummy)
         {
-            Disconnect();
+            TearDownRig();
             _statusMessage = "No COM port selected";
-            _isTracking = false;
             return;
         }
 
         if (!EnsureConnected(settings))
         {
             _statusMessage = "Rig not connected";
-            _isTracking = false;
             return;
         }
 
@@ -78,32 +166,23 @@ public sealed class RigController : IRigController, IDisposable
             return;
         }
 
+        _catUpdatesPaused = settings.CatUpdatesPaused;
+        _isBeaconOnly = context.Mode.IsBeaconOnly;
+
         if (context.TrackState.LookAngles.ElevationDeg < settings.TrackStartElevationDeg)
         {
             _isTracking = false;
             _statusMessage = "Connected (below track elevation)";
-            TryApplyCtcssIfChanged(settings, context);
             return;
         }
 
         if (_driver is null || !_driver.SupportsTracking)
             return;
 
-        _catUpdatesPaused = settings.CatUpdatesPaused;
-        _isBeaconOnly = context.Mode.IsBeaconOnly;
         var newPassKey = $"{context.TrackState.NoradId}|{context.Mode.Type}";
         if (!string.Equals(_passKey, newPassKey, StringComparison.Ordinal))
         {
-            _passKey = newPassKey;
-            _manualRxAdjustKHz = 0;
-            _manualTxAdjustKHz = 0;
-            _dialHistory.Clear();
-            _lastAppliedCtcssHz = null;
-            _lastAppliedCtcssSquelch = null;
-            if (settings.CatUpdatesPaused)
-                _passInitPending = true;
-            else
-                RunPassInit(settings, context);
+            BeginNewPass(settings, context, newPassKey);
         }
 
         if (settings.CatUpdatesPaused)
@@ -118,33 +197,276 @@ public sealed class RigController : IRigController, IDisposable
             RunPassInit(settings, context);
             _passInitPending = false;
         }
+        else if (context.SelectedCtcssHz is > 0)
+            ApplyCtcss(settings, context, force: false);
 
-        TryApplyCtcssIfChanged(settings, context);
-
+        NoteContextOffsetChange(context);
         _isTracking = true;
-        ProcessTrackingTick(settings, context);
         _statusMessage = "Tracking";
     }
 
-    public void Disconnect()
+    private void BeginNewPass(RigSettings settings, RigTrackingContext context, string newPassKey)
+    {
+        _passKey = newPassKey;
+        _manualRxAdjustKHz = 0;
+        _manualTxAdjustKHz = 0;
+        ClearDialHistory();
+        _lastAppliedCtcssHz = null;
+        _lastAppliedCtcssSquelch = null;
+        _lastContextRxOffsetKHz = 0;
+        _lastContextTxOffsetKHz = 0;
+        _forceFrequencyApply = false;
+
+        if (settings.CatUpdatesPaused)
+            _passInitPending = true;
+        else
+            RunPassInit(settings, context);
+    }
+
+    private void TearDownRig()
     {
         _driver?.Dispose();
         _driver = null;
         _connectedKey = null;
+        ResetTrackingState();
+    }
+
+    private void ResetTrackingState()
+    {
         _passKey = null;
         _lastRigRxHz = 0;
         _lastRigTxHz = 0;
         _displayRxHz = 0;
         _displayTxHz = 0;
         _isTracking = false;
-        _dialHistory.Clear();
+        ClearDialHistory();
         _passInitPending = false;
         _catUpdatesPaused = false;
         _lastAppliedCtcssHz = null;
         _lastAppliedCtcssSquelch = null;
     }
 
-    public void Dispose() => Disconnect();
+    private void EnsureLoopRunning()
+    {
+        if (_loopTask is { IsCompleted: false })
+            return;
+
+        _loopCts = new CancellationTokenSource();
+        _loopTask = Task.Run(() => LoopAsync(_loopCts.Token));
+    }
+
+    private void StopLoop()
+    {
+        if (_loopCts is null)
+            return;
+
+        _loopCts.Cancel();
+        try
+        {
+            _loopTask?.Wait(TimeSpan.FromSeconds(2));
+        }
+        catch (AggregateException)
+        {
+            // cancelled
+        }
+
+        _loopCts.Dispose();
+        _loopCts = null;
+        _loopTask = null;
+    }
+
+    private async Task LoopAsync(CancellationToken cancellationToken)
+    {
+        using var timer = new PeriodicTimer(LoopInterval);
+        while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false))
+        {
+            lock (_sync)
+                RunLoopIteration();
+        }
+    }
+
+    private void RunLoopIteration()
+    {
+        if (_driver is null || !_driver.IsConnected || _cachedContext is null)
+            return;
+
+        if (!_cachedSettings.Enabled || _cachedSettings.CatUpdatesPaused || !_isTracking)
+            return;
+
+        if (_cachedContext.TrackState.LookAngles is null
+            || _cachedContext.TrackState.LookAngles.ElevationDeg < _cachedSettings.TrackStartElevationDeg)
+            return;
+
+        if (_interactive && SetupVfosPolicy.IsLinearMode(_cachedContext.Mode.DownlinkMode))
+            ProcessInteractiveLinear(_cachedSettings, _cachedContext);
+        else
+            ProcessAutomaticDoppler(_cachedSettings, _cachedContext);
+    }
+
+    private void ProcessInteractiveLinear(RigSettings settings, RigTrackingContext context)
+    {
+        SampleReceiveDial();
+        TryCaptureKnobTune(context);
+
+        if (!_forceFrequencyApply && (!_vfoNotMoving || !_vfoNotMovingPrevious))
+        {
+            RestoreOperatorVfo();
+            return;
+        }
+
+        WriteDopplerFrequencies(settings, context);
+        RestoreOperatorVfo();
+    }
+
+    private void ProcessAutomaticDoppler(RigSettings settings, RigTrackingContext context)
+    {
+        WriteDopplerFrequencies(settings, context);
+        RestoreOperatorVfo();
+    }
+
+    private void TryCaptureKnobTune(RigTrackingContext context)
+    {
+        if (_blockKnobCapture || DateTime.UtcNow < _ignoreDialUntilUtc || !_vfoNotMoving
+            || !TryReadReceiveDialHz(out var dialHz))
+            return;
+
+        var deltaHz = dialHz - _lastRigRxHz;
+        if (Math.Abs(deltaHz) < KnobTuneThresholdHz())
+            return;
+
+        ApplyInteractiveDialDelta(context, deltaHz, dialHz);
+        SeedDialHistoryStable(dialHz);
+        _vfoNotMoving = true;
+        _vfoNotMovingPrevious = true;
+    }
+
+    private void SeedDialHistoryStable(long dialHz)
+    {
+        for (var i = 0; i < DialHistoryLength; i++)
+            _rxDialHistory[i] = dialHz;
+
+        _rxDialHistoryCount = DialHistoryLength;
+    }
+
+    private int KnobTuneThresholdHz() => Math.Max(_thresholdHz, 100);
+
+    private void SampleReceiveDial()
+    {
+        _vfoNotMovingPrevious = _vfoNotMoving;
+
+        if (DateTime.UtcNow < _ignoreDialUntilUtc)
+        {
+            _vfoNotMoving = false;
+            return;
+        }
+
+        if (!TryReadReceiveDialHz(out var dialHz))
+        {
+            _vfoNotMoving = false;
+            return;
+        }
+
+        ShiftDialHistory(dialHz);
+        _vfoNotMoving = _rxDialHistoryCount >= DialHistoryLength
+            && _rxDialHistory[0] == _rxDialHistory[1]
+            && _rxDialHistory[1] == _rxDialHistory[2]
+            && _rxDialHistory[2] == _rxDialHistory[3];
+    }
+
+    private void ShiftDialHistory(long dialHz)
+    {
+        if (_rxDialHistoryCount < DialHistoryLength)
+        {
+            _rxDialHistory[_rxDialHistoryCount++] = dialHz;
+            return;
+        }
+
+        for (var i = 0; i < DialHistoryLength - 1; i++)
+            _rxDialHistory[i] = _rxDialHistory[i + 1];
+
+        _rxDialHistory[DialHistoryLength - 1] = dialHz;
+    }
+
+    private void ClearDialHistory()
+    {
+        _rxDialHistoryCount = 0;
+        _vfoNotMoving = false;
+        _vfoNotMovingPrevious = false;
+        Array.Clear(_rxDialHistory);
+    }
+
+    private void WriteDopplerFrequencies(RigSettings settings, RigTrackingContext context)
+    {
+        var corrected = DopplerFrequencyCalculator.Compute(
+            context.Mode,
+            context.TrackState.LookAngles!.RangeRateKmPerSec,
+            context.TransmitOffsetKHz,
+            context.ReceiveOffsetKHz,
+            _manualTxAdjustKHz,
+            _manualRxAdjustKHz);
+
+        SyncDisplayFrequencies(context);
+
+        var rxHz = ToHz(corrected.RadioReceiveKHz);
+        var txHz = ToHz(corrected.RadioTransmitKHz);
+
+        if (!CanWrite(settings))
+            return;
+
+        var forceApply = _forceFrequencyApply;
+        _forceFrequencyApply = false;
+        if (!forceApply && !ShouldWrite(rxHz, txHz))
+            return;
+
+        var rxDelta = Math.Abs(rxHz - _lastRigRxHz);
+        var txDelta = _isBeaconOnly ? 0 : Math.Abs(txHz - _lastRigTxHz);
+        var writeRx = forceApply || rxDelta > _thresholdHz || _thresholdHz == 0;
+        var writeTx = !_isBeaconOnly && (forceApply || txDelta > _thresholdHz || _thresholdHz == 0);
+
+        // FM / cross-band (e.g. ISS): UHF RX doppler moves faster in Hz than VHF TX at the same
+        // threshold — keep both legs in sync when either leg triggers an automatic update.
+        if (!_interactive && !forceApply)
+        {
+            if (writeRx && !writeTx && txDelta > FmCompanionLegHz)
+                writeTx = true;
+            if (writeTx && !writeRx && rxDelta > FmCompanionLegHz)
+                writeRx = true;
+        }
+
+        var wrote = false;
+        if (writeRx)
+        {
+            WriteRx(rxHz);
+            wrote = true;
+        }
+
+        if (writeTx)
+        {
+            WriteTx(txHz);
+            wrote = true;
+        }
+
+        _lastWriteUtc = DateTime.UtcNow;
+        if (wrote)
+        {
+            MarkProgrammaticFrequencySettle();
+            FinishOffsetKnobCaptureBlock();
+        }
+    }
+
+    private void FinishOffsetKnobCaptureBlock()
+    {
+        if (!_blockKnobCapture)
+            return;
+
+        if (TryReadReceiveDialHz(out var dialHz))
+            _lastRigRxHz = dialHz;
+
+        _blockKnobCapture = false;
+    }
+
+    private static long? DisplayHz(long displayHz, long lastWrittenHz) =>
+        displayHz > 0 ? displayHz : lastWrittenHz > 0 ? lastWrittenHz : null;
 
     private bool EnsureConnected(RigSettings settings)
     {
@@ -152,7 +474,7 @@ public sealed class RigController : IRigController, IDisposable
         if (_driver is not null && _connectedKey == key && _driver.IsConnected)
             return true;
 
-        Disconnect();
+        _driver?.Dispose();
         try
         {
             _driver = (_driverFactory ?? RigDriverFactory.Create)(settings);
@@ -202,7 +524,7 @@ public sealed class RigController : IRigController, IDisposable
         _interactive = setup.Interactive;
 
         ConfigureVfoModes(context);
-        TryApplyCtcssIfChanged(settings, context);
+        ApplyCtcss(settings, context, force: true);
 
         var rxHz = ToHz(context.Corrected.RadioReceiveKHz);
         var txHz = ToHz(context.Corrected.RadioTransmitKHz);
@@ -210,6 +532,8 @@ public sealed class RigController : IRigController, IDisposable
         _lastRigRxHz = rxHz;
         _lastRigTxHz = txHz;
         _lastWriteUtc = DateTime.UtcNow;
+        MarkProgrammaticFrequencySettle();
+        RestoreOperatorVfo();
     }
 
     private void TryBandSwap(RigTrackingContext context)
@@ -217,8 +541,7 @@ public sealed class RigController : IRigController, IDisposable
         if (_driver is null)
             return;
 
-        _driver.SelectVfo(RigVfo.Main);
-        var current = _driver.GetFrequencyHz();
+        var current = _driver.ReadFrequencyHz(RigVfo.Main);
         if (current is null or <= 0)
             return;
 
@@ -240,36 +563,26 @@ public sealed class RigController : IRigController, IDisposable
         _driver.SetMode(context.Mode.UplinkMode);
     }
 
-    private void TryApplyCtcssIfChanged(RigSettings settings, RigTrackingContext context)
+    private void ApplyCtcss(RigSettings settings, RigTrackingContext context, bool force)
     {
         if (_driver is null || context.SelectedCtcssHz is not { } hz || hz <= 0)
             return;
 
         var squelch = settings.Region == RigRegion.USA;
-        if (_lastAppliedCtcssHz == hz && _lastAppliedCtcssSquelch == squelch)
+        if (!force && _lastAppliedCtcssHz == hz && _lastAppliedCtcssSquelch == squelch)
             return;
 
-        ApplyCtcss(settings, context);
-        _lastAppliedCtcssHz = hz;
-        _lastAppliedCtcssSquelch = squelch;
-    }
-
-    private void ApplyCtcss(RigSettings settings, RigTrackingContext context)
-    {
-        if (_driver is null || context.SelectedCtcssHz is not { } hz || hz <= 0)
-            return;
-
-        // Uplink CTCSS always on Sub for Icom satellite rigs (CI-V 0x07 0xD1), not VFO B.
         _driver.SelectVfo(UplinkVfoForCtcss(settings, context));
-        var squelch = settings.Region == RigRegion.USA;
         _driver.SetToneHz(hz, squelch);
         if (squelch)
             _driver.SetToneSquelchOn(true);
         else
             _driver.SetToneOn(true);
+
+        _lastAppliedCtcssHz = hz;
+        _lastAppliedCtcssSquelch = squelch;
     }
 
-    /// <summary>Sub on IC-910/9700 satellite passes; VFO B only for non-Icom split fallback.</summary>
     private static RigVfo UplinkVfoForCtcss(RigSettings settings, RigTrackingContext context)
     {
         if (settings.Type is RigType.IcomIc910 or RigType.IcomIc9700)
@@ -307,36 +620,26 @@ public sealed class RigController : IRigController, IDisposable
         }
     }
 
-    private void ProcessTrackingTick(RigSettings settings, RigTrackingContext context)
+    private void NoteContextOffsetChange(RigTrackingContext context)
     {
-        if (_driver is null)
+        if (NearlyEqual(context.ReceiveOffsetKHz, _lastContextRxOffsetKHz)
+            && NearlyEqual(context.TransmitOffsetKHz, _lastContextTxOffsetKHz))
             return;
 
-        if (_interactive && SetupVfosPolicy.IsLinearMode(context.Mode.DownlinkMode))
-            ProcessInteractiveDial(context);
+        _lastContextRxOffsetKHz = context.ReceiveOffsetKHz;
+        _lastContextTxOffsetKHz = context.TransmitOffsetKHz;
+        _manualRxAdjustKHz = 0;
+        _manualTxAdjustKHz = 0;
+        _forceFrequencyApply = true;
+        _blockKnobCapture = true;
+        ClearDialHistory();
+        MarkProgrammaticFrequencySettle();
+    }
 
-        var corrected = DopplerFrequencyCalculator.Compute(
-            context.Mode,
-            context.TrackState.LookAngles!.RangeRateKmPerSec,
-            context.TransmitOffsetKHz + _manualTxAdjustKHz,
-            context.ReceiveOffsetKHz + _manualRxAdjustKHz);
-
-        var rxHz = ToHz(corrected.RadioReceiveKHz);
-        var txHz = ToHz(corrected.RadioTransmitKHz);
-
-        if (!CanWrite(settings))
-            return;
-
-        if (!ShouldWrite(rxHz, txHz))
-            return;
-
-        if (Math.Abs(rxHz - _lastRigRxHz) > _thresholdHz || _thresholdHz == 0)
-            WriteRx(rxHz);
-
-        if (!_isBeaconOnly && (Math.Abs(txHz - _lastRigTxHz) > _thresholdHz || _thresholdHz == 0))
-            WriteTx(txHz);
-
-        _lastWriteUtc = DateTime.UtcNow;
+    private void MarkProgrammaticFrequencySettle()
+    {
+        _ignoreDialUntilUtc = DateTime.UtcNow.AddMilliseconds(600);
+        ClearDialHistory();
     }
 
     private bool ShouldWrite(long rxHz, long txHz)
@@ -346,35 +649,29 @@ public sealed class RigController : IRigController, IDisposable
         if (_thresholdHz == 0)
             return rxDelta > 0 || txDelta > 0;
 
-        // Either leg past threshold (RX offset, TX offset, or doppler on that leg).
         return rxDelta > _thresholdHz || txDelta > _thresholdHz;
     }
 
-    private void ProcessInteractiveDial(RigTrackingContext context)
+    private bool TryReadReceiveDialHz(out long hz)
     {
+        hz = 0;
         if (_driver is null)
-            return;
+            return false;
 
-        _driver.SelectVfo(_useMainSub ? RigVfo.Main : RigVfo.VfoA);
-        var dial = _driver.GetFrequencyHz();
+        var dial = _driver.ReadFrequencyHz(ReceiveVfo());
         if (dial is null or <= 0)
-            return;
+            return false;
 
-        _dialHistory.Enqueue(dial.Value);
-        while (_dialHistory.Count > 4)
-            _dialHistory.Dequeue();
+        if (!RigFrequencyBands.IsPlausibleReceiveRead(_lastRigRxHz, dial.Value))
+            return false;
 
-        if (_dialHistory.Count < 4)
-            return;
+        hz = dial.Value;
+        return true;
+    }
 
-        var first = _dialHistory.Peek();
-        if (_dialHistory.Any(f => f != first))
-            return;
-
-        if (Math.Abs(dial.Value - _lastRigRxHz) <= 1)
-            return;
-
-        var deltaKhz = (dial.Value - _lastRigRxHz) / 1000.0;
+    private void ApplyInteractiveDialDelta(RigTrackingContext context, long deltaHz, long dialHz)
+    {
+        var deltaKhz = deltaHz / 1000.0;
         if (context.Mode.DopplerCorrection == DopplerCorrection.Reverse)
         {
             _manualTxAdjustKHz -= deltaKhz;
@@ -386,7 +683,19 @@ public sealed class RigController : IRigController, IDisposable
             _manualRxAdjustKHz += deltaKhz;
         }
 
-        _lastRigRxHz = dial.Value;
+        _lastRigRxHz = dialHz;
+    }
+
+    private RigVfo ReceiveVfo() => _useMainSub ? RigVfo.Main : RigVfo.VfoA;
+
+    private RigVfo TransmitVfo() => _useMainSub ? RigVfo.Sub : RigVfo.VfoB;
+
+    private void RestoreOperatorVfo()
+    {
+        if (_driver is null || _isBeaconOnly)
+            return;
+
+        _driver.SelectVfo(ReceiveVfo());
     }
 
     private bool CanWrite(RigSettings settings) =>
@@ -396,7 +705,8 @@ public sealed class RigController : IRigController, IDisposable
     {
         if (_driver is null)
             return;
-        _driver.SelectVfo(_useMainSub ? RigVfo.Main : RigVfo.VfoA);
+
+        _driver.SelectVfo(ReceiveVfo());
         if (_driver.SetFrequencyHz(hz))
             _lastRigRxHz = hz;
     }
@@ -405,10 +715,13 @@ public sealed class RigController : IRigController, IDisposable
     {
         if (_driver is null)
             return;
-        _driver.SelectVfo(_useMainSub ? RigVfo.Sub : RigVfo.VfoB);
+
+        _driver.SelectVfo(TransmitVfo());
         if (_driver.SetFrequencyHz(hz))
             _lastRigTxHz = hz;
     }
+
+    private static bool NearlyEqual(double a, double b) => Math.Abs(a - b) < 0.0001;
 
     private void SyncDisplayFrequencies(RigTrackingContext context)
     {
@@ -418,8 +731,10 @@ public sealed class RigController : IRigController, IDisposable
         var corrected = DopplerFrequencyCalculator.Compute(
             context.Mode,
             context.TrackState.LookAngles.RangeRateKmPerSec,
-            context.TransmitOffsetKHz + _manualTxAdjustKHz,
-            context.ReceiveOffsetKHz + _manualRxAdjustKHz);
+            context.TransmitOffsetKHz,
+            context.ReceiveOffsetKHz,
+            _manualTxAdjustKHz,
+            _manualRxAdjustKHz);
         _displayRxHz = ToHz(corrected.RadioReceiveKHz);
         _displayTxHz = ToHz(corrected.RadioTransmitKHz);
     }

@@ -7,7 +7,8 @@ public interface IRigDriver : IDisposable
     bool IsConnected { get; }
     RigType RigType { get; }
     void Open();
-    long? GetFrequencyHz();
+    /// <summary>Read frequency for a specific VFO (selects that VFO first on Icom).</summary>
+    long? ReadFrequencyHz(RigVfo vfo);
     bool SetFrequencyHz(long hz);
     void SelectVfo(RigVfo vfo);
     void SetMode(string mode);

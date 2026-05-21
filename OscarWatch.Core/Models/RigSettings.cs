@@ -17,7 +17,7 @@ public sealed class RigSettings
 
     public double TrackStartElevationDeg { get; set; } = -3;
 
-    public int DopplerThresholdFmHz { get; set; } = 200;
+    public int DopplerThresholdFmHz { get; set; } = 50;
 
     public int DopplerThresholdLinearHz { get; set; } = 50;
 

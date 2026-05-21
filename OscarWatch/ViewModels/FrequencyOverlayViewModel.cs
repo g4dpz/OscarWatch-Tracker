@@ -19,6 +19,8 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private bool _isLoadingSelection;
     private double _lastRangeRateKmPerSec;
     private SatelliteTrackState? _lastTrackState;
+    private double _rigManualRxAdjustKHz;
+    private double _rigManualTxAdjustKHz;
 
     [ObservableProperty]
     private string _satelliteName = "—";
@@ -149,6 +151,8 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             _currentNoradId = state.NoradId;
             _currentSatelliteName = state.Name;
             _currentStorageKey = ResolveStorageKey(state.Name);
+            _rigManualRxAdjustKHz = 0;
+            _rigManualTxAdjustKHz = 0;
             LoadModesForSatellite(state.Name);
             RequestOverlayReclamp();
         }
@@ -164,17 +168,14 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         IsBeaconOnly = SelectedMode.IsBeaconOnly;
 
         _lastRangeRateKmPerSec = state.LookAngles?.RangeRateKmPerSec ?? 0;
-        var corrected = DopplerFrequencyCalculator.Compute(
-            SelectedMode,
-            _lastRangeRateKmPerSec,
-            TransmitOffsetKHz,
-            ReceiveOffsetKHz);
-
-        RadioTransmitText = IsBeaconOnly ? "—" : FrequencyDisplayFormat.FormatMHz(corrected.RadioTransmitKHz);
-        RadioReceiveText = FrequencyDisplayFormat.FormatMHz(corrected.RadioReceiveKHz);
-        SatelliteTransmitText = IsBeaconOnly ? "—" : FrequencyDisplayFormat.FormatMHz(corrected.SatelliteTransmitKHz);
-        SatelliteReceiveText = FrequencyDisplayFormat.FormatMHz(corrected.SatelliteReceiveKHz);
-        DopplerShiftText = FrequencyDisplayFormat.FormatDopplerKHz(corrected.DopplerShiftKHz);
+        ApplyCorrectedDisplay(
+            DopplerFrequencyCalculator.Compute(
+                SelectedMode,
+                _lastRangeRateKmPerSec,
+                TransmitOffsetKHz,
+                ReceiveOffsetKHz,
+                _rigManualTxAdjustKHz,
+                _rigManualRxAdjustKHz));
     }
 
     public CloudlogRadioUpdate? TryBuildCloudlogUpdate(SatelliteTrackState? state)
@@ -187,7 +188,9 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             SelectedMode,
             rangeRate,
             TransmitOffsetKHz,
-            ReceiveOffsetKHz);
+            ReceiveOffsetKHz,
+            _rigManualTxAdjustKHz,
+            _rigManualRxAdjustKHz);
 
         return CloudlogRadioMapper.TryCreate(state.Name, SelectedMode, corrected);
     }
@@ -312,19 +315,37 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         }
 
         _lastRangeRateKmPerSec = _lastTrackState?.LookAngles?.RangeRateKmPerSec ?? _lastRangeRateKmPerSec;
-        var corrected = DopplerFrequencyCalculator.Compute(
-            SelectedMode,
-            _lastRangeRateKmPerSec,
-            TransmitOffsetKHz,
-            ReceiveOffsetKHz);
+        ApplyCorrectedDisplay(
+            DopplerFrequencyCalculator.Compute(
+                SelectedMode,
+                _lastRangeRateKmPerSec,
+                TransmitOffsetKHz,
+                ReceiveOffsetKHz,
+                _rigManualTxAdjustKHz,
+                _rigManualRxAdjustKHz));
+        UpdateOffsetAppliedHint();
+    }
 
-        IsBeaconOnly = SelectedMode.IsBeaconOnly;
+    /// <summary>Knob tuning on the rig (interactive CAT) — keeps overlay Radio row in sync.</summary>
+    public void SyncRigKnobAdjustments(double manualRxKHz, double manualTxKHz)
+    {
+        if (Math.Abs(_rigManualRxAdjustKHz - manualRxKHz) < 0.0001
+            && Math.Abs(_rigManualTxAdjustKHz - manualTxKHz) < 0.0001)
+            return;
+
+        _rigManualRxAdjustKHz = manualRxKHz;
+        _rigManualTxAdjustKHz = manualTxKHz;
+        RefreshFrequencyDisplay();
+    }
+
+    private void ApplyCorrectedDisplay(CorrectedFrequencies corrected)
+    {
+        IsBeaconOnly = SelectedMode?.IsBeaconOnly == true;
         RadioTransmitText = IsBeaconOnly ? "—" : FrequencyDisplayFormat.FormatMHz(corrected.RadioTransmitKHz);
         RadioReceiveText = FrequencyDisplayFormat.FormatMHz(corrected.RadioReceiveKHz);
         SatelliteTransmitText = IsBeaconOnly ? "—" : FrequencyDisplayFormat.FormatMHz(corrected.SatelliteTransmitKHz);
         SatelliteReceiveText = FrequencyDisplayFormat.FormatMHz(corrected.SatelliteReceiveKHz);
         DopplerShiftText = FrequencyDisplayFormat.FormatDopplerKHz(corrected.DopplerShiftKHz);
-        UpdateOffsetAppliedHint();
     }
 
     private void UpdateOffsetAppliedHint()
@@ -335,14 +356,24 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             return;
         }
 
+        var isRev = SelectedMode.DopplerCorrection == DopplerCorrection.Reverse;
         var parts = new List<string>();
         if (Math.Abs(TransmitOffsetKHz) > 0.0001 && !IsBeaconOnly)
-            parts.Add($"TX {TransmitOffsetKHz:+0.000;-0.000;0} kHz → Radio ↑");
+        {
+            parts.Add(isRev
+                ? $"TX {TransmitOffsetKHz:+0.000;-0.000;0} kHz → Radio ↓"
+                : $"TX {TransmitOffsetKHz:+0.000;-0.000;0} kHz → Radio ↑");
+        }
+
         if (Math.Abs(ReceiveOffsetKHz) > 0.0001)
-            parts.Add($"RX {ReceiveOffsetKHz:+0.000;-0.000;0} kHz → Radio ↓");
+        {
+            parts.Add(isRev
+                ? $"RX {ReceiveOffsetKHz:+0.000;-0.000;0} kHz → Radio ↓"
+                : $"RX {ReceiveOffsetKHz:+0.000;-0.000;0} kHz → Radio ↓");
+        }
 
         OffsetAppliedHint = parts.Count == 0
-            ? "Offsets apply to the Radio row only (Sat shows nominal + doppler)."
+            ? "Offsets apply to the Radio row only (Sat shows nominal centre)."
             : string.Join(" · ", parts);
     }
 
@@ -475,6 +506,8 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         selection.RememberOffsets = RememberOffsets;
         if (RememberOffsets)
             selection.SetOffsetsForMode(SelectedMode.Type, TransmitOffsetKHz, ReceiveOffsetKHz);
+        else
+            selection.SetOffsetsForMode(SelectedMode.Type, 0, 0);
         if (SelectedCtcssTone is not null)
             selection.CtcssToneRole = SelectedCtcssTone.Role;
         _ = _settings.SaveAsync();

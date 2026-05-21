@@ -29,11 +29,11 @@ public partial class MainViewModel : ViewModelBase
     public FrequencyOverlayViewModel Frequencies { get; }
     private DispatcherTimer? _tleRefreshTimer;
     private DispatcherTimer? _passListRefreshTimer;
-    private DispatcherTimer? _rigOffsetDebounceTimer;
+    private DispatcherTimer? _rigContextTimer;
     private static readonly TimeSpan PassListRefreshInterval = TimeSpan.FromMinutes(15);
+    private static readonly TimeSpan RigContextInterval = TimeSpan.FromMilliseconds(250);
     private static readonly TimeSpan ImminentPassWindow = TimeSpan.FromMinutes(15);
     /// <summary>Coalesce spinner clicks into one CAT write after the user pauses.</summary>
-    private const int RigOffsetDebounceMs = 200;
 
     [ObservableProperty]
     private string _statusText = "Starting…";
@@ -67,6 +67,10 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _rotatorElevationText = "—";
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ParkRotatorCommand))]
+    private bool _canParkRotator;
 
     [ObservableProperty]
     private bool _showRigStatus;
@@ -126,32 +130,27 @@ public partial class MainViewModel : ViewModelBase
         _rig = rig;
         _cloudlog = cloudlog;
         Frequencies = frequencies;
-        Frequencies.OffsetsChanged += (_, _) => ScheduleRigOffsetRefresh();
-        Frequencies.CtcssChanged += (_, _) => RefreshRigFromOverlay();
+        Frequencies.OffsetsChanged += (_, _) => RefreshRigFromOverlay();
+        Frequencies.CtcssChanged += (_, _) => OnCtcssSelectorChanged();
 
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += (_, _) => Tick();
+
+        _rigContextTimer = new DispatcherTimer { Interval = RigContextInterval };
+        _rigContextTimer.Tick += (_, _) => PublishRigTrackingContext();
     }
 
-    private void ScheduleRigOffsetRefresh()
+    private void OnCtcssSelectorChanged()
     {
-        var delayMs = Math.Max(RigOffsetDebounceMs, _settings.Current.Rig.CatDelayMs);
-        if (_rigOffsetDebounceTimer is null)
-        {
-            _rigOffsetDebounceTimer = new DispatcherTimer();
-            _rigOffsetDebounceTimer.Tick += (_, _) =>
-            {
-                _rigOffsetDebounceTimer!.Stop();
-                RefreshRigFromOffsets();
-            };
-        }
+        if (ShowComPortConflict)
+            return;
 
-        _rigOffsetDebounceTimer.Interval = TimeSpan.FromMilliseconds(delayMs);
-        _rigOffsetDebounceTimer.Stop();
-        _rigOffsetDebounceTimer.Start();
+        var focused = GetFocusedTrackState(_tracking.GetLiveStates(DateTime.UtcNow), FocusedNoradId);
+        var context = Frequencies.TryBuildRigTrackingContext(focused);
+        _rig.ApplySelectedCtcss(_settings.Current.Rig, context);
+        _rig.PublishContext(_settings.Current.Rig, context);
+        RefreshRigUi(focused);
     }
-
-    private void RefreshRigFromOffsets() => RefreshRigFromOverlay();
 
     private void RefreshRigFromOverlay()
     {
@@ -159,8 +158,16 @@ public partial class MainViewModel : ViewModelBase
             return;
 
         var focused = GetFocusedTrackState(_tracking.GetLiveStates(DateTime.UtcNow), FocusedNoradId);
-        _rig.Update(_settings.Current.Rig, Frequencies.TryBuildRigTrackingContext(focused));
-        UpdateRigDisplay();
+        var context = Frequencies.TryBuildRigTrackingContext(focused);
+        _rig.PublishContext(_settings.Current.Rig, context);
+        RefreshRigUi(focused);
+    }
+
+    private void RefreshRigUi(SatelliteTrackState? focused)
+    {
+        var rigStatus = _rig.GetStatus();
+        Frequencies.SyncRigKnobAdjustments(rigStatus.ManualReceiveAdjustKHz, rigStatus.ManualTransmitAdjustKHz);
+        UpdateRigDisplay(rigStatus);
         PushCloudlogRadio(focused);
     }
 
@@ -192,6 +199,7 @@ public partial class MainViewModel : ViewModelBase
         Tick();
         _timer.Start();
         ConfigurePassListRefreshTimer();
+        ConfigureRigContextTimer();
 
         StatusText = "Computing passes…";
         await RefreshPassesAsync().ConfigureAwait(true);
@@ -219,9 +227,27 @@ public partial class MainViewModel : ViewModelBase
         if (ShowComPortConflict)
             _rig.Disconnect();
         else
-            _rig.Update(_settings.Current.Rig, Frequencies.TryBuildRigTrackingContext(focused));
-        UpdateRigDisplay();
-        PushCloudlogRadio(focused);
+            PublishRigTrackingContext(focused);
+
+        RefreshRigUi(focused);
+    }
+
+    /// <summary>Refresh look angles / range rate for the doppler loop (4 Hz). UI still ticks at 1 Hz.</summary>
+    private void PublishRigTrackingContext(SatelliteTrackState? focused = null)
+    {
+        if (!_settings.Current.Rig.Enabled || ShowComPortConflict)
+            return;
+
+        focused ??= GetFocusedTrackState(_tracking.GetLiveStates(DateTime.UtcNow), FocusedNoradId);
+        _rig.PublishContext(_settings.Current.Rig, Frequencies.TryBuildRigTrackingContext(focused));
+    }
+
+    private void ConfigureRigContextTimer()
+    {
+        if (_settings.Current.Rig.Enabled)
+            _rigContextTimer?.Start();
+        else
+            _rigContextTimer?.Stop();
     }
 
     private void PushCloudlogRadio(SatelliteTrackState? focused)
@@ -273,9 +299,17 @@ public partial class MainViewModel : ViewModelBase
         RotatorElevationText = status is { IsConnected: true, ElevationDeg: not null }
             ? $"{status.ElevationDeg.Value}°"
             : "—";
+        CanParkRotator = status.IsConnected;
     }
 
-    private void UpdateRigDisplay()
+    [RelayCommand(CanExecute = nameof(CanParkRotator))]
+    private void ParkRotator()
+    {
+        _rotator.Park(_settings.Current.Rotator);
+        UpdateRotatorDisplay();
+    }
+
+    private void UpdateRigDisplay(RigConnectionStatus? status = null)
     {
         if (!_settings.Current.Rig.Enabled)
         {
@@ -292,7 +326,7 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
 
-        var status = _rig.GetStatus();
+        status ??= _rig.GetStatus();
         RigCatPaused = status.CatUpdatesPaused;
         RigStatusText = status.StatusMessage ?? (status.IsConnected ? "Connected" : "Disconnected");
         RigReceiveText = FormatSidebarFrequency(status.LastReceiveHz, Frequencies.RadioReceiveText, status.IsConnected);
@@ -517,6 +551,7 @@ public partial class MainViewModel : ViewModelBase
             UpdateStatus();
             RefreshGroundStationFromSettings();
             RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
+            ConfigureRigContextTimer();
             Tick();
         }
     }

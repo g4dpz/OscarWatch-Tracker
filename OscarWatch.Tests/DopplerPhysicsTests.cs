@@ -36,8 +36,8 @@ public class DopplerPhysicsTests
     [Fact]
     public void Rev_mode_inverts_doppler_signs_vs_nor()
     {
-        const double downKhz = 435_667;
-        const double upKhz = 145_937.61;
+        const double downKhz = 435_850.45;
+        const double upKhz = 145_952.65;
         const double rangeRateKmPerSec = 2.5;
 
         var nor = DopplerFrequencyCalculator.Compute(
@@ -75,6 +75,25 @@ public class DopplerPhysicsTests
     }
 
     [Fact]
+    public void Rev_tx_offset_lowers_radio_tx_on_inverting_satellite()
+    {
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_850.45,
+            UplinkKHz = 145_952.65,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var baseline = DopplerFrequencyCalculator.Compute(mode, 4.2, 0, 0);
+        var withOffset = DopplerFrequencyCalculator.Compute(mode, 4.2, 9.275, 0);
+
+        Assert.True(withOffset.RadioTransmitKHz < baseline.RadioTransmitKHz);
+        Assert.InRange(withOffset.RadioTransmitKHz, 145_940.5, 145_941.5);
+    }
+
+    [Fact]
     public void User_offsets_shift_radio_frequencies_directly()
     {
         var mode = new SatelliteTransponderMode
@@ -90,7 +109,27 @@ public class DopplerPhysicsTests
         var rxPlus2 = DopplerFrequencyCalculator.Compute(mode, 0, 0, 2.5);
         var txPlus3 = DopplerFrequencyCalculator.Compute(mode, 0, 3.0, 0);
 
-        Assert.Equal(baseline.RadioReceiveKHz + 2.5, rxPlus2.RadioReceiveKHz, 3);
-        Assert.Equal(baseline.RadioTransmitKHz + 3.0, txPlus3.RadioTransmitKHz, 3);
+        Assert.Equal(baseline.RadioReceiveKHz - 2.5, rxPlus2.RadioReceiveKHz, 3);
+        Assert.Equal(baseline.RadioTransmitKHz - 3.0, txPlus3.RadioTransmitKHz, 3);
+    }
+
+    [Fact]
+    public void Fo29_rev_rx_matches_inverted_doppler_at_typical_range_rate()
+    {
+        const double downKhz = 435_850.45;
+        const double upKhz = 145_952.65;
+        const double rangeRateKmPerSec = 4.2;
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = downKhz,
+            UplinkKHz = upKhz,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var corrected = DopplerFrequencyCalculator.Compute(mode, rangeRateKmPerSec, 0, 0);
+        Assert.InRange(corrected.RadioReceiveKHz, 435_856.0, 435_857.5);
     }
 }

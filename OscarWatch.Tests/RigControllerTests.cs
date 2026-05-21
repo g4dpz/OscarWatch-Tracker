@@ -65,7 +65,7 @@ public class RigControllerTests
         Assert.NotNull(status.LastReceiveHz);
         Assert.NotNull(status.LastTransmitHz);
         Assert.Equal(67.0, rig.LastToneHz);
-        Assert.Equal(RigVfo.Sub, rig.CurrentVfo);
+        Assert.Equal(RigVfo.Sub, rig.LastToneVfo);
     }
 
     [Fact]
@@ -256,7 +256,7 @@ public class RigControllerTests
 
         Assert.NotNull(before);
         Assert.NotNull(after);
-        Assert.True(after > before);
+        Assert.True(after < before);
     }
 
     [Fact]
@@ -355,12 +355,74 @@ public class RigControllerTests
         Assert.Equal(67.0, rig.LastToneHz);
         Assert.True(rig.LastToneSquelch);
         Assert.True(rig.ToneSquelchOn);
-        Assert.Equal(RigVfo.Sub, rig.CurrentVfo);
+        Assert.Equal(RigVfo.Sub, rig.LastToneVfo);
 
         controller.Update(settings, Build(74.4));
         Assert.Equal(74.4, rig.LastToneHz);
         Assert.True(rig.ToneSquelchOn);
-        Assert.Equal(RigVfo.Sub, rig.CurrentVfo);
+        Assert.Equal(RigVfo.Sub, rig.LastToneVfo);
+    }
+
+    [Fact]
+    public void ApplySelectedCtcss_from_selector_while_cat_paused()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.IcomIc910,
+            Port = "COM1",
+            Region = RigRegion.USA,
+            CatDelayMs = 0,
+            TrackStartElevationDeg = 10
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 436_795,
+            UplinkKHz = 145_850,
+            DownlinkMode = "FMN",
+            UplinkMode = "FMN",
+            CtcssHz = 67.0,
+            CtcssArmHz = 74.4
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "SO-50",
+            NoradId = "25544",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        var access = new RigTrackingContext
+        {
+            TrackState = state,
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, 0),
+            SelectedCtcssHz = 67.0
+        };
+
+        controller.Update(settings, access);
+        Assert.Equal(67.0, rig.LastToneHz);
+
+        settings.CatUpdatesPaused = true;
+        var arm = new RigTrackingContext
+        {
+            TrackState = state,
+            Mode = mode,
+            Corrected = access.Corrected,
+            SelectedCtcssHz = 74.4
+        };
+        controller.PublishContext(settings, arm);
+        Assert.Equal(67.0, rig.LastToneHz);
+
+        controller.ApplySelectedCtcss(settings, arm);
+        Assert.Equal(74.4, rig.LastToneHz);
+        Assert.Equal(RigVfo.Sub, rig.LastToneVfo);
+        Assert.True(rig.ToneSquelchOn);
     }
 
     [Fact]
@@ -404,8 +466,177 @@ public class RigControllerTests
         };
 
         controller.Update(settings, ctx);
-        Assert.Equal(RigVfo.Sub, rig.CurrentVfo);
+        Assert.Equal(RigVfo.Sub, rig.LastToneVfo);
         Assert.Equal(67.0, rig.LastToneHz);
+    }
+
+    [Fact]
+    public void Spinner_offset_survives_small_main_vfo_read_jitter_without_manual_rx_drift()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0,
+            TrackStartElevationDeg = -90
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_850.45,
+            UplinkKHz = 145_952.65,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "FO-29",
+            NoradId = "44208",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        RigTrackingContext Build(double txOffset) =>
+            new()
+            {
+                TrackState = state,
+                Mode = mode,
+                Corrected = DopplerFrequencyCalculator.Compute(mode, 0, txOffset, 0),
+                TransmitOffsetKHz = txOffset,
+                ReceiveOffsetKHz = 0
+            };
+
+        controller.Update(settings, Build(0));
+        Thread.Sleep(650);
+        controller.Update(settings, Build(9.8));
+        var rxAfterOffset = rig.MainHz;
+
+        rig.MainHz = rxAfterOffset + 35;
+        for (var i = 0; i < 8; i++)
+            controller.RunTrackingLoopOnce();
+
+        var status = controller.GetStatus();
+        Assert.InRange(status.ManualReceiveAdjustKHz, -0.001, 0.001);
+        Assert.InRange(status.ManualTransmitAdjustKHz, -0.001, 0.001);
+    }
+
+    [Fact]
+    public void Rev_linear_knob_tune_keeps_receive_and_moves_transmit_opposite()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0,
+            TrackStartElevationDeg = -90
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "99999",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = state,
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, 0),
+            TransmitOffsetKHz = 0,
+            ReceiveOffsetKHz = 0
+        };
+
+        controller.Update(settings, ctx);
+        Thread.Sleep(650);
+        var rxAfterInit = rig.MainHz;
+        var txAfterInit = rig.SubHz;
+        Assert.True(rxAfterInit > 0);
+        Assert.True(txAfterInit > 0);
+
+        rig.MainHz = rxAfterInit + 2_500;
+        for (var i = 0; i < 8; i++)
+            controller.RunTrackingLoopOnce();
+
+        Assert.Equal(rxAfterInit + 2_500, rig.MainHz);
+        Assert.True(rig.SubHz < txAfterInit, $"REV expects TX to drop when RX rises: tx={rig.SubHz} was {txAfterInit}");
+        var status = controller.GetStatus();
+        Assert.InRange(status.ManualReceiveAdjustKHz, 2.4, 2.6);
+        Assert.InRange(status.ManualTransmitAdjustKHz, -2.6, -2.4);
+    }
+
+    [Fact]
+    public void Nor_linear_knob_tune_moves_both_legs_same_direction()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0,
+            TrackStartElevationDeg = -90
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_960,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "NOR"
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "TEST",
+            NoradId = "1",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = state,
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, 0),
+            TransmitOffsetKHz = 0,
+            ReceiveOffsetKHz = 0
+        };
+
+        controller.Update(settings, ctx);
+        Thread.Sleep(650);
+        var rxAfterInit = rig.MainHz;
+        var txAfterInit = rig.SubHz;
+
+        rig.MainHz = rxAfterInit + 3_000;
+        for (var i = 0; i < 8; i++)
+            controller.RunTrackingLoopOnce();
+
+        Assert.Equal(rxAfterInit + 3_000, rig.MainHz);
+        Assert.True(rig.SubHz > txAfterInit);
+        var status = controller.GetStatus();
+        Assert.InRange(status.ManualReceiveAdjustKHz, 2.9, 3.1);
+        Assert.InRange(status.ManualTransmitAdjustKHz, 2.9, 3.1);
     }
 
     [Fact]
@@ -452,5 +683,52 @@ public class RigControllerTests
         Assert.Equal(67.0, rig.LastToneHz);
         Assert.False(rig.LastToneSquelch);
         Assert.True(rig.ToneOn);
+    }
+
+    [Fact]
+    public void Fm_cross_band_updates_tx_when_rx_threshold_hit_first()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdFmHz = 200,
+            CatDelayMs = 0,
+            TrackStartElevationDeg = -90
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 437_800,
+            UplinkKHz = 145_990,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR"
+        };
+
+        RigTrackingContext Build(double rangeRateKmPerSec) =>
+            new()
+            {
+                TrackState = new SatelliteTrackState
+                {
+                    Name = "ISS",
+                    NoradId = "25544",
+                    Subpoint = new GeoCoordinate(0, 0),
+                    LookAngles = new LookAngles(180, 30, 400, rangeRateKmPerSec)
+                },
+                Mode = mode,
+                Corrected = DopplerFrequencyCalculator.Compute(mode, rangeRateKmPerSec, 0, 0),
+                TransmitOffsetKHz = 0,
+                ReceiveOffsetKHz = 0
+            };
+
+        controller.Update(settings, Build(0));
+        var txAtRest = rig.SubHz;
+        Assert.True(txAtRest > 0);
+
+        controller.Update(settings, Build(0.25));
+        Assert.NotEqual(txAtRest, rig.SubHz);
     }
 }

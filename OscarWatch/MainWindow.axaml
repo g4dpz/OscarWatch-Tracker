@@ -86,17 +86,27 @@
                        TextWrapping="Wrap"
                        Foreground="{DynamicResource PassHighlightBrush}"
                        Margin="0,4,0,0" />
-            <StackPanel Spacing="4"
-                        Margin="0,8,0,0"
-                        IsVisible="{Binding ShowRotatorStatus}">
-              <TextBlock Text="Rotator" FontWeight="SemiBold" FontSize="12" />
-              <TextBlock FontSize="12">
-                <Run Text="Az: " /><Run Text="{Binding RotatorAzimuthText}" />
-              </TextBlock>
-              <TextBlock FontSize="12">
-                <Run Text="El: " /><Run Text="{Binding RotatorElevationText}" />
-              </TextBlock>
-            </StackPanel>
+            <Grid ColumnDefinitions="*,Auto"
+                  Margin="0,8,0,0"
+                  IsVisible="{Binding ShowRotatorStatus}">
+              <StackPanel Grid.Column="0" Spacing="4">
+                <TextBlock Text="Rotator" FontWeight="SemiBold" FontSize="12" />
+                <TextBlock FontSize="12">
+                  <Run Text="Az: " /><Run Text="{Binding RotatorAzimuthText}" />
+                </TextBlock>
+                <TextBlock FontSize="12">
+                  <Run Text="El: " /><Run Text="{Binding RotatorElevationText}" />
+                </TextBlock>
+              </StackPanel>
+              <Button Grid.Column="1"
+                      Content="Park"
+                      Command="{Binding ParkRotatorCommand}"
+                      VerticalAlignment="Center"
+                      Margin="8,0,0,0"
+                      MinWidth="52"
+                      Padding="10,4"
+                      FontSize="12" />
+            </Grid>
             <TextBlock Text="{Binding ComPortConflictText}"
                        FontSize="11"
                        TextWrapping="Wrap"

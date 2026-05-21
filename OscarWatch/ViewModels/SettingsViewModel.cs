@@ -139,7 +139,7 @@ public partial class SettingsViewModel : ViewModelBase
     private double _rigTrackStartElevationDeg = -3;
 
     [ObservableProperty]
-    private int _rigDopplerThresholdFmHz = 200;
+    private int _rigDopplerThresholdFmHz = 50;
 
     [ObservableProperty]
     private int _rigDopplerThresholdLinearHz = 50;

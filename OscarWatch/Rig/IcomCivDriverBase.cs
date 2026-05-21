@@ -41,11 +41,14 @@ public abstract class IcomCivDriverBase : IRigDriver
         }
     }
 
-    public long? GetFrequencyHz()
+    public long? ReadFrequencyHz(RigVfo vfo)
     {
-        if (_transport is null || !IsConnected)
-            return _currentVfo is RigVfo.VfoA or RigVfo.Main ? _lastVfoAFreq : _lastVfoBFreq;
+        SelectVfo(vfo);
 
+        if (_transport is null || !IsConnected)
+            return vfo is RigVfo.VfoA or RigVfo.Main ? _lastVfoAFreq : _lastVfoBFreq;
+
+        Thread.Sleep(50);
         var response = _transport.WriteCommand([0x03]);
         var hz = IcomCivCodec.DecodeFrequencyFromResponse(response);
         return hz is { } value && IcomCivCodec.IsValidSatelliteFrequencyHz(value) ? value : null;
@@ -77,6 +80,9 @@ public abstract class IcomCivDriverBase : IRigDriver
 
     public void SelectVfo(RigVfo vfo)
     {
+        if (_currentVfo == vfo && _transport is { IsOpen: true })
+            return;
+
         _currentVfo = vfo;
         if (_transport is null || !IsConnected)
             return;

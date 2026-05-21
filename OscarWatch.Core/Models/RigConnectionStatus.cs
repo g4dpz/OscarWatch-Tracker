@@ -6,4 +6,6 @@ public sealed record RigConnectionStatus(
     string? StatusMessage,
     long? LastReceiveHz,
     long? LastTransmitHz,
-    bool CatUpdatesPaused = false);
+    bool CatUpdatesPaused = false,
+    double ManualReceiveAdjustKHz = 0,
+    double ManualTransmitAdjustKHz = 0);

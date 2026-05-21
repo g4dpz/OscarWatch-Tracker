@@ -13,6 +13,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private double? _lastAzimuth;
     private double? _lastElevation;
     private bool _parked;
+    private bool _manualParkActive;
     private int? _displayAzimuth;
     private int? _displayElevation;
 
@@ -40,15 +41,41 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
         PollPosition();
 
-        if (target?.LookAngles is { } look)
+        if (_manualParkActive)
         {
-            if (look.ElevationDeg >= settings.TrackStartElevationDeg)
-                TryTrack(settings, look.AzimuthDeg, look.ElevationDeg);
+            if (target?.LookAngles is { } look && look.ElevationDeg >= settings.TrackStartElevationDeg)
+            {
+                TryPark(settings);
+                return;
+            }
+
+            _manualParkActive = false;
+            _parked = false;
+        }
+
+        if (target?.LookAngles is { } lookAngles)
+        {
+            if (lookAngles.ElevationDeg >= settings.TrackStartElevationDeg)
+                TryTrack(settings, lookAngles.AzimuthDeg, lookAngles.ElevationDeg);
             else
                 TryPark(settings);
         }
         else
             TryPark(settings);
+    }
+
+    public void Park(RotatorSettings settings)
+    {
+        if (!settings.Enabled || string.IsNullOrWhiteSpace(settings.Port))
+            return;
+
+        if (!EnsureConnected(settings))
+            return;
+
+        _manualParkActive = true;
+        _parked = false;
+        TryPark(settings);
+        PollPosition();
     }
 
     public void Disconnect()
@@ -62,6 +89,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _lastAzimuth = null;
         _lastElevation = null;
         _parked = false;
+        _manualParkActive = false;
         _displayAzimuth = null;
         _displayElevation = null;
     }
