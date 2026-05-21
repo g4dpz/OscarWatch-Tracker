@@ -9,6 +9,9 @@
         Width="1280" Height="556">
   <DockPanel>
     <Menu DockPanel.Dock="Top">
+      <MenuItem Header="_File">
+        <MenuItem Header="_Close" Command="{Binding CloseApplicationCommand}" />
+      </MenuItem>
       <MenuItem Header="_Satellites">
         <MenuItem Header="_Select satellites…" Command="{Binding OpenSatellitesCommand}" />
         <MenuItem Header="_Manage transponder database…" Command="{Binding OpenSatelliteDatabaseCommand}" />
@@ -19,6 +22,9 @@
         <MenuItem Header="_Mutual pass finder…" Command="{Binding OpenMutualPassFinderCommand}" />
       </MenuItem>
       <MenuItem Header="_Settings" Command="{Binding OpenSettingsCommand}" />
+      <MenuItem Header="_Help">
+        <MenuItem Header="_About OscarWatch…" Command="{Binding OpenAboutCommand}" />
+      </MenuItem>
     </Menu>
 
     <Border DockPanel.Dock="Bottom"

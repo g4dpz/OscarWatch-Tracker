@@ -1,0 +1,36 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="OscarWatch.Views.AboutWindow"
+        Title="About OscarWatch"
+        Width="420" Height="280"
+        MinWidth="360" MinHeight="240"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="20">
+    <StackPanel DockPanel.Dock="Bottom"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Spacing="8"
+                Margin="0,16,0,0">
+      <Button Content="OK" Click="OnOkClick" MinWidth="80" IsDefault="True" />
+    </StackPanel>
+
+    <StackPanel Spacing="12">
+      <TextBlock x:Name="TitleText"
+                 Text="OscarWatch"
+                 FontSize="22"
+                 FontWeight="SemiBold" />
+      <TextBlock x:Name="VersionText"
+                 FontSize="13"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+      <TextBlock TextWrapping="Wrap"
+                 FontSize="13"
+                 LineHeight="20"
+                 Text="Desktop satellite tracking for amateur radio operators. Track passes, Doppler-corrected CAT control, rotator tracking, and transponder modes from the OscarWatch satellite database." />
+      <TextBlock TextWrapping="Wrap"
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                 Text="TLE catalog: tle.oscarwatch.org" />
+    </StackPanel>
+  </DockPanel>
+</Window>

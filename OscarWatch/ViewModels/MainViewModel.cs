@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -607,6 +608,23 @@ public partial class MainViewModel : ViewModelBase
             AltitudeMetersAsl = gs.AltitudeMetersAsl,
             GridSquare = gs.GridSquare
         };
+    }
+
+    [RelayCommand]
+    private void CloseApplication()
+    {
+        if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            desktop.Shutdown();
+    }
+
+    [RelayCommand]
+    private async Task OpenAboutAsync()
+    {
+        var window = new AboutWindow();
+        if (App.MainWindow is null)
+            window.Show();
+        else
+            await window.ShowDialog(App.MainWindow);
     }
 
     [RelayCommand]
