@@ -1,32 +1,17 @@
 using OscarWatch.Core.Models;
 
-
-
 namespace OscarWatch.Core.Geo;
 
-
-
 public static class FootprintGeometry
-
 {
-
     private const double EarthRadiusKm = 6371.0;
-
     private const double PoleLatitudeLimit = 89.9;
 
-
-
     public static bool ContainsNorthPole(GeoCoordinate subpoint, double footprintRadiusDeg) =>
-
         subpoint.LatitudeDeg + footprintRadiusDeg >= PoleLatitudeLimit;
 
-
-
     public static bool ContainsSouthPole(GeoCoordinate subpoint, double footprintRadiusDeg) =>
-
         subpoint.LatitudeDeg - footprintRadiusDeg <= -PoleLatitudeLimit;
-
-
 
     public static double EstimateRingRadiusDeg(GeoCoordinate subpoint, IReadOnlyList<GeoCoordinate> ring)
     {
@@ -46,293 +31,113 @@ public static class FootprintGeometry
     }
 
     public static double HorizonRadiusDeg(double altitudeKm, double minimumElevationDeg = 0)
-
     {
-
         if (altitudeKm <= 0)
-
             return 0;
 
-
-
         var ratio = EarthRadiusKm / (EarthRadiusKm + altitudeKm);
-
         var horizonRad = Math.Acos(Math.Clamp(ratio, -1, 1));
-
         var minElRad = minimumElevationDeg * Math.PI / 180.0;
-
         var footprintRad = horizonRad - minElRad;
-
         return footprintRad > 0 ? footprintRad * 180.0 / Math.PI : 0;
-
     }
-
-
 
     public static IReadOnlyList<(double X, double Y)> ProjectRingToMap(
-
         GeoCoordinate subpoint,
-
         IReadOnlyList<GeoCoordinate> ring,
-
         double footprintRadiusDeg,
-
         double mapWidth,
-
         double mapHeight)
-
     {
-
-        if (ring.Count < 3)
-
+        if (ring.Count < 3 || mapWidth <= 0 || mapHeight <= 0)
             return [];
 
-
-
         if (footprintRadiusDeg > 0)
-
         {
-
             if (ContainsNorthPole(subpoint, footprintRadiusDeg))
-
-                return ProjectNorthPolarCap(subpoint, ring, mapWidth, mapHeight);
-
-
+                return ProjectPolarCap(ring, mapWidth, mapHeight, southCap: false);
 
             if (ContainsSouthPole(subpoint, footprintRadiusDeg))
-
-                return ProjectSouthPolarCap(subpoint, ring, mapWidth, mapHeight);
-
+                return ProjectPolarCap(ring, mapWidth, mapHeight, southCap: true);
         }
-
-
 
         return ProjectGeographicRing(subpoint, ring, mapWidth, mapHeight);
-
     }
-
-
 
     private static List<(double X, double Y)> ProjectGeographicRing(
-
         GeoCoordinate subpoint,
-
         IReadOnlyList<GeoCoordinate> ring,
-
         double mapWidth,
-
         double mapHeight)
-
     {
-
         var points = new List<(double X, double Y)>(ring.Count);
-
         foreach (var p in ring)
-
         {
-
             var lon = EquirectangularProjection.NormalizeLongitudeNear(
-
                 p.LongitudeDeg, subpoint.LongitudeDeg);
-
-            points.Add(EquirectangularProjection.GeoToPixel(
-
-                p.LatitudeDeg, lon, mapWidth, mapHeight));
-
+            points.Add(EquirectangularProjection.GeoToPixel(p.LatitudeDeg, lon, mapWidth, mapHeight));
         }
 
-
-
         return points;
-
     }
 
-
-
     /// <summary>
-    /// Polar cap: outer arc of the horizon ring (sorted by longitude), closed along the map rim.
+    /// Polar-cap polygon. When the horizon ring encloses a pole, walking the ring in bearing
+    /// order sweeps every longitude exactly once, so each longitude in [-180°, +180°] maps to
+    /// a single boundary latitude. We sort the projected ring points by x (==longitude order)
+    /// to get a monotone left-to-right boundary, then close the polygon along the map's pole
+    /// rim. The two ring endpoints (at lon ≈ ±180°) are the same physical point, so the polygon
+    /// closes cleanly across the antimeridian.
     /// </summary>
-    private static List<(double X, double Y)> ProjectNorthPolarCap(
-        GeoCoordinate subpoint,
-        IReadOnlyList<GeoCoordinate> ring,
-        double mapWidth,
-        double mapHeight) =>
-        ProjectPolarCap(subpoint, ring, mapWidth, mapHeight, southCap: false);
-
-    private static List<(double X, double Y)> ProjectSouthPolarCap(
-        GeoCoordinate subpoint,
-        IReadOnlyList<GeoCoordinate> ring,
-        double mapWidth,
-        double mapHeight) =>
-        ProjectPolarCap(subpoint, ring, mapWidth, mapHeight, southCap: true);
-
     private static List<(double X, double Y)> ProjectPolarCap(
-        GeoCoordinate subpoint,
         IReadOnlyList<GeoCoordinate> ring,
         double mapWidth,
         double mapHeight,
         bool southCap)
     {
-        const double edgeToleranceDeg = 1.5;
-
-        // Furthest from the enclosed pole = outer edge of the disc on the map.
-        var outerLat = southCap
-            ? ring.Max(p => p.LatitudeDeg)
-            : ring.Min(p => p.LatitudeDeg);
-
-        var arc = new List<(GeoCoordinate Geo, double LonNorm)>();
+        var boundary = new List<(double X, double Y)>(ring.Count);
         foreach (var p in ring)
         {
-            var onOuterEdge = southCap
-                ? p.LatitudeDeg >= outerLat - edgeToleranceDeg
-                : p.LatitudeDeg <= outerLat + edgeToleranceDeg;
-            if (!onOuterEdge)
-                continue;
-
-            var lon = EquirectangularProjection.NormalizeLongitudeNear(
-                p.LongitudeDeg, subpoint.LongitudeDeg);
-            arc.Add((p, lon));
+            var lon = WrapLongitudeToCanonical(p.LongitudeDeg);
+            var x = (lon + 180.0) / 360.0 * mapWidth;
+            var y = LatitudeToY(p.LatitudeDeg, mapHeight);
+            boundary.Add((x, y));
         }
 
-        if (arc.Count < 3)
+        boundary.Sort(static (a, b) => a.X.CompareTo(b.X));
+
+        var rimY = southCap ? mapHeight - 0.5 : 0.5;
+        var leftEdgeY = boundary[0].Y;
+        var rightEdgeY = boundary[^1].Y;
+
+        // Polygon order (north cap shown; south is mirrored to the bottom rim):
+        //   (0, rimY) → (0, leftEdgeY) → boundary left→right → (mapWidth, rightEdgeY) → (mapWidth, rimY)
+        // implicitly closes back to (0, rimY) along the rim.
+        var polygon = new List<(double X, double Y)>(boundary.Count + 4)
         {
-            arc.Clear();
-            foreach (var p in ring)
-            {
-                var lon = EquirectangularProjection.NormalizeLongitudeNear(
-                    p.LongitudeDeg, subpoint.LongitudeDeg);
-                arc.Add((p, lon));
-            }
-        }
+            (0.0, rimY),
+            (0.0, leftEdgeY)
+        };
+        polygon.AddRange(boundary);
+        polygon.Add((mapWidth, rightEdgeY));
+        polygon.Add((mapWidth, rimY));
 
-        arc.Sort((a, b) => a.LonNorm.CompareTo(b.LonNorm));
-
-        var boundary = new List<(double X, double Y)>(arc.Count);
-        var minX = double.MaxValue;
-        var maxX = double.MinValue;
-
-        foreach (var (geo, lon) in arc)
-        {
-            var pt = GeoToPixelForCapArc(geo.LatitudeDeg, lon, mapWidth, mapHeight);
-            boundary.Add(pt);
-            minX = Math.Min(minX, pt.X);
-            maxX = Math.Max(maxX, pt.X);
-        }
-
-        if (boundary.Count < 3 || minX >= maxX)
-            return ProjectGeographicRing(subpoint, ring, mapWidth, mapHeight);
-
-        var rimY = RimPixelY(mapHeight, southCap);
-        return CloseCapAlongRim(boundary, minX, maxX, rimY, mapWidth);
+        return polygon;
     }
 
-    /// <summary>Arc points use continuous latitude so the cap edge is not flattened onto the map rim.</summary>
-    private static (double X, double Y) GeoToPixelForCapArc(
-        double latDeg,
-        double lonDeg,
-        double width,
-        double height)
+    private static double LatitudeToY(double latDeg, double height)
     {
-        var x = (lonDeg + 180.0) / 360.0 * width;
-        var y = (90.0 - latDeg) / 180.0 * height;
-        return (x, y);
+        var clamped = Math.Clamp(latDeg, -90.0, 90.0);
+        return (90.0 - clamped) / 180.0 * height;
     }
 
-    private static double RimPixelY(double mapHeight, bool southCap) =>
-        southCap ? mapHeight - 0.5 : 0.5;
-
-
-
-    private static List<(double X, double Y)> CloseCapAlongRim(
-
-        List<(double X, double Y)> boundary,
-
-        double minX,
-
-        double maxX,
-
-        double rimY,
-
-        double mapWidth)
-
+    private static double WrapLongitudeToCanonical(double lonDeg)
     {
-
-        var vertices = new List<(double X, double Y)>(boundary.Count + 24);
-
-        vertices.AddRange(boundary);
-
-
-
-        var first = boundary[0];
-
-        var last = boundary[^1];
-
-
-
-        AppendRimArcByX(vertices, last.X, maxX, rimY, mapWidth, longWay: false);
-
-        AppendRimArcByX(vertices, maxX, minX, rimY, mapWidth, longWay: true);
-
-        AppendRimArcByX(vertices, minX, first.X, rimY, mapWidth, longWay: false);
-
-
-
-        return vertices.Count >= 3 ? vertices : boundary;
-
+        var lon = lonDeg % 360.0;
+        if (lon > 180.0)
+            lon -= 360.0;
+        else if (lon < -180.0)
+            lon += 360.0;
+        return lon;
     }
-
-
-
-    private static void AppendRimArcByX(
-
-        List<(double X, double Y)> vertices,
-
-        double x0,
-
-        double x1,
-
-        double rimY,
-
-        double mapWidth,
-
-        bool longWay)
-
-    {
-
-        if (Math.Abs(x0 - x1) < 0.5)
-
-        {
-
-            vertices.Add((x1, rimY));
-
-            return;
-
-        }
-
-
-
-        var forward = x1 - x0;
-
-        var wrap = forward > 0 ? forward - mapWidth : forward + mapWidth;
-
-        var delta = longWay
-
-            ? (Math.Abs(forward) >= Math.Abs(wrap) ? forward : wrap)
-
-            : (Math.Abs(forward) <= Math.Abs(wrap) ? forward : wrap);
-
-        var steps = Math.Clamp((int)(Math.Abs(delta) / (mapWidth * 0.02)), 2, 48);
-
-
-
-        for (var s = 1; s <= steps; s++)
-
-            vertices.Add((x0 + delta * s / steps, rimY));
-
-    }
-
-
-
 }
-
-
