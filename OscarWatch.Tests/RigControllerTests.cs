@@ -580,7 +580,7 @@ public class RigControllerTests
         Assert.True(rig.SubHz < txAfterInit, $"REV expects TX to drop when RX rises: tx={rig.SubHz} was {txAfterInit}");
         var status = controller.GetStatus();
         Assert.InRange(status.ManualReceiveAdjustKHz, 2.4, 2.6);
-        Assert.InRange(status.ManualTransmitAdjustKHz, -2.6, -2.4);
+        Assert.InRange(status.ManualTransmitAdjustKHz, -0.001, 0.001);
     }
 
     [Fact]
@@ -699,7 +699,7 @@ public class RigControllerTests
 
         var statusAfter = controller.GetStatus();
         Assert.InRange(statusAfter.ManualReceiveAdjustKHz, 2.4, 2.6);
-        Assert.InRange(statusAfter.ManualTransmitAdjustKHz, -2.6, -2.4);
+        Assert.InRange(statusAfter.ManualTransmitAdjustKHz, -0.001, 0.001);
         Assert.InRange(rig.MainHz, rxBeforeOffset - 1_200, rxBeforeOffset - 800);
     }
 

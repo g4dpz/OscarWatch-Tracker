@@ -367,8 +367,9 @@ public sealed class RigController : IRigController, IDisposable
         double newTx;
         if (context.Mode.DopplerCorrection == DopplerCorrection.Reverse)
         {
+            // Inverting passband: TX follows RX via DopplerFrequencyCalculator; only capture RX delta.
             newRx = deltaKhz;
-            newTx = -deltaKhz;
+            newTx = 0;
         }
         else
         {

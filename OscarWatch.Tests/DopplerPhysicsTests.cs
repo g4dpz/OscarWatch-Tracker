@@ -90,7 +90,29 @@ public class DopplerPhysicsTests
         var withOffset = DopplerFrequencyCalculator.Compute(mode, 4.2, 9.275, 0);
 
         Assert.True(withOffset.RadioTransmitKHz < baseline.RadioTransmitKHz);
-        Assert.InRange(withOffset.RadioTransmitKHz, 145_940.5, 145_941.5);
+        Assert.InRange(withOffset.RadioTransmitKHz, 145_934.5, 145_936.5);
+    }
+
+    [Fact]
+    public void Fo29_rev_tx_couples_downlink_doppler_for_inverting_passband()
+    {
+        const double downKhz = 435_850.45;
+        const double upKhz = 145_952.65;
+        const double shiftDownKhz = -6.814;
+        const double rangeRateKmPerSec = -shiftDownKhz * 299_792.458 / downKhz;
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = downKhz,
+            UplinkKHz = upKhz,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var corrected = DopplerFrequencyCalculator.Compute(mode, rangeRateKmPerSec, 4.0, 0);
+        Assert.InRange(corrected.RadioReceiveKHz, 435_856.8, 435_857.5);
+        Assert.InRange(corrected.RadioTransmitKHz, 145_938.8, 145_940.2);
     }
 
     [Fact]

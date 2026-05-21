@@ -19,7 +19,8 @@ public static class DopplerFrequencyCalculator
         var isBeaconOnly = mode.IsBeaconOnly;
 
         // NOR: same as QTrig rx_dopplercalc / tx_dopplercalc (rx subtract, tx add on the baseline).
-        // REV (inverting V/U): opposite doppler on the radio legs; positive TX offset lowers Radio TX.
+        // REV (inverting V/U): RX doppler inverted vs NOR; TX couples to RX passband position on the
+        // satellite (shiftDown) plus uplink-path doppler (shiftUp). Positive TX offset lowers Radio TX.
         var shiftDown = ComputeShiftKHz(downlink, rangeRateKmPerSec);
         var shiftUp = isBeaconOnly ? 0 : ComputeShiftKHz(uplink, rangeRateKmPerSec);
         var displayShift = shiftDown;
@@ -31,7 +32,8 @@ public static class DopplerFrequencyCalculator
             radioRx = downlink - shiftDown - receiveOffsetKHz + manualReceiveAdjustKHz;
             radioTx = isBeaconOnly
                 ? 0
-                : uplink + shiftUp - transmitOffsetKHz + manualTransmitAdjustKHz;
+                : uplink + shiftDown + shiftUp - transmitOffsetKHz + manualTransmitAdjustKHz
+                  - manualReceiveAdjustKHz;
         }
         else
         {
