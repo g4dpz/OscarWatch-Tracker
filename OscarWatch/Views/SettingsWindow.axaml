@@ -227,12 +227,12 @@
             </ComboBox>
             <TextBlock Text="Start tracking at elevation (°)" Margin="0,8,0,0" />
             <NumericUpDown Value="{Binding RotatorTrackStartElevationDeg, Mode=TwoWay}"
-                           Minimum="-30" Maximum="30"
+                           Minimum="-90" Maximum="90"
                            Increment="0.5" FormatString="F1" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Default is -3°. The rotator begins slewing when the tracked satellite rises above this elevation, and parks once it drops below." />
+                       Text="Default is -3° (below horizon). Range -90° to 90°. The rotator begins slewing when the tracked satellite rises above this elevation, and parks once it drops below." />
             <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,8,0,0">
               <StackPanel Grid.Column="0" Spacing="4">
                 <TextBlock Text="Park azimuth (°)" />
@@ -314,8 +314,13 @@
                        Text="EU uses tone; USA uses tone squelch (subtone)." />
             <TextBlock Text="Start tracking at elevation (°)" Margin="0,8,0,0" />
             <NumericUpDown Value="{Binding RigTrackStartElevationDeg, Mode=TwoWay}"
-                           Minimum="-30" Maximum="30"
+                           Minimum="-90" Maximum="90"
                            Increment="0.5" FormatString="F1" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Margin="0,-6,0,0"
+                       Text="Default is -3°. Use negative values to start CAT before the satellite reaches the horizon (e.g. -10° or lower)." />
             <TextBlock Text="Doppler threshold FM (Hz)" />
             <NumericUpDown Value="{Binding RigDopplerThresholdFmHz, Mode=TwoWay}"
                            Minimum="0" Maximum="2000"

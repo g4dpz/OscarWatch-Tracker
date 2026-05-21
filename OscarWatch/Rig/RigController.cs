@@ -11,6 +11,9 @@ public sealed class RigController : IRigController, IDisposable
     private string? _passKey;
     private long _lastRigRxHz;
     private long _lastRigTxHz;
+    private long _displayRxHz;
+    private long _displayTxHz;
+    private readonly Func<RigSettings, IRigDriver>? _driverFactory;
     private DateTime _lastWriteUtc = DateTime.MinValue;
     private int _thresholdHz;
     private bool _interactive;
@@ -23,14 +26,22 @@ public sealed class RigController : IRigController, IDisposable
     private bool _isTracking;
     private bool _catUpdatesPaused;
     private bool _passInitPending;
+    private double? _lastAppliedCtcssHz;
+    private bool? _lastAppliedCtcssSquelch;
+
+    public RigController(Func<RigSettings, IRigDriver>? driverFactory = null) =>
+        _driverFactory = driverFactory;
 
     public RigConnectionStatus GetStatus() => new(
         _driver?.IsConnected == true,
         _isTracking,
         _statusMessage,
-        _lastRigRxHz > 0 ? _lastRigRxHz : null,
-        _lastRigTxHz > 0 ? _lastRigTxHz : null,
+        DisplayHz(_displayRxHz, _lastRigRxHz),
+        DisplayHz(_displayTxHz, _lastRigTxHz),
         _catUpdatesPaused);
+
+    private static long? DisplayHz(long displayHz, long lastWrittenHz) =>
+        displayHz > 0 ? displayHz : lastWrittenHz > 0 ? lastWrittenHz : null;
 
     public void Update(RigSettings settings, RigTrackingContext? context)
     {
@@ -44,7 +55,8 @@ public sealed class RigController : IRigController, IDisposable
 
         if (settings.Type == RigType.IcomIc9700)
         {
-            EnsureConnected(settings);
+            if (EnsureConnected(settings) && context is not null)
+                SyncDisplayFrequencies(context);
             _statusMessage = "IC-9700 tracking not yet implemented";
             _isTracking = false;
             return;
@@ -65,6 +77,9 @@ public sealed class RigController : IRigController, IDisposable
             return;
         }
 
+        if (context is not null)
+            SyncDisplayFrequencies(context);
+
         if (context is null || context.TrackState.LookAngles is null)
         {
             _isTracking = false;
@@ -76,6 +91,7 @@ public sealed class RigController : IRigController, IDisposable
         {
             _isTracking = false;
             _statusMessage = "Connected (below track elevation)";
+            TryApplyCtcssIfChanged(settings, context);
             return;
         }
 
@@ -91,6 +107,8 @@ public sealed class RigController : IRigController, IDisposable
             _manualRxAdjustKHz = 0;
             _manualTxAdjustKHz = 0;
             _dialHistory.Clear();
+            _lastAppliedCtcssHz = null;
+            _lastAppliedCtcssSquelch = null;
             if (settings.CatUpdatesPaused)
                 _passInitPending = true;
             else
@@ -110,6 +128,8 @@ public sealed class RigController : IRigController, IDisposable
             _passInitPending = false;
         }
 
+        TryApplyCtcssIfChanged(settings, context);
+
         _isTracking = true;
         ProcessTrackingTick(settings, context);
         _statusMessage = "Tracking";
@@ -123,10 +143,14 @@ public sealed class RigController : IRigController, IDisposable
         _passKey = null;
         _lastRigRxHz = 0;
         _lastRigTxHz = 0;
+        _displayRxHz = 0;
+        _displayTxHz = 0;
         _isTracking = false;
         _dialHistory.Clear();
         _passInitPending = false;
         _catUpdatesPaused = false;
+        _lastAppliedCtcssHz = null;
+        _lastAppliedCtcssSquelch = null;
     }
 
     public void Dispose() => Disconnect();
@@ -140,7 +164,7 @@ public sealed class RigController : IRigController, IDisposable
         Disconnect();
         try
         {
-            _driver = RigDriverFactory.Create(settings);
+            _driver = (_driverFactory ?? RigDriverFactory.Create)(settings);
             _driver.Open();
             _connectedKey = key;
             return _driver.IsConnected;
@@ -187,7 +211,7 @@ public sealed class RigController : IRigController, IDisposable
         _interactive = setup.Interactive;
 
         ConfigureVfoModes(context);
-        ApplyCtcss(settings, context);
+        TryApplyCtcssIfChanged(settings, context);
 
         var rxHz = ToHz(context.Corrected.RadioReceiveKHz);
         var txHz = ToHz(context.Corrected.RadioTransmitKHz);
@@ -225,18 +249,44 @@ public sealed class RigController : IRigController, IDisposable
         _driver.SetMode(context.Mode.UplinkMode);
     }
 
+    private void TryApplyCtcssIfChanged(RigSettings settings, RigTrackingContext context)
+    {
+        if (_driver is null || context.SelectedCtcssHz is not { } hz || hz <= 0)
+            return;
+
+        var squelch = settings.Region == RigRegion.USA;
+        if (_lastAppliedCtcssHz == hz && _lastAppliedCtcssSquelch == squelch)
+            return;
+
+        ApplyCtcss(settings, context);
+        _lastAppliedCtcssHz = hz;
+        _lastAppliedCtcssSquelch = squelch;
+    }
+
     private void ApplyCtcss(RigSettings settings, RigTrackingContext context)
     {
         if (_driver is null || context.SelectedCtcssHz is not { } hz || hz <= 0)
             return;
 
-        _driver.SelectVfo(_useMainSub ? RigVfo.Sub : RigVfo.VfoB);
+        // Uplink CTCSS always on Sub for Icom satellite rigs (CI-V 0x07 0xD1), not VFO B.
+        _driver.SelectVfo(UplinkVfoForCtcss(settings, context));
         var squelch = settings.Region == RigRegion.USA;
         _driver.SetToneHz(hz, squelch);
         if (squelch)
             _driver.SetToneSquelchOn(true);
         else
             _driver.SetToneOn(true);
+    }
+
+    /// <summary>Sub on IC-910/9700 satellite passes; VFO B only for non-Icom split fallback.</summary>
+    private static RigVfo UplinkVfoForCtcss(RigSettings settings, RigTrackingContext context)
+    {
+        if (settings.Type is RigType.IcomIc910 or RigType.IcomIc9700)
+            return RigVfo.Sub;
+
+        return RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz)
+            ? RigVfo.Sub
+            : RigVfo.VfoB;
     }
 
     private void WriteInitialFrequencies(long rxHz, long txHz)
@@ -286,7 +336,7 @@ public sealed class RigController : IRigController, IDisposable
         if (!CanWrite(settings))
             return;
 
-        if (!ShouldWrite(rxHz, txHz, context))
+        if (!ShouldWrite(rxHz, txHz))
             return;
 
         if (Math.Abs(rxHz - _lastRigRxHz) > _thresholdHz || _thresholdHz == 0)
@@ -298,16 +348,15 @@ public sealed class RigController : IRigController, IDisposable
         _lastWriteUtc = DateTime.UtcNow;
     }
 
-    private bool ShouldWrite(long rxHz, long txHz, RigTrackingContext context)
+    private bool ShouldWrite(long rxHz, long txHz)
     {
         var rxDelta = Math.Abs(rxHz - _lastRigRxHz);
         var txDelta = _isBeaconOnly ? 0 : Math.Abs(txHz - _lastRigTxHz);
         if (_thresholdHz == 0)
             return rxDelta > 0 || txDelta > 0;
 
-        var downHigher = context.Mode.DownlinkKHz >= context.Mode.UplinkKHz;
-        var gate = downHigher ? rxDelta : txDelta;
-        return gate > _thresholdHz;
+        // Either leg past threshold (RX offset, TX offset, or doppler on that leg).
+        return rxDelta > _thresholdHz || txDelta > _thresholdHz;
     }
 
     private void ProcessInteractiveDial(RigTrackingContext context)
@@ -368,6 +417,20 @@ public sealed class RigController : IRigController, IDisposable
         _driver.SelectVfo(_useMainSub ? RigVfo.Sub : RigVfo.VfoB);
         if (_driver.SetFrequencyHz(hz))
             _lastRigTxHz = hz;
+    }
+
+    private void SyncDisplayFrequencies(RigTrackingContext context)
+    {
+        if (context.TrackState.LookAngles is null)
+            return;
+
+        var corrected = DopplerFrequencyCalculator.Compute(
+            context.Mode,
+            context.TrackState.LookAngles.RangeRateKmPerSec,
+            context.TransmitOffsetKHz + _manualTxAdjustKHz,
+            context.ReceiveOffsetKHz + _manualRxAdjustKHz);
+        _displayRxHz = ToHz(corrected.RadioReceiveKHz);
+        _displayTxHz = ToHz(corrected.RadioTransmitKHz);
     }
 
     private static long ToHz(double kHz) => (long)Math.Round(kHz * 1000.0);

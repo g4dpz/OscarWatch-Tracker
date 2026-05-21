@@ -31,6 +31,10 @@ public static class IcomCivCodec
         ];
     }
 
+    /// <summary>
+    /// Decodes a 0x03 read-frequency response. Bytes are BCD digit pairs; the digit string is
+    /// a decimal Hz value (see QTrig <c>icom.getFrequency</c>), not a hexadecimal number.
+    /// </summary>
     public static long? DecodeFrequencyFromResponse(ReadOnlySpan<byte> response)
     {
         if (response.Length < 10)
@@ -40,17 +44,25 @@ public static class IcomCivCodec
         if (freqBytes.Length < 5)
             return null;
 
-        var hex = "";
+        var digits = "";
         for (var i = freqBytes.Length - 1; i >= 0; i--)
-            hex += freqBytes[i].ToString("X2");
+            digits += freqBytes[i].ToString("X2");
 
-        if (hex.Length > 0 && hex[0] == '0')
-            hex = hex[1..];
+        digits = digits.TrimStart('0');
+        if (digits.Length == 0)
+            return 0;
 
-        return long.TryParse(hex, System.Globalization.NumberStyles.HexNumber, null, out var hz)
+        return long.TryParse(digits, System.Globalization.NumberStyles.Integer,
+            System.Globalization.CultureInfo.InvariantCulture, out var hz)
             ? hz
             : null;
     }
+
+    /// <summary>True when <paramref name="hz"/> is in an amateur satellite band the IC-910 supports.</summary>
+    public static bool IsValidSatelliteFrequencyHz(long hz) =>
+        hz is >= 144_000_000 and <= 148_000_000
+            or >= 430_000_000 and <= 450_000_000
+            or >= 1_200_000_000 and <= 1_300_000_000;
 
     public static int ParseCivAddressHex(string? hex)
     {

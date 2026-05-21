@@ -41,7 +41,7 @@ public sealed class EasyCommRotator : IRotatorDriver
     {
         var az = QueryAngle("AZ");
         var el = QueryAngle("EL");
-        return (az is null || el is null) ? (null, null) : (az, el);
+        return (az, el);
     }
 
     public void Dispose()

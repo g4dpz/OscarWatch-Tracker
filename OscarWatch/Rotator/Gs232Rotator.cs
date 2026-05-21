@@ -35,30 +35,22 @@ public sealed class Gs232Rotator : IRotatorDriver
         _gate.Wait();
         try
         {
-            _port.DiscardInBuffer();
-            _port.Write("C2\r");
-            Thread.Sleep(100);
-            var response = ReadLineSafe();
-            if (TryParsePosition(response, out var az, out var el))
-                return (az, el);
+            // C2: 'AZ=aaa EL=eee', or just 'AZ=aaa', or just 'EL=eee' — then C / B for missing axis.
+            Gs232PositionParser.TryParseParts(Query("C2"), out var az, out var el);
 
-            int? azOnly = null;
-            int? elOnly = null;
+            if (az is null)
+            {
+                if (Gs232PositionParser.TryParseAzimuthLine(Query("C"), out var azValue))
+                    az = azValue;
+            }
 
-            _port.Write("C\r");
-            Thread.Sleep(100);
-            if (TryParseAzimuth(ReadLineSafe(), out var azParsed))
-                azOnly = azParsed;
+            if (el is null)
+            {
+                if (Gs232PositionParser.TryParseElevationLine(Query("B"), out var elValue))
+                    el = elValue;
+            }
 
-            _port.Write("B\r");
-            Thread.Sleep(100);
-            if (TryParseElevation(ReadLineSafe(), out var elParsed))
-                elOnly = elParsed;
-
-            if (azOnly is not null && elOnly is not null)
-                return (azOnly, elOnly);
-
-            return (null, null);
+            return az is not null && el is not null ? (az, el) : (null, null);
         }
         finally
         {
@@ -85,13 +77,22 @@ public sealed class Gs232Rotator : IRotatorDriver
         _gate.Dispose();
     }
 
+    private string? Query(string command)
+    {
+        _port.DiscardInBuffer();
+        _port.Write(command + "\r");
+        return ReadLineResponse();
+    }
+
     private void SendCommand(string command)
     {
         _gate.Wait();
         try
         {
+            _port.DiscardInBuffer();
             _port.Write(command + "\r");
-            Thread.Sleep(100);
+            Thread.Sleep(150);
+            _port.DiscardInBuffer();
         }
         finally
         {
@@ -99,53 +100,34 @@ public sealed class Gs232Rotator : IRotatorDriver
         }
     }
 
-    private string ReadLineSafe()
+    private string? ReadLineResponse()
     {
         try
         {
-            return _port.ReadLine().Trim();
+            Thread.Sleep(150);
+            var line = _port.ReadLine().Trim();
+            return string.IsNullOrWhiteSpace(line) ? null : line;
+        }
+        catch (TimeoutException)
+        {
+            return ReadExistingLine();
         }
         catch
         {
-            return "";
+            return null;
         }
     }
 
-    private static bool TryParsePosition(string response, out int azimuth, out int elevation)
+    private string? ReadExistingLine()
     {
-        azimuth = 0;
-        elevation = 0;
-        if (string.IsNullOrWhiteSpace(response))
-            return false;
-
-        var azFound = false;
-        var elFound = false;
-        foreach (var part in response.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        try
         {
-            if (TryParseAzimuth(part, out azimuth))
-                azFound = true;
-            else if (TryParseElevation(part, out elevation))
-                elFound = true;
+            var text = _port.ReadExisting().Trim('\r', '\n', ' ');
+            return string.IsNullOrWhiteSpace(text) ? null : text;
         }
-
-        return azFound && elFound;
-    }
-
-    private static bool TryParseAzimuth(string token, out int azimuth)
-    {
-        azimuth = 0;
-        if (!token.StartsWith("AZ=", StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        return int.TryParse(token.AsSpan(3), out azimuth);
-    }
-
-    private static bool TryParseElevation(string token, out int elevation)
-    {
-        elevation = 0;
-        if (!token.StartsWith("EL=", StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        return int.TryParse(token.AsSpan(3), out elevation);
+        catch
+        {
+            return null;
+        }
     }
 }

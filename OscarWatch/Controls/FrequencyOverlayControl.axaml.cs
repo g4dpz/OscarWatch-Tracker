@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using OscarWatch.ViewModels;
 
@@ -173,6 +174,27 @@ public partial class FrequencyOverlayControl : UserControl
 
     private void OnOverlayPointerCaptureLost(object? sender, PointerCaptureLostEventArgs e) =>
         _isDragging = false;
+
+    private void OnOffsetSpinValueChanged(object? sender, NumericUpDownValueChangedEventArgs e)
+    {
+        if (DataContext is not FrequencyOverlayViewModel vm || sender is not NumericUpDown spin)
+            return;
+
+        var khz = (double)(spin.Value ?? 0m);
+        if (ReferenceEquals(sender, TxOffsetUpDown))
+        {
+            if (Math.Abs(vm.TransmitOffsetKHz - khz) < 0.0001)
+                return;
+            vm.TransmitOffsetKHz = khz;
+        }
+        else
+        {
+            if (Math.Abs(vm.ReceiveOffsetKHz - khz) < 0.0001)
+                return;
+            vm.ReceiveOffsetKHz = khz;
+        }
+        // Property change handler calls ApplyOffsetEdit (display now, CAT debounced in MainViewModel).
+    }
 
     private static (double X, double Y) ClampPosition(
         double x,

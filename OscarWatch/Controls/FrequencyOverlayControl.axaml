@@ -193,30 +193,40 @@
             <StackPanel Grid.Column="0" Spacing="6">
               <TextBlock Text="TX offset (kHz)" FontSize="12" FontWeight="SemiBold"
                          Foreground="#FFE0E0E0" />
-              <NumericUpDown Classes="offset-spin"
-                             Value="{Binding TransmitOffsetKHz, Mode=TwoWay}"
+              <NumericUpDown x:Name="TxOffsetUpDown"
+                             Classes="offset-spin"
+                             Value="{Binding TransmitOffsetKHz, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              Minimum="-10" Maximum="10"
-                             Increment="0.001" FormatString="F3" />
+                             Increment="0.025" FormatString="F3"
+                             ValueChanged="OnOffsetSpinValueChanged" />
             </StackPanel>
             <StackPanel Grid.Column="1" Spacing="6">
               <TextBlock Text="RX offset (kHz)" FontSize="12" FontWeight="SemiBold"
                          Foreground="#FFE0E0E0" />
-              <NumericUpDown Classes="offset-spin"
-                             Value="{Binding ReceiveOffsetKHz, Mode=TwoWay}"
+              <NumericUpDown x:Name="RxOffsetUpDown"
+                             Classes="offset-spin"
+                             Value="{Binding ReceiveOffsetKHz, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              Minimum="-10" Maximum="10"
-                             Increment="0.001" FormatString="F3" />
+                             Increment="0.025" FormatString="F3"
+                             ValueChanged="OnOffsetSpinValueChanged" />
             </StackPanel>
           </Grid>
           <StackPanel Spacing="6" IsVisible="{Binding IsBeaconOnly}">
             <TextBlock Text="RX offset (kHz)" FontSize="12" FontWeight="SemiBold"
                        Foreground="#FFE0E0E0" />
-            <NumericUpDown Classes="offset-spin"
-                           Value="{Binding ReceiveOffsetKHz, Mode=TwoWay}"
+            <NumericUpDown x:Name="RxOffsetBeaconUpDown"
+                           Classes="offset-spin"
+                           Value="{Binding ReceiveOffsetKHz, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                            Minimum="-10" Maximum="10"
-                           Increment="0.001" FormatString="F3"
+                           Increment="0.025" FormatString="F3"
                            MaxWidth="220"
-                           HorizontalAlignment="Left" />
+                           HorizontalAlignment="Left"
+                           ValueChanged="OnOffsetSpinValueChanged" />
           </StackPanel>
+          <TextBlock Text="{Binding OffsetAppliedHint}"
+                     FontSize="11"
+                     TextWrapping="Wrap"
+                     Foreground="#FF90C090" />
           <CheckBox Content="Remember offsets for this satellite"
                     IsChecked="{Binding RememberOffsets, Mode=TwoWay}"
                     FontSize="12"

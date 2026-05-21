@@ -23,6 +23,11 @@ public sealed class TleService : ITleService
         "OscarWatch",
         "tle-cache.txt");
 
+    public static string BundledSeedPath { get; } = Path.Combine(
+        AppContext.BaseDirectory,
+        "Assets",
+        "tle-seed.txt");
+
     public bool IsStale(int staleHours) =>
         !LastFetchedUtc.HasValue ||
         DateTime.UtcNow - LastFetchedUtc.Value > TimeSpan.FromHours(staleHours);
@@ -39,6 +44,9 @@ public sealed class TleService : ITleService
             _catalog = TleParser.ParseCatalog(cached).ToList();
             LastFetchedUtc = File.GetLastWriteTimeUtc(CachePath);
         }
+
+        if (_catalog.Count == 0)
+            TryLoadBundledSeed();
     }
 
     public async Task RefreshAsync(bool force = false, CancellationToken cancellationToken = default)
@@ -56,6 +64,17 @@ public sealed class TleService : ITleService
     public IReadOnlyList<SatelliteCatalogEntry> GetEnabledSatellites(AppSettings settings)
     {
         var enabled = new HashSet<string>(settings.EnabledSatelliteNames, StringComparer.OrdinalIgnoreCase);
-        return _catalog.Where(s => enabled.Contains(s.Name)).ToList();
+        return _catalog.Where(s => SatelliteCatalogMatching.IsEnabled(s, enabled)).ToList();
+    }
+
+    private void TryLoadBundledSeed()
+    {
+        if (!File.Exists(BundledSeedPath))
+            return;
+
+        var text = File.ReadAllText(BundledSeedPath);
+        _catalog = TleParser.ParseCatalog(text).ToList();
+        if (_catalog.Count > 0)
+            LastFetchedUtc = null;
     }
 }

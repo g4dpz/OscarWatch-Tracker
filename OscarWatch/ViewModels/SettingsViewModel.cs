@@ -223,7 +223,7 @@ public partial class SettingsViewModel : ViewModelBase
             BaudRate = RotatorBaudRate,
             AzimuthRange = SelectedAzimuthRangeChoice?.Value ?? RotatorAzimuthRange.Deg450,
             ElevationRange = SelectedElevationRangeChoice?.Value ?? RotatorElevationRange.Deg180,
-            TrackStartElevationDeg = RotatorTrackStartElevationDeg,
+            TrackStartElevationDeg = Math.Clamp(RotatorTrackStartElevationDeg, -90, 90),
             ParkAzimuthDeg = RotatorParkAzimuthDeg,
             ParkElevationDeg = RotatorParkElevationDeg
         };
@@ -235,7 +235,7 @@ public partial class SettingsViewModel : ViewModelBase
             BaudRate = RigBaudRate,
             CivAddress = RigCivAddress.Trim(),
             Region = SelectedRigRegionChoice?.Value ?? RigRegion.EU,
-            TrackStartElevationDeg = RigTrackStartElevationDeg,
+            TrackStartElevationDeg = Math.Clamp(RigTrackStartElevationDeg, -90, 90),
             DopplerThresholdFmHz = RigDopplerThresholdFmHz,
             DopplerThresholdLinearHz = RigDopplerThresholdLinearHz,
             CatDelayMs = RigCatDelayMs,

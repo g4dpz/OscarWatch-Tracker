@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using OscarWatch.Core.Display;
 using OscarWatch.Core.Hardware;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Radio;
 using OscarWatch.Core.Services;
 using OscarWatch.Theme;
 using OscarWatch.Views;
@@ -26,8 +27,11 @@ public partial class MainViewModel : ViewModelBase
     public FrequencyOverlayViewModel Frequencies { get; }
     private DispatcherTimer? _tleRefreshTimer;
     private DispatcherTimer? _passListRefreshTimer;
+    private DispatcherTimer? _rigOffsetDebounceTimer;
     private static readonly TimeSpan PassListRefreshInterval = TimeSpan.FromMinutes(15);
     private static readonly TimeSpan ImminentPassWindow = TimeSpan.FromMinutes(15);
+    /// <summary>Coalesce spinner clicks into one CAT write after the user pauses.</summary>
+    private const int RigOffsetDebounceMs = 200;
 
     [ObservableProperty]
     private string _statusText = "Starting…";
@@ -118,9 +122,41 @@ public partial class MainViewModel : ViewModelBase
         _rotator = rotator;
         _rig = rig;
         Frequencies = frequencies;
+        Frequencies.OffsetsChanged += (_, _) => ScheduleRigOffsetRefresh();
+        Frequencies.CtcssChanged += (_, _) => RefreshRigFromOverlay();
 
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += (_, _) => Tick();
+    }
+
+    private void ScheduleRigOffsetRefresh()
+    {
+        var delayMs = Math.Max(RigOffsetDebounceMs, _settings.Current.Rig.CatDelayMs);
+        if (_rigOffsetDebounceTimer is null)
+        {
+            _rigOffsetDebounceTimer = new DispatcherTimer();
+            _rigOffsetDebounceTimer.Tick += (_, _) =>
+            {
+                _rigOffsetDebounceTimer!.Stop();
+                RefreshRigFromOffsets();
+            };
+        }
+
+        _rigOffsetDebounceTimer.Interval = TimeSpan.FromMilliseconds(delayMs);
+        _rigOffsetDebounceTimer.Stop();
+        _rigOffsetDebounceTimer.Start();
+    }
+
+    private void RefreshRigFromOffsets() => RefreshRigFromOverlay();
+
+    private void RefreshRigFromOverlay()
+    {
+        if (ShowComPortConflict)
+            return;
+
+        var focused = GetFocusedTrackState(_tracking.GetLiveStates(DateTime.UtcNow), FocusedNoradId);
+        _rig.Update(_settings.Current.Rig, Frequencies.TryBuildRigTrackingContext(focused));
+        UpdateRigDisplay();
     }
 
     public async Task InitializeAsync()
@@ -238,12 +274,19 @@ public partial class MainViewModel : ViewModelBase
         var status = _rig.GetStatus();
         RigCatPaused = status.CatUpdatesPaused;
         RigStatusText = status.StatusMessage ?? (status.IsConnected ? "Connected" : "Disconnected");
-        RigReceiveText = status.LastReceiveHz is { } rx
-            ? FrequencyDisplayFormat.FormatMHz(rx / 1000.0)
-            : "—";
-        RigTransmitText = status.LastTransmitHz is { } tx
-            ? FrequencyDisplayFormat.FormatMHz(tx / 1000.0)
-            : "—";
+        RigReceiveText = FormatSidebarFrequency(status.LastReceiveHz, Frequencies.RadioReceiveText, status.IsConnected);
+        RigTransmitText = FormatSidebarFrequency(status.LastTransmitHz, Frequencies.RadioTransmitText, status.IsConnected);
+    }
+
+    private static string FormatSidebarFrequency(long? rigHz, string overlayText, bool rigConnected)
+    {
+        if (rigHz is { } hz && IcomCivCodec.IsValidSatelliteFrequencyHz(hz))
+            return FrequencyDisplayFormat.FormatMHz(hz / 1000.0);
+
+        if (rigConnected && !string.IsNullOrWhiteSpace(overlayText) && overlayText != "—")
+            return overlayText;
+
+        return "—";
     }
 
     private void ConfigurePassListRefreshTimer()
@@ -388,11 +431,17 @@ public partial class MainViewModel : ViewModelBase
 
     private void UpdateStatus()
     {
+        var catalogCount = _tleService.Catalog.Count;
         var count = _tleService.GetEnabledSatellites(_settings.Current).Count;
         var tleAge = _tleService.LastFetchedUtc.HasValue
             ? $"TLE {DateTime.UtcNow - _tleService.LastFetchedUtc.Value:hh\\:mm} ago"
-            : "TLE not fetched";
-        StatusText = $"{tleAge} | {count} satellite(s) enabled";
+            : catalogCount > 0 ? "TLE bundled seed" : "TLE not loaded";
+
+        StatusText = catalogCount == 0
+            ? "No TLE data — check network and use Refresh TLEs"
+            : count == 0
+                ? $"{tleAge} | 0 enabled — Satellites menu → enable some"
+                : $"{tleAge} | {count} satellite(s) enabled";
     }
 
     [RelayCommand]

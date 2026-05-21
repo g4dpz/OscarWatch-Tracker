@@ -15,7 +15,6 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private bool _parked;
     private int? _displayAzimuth;
     private int? _displayElevation;
-    private int _updateCount;
 
     public RotatorPositionStatus GetPositionStatus() =>
         new(_rotator is not null, _displayAzimuth, _displayElevation);
@@ -39,6 +38,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _parked = false;
         }
 
+        PollPosition();
+
         if (target?.LookAngles is { } look)
         {
             if (look.ElevationDeg >= settings.TrackStartElevationDeg)
@@ -48,8 +49,6 @@ public sealed class RotatorController : IRotatorController, IDisposable
         }
         else
             TryPark(settings);
-
-        PollPositionIfDue();
     }
 
     public void Disconnect()
@@ -65,7 +64,6 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _parked = false;
         _displayAzimuth = null;
         _displayElevation = null;
-        _updateCount = 0;
     }
 
     public void Dispose() => Disconnect();
@@ -113,8 +111,6 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _rotator.SetPosition(azimuthDeg, elevationDeg, settings);
             _lastAzimuth = Math.Round(azimuthDeg);
             _lastElevation = Math.Round(elevationDeg);
-            _displayAzimuth = (int)_lastAzimuth;
-            _displayElevation = (int)_lastElevation;
             _parked = false;
         }
         catch
@@ -133,8 +129,6 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _rotator.SetPosition(settings.ParkAzimuthDeg, settings.ParkElevationDeg, settings);
             _lastAzimuth = settings.ParkAzimuthDeg;
             _lastElevation = settings.ParkElevationDeg;
-            _displayAzimuth = (int)Math.Round(settings.ParkAzimuthDeg);
-            _displayElevation = (int)Math.Round(settings.ParkElevationDeg);
             _parked = true;
         }
         catch
@@ -143,13 +137,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
         }
     }
 
-    private void PollPositionIfDue()
+    private void PollPosition()
     {
         if (_rotator is null)
-            return;
-
-        _updateCount++;
-        if (_updateCount % 3 != 0)
             return;
 
         try

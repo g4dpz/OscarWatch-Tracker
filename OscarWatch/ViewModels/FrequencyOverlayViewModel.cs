@@ -17,6 +17,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private string? _currentNoradId;
     private bool _isLoadingSelection;
     private double _lastRangeRateKmPerSec;
+    private SatelliteTrackState? _lastTrackState;
 
     [ObservableProperty]
     private string _satelliteName = "—";
@@ -78,6 +79,9 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private bool _rememberOffsets = true;
 
     [ObservableProperty]
+    private string _offsetAppliedHint = "";
+
+    [ObservableProperty]
     private double _overlayX = 12;
 
     [ObservableProperty]
@@ -113,6 +117,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
     public void Update(SatelliteTrackState? state)
     {
+        _lastTrackState = state;
         if (state is null)
         {
             SatelliteName = "—";
@@ -178,8 +183,23 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             Corrected = corrected,
             TransmitOffsetKHz = TransmitOffsetKHz,
             ReceiveOffsetKHz = ReceiveOffsetKHz,
-            SelectedCtcssHz = SelectedCtcssTone?.Hz
+            SelectedCtcssHz = GetActiveCtcssHz()
         };
+    }
+
+    /// <summary>Hz sent to the uplink VFO (combo selection, or the mode's only tone).</summary>
+    public double? GetActiveCtcssHz()
+    {
+        if (SelectedCtcssTone is { } selected)
+            return selected.Hz;
+
+        if (SelectedMode is null || !SelectedMode.HasAnyCtcss)
+            return null;
+
+        if (SelectedMode.HasCtcss)
+            return SelectedMode.CtcssHz;
+
+        return SelectedMode.CtcssArmHz;
     }
 
     public Thickness OverlayMargin => new(OverlayX, OverlayY, 0, 0);
@@ -203,6 +223,11 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
     /// <summary>Height may change when modes load; view reclamps on next layout pass.</summary>
     public event EventHandler? OverlayLayoutChanged;
+
+    /// <summary>TX/RX micro-adjust offsets changed — rig should refresh CAT promptly.</summary>
+    public event EventHandler? OffsetsChanged;
+
+    public event EventHandler? CtcssChanged;
 
     private void RequestOverlayReclamp() => OverlayLayoutChanged?.Invoke(this, EventArgs.Empty);
 
@@ -229,9 +254,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         if (_isLoadingSelection)
             return;
 
-        if (RememberOffsets)
-            PersistSelection();
-        UpdateFromCurrentState();
+        ApplyOffsetEdit();
     }
 
     partial void OnReceiveOffsetKHzChanged(double value)
@@ -239,9 +262,61 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         if (_isLoadingSelection)
             return;
 
+        ApplyOffsetEdit();
+    }
+
+    /// <summary>Called when offset spinners change (including while typing).</summary>
+    public void ApplyOffsetEdit()
+    {
         if (RememberOffsets)
             PersistSelection();
-        UpdateFromCurrentState();
+
+        RefreshFrequencyDisplay();
+        OffsetsChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>Recompute Radio/Sat frequencies from last track state and current offsets.</summary>
+    public void RefreshFrequencyDisplay()
+    {
+        if (SelectedMode is null)
+        {
+            OffsetAppliedHint = "";
+            return;
+        }
+
+        _lastRangeRateKmPerSec = _lastTrackState?.LookAngles?.RangeRateKmPerSec ?? _lastRangeRateKmPerSec;
+        var corrected = DopplerFrequencyCalculator.Compute(
+            SelectedMode,
+            _lastRangeRateKmPerSec,
+            TransmitOffsetKHz,
+            ReceiveOffsetKHz);
+
+        IsBeaconOnly = SelectedMode.IsBeaconOnly;
+        RadioTransmitText = IsBeaconOnly ? "—" : FrequencyDisplayFormat.FormatMHz(corrected.RadioTransmitKHz);
+        RadioReceiveText = FrequencyDisplayFormat.FormatMHz(corrected.RadioReceiveKHz);
+        SatelliteTransmitText = IsBeaconOnly ? "—" : FrequencyDisplayFormat.FormatMHz(corrected.SatelliteTransmitKHz);
+        SatelliteReceiveText = FrequencyDisplayFormat.FormatMHz(corrected.SatelliteReceiveKHz);
+        DopplerShiftText = FrequencyDisplayFormat.FormatDopplerKHz(corrected.DopplerShiftKHz);
+        UpdateOffsetAppliedHint();
+    }
+
+    private void UpdateOffsetAppliedHint()
+    {
+        if (SelectedMode is null)
+        {
+            OffsetAppliedHint = "";
+            return;
+        }
+
+        var parts = new List<string>();
+        if (Math.Abs(TransmitOffsetKHz) > 0.0001 && !IsBeaconOnly)
+            parts.Add($"TX {TransmitOffsetKHz:+0.000;-0.000;0} kHz → Radio ↑");
+        if (Math.Abs(ReceiveOffsetKHz) > 0.0001)
+            parts.Add($"RX {ReceiveOffsetKHz:+0.000;-0.000;0} kHz → Radio ↓");
+
+        OffsetAppliedHint = parts.Count == 0
+            ? "Offsets apply to the Radio row only (Sat shows nominal + doppler)."
+            : string.Join(" · ", parts);
     }
 
     partial void OnRememberOffsetsChanged(bool value)
@@ -264,6 +339,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
         UpdateCtcssHint();
         PersistSelection();
+        CtcssChanged?.Invoke(this, EventArgs.Empty);
         RequestOverlayReclamp();
     }
 
@@ -377,25 +453,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         _ = _settings.SaveAsync();
     }
 
-    private void UpdateFromCurrentState()
-    {
-        // Re-run doppler display with current mode/offsets; range rate unchanged until next Tick.
-        if (SelectedMode is null)
-            return;
-
-        var corrected = DopplerFrequencyCalculator.Compute(
-            SelectedMode,
-            _lastRangeRateKmPerSec,
-            TransmitOffsetKHz,
-            ReceiveOffsetKHz);
-
-        IsBeaconOnly = SelectedMode.IsBeaconOnly;
-        RadioTransmitText = IsBeaconOnly ? "—" : FrequencyDisplayFormat.FormatMHz(corrected.RadioTransmitKHz);
-        RadioReceiveText = FrequencyDisplayFormat.FormatMHz(corrected.RadioReceiveKHz);
-        SatelliteTransmitText = IsBeaconOnly ? "—" : FrequencyDisplayFormat.FormatMHz(corrected.SatelliteTransmitKHz);
-        SatelliteReceiveText = FrequencyDisplayFormat.FormatMHz(corrected.SatelliteReceiveKHz);
-        DopplerShiftText = FrequencyDisplayFormat.FormatDopplerKHz(corrected.DopplerShiftKHz);
-    }
+    private void UpdateFromCurrentState() => RefreshFrequencyDisplay();
 
     private void UpdateCtcssDisplay(string? restoreToneRole = null)
     {
@@ -473,5 +531,6 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         SelectedCtcssTone = null;
         CtcssHintText = "";
         ShowCtcssHint = false;
+        OffsetAppliedHint = "";
     }
 }
