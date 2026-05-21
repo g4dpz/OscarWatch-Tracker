@@ -584,6 +584,126 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Rev_linear_clears_phantom_manual_when_dial_matches_doppler_baseline()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0,
+            TrackStartElevationDeg = -90
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "99999",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = state,
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, 0),
+            TransmitOffsetKHz = 0,
+            ReceiveOffsetKHz = 0
+        };
+
+        controller.Update(settings, ctx);
+        Thread.Sleep(650);
+
+        // Simulate accumulated phantom manual (false knob detect) while rig stayed at doppler target.
+        typeof(RigController).GetField("_manualRxAdjustKHz", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .SetValue(controller, -9.8);
+        typeof(RigController).GetField("_manualTxAdjustKHz", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .SetValue(controller, 9.8);
+
+        for (var i = 0; i < 8; i++)
+            controller.RunTrackingLoopOnce();
+
+        var status = controller.GetStatus();
+        Assert.InRange(status.ManualReceiveAdjustKHz, -0.001, 0.001);
+        Assert.InRange(status.ManualTransmitAdjustKHz, -0.001, 0.001);
+    }
+
+    [Fact]
+    public void Rev_linear_rx_offset_change_preserves_vfo_tune()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0,
+            TrackStartElevationDeg = -90
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "99999",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        RigTrackingContext Build(double rxOffset) => new()
+        {
+            TrackState = state,
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, rxOffset),
+            TransmitOffsetKHz = 0,
+            ReceiveOffsetKHz = rxOffset
+        };
+
+        controller.Update(settings, Build(0));
+        Thread.Sleep(650);
+
+        var rxAfterInit = rig.MainHz;
+        rig.MainHz = rxAfterInit + 2_500;
+        for (var i = 0; i < 8; i++)
+            controller.RunTrackingLoopOnce();
+
+        var rxBeforeOffset = rig.MainHz;
+        var statusBefore = controller.GetStatus();
+        Assert.InRange(statusBefore.ManualReceiveAdjustKHz, 2.4, 2.6);
+
+        controller.Update(settings, Build(1.0));
+        Thread.Sleep(650);
+        for (var i = 0; i < 4; i++)
+            controller.RunTrackingLoopOnce();
+
+        var statusAfter = controller.GetStatus();
+        Assert.InRange(statusAfter.ManualReceiveAdjustKHz, 2.4, 2.6);
+        Assert.InRange(statusAfter.ManualTransmitAdjustKHz, -2.6, -2.4);
+        Assert.InRange(rig.MainHz, rxBeforeOffset - 1_200, rxBeforeOffset - 800);
+    }
+
+    [Fact]
     public void Nor_linear_knob_tune_moves_both_legs_same_direction()
     {
         var rig = new RecordingRigDriver();
@@ -730,5 +850,112 @@ public class RigControllerTests
 
         controller.Update(settings, Build(0.25));
         Assert.NotEqual(txAtRest, rig.SubHz);
+    }
+
+    [Fact]
+    public void Rev_linear_doppler_lag_without_dial_move_does_not_set_manual_tune()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0,
+            TrackStartElevationDeg = -90
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        RigTrackingContext Build(double rangeRateKmPerSec) => new()
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "RS-44",
+                NoradId = "99999",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, rangeRateKmPerSec)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, rangeRateKmPerSec, 0, 0),
+            TransmitOffsetKHz = 0,
+            ReceiveOffsetKHz = 0
+        };
+
+        controller.Update(settings, Build(0));
+        Thread.Sleep(650);
+        var dialHz = rig.MainHz;
+        Assert.True(dialHz > 0);
+
+        controller.PublishContext(settings, Build(4.2));
+        Thread.Sleep(650);
+        for (var i = 0; i < 12; i++)
+            controller.RunTrackingLoopOnce();
+
+        var status = controller.GetStatus();
+        Assert.InRange(status.ManualReceiveAdjustKHz, -0.001, 0.001);
+        Assert.InRange(status.ManualTransmitAdjustKHz, -0.001, 0.001);
+    }
+
+    [Fact]
+    public void New_pass_with_offsets_does_not_force_spurious_offset_change()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0,
+            TrackStartElevationDeg = -90
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "99999",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        RigTrackingContext Build(double rxOffset) => new()
+        {
+            TrackState = state,
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, rxOffset),
+            TransmitOffsetKHz = 0,
+            ReceiveOffsetKHz = rxOffset
+        };
+
+        controller.Update(settings, Build(4.025));
+        Thread.Sleep(650);
+        var rxAfterInit = rig.MainHz;
+        var writesAfterInit = rig.SetFrequencyCallCount;
+
+        controller.PublishContext(settings, Build(4.025));
+        Thread.Sleep(650);
+        for (var i = 0; i < 4; i++)
+            controller.RunTrackingLoopOnce();
+
+        Assert.Equal(rxAfterInit, rig.MainHz);
+        Assert.Equal(writesAfterInit, rig.SetFrequencyCallCount);
     }
 }

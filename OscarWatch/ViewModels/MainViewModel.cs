@@ -216,7 +216,6 @@ public partial class MainViewModel : ViewModelBase
         SyncLiveStates(states);
 
         UpdateLiveTelemetry(states);
-        Frequencies.Update(GetFocusedTrackState(states, FocusedNoradId));
         UpdateNextPassCountdown();
         PruneExpiredPasses();
         UpdatePassHighlightState();
@@ -231,6 +230,7 @@ public partial class MainViewModel : ViewModelBase
             PublishRigTrackingContext(focused);
 
         RefreshRigUi(focused);
+        Frequencies.Update(focused);
     }
 
     /// <summary>Refresh look angles / range rate for the doppler loop (4 Hz). UI still ticks at 1 Hz.</summary>

@@ -213,8 +213,8 @@ public sealed class RigController : IRigController, IDisposable
         ClearDialHistory();
         _lastAppliedCtcssHz = null;
         _lastAppliedCtcssSquelch = null;
-        _lastContextRxOffsetKHz = 0;
-        _lastContextTxOffsetKHz = 0;
+        _lastContextRxOffsetKHz = context.ReceiveOffsetKHz;
+        _lastContextTxOffsetKHz = context.TransmitOffsetKHz;
         _forceFrequencyApply = false;
 
         if (settings.CatUpdatesPaused)
@@ -306,7 +306,7 @@ public sealed class RigController : IRigController, IDisposable
     private void ProcessInteractiveLinear(RigSettings settings, RigTrackingContext context)
     {
         SampleReceiveDial();
-        TryCaptureKnobTune(context);
+        SyncManualFromMainDial(context);
 
         if (!_forceFrequencyApply && (!_vfoNotMoving || !_vfoNotMovingPrevious))
         {
@@ -324,17 +324,63 @@ public sealed class RigController : IRigController, IDisposable
         RestoreOperatorVfo();
     }
 
-    private void TryCaptureKnobTune(RigTrackingContext context)
+    /// <summary>
+    /// Derive manual RX/TX adjust from Main dial vs doppler baseline (not vs last CAT write).
+    /// Clears phantom manual state when the dial matches the computed target.
+    /// </summary>
+    private void SyncManualFromMainDial(RigTrackingContext context)
     {
         if (_blockKnobCapture || DateTime.UtcNow < _ignoreDialUntilUtc || !_vfoNotMoving
+            || context.TrackState.LookAngles is null
             || !TryReadReceiveDialHz(out var dialHz))
             return;
 
-        var deltaHz = dialHz - _lastRigRxHz;
-        if (Math.Abs(deltaHz) < KnobTuneThresholdHz())
+        var baseline = DopplerFrequencyCalculator.Compute(
+            context.Mode,
+            context.TrackState.LookAngles.RangeRateKmPerSec,
+            context.TransmitOffsetKHz,
+            context.ReceiveOffsetKHz,
+            0,
+            0);
+        var expectedMainHz = ToHz(baseline.RadioReceiveKHz);
+        var deltaFromBaselineHz = dialHz - expectedMainHz;
+        var threshold = KnobTuneThresholdHz();
+
+        if (Math.Abs(deltaFromBaselineHz) < threshold)
+        {
+            if (Math.Abs(_manualRxAdjustKHz) > 0.0001 || Math.Abs(_manualTxAdjustKHz) > 0.0001)
+            {
+                _manualRxAdjustKHz = 0;
+                _manualTxAdjustKHz = 0;
+                _forceFrequencyApply = true;
+            }
+
+            return;
+        }
+
+        // Dial still matches the last CAT write — baseline moved (doppler lag), not a knob tune.
+        if (_lastRigRxHz > 0 && Math.Abs(dialHz - _lastRigRxHz) < threshold)
             return;
 
-        ApplyInteractiveDialDelta(context, deltaHz, dialHz);
+        var deltaKhz = deltaFromBaselineHz / 1000.0;
+        double newRx;
+        double newTx;
+        if (context.Mode.DopplerCorrection == DopplerCorrection.Reverse)
+        {
+            newRx = deltaKhz;
+            newTx = -deltaKhz;
+        }
+        else
+        {
+            newRx = deltaKhz;
+            newTx = deltaKhz;
+        }
+
+        if (NearlyEqual(newRx, _manualRxAdjustKHz) && NearlyEqual(newTx, _manualTxAdjustKHz))
+            return;
+
+        _manualRxAdjustKHz = newRx;
+        _manualTxAdjustKHz = newTx;
         SeedDialHistoryStable(dialHz);
         _vfoNotMoving = true;
         _vfoNotMovingPrevious = true;
@@ -628,8 +674,6 @@ public sealed class RigController : IRigController, IDisposable
 
         _lastContextRxOffsetKHz = context.ReceiveOffsetKHz;
         _lastContextTxOffsetKHz = context.TransmitOffsetKHz;
-        _manualRxAdjustKHz = 0;
-        _manualTxAdjustKHz = 0;
         _forceFrequencyApply = true;
         _blockKnobCapture = true;
         ClearDialHistory();
@@ -667,23 +711,6 @@ public sealed class RigController : IRigController, IDisposable
 
         hz = dial.Value;
         return true;
-    }
-
-    private void ApplyInteractiveDialDelta(RigTrackingContext context, long deltaHz, long dialHz)
-    {
-        var deltaKhz = deltaHz / 1000.0;
-        if (context.Mode.DopplerCorrection == DopplerCorrection.Reverse)
-        {
-            _manualTxAdjustKHz -= deltaKhz;
-            _manualRxAdjustKHz += deltaKhz;
-        }
-        else
-        {
-            _manualTxAdjustKHz += deltaKhz;
-            _manualRxAdjustKHz += deltaKhz;
-        }
-
-        _lastRigRxHz = dialHz;
     }
 
     private RigVfo ReceiveVfo() => _useMainSub ? RigVfo.Main : RigVfo.VfoA;

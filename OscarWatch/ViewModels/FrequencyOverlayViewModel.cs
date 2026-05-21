@@ -266,8 +266,8 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         if (_isLoadingSelection || string.IsNullOrEmpty(_currentSatelliteName))
             return;
 
-        if (value is not null)
-            PersistSelection();
+        _rigManualRxAdjustKHz = 0;
+        _rigManualTxAdjustKHz = 0;
 
         if (_currentSatelliteName is not null)
         {
@@ -276,6 +276,10 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             UpdateFromCurrentState();
         }
 
+        if (value is not null)
+            PersistSelection();
+
+        OffsetsChanged?.Invoke(this, EventArgs.Empty);
         RequestOverlayReclamp();
     }
 
@@ -369,7 +373,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         {
             parts.Add(isRev
                 ? $"RX {ReceiveOffsetKHz:+0.000;-0.000;0} kHz → Radio ↓"
-                : $"RX {ReceiveOffsetKHz:+0.000;-0.000;0} kHz → Radio ↓");
+                : $"RX {ReceiveOffsetKHz:+0.000;-0.000;0} kHz → Radio ↑");
         }
 
         OffsetAppliedHint = parts.Count == 0
