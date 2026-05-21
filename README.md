@@ -31,7 +31,8 @@ dotnet run -c Release --project OscarWatch/OscarWatch.csproj
 - **Mutual pass finder** — find passes visible from two stations at once (Passes → Mutual pass finder)
 - **Live telemetry** — azimuth, elevation, range, and altitude updated every second (UTC)
 - **Voice announcements** — optional spoken “rising” alerts when a satellite crosses a configurable elevation while ascending (e.g. “Alpha Oscar Zero Seven is rising”); Settings → Voice
-- **Doppler frequencies** — draggable overlay on the world map with transponder modes from `Assets/satellite_database.json`, live radio/sat uplink & downlink, TX/RX offsets, and CTCSS (access/arm)
+- **Doppler frequencies** — draggable overlay on the world map with transponder modes from the satellite database, live radio/sat uplink & downlink, TX/RX offsets, and CTCSS (access/arm)
+- **Transponder database editor** — Satellites → Manage transponder database… (add/edit satellites and modes; saved under `%AppData%/OscarWatch/satellite_database.json`)
 - **Radio CAT** — ICOM IC-910 / IC-9700 via CI-V (doppler tracking, satellite mode, Main/Sub VFOs, Sub uplink CTCSS); Settings → Radio
 - **Appearance** — light, dark, or system theme (sky plot adapts; world map image stays light)
 
@@ -49,6 +50,8 @@ Open **Settings** from the menu. Tabs:
 | **Radio** | IC-910 / IC-9700 CI-V (COM port, region, doppler thresholds, pause CAT) |
 
 Settings are stored in `%AppData%/OscarWatch/settings.json`.
+
+Planned work (including deferred **remote transponder-database sync/merge**) is listed in [TODO.md](TODO.md).
 
 ### Voice announcements (platform notes)
 

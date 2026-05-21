@@ -115,6 +115,17 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             SetOverlayPosition(x, y, persist: true);
     }
 
+    public void ReloadFromDatabase()
+    {
+        _database.Reload();
+        if (string.IsNullOrEmpty(_currentSatelliteName))
+            return;
+
+        LoadModesForSatellite(_currentSatelliteName);
+        if (_lastTrackState is not null)
+            Update(_lastTrackState);
+    }
+
     public void Update(SatelliteTrackState? state)
     {
         _lastTrackState = state;

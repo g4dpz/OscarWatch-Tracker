@@ -1,4 +1,3 @@
-using System.Text.Json;
 using OscarWatch.Core.Models;
 
 namespace OscarWatch.Core.Services;
@@ -8,10 +7,18 @@ public sealed class SatelliteDatabaseService : ISatelliteDatabaseService
     private static readonly Dictionary<string, string> StaticAliases =
         new(StringComparer.OrdinalIgnoreCase);
 
-    private readonly Dictionary<string, SatelliteRadioEntry> _byName =
+    private readonly string _bundledPath;
+    private readonly string _userPath;
+    private Dictionary<string, SatelliteRadioEntry> _byName =
         new(StringComparer.OrdinalIgnoreCase);
 
-    public IReadOnlyList<SatelliteRadioEntry> Entries { get; }
+    private List<SatelliteRadioEntry> _entries = [];
+
+    public IReadOnlyList<SatelliteRadioEntry> Entries => _entries;
+
+    public string ActiveDatabasePath => File.Exists(_userPath) ? _userPath : _bundledPath;
+
+    public bool IsUsingUserDatabase => File.Exists(_userPath);
 
     static SatelliteDatabaseService()
     {
@@ -25,19 +32,21 @@ public sealed class SatelliteDatabaseService : ISatelliteDatabaseService
         RegisterStaticAlias("DIWATA2", "PO-101");
     }
 
-    public SatelliteDatabaseService(string databasePath)
+    public SatelliteDatabaseService(string bundledPath, string? userPath = null)
     {
-        if (!File.Exists(databasePath))
-        {
-            Entries = [];
-            return;
-        }
+        _bundledPath = bundledPath;
+        _userPath = userPath ?? SatelliteDatabasePaths.UserDatabasePath;
+        Reload();
+    }
 
-        var json = File.ReadAllText(databasePath);
-        var entries = JsonSerializer.Deserialize<List<SatelliteRadioEntry>>(json) ?? [];
-        Entries = entries;
+    public void Reload()
+    {
+        _byName = new Dictionary<string, SatelliteRadioEntry>(StringComparer.OrdinalIgnoreCase);
+        _entries = File.Exists(ActiveDatabasePath)
+            ? SatelliteDatabaseFile.Load(ActiveDatabasePath)
+            : [];
 
-        foreach (var entry in entries)
+        foreach (var entry in _entries)
         {
             if (string.IsNullOrWhiteSpace(entry.Name))
                 continue;

@@ -11,6 +11,7 @@
     <Menu DockPanel.Dock="Top">
       <MenuItem Header="_Satellites">
         <MenuItem Header="_Select satellites…" Command="{Binding OpenSatellitesCommand}" />
+        <MenuItem Header="_Manage transponder database…" Command="{Binding OpenSatelliteDatabaseCommand}" />
         <MenuItem Header="_Refresh TLEs" Command="{Binding RefreshTlesCommand}" />
       </MenuItem>
       <MenuItem Header="_Passes">

@@ -33,8 +33,13 @@ public partial class App : Application
         services.AddSingleton<RisingPassAnnouncer>();
         services.AddSingleton<IRotatorController, RotatorController>();
         services.AddSingleton<IRigController, RigController>();
+        var bundledDb = Path.Combine(AppContext.BaseDirectory, "Assets", "satellite_database.json");
         services.AddSingleton<ISatelliteDatabaseService>(_ =>
-            new SatelliteDatabaseService(Path.Combine(AppContext.BaseDirectory, "Assets", "satellite_database.json")));
+            new SatelliteDatabaseService(bundledDb));
+        services.AddSingleton<ISatelliteDatabaseEditor>(sp =>
+            new SatelliteDatabaseEditor(
+                sp.GetRequiredService<ISatelliteDatabaseService>(),
+                bundledDb));
         services.AddSingleton<FrequencyOverlayViewModel>();
         services.AddSingleton<TrackingOrchestrator>();
         services.AddOscarWatchOrbit();
@@ -43,6 +48,7 @@ public partial class App : Application
         services.AddTransient<SatellitePickerViewModel>();
         services.AddTransient<PassPlanningViewModel>();
         services.AddTransient<MutualPassViewModel>();
+        services.AddTransient<SatelliteDatabaseEditorViewModel>();
 
         Services = services.BuildServiceProvider();
 

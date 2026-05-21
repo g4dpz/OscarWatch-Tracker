@@ -569,6 +569,23 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private async Task OpenSatelliteDatabaseAsync()
+    {
+        var vm = App.Services.GetRequiredService<SatelliteDatabaseEditorViewModel>();
+        var window = new SatelliteDatabaseWindow { DataContext = vm };
+        if (App.MainWindow is null)
+            return;
+
+        var saved = await window.ShowDialog<bool?>(App.MainWindow) == true;
+        if (saved)
+        {
+            Frequencies.ReloadFromDatabase();
+            Tick();
+            StatusText = "Transponder database saved.";
+        }
+    }
+
+    [RelayCommand]
     private async Task RefreshTlesAsync()
     {
         await MaybeAutoRefreshTlesAsync(force: true);

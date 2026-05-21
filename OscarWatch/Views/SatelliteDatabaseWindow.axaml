@@ -1,0 +1,156 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:models="using:OscarWatch.Core.Models"
+        x:Class="OscarWatch.Views.SatelliteDatabaseWindow"
+        x:DataType="vm:SatelliteDatabaseEditorViewModel"
+        Title="Transponder database"
+        Width="920" Height="640"
+        MinWidth="760" MinHeight="520"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="12">
+    <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,8">
+      <TextBlock Text="Manage satellite transponder modes (frequencies in kHz). Saved to your user AppData folder."
+                 TextWrapping="Wrap"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+      <TextBlock Text="{Binding DatabasePathText}"
+                 FontSize="11"
+                 TextWrapping="Wrap"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+      <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+        <TextBox Grid.Column="0"
+                 Watermark="Search satellites…"
+                 Text="{Binding SearchText, Mode=TwoWay}" />
+        <Button Grid.Column="1"
+                Content="Add satellite"
+                Command="{Binding AddSatelliteCommand}" />
+        <Button Grid.Column="2"
+                Content="Restore defaults"
+                Command="{Binding ResetToBundledCommand}" />
+      </Grid>
+    </StackPanel>
+
+    <StackPanel DockPanel.Dock="Bottom" Spacing="8" Margin="0,8,0,0">
+      <TextBlock Text="{Binding StatusMessage}"
+                 FontSize="11"
+                 TextWrapping="Wrap"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+        <Button Content="Cancel" Click="OnCancelClick" />
+        <Button Content="Save" Click="OnSaveClick" Classes="accent" />
+      </StackPanel>
+    </StackPanel>
+
+    <Grid ColumnDefinitions="220,*" ColumnSpacing="12">
+      <DockPanel Grid.Column="0">
+        <Button DockPanel.Dock="Bottom"
+                Content="Remove satellite"
+                Command="{Binding RemoveSatelliteCommand}"
+                HorizontalAlignment="Stretch"
+                Margin="0,8,0,0" />
+        <ListBox ItemsSource="{Binding FilteredSatellites}"
+                 SelectedItem="{Binding SelectedSatellite, Mode=TwoWay}"
+                 MinHeight="200">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="models:SatelliteRadioEntry">
+              <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
+
+      <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="12" IsEnabled="{Binding HasSelectedSatellite}">
+          <TextBlock Text="Satellite" FontWeight="SemiBold" />
+          <TextBox Watermark="Name (match TLE name when possible)"
+                   Text="{Binding SatelliteName, Mode=TwoWay}" />
+
+          <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
+            <TextBlock Grid.Column="0" Text="Transponder modes" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <Button Grid.Column="1" Content="Add mode" Command="{Binding AddModeCommand}" />
+            <Button Grid.Column="2" Content="Duplicate" Command="{Binding DuplicateModeCommand}" />
+            <Button Grid.Column="3" Content="Remove" Command="{Binding RemoveModeCommand}" />
+          </Grid>
+
+          <ListBox ItemsSource="{Binding SelectedSatellite.Modes}"
+                   SelectedItem="{Binding SelectedMode, Mode=TwoWay}"
+                   MinHeight="120"
+                   MaxHeight="180">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="models:SatelliteTransponderMode">
+                <StackPanel>
+                  <TextBlock Text="{Binding DisplayLabel}" FontWeight="SemiBold" />
+                  <TextBlock Text="{Binding SummaryLine}"
+                             FontSize="11"
+                             Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+
+          <Border BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                  BorderThickness="1"
+                  Padding="12"
+                  CornerRadius="4"
+                  IsVisible="{Binding HasSelectedMode}">
+            <StackPanel Spacing="8">
+              <TextBlock Text="Mode details" FontWeight="SemiBold" />
+              <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                    ColumnSpacing="12" RowSpacing="8">
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Type / label" VerticalAlignment="Center" />
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ModeType, Mode=TwoWay}" />
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Downlink (kHz)" VerticalAlignment="Center" />
+                <NumericUpDown Grid.Row="1" Grid.Column="1"
+                               Value="{Binding DownlinkKHz, Mode=TwoWay}"
+                               Minimum="0" Maximum="1300000"
+                               Increment="1" FormatString="F3" />
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Uplink (kHz)" VerticalAlignment="Center" />
+                <NumericUpDown Grid.Row="2" Grid.Column="1"
+                               Value="{Binding UplinkKHz, Mode=TwoWay}"
+                               Minimum="0" Maximum="1300000"
+                               Increment="1" FormatString="F3" />
+
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Downlink mode" VerticalAlignment="Center" />
+                <ComboBox Grid.Row="3" Grid.Column="1"
+                          ItemsSource="{Binding OperatingModes}"
+                          SelectedItem="{Binding DownlinkMode, Mode=TwoWay}" />
+
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="Uplink mode" VerticalAlignment="Center" />
+                <ComboBox Grid.Row="4" Grid.Column="1"
+                          ItemsSource="{Binding OperatingModes}"
+                          SelectedItem="{Binding UplinkMode, Mode=TwoWay}" />
+
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="Doppler" VerticalAlignment="Center" />
+                <ComboBox Grid.Row="5" Grid.Column="1"
+                          ItemsSource="{Binding DopplerOptions}"
+                          SelectedItem="{Binding Doppler, Mode=TwoWay}" />
+
+                <TextBlock Grid.Row="6" Grid.Column="0" Text="CTCSS access (Hz)" VerticalAlignment="Center" />
+                <NumericUpDown Grid.Row="6" Grid.Column="1"
+                               Value="{Binding CtcssHz, Mode=TwoWay}"
+                               Minimum="0" Maximum="300"
+                               Increment="0.1" FormatString="F1"
+                               AllowSpin="True" ShowButtonSpinner="True" />
+
+                <TextBlock Grid.Row="7" Grid.Column="0" Text="CTCSS arm (Hz)" VerticalAlignment="Center" />
+                <NumericUpDown Grid.Row="7" Grid.Column="1"
+                               Value="{Binding CtcssArmHz, Mode=TwoWay}"
+                               Minimum="0" Maximum="300"
+                               Increment="0.1" FormatString="F1"
+                               AllowSpin="True" ShowButtonSpinner="True" />
+
+                <TextBlock Grid.Row="8" Grid.Column="1"
+                           Text="Set uplink to 0 for beacon-only. Leave CTCSS at 0 for none. FM modes use Hz (e.g. 67.0)."
+                           TextWrapping="Wrap"
+                           FontSize="11"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+              </Grid>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+  </DockPanel>
+</Window>
