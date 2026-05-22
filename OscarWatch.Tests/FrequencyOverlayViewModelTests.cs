@@ -69,6 +69,60 @@ public class FrequencyOverlayViewModelTests
         Assert.InRange(stored.ModeOffsets["SSB Transponder"].ReceiveOffsetKHz, 4.024, 4.026);
     }
 
+    [Fact]
+    public void Offset_adjustment_does_not_persist_until_store()
+    {
+        var settings = new TestSettingsService();
+        settings.Current.FrequencySelections["RS-44"] = new SatelliteFrequencySelection
+        {
+            ModeType = "SSB Transponder",
+            ModeIndex = 0
+        };
+        settings.Current.FrequencySelections["RS-44"].SetOffsetsForMode("SSB Transponder", 0, 1.0);
+
+        var database = new TestSatelliteDatabaseService(
+        [
+            new SatelliteRadioEntry
+            {
+                Name = "RS-44",
+                Modes =
+                [
+                    new SatelliteTransponderMode
+                    {
+                        Type = "SSB Transponder",
+                        DownlinkKHz = 435_667,
+                        UplinkKHz = 145_937.61,
+                        DownlinkMode = "USB",
+                        UplinkMode = "LSB",
+                        Doppler = "REV"
+                    }
+                ]
+            }
+        ]);
+
+        var vm = new FrequencyOverlayViewModel(settings, database);
+        vm.Update(new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "99999",
+            Subpoint = new GeoCoordinate(57, 18),
+            LookAngles = new LookAngles(180, 25, 800, 2.5)
+        });
+
+        vm.AdjustReceiveOffsetHz(500);
+        Assert.InRange(vm.ReceiveOffsetKHz, 1.499, 1.501);
+        Assert.InRange(
+            settings.Current.FrequencySelections["RS-44"].ModeOffsets["SSB Transponder"].ReceiveOffsetKHz,
+            0.999,
+            1.001);
+
+        vm.StoreOffsetCommand.Execute(null);
+        Assert.InRange(
+            settings.Current.FrequencySelections["RS-44"].ModeOffsets["SSB Transponder"].ReceiveOffsetKHz,
+            1.499,
+            1.501);
+    }
+
     private sealed class TestSettingsService : ISettingsService
     {
         public AppSettings Current { get; } = new();

@@ -7,6 +7,8 @@ public abstract class IcomCivDriverBase : IRigDriver
 {
     private IcomSerialTransport? _transport;
     private RigVfo _currentVfo = RigVfo.VfoA;
+    private long _lastMainHz;
+    private long _lastSubHz;
     private long _lastVfoAFreq;
     private long _lastVfoBFreq;
 
@@ -43,15 +45,22 @@ public abstract class IcomCivDriverBase : IRigDriver
 
     public long? ReadFrequencyHz(RigVfo vfo)
     {
-        SelectVfo(vfo);
+        SelectVfo(vfo, force: true);
+        var cached = CachedFrequencyHz(vfo);
 
         if (_transport is null || !IsConnected)
-            return vfo is RigVfo.VfoA or RigVfo.Main ? _lastVfoAFreq : _lastVfoBFreq;
+            return cached > 0 ? cached : null;
 
         Thread.Sleep(50);
         var response = _transport.WriteCommand([0x03]);
         var hz = IcomCivCodec.DecodeFrequencyFromResponse(response);
-        return hz is { } value && IcomCivCodec.IsValidSatelliteFrequencyHz(value) ? value : null;
+        if (hz is { } value && IcomCivCodec.IsValidSatelliteFrequencyHz(value))
+        {
+            StoreFrequencyHz(vfo, value);
+            return value;
+        }
+
+        return cached > 0 ? cached : null;
     }
 
     public bool SetFrequencyHz(long hz)
@@ -61,26 +70,22 @@ public abstract class IcomCivDriverBase : IRigDriver
 
         if (_transport is null || !IsConnected)
         {
-            if (_currentVfo is RigVfo.VfoA or RigVfo.Main)
-                _lastVfoAFreq = hz;
-            else
-                _lastVfoBFreq = hz;
+            StoreFrequencyHz(_currentVfo, hz);
             return true;
         }
 
-        if (_currentVfo is RigVfo.VfoA or RigVfo.Main)
-            _lastVfoAFreq = hz;
-        else
-            _lastVfoBFreq = hz;
+        StoreFrequencyHz(_currentVfo, hz);
 
         var body = IcomCivCodec.EncodeSetFrequencyHz(hz);
         var response = _transport.WriteCommand(body);
         return response.Length > 0 && response.Contains((byte)0xFB);
     }
 
-    public void SelectVfo(RigVfo vfo)
+    public void SelectVfo(RigVfo vfo) => SelectVfo(vfo, force: false);
+
+    private void SelectVfo(RigVfo vfo, bool force)
     {
-        if (_currentVfo == vfo && _transport is { IsOpen: true })
+        if (!force && _currentVfo == vfo && _transport is { IsOpen: true })
             return;
 
         _currentVfo = vfo;
@@ -130,8 +135,46 @@ public abstract class IcomCivDriverBase : IRigDriver
 
     public void ExchangeVfos()
     {
-        _currentVfo = _currentVfo is RigVfo.VfoA or RigVfo.Main ? RigVfo.VfoB : RigVfo.VfoA;
-        WriteWithRetry([0x07, 0xB0]);
+        _currentVfo = _currentVfo switch
+        {
+            RigVfo.Main => RigVfo.Sub,
+            RigVfo.Sub => RigVfo.Main,
+            RigVfo.VfoA => RigVfo.VfoB,
+            _ => RigVfo.VfoA
+        };
+        (_lastMainHz, _lastSubHz) = (_lastSubHz, _lastMainHz);
+        (_lastVfoAFreq, _lastVfoBFreq) = (_lastVfoBFreq, _lastVfoAFreq);
+        // Exchange is a toggle — must be sent once; WriteWithRetry would swap twice and undo it.
+        WriteOnce([0x07, 0xB0]);
+        Thread.Sleep(150);
+    }
+
+    private long CachedFrequencyHz(RigVfo vfo) => vfo switch
+    {
+        RigVfo.Main => _lastMainHz,
+        RigVfo.Sub => _lastSubHz,
+        RigVfo.VfoA => _lastVfoAFreq,
+        RigVfo.VfoB => _lastVfoBFreq,
+        _ => 0
+    };
+
+    private void StoreFrequencyHz(RigVfo vfo, long hz)
+    {
+        switch (vfo)
+        {
+            case RigVfo.Main:
+                _lastMainHz = hz;
+                break;
+            case RigVfo.Sub:
+                _lastSubHz = hz;
+                break;
+            case RigVfo.VfoA:
+                _lastVfoAFreq = hz;
+                break;
+            case RigVfo.VfoB:
+                _lastVfoBFreq = hz;
+                break;
+        }
     }
 
     public void SetToneOn(bool on) =>
@@ -153,6 +196,13 @@ public abstract class IcomCivDriverBase : IRigDriver
             return;
         _transport.WriteCommand(body, retry: true);
         Thread.Sleep(100);
+        _transport.WriteCommand(body, retry: true);
+    }
+
+    private void WriteOnce(ReadOnlySpan<byte> body)
+    {
+        if (_transport is null || !IsConnected)
+            return;
         _transport.WriteCommand(body, retry: true);
     }
 

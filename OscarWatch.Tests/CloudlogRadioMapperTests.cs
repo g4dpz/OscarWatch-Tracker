@@ -19,7 +19,7 @@ public class CloudlogRadioMapperTests
             Doppler = "REV"
         };
 
-        var corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, 0);
+        var corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0);
         var update = CloudlogRadioMapper.TryCreate("AO-07", mode, corrected);
 
         Assert.NotNull(update);

@@ -41,7 +41,7 @@ public class RigDopplerLoopTests
         {
             TrackState = state,
             Mode = mode,
-            Corrected = DopplerFrequencyCalculator.Compute(mode, 2.5, 0, 0),
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 2.5, 0),
             TransmitOffsetKHz = 0,
             ReceiveOffsetKHz = 0
         };

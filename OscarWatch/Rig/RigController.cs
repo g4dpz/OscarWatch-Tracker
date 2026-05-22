@@ -29,8 +29,8 @@ public sealed class RigController : IRigController, IDisposable
     private int _rxDialHistoryCount;
     private bool _vfoNotMoving;
     private bool _vfoNotMovingPrevious;
-    private double _manualRxAdjustKHz;
-    private double _manualTxAdjustKHz;
+    private double _passbandDownlinkAdjustKHz;
+    private double _passbandUplinkAdjustKHz;
     private string? _statusMessage;
     private bool _isTracking;
     private bool _catUpdatesPaused;
@@ -38,10 +38,11 @@ public sealed class RigController : IRigController, IDisposable
     private double? _lastAppliedCtcssHz;
     private bool? _lastAppliedCtcssSquelch;
     private double _lastContextRxOffsetKHz;
-    private double _lastContextTxOffsetKHz;
     private bool _forceFrequencyApply;
     private bool _blockKnobCapture;
     private DateTime _ignoreDialUntilUtc = DateTime.MinValue;
+    private DateTime _suspendDopplerUntilUtc = DateTime.MinValue;
+    private bool? _lastPassDownlinkOnVhf;
 
     private RigSettings _cachedSettings = new();
     private RigTrackingContext? _cachedContext;
@@ -62,8 +63,8 @@ public sealed class RigController : IRigController, IDisposable
                 DisplayHz(_displayRxHz, _lastRigRxHz),
                 DisplayHz(_displayTxHz, _lastRigTxHz),
                 _catUpdatesPaused,
-                _manualRxAdjustKHz,
-                _manualTxAdjustKHz);
+                _passbandDownlinkAdjustKHz,
+                _passbandUplinkAdjustKHz);
         }
     }
 
@@ -87,7 +88,7 @@ public sealed class RigController : IRigController, IDisposable
     public void RunTrackingLoopOnce()
     {
         lock (_sync)
-            RunLoopIteration();
+            RunLoopIteration(ignoreDopplerSuspend: true);
     }
 
     public void Update(RigSettings settings, RigTrackingContext? context)
@@ -179,7 +180,7 @@ public sealed class RigController : IRigController, IDisposable
         if (_driver is null || !_driver.SupportsTracking)
             return;
 
-        var newPassKey = $"{context.TrackState.NoradId}|{context.Mode.Type}";
+        var newPassKey = PassKey(context);
         if (!string.Equals(_passKey, newPassKey, StringComparison.Ordinal))
         {
             BeginNewPass(settings, context, newPassKey);
@@ -208,13 +209,12 @@ public sealed class RigController : IRigController, IDisposable
     private void BeginNewPass(RigSettings settings, RigTrackingContext context, string newPassKey)
     {
         _passKey = newPassKey;
-        _manualRxAdjustKHz = 0;
-        _manualTxAdjustKHz = 0;
+        _passbandDownlinkAdjustKHz = 0;
+        _passbandUplinkAdjustKHz = 0;
         ClearDialHistory();
         _lastAppliedCtcssHz = null;
         _lastAppliedCtcssSquelch = null;
         _lastContextRxOffsetKHz = context.ReceiveOffsetKHz;
-        _lastContextTxOffsetKHz = context.TransmitOffsetKHz;
         _forceFrequencyApply = false;
 
         if (settings.CatUpdatesPaused)
@@ -244,6 +244,8 @@ public sealed class RigController : IRigController, IDisposable
         _catUpdatesPaused = false;
         _lastAppliedCtcssHz = null;
         _lastAppliedCtcssSquelch = null;
+        _lastPassDownlinkOnVhf = null;
+        _suspendDopplerUntilUtc = DateTime.MinValue;
     }
 
     private void EnsureLoopRunning()
@@ -281,16 +283,19 @@ public sealed class RigController : IRigController, IDisposable
         while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false))
         {
             lock (_sync)
-                RunLoopIteration();
+                RunLoopIteration(ignoreDopplerSuspend: false);
         }
     }
 
-    private void RunLoopIteration()
+    private void RunLoopIteration(bool ignoreDopplerSuspend = false)
     {
         if (_driver is null || !_driver.IsConnected || _cachedContext is null)
             return;
 
         if (!_cachedSettings.Enabled || _cachedSettings.CatUpdatesPaused || !_isTracking)
+            return;
+
+        if (!ignoreDopplerSuspend && DateTime.UtcNow < _suspendDopplerUntilUtc)
             return;
 
         if (_cachedContext.TrackState.LookAngles is null
@@ -338,50 +343,56 @@ public sealed class RigController : IRigController, IDisposable
         var baseline = DopplerFrequencyCalculator.Compute(
             context.Mode,
             context.TrackState.LookAngles.RangeRateKmPerSec,
-            context.TransmitOffsetKHz,
+            context.ReceiveOffsetKHz,
+            _passbandDownlinkAdjustKHz,
+            _passbandUplinkAdjustKHz);
+        var pureBaselineHz = ToHz(DopplerFrequencyCalculator.Compute(
+            context.Mode,
+            context.TrackState.LookAngles.RangeRateKmPerSec,
             context.ReceiveOffsetKHz,
             0,
-            0);
+            0).RadioReceiveKHz);
         var expectedMainHz = ToHz(baseline.RadioReceiveKHz);
         var deltaFromBaselineHz = dialHz - expectedMainHz;
         var threshold = KnobTuneThresholdHz();
 
-        if (Math.Abs(deltaFromBaselineHz) < threshold)
+        if (Math.Abs(dialHz - pureBaselineHz) < threshold
+            && (Math.Abs(_passbandDownlinkAdjustKHz) > 0.0001 || Math.Abs(_passbandUplinkAdjustKHz) > 0.0001))
         {
-            if (Math.Abs(_manualRxAdjustKHz) > 0.0001 || Math.Abs(_manualTxAdjustKHz) > 0.0001)
-            {
-                _manualRxAdjustKHz = 0;
-                _manualTxAdjustKHz = 0;
-                _forceFrequencyApply = true;
-            }
-
+            _passbandDownlinkAdjustKHz = 0;
+            _passbandUplinkAdjustKHz = 0;
+            _forceFrequencyApply = true;
             return;
         }
+
+        if (Math.Abs(deltaFromBaselineHz) < threshold)
+            return;
 
         // Dial still matches the last CAT write — baseline moved (doppler lag), not a knob tune.
         if (_lastRigRxHz > 0 && Math.Abs(dialHz - _lastRigRxHz) < threshold)
             return;
 
         var deltaKhz = deltaFromBaselineHz / 1000.0;
-        double newRx;
-        double newTx;
+        double newDown;
+        double newUp;
         if (context.Mode.DopplerCorrection == DopplerCorrection.Reverse)
         {
-            // Inverting passband: TX follows RX via DopplerFrequencyCalculator; only capture RX delta.
-            newRx = deltaKhz;
-            newTx = 0;
+            // QTrig REV: Main dial up → downlink nominal up, uplink nominal down.
+            newDown = _passbandDownlinkAdjustKHz + deltaKhz;
+            newUp = _passbandUplinkAdjustKHz - deltaKhz;
         }
         else
         {
-            newRx = deltaKhz;
-            newTx = deltaKhz;
+            // QTrig NOR: both nominals move with Main dial.
+            newDown = _passbandDownlinkAdjustKHz + deltaKhz;
+            newUp = _passbandUplinkAdjustKHz + deltaKhz;
         }
 
-        if (NearlyEqual(newRx, _manualRxAdjustKHz) && NearlyEqual(newTx, _manualTxAdjustKHz))
+        if (NearlyEqual(newDown, _passbandDownlinkAdjustKHz) && NearlyEqual(newUp, _passbandUplinkAdjustKHz))
             return;
 
-        _manualRxAdjustKHz = newRx;
-        _manualTxAdjustKHz = newTx;
+        _passbandDownlinkAdjustKHz = newDown;
+        _passbandUplinkAdjustKHz = newUp;
         SeedDialHistoryStable(dialHz);
         _vfoNotMoving = true;
         _vfoNotMovingPrevious = true;
@@ -447,10 +458,9 @@ public sealed class RigController : IRigController, IDisposable
         var corrected = DopplerFrequencyCalculator.Compute(
             context.Mode,
             context.TrackState.LookAngles!.RangeRateKmPerSec,
-            context.TransmitOffsetKHz,
             context.ReceiveOffsetKHz,
-            _manualTxAdjustKHz,
-            _manualRxAdjustKHz);
+            _passbandDownlinkAdjustKHz,
+            _passbandUplinkAdjustKHz);
 
         SyncDisplayFrequencies(context);
 
@@ -470,14 +480,18 @@ public sealed class RigController : IRigController, IDisposable
         var writeRx = forceApply || rxDelta > _thresholdHz || _thresholdHz == 0;
         var writeTx = !_isBeaconOnly && (forceApply || txDelta > _thresholdHz || _thresholdHz == 0);
 
-        // FM / cross-band (e.g. ISS): UHF RX doppler moves faster in Hz than VHF TX at the same
-        // threshold — keep both legs in sync when either leg triggers an automatic update.
-        if (!_interactive && !forceApply)
+        // Cross-band: keep RX/TX CAT in sync when either leg triggers (FM automatic, or linear interactive).
+        if (!forceApply)
         {
-            if (writeRx && !writeTx && txDelta > FmCompanionLegHz)
-                writeTx = true;
-            if (writeTx && !writeRx && rxDelta > FmCompanionLegHz)
-                writeRx = true;
+            var crossBand = RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz);
+            if (crossBand)
+            {
+                var companionHz = _interactive ? 0 : FmCompanionLegHz;
+                if (writeRx && !writeTx && txDelta > companionHz)
+                    writeTx = true;
+                if (writeTx && !writeRx && rxDelta > companionHz)
+                    writeRx = true;
+            }
         }
 
         var wrote = false;
@@ -558,6 +572,7 @@ public sealed class RigController : IRigController, IDisposable
         {
             _driver.SetSatelliteMode(true);
             _driver.SetSplitOn(false);
+            Thread.Sleep(150);
         }
 
         if (_useMainSub)
@@ -579,7 +594,9 @@ public sealed class RigController : IRigController, IDisposable
         _lastRigRxHz = rxHz;
         _lastRigTxHz = txHz;
         _lastWriteUtc = DateTime.UtcNow;
+        _lastPassDownlinkOnVhf = RigSatModeHelper.IsVhfCenterKHz(context.Mode.DownlinkKHz);
         MarkProgrammaticFrequencySettle();
+        _suspendDopplerUntilUtc = DateTime.UtcNow.AddMilliseconds(500);
         RestoreOperatorVfo();
     }
 
@@ -588,16 +605,40 @@ public sealed class RigController : IRigController, IDisposable
         if (_driver is null)
             return;
 
-        var current = _driver.ReadFrequencyHz(RigVfo.Main);
-        if (current is null or <= 0)
+        var downlinkOnVhf = RigSatModeHelper.IsVhfCenterKHz(context.Mode.DownlinkKHz);
+        if (_lastPassDownlinkOnVhf is bool previousDownlinkOnVhf && previousDownlinkOnVhf != downlinkOnVhf)
+        {
+            _driver.ExchangeVfos();
+            return;
+        }
+
+        _driver.SelectVfo(RigVfo.Main);
+        Thread.Sleep(50);
+
+        var targetRxHz = ToHz(context.Corrected.RadioReceiveKHz);
+        var mainHz = _driver.ReadFrequencyHz(RigVfo.Main);
+        if (mainHz is > 0)
+        {
+            if (mainHz.Value > 400_000_000 && targetRxHz < 400_000_000)
+                _driver.ExchangeVfos();
+            else if (mainHz.Value < 200_000_000 && targetRxHz > 200_000_000)
+                _driver.ExchangeVfos();
+            else if (RigSatModeHelper.NeedsMainSubBandSwap(mainHz.Value, context.Mode.DownlinkKHz))
+                _driver.ExchangeVfos();
+            return;
+        }
+
+        // CI-V read failed — infer from Sub when downlink/uplink are on opposite bands.
+        if (!downlinkOnVhf || !RigSatModeHelper.IsUhfCenterKHz(context.Mode.UplinkKHz))
             return;
 
-        var targetRx = ToHz(context.Corrected.RadioReceiveKHz);
-        if (current > 400_000_000 && targetRx < 400_000_000)
-            _driver.ExchangeVfos();
-        else if (current < 200_000_000 && targetRx > 200_000_000)
+        var subHz = _driver.ReadFrequencyHz(RigVfo.Sub);
+        if (subHz is > 0 and < 200_000_000)
             _driver.ExchangeVfos();
     }
+
+    private static string PassKey(RigTrackingContext context) =>
+        $"{context.TrackState.NoradId}|{context.Mode.Type}|{context.Mode.DownlinkKHz}|{context.Mode.UplinkKHz}";
 
     private void ConfigureVfoModes(RigTrackingContext context)
     {
@@ -669,12 +710,10 @@ public sealed class RigController : IRigController, IDisposable
 
     private void NoteContextOffsetChange(RigTrackingContext context)
     {
-        if (NearlyEqual(context.ReceiveOffsetKHz, _lastContextRxOffsetKHz)
-            && NearlyEqual(context.TransmitOffsetKHz, _lastContextTxOffsetKHz))
+        if (NearlyEqual(context.ReceiveOffsetKHz, _lastContextRxOffsetKHz))
             return;
 
         _lastContextRxOffsetKHz = context.ReceiveOffsetKHz;
-        _lastContextTxOffsetKHz = context.TransmitOffsetKHz;
         _forceFrequencyApply = true;
         _blockKnobCapture = true;
         ClearDialHistory();
@@ -759,10 +798,9 @@ public sealed class RigController : IRigController, IDisposable
         var corrected = DopplerFrequencyCalculator.Compute(
             context.Mode,
             context.TrackState.LookAngles.RangeRateKmPerSec,
-            context.TransmitOffsetKHz,
             context.ReceiveOffsetKHz,
-            _manualTxAdjustKHz,
-            _manualRxAdjustKHz);
+            _passbandDownlinkAdjustKHz,
+            _passbandUplinkAdjustKHz);
         _displayRxHz = ToHz(corrected.RadioReceiveKHz);
         _displayTxHz = ToHz(corrected.RadioTransmitKHz);
     }

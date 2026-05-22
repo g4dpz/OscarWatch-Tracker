@@ -206,9 +206,10 @@ public class RigControllerTests
     }
 
     [Fact]
-    public void Tx_only_offset_triggers_cat_update_on_uv_satellite()
+    public void Rx_offset_shifts_downlink_not_uplink_on_rev_satellite()
     {
-        var controller = new RigController();
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
         var settings = new RigSettings
         {
             Enabled = true,
@@ -235,28 +236,81 @@ public class RigControllerTests
             LookAngles = new LookAngles(180, 20, 800, 0)
         };
 
-        RigTrackingContext Build(double txOffset, double rxOffset)
-        {
-            var corrected = DopplerFrequencyCalculator.Compute(mode, 0, txOffset, rxOffset);
-            return new RigTrackingContext
+        RigTrackingContext Build(double rxOffset) =>
+            new()
             {
                 TrackState = state,
                 Mode = mode,
-                Corrected = corrected,
-                TransmitOffsetKHz = txOffset,
+                Corrected = DopplerFrequencyCalculator.Compute(mode, 0, rxOffset),
+                TransmitOffsetKHz = 0,
                 ReceiveOffsetKHz = rxOffset
             };
-        }
+
+        controller.Update(settings, Build(0));
+        Thread.Sleep(650);
+        var rxBefore = rig.MainHz;
+        var txBefore = rig.SubHz;
+
+        controller.Update(settings, Build(2.0));
+        Thread.Sleep(650);
+
+        Assert.True(rig.MainHz > rxBefore);
+        Assert.Equal(txBefore, rig.SubHz);
+    }
+
+    [Fact]
+    public void Rx_offset_survives_range_rate_change_on_downlink()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0,
+            TrackStartElevationDeg = -90
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_850.45,
+            UplinkKHz = 145_952.65,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        RigTrackingContext Build(double rxOffset, double rangeRateKmPerSec) =>
+            new()
+            {
+                TrackState = new SatelliteTrackState
+                {
+                    Name = "FO-29",
+                    NoradId = "44208",
+                    Subpoint = new GeoCoordinate(0, 0),
+                    LookAngles = new LookAngles(180, 20, 800, rangeRateKmPerSec)
+                },
+                Mode = mode,
+                Corrected = DopplerFrequencyCalculator.Compute(mode, rangeRateKmPerSec, rxOffset),
+                TransmitOffsetKHz = 0,
+                ReceiveOffsetKHz = rxOffset
+            };
 
         controller.Update(settings, Build(0, 0));
-        var before = controller.GetStatus().LastTransmitHz;
+        Thread.Sleep(650);
+        controller.Update(settings, Build(0, 4.2));
+        Thread.Sleep(650);
+        for (var i = 0; i < 4; i++)
+            controller.RunTrackingLoopOnce();
+        var rxNoOffset = rig.MainHz;
 
-        controller.Update(settings, Build(2.0, 0));
-        var after = controller.GetStatus().LastTransmitHz;
+        controller.Update(settings, Build(5.2, 4.2));
+        Thread.Sleep(650);
+        for (var i = 0; i < 4; i++)
+            controller.RunTrackingLoopOnce();
 
-        Assert.NotNull(before);
-        Assert.NotNull(after);
-        Assert.True(after < before);
+        Assert.InRange(rig.MainHz - rxNoOffset, 5_100, 5_300);
     }
 
     [Fact]
@@ -295,7 +349,7 @@ public class RigControllerTests
             {
                 TrackState = state,
                 Mode = mode,
-                Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, rxOffset),
+                Corrected = DopplerFrequencyCalculator.Compute(mode, 0, rxOffset),
                 TransmitOffsetKHz = 0,
                 ReceiveOffsetKHz = rxOffset
             };
@@ -347,7 +401,7 @@ public class RigControllerTests
         {
             TrackState = state,
             Mode = mode,
-            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, 0),
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
             SelectedCtcssHz = toneHz
         };
 
@@ -401,7 +455,7 @@ public class RigControllerTests
         {
             TrackState = state,
             Mode = mode,
-            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, 0),
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
             SelectedCtcssHz = 67.0
         };
 
@@ -461,7 +515,7 @@ public class RigControllerTests
         {
             TrackState = state,
             Mode = mode,
-            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, 0),
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
             SelectedCtcssHz = 67.0
         };
 
@@ -501,14 +555,14 @@ public class RigControllerTests
             LookAngles = new LookAngles(180, 20, 800, 0)
         };
 
-        RigTrackingContext Build(double txOffset) =>
+        RigTrackingContext Build(double rxOffset) =>
             new()
             {
                 TrackState = state,
                 Mode = mode,
-                Corrected = DopplerFrequencyCalculator.Compute(mode, 0, txOffset, 0),
-                TransmitOffsetKHz = txOffset,
-                ReceiveOffsetKHz = 0
+                Corrected = DopplerFrequencyCalculator.Compute(mode, 0, rxOffset),
+                TransmitOffsetKHz = 0,
+                ReceiveOffsetKHz = rxOffset
             };
 
         controller.Update(settings, Build(0));
@@ -560,7 +614,7 @@ public class RigControllerTests
         {
             TrackState = state,
             Mode = mode,
-            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, 0),
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
             TransmitOffsetKHz = 0,
             ReceiveOffsetKHz = 0
         };
@@ -580,7 +634,7 @@ public class RigControllerTests
         Assert.True(rig.SubHz < txAfterInit, $"REV expects TX to drop when RX rises: tx={rig.SubHz} was {txAfterInit}");
         var status = controller.GetStatus();
         Assert.InRange(status.ManualReceiveAdjustKHz, 2.4, 2.6);
-        Assert.InRange(status.ManualTransmitAdjustKHz, -0.001, 0.001);
+        Assert.InRange(status.ManualTransmitAdjustKHz, -2.6, -2.4);
     }
 
     [Fact]
@@ -618,7 +672,7 @@ public class RigControllerTests
         {
             TrackState = state,
             Mode = mode,
-            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, 0),
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
             TransmitOffsetKHz = 0,
             ReceiveOffsetKHz = 0
         };
@@ -627,9 +681,9 @@ public class RigControllerTests
         Thread.Sleep(650);
 
         // Simulate accumulated phantom manual (false knob detect) while rig stayed at doppler target.
-        typeof(RigController).GetField("_manualRxAdjustKHz", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+        typeof(RigController).GetField("_passbandDownlinkAdjustKHz", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .SetValue(controller, -9.8);
-        typeof(RigController).GetField("_manualTxAdjustKHz", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+        typeof(RigController).GetField("_passbandUplinkAdjustKHz", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .SetValue(controller, 9.8);
 
         for (var i = 0; i < 8; i++)
@@ -675,7 +729,7 @@ public class RigControllerTests
         {
             TrackState = state,
             Mode = mode,
-            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, rxOffset),
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, rxOffset),
             TransmitOffsetKHz = 0,
             ReceiveOffsetKHz = rxOffset
         };
@@ -699,8 +753,8 @@ public class RigControllerTests
 
         var statusAfter = controller.GetStatus();
         Assert.InRange(statusAfter.ManualReceiveAdjustKHz, 2.4, 2.6);
-        Assert.InRange(statusAfter.ManualTransmitAdjustKHz, -0.001, 0.001);
-        Assert.InRange(rig.MainHz, rxBeforeOffset - 1_200, rxBeforeOffset - 800);
+        Assert.InRange(statusAfter.ManualTransmitAdjustKHz, -2.6, -2.4);
+        Assert.InRange(rig.MainHz, rxBeforeOffset + 800, rxBeforeOffset + 1_200);
     }
 
     [Fact]
@@ -738,7 +792,7 @@ public class RigControllerTests
         {
             TrackState = state,
             Mode = mode,
-            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, 0),
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
             TransmitOffsetKHz = 0,
             ReceiveOffsetKHz = 0
         };
@@ -795,7 +849,7 @@ public class RigControllerTests
         {
             TrackState = state,
             Mode = mode,
-            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, 0),
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
             SelectedCtcssHz = 67.0
         };
 
@@ -839,7 +893,7 @@ public class RigControllerTests
                     LookAngles = new LookAngles(180, 30, 400, rangeRateKmPerSec)
                 },
                 Mode = mode,
-                Corrected = DopplerFrequencyCalculator.Compute(mode, rangeRateKmPerSec, 0, 0),
+                Corrected = DopplerFrequencyCalculator.Compute(mode, rangeRateKmPerSec, 0),
                 TransmitOffsetKHz = 0,
                 ReceiveOffsetKHz = 0
             };
@@ -885,7 +939,7 @@ public class RigControllerTests
                 LookAngles = new LookAngles(180, 20, 800, rangeRateKmPerSec)
             },
             Mode = mode,
-            Corrected = DopplerFrequencyCalculator.Compute(mode, rangeRateKmPerSec, 0, 0),
+            Corrected = DopplerFrequencyCalculator.Compute(mode, rangeRateKmPerSec, 0),
             TransmitOffsetKHz = 0,
             ReceiveOffsetKHz = 0
         };
@@ -940,7 +994,7 @@ public class RigControllerTests
         {
             TrackState = state,
             Mode = mode,
-            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, rxOffset),
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, rxOffset),
             TransmitOffsetKHz = 0,
             ReceiveOffsetKHz = rxOffset
         };
@@ -957,5 +1011,122 @@ public class RigControllerTests
 
         Assert.Equal(rxAfterInit, rig.MainHz);
         Assert.Equal(writesAfterInit, rig.SetFrequencyCallCount);
+    }
+
+    [Fact]
+    public void Pass_init_swaps_bands_when_switching_from_uhf_down_to_vhf_down_satellite()
+    {
+        var rig = new RecordingRigDriver { MainHz = 435_700_000, SubHz = 145_900_000 };
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0,
+            TrackStartElevationDeg = -90
+        };
+
+        var uvMode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var vuMode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 145_865,
+            UplinkKHz = 435_110.1,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        RigTrackingContext Build(SatelliteTransponderMode mode, string noradId, string name) =>
+            new()
+            {
+                TrackState = new SatelliteTrackState
+                {
+                    Name = name,
+                    NoradId = noradId,
+                    Subpoint = new GeoCoordinate(0, 0),
+                    LookAngles = new LookAngles(180, 20, 800, 0)
+                },
+                Mode = mode,
+                Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
+                TransmitOffsetKHz = 0,
+                ReceiveOffsetKHz = 0
+            };
+
+        controller.Update(settings, Build(uvMode, "11111", "RS-44"));
+        Assert.Equal(0, rig.ExchangeVfoCallCount);
+        Assert.InRange(rig.MainHz, 430_000_000, 440_000_000);
+
+        controller.Update(settings, Build(vuMode, "22222", "JO-97"));
+
+        Assert.Equal(1, rig.ExchangeVfoCallCount);
+        Assert.InRange(rig.MainHz, 145_000_000, 146_000_000);
+        Assert.InRange(rig.SubHz, 430_000_000, 440_000_000);
+    }
+
+    [Fact]
+    public void Pass_init_swaps_again_when_returning_from_vhf_down_to_uhf_down_satellite()
+    {
+        var rig = new RecordingRigDriver { MainHz = 145_900_000, SubHz = 435_700_000 };
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0,
+            TrackStartElevationDeg = -90
+        };
+
+        var vuMode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 145_865,
+            UplinkKHz = 435_110.1,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var uvMode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        RigTrackingContext Build(SatelliteTransponderMode mode, string noradId, string name) =>
+            new()
+            {
+                TrackState = new SatelliteTrackState
+                {
+                    Name = name,
+                    NoradId = noradId,
+                    Subpoint = new GeoCoordinate(0, 0),
+                    LookAngles = new LookAngles(180, 20, 800, 0)
+                },
+                Mode = mode,
+                Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
+                TransmitOffsetKHz = 0,
+                ReceiveOffsetKHz = 0
+            };
+
+        controller.Update(settings, Build(vuMode, "22222", "JO-97"));
+        Assert.Equal(0, rig.ExchangeVfoCallCount);
+
+        controller.Update(settings, Build(uvMode, "11111", "RS-44"));
+
+        Assert.Equal(1, rig.ExchangeVfoCallCount);
+        Assert.InRange(rig.MainHz, 430_000_000, 440_000_000);
+        Assert.InRange(rig.SubHz, 145_000_000, 146_000_000);
     }
 }

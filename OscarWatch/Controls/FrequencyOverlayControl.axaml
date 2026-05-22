@@ -18,6 +18,29 @@
       <Setter Property="FontSize" Value="15" />
       <Setter Property="HorizontalAlignment" Value="Stretch" />
     </Style>
+    <Style Selector="Button.offset-step">
+      <Setter Property="MinHeight" Value="32" />
+      <Setter Property="MinWidth" Value="0" />
+      <Setter Property="Padding" Value="4,6" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontFamily" Value="Consolas,Courier New,monospace" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="Background" Value="#FF1E1E1E" />
+      <Setter Property="BorderBrush" Value="#FF505050" />
+      <Setter Property="Foreground" Value="#FFFFFFFF" />
+    </Style>
+    <Style Selector="Button.store-offset">
+      <Setter Property="MinHeight" Value="36" />
+      <Setter Property="Padding" Value="12,8" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="Background" Value="#FF2A3A2A" />
+      <Setter Property="BorderBrush" Value="#FF507050" />
+      <Setter Property="Foreground" Value="#FFE0FFE0" />
+    </Style>
   </UserControl.Styles>
 
   <Border Background="#FF121212"
@@ -187,50 +210,33 @@
         </Grid>
 
         <StackPanel IsVisible="{Binding HasTransponderData}" Spacing="10">
-          <Grid ColumnDefinitions="*,*"
-                ColumnSpacing="14"
-                IsVisible="{Binding !IsBeaconOnly}">
-            <StackPanel Grid.Column="0" Spacing="6">
-              <TextBlock Text="TX offset (kHz)" FontSize="12" FontWeight="SemiBold"
-                         Foreground="#FFE0E0E0" />
-              <NumericUpDown x:Name="TxOffsetUpDown"
-                             Classes="offset-spin"
-                             Value="{Binding TransmitOffsetKHz, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Minimum="-10" Maximum="10"
-                             Increment="0.025" FormatString="F3"
-                             ValueChanged="OnOffsetSpinValueChanged" />
-            </StackPanel>
-            <StackPanel Grid.Column="1" Spacing="6">
-              <TextBlock Text="RX offset (kHz)" FontSize="12" FontWeight="SemiBold"
-                         Foreground="#FFE0E0E0" />
-              <NumericUpDown x:Name="RxOffsetUpDown"
-                             Classes="offset-spin"
-                             Value="{Binding ReceiveOffsetKHz, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Minimum="-10" Maximum="10"
-                             Increment="0.025" FormatString="F3"
-                             ValueChanged="OnOffsetSpinValueChanged" />
-            </StackPanel>
-          </Grid>
-          <StackPanel Spacing="6" IsVisible="{Binding IsBeaconOnly}">
+          <StackPanel Spacing="6">
             <TextBlock Text="RX offset (kHz)" FontSize="12" FontWeight="SemiBold"
                        Foreground="#FFE0E0E0" />
-            <NumericUpDown x:Name="RxOffsetBeaconUpDown"
+            <NumericUpDown x:Name="RxOffsetUpDown"
                            Classes="offset-spin"
                            Value="{Binding ReceiveOffsetKHz, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                           Minimum="-10" Maximum="10"
+                           Minimum="-5" Maximum="5"
                            Increment="0.025" FormatString="F3"
                            MaxWidth="220"
                            HorizontalAlignment="Left"
                            ValueChanged="OnOffsetSpinValueChanged" />
+            <UniformGrid Columns="6" Rows="1">
+              <Button Classes="offset-step" Content="+1000" Tag="1000" Click="OnOffsetStepClick" />
+              <Button Classes="offset-step" Content="+100" Tag="100" Click="OnOffsetStepClick" />
+              <Button Classes="offset-step" Content="+10" Tag="10" Click="OnOffsetStepClick" />
+              <Button Classes="offset-step" Content="-10" Tag="-10" Click="OnOffsetStepClick" />
+              <Button Classes="offset-step" Content="-100" Tag="-100" Click="OnOffsetStepClick" />
+              <Button Classes="offset-step" Content="-1000" Tag="-1000" Click="OnOffsetStepClick" />
+            </UniformGrid>
+            <Button Classes="store-offset"
+                    Content="Store Offset"
+                    Command="{Binding StoreOffsetCommand}" />
           </StackPanel>
           <TextBlock Text="{Binding OffsetAppliedHint}"
                      FontSize="11"
                      TextWrapping="Wrap"
                      Foreground="#FF90C090" />
-          <CheckBox Content="Remember offsets for this satellite"
-                    IsChecked="{Binding RememberOffsets, Mode=TwoWay}"
-                    FontSize="12"
-                    Foreground="#FFE0E0E0" />
         </StackPanel>
       </StackPanel>
     </StackPanel>

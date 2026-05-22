@@ -6,49 +6,35 @@ public static class DopplerFrequencyCalculator
 {
     private const double SpeedOfLightKmPerSec = 299792.458;
 
+    /// <summary>
+    /// QTrig-style doppler: same rx/tx_dopplercalc on both legs for NOR and REV.
+    /// REV passband coupling is handled outside this type (Main dial mutates passband baselines).
+    /// RX offset is applied to the downlink nominal before doppler (QTrig F_cal).
+    /// </summary>
     public static CorrectedFrequencies Compute(
         SatelliteTransponderMode mode,
         double rangeRateKmPerSec,
-        double transmitOffsetKHz,
         double receiveOffsetKHz,
-        double manualTransmitAdjustKHz = 0,
-        double manualReceiveAdjustKHz = 0)
+        double passbandDownlinkAdjustKHz = 0,
+        double passbandUplinkAdjustKHz = 0)
     {
-        var downlink = mode.DownlinkKHz;
-        var uplink = mode.UplinkKHz;
         var isBeaconOnly = mode.IsBeaconOnly;
 
-        // NOR: same as QTrig rx_dopplercalc / tx_dopplercalc (rx subtract, tx add on the baseline).
-        // REV (inverting V/U): RX doppler inverted vs NOR; TX couples to RX passband position on the
-        // satellite (shiftDown) plus uplink-path doppler (shiftUp). Positive TX offset lowers Radio TX.
-        var shiftDown = ComputeShiftKHz(downlink, rangeRateKmPerSec);
-        var shiftUp = isBeaconOnly ? 0 : ComputeShiftKHz(uplink, rangeRateKmPerSec);
-        var displayShift = shiftDown;
+        var downlinkBase = mode.DownlinkKHz + receiveOffsetKHz + passbandDownlinkAdjustKHz;
+        var uplinkBase = mode.UplinkKHz + passbandUplinkAdjustKHz;
 
-        double radioRx;
-        double radioTx;
-        if (mode.DopplerCorrection == DopplerCorrection.Reverse)
-        {
-            radioRx = downlink - shiftDown - receiveOffsetKHz + manualReceiveAdjustKHz;
-            radioTx = isBeaconOnly
-                ? 0
-                : uplink + shiftDown + shiftUp - transmitOffsetKHz + manualTransmitAdjustKHz
-                  - manualReceiveAdjustKHz;
-        }
-        else
-        {
-            radioRx = downlink + shiftDown + receiveOffsetKHz + manualReceiveAdjustKHz;
-            radioTx = isBeaconOnly
-                ? 0
-                : uplink - shiftUp + transmitOffsetKHz + manualTransmitAdjustKHz;
-        }
+        var shiftDown = ComputeShiftKHz(downlinkBase, rangeRateKmPerSec);
+        var shiftUp = isBeaconOnly ? 0 : ComputeShiftKHz(uplinkBase, rangeRateKmPerSec);
+
+        var radioRx = downlinkBase + shiftDown;
+        var radioTx = isBeaconOnly ? 0 : uplinkBase - shiftUp;
 
         return new CorrectedFrequencies(
             RadioTransmitKHz: radioTx,
             RadioReceiveKHz: radioRx,
-            SatelliteTransmitKHz: uplink,
-            SatelliteReceiveKHz: downlink,
-            DopplerShiftKHz: displayShift,
+            SatelliteTransmitKHz: mode.UplinkKHz,
+            SatelliteReceiveKHz: mode.DownlinkKHz,
+            DopplerShiftKHz: shiftDown,
             IsBeaconOnly: isBeaconOnly);
     }
 

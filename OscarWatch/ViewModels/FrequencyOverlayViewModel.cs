@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using OscarWatch.Core.Cloudlog;
 using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
@@ -19,8 +20,8 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private bool _isLoadingSelection;
     private double _lastRangeRateKmPerSec;
     private SatelliteTrackState? _lastTrackState;
-    private double _rigManualRxAdjustKHz;
-    private double _rigManualTxAdjustKHz;
+    private double _rigPassbandDownlinkAdjustKHz;
+    private double _rigPassbandUplinkAdjustKHz;
 
     [ObservableProperty]
     private string _satelliteName = "—";
@@ -73,13 +74,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     public ObservableCollection<CtcssToneOption> CtcssToneOptions { get; } = [];
 
     [ObservableProperty]
-    private double _transmitOffsetKHz;
-
-    [ObservableProperty]
     private double _receiveOffsetKHz;
-
-    [ObservableProperty]
-    private bool _rememberOffsets = true;
 
     [ObservableProperty]
     private string _offsetAppliedHint = "";
@@ -151,8 +146,8 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             _currentNoradId = state.NoradId;
             _currentSatelliteName = state.Name;
             _currentStorageKey = ResolveStorageKey(state.Name);
-            _rigManualRxAdjustKHz = 0;
-            _rigManualTxAdjustKHz = 0;
+            _rigPassbandDownlinkAdjustKHz = 0;
+            _rigPassbandUplinkAdjustKHz = 0;
             LoadModesForSatellite(state.Name);
             RequestOverlayReclamp();
         }
@@ -168,15 +163,16 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         IsBeaconOnly = SelectedMode.IsBeaconOnly;
 
         _lastRangeRateKmPerSec = state.LookAngles?.RangeRateKmPerSec ?? 0;
-        ApplyCorrectedDisplay(
-            DopplerFrequencyCalculator.Compute(
-                SelectedMode,
-                _lastRangeRateKmPerSec,
-                TransmitOffsetKHz,
-                ReceiveOffsetKHz,
-                _rigManualTxAdjustKHz,
-                _rigManualRxAdjustKHz));
+        ApplyCorrectedDisplay(ComputeCorrected(_lastRangeRateKmPerSec));
     }
+
+    private CorrectedFrequencies ComputeCorrected(double rangeRateKmPerSec) =>
+        DopplerFrequencyCalculator.Compute(
+            SelectedMode!,
+            rangeRateKmPerSec,
+            ReceiveOffsetKHz,
+            _rigPassbandDownlinkAdjustKHz,
+            _rigPassbandUplinkAdjustKHz);
 
     public CloudlogRadioUpdate? TryBuildCloudlogUpdate(SatelliteTrackState? state)
     {
@@ -184,13 +180,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             return null;
 
         var rangeRate = state.LookAngles?.RangeRateKmPerSec ?? _lastRangeRateKmPerSec;
-        var corrected = DopplerFrequencyCalculator.Compute(
-            SelectedMode,
-            rangeRate,
-            TransmitOffsetKHz,
-            ReceiveOffsetKHz,
-            _rigManualTxAdjustKHz,
-            _rigManualRxAdjustKHz);
+        var corrected = ComputeCorrected(rangeRate);
 
         return CloudlogRadioMapper.TryCreate(state.Name, SelectedMode, corrected);
     }
@@ -200,18 +190,23 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         if (state is null || SelectedMode is null || state.LookAngles is null)
             return null;
 
+        // Overlay modes reload when NoradId changes; don't drive CAT until synced.
+        if (!string.Equals(state.NoradId, _currentNoradId, StringComparison.Ordinal))
+            return null;
+
         var corrected = DopplerFrequencyCalculator.Compute(
             SelectedMode,
             state.LookAngles.RangeRateKmPerSec,
-            TransmitOffsetKHz,
-            ReceiveOffsetKHz);
+            ReceiveOffsetKHz,
+            _rigPassbandDownlinkAdjustKHz,
+            _rigPassbandUplinkAdjustKHz);
 
         return new RigTrackingContext
         {
             TrackState = state,
             Mode = SelectedMode,
             Corrected = corrected,
-            TransmitOffsetKHz = TransmitOffsetKHz,
+            TransmitOffsetKHz = 0,
             ReceiveOffsetKHz = ReceiveOffsetKHz,
             SelectedCtcssHz = GetActiveCtcssHz()
         };
@@ -266,8 +261,8 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         if (_isLoadingSelection || string.IsNullOrEmpty(_currentSatelliteName))
             return;
 
-        _rigManualRxAdjustKHz = 0;
-        _rigManualTxAdjustKHz = 0;
+        _rigPassbandDownlinkAdjustKHz = 0;
+        _rigPassbandUplinkAdjustKHz = 0;
 
         if (_currentSatelliteName is not null)
         {
@@ -281,14 +276,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
         OffsetsChanged?.Invoke(this, EventArgs.Empty);
         RequestOverlayReclamp();
-    }
-
-    partial void OnTransmitOffsetKHzChanged(double value)
-    {
-        if (_isLoadingSelection)
-            return;
-
-        ApplyOffsetEdit();
+        StoreOffsetCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnReceiveOffsetKHzChanged(double value)
@@ -299,15 +287,40 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         ApplyOffsetEdit();
     }
 
-    /// <summary>Called when offset spinners change (including while typing).</summary>
+    /// <summary>Called when RX offset changes (spinner or step buttons).</summary>
     public void ApplyOffsetEdit()
     {
-        if (RememberOffsets)
-            PersistSelection();
-
         RefreshFrequencyDisplay();
         OffsetsChanged?.Invoke(this, EventArgs.Empty);
     }
+
+    /// <summary>QTrig-style RX offset nudge in Hz (F_cal).</summary>
+    public void AdjustReceiveOffsetHz(int deltaHz)
+    {
+        const double maxKHz = 5.0;
+        ReceiveOffsetKHz = Math.Clamp(ReceiveOffsetKHz + deltaHz / 1000.0, -maxKHz, maxKHz);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanStoreOffset))]
+    private void StoreOffset()
+    {
+        if (SelectedMode is null)
+            return;
+
+        var selection = GetOrCreateSelection();
+        selection.RememberOffsets = true;
+        selection.SetOffsetsForMode(SelectedMode.Type, 0, ReceiveOffsetKHz);
+        _ = _settings.SaveAsync();
+
+        var hz = (int)Math.Round(ReceiveOffsetKHz * 1000.0);
+        OffsetAppliedHint = hz == 0
+            ? $"Cleared stored RX offset for {SelectedMode.Type}."
+            : $"Stored RX offset {hz} Hz for {SelectedMode.Type}.";
+    }
+
+    private bool CanStoreOffset() => HasTransponderData && SelectedMode is not null;
+
+    partial void OnHasTransponderDataChanged(bool value) => StoreOffsetCommand.NotifyCanExecuteChanged();
 
     /// <summary>Recompute Radio/Sat frequencies from last track state and current offsets.</summary>
     public void RefreshFrequencyDisplay()
@@ -319,26 +332,19 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         }
 
         _lastRangeRateKmPerSec = _lastTrackState?.LookAngles?.RangeRateKmPerSec ?? _lastRangeRateKmPerSec;
-        ApplyCorrectedDisplay(
-            DopplerFrequencyCalculator.Compute(
-                SelectedMode,
-                _lastRangeRateKmPerSec,
-                TransmitOffsetKHz,
-                ReceiveOffsetKHz,
-                _rigManualTxAdjustKHz,
-                _rigManualRxAdjustKHz));
+        ApplyCorrectedDisplay(ComputeCorrected(_lastRangeRateKmPerSec));
         UpdateOffsetAppliedHint();
     }
 
-    /// <summary>Knob tuning on the rig (interactive CAT) — keeps overlay Radio row in sync.</summary>
-    public void SyncRigKnobAdjustments(double manualRxKHz, double manualTxKHz)
+    /// <summary>Main-dial passband trim from rig (QTrig F/I mutation while tracking).</summary>
+    public void SyncRigPassbandAdjustments(double downlinkAdjustKHz, double uplinkAdjustKHz)
     {
-        if (Math.Abs(_rigManualRxAdjustKHz - manualRxKHz) < 0.0001
-            && Math.Abs(_rigManualTxAdjustKHz - manualTxKHz) < 0.0001)
+        if (Math.Abs(_rigPassbandDownlinkAdjustKHz - downlinkAdjustKHz) < 0.0001
+            && Math.Abs(_rigPassbandUplinkAdjustKHz - uplinkAdjustKHz) < 0.0001)
             return;
 
-        _rigManualRxAdjustKHz = manualRxKHz;
-        _rigManualTxAdjustKHz = manualTxKHz;
+        _rigPassbandDownlinkAdjustKHz = downlinkAdjustKHz;
+        _rigPassbandUplinkAdjustKHz = uplinkAdjustKHz;
         RefreshFrequencyDisplay();
     }
 
@@ -361,37 +367,17 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         }
 
         var isRev = SelectedMode.DopplerCorrection == DopplerCorrection.Reverse;
-        var parts = new List<string>();
-        if (Math.Abs(TransmitOffsetKHz) > 0.0001 && !IsBeaconOnly)
-        {
-            parts.Add(isRev
-                ? $"TX {TransmitOffsetKHz:+0.000;-0.000;0} kHz → Radio ↓"
-                : $"TX {TransmitOffsetKHz:+0.000;-0.000;0} kHz → Radio ↑");
-        }
-
         if (Math.Abs(ReceiveOffsetKHz) > 0.0001)
         {
-            parts.Add(isRev
-                ? $"RX {ReceiveOffsetKHz:+0.000;-0.000;0} kHz → Radio ↓"
-                : $"RX {ReceiveOffsetKHz:+0.000;-0.000;0} kHz → Radio ↑");
+            OffsetAppliedHint = isRev
+                ? $"RX offset {ReceiveOffsetKHz:+0.000;-0.000;0} kHz on downlink (QTrig F_cal). Tune Main dial on inverting sats to trim uplink."
+                : $"RX offset {ReceiveOffsetKHz:+0.000;-0.000;0} kHz shifts downlink doppler (QTrig F_cal).";
+            return;
         }
 
-        OffsetAppliedHint = parts.Count == 0
-            ? "Offsets apply to the Radio row only (Sat shows nominal centre)."
-            : string.Join(" · ", parts);
-    }
-
-    partial void OnRememberOffsetsChanged(bool value)
-    {
-        if (_isLoadingSelection)
-            return;
-
-        var selection = GetOrCreateSelection();
-        selection.RememberOffsets = value;
-        ApplyOffsetsForSelectedMode();
-        PersistSelection();
-        UpdateFromCurrentState();
-        RequestOverlayReclamp();
+        OffsetAppliedHint = isRev
+            ? "RX offset trims downlink only. On inverting sats, tune Main while listening to move uplink (QTrig)."
+            : "RX offset shifts downlink doppler before tracking (QTrig F_cal). Sat row shows nominal centre.";
     }
 
     partial void OnSelectedCtcssToneChanged(CtcssToneOption? value)
@@ -425,7 +411,6 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
             var selection = GetOrCreateSelection();
             SelectedMode = ResolveSelectedMode(selection);
-            RememberOffsets = selection.RememberOffsets;
             ApplyOffsetsForSelectedMode();
             UpdateCtcssDisplay(restoreToneRole: selection.CtcssToneRole);
         }
@@ -477,16 +462,8 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         _isLoadingSelection = true;
         try
         {
-            if (!RememberOffsets)
-            {
-                TransmitOffsetKHz = 0;
-                ReceiveOffsetKHz = 0;
-                return;
-            }
-
             var selection = GetOrCreateSelection();
-            var (tx, rx) = selection.GetOffsetsForMode(SelectedMode.Type);
-            TransmitOffsetKHz = tx;
+            var (_, rx) = selection.GetOffsetsForMode(SelectedMode.Type);
             ReceiveOffsetKHz = rx;
         }
         finally
@@ -507,11 +484,6 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         selection.ModeIndex = AvailableModes.IndexOf(SelectedMode);
         if (selection.ModeIndex < 0)
             selection.ModeIndex = 0;
-        selection.RememberOffsets = RememberOffsets;
-        if (RememberOffsets)
-            selection.SetOffsetsForMode(SelectedMode.Type, TransmitOffsetKHz, ReceiveOffsetKHz);
-        else
-            selection.SetOffsetsForMode(SelectedMode.Type, 0, 0);
         if (SelectedCtcssTone is not null)
             selection.CtcssToneRole = SelectedCtcssTone.Role;
         _ = _settings.SaveAsync();

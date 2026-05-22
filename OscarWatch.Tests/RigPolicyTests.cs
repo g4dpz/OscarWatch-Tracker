@@ -15,6 +15,14 @@ public class RigSatModeHelperTests
     [MemberData(nameof(RigSatModeRows))]
     public void UseMainSubLayout_matches_golden(double down, double up, bool expected) =>
         Assert.Equal(expected, RigSatModeHelper.UseMainSubLayout(down, up));
+
+    [Theory]
+    [InlineData(435_700_000, 145_865, true)]
+    [InlineData(145_900_000, 145_865, false)]
+    [InlineData(145_900_000, 435_667, true)]
+    [InlineData(435_700_000, 435_667, false)]
+    public void NeedsMainSubBandSwap_detects_wrong_main_band(long mainHz, double downlinkKHz, bool expected) =>
+        Assert.Equal(expected, RigSatModeHelper.NeedsMainSubBandSwap(mainHz, downlinkKHz));
 }
 
 public class SetupVfosPolicyTests

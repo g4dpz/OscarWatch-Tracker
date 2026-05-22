@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using OscarWatch.ViewModels;
 
 namespace OscarWatch.Controls;
@@ -181,19 +182,19 @@ public partial class FrequencyOverlayControl : UserControl
             return;
 
         var khz = (double)(spin.Value ?? 0m);
-        if (ReferenceEquals(sender, TxOffsetUpDown))
-        {
-            if (Math.Abs(vm.TransmitOffsetKHz - khz) < 0.0001)
-                return;
-            vm.TransmitOffsetKHz = khz;
-        }
-        else
-        {
-            if (Math.Abs(vm.ReceiveOffsetKHz - khz) < 0.0001)
-                return;
-            vm.ReceiveOffsetKHz = khz;
-        }
+        if (Math.Abs(vm.ReceiveOffsetKHz - khz) < 0.0001)
+            return;
+        vm.ReceiveOffsetKHz = khz;
         // Property change handler calls ApplyOffsetEdit (display now, CAT debounced in MainViewModel).
+    }
+
+    private void OnOffsetStepClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not FrequencyOverlayViewModel vm || sender is not Button btn)
+            return;
+
+        if (btn.Tag is string tag && int.TryParse(tag, out var deltaHz))
+            vm.AdjustReceiveOffsetHz(deltaHz);
     }
 
     private static (double X, double Y) ClampPosition(

@@ -160,14 +160,14 @@ public partial class MainViewModel : ViewModelBase
 
         var focused = GetFocusedTrackState(_tracking.GetLiveStates(DateTime.UtcNow), FocusedNoradId);
         var context = Frequencies.TryBuildRigTrackingContext(focused);
-        _rig.PublishContext(_settings.Current.Rig, context);
+        _rig.Update(_settings.Current.Rig, context);
         RefreshRigUi(focused);
     }
 
     private void RefreshRigUi(SatelliteTrackState? focused)
     {
         var rigStatus = _rig.GetStatus();
-        Frequencies.SyncRigKnobAdjustments(rigStatus.ManualReceiveAdjustKHz, rigStatus.ManualTransmitAdjustKHz);
+        Frequencies.SyncRigPassbandAdjustments(rigStatus.ManualReceiveAdjustKHz, rigStatus.ManualTransmitAdjustKHz);
         UpdateRigDisplay(rigStatus);
         PushCloudlogRadio(focused);
     }
@@ -224,13 +224,14 @@ public partial class MainViewModel : ViewModelBase
         UpdateComPortConflictState();
         _rotator.Update(_settings.Current.Rotator, focused);
         UpdateRotatorDisplay();
+        Frequencies.Update(focused);
+
         if (ShowComPortConflict)
             _rig.Disconnect();
         else
             PublishRigTrackingContext(focused);
 
         RefreshRigUi(focused);
-        Frequencies.Update(focused);
     }
 
     /// <summary>Refresh look angles / range rate for the doppler loop (4 Hz). UI still ticks at 1 Hz.</summary>
@@ -459,6 +460,7 @@ public partial class MainViewModel : ViewModelBase
                 : LiveStates.FirstOrDefault(s => s.NoradId == value);
             Frequencies.Update(focused);
             PushCloudlogRadio(focused);
+            RefreshRigFromOverlay();
         }
 
         if (value is null)

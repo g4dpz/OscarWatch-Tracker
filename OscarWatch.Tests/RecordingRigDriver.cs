@@ -43,7 +43,13 @@ internal sealed class RecordingRigDriver : IRigDriver
     public void SetMode(string mode) { }
     public void SetSplitOn(bool on) { }
     public void SetSatelliteMode(bool on) { }
-    public void ExchangeVfos() { }
+    public int ExchangeVfoCallCount { get; private set; }
+
+    public void ExchangeVfos()
+    {
+        ExchangeVfoCallCount++;
+        (MainHz, SubHz) = (SubHz, MainHz);
+    }
     public void SetToneOn(bool on) => ToneOn = on;
 
     public void SetToneSquelchOn(bool on) => ToneSquelchOn = on;
