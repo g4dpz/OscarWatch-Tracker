@@ -14,6 +14,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private double? _lastElevation;
     private bool _parked;
     private bool _manualParkActive;
+    private bool _standbyActive;
     private int? _displayAzimuth;
     private int? _displayElevation;
 
@@ -31,6 +32,14 @@ public sealed class RotatorController : IRotatorController, IDisposable
         if (!EnsureConnected(settings))
             return;
 
+        PollPosition();
+
+        if (_standbyActive)
+        {
+            TryPark(settings);
+            return;
+        }
+
         if (target?.NoradId != _lastTargetNoradId)
         {
             _lastTargetNoradId = target?.NoradId;
@@ -38,8 +47,6 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _lastElevation = null;
             _parked = false;
         }
-
-        PollPosition();
 
         if (_manualParkActive)
         {
@@ -66,6 +73,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
     public void Park(RotatorSettings settings)
     {
+        if (_standbyActive)
+            return;
+
         if (!settings.Enabled || string.IsNullOrWhiteSpace(settings.Port))
             return;
 
@@ -73,6 +83,33 @@ public sealed class RotatorController : IRotatorController, IDisposable
             return;
 
         _manualParkActive = true;
+        _parked = false;
+        TryPark(settings);
+        PollPosition();
+    }
+
+    public void SetStandby(bool active, RotatorSettings settings)
+    {
+        _standbyActive = active;
+
+        if (!active)
+        {
+            _lastTargetNoradId = null;
+            _lastAzimuth = null;
+            _lastElevation = null;
+            _parked = false;
+            _manualParkActive = false;
+            return;
+        }
+
+        _manualParkActive = false;
+
+        if (!settings.Enabled || string.IsNullOrWhiteSpace(settings.Port))
+            return;
+
+        if (!EnsureConnected(settings))
+            return;
+
         _parked = false;
         TryPark(settings);
         PollPosition();
@@ -90,6 +127,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _lastElevation = null;
         _parked = false;
         _manualParkActive = false;
+        _standbyActive = false;
         _displayAzimuth = null;
         _displayElevation = null;
     }

@@ -74,6 +74,16 @@ public partial class MainViewModel : ViewModelBase
     private bool _canParkRotator;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ParkRotatorCommand))]
+    [NotifyPropertyChangedFor(nameof(StandbyButtonText))]
+    [NotifyCanExecuteChangedFor(nameof(ParkRotatorCommand))]
+    private bool _isStandby;
+
+    public string StandbyButtonText => IsStandby ? "Resume" : "Standby";
+
+    private bool? _rigCatPausedBeforeStandby;
+
+    [ObservableProperty]
     private bool _showRigStatus;
 
     [ObservableProperty]
@@ -301,7 +311,28 @@ public partial class MainViewModel : ViewModelBase
         RotatorElevationText = status is { IsConnected: true, ElevationDeg: not null }
             ? $"{status.ElevationDeg.Value}°"
             : "—";
-        CanParkRotator = status.IsConnected;
+        CanParkRotator = status.IsConnected && !IsStandby;
+    }
+
+    [RelayCommand]
+    private void ToggleStandby()
+    {
+        IsStandby = !IsStandby;
+
+        if (IsStandby)
+        {
+            _rigCatPausedBeforeStandby = RigCatPaused;
+            RigCatPaused = true;
+            _rotator.SetStandby(true, _settings.Current.Rotator);
+        }
+        else
+        {
+            RigCatPaused = _rigCatPausedBeforeStandby ?? false;
+            _rigCatPausedBeforeStandby = null;
+            _rotator.SetStandby(false, _settings.Current.Rotator);
+        }
+
+        UpdateRotatorDisplay();
     }
 
     [RelayCommand(CanExecute = nameof(CanParkRotator))]
