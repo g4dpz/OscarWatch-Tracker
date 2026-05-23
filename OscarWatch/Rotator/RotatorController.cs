@@ -1,10 +1,26 @@
+using System.Collections.Concurrent;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
 
 namespace OscarWatch.Rotator;
 
+/// <summary>
+/// All rotator I/O runs on a dedicated background thread; the UI only enqueues commands and reads status.
+/// </summary>
 public sealed class RotatorController : IRotatorController, IDisposable
 {
+    private static readonly TimeSpan LoopInterval = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan CommandWaitTimeout = TimeSpan.FromSeconds(10);
+
+    private readonly Func<RotatorSettings, IRotatorDriver>? _driverFactory;
+    private readonly object _statusLock = new();
+    private readonly object _workerStartLock = new();
+
+    private BlockingCollection<RotatorCommand>? _commands;
+    private Thread? _worker;
+    private int _disposed;
+    private volatile bool _shutdownRequested;
+
     private IRotatorDriver? _rotator;
     private string? _connectedPort;
     private int _connectedBaudRate;
@@ -18,14 +34,178 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private int? _displayAzimuth;
     private int? _displayElevation;
 
-    public RotatorPositionStatus GetPositionStatus() =>
-        new(_rotator is not null, _displayAzimuth, _displayElevation);
+    private RotatorSettings _cachedSettings = new();
+    private SatelliteTrackState? _cachedTarget;
+    private RotatorPositionStatus _positionStatus = new(false, null, null);
 
-    public void Update(RotatorSettings settings, SatelliteTrackState? target)
+    public RotatorController(Func<RotatorSettings, IRotatorDriver>? driverFactory = null) =>
+        _driverFactory = driverFactory;
+
+    public RotatorPositionStatus GetPositionStatus()
     {
+        lock (_statusLock)
+            return _positionStatus;
+    }
+
+    /// <summary>Enqueue latest pass/settings for the rotator thread (~1 Hz from UI).</summary>
+    public void Update(RotatorSettings settings, SatelliteTrackState? target) =>
+        Enqueue(new RotatorCommand(RotatorCommandKind.PublishTarget, settings, target));
+
+    public void Park(RotatorSettings settings) =>
+        Enqueue(new RotatorCommand(RotatorCommandKind.Park, settings));
+
+    public void SetStandby(bool active, RotatorSettings settings) =>
+        Enqueue(new RotatorCommand(RotatorCommandKind.SetStandby, settings, standbyActive: active));
+
+    public void Disconnect() =>
+        Enqueue(new RotatorCommand(RotatorCommandKind.Disconnect));
+
+    /// <summary>Synchronous tracking tick (unit tests).</summary>
+    internal void UpdateSynchronously(RotatorSettings settings, SatelliteTrackState? target) =>
+        EnqueueAndWait(new RotatorCommand(RotatorCommandKind.UpdateSynchronously, settings, target));
+
+    /// <summary>Blocks until queued commands are processed (unit tests).</summary>
+    internal void DrainCommandQueueForTests() =>
+        EnqueueAndWait(new RotatorCommand(RotatorCommandKind.Drain));
+
+    public void Dispose()
+    {
+        if (Interlocked.Exchange(ref _disposed, 1) == 1)
+            return;
+
+        try
+        {
+            if (_commands is not null && _worker is { IsAlive: true })
+                EnqueueAndWait(new RotatorCommand(RotatorCommandKind.Shutdown), TimeSpan.FromSeconds(3));
+        }
+        catch
+        {
+            // best effort
+        }
+
+        _commands?.Dispose();
+        _commands = null;
+        _worker?.Join(TimeSpan.FromSeconds(2));
+    }
+
+    private void Enqueue(RotatorCommand command)
+    {
+        ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) == 1, this);
+        EnsureWorker();
+        _commands!.Add(command);
+    }
+
+    private void EnqueueAndWait(RotatorCommand command, TimeSpan? timeout = null)
+    {
+        using var done = new ManualResetEventSlim(false);
+        command.Completed = done;
+        Enqueue(command);
+        if (!done.Wait(timeout ?? CommandWaitTimeout))
+            throw new TimeoutException("Rotator worker did not complete the command in time.");
+    }
+
+    private void EnsureWorker()
+    {
+        lock (_workerStartLock)
+        {
+            if (_worker is { IsAlive: true })
+                return;
+
+            _shutdownRequested = false;
+            _commands = new BlockingCollection<RotatorCommand>();
+            _worker = new Thread(WorkerLoop)
+            {
+                IsBackground = true,
+                Name = "OscarWatch.Rotator"
+            };
+            _worker.Start();
+        }
+    }
+
+    private void WorkerLoop()
+    {
+        try
+        {
+            while (!_shutdownRequested)
+            {
+                if (_commands!.TryTake(out var command, LoopInterval))
+                {
+                    ProcessCommand(command);
+                    DrainPendingCommands();
+                }
+
+                if (_shutdownRequested)
+                    break;
+
+                RunTrackingIteration();
+                RefreshPositionSnapshot();
+            }
+        }
+        finally
+        {
+            TearDownRotator();
+            RefreshPositionSnapshot();
+        }
+    }
+
+    private void DrainPendingCommands()
+    {
+        while (_commands!.TryTake(out var command, 0))
+            ProcessCommand(command);
+    }
+
+    private void ProcessCommand(RotatorCommand command)
+    {
+        try
+        {
+            switch (command.Kind)
+            {
+                case RotatorCommandKind.PublishTarget:
+                    _cachedSettings = command.Settings;
+                    _cachedTarget = command.Target;
+                    break;
+
+                case RotatorCommandKind.UpdateSynchronously:
+                    _cachedSettings = command.Settings;
+                    _cachedTarget = command.Target;
+                    RunTrackingIteration();
+                    break;
+
+                case RotatorCommandKind.Park:
+                    ParkOnWorker(command.Settings);
+                    break;
+
+                case RotatorCommandKind.SetStandby:
+                    SetStandbyOnWorker(command.StandbyActive!.Value, command.Settings);
+                    break;
+
+                case RotatorCommandKind.Disconnect:
+                    TearDownRotator();
+                    ResetTrackingState();
+                    break;
+
+                case RotatorCommandKind.Drain:
+                    break;
+
+                case RotatorCommandKind.Shutdown:
+                    _shutdownRequested = true;
+                    break;
+            }
+        }
+        finally
+        {
+            RefreshPositionSnapshot();
+            command.Completed?.Set();
+        }
+    }
+
+    private void RunTrackingIteration()
+    {
+        var settings = _cachedSettings;
         if (!settings.Enabled || string.IsNullOrWhiteSpace(settings.Port))
         {
-            Disconnect();
+            TearDownRotator();
+            ResetTrackingState();
             return;
         }
 
@@ -40,6 +220,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             return;
         }
 
+        var target = _cachedTarget;
         if (target?.NoradId != _lastTargetNoradId)
         {
             _lastTargetNoradId = target?.NoradId;
@@ -71,7 +252,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             TryPark(settings);
     }
 
-    public void Park(RotatorSettings settings)
+    private void ParkOnWorker(RotatorSettings settings)
     {
         if (_standbyActive)
             return;
@@ -88,7 +269,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         PollPosition();
     }
 
-    public void SetStandby(bool active, RotatorSettings settings)
+    private void SetStandbyOnWorker(bool active, RotatorSettings settings)
     {
         _standbyActive = active;
 
@@ -115,13 +296,17 @@ public sealed class RotatorController : IRotatorController, IDisposable
         PollPosition();
     }
 
-    public void Disconnect()
+    private void TearDownRotator()
     {
         _rotator?.Dispose();
         _rotator = null;
         _connectedPort = null;
         _connectedBaudRate = 0;
         _connectedType = default;
+    }
+
+    private void ResetTrackingState()
+    {
         _lastTargetNoradId = null;
         _lastAzimuth = null;
         _lastElevation = null;
@@ -132,7 +317,11 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _displayElevation = null;
     }
 
-    public void Dispose() => Disconnect();
+    private void RefreshPositionSnapshot()
+    {
+        lock (_statusLock)
+            _positionStatus = new(_rotator is not null, _displayAzimuth, _displayElevation);
+    }
 
     private bool EnsureConnected(RotatorSettings settings)
     {
@@ -142,11 +331,11 @@ public sealed class RotatorController : IRotatorController, IDisposable
             && _connectedType == settings.Type)
             return true;
 
-        Disconnect();
+        TearDownRotator();
 
         try
         {
-            _rotator = RotatorDriverFactory.Create(settings);
+            _rotator = _driverFactory?.Invoke(settings) ?? RotatorDriverFactory.Create(settings);
             _rotator.Open();
             _connectedPort = settings.Port;
             _connectedBaudRate = settings.BaudRate;
@@ -155,7 +344,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         }
         catch
         {
-            Disconnect();
+            TearDownRotator();
             return false;
         }
     }
@@ -181,7 +370,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         }
         catch
         {
-            Disconnect();
+            TearDownRotator();
         }
     }
 
@@ -199,7 +388,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         }
         catch
         {
-            Disconnect();
+            TearDownRotator();
         }
     }
 
@@ -218,7 +407,39 @@ public sealed class RotatorController : IRotatorController, IDisposable
         }
         catch
         {
-            Disconnect();
+            TearDownRotator();
         }
+    }
+
+    private enum RotatorCommandKind
+    {
+        PublishTarget,
+        UpdateSynchronously,
+        Park,
+        SetStandby,
+        Disconnect,
+        Drain,
+        Shutdown
+    }
+
+    private sealed class RotatorCommand
+    {
+        public RotatorCommand(
+            RotatorCommandKind kind,
+            RotatorSettings? settings = null,
+            SatelliteTrackState? target = null,
+            bool? standbyActive = null)
+        {
+            Kind = kind;
+            Settings = settings ?? new RotatorSettings();
+            Target = target;
+            StandbyActive = standbyActive;
+        }
+
+        public RotatorCommandKind Kind { get; }
+        public RotatorSettings Settings { get; }
+        public SatelliteTrackState? Target { get; }
+        public bool? StandbyActive { get; }
+        public ManualResetEventSlim? Completed { get; set; }
     }
 }
