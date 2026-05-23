@@ -39,12 +39,6 @@ See [building radio drivers](documents/building-radio-drivers.md) for adding rig
 - [ ] **Linear doppler threshold** — default 50 Hz; consider 20 Hz or Settings guidance.
 - [ ] **Doppler behaviour matrix** — NOR/REV, offsets, predictive, loop timing, knob threshold (README or `documents/`).
 
-### Offsets & migration
-
-- [ ] **External offset import** — third-party `config.ini` `[offset_profiles]` → `frequencySelections` / `modeOffsets`.
-- [ ] **Remember offsets UX** — optional default-on per satellite, or one-shot “Save offset for FO-29?”.
-- [ ] **Stored-but-ignored hint** — when `rememberOffsets` is false but `modeOffsets` ≠ 0, show UI hint.
-
 ### Pass debugging & validation
 
 - [ ] **Pass-debug log** (optional, Settings) — overlay offsets, computed RX/TX, CAT writes, knob/manual state, `vfo_not_moving`.
