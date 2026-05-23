@@ -71,6 +71,18 @@
               <Setter Property="HorizontalAlignment" Value="Stretch" />
               <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             </Style>
+            <Style Selector="Border.live-panel">
+              <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
+              <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+              <Setter Property="BorderThickness" Value="1" />
+              <Setter Property="CornerRadius" Value="6" />
+              <Setter Property="Padding" Value="10,8" />
+            </Style>
+            <Style Selector="TextBlock.live-panel-label">
+              <Setter Property="FontSize" Value="11" />
+              <Setter Property="FontWeight" Value="SemiBold" />
+              <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            </Style>
           </Grid.Styles>
           <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
             <TextBlock Grid.Column="0"
@@ -86,70 +98,123 @@
                     Padding="10,4"
                     FontSize="12" />
           </Grid>
-          <StackPanel Grid.Row="1" Spacing="4" Margin="0,0,0,8">
+          <StackPanel Grid.Row="1" Spacing="8" Margin="0,0,0,8">
             <TextBlock Text="Browsing only — rotator parked, CAT paused"
                        FontSize="11"
                        TextWrapping="Wrap"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                       IsVisible="{Binding IsStandby}"
-                       Margin="0,0,0,4" />
-            <TextBlock Text="{Binding SelectedSatelliteName}" FontWeight="SemiBold" FontSize="12" />
-            <TextBlock FontSize="12">
-              <Run Text="Az: " /><Run Text="{Binding AzimuthText}" />
-            </TextBlock>
-            <TextBlock FontSize="12">
-              <Run Text="El: " /><Run Text="{Binding ElevationText}" />
-            </TextBlock>
-            <TextBlock FontSize="12">
-              <Run Text="Range: " /><Run Text="{Binding RangeText}" />
-            </TextBlock>
-            <TextBlock FontSize="12">
-              <Run Text="Altitude: " /><Run Text="{Binding AltitudeText}" />
-            </TextBlock>
-            <TextBlock Text="{Binding NextPassText}"
-                       FontSize="12"
-                       TextWrapping="Wrap"
-                       Foreground="{DynamicResource PassHighlightBrush}"
-                       Margin="0,4,0,0" />
-            <Grid ColumnDefinitions="*,Auto"
-                  Margin="0,8,0,0"
-                  IsVisible="{Binding ShowRotatorStatus}">
-              <StackPanel Grid.Column="0" Spacing="4">
-                <TextBlock Text="Rotator" FontWeight="SemiBold" FontSize="12" />
-                <TextBlock FontSize="12">
-                  <Run Text="Az: " /><Run Text="{Binding RotatorAzimuthText}" />
+                       IsVisible="{Binding IsStandby}" />
+
+            <Border Classes="live-panel">
+              <StackPanel Spacing="6">
+                <TextBlock Classes="live-panel-label" Text="Satellite" />
+                <TextBlock Text="{Binding SelectedSatelliteName}"
+                           FontWeight="SemiBold"
+                           FontSize="14"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock FontSize="12" TextWrapping="Wrap">
+                  <Run Text="Az " /><Run Text="{Binding AzimuthText}" FontWeight="SemiBold" />
+                  <Run Text="  ·  El " /><Run Text="{Binding ElevationText}" FontWeight="SemiBold" />
                 </TextBlock>
-                <TextBlock FontSize="12">
-                  <Run Text="El: " /><Run Text="{Binding RotatorElevationText}" />
+                <TextBlock FontSize="12" TextWrapping="Wrap">
+                  <Run Text="Range " /><Run Text="{Binding RangeText}" />
+                  <Run Text="  ·  Alt " /><Run Text="{Binding AltitudeText}" />
                 </TextBlock>
+                <TextBlock Text="{Binding NextPassText}"
+                           FontSize="12"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource PassHighlightBrush}" />
               </StackPanel>
-              <Button Grid.Column="1"
-                      Content="Park"
-                      Command="{Binding ParkRotatorCommand}"
-                      VerticalAlignment="Center"
-                      Margin="8,0,0,0"
-                      MinWidth="52"
-                      Padding="10,4"
-                      FontSize="12" />
-            </Grid>
+            </Border>
+
+            <Border Classes="live-panel"
+                    IsVisible="{Binding ShowRotatorStatus}">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="6">
+                  <TextBlock Classes="live-panel-label" Text="Rotator" />
+                  <Grid ColumnDefinitions="*,*">
+                    <StackPanel Grid.Column="0" Spacing="2" HorizontalAlignment="Center">
+                      <TextBlock Text="{Binding RotatorAzimuthText}"
+                                 FontSize="18"
+                                 FontWeight="SemiBold"
+                                 HorizontalAlignment="Center"
+                                 FontFamily="Consolas,Courier New,monospace" />
+                      <TextBlock Text="Az"
+                                 FontSize="10"
+                                 HorizontalAlignment="Center"
+                                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Spacing="2" HorizontalAlignment="Center">
+                      <TextBlock Text="{Binding RotatorElevationText}"
+                                 FontSize="18"
+                                 FontWeight="SemiBold"
+                                 HorizontalAlignment="Center"
+                                 FontFamily="Consolas,Courier New,monospace" />
+                      <TextBlock Text="El"
+                                 FontSize="10"
+                                 HorizontalAlignment="Center"
+                                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                    </StackPanel>
+                  </Grid>
+                </StackPanel>
+                <Button Grid.Column="1"
+                        Content="Park"
+                        Command="{Binding ParkRotatorCommand}"
+                        VerticalAlignment="Top"
+                        Margin="8,0,0,0"
+                        MinWidth="52"
+                        Padding="10,4"
+                        FontSize="12" />
+              </Grid>
+            </Border>
+
             <TextBlock Text="{Binding ComPortConflictText}"
                        FontSize="11"
                        TextWrapping="Wrap"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                       Margin="0,8,0,0"
                        IsVisible="{Binding ShowComPortConflict}" />
-            <StackPanel Spacing="4"
-                        Margin="0,8,0,0"
-                        IsVisible="{Binding ShowRigStatus}">
-              <TextBlock Text="Radio" FontWeight="SemiBold" FontSize="12" />
-              <TextBlock Text="{Binding RigStatusText}" FontSize="12" TextWrapping="Wrap" />
-              <TextBlock FontSize="12">
-                <Run Text="RX: " /><Run Text="{Binding RigReceiveText}" />
-              </TextBlock>
-              <TextBlock FontSize="12">
-                <Run Text="TX: " /><Run Text="{Binding RigTransmitText}" />
-              </TextBlock>
-            </StackPanel>
+
+            <Border Classes="live-panel"
+                    IsVisible="{Binding ShowRigStatus}">
+              <StackPanel Spacing="6">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Classes="live-panel-label"
+                             Grid.Column="0"
+                             Text="Radio"
+                             VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="1"
+                             Text="{Binding RigStatusText}"
+                             FontSize="11"
+                             TextWrapping="Wrap"
+                             TextAlignment="Right"
+                             MaxWidth="140"
+                             Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                             VerticalAlignment="Center" />
+                </Grid>
+                <Grid ColumnDefinitions="*,*">
+                  <StackPanel Grid.Column="0" Spacing="2" Margin="0,0,4,0">
+                    <TextBlock Text="RX"
+                               FontSize="10"
+                               Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                    <TextBlock Text="{Binding RigReceiveText}"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap"
+                               FontFamily="Consolas,Courier New,monospace" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="1" Spacing="2" Margin="4,0,0,0">
+                    <TextBlock Text="TX"
+                               FontSize="10"
+                               Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                    <TextBlock Text="{Binding RigTransmitText}"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap"
+                               FontFamily="Consolas,Courier New,monospace" />
+                  </StackPanel>
+                </Grid>
+              </StackPanel>
+            </Border>
           </StackPanel>
 
           <Expander Grid.Row="2"
