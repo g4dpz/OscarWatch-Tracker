@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
-"""Generate OscarWatch.Tests/Fixtures/radio_golden.json from QTrigdoppler reference code."""
+"""Generate OscarWatch.Tests/Fixtures/radio_golden.json (optional external sat_utils checkout)."""
 import json
 import sys
 from pathlib import Path
 
-QTRIG_ROOT = Path(__file__).resolve().parents[2].parent / "QTrigdoppler"
-if not QTRIG_ROOT.exists():
-    QTRIG_ROOT = Path(__file__).resolve().parents[1].parent / "QTrigdoppler"
+# Dev-only: clone a Python sat_utils package alongside the repo if regenerating fixtures.
+_reference_roots = (
+    Path(__file__).resolve().parents[2].parent / "QTrigdoppler",
+    Path(__file__).resolve().parents[1].parent / "QTrigdoppler",
+)
+REFERENCE_ROOT = next((p for p in _reference_roots if p.exists()), _reference_roots[0])
 
-sys.path.insert(0, str(QTRIG_ROOT))
+sys.path.insert(0, str(REFERENCE_ROOT))
 
 from lib import sat_utils  # noqa: E402
 

@@ -471,11 +471,107 @@ public class RigControllerTests
             SelectedCtcssHz = 74.4
         };
         controller.PublishContext(settings, arm);
+        controller.DrainCommandQueueForTests();
         Assert.Equal(67.0, rig.LastToneHz);
 
         controller.ApplySelectedCtcss(settings, arm);
+        controller.DrainCommandQueueForTests();
         Assert.Equal(74.4, rig.LastToneHz);
         Assert.Equal(RigVfo.Sub, rig.LastToneVfo);
+        Assert.True(rig.ToneSquelchOn);
+    }
+
+    [Fact]
+    public void Pass_init_sets_main_and_sub_modes_for_satellite_layout()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.IcomIc9700,
+            Port = "COM1",
+            CatDelayMs = 0,
+            TrackStartElevationDeg = -90
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 436_795,
+            UplinkKHz = 145_850,
+            DownlinkMode = "FMN",
+            UplinkMode = "FMN",
+            CtcssHz = 67.0
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "SO-50",
+            NoradId = "25544",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = state,
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            SelectedCtcssHz = 67.0
+        };
+
+        controller.Update(settings, ctx);
+        Assert.Equal(2, rig.ModeSetCount);
+        Assert.Equal(RigVfo.Sub, rig.LastModeVfo);
+        Assert.Equal(RigVfo.Sub, rig.LastToneVfo);
+        Assert.Equal(RigVfo.Main, rig.LastToneOffVfo);
+        Assert.False(rig.LastToneSquelch ?? true);
+        Assert.True(rig.ToneOn);
+    }
+
+    [Fact]
+    public void Pass_init_ctcss_uses_tsql_path_for_us_region()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.IcomIc9700,
+            Port = "COM1",
+            CatDelayMs = 0,
+            Region = RigRegion.USA,
+            TrackStartElevationDeg = -90
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 437_800,
+            UplinkKHz = 145_990,
+            DownlinkMode = "FMN",
+            UplinkMode = "FMN",
+            CtcssHz = 67.0
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "ISS",
+                NoradId = "25544",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, 0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            SelectedCtcssHz = 67.0
+        };
+
+        controller.Update(settings, ctx);
+        Assert.Equal(RigVfo.Sub, rig.LastToneVfo);
+        Assert.True(rig.LastToneSquelch);
         Assert.True(rig.ToneSquelchOn);
     }
 

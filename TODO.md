@@ -46,17 +46,17 @@ Pull an authoritative `satellite_database.json` from a remote URL and merge it w
 
 **Shipped today:** ICOM IC-910, IC-9700 (CI-V), dummy rig; linear REV/NOR doppler, interactive Main VFO, TX/RX offset spinners, 150 ms CAT loop.
 
-### Doppler & QTrig parity (high priority)
+### Doppler & CAT timing (high priority)
 
-- [ ] **Predictive doppler** — port QTrig adaptive lookahead (`rx_dopplercalc_predictive` / `tx_dopplercalc_predictive`); biggest remaining gap vs smooth linear tracking on steep passes (e.g. high latitude).
-- [ ] **Instantaneous range rate** — use propagator range velocity (ephem-style) instead of 1 s Δrange from OrbitTools; align with QTrig `range_velocity`.
-- [ ] **Faster / adaptive CAT loop** — QTrig uses ~10–30 ms adaptive sleep; OscarWatch uses fixed 150 ms; evaluate lower interval or rate-based timing near TCA.
-- [ ] **Linear doppler threshold** — QTrig default 20 Hz; OscarWatch default 50 Hz; consider matching default or surfacing recommendation in Settings.
-- [ ] **QTrig parity matrix** — document what matches vs differs (REV model, TX offset box, predictive, loop timing, knob threshold).
+- [ ] **Predictive doppler** — adaptive lookahead on range rate for smoother linear tracking on steep passes (e.g. high latitude).
+- [ ] **Instantaneous range rate** — use propagator range velocity instead of 1 s Δrange from OrbitTools.
+- [ ] **Faster / adaptive CAT loop** — evaluate lower than fixed 150 ms or rate-based timing near TCA.
+- [ ] **Linear doppler threshold** — default 50 Hz; consider 20 Hz default or surfacing recommendation in Settings.
+- [ ] **Doppler behaviour matrix** — document NOR/REV, offsets, predictive, loop timing, knob threshold in README.
 
 ### Offsets & migration
 
-- [ ] **QTrig offset import** — read QTrig `config.ini` `[offset_profiles]` (SAT, mode, RX, TX) into `frequencySelections` / `modeOffsets`.
+- [ ] **External offset import** — read third-party `config.ini` `[offset_profiles]` (SAT, mode, RX, TX) into `frequencySelections` / `modeOffsets`.
 - [ ] **Remember offsets UX** — optional default-on per satellite, or one-shot prompt (“Save offset for FO-29?”).
 - [ ] **Stored-but-ignored hint** — when `rememberOffsets` is false but `modeOffsets` has non-zero values, show UI hint so file vs spinner mismatch is obvious.
 
@@ -73,7 +73,7 @@ Pull an authoritative `satellite_database.json` from a remote URL and merge it w
 
 - [ ] IC-9700: validate CAT on hardware (satellite mode, Main/Sub, CTCSS on Sub, doppler).
 - [ ] Optional: **RIT/XIT** CI-V on IC-9700 if interactive VFO tuning still awkward.
-- [ ] **PTT-aware TX writes** — don’t select/write Sub VFO while transmitting (QTrig pattern for non-910 rigs; evaluate for IC-910 if needed).
+- [ ] **PTT-aware TX writes** — don’t select/write Sub VFO while transmitting (evaluate for IC-910/9700).
 
 ### Additional rig drivers (investigate & implement)
 
@@ -92,7 +92,6 @@ Pull an authoritative `satellite_database.json` from a remote URL and merge it w
 
 **References to check**
 
-- QTrig `lib/icom.py`, `lib/sat_utils.py`, `calc_doppler` loop.
 - Manufacturer CAT manuals / Hamlib rig caps (good cross-check for command sets).
 - OscarWatch: `OscarWatch/Rig/`, `RigDriverFactory`, `DopplerFrequencyCalculator`, `RigController`.
 
@@ -162,14 +161,14 @@ On a **450°** rotator (e.g. Yaesu G-5500 + GS-232), commands can use **361–45
 - [ ] **NOR vs REV** — one page: database tag, doppler sign on Radio row, offset sign (positive TX on REV lowers Radio TX), knob pairing.
 - [ ] **Settings vs repo database** — editing repo `satellite_database.json` vs `%AppData%/OscarWatch/satellite_database.json` vs bundled asset vs future remote sync.
 - [ ] **Offset storage** — `frequencySelections`, Remember checkbox, per-mode `modeOffsets`.
-- [ ] **QTrig parity matrix** — link from README; what OscarWatch matches and what it intentionally does differently.
+- [ ] **Doppler behaviour matrix** — link from README; NOR/REV, offsets, CAT timing, interactive VFO.
 - [ ] **Pre-pass checklist** — rebuild, Remember offsets, overlay vs sidebar freqs, Pause CAT, linear threshold.
 
 ---
 
 ## Larger projects (lower priority)
 
-- [ ] **Web / remote API** — QTrig-style status and remote control (optional; QTrig has `web_api` section).
+- [ ] **Web / remote API** — optional status and remote control over HTTP/WebSocket.
 - [ ] **WSJT-X / grid tracker / audio** integration.
 - [ ] **Pass recording** — log freqs + az/el + range rate over time for post-pass review.
 - [ ] **Windows installer / auto-update** for releases.

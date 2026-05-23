@@ -10,7 +10,7 @@ public interface IRigDriver : IDisposable
     /// <summary>Read frequency for a specific VFO (selects that VFO first on Icom).</summary>
     long? ReadFrequencyHz(RigVfo vfo);
     bool SetFrequencyHz(long hz);
-    void SelectVfo(RigVfo vfo);
+    void SelectVfo(RigVfo vfo, bool force = false);
     void SetMode(string mode);
     void SetSplitOn(bool on);
     void SetSatelliteMode(bool on);

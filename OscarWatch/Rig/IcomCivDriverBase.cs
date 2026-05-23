@@ -45,7 +45,7 @@ public abstract class IcomCivDriverBase : IRigDriver
 
     public long? ReadFrequencyHz(RigVfo vfo)
     {
-        SelectVfo(vfo, force: true);
+        SelectVfoInternal(vfo, force: true);
         var cached = CachedFrequencyHz(vfo);
 
         if (_transport is null || !IsConnected)
@@ -81,9 +81,9 @@ public abstract class IcomCivDriverBase : IRigDriver
         return response.Length > 0 && response.Contains((byte)0xFB);
     }
 
-    public void SelectVfo(RigVfo vfo) => SelectVfo(vfo, force: false);
+    public void SelectVfo(RigVfo vfo, bool force = false) => SelectVfoInternal(vfo, force);
 
-    private void SelectVfo(RigVfo vfo, bool force)
+    private void SelectVfoInternal(RigVfo vfo, bool force)
     {
         if (!force && _currentVfo == vfo && _transport is { IsOpen: true })
             return;

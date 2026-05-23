@@ -6,10 +6,10 @@ public interface IRigController
 {
     RigConnectionStatus GetStatus();
 
-    /// <summary>Refresh cached tracking context from the UI (~1 Hz). CAT doppler runs on a background loop.</summary>
+    /// <summary>Enqueue latest pass/settings for the dedicated rig thread (~1–4 Hz from UI).</summary>
     void PublishContext(RigSettings settings, RigTrackingContext? context);
 
-    /// <summary>Legacy synchronous path (unit tests).</summary>
+    /// <summary>Synchronous publish + doppler tick on the rig thread (unit tests).</summary>
     void Update(RigSettings settings, RigTrackingContext? context);
 
     /// <summary>User changed the CTCSS selector — always program uplink Sub/VFO B (even if CAT paused).</summary>

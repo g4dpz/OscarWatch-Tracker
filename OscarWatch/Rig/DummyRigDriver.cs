@@ -26,7 +26,7 @@ public sealed class DummyRigDriver : IRigDriver
         return true;
     }
 
-    public void SelectVfo(RigVfo vfo) => _currentVfo = vfo;
+    public void SelectVfo(RigVfo vfo, bool force = false) => _currentVfo = vfo;
     public void SetMode(string mode) { }
     public void SetSplitOn(bool on) { }
     public void SetSatelliteMode(bool on) { }

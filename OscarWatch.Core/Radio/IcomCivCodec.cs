@@ -33,7 +33,7 @@ public static class IcomCivCodec
 
     /// <summary>
     /// Decodes a 0x03 read-frequency response. Bytes are BCD digit pairs; the digit string is
-    /// a decimal Hz value (see QTrig <c>icom.getFrequency</c>), not a hexadecimal number.
+    /// a decimal Hz value (ICOM BCD digit pairs), not a hexadecimal number.
     /// </summary>
     public static long? DecodeFrequencyFromResponse(ReadOnlySpan<byte> response)
     {

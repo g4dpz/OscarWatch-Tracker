@@ -13,7 +13,7 @@ public class DopplerPhysicsTests
 
     [Theory]
     [MemberData(nameof(DopplerRows))]
-    public void Nor_mode_matches_qtrig_rx_tx_physics(DopplerFixture row)
+    public void Nor_mode_matches_golden_rx_tx_physics(DopplerFixture row)
     {
         var mode = new SatelliteTransponderMode
         {
@@ -69,7 +69,7 @@ public class DopplerPhysicsTests
     }
 
     [Fact]
-    public void Rx_offset_applies_to_downlink_before_doppler_like_qtrig_f_cal()
+    public void Rx_offset_applies_to_downlink_before_doppler()
     {
         var mode = new SatelliteTransponderMode
         {

@@ -7,9 +7,9 @@ public static class DopplerFrequencyCalculator
     private const double SpeedOfLightKmPerSec = 299792.458;
 
     /// <summary>
-    /// QTrig-style doppler: same rx/tx_dopplercalc on both legs for NOR and REV.
+    /// Applies the same doppler formula to downlink and uplink for NOR and REV.
     /// REV passband coupling is handled outside this type (Main dial mutates passband baselines).
-    /// RX offset is applied to the downlink nominal before doppler (QTrig F_cal).
+    /// Receive offset is applied to the downlink nominal before doppler is computed.
     /// </summary>
     public static CorrectedFrequencies Compute(
         SatelliteTransponderMode mode,

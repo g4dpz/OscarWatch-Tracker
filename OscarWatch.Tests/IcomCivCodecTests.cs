@@ -53,7 +53,7 @@ public class IcomCivCodecTests
     [InlineData(67.0, true, "1b010670")]
     [InlineData(74.4, true, "1b010744")]
     [InlineData(141.3, false, "1b001413")]
-    public void EncodeToneHz_matches_qtrig_civ_layout(double hz, bool squelchTone, string expectedHex)
+    public void EncodeToneHz_matches_icom_civ_layout(double hz, bool squelchTone, string expectedHex)
     {
         var body = IcomCivCodec.EncodeToneHz(hz, squelchTone);
         Assert.Equal(expectedHex, Convert.ToHexString(body).ToLowerInvariant());

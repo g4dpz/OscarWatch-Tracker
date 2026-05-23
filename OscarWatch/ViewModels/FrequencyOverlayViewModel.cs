@@ -294,7 +294,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         OffsetsChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    /// <summary>QTrig-style RX offset nudge in Hz (F_cal).</summary>
+    /// <summary>Receive offset nudge in Hz (applied to downlink nominal before doppler).</summary>
     public void AdjustReceiveOffsetHz(int deltaHz)
     {
         const double maxKHz = 5.0;
@@ -314,8 +314,8 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
         var hz = (int)Math.Round(ReceiveOffsetKHz * 1000.0);
         OffsetAppliedHint = hz == 0
-            ? $"Cleared stored RX offset for {SelectedMode.Type}."
-            : $"Stored RX offset {hz} Hz for {SelectedMode.Type}.";
+            ? "Stored offset cleared."
+            : $"Stored {hz} Hz offset.";
     }
 
     private bool CanStoreOffset() => HasTransponderData && SelectedMode is not null;
@@ -336,7 +336,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         UpdateOffsetAppliedHint();
     }
 
-    /// <summary>Main-dial passband trim from rig (QTrig F/I mutation while tracking).</summary>
+    /// <summary>Main-dial passband trim from rig while tracking (updates downlink/uplink nominals).</summary>
     public void SyncRigPassbandAdjustments(double downlinkAdjustKHz, double uplinkAdjustKHz)
     {
         if (Math.Abs(_rigPassbandDownlinkAdjustKHz - downlinkAdjustKHz) < 0.0001
@@ -369,15 +369,16 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         var isRev = SelectedMode.DopplerCorrection == DopplerCorrection.Reverse;
         if (Math.Abs(ReceiveOffsetKHz) > 0.0001)
         {
+            var offset = $"{ReceiveOffsetKHz:+0.000;-0.000;0} kHz";
             OffsetAppliedHint = isRev
-                ? $"RX offset {ReceiveOffsetKHz:+0.000;-0.000;0} kHz on downlink (QTrig F_cal). Tune Main dial on inverting sats to trim uplink."
-                : $"RX offset {ReceiveOffsetKHz:+0.000;-0.000;0} kHz shifts downlink doppler (QTrig F_cal).";
+                ? $"{offset} on downlink. Tune Main for uplink."
+                : $"{offset} on downlink.";
             return;
         }
 
         OffsetAppliedHint = isRev
-            ? "RX offset trims downlink only. On inverting sats, tune Main while listening to move uplink (QTrig)."
-            : "RX offset shifts downlink doppler before tracking (QTrig F_cal). Sat row shows nominal centre.";
+            ? "Downlink only. Tune Main for uplink."
+            : "Offsets downlink only.";
     }
 
     partial void OnSelectedCtcssToneChanged(CtcssToneOption? value)

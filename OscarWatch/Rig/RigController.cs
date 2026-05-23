@@ -1,18 +1,29 @@
+using System.Collections.Concurrent;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Radio;
 using OscarWatch.Core.Services;
 
 namespace OscarWatch.Rig;
 
+/// <summary>
+/// All rig I/O runs on a dedicated background thread; the UI only enqueues commands and reads status.
+/// </summary>
 public sealed class RigController : IRigController, IDisposable
 {
     private const int DialHistoryLength = 4;
     private const int FmCompanionLegHz = 10;
     private static readonly TimeSpan LoopInterval = TimeSpan.FromMilliseconds(150);
+    private static readonly TimeSpan CommandWaitTimeout = TimeSpan.FromSeconds(10);
 
-    private readonly object _sync = new();
     private readonly Func<RigSettings, IRigDriver>? _driverFactory;
     private readonly long[] _rxDialHistory = new long[DialHistoryLength];
+    private readonly object _statusLock = new();
+    private readonly object _workerStartLock = new();
+
+    private BlockingCollection<RigCommand>? _commands;
+    private Thread? _worker;
+    private int _disposed;
+    private volatile bool _shutdownRequested;
 
     private IRigDriver? _driver;
     private string? _connectedKey;
@@ -46,94 +57,212 @@ public sealed class RigController : IRigController, IDisposable
 
     private RigSettings _cachedSettings = new();
     private RigTrackingContext? _cachedContext;
-    private CancellationTokenSource? _loopCts;
-    private Task? _loopTask;
+    private RigConnectionStatus _status = new(false, false, null, null, null, false, 0, 0);
 
     public RigController(Func<RigSettings, IRigDriver>? driverFactory = null) =>
         _driverFactory = driverFactory;
 
     public RigConnectionStatus GetStatus()
     {
-        lock (_sync)
-        {
-            return new RigConnectionStatus(
-                _driver?.IsConnected == true,
-                _isTracking,
-                _statusMessage,
-                DisplayHz(_displayRxHz, _lastRigRxHz),
-                DisplayHz(_displayTxHz, _lastRigTxHz),
-                _catUpdatesPaused,
-                _passbandDownlinkAdjustKHz,
-                _passbandUplinkAdjustKHz);
-        }
+        lock (_statusLock)
+            return _status;
     }
 
-    /// <summary>UI thread: refresh cached pass/settings (1 Hz). CAT runs on the doppler loop.</summary>
-    public void PublishContext(RigSettings settings, RigTrackingContext? context)
-    {
-        lock (_sync)
-        {
-            _cachedSettings = settings;
-            _cachedContext = context;
-            ApplyPublishState(settings, context);
-        }
+    /// <summary>Enqueue latest pass/settings for the rig thread (~1–4 Hz from UI).</summary>
+    public void PublishContext(RigSettings settings, RigTrackingContext? context) =>
+        Enqueue(new RigCommand(RigCommandKind.PublishContext, settings, context));
 
-        if (settings.Enabled && settings.Type != RigType.None)
-            EnsureLoopRunning();
-        else
-            StopLoop();
-    }
+    /// <summary>Runs one doppler iteration on the rig thread (unit tests).</summary>
+    public void RunTrackingLoopOnce() =>
+        EnqueueAndWait(new RigCommand(RigCommandKind.RunTrackingLoopOnce));
 
-    /// <summary>Runs one doppler iteration (tests and legacy <see cref="Update"/>).</summary>
-    public void RunTrackingLoopOnce()
-    {
-        lock (_sync)
-            RunLoopIteration(ignoreDopplerSuspend: true);
-    }
-
-    public void Update(RigSettings settings, RigTrackingContext? context)
-    {
-        PublishContext(settings, context);
-        RunTrackingLoopOnce();
-    }
+    /// <summary>Synchronous publish + doppler tick (unit tests).</summary>
+    public void Update(RigSettings settings, RigTrackingContext? context) =>
+        EnqueueAndWait(new RigCommand(RigCommandKind.UpdateSynchronously, settings, context));
 
     public void ApplySelectedCtcss(RigSettings settings, RigTrackingContext? context)
     {
-        lock (_sync)
-        {
-            if (!settings.Enabled || settings.Type == RigType.None || context is null)
-                return;
+        if (context is null)
+            return;
 
-            if (string.IsNullOrWhiteSpace(settings.Port) && settings.Type != RigType.Dummy)
-                return;
-
-            if (!EnsureConnected(settings))
-                return;
-
-            if (context.SelectedCtcssHz is not { } hz || hz <= 0 || context.Mode.IsBeaconOnly)
-                return;
-
-            _useMainSub = RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz);
-            ApplyCtcss(settings, context, force: true);
-            RestoreOperatorVfo();
-        }
+        Enqueue(new RigCommand(RigCommandKind.ApplySelectedCtcss, settings, context));
     }
 
-    public void Disconnect()
+    public void Disconnect() =>
+        Enqueue(new RigCommand(RigCommandKind.Disconnect));
+
+    /// <summary>Blocks until queued commands are processed (unit tests).</summary>
+    internal void DrainCommandQueueForTests() =>
+        EnqueueAndWait(new RigCommand(RigCommandKind.Drain));
+
+    public void Dispose()
     {
-        StopLoop();
-        lock (_sync)
+        if (Interlocked.Exchange(ref _disposed, 1) == 1)
+            return;
+
+        try
         {
-            _driver?.Dispose();
-            _driver = null;
-            _connectedKey = null;
-            _passKey = null;
-            _cachedContext = null;
-            ResetTrackingState();
+            if (_commands is not null && _worker is { IsAlive: true })
+                EnqueueAndWait(new RigCommand(RigCommandKind.Shutdown), TimeSpan.FromSeconds(3));
+        }
+        catch
+        {
+            // best effort
+        }
+
+        _commands?.Dispose();
+        _commands = null;
+        _worker?.Join(TimeSpan.FromSeconds(2));
+    }
+
+    private void Enqueue(RigCommand command)
+    {
+        ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) == 1, this);
+        EnsureWorker();
+        _commands!.Add(command);
+    }
+
+    private void EnqueueAndWait(RigCommand command, TimeSpan? timeout = null)
+    {
+        using var done = new ManualResetEventSlim(false);
+        command.Completed = done;
+        Enqueue(command);
+        if (!done.Wait(timeout ?? CommandWaitTimeout))
+            throw new TimeoutException("Rig worker did not complete the command in time.");
+    }
+
+    private void EnsureWorker()
+    {
+        lock (_workerStartLock)
+        {
+            if (_worker is { IsAlive: true })
+                return;
+
+            _shutdownRequested = false;
+            _commands = new BlockingCollection<RigCommand>();
+            _worker = new Thread(WorkerLoop)
+            {
+                IsBackground = true,
+                Name = "OscarWatch.Rig"
+            };
+            _worker.Start();
         }
     }
 
-    public void Dispose() => Disconnect();
+    private void WorkerLoop()
+    {
+        try
+        {
+            while (!_shutdownRequested)
+            {
+                if (_commands!.TryTake(out var command, LoopInterval))
+                {
+                    ProcessCommand(command);
+                    DrainPendingCommands();
+                }
+
+                if (_shutdownRequested)
+                    break;
+
+                RunLoopIteration(ignoreDopplerSuspend: false);
+                RefreshStatusSnapshot();
+            }
+        }
+        finally
+        {
+            TearDownRig();
+            RefreshStatusSnapshot();
+        }
+    }
+
+    private void DrainPendingCommands()
+    {
+        while (_commands!.TryTake(out var command, 0))
+            ProcessCommand(command);
+    }
+
+    private void ProcessCommand(RigCommand command)
+    {
+        try
+        {
+            switch (command.Kind)
+            {
+                case RigCommandKind.PublishContext:
+                    _cachedSettings = command.Settings;
+                    _cachedContext = command.Context;
+                    ApplyPublishState(_cachedSettings, _cachedContext);
+                    break;
+
+                case RigCommandKind.UpdateSynchronously:
+                    _cachedSettings = command.Settings;
+                    _cachedContext = command.Context;
+                    ApplyPublishState(_cachedSettings, _cachedContext);
+                    RunLoopIteration(ignoreDopplerSuspend: true);
+                    break;
+
+                case RigCommandKind.RunTrackingLoopOnce:
+                    RunLoopIteration(ignoreDopplerSuspend: true);
+                    break;
+
+                case RigCommandKind.ApplySelectedCtcss:
+                    ApplySelectedCtcssOnWorker(command.Settings, command.Context!);
+                    break;
+
+                case RigCommandKind.Disconnect:
+                    _cachedContext = null;
+                    TearDownRig();
+                    ResetTrackingState();
+                    break;
+
+                case RigCommandKind.Drain:
+                    break;
+
+                case RigCommandKind.Shutdown:
+                    _shutdownRequested = true;
+                    break;
+            }
+        }
+        finally
+        {
+            RefreshStatusSnapshot();
+            command.Completed?.Set();
+        }
+    }
+
+    private void ApplySelectedCtcssOnWorker(RigSettings settings, RigTrackingContext context)
+    {
+        if (!settings.Enabled || settings.Type == RigType.None)
+            return;
+
+        if (string.IsNullOrWhiteSpace(settings.Port) && settings.Type != RigType.Dummy)
+            return;
+
+        if (!EnsureConnected(settings))
+            return;
+
+        if (context.SelectedCtcssHz is not { } hz || hz <= 0 || context.Mode.IsBeaconOnly)
+            return;
+
+        _useMainSub = RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz);
+        ApplyCtcss(settings, context, force: true);
+        RestoreOperatorVfo();
+    }
+
+    private void RefreshStatusSnapshot()
+    {
+        var snapshot = new RigConnectionStatus(
+            _driver?.IsConnected == true,
+            _isTracking,
+            _statusMessage,
+            DisplayHz(_displayRxHz, _lastRigRxHz),
+            DisplayHz(_displayTxHz, _lastRigTxHz),
+            _catUpdatesPaused,
+            _passbandDownlinkAdjustKHz,
+            _passbandUplinkAdjustKHz);
+
+        lock (_statusLock)
+            _status = snapshot;
+    }
 
     private void ApplyPublishState(RigSettings settings, RigTrackingContext? context)
     {
@@ -182,9 +311,7 @@ public sealed class RigController : IRigController, IDisposable
 
         var newPassKey = PassKey(context);
         if (!string.Equals(_passKey, newPassKey, StringComparison.Ordinal))
-        {
             BeginNewPass(settings, context, newPassKey);
-        }
 
         if (settings.CatUpdatesPaused)
         {
@@ -246,45 +373,6 @@ public sealed class RigController : IRigController, IDisposable
         _lastAppliedCtcssSquelch = null;
         _lastPassDownlinkOnVhf = null;
         _suspendDopplerUntilUtc = DateTime.MinValue;
-    }
-
-    private void EnsureLoopRunning()
-    {
-        if (_loopTask is { IsCompleted: false })
-            return;
-
-        _loopCts = new CancellationTokenSource();
-        _loopTask = Task.Run(() => LoopAsync(_loopCts.Token));
-    }
-
-    private void StopLoop()
-    {
-        if (_loopCts is null)
-            return;
-
-        _loopCts.Cancel();
-        try
-        {
-            _loopTask?.Wait(TimeSpan.FromSeconds(2));
-        }
-        catch (AggregateException)
-        {
-            // cancelled
-        }
-
-        _loopCts.Dispose();
-        _loopCts = null;
-        _loopTask = null;
-    }
-
-    private async Task LoopAsync(CancellationToken cancellationToken)
-    {
-        using var timer = new PeriodicTimer(LoopInterval);
-        while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false))
-        {
-            lock (_sync)
-                RunLoopIteration(ignoreDopplerSuspend: false);
-        }
     }
 
     private void RunLoopIteration(bool ignoreDopplerSuspend = false)
@@ -377,13 +465,13 @@ public sealed class RigController : IRigController, IDisposable
         double newUp;
         if (context.Mode.DopplerCorrection == DopplerCorrection.Reverse)
         {
-            // QTrig REV: Main dial up → downlink nominal up, uplink nominal down.
+            // REV: Main dial up → downlink nominal up, uplink nominal down.
             newDown = _passbandDownlinkAdjustKHz + deltaKhz;
             newUp = _passbandUplinkAdjustKHz - deltaKhz;
         }
         else
         {
-            // QTrig NOR: both nominals move with Main dial.
+            // NOR: both nominals move with Main dial.
             newDown = _passbandDownlinkAdjustKHz + deltaKhz;
             newUp = _passbandUplinkAdjustKHz + deltaKhz;
         }
@@ -586,11 +674,11 @@ public sealed class RigController : IRigController, IDisposable
         _interactive = setup.Interactive;
 
         ConfigureVfoModes(context);
-        ApplyCtcss(settings, context, force: true);
 
         var rxHz = ToHz(context.Corrected.RadioReceiveKHz);
         var txHz = ToHz(context.Corrected.RadioTransmitKHz);
-        WriteInitialFrequencies(rxHz, txHz);
+        WriteInitialFrequencies(settings, rxHz, txHz);
+        ApplyCtcss(settings, context, force: true);
         _lastRigRxHz = rxHz;
         _lastRigTxHz = txHz;
         _lastWriteUtc = DateTime.UtcNow;
@@ -645,9 +733,19 @@ public sealed class RigController : IRigController, IDisposable
         if (_driver is null)
             return;
 
-        _driver.SelectVfo(_useMainSub ? RigVfo.Main : RigVfo.VfoA);
+        if (_useMainSub)
+        {
+            // Satellite layout: downlink mode on Main, uplink mode on Sub.
+            _driver.SelectVfo(RigVfo.Main);
+            _driver.SetMode(context.Mode.DownlinkMode);
+            _driver.SelectVfo(RigVfo.Sub);
+            _driver.SetMode(context.Mode.UplinkMode);
+            return;
+        }
+
+        _driver.SelectVfo(RigVfo.VfoA);
         _driver.SetMode(context.Mode.DownlinkMode);
-        _driver.SelectVfo(_useMainSub ? RigVfo.Sub : RigVfo.VfoB);
+        _driver.SelectVfo(RigVfo.VfoB);
         _driver.SetMode(context.Mode.UplinkMode);
     }
 
@@ -660,12 +758,18 @@ public sealed class RigController : IRigController, IDisposable
         if (!force && _lastAppliedCtcssHz == hz && _lastAppliedCtcssSquelch == squelch)
             return;
 
-        _driver.SelectVfo(UplinkVfoForCtcss(settings, context));
-        _driver.SetToneHz(hz, squelch);
+        // CTCSS on uplink VFO: tone Hz then enable (US: TSQL, EU: repeater tone).
+        _driver.SelectVfo(UplinkVfoForCtcss(settings, context), force: true);
         if (squelch)
+        {
+            _driver.SetToneHz(hz, squelchTone: true);
             _driver.SetToneSquelchOn(true);
+        }
         else
+        {
+            _driver.SetToneHz(hz, squelchTone: false);
             _driver.SetToneOn(true);
+        }
 
         _lastAppliedCtcssHz = hz;
         _lastAppliedCtcssSquelch = squelch;
@@ -681,18 +785,23 @@ public sealed class RigController : IRigController, IDisposable
             : RigVfo.VfoB;
     }
 
-    private void WriteInitialFrequencies(long rxHz, long txHz)
+    private void WriteInitialFrequencies(RigSettings settings, long rxHz, long txHz)
     {
         if (_driver is null)
             return;
 
         if (_useMainSub)
         {
+            // Pass init: clear tone on Main, set RX, then set TX on Sub (CTCSS applied after).
             _driver.SelectVfo(RigVfo.Main);
+            if (settings.Region == RigRegion.USA)
+                _driver.SetToneSquelchOn(false);
+            else
+                _driver.SetToneOn(false);
             _driver.SetFrequencyHz(rxHz);
             if (!_isBeaconOnly)
             {
-                _driver.SelectVfo(RigVfo.Sub);
+                _driver.SelectVfo(RigVfo.Sub, force: true);
                 _driver.SetFrequencyHz(txHz);
             }
         }
@@ -806,4 +915,30 @@ public sealed class RigController : IRigController, IDisposable
     }
 
     private static long ToHz(double kHz) => (long)Math.Round(kHz * 1000.0);
+
+    private enum RigCommandKind
+    {
+        PublishContext,
+        UpdateSynchronously,
+        RunTrackingLoopOnce,
+        ApplySelectedCtcss,
+        Disconnect,
+        Drain,
+        Shutdown
+    }
+
+    private sealed class RigCommand
+    {
+        public RigCommand(RigCommandKind kind, RigSettings? settings = null, RigTrackingContext? context = null)
+        {
+            Kind = kind;
+            Settings = settings ?? new RigSettings();
+            Context = context;
+        }
+
+        public RigCommandKind Kind { get; }
+        public RigSettings Settings { get; }
+        public RigTrackingContext? Context { get; }
+        public ManualResetEventSlim? Completed { get; set; }
+    }
 }

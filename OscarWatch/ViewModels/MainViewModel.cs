@@ -170,7 +170,7 @@ public partial class MainViewModel : ViewModelBase
 
         var focused = GetFocusedTrackState(_tracking.GetLiveStates(DateTime.UtcNow), FocusedNoradId);
         var context = Frequencies.TryBuildRigTrackingContext(focused);
-        _rig.Update(_settings.Current.Rig, context);
+        _rig.PublishContext(_settings.Current.Rig, context);
         RefreshRigUi(focused);
     }
 

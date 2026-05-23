@@ -3,7 +3,7 @@ using OscarWatch.Core.Models;
 namespace OscarWatch.Rig;
 
 /// <summary>
-/// IC-9700 CI-V (QTrig <c>setSatelliteMode9700</c>: 0x16 0x5A). Shares freq/VFO/tone path with IC-910.
+/// IC-9700 CI-V satellite mode (0x16 0x5A). Shares freq/VFO/tone path with IC-910.
 /// </summary>
 public sealed class IcomIc9700Driver : IcomCivDriverBase
 {

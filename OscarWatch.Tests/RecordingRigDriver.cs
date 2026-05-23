@@ -38,9 +38,16 @@ internal sealed class RecordingRigDriver : IRigDriver
 
     public RigVfo? LastToneVfo { get; private set; }
 
-    public void SelectVfo(RigVfo vfo) => _currentVfo = vfo;
+    public void SelectVfo(RigVfo vfo, bool force = false) => _currentVfo = vfo;
 
-    public void SetMode(string mode) { }
+    public RigVfo? LastModeVfo { get; private set; }
+    public int ModeSetCount { get; private set; }
+
+    public void SetMode(string mode)
+    {
+        ModeSetCount++;
+        LastModeVfo = _currentVfo;
+    }
     public void SetSplitOn(bool on) { }
     public void SetSatelliteMode(bool on) { }
     public int ExchangeVfoCallCount { get; private set; }
@@ -50,9 +57,21 @@ internal sealed class RecordingRigDriver : IRigDriver
         ExchangeVfoCallCount++;
         (MainHz, SubHz) = (SubHz, MainHz);
     }
-    public void SetToneOn(bool on) => ToneOn = on;
+    public RigVfo? LastToneOffVfo { get; private set; }
 
-    public void SetToneSquelchOn(bool on) => ToneSquelchOn = on;
+    public void SetToneOn(bool on)
+    {
+        if (!on)
+            LastToneOffVfo = _currentVfo;
+        ToneOn = on;
+    }
+
+    public void SetToneSquelchOn(bool on)
+    {
+        if (!on)
+            LastToneOffVfo = _currentVfo;
+        ToneSquelchOn = on;
+    }
 
     public void SetToneHz(double hz, bool squelchTone)
     {
