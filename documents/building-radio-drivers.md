@@ -41,6 +41,7 @@ public interface IRigDriver : IDisposable
     void SetToneSquelchOn(bool on);
     void SetToneHz(double hz, bool squelchTone);
     bool SupportsTracking { get; }
+    bool SupportsVfoExchange => true;
 }
 ```
 
@@ -107,6 +108,26 @@ For Yaesu, Kenwood, Elecraft, etc.:
 4. Set **`SupportsTracking`** accurately; implement `SetSatelliteMode` if the radio has a satellite or split layout equivalent.
 
 Keep **protocol parsing in the app project**; put only reusable math (frequency validation, doppler) in **OscarWatch.Core/Radio/**.
+
+## Reference: Yaesu FT-847 (shipped, beta)
+
+| Piece | Path |
+|-------|------|
+| CAT codec | [`OscarWatch.Core/Radio/YaesuFt847CatCodec.cs`](../OscarWatch.Core/Radio/YaesuFt847CatCodec.cs) |
+| Serial transport | [`OscarWatch/Rig/YaesuCatTransport.cs`](../OscarWatch/Rig/YaesuCatTransport.cs) — **8N2**, five-byte frames |
+| Driver | [`OscarWatch/Rig/YaesuFt847Driver.cs`](../OscarWatch/Rig/YaesuFt847Driver.cs) |
+
+- `SetSatelliteMode` → CAT `0x4e` / `0x8e`; `Main`/`Sub` map to **SAT RX** / **SAT TX** opcodes (`0x11` / `0x21`).
+- `SupportsVfoExchange` is **false** — band swaps need the front-panel A/B switch.
+- CAT frequency resolution is **10 Hz**; CTCSS uses Hamlib’s 0.1 Hz tone table.
+- Cross-check commands against [Hamlib `ft847.c`](https://github.com/Hamlib/Hamlib/blob/master/rigs/yaesu/ft847.c).
+
+### Hardware checklist (FT-847)
+
+- Radio menu **#37**: CAT baud matches Settings (often **57600**).
+- **CT-62** (or equivalent) on the **CAT/LINEAR** jack.
+- Two-way CAT firmware (serial **8G05xxxx+**).
+- On a real pass: SAT mode engages, RX/TX doppler tracks, uplink CTCSS on SAT TX.
 
 ## Step-by-step: add a new rig type
 

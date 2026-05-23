@@ -201,13 +201,20 @@
             <ComboBox ItemsSource="{Binding BaudRateOptions}"
                       SelectedItem="{Binding RigBaudRate, Mode=TwoWay}"
                       HorizontalAlignment="Stretch" />
-            <TextBlock Text="CI-V address (hex)" />
-            <TextBox Text="{Binding RigCivAddress, Mode=TwoWay}"
-                     Watermark="60" />
+            <StackPanel Spacing="4" IsVisible="{Binding ShowRigCivAddress}">
+              <TextBlock Text="CI-V address (hex)" />
+              <TextBox Text="{Binding RigCivAddress, Mode=TwoWay}"
+                       Watermark="60" />
+              <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                         FontSize="11"
+                         TextWrapping="Wrap"
+                         Text="IC-9700 default A2, IC-910 default 7C (hex). Use 60 if your radio is set that way in the CI-V menu." />
+            </StackPanel>
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="IC-9700 default A2, IC-910 default 7C (hex). Use 60 if your radio is set that way in the CI-V menu." />
+                       IsVisible="{Binding ShowRigFt847CatHint}"
+                       Text="FT-847: set CAT baud in radio menu #37 (typically 57600). Use the CAT/LINEAR jack with a level converter (e.g. CT-62)." />
             <TextBlock Text="Region" />
             <ComboBox ItemsSource="{Binding RigRegionChoices}"
                       SelectedItem="{Binding SelectedRigRegionChoice, Mode=TwoWay}"

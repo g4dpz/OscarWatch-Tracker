@@ -33,7 +33,7 @@ dotnet run -c Release --project OscarWatch/OscarWatch.csproj
 - **Voice announcements** — optional spoken “rising” alerts when a satellite crosses a configurable elevation while ascending (e.g. “Alpha Oscar Zero Seven is rising”); Settings → Voice
 - **Doppler frequencies** — draggable overlay on the world map with transponder modes from the satellite database, live radio/sat uplink & downlink, TX/RX offsets, and CTCSS (access/arm)
 - **Transponder database editor** — Satellites → Manage transponder database… (add/edit satellites and modes; saved under `%AppData%/OscarWatch/satellite_database.json`)
-- **Radio CAT** — ICOM IC-910 / IC-9700 via CI-V (doppler tracking, satellite mode, Main/Sub VFOs, Sub uplink CTCSS); Settings → Radio
+- **Radio CAT** — ICOM IC-910 / IC-9700 via CI-V; Yaesu FT-847 via CAT (beta, SAT RX/TX); doppler tracking, satellite mode, Main/Sub VFOs, Sub uplink CTCSS; Settings → Radio
 - **Appearance** — light, dark, or system theme (sky plot adapts; world map image stays light)
 
 ## Settings

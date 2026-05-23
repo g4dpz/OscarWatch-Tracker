@@ -187,8 +187,15 @@ public partial class SettingsViewModel : ViewModelBase
     [
         new(RigType.IcomIc910, "ICOM IC-910"),
         new(RigType.IcomIc9700, "ICOM IC-9700"),
+        new(RigType.YaesuFt847, "Yaesu FT-847"),
         new(RigType.Dummy, "Dummy Rig")
     ];
+
+    public bool ShowRigCivAddress =>
+        SelectedRigTypeChoice?.Value is RigType.IcomIc910 or RigType.IcomIc9700;
+
+    public bool ShowRigFt847CatHint =>
+        SelectedRigTypeChoice?.Value == RigType.YaesuFt847;
 
     public IReadOnlyList<RigRegionOption> RigRegionChoices { get; } =
     [
@@ -421,9 +428,18 @@ public partial class SettingsViewModel : ViewModelBase
     partial void OnSelectedRigComPortChanged(string? value) => RefreshComPortConflictIfReady();
     partial void OnSelectedRigTypeChoiceChanged(RigTypeOption? value)
     {
+        OnPropertyChanged(nameof(ShowRigCivAddress));
+        OnPropertyChanged(nameof(ShowRigFt847CatHint));
         RefreshComPortConflictIfReady();
         if (_isSynchronizing || value is null)
             return;
+
+        if (value.Value == RigType.YaesuFt847)
+            RigBaudRate = 57600;
+
+        if (value.Value is not (RigType.IcomIc910 or RigType.IcomIc9700))
+            return;
+
         var suggested = RigSettings.DefaultCivAddressFor(value.Value);
         if (string.IsNullOrWhiteSpace(RigCivAddress)
             || RigCivAddress is "60" or "7C" or "A2")

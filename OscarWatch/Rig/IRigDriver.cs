@@ -19,4 +19,6 @@ public interface IRigDriver : IDisposable
     void SetToneSquelchOn(bool on);
     void SetToneHz(double hz, bool squelchTone);
     bool SupportsTracking { get; }
+    /// <summary>False when the radio cannot swap VFOs remotely (e.g. FT-847).</summary>
+    bool SupportsVfoExchange => true;
 }

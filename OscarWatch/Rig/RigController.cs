@@ -696,8 +696,11 @@ public sealed class RigController : IRigController, IDisposable
         if (_driver is null)
             return;
 
+        var canExchange = _driver.SupportsVfoExchange;
         var downlinkOnVhf = RigSatModeHelper.IsVhfCenterKHz(context.Mode.DownlinkKHz);
-        if (_lastPassDownlinkOnVhf is bool previousDownlinkOnVhf && previousDownlinkOnVhf != downlinkOnVhf)
+        if (canExchange
+            && _lastPassDownlinkOnVhf is bool previousDownlinkOnVhf
+            && previousDownlinkOnVhf != downlinkOnVhf)
         {
             _driver.ExchangeVfos();
             return;
@@ -710,17 +713,21 @@ public sealed class RigController : IRigController, IDisposable
         var mainHz = _driver.ReadFrequencyHz(RigVfo.Main);
         if (mainHz is > 0)
         {
-            if (mainHz.Value > 400_000_000 && targetRxHz < 400_000_000)
-                _driver.ExchangeVfos();
-            else if (mainHz.Value < 200_000_000 && targetRxHz > 200_000_000)
-                _driver.ExchangeVfos();
-            else if (RigSatModeHelper.NeedsMainSubBandSwap(mainHz.Value, context.Mode.DownlinkKHz))
-                _driver.ExchangeVfos();
+            if (canExchange)
+            {
+                if (mainHz.Value > 400_000_000 && targetRxHz < 400_000_000)
+                    _driver.ExchangeVfos();
+                else if (mainHz.Value < 200_000_000 && targetRxHz > 200_000_000)
+                    _driver.ExchangeVfos();
+                else if (RigSatModeHelper.NeedsMainSubBandSwap(mainHz.Value, context.Mode.DownlinkKHz))
+                    _driver.ExchangeVfos();
+            }
+
             return;
         }
 
         // CI-V read failed — infer from Sub when downlink/uplink are on opposite bands.
-        if (!downlinkOnVhf || !RigSatModeHelper.IsUhfCenterKHz(context.Mode.UplinkKHz))
+        if (!canExchange || !downlinkOnVhf || !RigSatModeHelper.IsUhfCenterKHz(context.Mode.UplinkKHz))
             return;
 
         var subHz = _driver.ReadFrequencyHz(RigVfo.Sub);
@@ -780,7 +787,7 @@ public sealed class RigController : IRigController, IDisposable
 
     private static RigVfo UplinkVfoForCtcss(RigSettings settings, RigTrackingContext context)
     {
-        if (settings.Type is RigType.IcomIc910 or RigType.IcomIc9700)
+        if (settings.Type is RigType.IcomIc910 or RigType.IcomIc9700 or RigType.YaesuFt847)
             return RigVfo.Sub;
 
         return RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz)
