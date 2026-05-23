@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Radio;
 using OscarWatch.Core.Services;
+using Serilog;
 
 namespace OscarWatch.Rig;
 
@@ -10,6 +11,7 @@ namespace OscarWatch.Rig;
 /// </summary>
 public sealed class RigController : IRigController, IDisposable
 {
+    private static readonly ILogger Log = Serilog.Log.ForContext<RigController>();
     private const int DialHistoryLength = 4;
     private const int FmCompanionLegHz = 10;
     private static readonly TimeSpan LoopInterval = TimeSpan.FromMilliseconds(150);
@@ -105,9 +107,9 @@ public sealed class RigController : IRigController, IDisposable
             if (_commands is not null && _worker is { IsAlive: true })
                 EnqueueAndWait(new RigCommand(RigCommandKind.Shutdown), TimeSpan.FromSeconds(3));
         }
-        catch
+        catch (Exception ex)
         {
-            // best effort
+            Log.Warning(ex, "Rig worker shutdown did not complete cleanly");
         }
 
         _commands?.Dispose();
@@ -631,8 +633,9 @@ public sealed class RigController : IRigController, IDisposable
             _connectedKey = key;
             return _driver.IsConnected;
         }
-        catch
+        catch (Exception ex)
         {
+            Log.Warning(ex, "Rig connect failed for {RigType} on {Port}", settings.Type, settings.Port);
             _driver?.Dispose();
             _driver = null;
             return false;

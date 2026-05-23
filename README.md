@@ -70,6 +70,9 @@ If TTS is unavailable, the Voice tab shows a notice and announcements are skippe
 |------|------|
 | Settings | `%AppData%/OscarWatch/settings.json` |
 | TLE cache | `%AppData%/OscarWatch/tle-cache.txt` |
+| Logs | `%AppData%/OscarWatch/logs/` (daily rolling `oscarwatch-YYYYMMDD.log`, 14 days retained) |
+
+Open the log folder from **Help → Open logs folder**. Unhandled crashes and rig/rotator/CAT errors are written here (not API keys).
 
 ## Cross-platform publish
 

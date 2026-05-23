@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
+using Serilog;
 
 namespace OscarWatch.Rotator;
 
@@ -9,6 +10,7 @@ namespace OscarWatch.Rotator;
 /// </summary>
 public sealed class RotatorController : IRotatorController, IDisposable
 {
+    private static readonly ILogger Log = Serilog.Log.ForContext<RotatorController>();
     private static readonly TimeSpan LoopInterval = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan CommandWaitTimeout = TimeSpan.FromSeconds(10);
 
@@ -78,9 +80,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
             if (_commands is not null && _worker is { IsAlive: true })
                 EnqueueAndWait(new RotatorCommand(RotatorCommandKind.Shutdown), TimeSpan.FromSeconds(3));
         }
-        catch
+        catch (Exception ex)
         {
-            // best effort
+            Log.Warning(ex, "Rotator worker shutdown did not complete cleanly");
         }
 
         _commands?.Dispose();
@@ -342,8 +344,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _connectedType = settings.Type;
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Log.Warning(ex, "Rotator connect failed on {Port}", settings.Port);
             TearDownRotator();
             return false;
         }
@@ -368,8 +371,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _lastElevation = Math.Round(elevationDeg);
             _parked = false;
         }
-        catch
+        catch (Exception ex)
         {
+            Log.Warning(ex, "Rotator track failed at Az={Az} El={El}", azimuthDeg, elevationDeg);
             TearDownRotator();
         }
     }
@@ -386,8 +390,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _lastElevation = settings.ParkElevationDeg;
             _parked = true;
         }
-        catch
+        catch (Exception ex)
         {
+            Log.Warning(ex, "Rotator park failed");
             TearDownRotator();
         }
     }
@@ -405,8 +410,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
             if (el is not null)
                 _displayElevation = el;
         }
-        catch
+        catch (Exception ex)
         {
+            Log.Debug(ex, "Rotator position poll failed");
             TearDownRotator();
         }
     }

@@ -11,7 +11,9 @@ using OscarWatch.Rig;
 using OscarWatch.Rotator;
 using OscarWatch.Speech;
 using OscarWatch.Theme;
+using OscarWatch.Diagnostics;
 using OscarWatch.ViewModels;
+using Serilog;
 
 namespace OscarWatch;
 
@@ -63,6 +65,9 @@ public partial class App : Application
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            var version = typeof(App).Assembly.GetName().Version?.ToString(3) ?? "dev";
+            Log.Information("OscarWatch {Version} starting", version);
+
             var mainVm = Services.GetRequiredService<MainViewModel>();
             MainWindow = new MainWindow { DataContext = mainVm };
             desktop.MainWindow = MainWindow;

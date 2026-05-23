@@ -10,12 +10,15 @@ using OscarWatch.Core.Models;
 using OscarWatch.Core.Radio;
 using OscarWatch.Core.Services;
 using OscarWatch.Theme;
+using OscarWatch.Diagnostics;
 using OscarWatch.Views;
+using Serilog;
 
 namespace OscarWatch.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
+    private static readonly ILogger Log = Serilog.Log.ForContext<MainViewModel>();
     private readonly ISettingsService _settings;
     private readonly ITleService _tleService;
     private readonly TrackingOrchestrator _tracking;
@@ -205,6 +208,7 @@ public partial class MainViewModel : ViewModelBase
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "TLE refresh failed during startup");
                 StatusText = $"TLE refresh failed: {ex.Message}";
             }
         }
@@ -631,6 +635,7 @@ public partial class MainViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
+            Log.Error(ex, "TLE auto-refresh failed");
             StatusText = $"TLE refresh failed: {ex.Message}";
         }
     }
@@ -664,6 +669,20 @@ public partial class MainViewModel : ViewModelBase
             window.Show();
         else
             await window.ShowDialog(App.MainWindow);
+    }
+
+    [RelayCommand]
+    private void OpenLogsFolder()
+    {
+        try
+        {
+            AppLogging.OpenLogDirectory();
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Could not open log directory");
+            StatusText = "Could not open log folder";
+        }
     }
 
     [RelayCommand]

@@ -1,10 +1,12 @@
 using System.IO.Ports;
 using OscarWatch.Core.Radio;
+using Serilog;
 
 namespace OscarWatch.Rig;
 
 internal sealed class IcomSerialTransport : IDisposable
 {
+    private static readonly ILogger Log = Serilog.Log.ForContext<IcomSerialTransport>();
     private readonly SerialPort _port;
     private readonly int _civAddress;
 
@@ -41,8 +43,9 @@ internal sealed class IcomSerialTransport : IDisposable
             Thread.Sleep(50);
             return ReadResponse();
         }
-        catch
+        catch (Exception ex)
         {
+            Log.Debug(ex, "CI-V write failed on {PortName}", _port.PortName);
             return [];
         }
     }
@@ -63,8 +66,9 @@ internal sealed class IcomSerialTransport : IDisposable
                     buffer.Add((byte)b);
             }
         }
-        catch
+        catch (Exception ex)
         {
+            Log.Debug(ex, "CI-V read failed on {PortName}", _port.PortName);
             return [];
         }
 

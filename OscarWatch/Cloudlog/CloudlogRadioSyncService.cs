@@ -1,11 +1,13 @@
 using OscarWatch.Core.Cloudlog;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
+using Serilog;
 
 namespace OscarWatch.Cloudlog;
 
 public sealed class CloudlogRadioSyncService : ICloudlogRadioSyncService
 {
+    private static readonly ILogger Log = Serilog.Log.ForContext<CloudlogRadioSyncService>();
     private readonly CloudlogRadioClient _client = new();
     private readonly object _gate = new();
     private string? _lastSignature;
@@ -88,6 +90,7 @@ public sealed class CloudlogRadioSyncService : ICloudlogRadioSyncService
         }
         catch (Exception ex)
         {
+            Log.Warning(ex, "Cloudlog radio post failed");
             lock (_gate)
             {
                 _inFlight--;

@@ -1,10 +1,12 @@
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Radio;
+using Serilog;
 
 namespace OscarWatch.Rig;
 
 public abstract class IcomCivDriverBase : IRigDriver
 {
+    private static readonly ILogger Log = Serilog.Log.ForContext<IcomCivDriverBase>();
     private IcomSerialTransport? _transport;
     private RigVfo _currentVfo = RigVfo.VfoA;
     private long _lastMainHz;
@@ -36,8 +38,9 @@ public abstract class IcomCivDriverBase : IRigDriver
         {
             _transport.Open();
         }
-        catch
+        catch (Exception ex)
         {
+            Log.Warning(ex, "Failed to open CI-V port {Port} at {BaudRate}", Port, BaudRate);
             _transport.Dispose();
             _transport = null;
         }
