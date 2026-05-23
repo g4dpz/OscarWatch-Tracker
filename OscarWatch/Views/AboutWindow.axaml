@@ -2,8 +2,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="OscarWatch.Views.AboutWindow"
         Title="About OscarWatch"
-        Width="420" Height="280"
-        MinWidth="360" MinHeight="240"
+        Width="440" Height="340"
+        MinWidth="360" MinHeight="300"
         CanResize="False"
         WindowStartupLocation="CenterOwner">
   <DockPanel Margin="20">
@@ -31,6 +31,14 @@
                  FontSize="12"
                  Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                  Text="TLE catalog: tle.oscarwatch.org" />
+      <TextBlock TextWrapping="Wrap"
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                 Text="Copyright © 2025–2026 Peter Goodhall (MM9SQL)" />
+      <TextBlock TextWrapping="Wrap"
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                 Text="Licensed under the GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later). See LICENSE.md in the source repository." />
     </StackPanel>
   </DockPanel>
 </Window>

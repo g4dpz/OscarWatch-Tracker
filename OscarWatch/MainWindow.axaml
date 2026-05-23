@@ -13,13 +13,13 @@
         <MenuItem Header="_Close" Command="{Binding CloseApplicationCommand}" />
       </MenuItem>
       <MenuItem Header="_Satellites">
-        <MenuItem Header="_Select satellites…" Command="{Binding OpenSatellitesCommand}" />
-        <MenuItem Header="_Manage transponder database…" Command="{Binding OpenSatelliteDatabaseCommand}" />
+        <MenuItem Header="_Select Satellites" Command="{Binding OpenSatellitesCommand}" />
+        <MenuItem Header="_Manage Transponder Database" Command="{Binding OpenSatelliteDatabaseCommand}" />
         <MenuItem Header="_Refresh TLEs" Command="{Binding RefreshTlesCommand}" />
       </MenuItem>
       <MenuItem Header="_Passes">
-        <MenuItem Header="_Pass planner…" Command="{Binding OpenPassPlanningCommand}" />
-        <MenuItem Header="_Mutual pass finder…" Command="{Binding OpenMutualPassFinderCommand}" />
+        <MenuItem Header="_Pass Planner" Command="{Binding OpenPassPlanningCommand}" />
+        <MenuItem Header="_Mutual Pass Planner" Command="{Binding OpenMutualPassFinderCommand}" />
       </MenuItem>
       <MenuItem Header="_Settings" Command="{Binding OpenSettingsCommand}" />
       <MenuItem Header="_Help">

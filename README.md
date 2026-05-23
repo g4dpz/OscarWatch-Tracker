@@ -132,6 +132,16 @@ Uses [OrbitTools](http://www.zeptomoby.com/satellites/) Public Edition via [Zept
 
 UI work should follow [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) (contrast, color-blind-safe tracking colors, keyboard, no color-only meaning).
 
+## License
+
+Copyright © 2025–2026 **Peter Goodhall (MM9SQL)**.
+
+OscarWatch is free software: you can redistribute it and/or modify it under the terms of the [GNU Affero General Public License v3.0 or later](https://www.gnu.org/licenses/agpl-3.0.html) (AGPL-3.0-or-later). See [LICENSE.md](LICENSE.md) for the full license text.
+
+If you run a modified version as a network service, AGPL requires making the corresponding source available to users who interact with it over the network.
+
+Third-party components (OrbitTools, Avalonia, TLE sources, map imagery, etc.) have their own licenses — see [CREDITS.md](CREDITS.md) and the Orbit propagation section above.
+
 ## Credits
 
 See [CREDITS.md](CREDITS.md).
