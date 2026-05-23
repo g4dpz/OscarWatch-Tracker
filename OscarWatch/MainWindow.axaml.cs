@@ -18,12 +18,14 @@ public partial class MainWindow : Window
         if (e.Container is not ListBoxItem item)
             return;
 
-        if (item.DataContext is PassDayHeaderViewModel)
-        {
-            item.IsEnabled = false;
-            item.Focusable = false;
+        var isHeader = item.DataContext is PassDayHeaderViewModel;
+        item.IsEnabled = !isHeader;
+        item.Focusable = !isHeader;
+
+        if (isHeader)
             item.Classes.Add("pass-day-header");
-        }
+        else
+            item.Classes.Remove("pass-day-header");
     }
 
     protected override async void OnOpened(EventArgs e)

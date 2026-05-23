@@ -183,7 +183,7 @@ public partial class MainViewModel : ViewModelBase
     private void RefreshRigUi(SatelliteTrackState? focused)
     {
         var rigStatus = _rig.GetStatus();
-        Frequencies.SyncRigPassbandAdjustments(rigStatus.ManualReceiveAdjustKHz, rigStatus.ManualTransmitAdjustKHz);
+        SyncOverlayPassbandFromRig();
         UpdateRigDisplay(rigStatus);
         PushCloudlogRadio(focused);
     }
@@ -260,6 +260,13 @@ public partial class MainViewModel : ViewModelBase
 
         var focused = GetFocusedTrackState(states, FocusedNoradId);
         PublishRigTrackingContext(focused);
+        SyncOverlayPassbandFromRig();
+    }
+
+    private void SyncOverlayPassbandFromRig()
+    {
+        var rigStatus = _rig.GetStatus();
+        Frequencies.SyncRigPassbandAdjustments(rigStatus.ManualReceiveAdjustKHz, rigStatus.ManualTransmitAdjustKHz);
     }
 
     private void PublishRigTrackingContext(SatelliteTrackState? focused = null)

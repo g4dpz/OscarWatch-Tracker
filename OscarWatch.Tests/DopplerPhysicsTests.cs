@@ -108,6 +108,33 @@ public class DopplerPhysicsTests
     }
 
     [Fact]
+    public void Sat_row_reflects_rx_offset_and_passband_trim()
+    {
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435.667,
+            UplinkKHz = 145.937,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var corrected = DopplerFrequencyCalculator.Compute(
+            mode,
+            0,
+            receiveOffsetKHz: -1.1,
+            passbandDownlinkAdjustKHz: 0.5,
+            passbandUplinkAdjustKHz: -0.3);
+
+        Assert.InRange(corrected.SatelliteReceiveKHz, 435.667 - 1.1 + 0.5 - 0.001, 435.667 - 1.1 + 0.5 + 0.001);
+        Assert.InRange(corrected.SatelliteTransmitKHz, 145.937 - 0.3 - 0.001, 145.937 - 0.3 + 0.001);
+
+        var catalogOnly = DopplerFrequencyCalculator.Compute(mode, 2.5, 0);
+        Assert.Equal(mode.DownlinkKHz, catalogOnly.SatelliteReceiveKHz, 3);
+        Assert.NotEqual(catalogOnly.SatelliteReceiveKHz, corrected.SatelliteReceiveKHz);
+    }
+
+    [Fact]
     public void Nor_passband_trim_moves_both_legs_together()
     {
         var mode = new SatelliteTransponderMode
