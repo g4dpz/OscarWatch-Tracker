@@ -1,3 +1,4 @@
+using System.Collections.Specialized;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -15,6 +16,8 @@ public class SkyPlotControl : ThemeAwareControl
     private const double HitRadiusPx = 14;
     /// <summary>Space outside the horizon circle for N/E/S/W labels.</summary>
     private const double LabelMarginPx = 16;
+
+    private INotifyCollectionChanged? _trackStatesSource;
 
     public static readonly StyledProperty<IReadOnlyList<SatelliteTrackState>?> TrackStatesProperty =
         AvaloniaProperty.Register<SkyPlotControl, IReadOnlyList<SatelliteTrackState>?>(nameof(TrackStates));
@@ -63,12 +66,49 @@ public class SkyPlotControl : ThemeAwareControl
         set => SetValue(MinimumElevationDegProperty, value);
     }
 
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        BindTrackStatesSource(TrackStates);
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        UnsubscribeTrackStatesSource();
+        base.OnDetachedFromVisualTree(e);
+    }
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
+        if (change.Property == TrackStatesProperty)
+            BindTrackStatesSource(change.NewValue);
+
         if (change.Property == TrackStatesProperty || change.Property == FocusedNoradIdProperty)
             TrackingPlotAccessibility.UpdateName(this, "Sky plot", TrackStates, FocusedNoradId);
     }
+
+    private void BindTrackStatesSource(object? value)
+    {
+        UnsubscribeTrackStatesSource();
+        _trackStatesSource = value as INotifyCollectionChanged;
+        if (_trackStatesSource is not null)
+            _trackStatesSource.CollectionChanged += OnTrackStatesSourceChanged;
+
+        InvalidateVisual();
+    }
+
+    private void UnsubscribeTrackStatesSource()
+    {
+        if (_trackStatesSource is null)
+            return;
+
+        _trackStatesSource.CollectionChanged -= OnTrackStatesSourceChanged;
+        _trackStatesSource = null;
+    }
+
+    private void OnTrackStatesSourceChanged(object? sender, NotifyCollectionChangedEventArgs e) =>
+        InvalidateVisual();
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {

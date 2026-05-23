@@ -9,6 +9,7 @@ public interface IOrbitPropagator
     void Clear();
 
     GeoCoordinate GetSubpoint(string noradId, DateTime utc);
+    EciPosition GetEciPosition(string noradId, DateTime utc);
     LookAngles GetLookAngles(string noradId, GroundStation site, DateTime utc);
     bool HasSatellite(string noradId);
     IReadOnlyList<string> LoadedNoradIds { get; }

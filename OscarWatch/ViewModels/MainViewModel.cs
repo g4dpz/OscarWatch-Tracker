@@ -62,6 +62,16 @@ public partial class MainViewModel : ViewModelBase
     private string _altitudeText = "—";
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSatelliteInEclipse))]
+    private bool _showSunlightStatus;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSatelliteInEclipse))]
+    private bool _isSatelliteSunlit;
+
+    public bool IsSatelliteInEclipse => ShowSunlightStatus && !IsSatelliteSunlit;
+
+    [ObservableProperty]
     private string _nextPassText = "—";
 
     [ObservableProperty]
@@ -458,7 +468,8 @@ public partial class MainViewModel : ViewModelBase
             AheadAzimuthDeg = ahead,
             GroundTrack = state.GroundTrack,
             Footprint = state.Footprint,
-            FootprintRadiusDeg = state.FootprintRadiusDeg
+            FootprintRadiusDeg = state.FootprintRadiusDeg,
+            IsSunlit = state.IsSunlit
         };
     }
 
@@ -516,10 +527,15 @@ public partial class MainViewModel : ViewModelBase
         var target = GetFocusedTrackState(states, FocusedNoradId);
 
         if (target is null)
+        {
+            ShowSunlightStatus = false;
             return;
+        }
 
         SelectedSatelliteName = target.Name;
         AltitudeText = $"{target.Subpoint.AltitudeKm:F0} km";
+        ShowSunlightStatus = true;
+        IsSatelliteSunlit = target.IsSunlit;
 
         if (target.LookAngles is not { } la)
         {

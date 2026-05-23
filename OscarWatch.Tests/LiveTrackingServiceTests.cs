@@ -102,6 +102,7 @@ public sealed class LiveTrackingServiceTests
         public void RemoveSatellite(string noradId) { }
         public bool HasSatellite(string noradId) => false;
         public GeoCoordinate GetSubpoint(string noradId, DateTime utc) => new(0, 0, 0);
+        public EciPosition GetEciPosition(string noradId, DateTime utc) => new(0, 0, 0);
         public LookAngles GetLookAngles(string noradId, GroundStation site, DateTime utc) =>
             new(0, 0, 0, 0);
     }

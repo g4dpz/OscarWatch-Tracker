@@ -12,6 +12,9 @@ internal static class OrbitToolsMapping
     public static SatelliteOrbit CreateOrbit(SatelliteCatalogEntry entry) =>
         new(CreateTle(entry));
 
+    public static EciPosition ToEciPosition(EciTime eci) =>
+        new(eci.Position.X, eci.Position.Y, eci.Position.Z);
+
     public static GeoCoordinate ToGeoCoordinate(EciTime eci)
     {
         var geo = new GeoTime(eci);

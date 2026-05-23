@@ -42,6 +42,7 @@ public sealed class TrackingOrchestrator
         var site = _settings.Current.GroundStation;
         var sats = _tleService.GetEnabledSatellites(_settings.Current);
         var states = new List<SatelliteTrackState>();
+        var sunEci = SunPositionCalculator.GetPosition(utc);
 
         foreach (var sat in sats)
         {
@@ -88,6 +89,9 @@ public sealed class TrackingOrchestrator
                     ? cache.FootprintRadiusDeg
                     : FootprintGeometry.EstimateRingRadiusDeg(subpoint, footprint);
 
+                var satEci = _propagator.GetEciPosition(sat.NoradId, utc);
+                var isSunlit = SatelliteIllumination.IsSunlit(satEci, sunEci);
+
                 states.Add(new SatelliteTrackState
                 {
                     Name = sat.Name,
@@ -96,7 +100,8 @@ public sealed class TrackingOrchestrator
                     LookAngles = look,
                     GroundTrack = groundTrack,
                     Footprint = footprint,
-                    FootprintRadiusDeg = footprintRadiusDeg
+                    FootprintRadiusDeg = footprintRadiusDeg,
+                    IsSunlit = isSunlit
                 });
             }
             catch

@@ -25,6 +25,12 @@ public sealed class PublicOrbitToolsPropagator : IOrbitPropagator
         return OrbitToolsMapping.ToGeoCoordinate(orbit.PositionEci(utc));
     }
 
+    public EciPosition GetEciPosition(string noradId, DateTime utc)
+    {
+        var orbit = GetOrbit(noradId);
+        return OrbitToolsMapping.ToEciPosition(orbit.PositionEci(utc));
+    }
+
     public LookAngles GetLookAngles(string noradId, GroundStation site, DateTime utc)
     {
         var orbit = GetOrbit(noradId);

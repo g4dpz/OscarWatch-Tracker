@@ -109,10 +109,30 @@
             <Border Classes="live-panel">
               <StackPanel Spacing="6">
                 <TextBlock Classes="live-panel-label" Text="Satellite" />
-                <TextBlock Text="{Binding SelectedSatelliteName}"
-                           FontWeight="SemiBold"
-                           FontSize="14"
-                           TextTrimming="CharacterEllipsis" />
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Grid.Column="0"
+                             Text="{Binding SelectedSatelliteName}"
+                             FontWeight="SemiBold"
+                             FontSize="14"
+                             TextTrimming="CharacterEllipsis" />
+                  <StackPanel Grid.Column="1"
+                              VerticalAlignment="Center"
+                              Margin="8,0,0,0"
+                              IsVisible="{Binding ShowSunlightStatus}">
+                    <TextBlock Text="Sunlight"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               IsVisible="{Binding IsSatelliteSunlit}"
+                               Foreground="{DynamicResource SunlightStatusBrush}"
+                               AutomationProperties.Name="Satellite in sunlight" />
+                    <TextBlock Text="Eclipse"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               IsVisible="{Binding IsSatelliteInEclipse}"
+                               Foreground="{DynamicResource EclipseStatusBrush}"
+                               AutomationProperties.Name="Satellite in eclipse" />
+                  </StackPanel>
+                </Grid>
                 <TextBlock FontSize="12" TextWrapping="Wrap">
                   <Run Text="Az " /><Run Text="{Binding AzimuthText}" FontWeight="SemiBold" />
                   <Run Text="  ·  El " /><Run Text="{Binding ElevationText}" FontWeight="SemiBold" />

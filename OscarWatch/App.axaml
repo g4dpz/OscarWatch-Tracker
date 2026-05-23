@@ -18,5 +18,7 @@
         <SolidColorBrush x:Key="PassImminentBadgeBackgroundBrush" Color="#E89B1E" />
         <SolidColorBrush x:Key="PassImminentBadgeForegroundBrush" Color="#1A1A1A" />
         <SolidColorBrush x:Key="StaleTleForegroundBrush" Color="#B45309" />
+        <SolidColorBrush x:Key="SunlightStatusBrush" Color="#B8860B" />
+        <SolidColorBrush x:Key="EclipseStatusBrush" Color="#5C6370" />
     </Application.Resources>
 </Application>
