@@ -131,6 +131,10 @@ Uses [OrbitTools](http://www.zeptomoby.com/satellites/) Public Edition via [Zept
 | `OscarWatch.Orbit` | OrbitTools adapters, pass predictor, ground geometry |
 | `OscarWatch` | Avalonia UI |
 
+## Developer docs
+
+- [documents/](documents/) — how to add **radio** and **rotator** drivers (`IRigDriver`, `IRotatorDriver`)
+
 ## Accessibility
 
 UI work should follow [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) (contrast, color-blind-safe tracking colors, keyboard, no color-only meaning).
