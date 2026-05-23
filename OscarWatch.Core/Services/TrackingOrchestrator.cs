@@ -36,6 +36,7 @@ public sealed class TrackingOrchestrator
             _propagator.LoadSatellite(sat);
     }
 
+    /// <summary>Propagates all enabled satellites at <paramref name="utc"/>. UI should use <see cref="ILiveTrackingService"/>.</summary>
     public IReadOnlyList<SatelliteTrackState> GetLiveStates(DateTime utc)
     {
         var site = _settings.Current.GroundStation;

@@ -19,6 +19,7 @@ public partial class MainViewModel : ViewModelBase
     private readonly ISettingsService _settings;
     private readonly ITleService _tleService;
     private readonly TrackingOrchestrator _tracking;
+    private readonly ILiveTrackingService _liveTracking;
     private readonly ISpeechService _speech;
     private readonly RisingPassAnnouncer _passAnnouncer;
     private readonly IRotatorController _rotator;
@@ -30,9 +31,9 @@ public partial class MainViewModel : ViewModelBase
     public FrequencyOverlayViewModel Frequencies { get; }
     private DispatcherTimer? _tleRefreshTimer;
     private DispatcherTimer? _passListRefreshTimer;
-    private DispatcherTimer? _rigContextTimer;
+    private DispatcherTimer? _liveDisplayTimer;
     private static readonly TimeSpan PassListRefreshInterval = TimeSpan.FromMinutes(15);
-    private static readonly TimeSpan RigContextInterval = TimeSpan.FromMilliseconds(250);
+    private static readonly TimeSpan LiveDisplayInterval = TimeSpan.FromMilliseconds(250);
     private static readonly TimeSpan ImminentPassWindow = TimeSpan.FromMinutes(15);
     /// <summary>Coalesce spinner clicks into one CAT write after the user pauses.</summary>
 
@@ -125,6 +126,7 @@ public partial class MainViewModel : ViewModelBase
         ISettingsService settings,
         ITleService tleService,
         TrackingOrchestrator tracking,
+        ILiveTrackingService liveTracking,
         ISpeechService speech,
         RisingPassAnnouncer passAnnouncer,
         IRotatorController rotator,
@@ -135,6 +137,7 @@ public partial class MainViewModel : ViewModelBase
         _settings = settings;
         _tleService = tleService;
         _tracking = tracking;
+        _liveTracking = liveTracking;
         _speech = speech;
         _passAnnouncer = passAnnouncer;
         _rotator = rotator;
@@ -147,8 +150,8 @@ public partial class MainViewModel : ViewModelBase
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += (_, _) => Tick();
 
-        _rigContextTimer = new DispatcherTimer { Interval = RigContextInterval };
-        _rigContextTimer.Tick += (_, _) => PublishRigTrackingContext();
+        _liveDisplayTimer = new DispatcherTimer { Interval = LiveDisplayInterval };
+        _liveDisplayTimer.Tick += (_, _) => OnLiveDisplayTick();
     }
 
     private void OnCtcssSelectorChanged()
@@ -156,7 +159,7 @@ public partial class MainViewModel : ViewModelBase
         if (ShowComPortConflict)
             return;
 
-        var focused = GetFocusedTrackState(_tracking.GetLiveStates(DateTime.UtcNow), FocusedNoradId);
+        var focused = GetFocusedTrackState(_liveTracking.GetSnapshot(), FocusedNoradId);
         var context = Frequencies.TryBuildRigTrackingContext(focused);
         _rig.ApplySelectedCtcss(_settings.Current.Rig, context);
         _rig.PublishContext(_settings.Current.Rig, context);
@@ -168,7 +171,7 @@ public partial class MainViewModel : ViewModelBase
         if (ShowComPortConflict)
             return;
 
-        var focused = GetFocusedTrackState(_tracking.GetLiveStates(DateTime.UtcNow), FocusedNoradId);
+        var focused = GetFocusedTrackState(_liveTracking.GetSnapshot(), FocusedNoradId);
         var context = Frequencies.TryBuildRigTrackingContext(focused);
         _rig.PublishContext(_settings.Current.Rig, context);
         RefreshRigUi(focused);
@@ -206,11 +209,12 @@ public partial class MainViewModel : ViewModelBase
             }
         }
 
-        _tracking.ReloadEnabledSatellites();
+        _liveTracking.Start();
+        _liveTracking.RequestReload();
         Tick();
         _timer.Start();
         ConfigurePassListRefreshTimer();
-        ConfigureRigContextTimer();
+        _liveDisplayTimer?.Start();
 
         StatusText = "Computing passes…";
         await RefreshPassesAsync().ConfigureAwait(true);
@@ -222,10 +226,9 @@ public partial class MainViewModel : ViewModelBase
     {
         UtcClock = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + " UTC";
         MinimumElevationDeg = _settings.Current.MinimumElevationDeg;
-        var states = _tracking.GetLiveStates(DateTime.UtcNow);
+        var states = _liveTracking.GetSnapshot();
         SyncLiveStates(states);
 
-        UpdateLiveTelemetry(states);
         UpdateNextPassCountdown();
         PruneExpiredPasses();
         UpdatePassHighlightState();
@@ -238,28 +241,30 @@ public partial class MainViewModel : ViewModelBase
 
         if (ShowComPortConflict)
             _rig.Disconnect();
-        else
-            PublishRigTrackingContext(focused);
 
         RefreshRigUi(focused);
     }
 
-    /// <summary>Refresh look angles / range rate for the doppler loop (4 Hz). UI still ticks at 1 Hz.</summary>
+    /// <summary>4 Hz: az/el/range readout and rig doppler context from the live tracking snapshot.</summary>
+    private void OnLiveDisplayTick()
+    {
+        var states = _liveTracking.GetSnapshot();
+        UpdateLiveTelemetry(states);
+
+        if (ShowComPortConflict || !_settings.Current.Rig.Enabled)
+            return;
+
+        var focused = GetFocusedTrackState(states, FocusedNoradId);
+        PublishRigTrackingContext(focused);
+    }
+
     private void PublishRigTrackingContext(SatelliteTrackState? focused = null)
     {
         if (!_settings.Current.Rig.Enabled || ShowComPortConflict)
             return;
 
-        focused ??= GetFocusedTrackState(_tracking.GetLiveStates(DateTime.UtcNow), FocusedNoradId);
+        focused ??= GetFocusedTrackState(_liveTracking.GetSnapshot(), FocusedNoradId);
         _rig.PublishContext(_settings.Current.Rig, Frequencies.TryBuildRigTrackingContext(focused));
-    }
-
-    private void ConfigureRigContextTimer()
-    {
-        if (_settings.Current.Rig.Enabled)
-            _rigContextTimer?.Start();
-        else
-            _rigContextTimer?.Stop();
     }
 
     private void PushCloudlogRadio(SatelliteTrackState? focused)
@@ -577,7 +582,7 @@ public partial class MainViewModel : ViewModelBase
         if (saved)
         {
             ConfigureTleAutoUpdateTimer();
-            _tracking.ReloadEnabledSatellites();
+            _liveTracking.RequestReload();
             _rotator.Disconnect();
             _rig.Disconnect();
             _cloudlog.ResetThrottle();
@@ -585,7 +590,7 @@ public partial class MainViewModel : ViewModelBase
             UpdateStatus();
             RefreshGroundStationFromSettings();
             RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
-            ConfigureRigContextTimer();
+            _liveDisplayTimer?.Start();
             Tick();
         }
     }
@@ -622,7 +627,7 @@ public partial class MainViewModel : ViewModelBase
         {
             StatusText = "Refreshing TLEs…";
             await _tleService.RefreshAsync().ConfigureAwait(true);
-            _tracking.ReloadEnabledSatellites();
+            _liveTracking.RequestReload();
         }
         catch (Exception ex)
         {
@@ -646,6 +651,7 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private void CloseApplication()
     {
+        _liveTracking.Dispose();
         if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             desktop.Shutdown();
     }
@@ -671,7 +677,7 @@ public partial class MainViewModel : ViewModelBase
 
         if (saved)
         {
-            _tracking.ReloadEnabledSatellites();
+            _liveTracking.RequestReload();
             await RefreshPassesAsync();
             UpdateStatus();
         }

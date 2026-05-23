@@ -44,6 +44,8 @@ public partial class App : Application
                 bundledDb));
         services.AddSingleton<FrequencyOverlayViewModel>();
         services.AddSingleton<TrackingOrchestrator>();
+        services.AddSingleton<LiveTrackingService>();
+        services.AddSingleton<ILiveTrackingService>(sp => sp.GetRequiredService<LiveTrackingService>());
         services.AddOscarWatchOrbit();
         services.AddTransient<MainViewModel>();
         services.AddTransient<SettingsViewModel>();
