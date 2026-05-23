@@ -124,6 +124,12 @@ public partial class SettingsViewModel : ViewModelBase
     private RotatorElevationOption? _selectedElevationRangeChoice;
 
     [ObservableProperty]
+    private bool _rotatorSmartAzimuth450 = true;
+
+    public bool IsRotatorSmartAzimuth450Enabled =>
+        SelectedAzimuthRangeChoice?.Value == RotatorAzimuthRange.Deg450;
+
+    [ObservableProperty]
     private bool _rigEnabled;
 
     [ObservableProperty]
@@ -249,7 +255,8 @@ public partial class SettingsViewModel : ViewModelBase
             ElevationRange = SelectedElevationRangeChoice?.Value ?? RotatorElevationRange.Deg180,
             TrackStartElevationDeg = Math.Clamp(RotatorTrackStartElevationDeg, -90, 90),
             ParkAzimuthDeg = RotatorParkAzimuthDeg,
-            ParkElevationDeg = RotatorParkElevationDeg
+            ParkElevationDeg = RotatorParkElevationDeg,
+            SmartAzimuth450 = RotatorSmartAzimuth450
         };
         _settings.Current.Rig = new RigSettings
         {
@@ -325,6 +332,7 @@ public partial class SettingsViewModel : ViewModelBase
             RotatorTrackStartElevationDeg = rotator.TrackStartElevationDeg;
             RotatorParkAzimuthDeg = rotator.ParkAzimuthDeg;
             RotatorParkElevationDeg = rotator.ParkElevationDeg;
+            RotatorSmartAzimuth450 = rotator.SmartAzimuth450;
 
             var rig = _settings.Current.Rig ?? new RigSettings();
             RigEnabled = rig.Enabled;
@@ -403,6 +411,11 @@ public partial class SettingsViewModel : ViewModelBase
     }
 
     partial void OnRotatorEnabledChanged(bool value) => RefreshComPortConflictIfReady();
+
+    partial void OnSelectedAzimuthRangeChoiceChanged(RotatorAzimuthOption? value)
+    {
+        OnPropertyChanged(nameof(IsRotatorSmartAzimuth450Enabled));
+    }
     partial void OnRigEnabledChanged(bool value) => RefreshComPortConflictIfReady();
     partial void OnSelectedComPortChanged(string? value) => RefreshComPortConflictIfReady();
     partial void OnSelectedRigComPortChanged(string? value) => RefreshComPortConflictIfReady();

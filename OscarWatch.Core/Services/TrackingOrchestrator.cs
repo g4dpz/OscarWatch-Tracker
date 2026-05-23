@@ -108,6 +108,26 @@ public sealed class TrackingOrchestrator
         return states;
     }
 
+    /// <summary>Compass azimuth a few seconds ahead for rotator north-wrap lookahead.</summary>
+    public double? TryGetAheadAzimuthDeg(string noradId, double secondsAhead = 1.5)
+    {
+        if (!_propagator.HasSatellite(noradId))
+            return null;
+
+        try
+        {
+            var look = _propagator.GetLookAngles(
+                noradId,
+                _settings.Current.GroundStation,
+                DateTime.UtcNow.AddSeconds(secondsAhead));
+            return look.AzimuthDeg;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     public Task<IReadOnlyList<PassInfo>> GetUpcomingPassesAsync(CancellationToken cancellationToken = default)
     {
         var s = _settings.Current;

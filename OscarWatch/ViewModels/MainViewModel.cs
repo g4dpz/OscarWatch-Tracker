@@ -239,7 +239,7 @@ public partial class MainViewModel : ViewModelBase
         ProcessVoiceAnnouncements(states);
         var focused = GetFocusedTrackState(states, FocusedNoradId);
         UpdateComPortConflictState();
-        _rotator.Update(_settings.Current.Rotator, focused);
+        _rotator.Update(_settings.Current.Rotator, EnrichRotatorTarget(focused));
         UpdateRotatorDisplay();
         Frequencies.Update(focused);
 
@@ -314,13 +314,30 @@ public partial class MainViewModel : ViewModelBase
 
         ShowRotatorStatus = true;
         var status = _rotator.GetPositionStatus();
-        RotatorAzimuthText = status is { IsConnected: true, AzimuthDeg: not null }
-            ? $"{status.AzimuthDeg.Value}°"
-            : "—";
+        RotatorAzimuthText = FormatRotatorAzimuthText(status);
         RotatorElevationText = status is { IsConnected: true, ElevationDeg: not null }
             ? $"{status.ElevationDeg.Value}°"
             : "—";
         CanParkRotator = status.IsConnected && !IsStandby;
+    }
+
+    internal static string FormatRotatorAzimuthText(RotatorPositionStatus status)
+    {
+        if (!status.IsConnected)
+            return "—";
+
+        if (status.CommandedAzimuthDeg is { } commanded
+            && status.CompassAzimuthDeg is { } compass
+            && commanded != compass)
+            return $"{commanded}° ({compass}° sat)";
+
+        if (status.AzimuthDeg is { } polled)
+            return $"{polled}°";
+
+        if (status.CommandedAzimuthDeg is { } commandedOnly)
+            return $"{commandedOnly}°";
+
+        return "—";
     }
 
     [RelayCommand]
@@ -410,6 +427,32 @@ public partial class MainViewModel : ViewModelBase
                 && (i + 1 >= Passes.Count || Passes[i + 1] is PassDayHeaderViewModel))
                 Passes.RemoveAt(i);
         }
+    }
+
+    private SatelliteTrackState? EnrichRotatorTarget(SatelliteTrackState? state)
+    {
+        if (state is null || state.LookAngles is null)
+            return state;
+
+        var rotator = _settings.Current.Rotator;
+        if (!rotator.Enabled || !rotator.SmartAzimuth450 || rotator.MaxAzimuthDeg <= 360)
+            return state;
+
+        var ahead = _tracking.TryGetAheadAzimuthDeg(state.NoradId);
+        if (ahead is null)
+            return state;
+
+        return new SatelliteTrackState
+        {
+            Name = state.Name,
+            NoradId = state.NoradId,
+            Subpoint = state.Subpoint,
+            LookAngles = state.LookAngles,
+            AheadAzimuthDeg = ahead,
+            GroundTrack = state.GroundTrack,
+            Footprint = state.Footprint,
+            FootprintRadiusDeg = state.FootprintRadiusDeg
+        };
     }
 
     private static SatelliteTrackState? GetFocusedTrackState(IReadOnlyList<SatelliteTrackState> states, string? focusedNoradId) =>

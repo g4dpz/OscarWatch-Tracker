@@ -310,6 +310,13 @@
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
+            <CheckBox Content="Smart 450° azimuth (shortest path over north)"
+                      IsChecked="{Binding RotatorSmartAzimuth450, Mode=TwoWay}"
+                      IsEnabled="{Binding IsRotatorSmartAzimuth450Enabled}" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="On 450° rotators (e.g. Yaesu G-5500), commands 361–450° avoid a long slew back through 0° when tracking passes over north." />
             <TextBlock Text="Elevation range" />
             <ComboBox ItemsSource="{Binding ElevationRangeChoices}"
                       SelectedItem="{Binding SelectedElevationRangeChoice, Mode=TwoWay}"

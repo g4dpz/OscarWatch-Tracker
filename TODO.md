@@ -129,12 +129,12 @@ On a **450°** rotator (e.g. Yaesu G-5500 + GS-232), commands can use **361–45
 
 **Work**
 
-- [ ] `RotatorAzimuthPlanner` (Core): `ResolveCommandAz(lastCommandAz, targetAzDeg, maxAz)` → extended az 0–450.
-- [ ] Use in `RotatorController.TryTrack` instead of raw `look.AzimuthDeg`.
-- [ ] Reset extended az on new pass / disconnect / manual park.
-- [ ] Settings toggle: **Smart 450° azimuth** (default on when range is 450°).
-- [ ] Unit tests: north wrap NE→N→W sequence, 360-only mode unchanged.
-- [ ] Display: optional show **commanded** az vs **compass** az in sidebar if they differ.
+- [x] `RotatorAzimuthPlanner` (Core): `ResolveCommandAz(lastCommandAz, targetAzDeg, maxAz)` → extended az 0–450.
+- [x] Use in `RotatorController.TryTrack` instead of raw `look.AzimuthDeg`.
+- [x] Reset extended az on new pass / disconnect / manual park.
+- [x] Settings toggle: **Smart 450° azimuth** (default on when range is 450°).
+- [x] Unit tests: north wrap NE→N→W sequence, 360-only mode unchanged.
+- [x] Display: optional show **commanded** az vs **compass** az in sidebar if they differ.
 
 **References:** `RotatorController`, `Gs232Rotator.SetPosition`, `RotatorSettings.MaxAzimuthDeg`, `rotator.py` (clamp only today).
 

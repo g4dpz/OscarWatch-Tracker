@@ -139,6 +139,8 @@
                                  FontSize="18"
                                  FontWeight="SemiBold"
                                  HorizontalAlignment="Center"
+                                 TextWrapping="Wrap"
+                                 TextAlignment="Center"
                                  FontFamily="Consolas,Courier New,monospace" />
                       <TextBlock Text="Az"
                                  FontSize="10"

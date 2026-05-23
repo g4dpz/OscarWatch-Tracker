@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Rotator;
 using OscarWatch.Core.Services;
 using Serilog;
 
@@ -35,6 +36,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private bool _standbyActive;
     private int? _displayAzimuth;
     private int? _displayElevation;
+    private int? _displayCommandedAzimuth;
+    private int? _displayCompassAzimuth;
 
     private RotatorSettings _cachedSettings = new();
     private SatelliteTrackState? _cachedTarget;
@@ -229,6 +232,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _lastAzimuth = null;
             _lastElevation = null;
             _parked = false;
+            ClearTrackingAzimuthDisplay();
         }
 
         if (_manualParkActive)
@@ -246,7 +250,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         if (target?.LookAngles is { } lookAngles)
         {
             if (lookAngles.ElevationDeg >= settings.TrackStartElevationDeg)
-                TryTrack(settings, lookAngles.AzimuthDeg, lookAngles.ElevationDeg);
+                TryTrack(settings, lookAngles.AzimuthDeg, lookAngles.ElevationDeg, target.AheadAzimuthDeg);
             else
                 TryPark(settings);
         }
@@ -317,12 +321,25 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _standbyActive = false;
         _displayAzimuth = null;
         _displayElevation = null;
+        _displayCommandedAzimuth = null;
+        _displayCompassAzimuth = null;
     }
 
     private void RefreshPositionSnapshot()
     {
         lock (_statusLock)
-            _positionStatus = new(_rotator is not null, _displayAzimuth, _displayElevation);
+            _positionStatus = new(
+                _rotator is not null,
+                _displayAzimuth,
+                _displayElevation,
+                _displayCommandedAzimuth,
+                _displayCompassAzimuth);
+    }
+
+    private void ClearTrackingAzimuthDisplay()
+    {
+        _displayCommandedAzimuth = null;
+        _displayCompassAzimuth = null;
     }
 
     private bool EnsureConnected(RotatorSettings settings)
@@ -352,13 +369,26 @@ public sealed class RotatorController : IRotatorController, IDisposable
         }
     }
 
-    private void TryTrack(RotatorSettings settings, double azimuthDeg, double elevationDeg)
+    private void TryTrack(
+        RotatorSettings settings,
+        double azimuthDeg,
+        double elevationDeg,
+        double? aheadAzimuthDeg = null)
     {
         if (_rotator is null)
             return;
 
+        var useSmartAzimuth = settings.SmartAzimuth450 && settings.MaxAzimuthDeg > 360;
+        var commandAz = useSmartAzimuth
+            ? RotatorAzimuthPlanner.ResolveCommandAz(
+                _lastAzimuth, azimuthDeg, settings.MaxAzimuthDeg, aheadAzimuthDeg)
+            : azimuthDeg;
+
+        _displayCommandedAzimuth = (int)Math.Round(commandAz);
+        _displayCompassAzimuth = (int)Math.Round(RotatorAzimuthPlanner.Normalize360(azimuthDeg));
+
         var send = _lastAzimuth is null || _lastElevation is null
-            || Math.Abs(azimuthDeg - _lastAzimuth.Value) >= 1
+            || Math.Abs(commandAz - _lastAzimuth.Value) >= 1
             || Math.Abs(elevationDeg - _lastElevation.Value) >= 1;
 
         if (!send)
@@ -366,14 +396,14 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
         try
         {
-            _rotator.SetPosition(azimuthDeg, elevationDeg, settings);
-            _lastAzimuth = Math.Round(azimuthDeg);
+            _rotator.SetPosition(commandAz, elevationDeg, settings);
+            _lastAzimuth = Math.Round(commandAz);
             _lastElevation = Math.Round(elevationDeg);
             _parked = false;
         }
         catch (Exception ex)
         {
-            Log.Warning(ex, "Rotator track failed at Az={Az} El={El}", azimuthDeg, elevationDeg);
+            Log.Warning(ex, "Rotator track failed at Az={Az} El={El}", commandAz, elevationDeg);
             TearDownRotator();
         }
     }
@@ -389,6 +419,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _lastAzimuth = settings.ParkAzimuthDeg;
             _lastElevation = settings.ParkElevationDeg;
             _parked = true;
+            ClearTrackingAzimuthDisplay();
         }
         catch (Exception ex)
         {
