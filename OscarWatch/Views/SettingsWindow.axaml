@@ -6,8 +6,8 @@
         x:Class="OscarWatch.Views.SettingsWindow"
         x:DataType="vm:SettingsViewModel"
         Title="Settings"
-        Width="480" Height="520"
-        MinWidth="420" MinHeight="360"
+        Width="640" Height="520"
+        MinWidth="560" MinHeight="360"
         WindowStartupLocation="CenterOwner">
   <DockPanel Margin="0">
     <Border DockPanel.Dock="Bottom"
@@ -165,6 +165,101 @@
         </ScrollViewer>
       </TabItem>
 
+      <TabItem Header="Radio">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+          <StackPanel Spacing="10" MaxWidth="420">
+            <TextBlock Text="{Binding ComPortConflictText}"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding ShowComPortConflict}" />
+            <CheckBox Content="Enable radio control"
+                      IsChecked="{Binding RigEnabled, Mode=TwoWay}" />
+            <TextBlock Text="Radio driver" />
+            <ComboBox ItemsSource="{Binding RigTypeChoices}"
+                      SelectedItem="{Binding SelectedRigTypeChoice, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:RigTypeOption">
+                  <TextBlock Text="{Binding Label}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Text="Serial port" />
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+              <ComboBox Grid.Column="0"
+                        ItemsSource="{Binding AvailableComPorts}"
+                        SelectedItem="{Binding SelectedRigComPort, Mode=TwoWay}"
+                        PlaceholderText="Select COM port"
+                        HorizontalAlignment="Stretch" />
+              <Button Grid.Column="1"
+                      Content="Refresh"
+                      Command="{Binding RefreshComPortsCommand}"
+                      MinWidth="72" />
+            </Grid>
+            <TextBlock Text="Baud rate" />
+            <ComboBox ItemsSource="{Binding BaudRateOptions}"
+                      SelectedItem="{Binding RigBaudRate, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch" />
+            <TextBlock Text="CI-V address (hex)" />
+            <TextBox Text="{Binding RigCivAddress, Mode=TwoWay}"
+                     Watermark="60" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="IC-9700 default A2, IC-910 default 7C (hex). Use 60 if your radio is set that way in the CI-V menu." />
+            <TextBlock Text="Region" />
+            <ComboBox ItemsSource="{Binding RigRegionChoices}"
+                      SelectedItem="{Binding SelectedRigRegionChoice, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:RigRegionOption">
+                  <TextBlock Text="{Binding Label}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="EU uses tone; USA uses tone squelch (subtone)." />
+            <TextBlock Text="Start tracking at elevation (°)" Margin="0,8,0,0" />
+            <NumericUpDown Value="{Binding RigTrackStartElevationDeg, Mode=TwoWay}"
+                           Minimum="-90" Maximum="90"
+                           Increment="0.5" FormatString="F1" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Margin="0,-6,0,0"
+                       Text="Default is -3°. Use negative values to start CAT before the satellite reaches the horizon (e.g. -10° or lower)." />
+            <TextBlock Text="Doppler threshold FM (Hz)" />
+            <NumericUpDown Value="{Binding RigDopplerThresholdFmHz, Mode=TwoWay}"
+                           Minimum="0" Maximum="2000"
+                           Increment="10" FormatString="F0" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Margin="0,-6,0,0"
+                       Text="FM / ISS cross-band: lower = more CAT updates (default 50 Hz)." />
+            <TextBlock Text="Doppler threshold SSB/CW (Hz)" />
+            <NumericUpDown Value="{Binding RigDopplerThresholdLinearHz, Mode=TwoWay}"
+                           Minimum="0" Maximum="500"
+                           Increment="5" FormatString="F0" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Frequencies are sent to the radio only when drift exceeds this interval (SatPC32-style)." />
+            <TextBlock Text="CAT delay (ms)" />
+            <NumericUpDown Value="{Binding RigCatDelayMs, Mode=TwoWay}"
+                           Minimum="0" Maximum="500"
+                           Increment="10" FormatString="F0" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Minimum time between CI-V commands to protect the serial link." />
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
       <TabItem Header="Rotator">
         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
           <StackPanel Spacing="10" MaxWidth="420">
@@ -289,101 +384,6 @@
                        FontSize="12"
                        MinHeight="20"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-          </StackPanel>
-        </ScrollViewer>
-      </TabItem>
-
-      <TabItem Header="Radio">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
-          <StackPanel Spacing="10" MaxWidth="420">
-            <TextBlock Text="{Binding ComPortConflictText}"
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                       FontSize="11"
-                       TextWrapping="Wrap"
-                       IsVisible="{Binding ShowComPortConflict}" />
-            <CheckBox Content="Enable radio control"
-                      IsChecked="{Binding RigEnabled, Mode=TwoWay}" />
-            <TextBlock Text="Radio driver" />
-            <ComboBox ItemsSource="{Binding RigTypeChoices}"
-                      SelectedItem="{Binding SelectedRigTypeChoice, Mode=TwoWay}"
-                      HorizontalAlignment="Stretch">
-              <ComboBox.ItemTemplate>
-                <DataTemplate x:DataType="vm:RigTypeOption">
-                  <TextBlock Text="{Binding Label}" />
-                </DataTemplate>
-              </ComboBox.ItemTemplate>
-            </ComboBox>
-            <TextBlock Text="Serial port" />
-            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-              <ComboBox Grid.Column="0"
-                        ItemsSource="{Binding AvailableComPorts}"
-                        SelectedItem="{Binding SelectedRigComPort, Mode=TwoWay}"
-                        PlaceholderText="Select COM port"
-                        HorizontalAlignment="Stretch" />
-              <Button Grid.Column="1"
-                      Content="Refresh"
-                      Command="{Binding RefreshComPortsCommand}"
-                      MinWidth="72" />
-            </Grid>
-            <TextBlock Text="Baud rate" />
-            <ComboBox ItemsSource="{Binding BaudRateOptions}"
-                      SelectedItem="{Binding RigBaudRate, Mode=TwoWay}"
-                      HorizontalAlignment="Stretch" />
-            <TextBlock Text="CI-V address (hex)" />
-            <TextBox Text="{Binding RigCivAddress, Mode=TwoWay}"
-                     Watermark="60" />
-            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                       FontSize="11"
-                       TextWrapping="Wrap"
-                       Text="IC-9700 default A2, IC-910 default 7C (hex). Use 60 if your radio is set that way in the CI-V menu." />
-            <TextBlock Text="Region" />
-            <ComboBox ItemsSource="{Binding RigRegionChoices}"
-                      SelectedItem="{Binding SelectedRigRegionChoice, Mode=TwoWay}"
-                      HorizontalAlignment="Stretch">
-              <ComboBox.ItemTemplate>
-                <DataTemplate x:DataType="vm:RigRegionOption">
-                  <TextBlock Text="{Binding Label}" />
-                </DataTemplate>
-              </ComboBox.ItemTemplate>
-            </ComboBox>
-            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                       FontSize="11"
-                       TextWrapping="Wrap"
-                       Text="EU uses tone; USA uses tone squelch (subtone)." />
-            <TextBlock Text="Start tracking at elevation (°)" Margin="0,8,0,0" />
-            <NumericUpDown Value="{Binding RigTrackStartElevationDeg, Mode=TwoWay}"
-                           Minimum="-90" Maximum="90"
-                           Increment="0.5" FormatString="F1" />
-            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                       FontSize="11"
-                       TextWrapping="Wrap"
-                       Margin="0,-6,0,0"
-                       Text="Default is -3°. Use negative values to start CAT before the satellite reaches the horizon (e.g. -10° or lower)." />
-            <TextBlock Text="Doppler threshold FM (Hz)" />
-            <NumericUpDown Value="{Binding RigDopplerThresholdFmHz, Mode=TwoWay}"
-                           Minimum="0" Maximum="2000"
-                           Increment="10" FormatString="F0" />
-            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                       FontSize="11"
-                       TextWrapping="Wrap"
-                       Margin="0,-6,0,0"
-                       Text="FM / ISS cross-band: lower = more CAT updates (default 50 Hz)." />
-            <TextBlock Text="Doppler threshold SSB/CW (Hz)" />
-            <NumericUpDown Value="{Binding RigDopplerThresholdLinearHz, Mode=TwoWay}"
-                           Minimum="0" Maximum="500"
-                           Increment="5" FormatString="F0" />
-            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                       FontSize="11"
-                       TextWrapping="Wrap"
-                       Text="Frequencies are sent to the radio only when drift exceeds this interval (SatPC32-style)." />
-            <TextBlock Text="CAT delay (ms)" />
-            <NumericUpDown Value="{Binding RigCatDelayMs, Mode=TwoWay}"
-                           Minimum="0" Maximum="500"
-                           Increment="10" FormatString="F0" />
-            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                       FontSize="11"
-                       TextWrapping="Wrap"
-                       Text="Minimum time between CI-V commands to protect the serial link." />
           </StackPanel>
         </ScrollViewer>
       </TabItem>
