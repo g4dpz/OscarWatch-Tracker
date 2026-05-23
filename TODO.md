@@ -2,6 +2,11 @@
 
 Tracked ideas and deferred work. Not a commitment order; items may be split or dropped.
 
+## General Todo Items
+
+- [ ] In Settings the button labels arent centered
+- [ ] Theres still some banding issues with the Footprints at the poles
+
 ---
 
 ## Satellite database
