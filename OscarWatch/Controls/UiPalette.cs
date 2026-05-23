@@ -17,7 +17,9 @@ internal readonly record struct UiPalette(
     Color MapLabelBackground,
     Color MapLabelForeground,
     Color GroundStationFill,
-    Color GroundStationOutlineDark);
+    Color GroundStationOutlineDark,
+    Color SunlightTimeline,
+    Color EclipseTimeline);
 
 internal static class UiPaletteResolver
 {
@@ -34,7 +36,9 @@ internal static class UiPaletteResolver
         MapLabelBackground: Color.FromArgb(230, 248, 250, 252),
         MapLabelForeground: Color.Parse("#1a2028"),
         GroundStationFill: Color.Parse("#0072B2"),
-        GroundStationOutlineDark: Color.Parse("#1a2028"));
+        GroundStationOutlineDark: Color.Parse("#1a2028"),
+        SunlightTimeline: Color.Parse("#D4A017"),
+        EclipseTimeline: Color.Parse("#9CA3AF"));
 
     private static readonly UiPalette Dark = new(
         SkyPlotBackground: Color.Parse("#1c2530"),
@@ -49,7 +53,9 @@ internal static class UiPaletteResolver
         MapLabelBackground: Color.FromArgb(220, 16, 20, 28),
         MapLabelForeground: Colors.White,
         GroundStationFill: Color.Parse("#56B4E9"),
-        GroundStationOutlineDark: Color.Parse("#0d1117"));
+        GroundStationOutlineDark: Color.Parse("#0d1117"),
+        SunlightTimeline: Color.Parse("#F5C842"),
+        EclipseTimeline: Color.Parse("#5C6370"));
 
     public static UiPalette Current =>
         Application.Current?.ActualThemeVariant == ThemeVariant.Dark ? Dark : Light;

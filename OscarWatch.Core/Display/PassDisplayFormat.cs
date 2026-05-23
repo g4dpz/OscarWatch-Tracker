@@ -44,6 +44,12 @@ public static class PassDisplayFormat
 
     public static DateOnly GetLocalDate(DateTime utc) => DateOnly.FromDateTime(ToLocal(utc));
 
+    public static string FormatMonthYear(DateTime utc, CultureInfo? culture = null)
+    {
+        culture ??= CultureInfo.CurrentCulture;
+        return ToLocal(utc).ToString("MMMM yyyy", culture);
+    }
+
     public static string FormatDayHeader(DateTime utc, CultureInfo? culture = null)
     {
         culture ??= CultureInfo.CurrentCulture;
@@ -117,6 +123,17 @@ public static class PassDisplayFormat
             ? 0
             : (int)Math.Round(duration.TotalMinutes, MidpointRounding.AwayFromZero);
         return minutes == 1 ? "1 min" : $"{minutes} min";
+    }
+
+    public static string FormatDurationLong(TimeSpan duration)
+    {
+        if (duration.TotalDays >= 1)
+            return $"{(int)duration.TotalDays} d {duration.Hours} h";
+
+        if (duration.TotalHours >= 1)
+            return $"{(int)duration.TotalHours} h {duration.Minutes} min";
+
+        return FormatDurationMinutes(duration);
     }
 
     public static string FormatDetailsLine(double maxElevationDeg, TimeSpan duration)

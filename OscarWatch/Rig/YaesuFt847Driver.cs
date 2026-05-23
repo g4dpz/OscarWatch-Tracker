@@ -84,8 +84,7 @@ public sealed class YaesuFt847Driver : IRigDriver
 
         var uplink = _currentVfo is RigVfo.Sub or RigVfo.VfoB;
         var target = ResolveTarget(_currentVfo, uplink);
-        var narrow = string.Equals(mode, "FM", StringComparison.OrdinalIgnoreCase);
-        var cmd = YaesuFt847CatCodec.BuildSetModeCommand(mode, target, _satelliteMode, narrow);
+        var cmd = YaesuFt847CatCodec.BuildSetModeCommand(mode, target, _satelliteMode);
         _transport.SendFrame(cmd, _catDelayMs);
     }
 

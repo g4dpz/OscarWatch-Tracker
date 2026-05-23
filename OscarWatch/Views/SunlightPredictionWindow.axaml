@@ -1,0 +1,182 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:models="using:OscarWatch.Core.Models"
+        xmlns:ctrl="using:OscarWatch.Controls"
+        x:Class="OscarWatch.Views.SunlightPredictionWindow"
+        x:DataType="vm:SunlightPredictionViewModel"
+        Title="Sunlight prediction"
+        Width="860" Height="620"
+        MinWidth="640" MinHeight="480"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="12">
+    <DockPanel.Styles>
+      <Style Selector="Expander">
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      </Style>
+    </DockPanel.Styles>
+
+    <Border DockPanel.Dock="Bottom"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="0,1,0,0"
+            Padding="0,10,0,0"
+            Margin="0,10,0,0">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Column="0" Spacing="4">
+          <TextBlock Text="{Binding StatusText}"
+                     VerticalAlignment="Center"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+          <TextBlock Text="{Binding SummaryText}"
+                     FontSize="11"
+                     TextWrapping="Wrap"
+                     IsVisible="{Binding HasResults}"
+                     Foreground="{DynamicResource ThemeForegroundBrush}" />
+        </StackPanel>
+        <Button Grid.Column="1"
+                Content="Close"
+                Click="OnCloseClick"
+                MinWidth="80"
+                VerticalAlignment="Center" />
+      </Grid>
+    </Border>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto"
+          HorizontalAlignment="Stretch">
+      <Expander Grid.Row="0"
+                Header="Satellite &amp; range"
+                IsExpanded="True"
+                Padding="0,0,0,8">
+        <Grid ColumnDefinitions="2*,*,*,Auto"
+              ColumnSpacing="8"
+              HorizontalAlignment="Stretch">
+          <StackPanel Grid.Column="0" Spacing="2" MinWidth="0">
+            <TextBlock Text="Satellite"
+                       FontSize="12"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <ComboBox HorizontalAlignment="Stretch"
+                      MinWidth="0"
+                      ItemsSource="{Binding Satellites}"
+                      SelectedItem="{Binding SelectedSatellite, Mode=TwoWay}">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="models:SatelliteCatalogEntry">
+                  <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </StackPanel>
+          <StackPanel Grid.Column="1" Spacing="2" MinWidth="0">
+            <TextBlock Text="Start date (UTC)"
+                       FontSize="12"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <DatePicker HorizontalAlignment="Stretch"
+                        SelectedDate="{Binding StartDate, Mode=TwoWay}" />
+          </StackPanel>
+          <StackPanel Grid.Column="2" Spacing="2" MinWidth="0">
+            <TextBlock Text="Days ahead"
+                       FontSize="12"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <NumericUpDown HorizontalAlignment="Stretch"
+                           Value="{Binding PredictionDays, Mode=TwoWay}"
+                           Minimum="1"
+                           Maximum="366"
+                           FormatString="0" />
+          </StackPanel>
+          <Button Grid.Column="3"
+                  Content="Predict"
+                  Command="{Binding PredictCommand}"
+                  VerticalAlignment="Bottom"
+                  MinWidth="90"
+                  Classes="accent" />
+        </Grid>
+      </Expander>
+
+      <StackPanel Grid.Row="1"
+                  Orientation="Horizontal"
+                  Spacing="16"
+                  Margin="0,0,0,8"
+                  IsVisible="{Binding HasResults}">
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Border Width="18" Height="12" CornerRadius="2" Background="{DynamicResource SunlightStatusBrush}" />
+          <TextBlock Text="Sunlight" FontSize="11" VerticalAlignment="Center" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Border Width="18" Height="12" CornerRadius="2" Background="{DynamicResource EclipseStatusBrush}" />
+          <TextBlock Text="Eclipse" FontSize="11" VerticalAlignment="Center" />
+        </StackPanel>
+      </StackPanel>
+
+      <ScrollViewer Grid.Row="2"
+                    HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Auto"
+                    IsVisible="{Binding HasResults}">
+        <ItemsControl ItemsSource="{Binding MonthTimelines}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:SunlightMonthTimelineRow">
+              <Grid ColumnDefinitions="120,*"
+                    Margin="0,0,0,6">
+                <TextBlock Grid.Column="0"
+                           Text="{Binding MonthLabel}"
+                           FontSize="12"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                <ctrl:SunlightTimelineControl Grid.Column="1"
+                                              Height="16"
+                                              Segments="{Binding Segments}"
+                                              RangeStartUtc="{Binding RangeStartUtc}"
+                                              RangeEndUtc="{Binding RangeEndUtc}" />
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+
+      <DockPanel Grid.Row="3"
+                 Margin="0,12,0,0"
+                 MinHeight="140"
+                 IsVisible="{Binding HasResults}">
+        <Grid DockPanel.Dock="Top"
+              ColumnDefinitions="*,Auto"
+              Margin="0,0,0,4">
+          <TextBlock Grid.Column="0"
+                     Text="Continuous sunlight periods"
+                     FontWeight="SemiBold"
+                     VerticalAlignment="Center" />
+          <StackPanel Grid.Column="1"
+                      Orientation="Horizontal"
+                      Spacing="6"
+                      VerticalAlignment="Center">
+            <TextBlock Text="Min duration (min)"
+                       FontSize="11"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <NumericUpDown Width="72"
+                             Value="{Binding MinSunlightMinutes, Mode=TwoWay}"
+                             Minimum="0"
+                             Maximum="10080"
+                             FormatString="0" />
+          </StackPanel>
+        </Grid>
+        <DataGrid ItemsSource="{Binding SunlightPeriods}"
+                  CanUserResizeColumns="False"
+                  CanUserReorderColumns="False"
+                  CanUserSortColumns="False"
+                  GridLinesVisibility="Horizontal"
+                  HeadersVisibility="Column"
+                  BorderThickness="0">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Start (local)"
+                                Binding="{Binding StartLocal, DataType={x:Type vm:SunlightPeriodRow}}"
+                                Width="*" MinWidth="160" />
+            <DataGridTextColumn Header="End (local)"
+                                Binding="{Binding EndLocal, DataType={x:Type vm:SunlightPeriodRow}}"
+                                Width="*" MinWidth="160" />
+            <DataGridTextColumn Header="Duration"
+                                Binding="{Binding Duration, DataType={x:Type vm:SunlightPeriodRow}}"
+                                Width="120"
+                                FontFamily="Consolas,Courier New,monospace" />
+          </DataGrid.Columns>
+        </DataGrid>
+      </DockPanel>
+    </Grid>
+  </DockPanel>
+</Window>

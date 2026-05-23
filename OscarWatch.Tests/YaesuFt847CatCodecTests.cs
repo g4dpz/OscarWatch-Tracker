@@ -42,4 +42,19 @@ public sealed class YaesuFt847CatCodecTests
         Assert.True(YaesuFt847CatCodec.TryGetCtcssCatCode(67.0, out var code));
         Assert.Equal(0x3F, code);
     }
+
+    [Fact]
+    public void BuildSetModeCommand_FM_uses_wide_mode_byte()
+    {
+        var cmd = YaesuFt847CatCodec.BuildSetModeCommand("FM", YaesuFt847VfoTarget.SatRx, satelliteMode: true);
+        Assert.Equal(0x08, cmd[0]);
+        Assert.Equal(0x17, cmd[4]);
+    }
+
+    [Fact]
+    public void BuildSetModeCommand_FMN_uses_narrow_mode_byte()
+    {
+        var cmd = YaesuFt847CatCodec.BuildSetModeCommand("FMN", YaesuFt847VfoTarget.SatRx, satelliteMode: true);
+        Assert.Equal(0x88, cmd[0]);
+    }
 }

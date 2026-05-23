@@ -10,6 +10,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IOrbitPropagator, PublicOrbitToolsPropagator>();
         services.AddSingleton<IGroundGeometry, SampledGroundGeometry>();
         services.AddSingleton<IPassPredictor, BruteForcePassPredictor>();
+        services.AddSingleton<IIlluminationPredictor, SunlightSegmentPredictor>();
         return services;
     }
 }

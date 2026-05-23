@@ -35,6 +35,18 @@ public sealed class YaesuFt847DriverTests
     }
 
     [Fact]
+    public void SetMode_FM_sends_wide_fm_byte()
+    {
+        var transport = new RecordingYaesuCatTransport();
+        var driver = new YaesuFt847Driver(transport);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        driver.SetMode("FM");
+
+        Assert.Contains(transport.SentFrames, f => f.Length == 5 && f[0] == 0x08);
+    }
+
+    [Fact]
     public void SupportsVfoExchange_is_false()
     {
         var driver = new YaesuFt847Driver(new RecordingYaesuCatTransport());

@@ -54,6 +54,7 @@ public partial class App : Application
         services.AddTransient<SatellitePickerViewModel>();
         services.AddTransient<PassPlanningViewModel>();
         services.AddTransient<MutualPassViewModel>();
+        services.AddTransient<SunlightPredictionViewModel>();
         services.AddTransient<SatelliteDatabaseEditorViewModel>();
 
         Services = services.BuildServiceProvider();

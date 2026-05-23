@@ -640,6 +640,18 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private async Task OpenSunlightPredictionAsync()
+    {
+        var vm = App.Services.GetRequiredService<SunlightPredictionViewModel>();
+        await vm.InitializeAsync();
+        var window = new SunlightPredictionWindow { DataContext = vm };
+        if (App.MainWindow is null)
+            return;
+
+        await window.ShowDialog(App.MainWindow);
+    }
+
+    [RelayCommand]
     private async Task OpenSettingsAsync()
     {
         var vm = App.Services.GetRequiredService<SettingsViewModel>();

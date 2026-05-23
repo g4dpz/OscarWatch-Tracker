@@ -188,8 +188,12 @@ public static class YaesuFt847CatCodec
         bool narrow)
     {
         var upper = mode.ToUpperInvariant();
-        var isFm = upper is "FM" or "FMN";
-        var useNarrow = narrow || isFm;
+        var useNarrow = upper switch
+        {
+            "FM" => false,
+            "FMN" => true,
+            _ => narrow
+        };
 
         var modeByte = upper switch
         {
