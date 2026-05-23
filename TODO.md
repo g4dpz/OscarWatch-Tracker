@@ -80,7 +80,7 @@ Pull an authoritative `satellite_database.json` from a remote URL and merge it w
 - [ ] **ICOM IC-9100** — CI-V (closely related to IC-910 / IC-9700; confirm satellite mode, Main/Sub, tone commands, and default CI-V address vs IC-910H).
 - [x] **Yaesu FT-847** — Yaesu CAT serial protocol; satellite/SAT RX/TX VFOs (beta — verify on hardware).
 - [ ] **Yaesu FT-817** — Yaesu CAT (817/817ND variants); often single-VFO or simple split — map to Main/Sub or A/B model in `RigController`.
-- [ ] **Kenwood TS-2000** — Kenwood CAT; satellite operation and sub-tone support per manual.
+- [x] **Kenwood TS-2000** — Kenwood ASCII CAT; cross-band SATL (beta — verify on hardware: SATL + TRACE off).
 
 **Per-driver work (each rig)**
 

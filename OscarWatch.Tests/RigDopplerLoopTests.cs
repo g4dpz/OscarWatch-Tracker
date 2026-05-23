@@ -16,8 +16,7 @@ public class RigDopplerLoopTests
             Enabled = true,
             Type = RigType.Dummy,
             DopplerThresholdLinearHz = 50,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode

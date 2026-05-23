@@ -15,8 +15,6 @@ public sealed class RigSettings
 
     public RigRegion Region { get; set; } = RigRegion.EU;
 
-    public double TrackStartElevationDeg { get; set; } = -3;
-
     public int DopplerThresholdFmHz { get; set; } = 50;
 
     public int DopplerThresholdLinearHz { get; set; } = 50;

@@ -27,8 +27,7 @@ public class RigControllerTests
             Type = RigType.IcomIc9700,
             Port = "COM1",
             DopplerThresholdFmHz = 200,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -78,8 +77,7 @@ public class RigControllerTests
             Type = RigType.Dummy,
             DopplerThresholdFmHz = 200,
             DopplerThresholdLinearHz = 50,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -124,8 +122,7 @@ public class RigControllerTests
         {
             Enabled = true,
             Type = RigType.Dummy,
-            CatUpdatesPaused = true,
-            TrackStartElevationDeg = -90
+            CatUpdatesPaused = true
         };
 
         var mode = new SatelliteTransponderMode
@@ -163,14 +160,13 @@ public class RigControllerTests
     }
 
     [Fact]
-    public void Below_track_elevation_does_not_track()
+    public void Tracks_when_satellite_selected_even_below_horizon()
     {
         var controller = new RigController();
         var settings = new RigSettings
         {
             Enabled = true,
             Type = RigType.Dummy,
-            TrackStartElevationDeg = 5
         };
 
         var mode = new SatelliteTransponderMode
@@ -200,9 +196,8 @@ public class RigControllerTests
 
         controller.Update(settings, ctx);
         var status = controller.GetStatus();
-        Assert.False(status.IsTracking);
-        Assert.NotNull(status.LastReceiveHz);
-        Assert.NotNull(status.LastTransmitHz);
+        Assert.True(status.IsTracking);
+        Assert.Contains("Tracking", status.StatusMessage ?? "", StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -215,8 +210,7 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.Dummy,
             DopplerThresholdLinearHz = 50,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -268,8 +262,7 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.Dummy,
             DopplerThresholdLinearHz = 50,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -323,8 +316,7 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.Dummy,
             DopplerThresholdLinearHz = 50,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -374,8 +366,7 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.Dummy,
             Region = RigRegion.USA,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -428,8 +419,7 @@ public class RigControllerTests
             Type = RigType.IcomIc910,
             Port = "COM1",
             Region = RigRegion.USA,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = 10
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -491,8 +481,7 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.IcomIc9700,
             Port = "COM1",
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -541,8 +530,7 @@ public class RigControllerTests
             Type = RigType.IcomIc9700,
             Port = "COM1",
             CatDelayMs = 0,
-            Region = RigRegion.USA,
-            TrackStartElevationDeg = -90
+            Region = RigRegion.USA
         };
 
         var mode = new SatelliteTransponderMode
@@ -585,8 +573,7 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.IcomIc910,
             Port = "COM1",
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -630,8 +617,7 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.Dummy,
             DopplerThresholdLinearHz = 50,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -685,8 +671,7 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.Dummy,
             DopplerThresholdLinearHz = 50,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -743,8 +728,7 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.Dummy,
             DopplerThresholdLinearHz = 50,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -800,8 +784,7 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.Dummy,
             DopplerThresholdLinearHz = 50,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -863,8 +846,7 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.Dummy,
             DopplerThresholdLinearHz = 50,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -919,8 +901,7 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.Dummy,
             Region = RigRegion.EU,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -965,8 +946,7 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.Dummy,
             DopplerThresholdFmHz = 200,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -1012,8 +992,7 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.Dummy,
             DopplerThresholdLinearHz = 50,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -1065,8 +1044,7 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.Dummy,
             DopplerThresholdLinearHz = 50,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var mode = new SatelliteTransponderMode
@@ -1119,8 +1097,7 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.Dummy,
             DopplerThresholdLinearHz = 50,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var uvMode = new SatelliteTransponderMode
@@ -1178,8 +1155,7 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.Dummy,
             DopplerThresholdLinearHz = 50,
-            CatDelayMs = 0,
-            TrackStartElevationDeg = -90
+            CatDelayMs = 0
         };
 
         var vuMode = new SatelliteTransponderMode

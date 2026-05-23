@@ -301,13 +301,6 @@ public sealed class RigController : IRigController, IDisposable
         _catUpdatesPaused = settings.CatUpdatesPaused;
         _isBeaconOnly = context.Mode.IsBeaconOnly;
 
-        if (context.TrackState.LookAngles.ElevationDeg < settings.TrackStartElevationDeg)
-        {
-            _isTracking = false;
-            _statusMessage = "Connected (below track elevation)";
-            return;
-        }
-
         if (_driver is null || !_driver.SupportsTracking)
             return;
 
@@ -388,8 +381,7 @@ public sealed class RigController : IRigController, IDisposable
         if (!ignoreDopplerSuspend && DateTime.UtcNow < _suspendDopplerUntilUtc)
             return;
 
-        if (_cachedContext.TrackState.LookAngles is null
-            || _cachedContext.TrackState.LookAngles.ElevationDeg < _cachedSettings.TrackStartElevationDeg)
+        if (_cachedContext.TrackState.LookAngles is null)
             return;
 
         if (_interactive && SetupVfosPolicy.IsLinearMode(_cachedContext.Mode.DownlinkMode))
@@ -787,7 +779,7 @@ public sealed class RigController : IRigController, IDisposable
 
     private static RigVfo UplinkVfoForCtcss(RigSettings settings, RigTrackingContext context)
     {
-        if (settings.Type is RigType.IcomIc910 or RigType.IcomIc9700 or RigType.YaesuFt847)
+        if (settings.Type is RigType.IcomIc910 or RigType.IcomIc9700 or RigType.YaesuFt847 or RigType.KenwoodTs2000)
             return RigVfo.Sub;
 
         return RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz)

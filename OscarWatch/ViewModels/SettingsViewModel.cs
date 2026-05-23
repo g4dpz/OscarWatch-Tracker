@@ -142,9 +142,6 @@ public partial class SettingsViewModel : ViewModelBase
     private string _rigCivAddress = "60";
 
     [ObservableProperty]
-    private double _rigTrackStartElevationDeg = -3;
-
-    [ObservableProperty]
     private int _rigDopplerThresholdFmHz = 50;
 
     [ObservableProperty]
@@ -188,6 +185,7 @@ public partial class SettingsViewModel : ViewModelBase
         new(RigType.IcomIc910, "ICOM IC-910"),
         new(RigType.IcomIc9700, "ICOM IC-9700"),
         new(RigType.YaesuFt847, "Yaesu FT-847"),
+        new(RigType.KenwoodTs2000, "Kenwood TS-2000"),
         new(RigType.Dummy, "Dummy Rig")
     ];
 
@@ -196,6 +194,9 @@ public partial class SettingsViewModel : ViewModelBase
 
     public bool ShowRigFt847CatHint =>
         SelectedRigTypeChoice?.Value == RigType.YaesuFt847;
+
+    public bool ShowRigTs2000CatHint =>
+        SelectedRigTypeChoice?.Value == RigType.KenwoodTs2000;
 
     public IReadOnlyList<RigRegionOption> RigRegionChoices { get; } =
     [
@@ -273,7 +274,6 @@ public partial class SettingsViewModel : ViewModelBase
             BaudRate = RigBaudRate,
             CivAddress = RigCivAddress.Trim(),
             Region = SelectedRigRegionChoice?.Value ?? RigRegion.EU,
-            TrackStartElevationDeg = Math.Clamp(RigTrackStartElevationDeg, -90, 90),
             DopplerThresholdFmHz = RigDopplerThresholdFmHz,
             DopplerThresholdLinearHz = RigDopplerThresholdLinearHz,
             CatDelayMs = RigCatDelayMs,
@@ -350,7 +350,6 @@ public partial class SettingsViewModel : ViewModelBase
             RigCivAddress = rig.CivAddress;
             SelectedRigRegionChoice = RigRegionChoices.FirstOrDefault(o => o.Value == rig.Region)
                 ?? RigRegionChoices[0];
-            RigTrackStartElevationDeg = rig.TrackStartElevationDeg;
             RigDopplerThresholdFmHz = rig.DopplerThresholdFmHz;
             RigDopplerThresholdLinearHz = rig.DopplerThresholdLinearHz;
             RigCatDelayMs = rig.CatDelayMs;
@@ -430,11 +429,12 @@ public partial class SettingsViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(ShowRigCivAddress));
         OnPropertyChanged(nameof(ShowRigFt847CatHint));
+        OnPropertyChanged(nameof(ShowRigTs2000CatHint));
         RefreshComPortConflictIfReady();
         if (_isSynchronizing || value is null)
             return;
 
-        if (value.Value == RigType.YaesuFt847)
+        if (value.Value is RigType.YaesuFt847 or RigType.KenwoodTs2000)
             RigBaudRate = 57600;
 
         if (value.Value is not (RigType.IcomIc910 or RigType.IcomIc9700))

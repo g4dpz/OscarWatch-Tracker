@@ -215,6 +215,11 @@
                        TextWrapping="Wrap"
                        IsVisible="{Binding ShowRigFt847CatHint}"
                        Text="FT-847: set CAT baud in radio menu #37 (typically 57600). Use the CAT/LINEAR jack with a level converter (e.g. CT-62)." />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding ShowRigTs2000CatHint}"
+                       Text="TS-2000: CAT 57600 8N1 on the PC port. Press SATL before tracking; turn TRACE off so PC Doppler is not overridden." />
             <TextBlock Text="Region" />
             <ComboBox ItemsSource="{Binding RigRegionChoices}"
                       SelectedItem="{Binding SelectedRigRegionChoice, Mode=TwoWay}"
@@ -229,16 +234,7 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="EU uses tone; USA uses tone squelch (subtone)." />
-            <TextBlock Text="Start tracking at elevation (°)" Margin="0,8,0,0" />
-            <NumericUpDown Value="{Binding RigTrackStartElevationDeg, Mode=TwoWay}"
-                           Minimum="-90" Maximum="90"
-                           Increment="0.5" FormatString="F1" />
-            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                       FontSize="11"
-                       TextWrapping="Wrap"
-                       Margin="0,-6,0,0"
-                       Text="Default is -3°. Use negative values to start CAT before the satellite reaches the horizon (e.g. -10° or lower)." />
-            <TextBlock Text="Doppler threshold FM (Hz)" />
+            <TextBlock Text="Doppler threshold FM (Hz)" Margin="0,8,0,0" />
             <NumericUpDown Value="{Binding RigDopplerThresholdFmHz, Mode=TwoWay}"
                            Minimum="0" Maximum="2000"
                            Increment="10" FormatString="F0" />

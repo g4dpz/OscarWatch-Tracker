@@ -129,6 +129,26 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 - Two-way CAT firmware (serial **8G05xxxx+**).
 - On a real pass: SAT mode engages, RX/TX doppler tracks, uplink CTCSS on SAT TX.
 
+## Reference: Kenwood TS-2000 (shipped, beta)
+
+| Piece | Path |
+|-------|------|
+| CAT codec | [`OscarWatch.Core/Radio/KenwoodCatCodec.cs`](../OscarWatch.Core/Radio/KenwoodCatCodec.cs) |
+| Serial transport | [`OscarWatch/Rig/KenwoodCatTransport.cs`](../OscarWatch/Rig/KenwoodCatTransport.cs) — **8N1**, semicolon-terminated ASCII |
+| Driver | [`OscarWatch/Rig/KenwoodTs2000Driver.cs`](../OscarWatch/Rig/KenwoodTs2000Driver.cs) |
+
+- Cross-band **SATL** on the radio before tracking (`SA` query warns if off); **TRACE off** so PC Doppler is not overridden.
+- `Main`/`Sub` → **`FA`/`FB`**; no `FR` while satellite layout is active.
+- `SupportsVfoExchange` is **false** — use panel A/B or TF-SET.
+- CTCSS: `CN` + `CT` (Hamlib `ts2000_ctcss_list`, 1-based index).
+- Cross-check against [Hamlib `kenwood.c`](https://github.com/Hamlib/Hamlib/blob/master/rigs/kenwood/kenwood.c) and [`ts2000.txt`](https://github.com/Hamlib/Hamlib/blob/master/rigs/kenwood/ts2000.txt).
+
+### Hardware checklist (TS-2000)
+
+- PC CAT port **57600 8N1** (matches Settings default).
+- Press **SATL** before a pass; disable **TRACE**.
+- On a real pass: RX/TX doppler on `FA`/`FB`, uplink CTCSS on Sub.
+
 ## Step-by-step: add a new rig type
 
 ### 1. Add `RigType` enum value
