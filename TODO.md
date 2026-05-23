@@ -6,6 +6,8 @@ Tracked ideas and deferred work. Not a commitment order; items may be split or d
 
 - [ ] In Settings the button labels arent centered
 - [ ] Theres still some banding issues with the Footprints at the poles
+- [ ] if rotator is parked it should say "Parked" rather than Park
+- [ ] function to move rotator wherever you want quick
 
 ---
 
@@ -53,7 +55,7 @@ See [building radio drivers](documents/building-radio-drivers.md) for adding rig
 
 ### Additional rig drivers
 
-- [ ] **ICOM IC-9100** — CI-V; confirm satellite mode, Main/Sub, tones, default CI-V address vs IC-910H.
+- [x] **ICOM IC-9100** — CI-V; same satellite/Main/Sub/tone path as IC-9700 (`16 5A` sat mode, default CI-V `7C`). **Beta** — verify on hardware.
 - [ ] **Yaesu FT-817** — map single-VFO or A/B to `RigController` Main/Sub model.
 
 **Per driver:** protocol client, `IRigDriver` + `RigType` + Settings list, pass init (SAT/split/VFO/mode/CTCSS), `RigController` hooks, tests + hardware smoke test.

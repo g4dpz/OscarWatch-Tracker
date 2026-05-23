@@ -4,6 +4,7 @@ public enum RigType
 {
     None,
     IcomIc910,
+    IcomIc9100,
     IcomIc9700,
     YaesuFt847,
     KenwoodTs2000,

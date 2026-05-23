@@ -47,6 +47,7 @@ OscarWatch talks to rigs and rotators over **serial CAT** (COM port on Windows, 
 | Radio | Protocol | Notes |
 |-------|----------|--------|
 | **ICOM IC-910** | CI-V | Satellite mode, Main/Sub VFOs, Sub uplink CTCSS |
+| **ICOM IC-9100** | CI-V | **Beta** — same CI-V layout as IC-9700; default CI-V address `7C` |
 | **ICOM IC-9700** | CI-V | Same layout as IC-910 |
 | **Yaesu FT-847** | Yaesu CAT | **Beta** — SAT RX/TX VFOs; verify on your hardware |
 | **Kenwood TS-2000** | Kenwood ASCII CAT | **Beta** — cross-band SATL; enable SATL and turn TRACE off on the radio |

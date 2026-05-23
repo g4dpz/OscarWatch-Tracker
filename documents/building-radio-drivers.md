@@ -72,6 +72,7 @@ Per-radio subclasses only override what differs, usually **`SetSatelliteMode`**:
 | Class | `RigType` | Satellite mode CI-V |
 |-------|-----------|---------------------|
 | [`IcomIc910Driver`](../OscarWatch/Rig/IcomIc910Driver.cs) | `IcomIc910` | `1A 07 01` / `00` |
+| [`IcomIc9100Driver`](../OscarWatch/Rig/IcomIc9100Driver.cs) | `IcomIc9100` | `16 5A 01` / `00` (same as IC-9700) |
 | [`IcomIc9700Driver`](../OscarWatch/Rig/IcomIc9700Driver.cs) | `IcomIc9700` | `16 5A 01` / `00` |
 
 Example new Icom model:
@@ -140,7 +141,7 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 - Cross-band **SATL** on the radio before tracking (`SA` query warns if off); **TRACE off** so PC Doppler is not overridden.
 - `Main`/`Sub` → **`FA`/`FB`**; no `FR` while satellite layout is active.
 - `SupportsVfoExchange` is **false** — use panel A/B or TF-SET.
-- CTCSS: `CN` + `CT` (Hamlib `ts2000_ctcss_list`, 1-based index).
+- CTCSS encode: `TN` + `TO`; TSQL squelch: `CN` + `CT` (Hamlib `ts2000_ctcss_list`, 1-based index). In SATL, `DC01`/`DC00` select Sub/Main CTRL before tone commands.
 - Cross-check against [Hamlib `kenwood.c`](https://github.com/Hamlib/Hamlib/blob/master/rigs/kenwood/kenwood.c) and [`ts2000.txt`](https://github.com/Hamlib/Hamlib/blob/master/rigs/kenwood/ts2000.txt).
 
 ### Hardware checklist (TS-2000)

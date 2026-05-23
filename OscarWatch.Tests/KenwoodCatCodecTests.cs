@@ -40,6 +40,7 @@ public sealed class KenwoodCatCodecTests
         Assert.True(KenwoodCatCodec.TryGetCtcssIndex(67.0, out var index));
         Assert.Equal(1, index);
         Assert.Equal("CN01;", KenwoodCatCodec.BuildCtcssFrequencyCommand(index));
+        Assert.Equal("TN01;", KenwoodCatCodec.BuildToneFrequencyCommand(index));
     }
 
 }

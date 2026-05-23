@@ -41,11 +41,18 @@ public static class KenwoodCatCodec
 
     public static string BuildSelectVfoCommand(bool vfoB) => vfoB ? "FR1;" : "FR0;";
 
+    /// <summary>CTCSS squelch (TSQL) tone frequency — Hamlib set_ctcss_sql.</summary>
     public static string BuildCtcssFrequencyCommand(int oneBasedIndex) =>
         $"CN{oneBasedIndex:D2};";
 
+    /// <summary>CTCSS encode tone frequency — Hamlib set_ctcss_tone (TN).</summary>
+    public static string BuildToneFrequencyCommand(int oneBasedIndex) =>
+        $"TN{oneBasedIndex:D2};";
+
+    /// <summary>CTCSS squelch (TSQL) on/off — Hamlib RIG_FUNC_TSQL.</summary>
     public static string BuildCtcssEnableCommand(bool on) => on ? "CT1;" : "CT0;";
 
+    /// <summary>CTCSS encode on/off — Hamlib RIG_FUNC_TONE.</summary>
     public static string BuildToneEnableCommand(bool on) => on ? "TO1;" : "TO0;";
 
     public static string BuildControlMainCommand() => "DC00;";

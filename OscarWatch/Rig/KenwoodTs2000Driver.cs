@@ -99,13 +99,8 @@ public sealed class KenwoodTs2000Driver : IRigDriver
             return;
         }
 
-        if (_satelliteMode)
-            SelectControlForCurrentVfo();
-
-        _transport.SendCommand(KenwoodCatCodec.BuildSetModeCommand(modeCode), _catDelayMs);
-
-        if (_satelliteMode)
-            _transport.SendCommand(KenwoodCatCodec.BuildControlMainCommand(), _catDelayMs);
+        WithControlForCurrentVfo(() =>
+            _transport.SendCommand(KenwoodCatCodec.BuildSetModeCommand(modeCode), _catDelayMs));
     }
 
     public void SetSplitOn(bool on)
@@ -157,7 +152,11 @@ public sealed class KenwoodTs2000Driver : IRigDriver
             return;
         }
 
-        _transport.SendCommand(KenwoodCatCodec.BuildCtcssFrequencyCommand(index), _catDelayMs);
+        var cmd = squelchTone
+            ? KenwoodCatCodec.BuildCtcssFrequencyCommand(index)
+            : KenwoodCatCodec.BuildToneFrequencyCommand(index);
+
+        WithControlForCurrentVfo(() => _transport.SendCommand(cmd, _catDelayMs));
     }
 
     public void Dispose() => _transport.Dispose();
@@ -167,16 +166,25 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         if (!_transport.IsOpen)
             return;
 
-        if (squelchTone)
-        {
-            _transport.SendCommand(KenwoodCatCodec.BuildCtcssEnableCommand(on), _catDelayMs);
-            return;
-        }
+        var cmd = squelchTone
+            ? KenwoodCatCodec.BuildCtcssEnableCommand(on)
+            : KenwoodCatCodec.BuildToneEnableCommand(on);
 
-        // USA uplink path: CTCSS encode (CT); tone burst uses TO.
-        _transport.SendCommand(KenwoodCatCodec.BuildCtcssEnableCommand(on), _catDelayMs);
-        if (!on)
-            _transport.SendCommand(KenwoodCatCodec.BuildToneEnableCommand(false), _catDelayMs);
+        WithControlForCurrentVfo(() => _transport.SendCommand(cmd, _catDelayMs));
+    }
+
+    /// <summary>
+    /// Tone/CTCSS CAT applies to the CTRL receiver; in SATL select Main/Sub via DC before MD/TN/CN/TO/CT.
+    /// </summary>
+    private void WithControlForCurrentVfo(Action action)
+    {
+        if (_satelliteMode)
+            SelectControlForCurrentVfo();
+
+        action();
+
+        if (_satelliteMode)
+            _transport.SendCommand(KenwoodCatCodec.BuildControlMainCommand(), _catDelayMs);
     }
 
     private void SelectControlForCurrentVfo()

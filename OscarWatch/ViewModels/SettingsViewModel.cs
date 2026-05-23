@@ -183,6 +183,7 @@ public partial class SettingsViewModel : ViewModelBase
     public IReadOnlyList<RigTypeOption> RigTypeChoices { get; } =
     [
         new(RigType.IcomIc910, "ICOM IC-910"),
+        new(RigType.IcomIc9100, "ICOM IC-9100"),
         new(RigType.IcomIc9700, "ICOM IC-9700"),
         new(RigType.YaesuFt847, "Yaesu FT-847"),
         new(RigType.KenwoodTs2000, "Kenwood TS-2000"),
@@ -190,7 +191,7 @@ public partial class SettingsViewModel : ViewModelBase
     ];
 
     public bool ShowRigCivAddress =>
-        SelectedRigTypeChoice?.Value is RigType.IcomIc910 or RigType.IcomIc9700;
+        SelectedRigTypeChoice?.Value is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700;
 
     public bool ShowRigFt847CatHint =>
         SelectedRigTypeChoice?.Value == RigType.YaesuFt847;
@@ -437,7 +438,7 @@ public partial class SettingsViewModel : ViewModelBase
         if (value.Value is RigType.YaesuFt847 or RigType.KenwoodTs2000)
             RigBaudRate = 57600;
 
-        if (value.Value is not (RigType.IcomIc910 or RigType.IcomIc9700))
+        if (value.Value is not (RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700))
             return;
 
         var suggested = RigSettings.DefaultCivAddressFor(value.Value);

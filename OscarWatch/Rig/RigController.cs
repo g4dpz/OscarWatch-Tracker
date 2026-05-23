@@ -779,7 +779,7 @@ public sealed class RigController : IRigController, IDisposable
 
     private static RigVfo UplinkVfoForCtcss(RigSettings settings, RigTrackingContext context)
     {
-        if (settings.Type is RigType.IcomIc910 or RigType.IcomIc9700 or RigType.YaesuFt847 or RigType.KenwoodTs2000)
+        if (settings.Type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700 or RigType.YaesuFt847 or RigType.KenwoodTs2000)
             return RigVfo.Sub;
 
         return RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz)

@@ -52,14 +52,83 @@ public sealed class KenwoodTs2000DriverTests
     }
 
     [Fact]
-    public void SetToneHz_sends_CN_command()
+    public void SetToneHz_encode_sends_TN_command()
     {
         var transport = new RecordingKenwoodCatTransport();
         var driver = new KenwoodTs2000Driver(transport);
         driver.Open();
         driver.SetToneHz(67.0, squelchTone: false);
 
+        Assert.Contains("TN01;", transport.SentCommands);
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("CN", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void SetToneHz_squelch_sends_CN_command()
+    {
+        var transport = new RecordingKenwoodCatTransport();
+        var driver = new KenwoodTs2000Driver(transport);
+        driver.Open();
+        driver.SetToneHz(67.0, squelchTone: true);
+
         Assert.Contains("CN01;", transport.SentCommands);
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("TN", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void SetToneOn_sends_TO_command()
+    {
+        var transport = new RecordingKenwoodCatTransport();
+        var driver = new KenwoodTs2000Driver(transport);
+        driver.Open();
+        driver.SetToneOn(true);
+
+        Assert.Contains("TO1;", transport.SentCommands);
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("CT", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void SetToneSquelchOn_sends_CT_command()
+    {
+        var transport = new RecordingKenwoodCatTransport();
+        var driver = new KenwoodTs2000Driver(transport);
+        driver.Open();
+        driver.SetToneSquelchOn(true);
+
+        Assert.Contains("CT1;", transport.SentCommands);
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("TO", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void SetMode_on_sub_in_satellite_mode_selects_sub_control()
+    {
+        var transport = new RecordingKenwoodCatTransport();
+        var driver = new KenwoodTs2000Driver(transport);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        driver.SelectVfo(RigVfo.Sub);
+        driver.SetMode("FM");
+
+        var mdIndex = transport.SentCommands.IndexOf("MD4;");
+        Assert.True(mdIndex >= 0);
+        Assert.Equal("DC01;", transport.SentCommands[mdIndex - 1]);
+        Assert.Equal("DC00;", transport.SentCommands[mdIndex + 1]);
+    }
+
+    [Fact]
+    public void SetToneHz_on_sub_in_satellite_mode_selects_sub_control()
+    {
+        var transport = new RecordingKenwoodCatTransport();
+        var driver = new KenwoodTs2000Driver(transport);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        driver.SelectVfo(RigVfo.Sub);
+        driver.SetToneHz(67.0, squelchTone: false);
+
+        var tnIndex = transport.SentCommands.IndexOf("TN01;");
+        Assert.True(tnIndex >= 0);
+        Assert.Equal("DC01;", transport.SentCommands[tnIndex - 1]);
+        Assert.Equal("DC00;", transport.SentCommands[tnIndex + 1]);
     }
 
     [Fact]

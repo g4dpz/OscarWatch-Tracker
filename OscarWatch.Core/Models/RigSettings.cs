@@ -24,10 +24,11 @@ public sealed class RigSettings
     /// <summary>When true, automatic CAT frequency updates are suspended (SatPC32-style).</summary>
     public bool CatUpdatesPaused { get; set; }
 
-    /// <summary>Factory CI-V address defaults (9700=A2, 910=7C). User may still use 60.</summary>
+    /// <summary>Factory CI-V address defaults (9700=A2, 9100/910=7C). User may still use 60.</summary>
     public static string DefaultCivAddressFor(RigType type) => type switch
     {
         RigType.IcomIc9700 => "A2",
+        RigType.IcomIc9100 => "7C",
         RigType.IcomIc910 => "7C",
         _ => "60"
     };
