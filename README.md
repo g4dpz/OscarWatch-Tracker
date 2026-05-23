@@ -33,8 +33,39 @@ dotnet run -c Release --project OscarWatch/OscarWatch.csproj
 - **Voice announcements** — optional spoken “rising” alerts when a satellite crosses a configurable elevation while ascending (e.g. “Alpha Oscar Zero Seven is rising”); Settings → Voice
 - **Doppler frequencies** — draggable overlay on the world map with transponder modes from the satellite database, live radio/sat uplink & downlink, TX/RX offsets, and CTCSS (access/arm)
 - **Transponder database editor** — Satellites → Manage transponder database… (add/edit satellites and modes; saved under `%AppData%/OscarWatch/satellite_database.json`)
-- **Radio CAT** — ICOM IC-910 / IC-9700 via CI-V; Yaesu FT-847 via CAT (beta, SAT RX/TX); doppler tracking, satellite mode, Main/Sub VFOs, Sub uplink CTCSS; Settings → Radio
+- **Radio CAT** — doppler tracking, satellite/split setup, Main/Sub VFOs, uplink CTCSS where supported; Settings → Radio (see [Supported hardware](#supported-hardware))
+- **Rotator control** — serial pass tracking and manual park; Settings → Rotator (see [Supported hardware](#supported-hardware))
+- **Cloudlog** — optional Radio API v2 uplink/downlink when tracking (Settings → Cloudlog)
 - **Appearance** — light, dark, or system theme (sky plot adapts; world map image stays light)
+
+## Supported hardware
+
+OscarWatch talks to rigs and rotators over **serial CAT** (COM port on Windows, device path on Linux/macOS). Rig and rotator must use **different** ports.
+
+### Radios
+
+| Radio | Protocol | Notes |
+|-------|----------|--------|
+| **ICOM IC-910** | CI-V | Satellite mode, Main/Sub VFOs, Sub uplink CTCSS |
+| **ICOM IC-9700** | CI-V | Same layout as IC-910 |
+| **Yaesu FT-847** | Yaesu CAT | **Beta** — SAT RX/TX VFOs; verify on your hardware |
+| **Kenwood TS-2000** | Kenwood ASCII CAT | **Beta** — cross-band SATL; enable SATL and turn TRACE off on the radio |
+| **Dummy rig** | — | No serial I/O; for UI and doppler testing without a radio |
+
+All tracked rigs: linear NOR/REV doppler, interactive Main VFO tuning, TX/RX offset spinners, configurable CAT thresholds and pause.
+
+More rigs: see [TODO.md](TODO.md) and [building radio drivers](documents/building-radio-drivers.md).
+
+### Rotators
+
+| Controller | Protocol | Notes |
+|------------|----------|--------|
+| **Yaesu GS-232** | GS-232 | Yaesu rotators and many GS-232 clones |
+| **EasyComm** | EasyComm II | SPID, M2, and other EasyComm-compatible controllers |
+
+Pass tracking when elevation is above the track-start threshold; manual **Park**; azimuth range **360°** or **450°** (e.g. G-5500). On **450°** rotators, optional **smart azimuth** chooses 361–450° commands for the shortest path across north (Settings → Rotator).
+
+More controllers: [building rotator drivers](documents/building-rotator-drivers.md).
 
 ## Settings
 
@@ -46,9 +77,9 @@ Open **Settings** from the menu. Tabs:
 | **Tracking** | Minimum pass elevation, prediction window, TLE auto-update mode |
 | **Appearance** | Light / dark / system theme |
 | **Voice** | Enable announcements, trigger elevation (default −3°), voice selection, test button |
-| **Rotator** | GS-232 serial rotator (manual + pass tracking) |
-| **Radio** | IC-910 / IC-9700 CI-V (COM port, region, doppler thresholds, pause CAT) |
-| **Cloudlog** | Radio API URL, API key, radio name (default OscarWatch); posts SAT uplink/downlink when tracking |
+| **Rotator** | Type (GS-232 / EasyComm), COM port, 360°/450° azimuth, smart 450°, park, track-start elevation |
+| **Radio** | Rig type, COM port, region (Icom), CI-V address, doppler thresholds, pause CAT |
+| **Cloudlog** | Base URL, API key, radio name, test connection; posts SAT uplink/downlink when tracking |
 
 Settings are stored in `%AppData%/OscarWatch/settings.json`.
 
@@ -70,6 +101,7 @@ If TTS is unavailable, the Voice tab shows a notice and announcements are skippe
 |------|------|
 | Settings | `%AppData%/OscarWatch/settings.json` |
 | TLE cache | `%AppData%/OscarWatch/tle-cache.txt` |
+| Transponder DB (user) | `%AppData%/OscarWatch/satellite_database.json` |
 | Logs | `%AppData%/OscarWatch/logs/` (daily rolling `oscarwatch-YYYYMMDD.log`, 14 days retained) |
 
 Open the log folder from **Help → Open logs folder**. Unhandled crashes and rig/rotator/CAT errors are written here (not API keys).
