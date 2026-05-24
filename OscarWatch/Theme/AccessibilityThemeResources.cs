@@ -15,6 +15,8 @@ public static class AccessibilityThemeResources
     public const string PassImminentBackgroundKey = "PassImminentBackgroundBrush";
     public const string PassImminentBadgeBackgroundKey = "PassImminentBadgeBackgroundBrush";
     public const string PassImminentBadgeForegroundKey = "PassImminentBadgeForegroundBrush";
+    public const string PassInProgressBadgeBackgroundKey = "PassInProgressBadgeBackgroundBrush";
+    public const string PassInProgressBadgeForegroundKey = "PassInProgressBadgeForegroundBrush";
     public const string StaleTleKey = "StaleTleForegroundBrush";
     public const string SunlightStatusKey = "SunlightStatusBrush";
     public const string EclipseStatusKey = "EclipseStatusBrush";
@@ -46,6 +48,9 @@ public static class AccessibilityThemeResources
             isDark ? Color.Parse("#C47A1A") : Color.Parse("#E89B1E"));
         resources[PassImminentBadgeForegroundKey] = new SolidColorBrush(
             isDark ? Colors.White : Color.Parse("#1A1A1A"));
+        resources[PassInProgressBadgeBackgroundKey] = new SolidColorBrush(
+            isDark ? Color.Parse("#3D8B2E") : Color.Parse("#2B6E1F"));
+        resources[PassInProgressBadgeForegroundKey] = new SolidColorBrush(Colors.White);
         resources[StaleTleKey] = new SolidColorBrush(
             isDark ? Color.Parse("#FFB347") : Color.Parse("#B45309"));
         resources[SunlightStatusKey] = new SolidColorBrush(

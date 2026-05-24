@@ -340,7 +340,7 @@
                                      FontSize="14"
                                      FontWeight="SemiBold"
                                      FontFamily="Consolas,Courier New,monospace"
-                                     Foreground="{DynamicResource PassImminentBadgeForegroundBrush}" />
+                                     Foreground="{Binding Highlight, Converter={x:Static theme:PassRowBadgeForegroundConverter.Instance}}" />
                         </Border>
                         <TextBlock Text="{Binding SatelliteName}"
                                    FontWeight="SemiBold"

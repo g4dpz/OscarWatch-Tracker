@@ -7,16 +7,16 @@ using OscarWatch.ViewModels;
 
 namespace OscarWatch.Theme;
 
-public sealed class PassRowBadgeBackgroundConverter : IValueConverter
+public sealed class PassRowBadgeForegroundConverter : IValueConverter
 {
-    public static readonly PassRowBadgeBackgroundConverter Instance = new();
+    public static readonly PassRowBadgeForegroundConverter Instance = new();
 
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         var key = value switch
         {
-            PassRowHighlight.Imminent => AccessibilityThemeResources.PassImminentBadgeBackgroundKey,
-            PassRowHighlight.InProgress => AccessibilityThemeResources.PassInProgressBadgeBackgroundKey,
+            PassRowHighlight.Imminent => AccessibilityThemeResources.PassImminentBadgeForegroundKey,
+            PassRowHighlight.InProgress => AccessibilityThemeResources.PassInProgressBadgeForegroundKey,
             _ => null
         };
 

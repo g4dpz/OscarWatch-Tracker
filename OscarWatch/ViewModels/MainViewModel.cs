@@ -890,20 +890,32 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
         if (Highlight != next)
             Highlight = next;
 
-        if (next == PassRowHighlight.Imminent)
+        switch (next)
         {
-            var countdown = PassDisplayFormat.FormatCountdownToAos(utcNow, AosUtc);
-            if (BadgeText != countdown)
-                BadgeText = countdown;
-            if (!ShowBadge)
-                ShowBadge = true;
-        }
-        else
-        {
-            if (ShowBadge)
-                ShowBadge = false;
-            if (BadgeText.Length > 0)
-                BadgeText = "";
+            case PassRowHighlight.Imminent:
+            {
+                var countdown = PassDisplayFormat.FormatCountdownToAos(utcNow, AosUtc);
+                if (BadgeText != countdown)
+                    BadgeText = countdown;
+                if (!ShowBadge)
+                    ShowBadge = true;
+                break;
+            }
+            case PassRowHighlight.InProgress:
+            {
+                const string passingLabel = "Passing";
+                if (BadgeText != passingLabel)
+                    BadgeText = passingLabel;
+                if (!ShowBadge)
+                    ShowBadge = true;
+                break;
+            }
+            default:
+                if (ShowBadge)
+                    ShowBadge = false;
+                if (BadgeText.Length > 0)
+                    BadgeText = "";
+                break;
         }
     }
 
