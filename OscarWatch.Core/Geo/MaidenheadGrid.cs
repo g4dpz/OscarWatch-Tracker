@@ -13,7 +13,7 @@ public static class MaidenheadGrid
         var field1 = (char)('A' + (int)(lon / 20));
         var field2 = (char)('A' + (int)(lat / 10));
         var square1 = (char)('0' + (int)((lon % 20) / 2));
-        var square2 = (char)('0' + (int)((lat % 10) / 1));
+        var square2 = (char)('0' + (int)(lat % 10));
 
         var result = $"{field1}{field2}{square1}{square2}";
         if (length <= 4)
@@ -31,27 +31,34 @@ public static class MaidenheadGrid
         return result + $"{extra1}{extra2}";
     }
 
+    /// <summary>
+    /// Centre of the grid square. 4- and 6-character decoding follows
+    /// <see href="https://github.com/magicbug/Cloudlog/blob/master/assets/js/HamGridSquare.js"/>.
+    /// </summary>
     public static (double LatitudeDeg, double LongitudeDeg) ToLatLonCenter(string gridSquare)
     {
         if (string.IsNullOrWhiteSpace(gridSquare) || gridSquare.Length < 4)
             throw new ArgumentException("Grid square must be at least 4 characters.", nameof(gridSquare));
 
         var g = gridSquare.Trim().ToUpperInvariant();
-        var lon = (g[0] - 'A') * 20.0 - 180.0;
-        var lat = (g[1] - 'A') * 10.0 - 90.0;
-        lon += (g[2] - '0') * 2.0 + 1.0;
-        lat += (g[3] - '0') * 1.0 + 0.5;
+        var lat = (g[1] - 'A') * 10.0 + (g[3] - '0') - 90.0;
+        var lon = (g[0] - 'A') * 20.0 + (g[2] - '0') * 2.0 - 180.0;
 
         if (g.Length >= 6)
         {
-            lon += ((g[4] | 0x20) - 'a') * (2.0 / 24) + (1.0 / 24);
-            lat += ((g[5] | 0x20) - 'a') * (1.0 / 24) + (0.5 / 24);
+            lon += (1.0 / 60.0) * 5.0 * (((g[4] | 0x20) - 'a') + 0.5);
+            lat += (1.0 / 60.0) * 2.5 * (((g[5] | 0x20) - 'a') + 0.5);
+        }
+        else
+        {
+            lon += 1.0;
+            lat += 0.5;
         }
 
         if (g.Length >= 8)
         {
-            lon += (g[6] - '0') * (2.0 / 240) + (1.0 / 240);
-            lat += (g[7] - '0') * (1.0 / 240) + (0.5 / 240);
+            lon += (1.0 / 60.0) * 0.5 * (g[6] - '0' + 0.5);
+            lat += (1.0 / 60.0) * 0.25 * (g[7] - '0' + 0.5);
         }
 
         return (lat, lon);
