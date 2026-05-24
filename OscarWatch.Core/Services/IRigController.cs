@@ -7,7 +7,7 @@ public interface IRigController
     RigConnectionStatus GetStatus();
 
     /// <summary>Enqueue latest pass/settings for the dedicated rig thread (~1–4 Hz from UI).</summary>
-    /// <param name="reinitializePass">When true and the pass key is unchanged, re-run SAT mode / frequency setup (e.g. user re-selected a satellite).</param>
+    /// <param name="reinitializePass">When true and the pass key is unchanged, re-run SAT mode / frequency setup (e.g. user re-selected a satellite). When false, offset-only updates force an immediate doppler write.</param>
     void PublishContext(RigSettings settings, RigTrackingContext? context, bool reinitializePass = false);
 
     /// <summary>Synchronous publish + doppler tick on the rig thread (unit tests).</summary>

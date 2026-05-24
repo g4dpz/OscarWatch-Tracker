@@ -193,6 +193,8 @@ public sealed class RigController : IRigController, IDisposable
                     _cachedSettings = command.Settings;
                     _cachedContext = command.Context;
                     ApplyPublishState(_cachedSettings, _cachedContext, command.ReinitializePass);
+                    if (!command.ReinitializePass && _forceFrequencyApply)
+                        RunLoopIteration(ignoreDopplerSuspend: true);
                     break;
 
                 case RigCommandKind.UpdateSynchronously:

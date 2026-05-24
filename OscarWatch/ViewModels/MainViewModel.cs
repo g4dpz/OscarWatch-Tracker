@@ -164,7 +164,7 @@ public partial class MainViewModel : ViewModelBase
         _rig = rig;
         _cloudlog = cloudlog;
         Frequencies = frequencies;
-        Frequencies.OffsetsChanged += (_, _) => RefreshRigFromOverlay();
+        Frequencies.OffsetsChanged += (_, reinitializePass) => RefreshRigFromOverlay(reinitializePass);
         Frequencies.CtcssChanged += (_, _) => OnCtcssSelectorChanged();
 
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };

@@ -250,7 +250,8 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     public event EventHandler? OverlayLayoutChanged;
 
     /// <summary>TX/RX micro-adjust offsets changed — rig should refresh CAT promptly.</summary>
-    public event EventHandler? OffsetsChanged;
+    /// <remarks>Event arg is <c>true</c> when transponder mode changed (full pass re-init); <c>false</c> for RX offset edits only.</remarks>
+    public event EventHandler<bool>? OffsetsChanged;
 
     public event EventHandler? CtcssChanged;
 
@@ -274,7 +275,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         if (value is not null)
             PersistSelection();
 
-        OffsetsChanged?.Invoke(this, EventArgs.Empty);
+        OffsetsChanged?.Invoke(this, true);
         RequestOverlayReclamp();
         StoreOffsetCommand.NotifyCanExecuteChanged();
     }
@@ -291,7 +292,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     public void ApplyOffsetEdit()
     {
         RefreshFrequencyDisplay();
-        OffsetsChanged?.Invoke(this, EventArgs.Empty);
+        OffsetsChanged?.Invoke(this, false);
     }
 
     /// <summary>Receive offset nudge in Hz (applied to downlink nominal before doppler).</summary>

@@ -459,6 +459,59 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Offset_publish_without_reinit_skips_pass_init_and_applies_frequency()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_850.45,
+            UplinkKHz = 145_952.65,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "FO-29",
+            NoradId = "24278",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        RigTrackingContext Build(double rxOffset) =>
+            new()
+            {
+                TrackState = state,
+                Mode = mode,
+                Corrected = DopplerFrequencyCalculator.Compute(mode, 0, rxOffset),
+                TransmitOffsetKHz = 0,
+                ReceiveOffsetKHz = rxOffset
+            };
+
+        controller.Update(settings, Build(0));
+        controller.DrainCommandQueueForTests();
+        var baselineMain = rig.MainHz;
+        var satModeCalls = rig.SetSatelliteModeCallCount;
+        Assert.True(baselineMain > 0);
+
+        controller.PublishContext(settings, Build(4.024), reinitializePass: false);
+        controller.DrainCommandQueueForTests();
+
+        Assert.Equal(satModeCalls, rig.SetSatelliteModeCallCount);
+        Assert.Equal(baselineMain + 4_024, rig.MainHz);
+    }
+
+    [Fact]
     public void Ctcss_tone_change_commands_uplink_sub_vfo()
     {
         var rig = new RecordingRigDriver();
