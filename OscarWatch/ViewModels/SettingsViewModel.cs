@@ -304,7 +304,7 @@ public partial class SettingsViewModel : ViewModelBase
             LatitudeDeg = LatitudeDeg,
             LongitudeDeg = LongitudeDeg,
             AltitudeMetersAsl = AltitudeMeters,
-            GridSquare = GridSquare.Trim()
+            GridSquare = NormalizeGridSquare(GridSquare)
         };
         _settings.Current.MinimumElevationDeg = MinimumElevationDeg;
         _settings.Current.PassPredictionHours = PassPredictionHours;
@@ -388,7 +388,7 @@ public partial class SettingsViewModel : ViewModelBase
             LatitudeDeg = _draft.LatitudeDeg;
             LongitudeDeg = _draft.LongitudeDeg;
             AltitudeMeters = _draft.AltitudeMetersAsl;
-            GridSquare = _draft.GridSquare;
+            GridSquare = NormalizeGridSquare(_draft.GridSquare);
             MinimumElevationDeg = _settings.Current.MinimumElevationDeg;
             PassPredictionHours = _settings.Current.PassPredictionHours;
             ThemePreference = _settings.Current.Theme;
@@ -603,14 +603,17 @@ public partial class SettingsViewModel : ViewModelBase
         target.LatitudeDeg = source.LatitudeDeg;
         target.LongitudeDeg = source.LongitudeDeg;
         target.AltitudeMetersAsl = source.AltitudeMetersAsl;
-        target.GridSquare = source.GridSquare;
+        target.GridSquare = NormalizeGridSquare(source.GridSquare);
     }
+
+    private static string NormalizeGridSquare(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "" : value.Trim().ToUpperInvariant();
 
     private void SyncGridFromDraftLatLon()
     {
         _draft.LatitudeDeg = LatitudeDeg;
         _draft.LongitudeDeg = LongitudeDeg;
-        _draft.GridSquare = MaidenheadGrid.FromLatLon(LatitudeDeg, LongitudeDeg);
+        _draft.GridSquare = NormalizeGridSquare(MaidenheadGrid.FromLatLon(LatitudeDeg, LongitudeDeg));
         var updated = _draft.GridSquare;
         if (!string.Equals(GridSquare, updated, StringComparison.Ordinal))
             GridSquare = updated;
@@ -658,13 +661,32 @@ public partial class SettingsViewModel : ViewModelBase
 
     partial void OnGridSquareChanged(string value)
     {
-        if (_isSynchronizing || string.IsNullOrWhiteSpace(value) || value.Length < 4)
+        if (_isSynchronizing)
+            return;
+
+        var normalized = NormalizeGridSquare(value);
+        if (!string.Equals(value, normalized, StringComparison.Ordinal))
+        {
+            _isSynchronizing = true;
+            try
+            {
+                GridSquare = normalized;
+            }
+            finally
+            {
+                _isSynchronizing = false;
+            }
+
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(normalized) || normalized.Length < 4)
             return;
 
         _isSynchronizing = true;
         try
         {
-            _draft.GridSquare = value.Trim();
+            _draft.GridSquare = normalized;
             var (lat, lon) = MaidenheadGrid.ToLatLonCenter(_draft.GridSquare);
             _draft.LatitudeDeg = lat;
             _draft.LongitudeDeg = lon;
