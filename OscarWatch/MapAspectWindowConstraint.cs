@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Threading;
 
 namespace OscarWatch;
 
@@ -23,13 +24,26 @@ internal sealed class MapAspectWindowConstraint
     private double _frameHeight;
     private bool _adjusting;
     private bool _tracking;
+    private bool _chromeAspectApplied;
 
     public MapAspectWindowConstraint(Window window)
     {
         _window = window;
         _window.Opened += OnOpened;
         _window.Resized += OnResized;
+        _window.PropertyChanged += OnWindowPropertyChanged;
         _window.Closed += (_, _) => _tracking = false;
+    }
+
+    private void OnWindowPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (!_tracking || _adjusting || e.Property != Window.WindowStateProperty)
+            return;
+
+        // Maximize/restore changes client area before chrome metrics settle; re-apply after layout.
+        Dispatcher.UIThread.Post(
+            () => EnforceAspect(widthDriven: null),
+            DispatcherPriority.Loaded);
     }
 
     private void OnOpened(object? sender, EventArgs e)
@@ -50,7 +64,22 @@ internal sealed class MapAspectWindowConstraint
         _frameHeight = Math.Max(0, _window.Height - _window.ClientSize.Height);
     }
 
-    private void OnLayoutUpdated(object? sender, EventArgs e) => RefreshChrome();
+    private void OnLayoutUpdated(object? sender, EventArgs e)
+    {
+        if (_chromeAspectApplied || !_tracking || _adjusting)
+            return;
+
+        var previousChrome = _verticalChrome;
+        RefreshChrome();
+
+        // Menu/status bar heights are often 0 on first layout; re-enforce once when chrome is real.
+        if (previousChrome <= DefaultVerticalChrome + 0.5
+            && _verticalChrome > DefaultVerticalChrome + 0.5)
+        {
+            _chromeAspectApplied = true;
+            EnforceAspect(widthDriven: null);
+        }
+    }
 
     private void OnResized(object? sender, WindowResizedEventArgs e)
     {

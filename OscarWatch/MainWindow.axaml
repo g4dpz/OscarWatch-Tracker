@@ -45,22 +45,26 @@
     </Border>
 
     <Grid ColumnDefinitions="*,320" ClipToBounds="False">
-      <Panel Grid.Column="0" ClipToBounds="False">
-        <ctrl:WorldMapControl TabIndex="1"
-                              ZIndex="0"
-                              HorizontalAlignment="Stretch"
-                              VerticalAlignment="Stretch"
-                              ClipToBounds="True"
-                              TrackStates="{Binding LiveStates}"
-                              GroundStation="{Binding GroundStation}"
-                              FocusedNoradId="{Binding FocusedNoradId, Mode=TwoWay}" />
+      <!-- Map and freq overlay are not siblings: the map repaints every second and was drawing over the overlay. -->
+      <Grid x:Name="MapColumn"
+            Grid.Column="0"
+            ClipToBounds="True">
+        <Grid x:Name="MapHost">
+          <ctrl:WorldMapControl TabIndex="1"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                ClipToBounds="True"
+                                TrackStates="{Binding LiveStates}"
+                                GroundStation="{Binding GroundStation}"
+                                FocusedNoradId="{Binding FocusedNoradId, Mode=TwoWay}" />
+        </Grid>
         <ctrl:FrequencyOverlayControl DataContext="{Binding Frequencies}"
-                                      ZIndex="10"
+                                      ZIndex="1"
                                       HorizontalAlignment="Left"
                                       VerticalAlignment="Top"
                                       Margin="{Binding OverlayMargin}"
                                       IsHitTestVisible="True" />
-      </Panel>
+      </Grid>
 
       <Border Grid.Column="1"
               BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"

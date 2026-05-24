@@ -70,6 +70,23 @@ public class FrequencyOverlayViewModelTests
     }
 
     [Fact]
+    public void EnsureOverlayWithinHost_clamps_position_using_measured_overlay_size()
+    {
+        var settings = new TestSettingsService();
+        settings.Current.FrequencyOverlayX = 500;
+        settings.Current.FrequencyOverlayY = 900;
+        var database = new TestSatelliteDatabaseService([]);
+        var vm = new FrequencyOverlayViewModel(settings, database);
+
+        vm.EnsureOverlayWithinHost(800, 600, 400, 300);
+
+        Assert.InRange(vm.OverlayX, 8, 800 - 400 - 8);
+        Assert.InRange(vm.OverlayY, 8, 600 - 300 - 8);
+        Assert.Equal(392, vm.OverlayX, precision: 0);
+        Assert.Equal(292, vm.OverlayY, precision: 0);
+    }
+
+    [Fact]
     public void Offset_adjustment_does_not_persist_until_store()
     {
         var settings = new TestSettingsService();
