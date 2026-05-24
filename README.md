@@ -111,14 +111,9 @@ Open the log folder from **Help → Open logs folder**. Unhandled crashes and ri
 
 ### GitHub Actions
 
-Two workflows — different jobs:
+[**Publish**](.github/workflows/publish.yml) runs on a version tag (`v*`) or a manual workflow dispatch. It builds and tests on Linux, then publishes installable packages per platform.
 
-| Workflow | When it runs | What you get |
-|----------|----------------|--------------|
-| [**CI**](.github/workflows/build.yml) | Every push / PR to `main` | Build + tests only (one Linux job, no downloads) |
-| [**Publish**](.github/workflows/publish.yml) | Manual run, or tag `v*` | Installable packages per platform |
-
-**Publish** artifacts:
+**Artifacts:**
 
 | Artifact | Runtime |
 |----------|---------|

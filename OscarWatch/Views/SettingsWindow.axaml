@@ -15,8 +15,13 @@
             BorderThickness="0,1,0,0"
             Padding="12,10">
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-        <Button Content="Cancel" Click="OnCancelClick" MinWidth="80" />
-        <Button Content="Save" Click="OnSaveClick" Classes="accent" MinWidth="80" IsDefault="True" />
+        <Button Content="Cancel"
+                Classes="dialog-footer"
+                Click="OnCancelClick" />
+        <Button Content="Save"
+                Classes="dialog-footer accent"
+                Click="OnSaveClick"
+                IsDefault="True" />
       </StackPanel>
     </Border>
 

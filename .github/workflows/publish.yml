@@ -1,5 +1,5 @@
-# Self-contained release packages (zip/tar.gz) per platform. Not run on every push.
-# Day-to-day compile/test: see build.yml (CI)
+# Build, test, and publish release packages on version tags (v*).
+# Manual run: Actions → Publish → Run workflow.
 
 name: Publish
 
@@ -17,8 +17,23 @@ env:
   PROJECT: OscarWatch/OscarWatch.csproj
 
 jobs:
+  validate:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - run: dotnet build OscarWatch.slnx -c Release
+
+      - run: dotnet test OscarWatch.slnx -c Release --no-build
+
   publish:
     name: ${{ matrix.display_name }}
+    needs: validate
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false

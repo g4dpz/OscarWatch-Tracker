@@ -89,6 +89,19 @@
               <Setter Property="FontWeight" Value="SemiBold" />
               <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
             </Style>
+            <Style Selector="Button.live-sidebar-action">
+              <Setter Property="MinHeight" Value="34" />
+              <Setter Property="MinWidth" Value="72" />
+              <Setter Property="Padding" Value="12,0" />
+              <Setter Property="FontSize" Value="13" />
+              <Setter Property="FontWeight" Value="SemiBold" />
+              <Setter Property="HorizontalContentAlignment" Value="Center" />
+              <Setter Property="VerticalContentAlignment" Value="Center" />
+            </Style>
+            <Style Selector="Button.live-sidebar-action /template/ ContentPresenter#PART_ContentPresenter">
+              <Setter Property="HorizontalContentAlignment" Value="Center" />
+              <Setter Property="VerticalContentAlignment" Value="Center" />
+            </Style>
           </Grid.Styles>
           <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
             <TextBlock Grid.Column="0"
@@ -97,12 +110,10 @@
                        FontSize="14"
                        VerticalAlignment="Center" />
             <Button Grid.Column="1"
+                    Classes="live-sidebar-action"
                     Content="{Binding StandbyButtonText}"
                     Command="{Binding ToggleStandbyCommand}"
-                    VerticalAlignment="Center"
-                    MinWidth="52"
-                    Padding="10,4"
-                    FontSize="12" />
+                    VerticalAlignment="Center" />
           </Grid>
           <StackPanel Grid.Row="1" Spacing="8" Margin="0,0,0,8">
             <TextBlock Text="Browsing only — rotator parked, CAT paused"
@@ -186,13 +197,11 @@
                   </Grid>
                 </StackPanel>
                 <Button Grid.Column="1"
+                        Classes="live-sidebar-action"
                         Content="Park"
                         Command="{Binding ParkRotatorCommand}"
                         VerticalAlignment="Top"
-                        Margin="8,0,0,0"
-                        MinWidth="52"
-                        Padding="10,4"
-                        FontSize="12" />
+                        Margin="8,0,0,0" />
               </Grid>
             </Border>
 

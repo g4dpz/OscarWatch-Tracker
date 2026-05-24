@@ -36,8 +36,8 @@
                  TextWrapping="Wrap"
                  Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-        <Button Content="Cancel" Click="OnCancelClick" />
-        <Button Content="Save" Click="OnSaveClick" Classes="accent" />
+        <Button Content="Cancel" Classes="dialog-footer" Click="OnCancelClick" />
+        <Button Content="Save" Classes="dialog-footer accent" Click="OnSaveClick" />
       </StackPanel>
     </StackPanel>
 

@@ -28,7 +28,7 @@
       </Grid>
     </StackPanel>
     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,8,0,0">
-      <Button Content="Cancel" Click="OnCancelClick" />
+      <Button Content="Cancel" Classes="dialog-footer" Click="OnCancelClick" />
       <Button Content="OK" Click="OnOkClick" Classes="accent" />
     </StackPanel>
     <ListBox ItemsSource="{Binding Satellites}" MinHeight="360">

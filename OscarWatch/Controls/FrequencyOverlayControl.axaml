@@ -13,33 +13,79 @@
     </Style>
     <Style Selector="NumericUpDown.offset-spin">
       <Setter Property="FontFamily" Value="Consolas,Courier New,monospace" />
-      <Setter Property="MinHeight" Value="36" />
+      <Setter Property="Height" Value="36" />
       <Setter Property="MinWidth" Value="140" />
       <Setter Property="FontSize" Value="15" />
+      <Setter Property="Padding" Value="8,0,0,0" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="NumericUpDown.offset-spin /template/ TextBox#PART_TextBox">
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="Height" Value="36" />
+      <Setter Property="Padding" Value="10,0,4,0" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="FontFamily" Value="Consolas,Courier New,monospace" />
+      <Setter Property="FontSize" Value="15" />
+      <Setter Property="LineHeight" Value="22" />
+      <Setter Property="TextAlignment" Value="Center" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="NumericUpDown.offset-spin /template/ TextBox#PART_TextBox /template/ ScrollViewer#PART_ScrollViewer">
+      <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
+      <Setter Property="HorizontalScrollBarVisibility" Value="Hidden" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
       <Setter Property="HorizontalAlignment" Value="Stretch" />
     </Style>
+    <Style Selector="NumericUpDown.offset-spin /template/ TextBox#PART_TextBox /template/ TextPresenter#PART_TextPresenter">
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="TextAlignment" Value="Center" />
+      <Setter Property="LineHeight" Value="22" />
+      <Setter Property="Margin" Value="0,2,0,0" />
+    </Style>
+    <Style Selector="NumericUpDown.offset-spin /template/ ButtonSpinner">
+      <Setter Property="VerticalAlignment" Value="Stretch" />
+      <Setter Property="Height" Value="36" />
+    </Style>
     <Style Selector="Button.offset-step">
-      <Setter Property="MinHeight" Value="32" />
+      <Setter Property="MinHeight" Value="36" />
       <Setter Property="MinWidth" Value="0" />
-      <Setter Property="Padding" Value="4,6" />
+      <Setter Property="Padding" Value="4,0" />
       <Setter Property="FontSize" Value="12" />
       <Setter Property="FontFamily" Value="Consolas,Courier New,monospace" />
       <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
       <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
       <Setter Property="Background" Value="#FF1E1E1E" />
       <Setter Property="BorderBrush" Value="#FF505050" />
       <Setter Property="Foreground" Value="#FFFFFFFF" />
     </Style>
+    <Style Selector="Button.offset-step /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
     <Style Selector="Button.store-offset">
       <Setter Property="MinHeight" Value="36" />
-      <Setter Property="Padding" Value="12,8" />
+      <Setter Property="Padding" Value="12,0" />
       <Setter Property="FontSize" Value="13" />
       <Setter Property="FontWeight" Value="SemiBold" />
       <Setter Property="HorizontalAlignment" Value="Stretch" />
       <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
       <Setter Property="Background" Value="#FF2A3A2A" />
       <Setter Property="BorderBrush" Value="#FF507050" />
       <Setter Property="Foreground" Value="#FFE0FFE0" />
+    </Style>
+    <Style Selector="Button.store-offset /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
   </UserControl.Styles>
 
@@ -220,6 +266,8 @@
                            Increment="0.025" FormatString="F3"
                            MaxWidth="220"
                            HorizontalAlignment="Left"
+                           VerticalContentAlignment="Center"
+                           HorizontalContentAlignment="Center"
                            ValueChanged="OnOffsetSpinValueChanged" />
             <UniformGrid Columns="6" Rows="1">
               <Button Classes="offset-step" Content="+1000" Tag="1000" Click="OnOffsetStepClick" />
