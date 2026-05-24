@@ -101,6 +101,6 @@ See [building rotator drivers](documents/building-rotator-drivers.md).
 
 ## Larger projects (lower priority)
 
-- [ ] Satellite pass audio recording.
+- [X] Satellite pass audio recording (WAV via PortAudio; Settings → Recording).
 - [ ] Windows installer / auto-update for releases.
 - [ ] Linux / macOS field testing — rig CAT, rotator serial, voice announcements.

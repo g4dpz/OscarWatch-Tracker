@@ -17,6 +17,7 @@ public sealed class PassRowBadgeBackgroundConverter : IValueConverter
         {
             PassRowHighlight.Imminent => AccessibilityThemeResources.PassImminentBadgeBackgroundKey,
             PassRowHighlight.InProgress => AccessibilityThemeResources.PassInProgressBadgeBackgroundKey,
+            PassRowHighlight.Recording => AccessibilityThemeResources.PassRecordingBadgeBackgroundKey,
             _ => null
         };
 

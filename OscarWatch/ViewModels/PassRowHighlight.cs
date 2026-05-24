@@ -4,5 +4,6 @@ public enum PassRowHighlight
 {
     None,
     Imminent,
-    InProgress
+    InProgress,
+    Recording
 }

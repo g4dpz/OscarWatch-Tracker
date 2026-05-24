@@ -65,6 +65,19 @@
         <li>Use <strong>Test</strong> in the Voice tab.</li>
       </ul>
 
+      <h2>Pass recording not working</h2>
+      <ul>
+        <li>Enable recording in <strong>Settings → Recording</strong> and press <strong>Save</strong>.</li>
+        <li>Select an <strong>input device</strong> — your radio line-in or USB audio interface, not the default microphone unless that is what you use.</li>
+        <li>Press <strong>Refresh</strong> on the device list if you plugged in hardware after opening Settings.</li>
+        <li>Use <strong>Test recording (5 s)</strong> to confirm audio levels before a pass.</li>
+        <li>Recording only runs for the <strong>focused</strong> satellite — click it on the map or pass list first.</li>
+        <li>Check start/stop elevations: the satellite must rise through the start elevation while selected.</li>
+        <li>On <strong>Linux</strong>, ensure PulseAudio or ALSA is running (<code>libasound2</code> on Debian/Ubuntu).</li>
+        <li>On <strong>macOS</strong>, grant microphone/audio input permission if the system prompts you.</li>
+        <li>Recordings save to <code>%AppData%\OscarWatch\recordings\</code> unless you chose another folder.</li>
+      </ul>
+
       <h2>Logs</h2>
       <p>
         <strong>Help → Open logs folder</strong> opens <code>%AppData%\OscarWatch\logs\</code>.

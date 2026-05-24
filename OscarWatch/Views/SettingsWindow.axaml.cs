@@ -50,6 +50,12 @@ public partial class SettingsWindow : Window
 
     private void OnCancelClick(object? sender, RoutedEventArgs e) => Close(false);
 
+    private async void OnBrowseRecordingFolderClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is SettingsViewModel vm)
+            await vm.BrowseRecordingOutputFolderAsync(this).ConfigureAwait(true);
+    }
+
     private async void OnTestCloudlogClick(object? sender, RoutedEventArgs e)
     {
         var testButton = sender as Button;

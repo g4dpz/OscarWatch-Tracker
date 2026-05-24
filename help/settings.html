@@ -10,7 +10,7 @@
   <div class="wrap">
     <header>
       <h1>Settings</h1>
-      <p class="tagline">Station, tracking, voice, hardware, and Cloudlog</p>
+      <p class="tagline">Station, tracking, voice, recording, hardware, and Cloudlog</p>
       <nav aria-label="Help topics">
         <ul>
           <li><a href="index.html">Home</a></li>
@@ -44,6 +44,28 @@
 
       <h2>Voice</h2>
       <p>Optional spoken alert when a satellite rises above a set elevation (e.g. “Alpha Oscar Zero Seven is rising”). Choose a voice and test it. On Linux you may need <code>espeak-ng</code> installed.</p>
+
+      <h2>Recording</h2>
+      <p>
+        Optional automatic <strong>WAV</strong> capture from a line-in or USB audio device while you work a pass.
+        Open <strong>Settings → Recording</strong> to configure it.
+      </p>
+      <ul>
+        <li><strong>Enable automatic pass recording</strong> — turn recording on or off.</li>
+        <li><strong>Input device</strong> — choose the audio input that carries your radio audio (sound card line-in, USB interface, etc.). Press <strong>Refresh</strong> if you plug in hardware after opening Settings.</li>
+        <li><strong>Format</strong> — mono 44.1 kHz is a good default for FM/SSB; stereo if your interface requires it.</li>
+        <li><strong>Start / stop elevation</strong> — recording begins when the <strong>focused</strong> satellite rises through the start elevation, and stops when it falls below the stop elevation. Keep stop at or below start to avoid flapping near the threshold.</li>
+        <li><strong>Output folder</strong> — leave blank to use the default <code>%AppData%\OscarWatch\recordings\</code>.</li>
+        <li><strong>Test recording (5 s)</strong> — saves a short clip so you can confirm levels and device selection before a pass.</li>
+      </ul>
+      <p>
+        Files are named in UTC: <code>{satellite-name}-{yy-MM-dd-HH-mm}.wav</code>
+        (for example <code>so-50-26-05-24-14-30.wav</code>).
+        Only the satellite you have <strong>selected</strong> on the map or pass list is recorded.
+        If you switch to another satellite that is already above the start elevation, recording begins straight away.
+        While recording, a red <strong>REC</strong> badge appears on that pass in the sidebar.
+      </p>
+      <p>WAV files are uncompressed (~5 MB per minute mono at 44.1 kHz). Convert to MP3 elsewhere if you need smaller files.</p>
 
       <h2>Rotator &amp; Radio</h2>
       <p>See <a href="radio-rotator.html">Radio &amp; rotator</a> for COM ports, rig type, and rotator options.</p>

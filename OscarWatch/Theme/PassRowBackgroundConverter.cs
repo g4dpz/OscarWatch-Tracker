@@ -15,7 +15,8 @@ public sealed class PassRowBackgroundConverter : IValueConverter
     {
         var key = value switch
         {
-            PassRowHighlight.InProgress => AccessibilityThemeResources.PassInProgressBackgroundKey,
+            PassRowHighlight.InProgress or PassRowHighlight.Recording =>
+                AccessibilityThemeResources.PassInProgressBackgroundKey,
             PassRowHighlight.Imminent => AccessibilityThemeResources.PassImminentBackgroundKey,
             _ => null
         };

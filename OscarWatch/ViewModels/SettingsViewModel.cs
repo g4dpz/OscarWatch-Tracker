@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using Avalonia.Controls;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OscarWatch.Core.Cloudlog;
@@ -16,6 +18,7 @@ public partial class SettingsViewModel : ViewModelBase
 {
     private readonly ISettingsService _settings;
     private readonly ISpeechService _speech;
+    private readonly IAudioRecordingService _recording;
     private readonly ICloudlogRadioSyncService _cloudlog;
     private readonly GroundStation _draft = new();
     private bool _isSynchronizing;
@@ -55,6 +58,43 @@ public partial class SettingsViewModel : ViewModelBase
 
     [ObservableProperty]
     private SpeechVoiceOption? _selectedSpeechVoice;
+
+    [ObservableProperty]
+    private bool _passRecordingEnabled;
+
+    [ObservableProperty]
+    private double _recordingStartElevationDeg = 5;
+
+    [ObservableProperty]
+    private double _recordingStopElevationDeg = 3;
+
+    [ObservableProperty]
+    private string _recordingOutputFolder = "";
+
+    [ObservableProperty]
+    private RecordingDeviceOption? _selectedRecordingDevice;
+
+    [ObservableProperty]
+    private RecordingFormatOption? _selectedRecordingFormat;
+
+    [ObservableProperty]
+    private string _recordingTestStatus = "";
+
+    public ObservableCollection<RecordingDeviceOption> RecordingDeviceOptions { get; } = [];
+
+    public bool RecordingAvailable { get; }
+
+    public bool RecordingUnavailable => !RecordingAvailable;
+
+    public string RecordingUnavailableText =>
+        _recording.UnavailableReason ?? "Audio recording is not available on this system.";
+
+    public IReadOnlyList<RecordingFormatOption> RecordingFormatOptions { get; } =
+    [
+        new(RecordingFormatPreset.Mono44100, RecordingFormatPreset.Mono44100.GetLabel()),
+        new(RecordingFormatPreset.Mono48000, RecordingFormatPreset.Mono48000.GetLabel()),
+        new(RecordingFormatPreset.Stereo44100, RecordingFormatPreset.Stereo44100.GetLabel())
+    ];
 
     [ObservableProperty]
     private bool _rotatorEnabled;
@@ -208,16 +248,39 @@ public partial class SettingsViewModel : ViewModelBase
     public SettingsViewModel(
         ISettingsService settings,
         ISpeechService speech,
+        IAudioRecordingService recording,
         ICloudlogRadioSyncService cloudlog)
     {
         _settings = settings;
         _speech = speech;
+        _recording = recording;
         _cloudlog = cloudlog;
+        RecordingAvailable = recording.IsAvailable;
         SpeechAvailable = speech.IsAvailable;
         SpeechVoiceOptions = speech.GetAvailableVoices();
         CopyGroundStation(settings.Current.GroundStation, _draft);
         RefreshComPorts();
+        RefreshRecordingDevices();
         LoadFromDraft();
+    }
+
+    [RelayCommand]
+    private void RefreshRecordingDevices()
+    {
+        RecordingDeviceOptions.Clear();
+        foreach (var device in _recording.GetInputDevices())
+            RecordingDeviceOptions.Add(new RecordingDeviceOption(device.Id, device.DisplayName));
+
+        if (SelectedRecordingDevice is not null)
+        {
+            SelectedRecordingDevice = RecordingDeviceOptions.FirstOrDefault(d =>
+                d.Id == SelectedRecordingDevice.Id)
+                ?? RecordingDeviceOptions.FirstOrDefault(d =>
+                    d.DisplayName == SelectedRecordingDevice.DisplayName);
+        }
+
+        if (SelectedRecordingDevice is null)
+            SelectedRecordingDevice = RecordingDeviceOptions.FirstOrDefault();
     }
 
     [RelayCommand]
@@ -253,6 +316,17 @@ public partial class SettingsViewModel : ViewModelBase
             Enabled = VoiceAnnouncementsEnabled,
             AnnounceElevationDeg = AnnounceElevationDeg,
             VoiceName = SelectedSpeechVoice?.Id ?? ""
+        };
+        var stopElevation = Math.Min(RecordingStopElevationDeg, RecordingStartElevationDeg);
+        _settings.Current.PassRecording = new PassRecordingSettings
+        {
+            Enabled = PassRecordingEnabled,
+            DeviceId = SelectedRecordingDevice?.Id ?? "",
+            DeviceDisplayName = SelectedRecordingDevice?.DisplayName ?? "",
+            Format = SelectedRecordingFormat?.Value ?? RecordingFormatPreset.Mono44100,
+            StartElevationDeg = RecordingStartElevationDeg,
+            StopElevationDeg = stopElevation,
+            OutputFolder = RecordingOutputFolder.Trim()
         };
         _settings.Current.Rotator = new RotatorSettings
         {
@@ -327,6 +401,21 @@ public partial class SettingsViewModel : ViewModelBase
             SelectedSpeechVoice = SpeechVoiceOptions.FirstOrDefault(v => v.Id == voice.VoiceName)
                 ?? SpeechVoiceOptions.FirstOrDefault();
 
+            var recording = _settings.Current.PassRecording ?? new PassRecordingSettings();
+            PassRecordingEnabled = recording.Enabled;
+            RecordingStartElevationDeg = recording.StartElevationDeg;
+            RecordingStopElevationDeg = recording.StopElevationDeg;
+            RecordingOutputFolder = recording.OutputFolder;
+            SelectedRecordingFormat = RecordingFormatOptions.FirstOrDefault(o => o.Value == recording.Format)
+                ?? RecordingFormatOptions[0];
+            RefreshRecordingDevices();
+            if (!string.IsNullOrWhiteSpace(recording.DeviceId))
+            {
+                SelectedRecordingDevice = RecordingDeviceOptions.FirstOrDefault(d => d.Id == recording.DeviceId)
+                    ?? RecordingDeviceOptions.FirstOrDefault(d => d.DisplayName == recording.DeviceDisplayName);
+            }
+            RecordingTestStatus = "";
+
             var rotator = _settings.Current.Rotator ?? new RotatorSettings();
             RotatorEnabled = rotator.Enabled;
             SelectedRotatorTypeChoice = RotatorTypeChoices.FirstOrDefault(o => o.Value == rotator.Type)
@@ -367,6 +456,60 @@ public partial class SettingsViewModel : ViewModelBase
         {
             _isSynchronizing = false;
         }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanTestRecording))]
+    private async Task TestRecordingAsync()
+    {
+        if (SelectedRecordingDevice is null)
+        {
+            RecordingTestStatus = "Select an input device first.";
+            return;
+        }
+
+        var format = SelectedRecordingFormat?.Value ?? RecordingFormatPreset.Mono44100;
+        var tempDir = Path.Combine(Path.GetTempPath(), "OscarWatch-recording-test");
+        Directory.CreateDirectory(tempDir);
+        var outputPath = Path.Combine(tempDir, $"test-{DateTime.UtcNow:yyyyMMdd-HHmmss}.wav");
+
+        try
+        {
+            RecordingTestStatus = "Recording 5 s test clip…";
+            await _recording.StartAsync(
+                "TEST",
+                "Test",
+                SelectedRecordingDevice.Id,
+                format,
+                outputPath).ConfigureAwait(true);
+            await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(true);
+            await _recording.StopAsync().ConfigureAwait(true);
+            RecordingTestStatus = $"Saved test clip to {outputPath}";
+        }
+        catch (Exception ex)
+        {
+            RecordingTestStatus = ex.Message;
+            if (_recording.IsRecording)
+                await _recording.StopAsync().ConfigureAwait(true);
+        }
+    }
+
+    private bool CanTestRecording() =>
+        RecordingAvailable && SelectedRecordingDevice is not null && !_recording.IsRecording;
+
+    public async Task BrowseRecordingOutputFolderAsync(Window owner)
+    {
+        var storage = TopLevel.GetTopLevel(owner)?.StorageProvider;
+        if (storage is null)
+            return;
+
+        var folders = await storage.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        {
+            Title = "Choose recording output folder",
+            AllowMultiple = false
+        }).ConfigureAwait(true);
+
+        if (folders.Count > 0)
+            RecordingOutputFolder = folders[0].Path.LocalPath;
     }
 
     public async Task TestCloudlogAsync()
@@ -552,3 +695,7 @@ public sealed record RotatorElevationOption(RotatorElevationRange Value, string 
 public sealed record RigTypeOption(RigType Value, string Label);
 
 public sealed record RigRegionOption(RigRegion Value, string Label);
+
+public sealed record RecordingDeviceOption(string Id, string DisplayName);
+
+public sealed record RecordingFormatOption(RecordingFormatPreset Value, string Label);

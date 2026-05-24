@@ -26,6 +26,8 @@ public partial class MainViewModel : ViewModelBase
     private readonly ILiveTrackingService _liveTracking;
     private readonly ISpeechService _speech;
     private readonly RisingPassAnnouncer _passAnnouncer;
+    private readonly PassRecordingCoordinator _passRecordingCoordinator;
+    private readonly IAudioRecordingService _recording;
     private readonly IRotatorController _rotator;
     private readonly IRigController _rig;
     private readonly ICloudlogRadioSyncService _cloudlog;
@@ -143,6 +145,8 @@ public partial class MainViewModel : ViewModelBase
         ILiveTrackingService liveTracking,
         ISpeechService speech,
         RisingPassAnnouncer passAnnouncer,
+        PassRecordingCoordinator passRecordingCoordinator,
+        IAudioRecordingService recording,
         IRotatorController rotator,
         IRigController rig,
         ICloudlogRadioSyncService cloudlog,
@@ -154,6 +158,8 @@ public partial class MainViewModel : ViewModelBase
         _liveTracking = liveTracking;
         _speech = speech;
         _passAnnouncer = passAnnouncer;
+        _passRecordingCoordinator = passRecordingCoordinator;
+        _recording = recording;
         _rotator = rotator;
         _rig = rig;
         _cloudlog = cloudlog;
@@ -246,6 +252,7 @@ public partial class MainViewModel : ViewModelBase
 
         UpdateNextPassCountdown();
         PruneExpiredPasses();
+        ProcessPassRecording(states);
         UpdatePassHighlightState();
         ProcessVoiceAnnouncements(states);
         var focused = GetFocusedTrackState(states, FocusedNoradId);
@@ -512,8 +519,36 @@ public partial class MainViewModel : ViewModelBase
     private void UpdatePassHighlightState()
     {
         var now = DateTime.UtcNow;
+        var recordingNorad = _recording.IsRecording ? _recording.ActiveNoradId : null;
         foreach (var pass in Passes.OfType<PassRowViewModel>())
-            pass.UpdateHighlight(now, ImminentPassWindow);
+        {
+            var isRecording = !string.IsNullOrEmpty(recordingNorad)
+                && string.Equals(pass.NoradId, recordingNorad, StringComparison.Ordinal);
+            pass.UpdateDisplay(now, ImminentPassWindow, isRecording);
+        }
+    }
+
+    private void ProcessPassRecording(IReadOnlyList<SatelliteTrackState> states)
+    {
+        var settings = _settings.Current.PassRecording ?? new PassRecordingSettings();
+        if (!settings.Enabled)
+        {
+            if (_recording.IsRecording)
+                _ = _recording.StopAsync();
+            _passRecordingCoordinator.ResetTracking();
+            return;
+        }
+
+        var focusedNorad = FocusedNoradId;
+        var focused = string.IsNullOrEmpty(focusedNorad)
+            ? null
+            : states.FirstOrDefault(s => string.Equals(s.NoradId, focusedNorad, StringComparison.Ordinal));
+        _passRecordingCoordinator.Process(
+            focusedNorad,
+            focused,
+            settings,
+            _recording,
+            DateTime.UtcNow);
     }
 
     private void SyncLiveStates(IReadOnlyList<SatelliteTrackState> states)
@@ -674,6 +709,9 @@ public partial class MainViewModel : ViewModelBase
             _rotator.Disconnect();
             _rig.Disconnect();
             _cloudlog.ResetThrottle();
+            if (!_settings.Current.PassRecording.Enabled && _recording.IsRecording)
+                await _recording.StopAsync();
+            _passRecordingCoordinator.ResetTracking();
             await RefreshPassesAsync();
             UpdateStatus();
             RefreshGroundStationFromSettings();
@@ -876,6 +914,22 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
     public string DetailsLine { get; init; } = "";
     public DateTime AosUtc { get; init; }
     public DateTime LosUtc { get; init; }
+
+    public void UpdateDisplay(DateTime utcNow, TimeSpan imminentWindow, bool isRecording)
+    {
+        if (isRecording)
+        {
+            if (Highlight != PassRowHighlight.Recording)
+                Highlight = PassRowHighlight.Recording;
+            if (BadgeText != "REC")
+                BadgeText = "REC";
+            if (!ShowBadge)
+                ShowBadge = true;
+            return;
+        }
+
+        UpdateHighlight(utcNow, imminentWindow);
+    }
 
     public void UpdateHighlight(DateTime utcNow, TimeSpan imminentWindow)
     {

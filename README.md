@@ -31,6 +31,7 @@ dotnet run -c Release --project OscarWatch/OscarWatch.csproj
 - **Mutual pass finder** — find passes visible from two stations at once (Passes → Mutual pass finder)
 - **Live telemetry** — azimuth, elevation, range, and altitude updated every second (UTC)
 - **Voice announcements** — optional spoken “rising” alerts when a satellite crosses a configurable elevation while ascending (e.g. “Alpha Oscar Zero Seven is rising”); Settings → Voice
+- **Pass recording** — optional automatic WAV capture from a line-in or USB audio device while the **focused** satellite is above configurable elevation thresholds; Settings → Recording. Files save to `%AppData%/OscarWatch/recordings/` by default as `{sat-name}-{yy}-{MM}-{dd}-{HH}-{mm}.wav` (UTC). A red **REC** badge appears on the pass row while recording.
 - **Doppler frequencies** — draggable overlay on the world map with transponder modes from the satellite database, live radio/sat uplink & downlink, TX/RX offsets, and CTCSS (access/arm)
 - **Transponder database editor** — Satellites → Manage transponder database… (add/edit satellites and modes; saved under `%AppData%/OscarWatch/satellite_database.json`)
 - **Radio CAT** — doppler tracking, satellite/split setup, Main/Sub VFOs, uplink CTCSS where supported; Settings → Radio (see [Supported hardware](#supported-hardware))
@@ -96,11 +97,24 @@ Planned work (including deferred **remote transponder-database sync/merge**) is 
 
 If TTS is unavailable, the Voice tab shows a notice and announcements are skipped.
 
+### Pass recording (platform notes)
+
+Audio capture uses [PortAudio](https://www.portaudio.com/) (via PortAudioSharp2). Native runtimes are included in published builds for Windows x64, macOS (Intel/Apple Silicon), and Linux x64/ARM64.
+
+| Platform | Notes |
+|----------|--------|
+| **Windows** | Select your radio interface or sound card input in Settings → Recording |
+| **macOS** | Core Audio devices; grant microphone permission if prompted |
+| **Linux** | Requires PulseAudio or ALSA; install `libasound2` / PulseAudio as needed for your distro |
+
+WAV files are uncompressed (~5 MB/min mono at 44.1 kHz). Use an external tool if you need MP3 later.
+
 ## Settings location
 
 | File | Path |
 |------|------|
 | Settings | `%AppData%/OscarWatch/settings.json` |
+| Recordings | `%AppData%/OscarWatch/recordings/` |
 | TLE cache | `%AppData%/OscarWatch/tle-cache.txt` |
 | Transponder DB (user) | `%AppData%/OscarWatch/satellite_database.json` |
 | Logs | `%AppData%/OscarWatch/logs/` (daily rolling `oscarwatch-YYYYMMDD.log`, 14 days retained) |

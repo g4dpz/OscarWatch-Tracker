@@ -365,6 +365,82 @@
         </ScrollViewer>
       </TabItem>
 
+      <TabItem Header="Recording">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+          <StackPanel Spacing="10" MaxWidth="420">
+            <CheckBox Content="Enable automatic pass recording"
+                      IsChecked="{Binding PassRecordingEnabled, Mode=TwoWay}" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Records WAV audio from the selected input device while the focused satellite is above the start elevation. Files are saved with UTC timestamps." />
+            <TextBlock Text="Input device" Margin="0,8,0,0" />
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+              <ComboBox Grid.Column="0"
+                        ItemsSource="{Binding RecordingDeviceOptions}"
+                        SelectedItem="{Binding SelectedRecordingDevice, Mode=TwoWay}"
+                        IsEnabled="{Binding RecordingAvailable}"
+                        HorizontalAlignment="Stretch">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate x:DataType="vm:RecordingDeviceOption">
+                    <TextBlock Text="{Binding DisplayName}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <Button Grid.Column="1"
+                      Content="Refresh"
+                      Command="{Binding RefreshRecordingDevicesCommand}" />
+            </Grid>
+            <TextBlock Text="Format" Margin="0,8,0,0" />
+            <ComboBox ItemsSource="{Binding RecordingFormatOptions}"
+                      SelectedItem="{Binding SelectedRecordingFormat, Mode=TwoWay}"
+                      IsEnabled="{Binding RecordingAvailable}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:RecordingFormatOption">
+                  <TextBlock Text="{Binding Label}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Text="Start recording at elevation (°)" Margin="0,8,0,0" />
+            <NumericUpDown Value="{Binding RecordingStartElevationDeg, Mode=TwoWay}"
+                           Minimum="-10" Maximum="90"
+                           Increment="0.5" FormatString="F1" />
+            <TextBlock Text="Stop recording below elevation (°)" />
+            <NumericUpDown Value="{Binding RecordingStopElevationDeg, Mode=TwoWay}"
+                           Minimum="-10" Maximum="90"
+                           Increment="0.5" FormatString="F1" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Stop elevation should be at or below the start elevation to avoid flapping near the threshold." />
+            <TextBlock Text="Output folder" Margin="0,8,0,0" />
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+              <TextBox Grid.Column="0"
+                       Text="{Binding RecordingOutputFolder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                       Watermark="Default: %AppData%/OscarWatch/recordings" />
+              <Button Grid.Column="1"
+                      Content="Browse…"
+                      Click="OnBrowseRecordingFolderClick" />
+            </Grid>
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding RecordingUnavailable}"
+                       Text="{Binding RecordingUnavailableText}" />
+            <Button Content="Test recording (5 s)"
+                    Command="{Binding TestRecordingCommand}"
+                    IsEnabled="{Binding RecordingAvailable}"
+                    HorizontalAlignment="Left"
+                    MinWidth="160" />
+            <TextBlock Text="{Binding RecordingTestStatus}"
+                       TextWrapping="Wrap"
+                       FontSize="12"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
       <TabItem Header="Cloudlog">
         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
           <StackPanel Spacing="10" MaxWidth="420">

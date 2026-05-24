@@ -33,6 +33,8 @@
         <SolidColorBrush x:Key="PassImminentBadgeForegroundBrush" Color="#1A1A1A" />
         <SolidColorBrush x:Key="PassInProgressBadgeBackgroundBrush" Color="#2B6E1F" />
         <SolidColorBrush x:Key="PassInProgressBadgeForegroundBrush" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="PassRecordingBadgeBackgroundBrush" Color="#DC2626" />
+        <SolidColorBrush x:Key="PassRecordingBadgeForegroundBrush" Color="#FFFFFF" />
         <SolidColorBrush x:Key="StaleTleForegroundBrush" Color="#B45309" />
         <SolidColorBrush x:Key="SunlightStatusBrush" Color="#B8860B" />
         <SolidColorBrush x:Key="EclipseStatusBrush" Color="#5C6370" />

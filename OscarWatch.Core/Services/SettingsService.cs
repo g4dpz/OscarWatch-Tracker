@@ -45,6 +45,7 @@ public sealed class SettingsService : ISettingsService
         Current.Rotator ??= new RotatorSettings();
         Current.Rig ??= new RigSettings();
         Current.Cloudlog ??= new CloudlogSettings();
+        Current.PassRecording ??= new PassRecordingSettings();
         EnsureSavedStations();
 
         if (string.IsNullOrWhiteSpace(Current.GroundStation.GridSquare))

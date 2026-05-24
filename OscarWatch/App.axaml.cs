@@ -7,6 +7,7 @@ using OscarWatch.Core.Services;
 using OscarWatch.Orbit;
 using OscarWatch.Core.Models;
 using OscarWatch.Cloudlog;
+using OscarWatch.Recording;
 using OscarWatch.Rig;
 using OscarWatch.Rotator;
 using OscarWatch.Speech;
@@ -33,7 +34,9 @@ public partial class App : Application
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<ITleService, TleService>();
         services.AddSingleton<ISpeechService, PlatformSpeechService>();
+        services.AddSingleton<IAudioRecordingService, PortAudioRecordingService>();
         services.AddSingleton<RisingPassAnnouncer>();
+        services.AddSingleton<PassRecordingCoordinator>();
         services.AddSingleton<IRotatorController, RotatorController>();
         services.AddSingleton<IRigController, RigController>();
         services.AddSingleton<ICloudlogRadioSyncService, CloudlogRadioSyncService>();

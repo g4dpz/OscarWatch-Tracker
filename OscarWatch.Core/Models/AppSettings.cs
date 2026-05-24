@@ -19,4 +19,5 @@ public sealed class AppSettings
     public RotatorSettings Rotator { get; set; } = new();
     public RigSettings Rig { get; set; } = new();
     public CloudlogSettings Cloudlog { get; set; } = new();
+    public PassRecordingSettings PassRecording { get; set; } = new();
 }
