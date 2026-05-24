@@ -38,9 +38,6 @@ public class WorldMapControl : ThemeAwareControl
         ClipToBounds = true;
         Focusable = true;
         Cursor = new Cursor(StandardCursorType.Hand);
-        ToolTip.SetTip(
-            this,
-            "World map. Tab here, then use arrow keys to change the selected satellite.");
     }
 
     static WorldMapControl()

@@ -107,6 +107,12 @@ If TTS is unavailable, the Voice tab shows a notice and announcements are skippe
 
 Open the log folder from **Help → Open logs folder**. Unhandled crashes and rig/rotator/CAT errors are written here (not API keys).
 
+## Operator help (HTML)
+
+Plain-language guides for satellite operators live in the [`help/`](help/) folder (UK English). In the app, open **Help → Operator guide** to read them in your browser.
+
+Topics include quick start, the map and sidebar, frequencies, TLEs, pass planning, radio/rotator setup, settings, and troubleshooting.
+
 ## Cross-platform publish
 
 ### GitHub Actions

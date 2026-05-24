@@ -11,6 +11,7 @@ using OscarWatch.Core.Radio;
 using OscarWatch.Core.Services;
 using OscarWatch.Theme;
 using OscarWatch.Diagnostics;
+using OscarWatch.Help;
 using OscarWatch.Views;
 using Serilog;
 
@@ -766,6 +767,16 @@ public partial class MainViewModel : ViewModelBase
             Log.Warning(ex, "Could not open log directory");
             StatusText = "Could not open log folder";
         }
+    }
+
+    [RelayCommand]
+    private void OpenHelp()
+    {
+        if (HelpLauncher.TryOpenHelp())
+            return;
+
+        Log.Warning("Help folder not found next to the application");
+        StatusText = "Help files not found — reinstall or run from a published build";
     }
 
     [RelayCommand]

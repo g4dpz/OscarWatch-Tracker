@@ -24,6 +24,7 @@
       </MenuItem>
       <MenuItem Header="_Settings" Command="{Binding OpenSettingsCommand}" />
       <MenuItem Header="_Help">
+        <MenuItem Header="Operator Guide" Command="{Binding OpenHelpCommand}" />
         <MenuItem Header="_About OscarWatch" Command="{Binding OpenAboutCommand}" />
         <MenuItem Header="Open _logs folder" Command="{Binding OpenLogsFolderCommand}" />
       </MenuItem>
