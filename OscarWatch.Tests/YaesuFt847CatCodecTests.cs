@@ -57,4 +57,14 @@ public sealed class YaesuFt847CatCodecTests
         var cmd = YaesuFt847CatCodec.BuildSetModeCommand("FMN", YaesuFt847VfoTarget.SatRx, satelliteMode: true);
         Assert.Equal(0x88, cmd[0]);
     }
+
+    [Theory]
+    [InlineData(" FM ", 0x08)]
+    [InlineData("fmn", 0x88)]
+    public void BuildSetModeCommand_trims_and_normalizes_case(string mode, byte expectedModeByte)
+    {
+        var cmd = YaesuFt847CatCodec.BuildSetModeCommand(mode, YaesuFt847VfoTarget.SatTx, satelliteMode: true);
+        Assert.Equal(expectedModeByte, cmd[0]);
+        Assert.Equal(0x27, cmd[4]);
+    }
 }

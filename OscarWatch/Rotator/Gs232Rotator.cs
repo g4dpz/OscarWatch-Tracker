@@ -35,22 +35,16 @@ public sealed class Gs232Rotator : IRotatorDriver
         _gate.Wait();
         try
         {
-            // C2: 'AZ=aaa EL=eee', or just 'AZ=aaa', or just 'EL=eee' — then C / B for missing axis.
+            // C2 then C/B for missing axis. GS-232B: AZ=/EL=; GS-232A: +0aaa+0eee / +0nnn.
             Gs232PositionParser.TryParseParts(Query("C2"), out var az, out var el);
 
-            if (az is null)
-            {
-                if (Gs232PositionParser.TryParseAzimuthLine(Query("C"), out var azValue))
-                    az = azValue;
-            }
+            if (az is null && Gs232PositionParser.TryParseAzimuthLine(Query("C"), out var azValue))
+                az = azValue;
 
-            if (el is null)
-            {
-                if (Gs232PositionParser.TryParseElevationLine(Query("B"), out var elValue))
-                    el = elValue;
-            }
+            if (el is null && Gs232PositionParser.TryParseElevationLine(Query("B"), out var elValue))
+                el = elValue;
 
-            return az is not null && el is not null ? (az, el) : (null, null);
+            return (az, el);
         }
         finally
         {

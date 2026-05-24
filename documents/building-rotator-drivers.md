@@ -60,7 +60,7 @@ Existing drivers use **`System.IO.Ports.SerialPort`** with:
 - Short sleeps after writes (GS-232 ~150 ms) so the controller can finish before the next command
 - `DiscardInBuffer()` before queries to avoid stale data
 
-GS-232 position parsing is in [`Gs232PositionParser`](../OscarWatch/Rotator/Gs232PositionParser.cs) (unit tests in `Gs232PositionParserTests.cs`).
+GS-232 position parsing is in [`Gs232PositionParser`](../OscarWatch/Rotator/Gs232PositionParser.cs) (unit tests in `Gs232PositionParserTests.cs`). Supports GS-232B (`AZ=`/`EL=`) and GS-232A (`+0nnn`, `+0aaa+0eee`) reply formats on the same driver.
 
 ## Step-by-step: add a new rotator type
 

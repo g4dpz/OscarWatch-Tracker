@@ -179,14 +179,14 @@ public partial class MainViewModel : ViewModelBase
         RefreshRigUi(focused);
     }
 
-    private void RefreshRigFromOverlay()
+    private void RefreshRigFromOverlay(bool reinitializePass = true)
     {
         if (ShowComPortConflict)
             return;
 
         var focused = GetFocusedTrackState(_liveTracking.GetSnapshot(), FocusedNoradId);
         var context = Frequencies.TryBuildRigTrackingContext(focused);
-        _rig.PublishContext(_settings.Current.Rig, context);
+        _rig.PublishContext(_settings.Current.Rig, context, reinitializePass);
         RefreshRigUi(focused);
     }
 
@@ -553,20 +553,25 @@ public partial class MainViewModel : ViewModelBase
     partial void OnSelectedListItemChanged(IPassListItem? value)
     {
         if (value is PassRowViewModel row)
+        {
+            if (string.Equals(FocusedNoradId, row.NoradId, StringComparison.Ordinal))
+                RefreshRigFromOverlay(reinitializePass: true);
             FocusedNoradId = row.NoradId;
+        }
     }
 
     partial void OnFocusedNoradIdChanged(string? value)
     {
-        if (LiveStates.Count > 0)
+        var states = LiveStates.Count > 0 ? LiveStates : _liveTracking.GetSnapshot();
+        if (states.Count > 0)
         {
-            UpdateLiveTelemetry(LiveStates);
+            UpdateLiveTelemetry(states);
             var focused = string.IsNullOrEmpty(value)
                 ? null
-                : LiveStates.FirstOrDefault(s => s.NoradId == value);
+                : GetFocusedTrackState(states, value);
             Frequencies.Update(focused);
             PushCloudlogRadio(focused);
-            RefreshRigFromOverlay();
+            RefreshRigFromOverlay(reinitializePass: true);
         }
 
         if (value is null)

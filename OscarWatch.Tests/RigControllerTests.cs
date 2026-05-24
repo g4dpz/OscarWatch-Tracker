@@ -115,6 +115,108 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Cat_resume_reruns_pass_init_including_satellite_mode()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.YaesuFt847,
+            Port = "COM1",
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 436_795,
+            UplinkKHz = 145_850,
+            DownlinkMode = "FM",
+            UplinkMode = "FM"
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "SO-50",
+            NoradId = "25544",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = state,
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0)
+        };
+
+        controller.Update(settings, ctx);
+        controller.DrainCommandQueueForTests();
+        Assert.Equal(1, rig.SetSatelliteModeCallCount);
+        Assert.True(rig.LastSatelliteModeOn);
+
+        settings.CatUpdatesPaused = true;
+        controller.PublishContext(settings, ctx);
+        controller.DrainCommandQueueForTests();
+        Assert.False(controller.GetStatus().IsTracking);
+
+        settings.CatUpdatesPaused = false;
+        controller.PublishContext(settings, ctx);
+        controller.DrainCommandQueueForTests();
+        Assert.Equal(2, rig.SetSatelliteModeCallCount);
+        Assert.True(rig.LastSatelliteModeOn);
+        Assert.True(controller.GetStatus().IsTracking);
+    }
+
+    [Fact]
+    public void Reselect_same_pass_reruns_pass_init()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.YaesuFt847,
+            Port = "COM1",
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 436_795,
+            UplinkKHz = 145_850,
+            DownlinkMode = "FM",
+            UplinkMode = "FM"
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "SO-50",
+            NoradId = "25544",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = state,
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0)
+        };
+
+        controller.Update(settings, ctx);
+        controller.DrainCommandQueueForTests();
+        Assert.Equal(1, rig.SetSatelliteModeCallCount);
+
+        controller.PublishContext(settings, ctx, reinitializePass: true);
+        controller.DrainCommandQueueForTests();
+        Assert.Equal(2, rig.SetSatelliteModeCallCount);
+        Assert.True(rig.LastSatelliteModeOn);
+    }
+
+    [Fact]
     public void Cat_paused_skips_tracking()
     {
         var controller = new RigController();

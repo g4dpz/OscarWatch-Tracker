@@ -71,8 +71,8 @@ public sealed class RigController : IRigController, IDisposable
     }
 
     /// <summary>Enqueue latest pass/settings for the rig thread (~1–4 Hz from UI).</summary>
-    public void PublishContext(RigSettings settings, RigTrackingContext? context) =>
-        Enqueue(new RigCommand(RigCommandKind.PublishContext, settings, context));
+    public void PublishContext(RigSettings settings, RigTrackingContext? context, bool reinitializePass = false) =>
+        Enqueue(new RigCommand(RigCommandKind.PublishContext, settings, context, reinitializePass));
 
     /// <summary>Runs one doppler iteration on the rig thread (unit tests).</summary>
     public void RunTrackingLoopOnce() =>
@@ -192,7 +192,7 @@ public sealed class RigController : IRigController, IDisposable
                 case RigCommandKind.PublishContext:
                     _cachedSettings = command.Settings;
                     _cachedContext = command.Context;
-                    ApplyPublishState(_cachedSettings, _cachedContext);
+                    ApplyPublishState(_cachedSettings, _cachedContext, command.ReinitializePass);
                     break;
 
                 case RigCommandKind.UpdateSynchronously:
@@ -266,7 +266,7 @@ public sealed class RigController : IRigController, IDisposable
             _status = snapshot;
     }
 
-    private void ApplyPublishState(RigSettings settings, RigTrackingContext? context)
+    private void ApplyPublishState(RigSettings settings, RigTrackingContext? context, bool reinitializePass = false)
     {
         if (!settings.Enabled || settings.Type == RigType.None)
         {
@@ -298,6 +298,7 @@ public sealed class RigController : IRigController, IDisposable
             return;
         }
 
+        var resumingFromCatPause = _catUpdatesPaused && !settings.CatUpdatesPaused;
         _catUpdatesPaused = settings.CatUpdatesPaused;
         _isBeaconOnly = context.Mode.IsBeaconOnly;
 
@@ -305,7 +306,8 @@ public sealed class RigController : IRigController, IDisposable
             return;
 
         var newPassKey = PassKey(context);
-        if (!string.Equals(_passKey, newPassKey, StringComparison.Ordinal))
+        var passKeyChanged = !string.Equals(_passKey, newPassKey, StringComparison.Ordinal);
+        if (passKeyChanged)
             BeginNewPass(settings, context, newPassKey);
 
         if (settings.CatUpdatesPaused)
@@ -315,11 +317,13 @@ public sealed class RigController : IRigController, IDisposable
             return;
         }
 
-        if (_passInitPending)
+        if (resumingFromCatPause || _passInitPending)
         {
             RunPassInit(settings, context);
             _passInitPending = false;
         }
+        else if (reinitializePass && !passKeyChanged)
+            RunPassInit(settings, context);
         else if (context.SelectedCtcssHz is > 0)
             ApplyCtcss(settings, context, force: false);
 
@@ -931,16 +935,22 @@ public sealed class RigController : IRigController, IDisposable
 
     private sealed class RigCommand
     {
-        public RigCommand(RigCommandKind kind, RigSettings? settings = null, RigTrackingContext? context = null)
+        public RigCommand(
+            RigCommandKind kind,
+            RigSettings? settings = null,
+            RigTrackingContext? context = null,
+            bool reinitializePass = false)
         {
             Kind = kind;
             Settings = settings ?? new RigSettings();
             Context = context;
+            ReinitializePass = reinitializePass;
         }
 
         public RigCommandKind Kind { get; }
         public RigSettings Settings { get; }
         public RigTrackingContext? Context { get; }
+        public bool ReinitializePass { get; }
         public ManualResetEventSlim? Completed { get; set; }
     }
 }

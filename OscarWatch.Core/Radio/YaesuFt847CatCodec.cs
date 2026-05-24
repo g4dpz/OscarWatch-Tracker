@@ -187,7 +187,7 @@ public static class YaesuFt847CatCodec
         YaesuFt847VfoTarget target,
         bool narrow)
     {
-        var upper = mode.ToUpperInvariant();
+        var upper = mode.Trim().ToUpperInvariant();
         var useNarrow = upper switch
         {
             "FM" => false,
