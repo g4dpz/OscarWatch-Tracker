@@ -106,6 +106,54 @@ public sealed class YaesuFt847DriverTests
     }
 
     [Fact]
+    public void Pass_init_ISS_cross_band_repeater_uses_wide_fm_not_narrow()
+    {
+        var transport = new RecordingYaesuCatTransport();
+        var controller = new RigController(_ => new YaesuFt847Driver(transport));
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.YaesuFt847,
+            Port = "COM1",
+            CatDelayMs = 0,
+            Region = RigRegion.USA
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "Cross band repeater",
+            DownlinkKHz = 437_800,
+            UplinkKHz = 145_990,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR",
+            CtcssHz = 67.0
+        };
+
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "ISS",
+                NoradId = "25544",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 30, 800, 0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            SelectedCtcssHz = 67.0
+        });
+
+        var modeFrames = transport.SentFrames
+            .Where(f => f.Length == 5 && f[1] == 0 && f[2] == 0 && f[3] == 0 && f[4] is 0x17 or 0x27)
+            .ToList();
+
+        Assert.Equal(2, modeFrames.Count);
+        Assert.All(modeFrames, f => Assert.Equal(0x08, f[0]));
+        Assert.DoesNotContain(transport.SentFrames, f => f.Length == 5 && f[0] == 0x88);
+    }
+
+    [Fact]
     public void SupportsVfoExchange_is_false()
     {
         var driver = new YaesuFt847Driver(new RecordingYaesuCatTransport());

@@ -672,12 +672,18 @@ public sealed class RigController : IRigController, IDisposable
         _thresholdHz = setup.ThresholdHz;
         _interactive = setup.Interactive;
 
-        ConfigureVfoModes(context);
+        // FT-847 can revert to narrow FM when SAT frequencies/CTCSS are programmed after mode.
+        var deferModeSetup = settings.Type == RigType.YaesuFt847;
+        if (!deferModeSetup)
+            ConfigureVfoModes(context);
 
         var rxHz = ToHz(context.Corrected.RadioReceiveKHz);
         var txHz = ToHz(context.Corrected.RadioTransmitKHz);
         WriteInitialFrequencies(settings, rxHz, txHz);
         ApplyCtcss(settings, context, force: true);
+
+        if (deferModeSetup)
+            ConfigureVfoModes(context);
         _lastRigRxHz = rxHz;
         _lastRigTxHz = txHz;
         _lastWriteUtc = DateTime.UtcNow;
