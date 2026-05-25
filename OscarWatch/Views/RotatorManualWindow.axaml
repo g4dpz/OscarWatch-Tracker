@@ -1,0 +1,64 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OscarWatch.ViewModels"
+        x:Class="OscarWatch.Views.RotatorManualWindow"
+        x:DataType="vm:RotatorManualViewModel"
+        Title="Manual rotator control"
+        Width="360" Height="280"
+        MinWidth="320" MinHeight="260"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="20">
+    <StackPanel DockPanel.Dock="Bottom"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Spacing="8"
+                Margin="0,16,0,0">
+      <Button Content="Rotate"
+              Command="{Binding RotateCommand}"
+              MinWidth="72"
+              IsDefault="True" />
+      <Button Content="Stop"
+              Command="{Binding StopCommand}"
+              MinWidth="72" />
+      <Button Content="Park"
+              Command="{Binding ParkCommand}"
+              MinWidth="72" />
+      <Button Content="Close"
+              Click="OnCloseClick"
+              MinWidth="72"
+              IsCancel="True" />
+    </StackPanel>
+
+    <StackPanel Spacing="12">
+      <TextBlock Text="Manual rotator control"
+                 FontSize="16"
+                 FontWeight="SemiBold" />
+      <TextBlock TextWrapping="Wrap"
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                 Text="Available while in standby. Point the beam for a quick contact between passes without resuming tracking." />
+      <TextBlock Text="{Binding CurrentPositionText}"
+                 FontSize="12"
+                 FontFamily="Consolas,Courier New,monospace" />
+      <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+        <StackPanel Grid.Column="0" Spacing="4">
+          <TextBlock Text="Azimuth (°)" />
+          <NumericUpDown Value="{Binding AzimuthDeg, Mode=TwoWay}"
+                         Minimum="0"
+                         Maximum="{Binding MaxAzimuthDeg}"
+                         Increment="1"
+                         FormatString="F0" />
+        </StackPanel>
+        <StackPanel Grid.Column="1" Spacing="4">
+          <TextBlock Text="Elevation (°)" />
+          <NumericUpDown Value="{Binding ElevationDeg, Mode=TwoWay}"
+                         Minimum="0"
+                         Maximum="{Binding MaxElevationDeg}"
+                         Increment="1"
+                         FormatString="F0" />
+        </StackPanel>
+      </Grid>
+    </StackPanel>
+  </DockPanel>
+</Window>

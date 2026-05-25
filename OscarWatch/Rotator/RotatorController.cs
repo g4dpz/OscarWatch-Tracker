@@ -34,6 +34,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private bool _parked;
     private bool _manualParkActive;
     private bool _standbyActive;
+    private bool _standbyManualActive;
     private int? _displayAzimuth;
     private int? _displayElevation;
     private int? _displayCommandedAzimuth;
@@ -58,6 +59,12 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
     public void Park(RotatorSettings settings) =>
         Enqueue(new RotatorCommand(RotatorCommandKind.Park, settings));
+
+    public void MoveTo(double azimuthDeg, double elevationDeg, RotatorSettings settings) =>
+        Enqueue(new RotatorCommand(RotatorCommandKind.ManualMove, settings, azimuthDeg: azimuthDeg, elevationDeg: elevationDeg));
+
+    public void Stop(RotatorSettings settings) =>
+        Enqueue(new RotatorCommand(RotatorCommandKind.Stop, settings));
 
     public void SetStandby(bool active, RotatorSettings settings) =>
         Enqueue(new RotatorCommand(RotatorCommandKind.SetStandby, settings, standbyActive: active));
@@ -180,6 +187,14 @@ public sealed class RotatorController : IRotatorController, IDisposable
                     ParkOnWorker(command.Settings);
                     break;
 
+                case RotatorCommandKind.ManualMove:
+                    ManualMoveOnWorker(command.Settings, command.AzimuthDeg!.Value, command.ElevationDeg!.Value);
+                    break;
+
+                case RotatorCommandKind.Stop:
+                    StopOnWorker(command.Settings);
+                    break;
+
                 case RotatorCommandKind.SetStandby:
                     SetStandbyOnWorker(command.StandbyActive!.Value, command.Settings);
                     break;
@@ -221,7 +236,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
         if (_standbyActive)
         {
-            TryPark(settings);
+            if (!_standbyManualActive)
+                TryPark(settings);
             return;
         }
 
@@ -260,7 +276,30 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
     private void ParkOnWorker(RotatorSettings settings)
     {
+        if (!settings.Enabled || string.IsNullOrWhiteSpace(settings.Port))
+            return;
+
+        if (!EnsureConnected(settings))
+            return;
+
         if (_standbyActive)
+        {
+            _standbyManualActive = false;
+            _parked = false;
+            TryPark(settings);
+            PollPosition();
+            return;
+        }
+
+        _manualParkActive = true;
+        _parked = false;
+        TryPark(settings);
+        PollPosition();
+    }
+
+    private void ManualMoveOnWorker(RotatorSettings settings, double azimuthDeg, double elevationDeg)
+    {
+        if (!_standbyActive)
             return;
 
         if (!settings.Enabled || string.IsNullOrWhiteSpace(settings.Port))
@@ -269,14 +308,62 @@ public sealed class RotatorController : IRotatorController, IDisposable
         if (!EnsureConnected(settings))
             return;
 
-        _manualParkActive = true;
+        if (_rotator is null)
+            return;
+
+        var az = Math.Clamp(azimuthDeg, 0, settings.MaxAzimuthDeg);
+        var el = Math.Clamp(elevationDeg, 0, settings.MaxElevationDeg);
+
+        _standbyManualActive = true;
         _parked = false;
-        TryPark(settings);
+        _displayCommandedAzimuth = (int)Math.Round(az);
+        _displayCompassAzimuth = (int)Math.Round(RotatorAzimuthPlanner.Normalize360(az));
+
+        try
+        {
+            _rotator.SetPosition(az, el, settings);
+            _lastAzimuth = Math.Round(az);
+            _lastElevation = Math.Round(el);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Rotator manual move failed at Az={Az} El={El}", az, el);
+            TearDownRotator();
+        }
+
+        PollPosition();
+    }
+
+    private void StopOnWorker(RotatorSettings settings)
+    {
+        if (!_standbyActive)
+            return;
+
+        if (!settings.Enabled || string.IsNullOrWhiteSpace(settings.Port))
+            return;
+
+        if (!EnsureConnected(settings))
+            return;
+
+        if (_rotator is null)
+            return;
+
+        try
+        {
+            _rotator.Stop();
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Rotator stop failed");
+            TearDownRotator();
+        }
+
         PollPosition();
     }
 
     private void SetStandbyOnWorker(bool active, RotatorSettings settings)
     {
+        _cachedSettings = settings;
         _standbyActive = active;
 
         if (!active)
@@ -286,10 +373,12 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _lastElevation = null;
             _parked = false;
             _manualParkActive = false;
+            _standbyManualActive = false;
             return;
         }
 
         _manualParkActive = false;
+        _standbyManualActive = false;
 
         if (!settings.Enabled || string.IsNullOrWhiteSpace(settings.Port))
             return;
@@ -319,6 +408,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _parked = false;
         _manualParkActive = false;
         _standbyActive = false;
+        _standbyManualActive = false;
         _displayAzimuth = null;
         _displayElevation = null;
         _displayCommandedAzimuth = null;
@@ -454,6 +544,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
         PublishTarget,
         UpdateSynchronously,
         Park,
+        ManualMove,
+        Stop,
         SetStandby,
         Disconnect,
         Drain,
@@ -466,18 +558,24 @@ public sealed class RotatorController : IRotatorController, IDisposable
             RotatorCommandKind kind,
             RotatorSettings? settings = null,
             SatelliteTrackState? target = null,
-            bool? standbyActive = null)
+            bool? standbyActive = null,
+            double? azimuthDeg = null,
+            double? elevationDeg = null)
         {
             Kind = kind;
             Settings = settings ?? new RotatorSettings();
             Target = target;
             StandbyActive = standbyActive;
+            AzimuthDeg = azimuthDeg;
+            ElevationDeg = elevationDeg;
         }
 
         public RotatorCommandKind Kind { get; }
         public RotatorSettings Settings { get; }
         public SatelliteTrackState? Target { get; }
         public bool? StandbyActive { get; }
+        public double? AzimuthDeg { get; }
+        public double? ElevationDeg { get; }
         public ManualResetEventSlim? Completed { get; set; }
     }
 }

@@ -60,6 +60,72 @@ public sealed class RotatorControllerTests
     }
 
     [Fact]
+    public void Manual_move_during_standby_is_not_re_parked()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            ParkAzimuthDeg = 0,
+            ParkElevationDeg = 0
+        };
+
+        controller.SetStandby(true, settings);
+        controller.DrainCommandQueueForTests();
+        var callsAfterPark = rotator.SetPositionCallCount;
+
+        controller.MoveTo(90, 45, settings);
+        controller.DrainCommandQueueForTests();
+        Assert.Equal(90, rotator.LastAzimuthDeg);
+        Assert.Equal(45, rotator.LastElevationDeg);
+
+        controller.UpdateSynchronously(settings, null);
+        Assert.Equal(90, rotator.LastAzimuthDeg);
+        Assert.Equal(callsAfterPark + 1, rotator.SetPositionCallCount);
+    }
+
+    [Fact]
+    public void Stop_during_standby_sends_stop_command()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings { Enabled = true, Port = "COM3" };
+
+        controller.SetStandby(true, settings);
+        controller.DrainCommandQueueForTests();
+        controller.Stop(settings);
+        controller.DrainCommandQueueForTests();
+
+        Assert.Equal(1, rotator.StopCallCount);
+    }
+
+    [Fact]
+    public void Park_during_standby_sends_park_position()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            ParkAzimuthDeg = 180,
+            ParkElevationDeg = 10
+        };
+
+        controller.SetStandby(true, settings);
+        controller.DrainCommandQueueForTests();
+        controller.MoveTo(90, 45, settings);
+        controller.DrainCommandQueueForTests();
+        controller.Park(settings);
+        controller.DrainCommandQueueForTests();
+
+        Assert.Equal(180, rotator.LastAzimuthDeg);
+        Assert.Equal(10, rotator.LastElevationDeg);
+    }
+
+    [Fact]
     public void PublishTarget_is_non_blocking()
     {
         var rotator = new RecordingRotatorDriver();

@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v10.0": {
-      "OscarWatch/1.0.0": {
+      "OscarWatch/0.0.5": {
         "dependencies": {
           "Avalonia": "11.3.11",
           "Avalonia.Controls.DataGrid": "11.3.11",
@@ -814,7 +814,7 @@
     }
   },
   "libraries": {
-    "OscarWatch/1.0.0": {
+    "OscarWatch/0.0.5": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

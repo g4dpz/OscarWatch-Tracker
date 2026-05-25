@@ -290,18 +290,19 @@ public sealed class RigController : IRigController, IDisposable
             return;
         }
 
+        var resumingFromCatPause = _catUpdatesPaused && !settings.CatUpdatesPaused;
+        _catUpdatesPaused = settings.CatUpdatesPaused;
+
         if (context is not null)
             SyncDisplayFrequencies(context);
 
         if (context is null || context.TrackState.LookAngles is null)
         {
             _isTracking = false;
-            _statusMessage = "Connected";
+            _statusMessage = settings.CatUpdatesPaused ? "CAT paused (manual tuning)" : "Connected";
             return;
         }
 
-        var resumingFromCatPause = _catUpdatesPaused && !settings.CatUpdatesPaused;
-        _catUpdatesPaused = settings.CatUpdatesPaused;
         _isBeaconOnly = context.Mode.IsBeaconOnly;
 
         if (_driver is null || !_driver.SupportsTracking)

@@ -11,6 +11,7 @@ internal sealed class RecordingRotatorDriver : IRotatorDriver
     public double? LastElevationDeg { get; private set; }
     public int SetPositionCallCount { get; private set; }
     public int GetPositionCallCount { get; private set; }
+    public int StopCallCount { get; private set; }
 
     public void Open() { }
 
@@ -22,7 +23,7 @@ internal sealed class RecordingRotatorDriver : IRotatorDriver
         AzimuthHistory.Add(azimuthDeg);
     }
 
-    public void Stop() { }
+    public void Stop() => StopCallCount++;
 
     public (int? Azimuth, int? Elevation) GetPosition()
     {

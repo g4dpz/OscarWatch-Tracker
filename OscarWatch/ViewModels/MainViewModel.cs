@@ -93,10 +93,14 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ParkRotatorCommand))]
     [NotifyPropertyChangedFor(nameof(StandbyButtonText))]
+    [NotifyPropertyChangedFor(nameof(ShowRotatorMenuItem))]
     [NotifyCanExecuteChangedFor(nameof(ToggleRigCatPauseCommand))]
+    [NotifyCanExecuteChangedFor(nameof(OpenRotatorManualCommand))]
     private bool _isStandby;
 
     public string StandbyButtonText => IsStandby ? "Resume" : "Standby";
+
+    public bool ShowRotatorMenuItem => IsStandby && _settings.Current.Rotator.Enabled;
 
     private bool? _rigCatPausedBeforeStandby;
 
@@ -378,8 +382,8 @@ public partial class MainViewModel : ViewModelBase
 
         if (IsStandby)
         {
-            _rigCatPausedBeforeStandby = _settings.Current.Rig.CatUpdatesPaused;
-            if (!_settings.Current.Rig.CatUpdatesPaused)
+            _rigCatPausedBeforeStandby = RigCatPaused;
+            if (!RigCatPaused)
                 RigCatPaused = true;
             _rotator.SetStandby(true, _settings.Current.Rotator);
         }
@@ -389,7 +393,7 @@ public partial class MainViewModel : ViewModelBase
             _rigCatPausedBeforeStandby = null;
             RigCatPaused = restorePaused;
             _rotator.SetStandby(false, _settings.Current.Rotator);
-            SyncRigAfterOperationalModeChange();
+            RefreshRigFromOverlay(reinitializePass: true);
         }
 
         UpdateRotatorDisplay();
@@ -399,6 +403,19 @@ public partial class MainViewModel : ViewModelBase
     private void ParkRotator()
     {
         _rotator.Park(_settings.Current.Rotator);
+        UpdateRotatorDisplay();
+    }
+
+    [RelayCommand(CanExecute = nameof(ShowRotatorMenuItem))]
+    private async Task OpenRotatorManualAsync()
+    {
+        var vm = App.Services.GetRequiredService<RotatorManualViewModel>();
+        vm.Initialize(UpdateRotatorDisplay);
+        var window = new RotatorManualWindow { DataContext = vm };
+        if (App.MainWindow is null)
+            return;
+
+        await window.ShowDialog(App.MainWindow);
         UpdateRotatorDisplay();
     }
 

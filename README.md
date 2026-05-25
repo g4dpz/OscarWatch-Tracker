@@ -35,7 +35,7 @@ dotnet run -c Release --project OscarWatch/OscarWatch.csproj
 - **Doppler frequencies** — draggable overlay on the world map with transponder modes from the satellite database, live radio/sat uplink & downlink, TX/RX offsets, and CTCSS (access/arm)
 - **Transponder database editor** — Satellites → Manage transponder database… (add/edit satellites and modes; saved under `%AppData%/OscarWatch/satellite_database.json`)
 - **Radio CAT** — doppler tracking, satellite/split setup, Main/Sub VFOs, uplink CTCSS where supported; Settings → Radio (see [Supported hardware](#supported-hardware))
-- **Rotator control** — serial pass tracking and manual park; Settings → Rotator (see [Supported hardware](#supported-hardware))
+- **Rotator control** — serial pass tracking, manual park, and **manual rotator** (az/el dialog in Standby for quick contacts between passes); Settings → Rotator (see [Supported hardware](#supported-hardware))
 - **Cloudlog** — optional Radio API v2 uplink/downlink when tracking (Settings → Cloudlog)
 - **Appearance** — light, dark, or system theme (sky plot adapts; world map image stays light)
 
@@ -65,7 +65,7 @@ More rigs: see [TODO.md](TODO.md) and [building radio drivers](documents/buildin
 | **Yaesu GS-232** | GS-232 | Yaesu rotators and many GS-232 clones |
 | **EasyComm** | EasyComm II | SPID, M2, and other EasyComm-compatible controllers |
 
-Pass tracking when elevation is above the track-start threshold; manual **Park**; azimuth range **360°** or **450°** (e.g. G-5500). On **450°** rotators, optional **smart azimuth** chooses 361–450° commands for the shortest path across north (Settings → Rotator).
+Pass tracking when elevation is above the track-start threshold; manual **Park** in the sidebar; **manual rotator** in Standby (menu **Rotator…** — set az/el, Rotate, Stop, Park for a quick contact without resuming pass tracking). Azimuth range **360°** or **450°** (e.g. G-5500). On **450°** rotators, optional **smart azimuth** chooses 361–450° commands for the shortest path across north (Settings → Rotator).
 
 More controllers: [building rotator drivers](documents/building-rotator-drivers.md).
 

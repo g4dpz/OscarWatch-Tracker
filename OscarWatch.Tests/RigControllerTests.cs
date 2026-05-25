@@ -217,6 +217,27 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Resuming_cat_pause_with_null_context_clears_internal_pause_state()
+    {
+        var controller = new RigController();
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy
+        };
+
+        settings.CatUpdatesPaused = true;
+        controller.PublishContext(settings, null);
+        controller.DrainCommandQueueForTests();
+        Assert.True(controller.GetStatus().CatUpdatesPaused);
+
+        settings.CatUpdatesPaused = false;
+        controller.PublishContext(settings, null);
+        controller.DrainCommandQueueForTests();
+        Assert.False(controller.GetStatus().CatUpdatesPaused);
+    }
+
+    [Fact]
     public void Cat_paused_skips_tracking()
     {
         var controller = new RigController();

@@ -87,7 +87,25 @@
       <h2>Standby</h2>
       <p>
         <strong>Standby</strong> parks the rotator and pauses CAT. Use it when browsing passes without transmitting or moving the beam.
-        Press <strong>Resume</strong> when you are ready to operate.
+        Press <strong>Resume</strong> when you are ready to operate — CAT and pass tracking resume for the focused satellite.
+      </p>
+
+      <h2>Manual rotator (Standby only)</h2>
+      <p>
+        While in Standby, the menu bar shows <strong>Rotator</strong> (only if rotator control is enabled in Settings).
+        Open it to point the beam manually without resuming pass tracking — useful for a quick contact on a terrestrial
+        repeater or a satellite between scheduled passes.
+      </p>
+      <ul>
+        <li>Enter <strong>Azimuth</strong> and <strong>Elevation</strong> (degrees), within your configured az/el limits.</li>
+        <li><strong>Rotate</strong> — slews to the entered position.</li>
+        <li><strong>Stop</strong> — stops a slew in progress (GS-232 <code>S</code> command; EasyComm has no standard stop).</li>
+        <li><strong>Park</strong> — returns to your configured park position from Settings → Rotator.</li>
+        <li><strong>Close</strong> — dismisses the dialog; the beam stays where you left it until you Park or Resume.</li>
+      </ul>
+      <p>
+        The dialog shows the current polled rotator position when connected. Press <strong>Resume</strong> in the sidebar
+        when you want OscarWatch to track passes again.
       </p>
     </main>
 
