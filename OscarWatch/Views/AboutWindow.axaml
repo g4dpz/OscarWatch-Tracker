@@ -2,8 +2,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="OscarWatch.Views.AboutWindow"
         Title="About OscarWatch"
-        Width="440" Height="340"
-        MinWidth="360" MinHeight="300"
+        Width="440" Height="420"
+        MinWidth="360" MinHeight="380"
         CanResize="False"
         WindowStartupLocation="CenterOwner">
   <DockPanel Margin="20">
@@ -12,7 +12,10 @@
                 HorizontalAlignment="Right"
                 Spacing="8"
                 Margin="0,16,0,0">
-      <Button Content="OK" Click="OnOkClick" MinWidth="80" IsDefault="True" />
+      <Button Content="OK"
+              Classes="dialog-footer"
+              Click="OnOkClick"
+              IsDefault="True" />
     </StackPanel>
 
     <StackPanel Spacing="12">
@@ -31,6 +34,12 @@
                  FontSize="12"
                  Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                  Text="TLE catalog: tle.oscarwatch.org" />
+      <TextBlock Text="github.com/magicbug/OscarWatch-Tracker"
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemAccentColorBrush}"
+                 TextDecorations="Underline"
+                 Cursor="Hand"
+                 PointerPressed="OnGitHubRepoClick" />
       <TextBlock TextWrapping="Wrap"
                  FontSize="12"
                  Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
@@ -39,6 +48,24 @@
                  FontSize="12"
                  Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                  Text="Licensed under the GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later). See LICENSE.md in the source repository." />
+      <TextBlock TextWrapping="Wrap"
+                 FontSize="13"
+                 LineHeight="20"
+                 Margin="0,4,0,0"
+                 Text="OscarWatch is free and open source. If you find it useful, you can support ongoing development:" />
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Content="GitHub Sponsors"
+                Classes="dialog-footer"
+                Click="OnGitHubSponsorsClick"
+                MinWidth="120" />
+        <Button Content="PayPal"
+                Classes="dialog-footer"
+                Click="OnPayPalClick" />
+      </StackPanel>
+      <TextBlock TextWrapping="Wrap"
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                 Text="If you donate, please let Peter know your callsign so you can be thanked." />
     </StackPanel>
   </DockPanel>
 </Window>

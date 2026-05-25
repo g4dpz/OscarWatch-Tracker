@@ -156,6 +156,14 @@ WAV files are uncompressed (~5 MB/min mono at 44.1 kHz). Use an external tool if
 
 Open the log folder from **Help → Open logs folder**. Unhandled crashes and rig/rotator/CAT errors are written here (not API keys).
 
+## Contributing
+
+Pull requests are welcome when they add something valuable to the **core** of OscarWatch — bug fixes, rig or rotator drivers, tracking behaviour, and operator-facing features that fit the project’s scope. For larger changes, open an issue first so direction can be agreed before you invest time in a big diff.
+
+## Support
+
+OscarWatch is **free** and open source. If you find it useful, you can support ongoing development via [GitHub Sponsors](https://github.com/sponsors/magicbug) or [PayPal](https://www.paypal.com/paypalme/PGoodhall). If you donate, please let Peter know your **callsign** so you can be thanked.
+
 ---
 
 ## For developers
