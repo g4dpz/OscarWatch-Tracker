@@ -4,6 +4,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using System.Threading;
 using OscarWatch.ViewModels;
 
@@ -139,11 +140,25 @@ public partial class FrequencyOverlayControl : UserControl
       return;
 
     if (_subscribedVm is not null)
+    {
       _subscribedVm.OverlayLayoutChanged -= OnOverlayLayoutChanged;
+      _subscribedVm.PropertyChanged -= OnViewModelPropertyChanged;
+    }
 
     _subscribedVm = vm;
     if (vm is not null)
+    {
       vm.OverlayLayoutChanged += OnOverlayLayoutChanged;
+      vm.PropertyChanged += OnViewModelPropertyChanged;
+    }
+  }
+
+  private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+  {
+    if (e.PropertyName is nameof(FrequencyOverlayViewModel.IsCollapsed)
+        or nameof(FrequencyOverlayViewModel.OverlayMinWidth)
+        or nameof(FrequencyOverlayViewModel.OverlayMaxWidth))
+      ScheduleEnsureVisiblePosition();
   }
 
   private void OnOverlayLayoutChanged(object? sender, EventArgs e) =>
@@ -189,9 +204,12 @@ public partial class FrequencyOverlayControl : UserControl
     if (Bounds.Width > 0 && Bounds.Height > 0)
       return Bounds.Size;
 
-    var w = DesiredSize.Width > 0 ? DesiredSize.Width : Math.Max(MinWidth, 380);
-    var h = DesiredSize.Height > 0 ? DesiredSize.Height : 280;
-    return new Size(Math.Max(w, Math.Max(MinWidth, 380)), h);
+    var vm = DataContext as FrequencyOverlayViewModel;
+    var minW = vm?.OverlayMinWidth ?? 380;
+    var collapsed = vm?.IsCollapsed == true;
+    var w = DesiredSize.Width > 0 ? DesiredSize.Width : (collapsed ? 320 : 380);
+    var h = DesiredSize.Height > 0 ? DesiredSize.Height : (collapsed ? 44 : 280);
+    return new Size(Math.Max(w, minW), h);
   }
 
   private void EnsureVisiblePosition()
@@ -218,6 +236,9 @@ public partial class FrequencyOverlayControl : UserControl
     if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
       return;
 
+    if (e.Source is Visual source && CollapseToggle is not null && IsDescendantOf(source, CollapseToggle))
+      return;
+
     var host = GetCoordinateHost();
     if (host is null)
       return;
@@ -228,6 +249,25 @@ public partial class FrequencyOverlayControl : UserControl
     _dragStartY = vm.OverlayY;
     e.Pointer.Capture(this);
     e.Handled = true;
+  }
+
+  private void OnCollapseToggleTapped(object? sender, TappedEventArgs e)
+  {
+    if (DataContext is FrequencyOverlayViewModel vm)
+      vm.ToggleCollapseCommand.Execute(null);
+    e.Handled = true;
+  }
+
+  private static bool IsDescendantOf(Visual? node, Visual ancestor)
+  {
+    while (node is not null)
+    {
+      if (ReferenceEquals(node, ancestor))
+        return true;
+      node = node.GetVisualParent() as Visual;
+    }
+
+    return false;
   }
 
   private void OnOverlayPointerMoved(object? sender, PointerEventArgs e)

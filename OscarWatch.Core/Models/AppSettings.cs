@@ -16,6 +16,7 @@ public sealed class AppSettings
     public Dictionary<string, SatelliteFrequencySelection> FrequencySelections { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public double FrequencyOverlayX { get; set; } = 12;
     public double FrequencyOverlayY { get; set; } = 12;
+    public bool FrequencyOverlayCollapsed { get; set; }
     public RotatorSettings Rotator { get; set; } = new();
     public RigSettings Rig { get; set; } = new();
     public CloudlogSettings Cloudlog { get; set; } = new();

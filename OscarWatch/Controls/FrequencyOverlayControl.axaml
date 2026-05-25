@@ -4,8 +4,8 @@
              xmlns:models="using:OscarWatch.Core.Models"
              x:Class="OscarWatch.Controls.FrequencyOverlayControl"
              x:DataType="vm:FrequencyOverlayViewModel"
-             MinWidth="380"
-             MaxWidth="520">
+             MinWidth="{Binding OverlayMinWidth}"
+             MaxWidth="{Binding OverlayMaxWidth}">
   <UserControl.Styles>
     <Style Selector="TextBlock.freq-mono">
       <Setter Property="FontFamily" Value="Consolas,Courier New,monospace" />
@@ -101,24 +101,51 @@
               BorderBrush="#FF404040"
               BorderThickness="0,0,0,1"
               Cursor="SizeAll"
-              Padding="10,8"
+              Padding="8,6"
               CornerRadius="8,8,0,0">
-        <DockPanel LastChildFill="True">
-          <TextBlock DockPanel.Dock="Right"
-                     Text="⠿"
-                     FontSize="14"
-                     Foreground="#FF909090"
+        <Grid ColumnDefinitions="Auto,*,Auto"
+              ColumnSpacing="6"
+              VerticalAlignment="Center">
+          <TextBlock x:Name="CollapseToggle"
+                     Grid.Column="0"
+                     Text="{Binding CollapseToggleGlyph}"
+                     ToolTip.Tip="{Binding CollapseToggleToolTip}"
+                     FontSize="12"
+                     LineHeight="16"
+                     Foreground="#FFB0B0B0"
                      VerticalAlignment="Center"
-                     Margin="8,0,0,0" />
-          <TextBlock Text="{Binding SatelliteName}"
+                     Margin="0,0,2,0"
+                     Cursor="Hand"
+                     Tapped="OnCollapseToggleTapped" />
+          <TextBlock Grid.Column="1"
+                     Text="{Binding SatelliteName}"
+                     IsVisible="{Binding !IsCollapsed}"
                      FontWeight="Bold"
                      FontSize="16"
                      Foreground="#FFFFFFFF"
+                     VerticalAlignment="Center"
+                     TextTrimming="CharacterEllipsis" />
+          <TextBlock Grid.Column="1"
+                     Text="{Binding CollapsedSummaryText}"
+                     IsVisible="{Binding IsCollapsed}"
+                     FontFamily="Consolas,Courier New,monospace"
+                     FontSize="12"
+                     LineHeight="16"
+                     Foreground="#FFE0E0E0"
+                     VerticalAlignment="Center"
+                     TextTrimming="CharacterEllipsis" />
+          <TextBlock Grid.Column="2"
+                     Text="⠿"
+                     FontSize="14"
+                     Foreground="#FF909090"
                      VerticalAlignment="Center" />
-        </DockPanel>
+        </Grid>
       </Border>
 
-      <StackPanel Spacing="12" Margin="14,12,14,14">
+      <StackPanel x:Name="ExpandedBody"
+                  Spacing="12"
+                  Margin="14,12,14,14"
+                  IsVisible="{Binding !IsCollapsed}">
         <TextBlock Text="No transponder data for this satellite"
                    IsVisible="{Binding !HasTransponderData}"
                    FontSize="13"

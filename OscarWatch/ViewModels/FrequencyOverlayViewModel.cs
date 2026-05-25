@@ -86,6 +86,20 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private double _overlayY = 12;
 
     [ObservableProperty]
+    private bool _isCollapsed;
+
+    [ObservableProperty]
+    private string _collapsedSummaryText = "—";
+
+    public double OverlayMinWidth => IsCollapsed ? 220 : 380;
+
+    public double OverlayMaxWidth => IsCollapsed ? 720 : 520;
+
+    public string CollapseToggleGlyph => IsCollapsed ? "▶" : "▼";
+
+    public string CollapseToggleToolTip => IsCollapsed ? "Expand frequency panel" : "Collapse to compact view";
+
+    [ObservableProperty]
     private SatelliteTransponderMode? _selectedMode;
 
     public ObservableCollection<SatelliteTransponderMode> AvailableModes { get; } = [];
@@ -96,6 +110,24 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         _database = database;
         OverlayX = settings.Current.FrequencyOverlayX;
         OverlayY = settings.Current.FrequencyOverlayY;
+        IsCollapsed = settings.Current.FrequencyOverlayCollapsed;
+    }
+
+    [RelayCommand]
+    private void ToggleCollapse()
+    {
+        IsCollapsed = !IsCollapsed;
+    }
+
+    partial void OnIsCollapsedChanged(bool value)
+    {
+        _settings.Current.FrequencyOverlayCollapsed = value;
+        _ = _settings.SaveAsync();
+        OnPropertyChanged(nameof(CollapseToggleGlyph));
+        OnPropertyChanged(nameof(CollapseToggleToolTip));
+        OnPropertyChanged(nameof(OverlayMinWidth));
+        OnPropertyChanged(nameof(OverlayMaxWidth));
+        RequestOverlayReclamp();
     }
 
     /// <summary>Keep the full panel inside the map area (called after measure / resize).</summary>
@@ -321,7 +353,11 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
     private bool CanStoreOffset() => HasTransponderData && SelectedMode is not null;
 
-    partial void OnHasTransponderDataChanged(bool value) => StoreOffsetCommand.NotifyCanExecuteChanged();
+    partial void OnHasTransponderDataChanged(bool value)
+    {
+        StoreOffsetCommand.NotifyCanExecuteChanged();
+        UpdateCollapsedSummaryText();
+    }
 
     /// <summary>Recompute Radio/Sat frequencies from last track state and current offsets.</summary>
     public void RefreshFrequencyDisplay()
@@ -357,6 +393,35 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         SatelliteTransmitText = IsBeaconOnly ? "—" : FrequencyDisplayFormat.FormatMHz(corrected.SatelliteTransmitKHz);
         SatelliteReceiveText = FrequencyDisplayFormat.FormatMHz(corrected.SatelliteReceiveKHz);
         DopplerShiftText = FrequencyDisplayFormat.FormatDopplerKHz(corrected.DopplerShiftKHz);
+        UpdateCollapsedSummaryText(corrected);
+    }
+
+    private void UpdateCollapsedSummaryText(CorrectedFrequencies? corrected = null)
+    {
+        if (!HasTransponderData || SelectedMode is null)
+        {
+            CollapsedSummaryText = string.IsNullOrEmpty(SatelliteName) || SatelliteName == "—"
+                ? "—"
+                : $"{SatelliteName} · no transponder data";
+            return;
+        }
+
+        var mode = SelectedMode.DisplayLabel;
+        if (corrected is null)
+        {
+            CollapsedSummaryText = SatelliteName;
+            return;
+        }
+
+        if (IsBeaconOnly)
+        {
+            CollapsedSummaryText =
+                $"{SatelliteName} · {mode} · {FrequencyDisplayFormat.FormatMHzCompact(corrected.RadioReceiveKHz)}";
+            return;
+        }
+
+        CollapsedSummaryText =
+            $"{SatelliteName} · {mode} · {FrequencyDisplayFormat.FormatMHzCompact(corrected.RadioTransmitKHz)} / {FrequencyDisplayFormat.FormatMHzCompact(corrected.RadioReceiveKHz)}";
     }
 
     private void UpdateOffsetAppliedHint()
@@ -570,5 +635,6 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         CtcssHintText = "";
         ShowCtcssHint = false;
         OffsetAppliedHint = "";
+        UpdateCollapsedSummaryText();
     }
 }

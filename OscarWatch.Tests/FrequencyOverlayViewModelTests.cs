@@ -87,6 +87,56 @@ public class FrequencyOverlayViewModelTests
     }
 
     [Fact]
+    public void ToggleCollapse_persists_and_updates_compact_summary()
+    {
+        var settings = new TestSettingsService();
+        var database = new TestSatelliteDatabaseService(
+        [
+            new SatelliteRadioEntry
+            {
+                Name = "JO-97",
+                Modes =
+                [
+                    new SatelliteTransponderMode
+                    {
+                        Type = "SSB Transponder",
+                        DownlinkKHz = 435_475,
+                        UplinkKHz = 145_920,
+                        DownlinkMode = "USB",
+                        UplinkMode = "LSB",
+                        Doppler = "REV"
+                    }
+                ]
+            }
+        ]);
+
+        var vm = new FrequencyOverlayViewModel(settings, database);
+        Assert.False(vm.IsCollapsed);
+
+        vm.Update(new SatelliteTrackState
+        {
+            Name = "JO-97",
+            NoradId = "1",
+            Subpoint = new GeoCoordinate(52, -4),
+            LookAngles = new LookAngles(180, 25, 800, 0)
+        });
+
+        Assert.Contains("JO-97", vm.CollapsedSummaryText, StringComparison.Ordinal);
+        Assert.Contains("SSB Transponder", vm.CollapsedSummaryText, StringComparison.Ordinal);
+        Assert.Contains("/", vm.CollapsedSummaryText, StringComparison.Ordinal);
+
+        vm.ToggleCollapseCommand.Execute(null);
+        Assert.True(vm.IsCollapsed);
+        Assert.True(settings.Current.FrequencyOverlayCollapsed);
+        Assert.Equal("▶", vm.CollapseToggleGlyph);
+
+        vm.ToggleCollapseCommand.Execute(null);
+        Assert.False(vm.IsCollapsed);
+        Assert.False(settings.Current.FrequencyOverlayCollapsed);
+        Assert.Equal("▼", vm.CollapseToggleGlyph);
+    }
+
+    [Fact]
     public void Offset_adjustment_does_not_persist_until_store()
     {
         var settings = new TestSettingsService();
