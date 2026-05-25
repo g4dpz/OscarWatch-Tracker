@@ -925,28 +925,37 @@ public partial class MainViewModel : ViewModelBase
     private async Task RefreshPassesAsync()
     {
         var selectedNorad = (SelectedListItem as PassRowViewModel)?.NoradId;
-        Passes.Clear();
-        var passes = await _tracking.GetUpcomingPassesAsync();
-        DateOnly? currentDay = null;
-        foreach (var p in passes.Take(50))
+        var passes = await _tracking.GetUpcomingPassesAsync().ConfigureAwait(false);
+
+        void Apply()
         {
-            var day = PassDisplayFormat.GetLocalDate(p.AosUtc);
-            if (currentDay != day)
+            Passes.Clear();
+            DateOnly? currentDay = null;
+            foreach (var p in passes.Take(50))
             {
-                currentDay = day;
-                Passes.Add(new PassDayHeaderViewModel
+                var day = PassDisplayFormat.GetLocalDate(p.AosUtc);
+                if (currentDay != day)
                 {
-                    DateLabel = PassDisplayFormat.FormatDayHeader(p.AosUtc)
-                });
+                    currentDay = day;
+                    Passes.Add(new PassDayHeaderViewModel
+                    {
+                        DateLabel = PassDisplayFormat.FormatDayHeader(p.AosUtc)
+                    });
+                }
+
+                Passes.Add(PassRowViewModel.From(p));
             }
 
-            Passes.Add(PassRowViewModel.From(p));
+            if (selectedNorad is not null)
+                SelectedListItem = Passes.OfType<PassRowViewModel>().FirstOrDefault(p => p.NoradId == selectedNorad);
+
+            UpdatePassHighlightState();
         }
 
-        if (selectedNorad is not null)
-            SelectedListItem = Passes.OfType<PassRowViewModel>().FirstOrDefault(p => p.NoradId == selectedNorad);
-
-        UpdatePassHighlightState();
+        if (Dispatcher.UIThread.CheckAccess())
+            Apply();
+        else
+            await Dispatcher.UIThread.InvokeAsync(Apply);
     }
 }
 

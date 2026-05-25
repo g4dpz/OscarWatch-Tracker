@@ -306,12 +306,19 @@
                      MinWidth="0"
                      HorizontalAlignment="Stretch"
                      SelectedItem="{Binding SelectedListItem, Mode=TwoWay}">
+              <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <StackPanel />
+                </ItemsPanelTemplate>
+              </ListBox.ItemsPanel>
               <ListBox.Styles>
                 <Style Selector="ListBoxItem">
                   <Setter Property="Padding" Value="0" />
                   <Setter Property="Margin" Value="0,0,0,2" />
-                  <Setter Property="MinHeight" Value="0" />
                   <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+                <Style Selector="ListBoxItem:not(.pass-day-header)">
+                  <Setter Property="MinHeight" Value="68" />
                 </Style>
                 <Style Selector="ListBoxItem.pass-day-header:disabled">
                   <Setter Property="Padding" Value="0" />

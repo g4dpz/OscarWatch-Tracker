@@ -10,7 +10,14 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         PassesListBox.ContainerPrepared += OnPassListContainerPrepared;
+        PassesListBox.ContainerClearing += OnPassListContainerClearing;
         _ = new MapAspectWindowConstraint(this);
+    }
+
+    private static void OnPassListContainerClearing(object? sender, ContainerClearingEventArgs e)
+    {
+        if (e.Container is ListBoxItem item)
+            item.Classes.Remove("pass-day-header");
     }
 
     private static void OnPassListContainerPrepared(object? sender, ContainerPreparedEventArgs e)
