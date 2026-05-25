@@ -106,6 +106,24 @@ public sealed class PassRecordingCoordinatorTests
         Assert.False(_recording.IsRecording);
         Assert.Equal(1, _recording.StopCount);
     }
+
+    [Fact]
+    public async Task Does_not_interrupt_manual_test_recording()
+    {
+        var utc = DateTime.UtcNow;
+        await _recording.StartAsync(
+            AudioRecordingSessions.ManualTestNoradId,
+            "Test",
+            "0",
+            RecordingFormatPreset.Mono44100,
+            "test.wav");
+
+        _coordinator.Process("25544", State("25544", 20.0), EnabledSettings, _recording, utc);
+
+        Assert.True(_recording.IsRecording);
+        Assert.Equal(AudioRecordingSessions.ManualTestNoradId, _recording.ActiveNoradId);
+        Assert.Equal(0, _recording.StopCount);
+    }
 }
 
 internal sealed class FakeAudioRecordingService : IAudioRecordingService

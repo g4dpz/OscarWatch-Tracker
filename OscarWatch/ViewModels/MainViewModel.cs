@@ -575,7 +575,7 @@ public partial class MainViewModel : ViewModelBase
         var settings = _settings.Current.PassRecording ?? new PassRecordingSettings();
         if (!settings.Enabled)
         {
-            if (_recording.IsRecording)
+            if (_recording.IsRecording && !AudioRecordingSessions.IsManualTest(_recording))
                 _ = _recording.StopAsync();
             _passRecordingCoordinator.ResetTracking();
             return;

@@ -476,9 +476,10 @@ public partial class SettingsViewModel : ViewModelBase
 
         try
         {
+            TestRecordingCommand.NotifyCanExecuteChanged();
             RecordingTestStatus = "Recording 5 s test clip…";
             await _recording.StartAsync(
-                "TEST",
+                AudioRecordingSessions.ManualTestNoradId,
                 "Test",
                 SelectedRecordingDevice.Id,
                 format,
@@ -493,7 +494,14 @@ public partial class SettingsViewModel : ViewModelBase
             if (_recording.IsRecording)
                 await _recording.StopAsync().ConfigureAwait(true);
         }
+        finally
+        {
+            TestRecordingCommand.NotifyCanExecuteChanged();
+        }
     }
+
+    partial void OnSelectedRecordingDeviceChanged(RecordingDeviceOption? value) =>
+        TestRecordingCommand.NotifyCanExecuteChanged();
 
     private bool CanTestRecording() =>
         RecordingAvailable && SelectedRecordingDevice is not null && !_recording.IsRecording;

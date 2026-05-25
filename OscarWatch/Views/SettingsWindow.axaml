@@ -430,7 +430,6 @@
                        Text="{Binding RecordingUnavailableText}" />
             <Button Content="Test recording (5 s)"
                     Command="{Binding TestRecordingCommand}"
-                    IsEnabled="{Binding RecordingAvailable}"
                     HorizontalAlignment="Left"
                     MinWidth="160" />
             <TextBlock Text="{Binding RecordingTestStatus}"

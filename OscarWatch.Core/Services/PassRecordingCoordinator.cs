@@ -16,6 +16,9 @@ public sealed class PassRecordingCoordinator
         IAudioRecordingService recording,
         DateTime utcNow)
     {
+        if (AudioRecordingSessions.IsManualTest(recording))
+            return;
+
         if (recording.IsRecording
             && !string.IsNullOrEmpty(recording.ActiveNoradId)
             && !string.Equals(recording.ActiveNoradId, focusedNoradId, StringComparison.Ordinal))

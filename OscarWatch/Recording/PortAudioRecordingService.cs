@@ -43,17 +43,17 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
         if (!_initialized)
             return [];
 
-        var devices = new List<AudioInputDevice>();
+        var candidates = new List<RecordingDeviceCandidate>();
         for (var i = 0; i < PortAudio.DeviceCount; i++)
         {
             var info = PortAudio.GetDeviceInfo(i);
             if (info.maxInputChannels <= 0)
                 continue;
 
-            devices.Add(new AudioInputDevice(i.ToString(), info.name));
+            candidates.Add(new RecordingDeviceCandidate(i, info.name, info.defaultLowInputLatency));
         }
 
-        return devices;
+        return RecordingDeviceListBuilder.Build(candidates);
     }
 
     public async Task StartAsync(
