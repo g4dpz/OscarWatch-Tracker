@@ -114,6 +114,12 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty]
     private double _rotatorParkElevationDeg;
 
+    [ObservableProperty]
+    private double _rotatorAzimuthOffsetDeg;
+
+    [ObservableProperty]
+    private double _rotatorElevationOffsetDeg;
+
     public ObservableCollection<string> AvailableComPorts { get; } = [];
 
     public bool SpeechAvailable { get; }
@@ -341,6 +347,8 @@ public partial class SettingsViewModel : ViewModelBase
             TrackStartElevationDeg = Math.Clamp(RotatorTrackStartElevationDeg, -90, 90),
             ParkAzimuthDeg = RotatorParkAzimuthDeg,
             ParkElevationDeg = RotatorParkElevationDeg,
+            AzimuthOffsetDeg = RotatorAzimuthOffsetDeg,
+            ElevationOffsetDeg = RotatorElevationOffsetDeg,
             SmartAzimuth450 = RotatorSmartAzimuth450
         };
         _settings.Current.Rig = new RigSettings
@@ -431,6 +439,8 @@ public partial class SettingsViewModel : ViewModelBase
             RotatorTrackStartElevationDeg = rotator.TrackStartElevationDeg;
             RotatorParkAzimuthDeg = rotator.ParkAzimuthDeg;
             RotatorParkElevationDeg = rotator.ParkElevationDeg;
+            RotatorAzimuthOffsetDeg = rotator.AzimuthOffsetDeg;
+            RotatorElevationOffsetDeg = rotator.ElevationOffsetDeg;
             RotatorSmartAzimuth450 = rotator.SmartAzimuth450;
 
             var rig = _settings.Current.Rig ?? new RigSettings();

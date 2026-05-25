@@ -184,18 +184,22 @@ public sealed class RotatorController : IRotatorController, IDisposable
                     break;
 
                 case RotatorCommandKind.Park:
+                    _cachedSettings = command.Settings;
                     ParkOnWorker(command.Settings);
                     break;
 
                 case RotatorCommandKind.ManualMove:
+                    _cachedSettings = command.Settings;
                     ManualMoveOnWorker(command.Settings, command.AzimuthDeg!.Value, command.ElevationDeg!.Value);
                     break;
 
                 case RotatorCommandKind.Stop:
+                    _cachedSettings = command.Settings;
                     StopOnWorker(command.Settings);
                     break;
 
                 case RotatorCommandKind.SetStandby:
+                    _cachedSettings = command.Settings;
                     SetStandbyOnWorker(command.StandbyActive!.Value, command.Settings);
                     break;
 
@@ -311,8 +315,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         if (_rotator is null)
             return;
 
-        var az = Math.Clamp(azimuthDeg, 0, settings.MaxAzimuthDeg);
-        var el = Math.Clamp(elevationDeg, 0, settings.MaxElevationDeg);
+        var (az, el) = RotatorCalibration.ApplyOffsets(azimuthDeg, elevationDeg, settings);
 
         _standbyManualActive = true;
         _parked = false;
@@ -469,33 +472,39 @@ public sealed class RotatorController : IRotatorController, IDisposable
         if (_rotator is null)
             return;
 
+        var (commandAzInput, commandEl) = RotatorCalibration.ApplyOffsets(
+            azimuthDeg,
+            elevationDeg,
+            settings);
+        var aheadForPlanner = RotatorCalibration.ApplyAzimuthOffset(aheadAzimuthDeg, settings);
+
         var useSmartAzimuth = settings.SmartAzimuth450 && settings.MaxAzimuthDeg > 360;
         var effectiveLastAzimuth = _lastAzimuth ?? _displayAzimuth;
         var commandAz = useSmartAzimuth
             ? RotatorAzimuthPlanner.ResolveCommandAz(
-                effectiveLastAzimuth, azimuthDeg, settings.MaxAzimuthDeg, aheadAzimuthDeg)
-            : azimuthDeg;
+                effectiveLastAzimuth, commandAzInput, settings.MaxAzimuthDeg, aheadForPlanner)
+            : commandAzInput;
 
         _displayCommandedAzimuth = (int)Math.Round(commandAz);
         _displayCompassAzimuth = (int)Math.Round(RotatorAzimuthPlanner.Normalize360(azimuthDeg));
 
         var send = _lastAzimuth is null || _lastElevation is null
             || Math.Abs(commandAz - _lastAzimuth.Value) >= 1
-            || Math.Abs(elevationDeg - _lastElevation.Value) >= 1;
+            || Math.Abs(commandEl - _lastElevation.Value) >= 1;
 
         if (!send)
             return;
 
         try
         {
-            _rotator.SetPosition(commandAz, elevationDeg, settings);
+            _rotator.SetPosition(commandAz, commandEl, settings);
             _lastAzimuth = Math.Round(commandAz);
-            _lastElevation = Math.Round(elevationDeg);
+            _lastElevation = Math.Round(commandEl);
             _parked = false;
         }
         catch (Exception ex)
         {
-            Log.Warning(ex, "Rotator track failed at Az={Az} El={El}", commandAz, elevationDeg);
+            Log.Warning(ex, "Rotator track failed at Az={Az} El={El}", commandAz, commandEl);
             TearDownRotator();
         }
     }
@@ -507,9 +516,13 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
         try
         {
-            _rotator.SetPosition(settings.ParkAzimuthDeg, settings.ParkElevationDeg, settings);
-            _lastAzimuth = settings.ParkAzimuthDeg;
-            _lastElevation = settings.ParkElevationDeg;
+            var (az, el) = RotatorCalibration.ApplyOffsets(
+                settings.ParkAzimuthDeg,
+                settings.ParkElevationDeg,
+                settings);
+            _rotator.SetPosition(az, el, settings);
+            _lastAzimuth = az;
+            _lastElevation = el;
             _parked = true;
             ClearTrackingAzimuthDisplay();
         }

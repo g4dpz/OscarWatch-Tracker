@@ -25,6 +25,12 @@ public sealed class RotatorSettings
     public double ParkAzimuthDeg { get; set; }
     public double ParkElevationDeg { get; set; }
 
+    /// <summary>Added to commanded azimuth for tracking, park, and manual moves.</summary>
+    public double AzimuthOffsetDeg { get; set; }
+
+    /// <summary>Added to commanded elevation for tracking, park, and manual moves.</summary>
+    public double ElevationOffsetDeg { get; set; }
+
     /// <summary>Use 361–450° commands for shortest path when <see cref="AzimuthRange"/> is 450°.</summary>
     public bool SmartAzimuth450 { get; set; } = true;
 

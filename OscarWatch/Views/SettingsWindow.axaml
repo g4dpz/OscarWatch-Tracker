@@ -44,9 +44,12 @@
           <Setter Property="FontSize" Value="11" />
           <Setter Property="FontWeight" Value="Normal" />
         </Style>
+        <Style Selector="TabItem ScrollViewer > StackPanel">
+          <Setter Property="Margin" Value="0,0,0,56" />
+        </Style>
       </TabControl.Styles>
       <TabItem Header="Station">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
             <TextBlock Text="Display name" />
             <TextBox Text="{Binding DisplayName, Mode=TwoWay}" />
@@ -73,7 +76,7 @@
       </TabItem>
 
       <TabItem Header="Tracking">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
             <TextBlock Text="Minimum elevation (°)" />
             <NumericUpDown Value="{Binding MinimumElevationDeg, Mode=TwoWay}"
@@ -104,7 +107,7 @@
       </TabItem>
 
       <TabItem Header="Appearance">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
             <TextBlock Text="Theme" />
             <ComboBox ItemsSource="{Binding ThemeOptions}"
@@ -125,7 +128,7 @@
       </TabItem>
 
       <TabItem Header="Voice">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
             <CheckBox Content="Enable voice announcements"
                       IsChecked="{Binding VoiceAnnouncementsEnabled, Mode=TwoWay}" />
@@ -171,7 +174,7 @@
       </TabItem>
 
       <TabItem Header="Radio">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
             <TextBlock Text="{Binding ComPortConflictText}"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
@@ -269,7 +272,7 @@
       </TabItem>
 
       <TabItem Header="Rotator">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
             <TextBlock Text="{Binding ComPortConflictText}"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
@@ -361,12 +364,31 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="Park position is used when no satellite is above the tracking threshold. The focused pass or live satellite is tracked automatically." />
+            <TextBlock Text="Calibration offsets (°)" Margin="0,8,0,0" FontWeight="SemiBold" />
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+              <StackPanel Grid.Column="0" Spacing="4">
+                <TextBlock Text="Azimuth offset" />
+                <NumericUpDown Value="{Binding RotatorAzimuthOffsetDeg, Mode=TwoWay}"
+                               Minimum="-45" Maximum="45"
+                               Increment="0.1" FormatString="F1" />
+              </StackPanel>
+              <StackPanel Grid.Column="1" Spacing="4">
+                <TextBlock Text="Elevation offset" />
+                <NumericUpDown Value="{Binding RotatorElevationOffsetDeg, Mode=TwoWay}"
+                               Minimum="-45" Maximum="45"
+                               Increment="0.1" FormatString="F1" />
+              </StackPanel>
+            </Grid>
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Added to every rotator command (pass tracking, park, and manual rotate). Use positive values if the beam stops short of the target; negative if it overshoots." />
           </StackPanel>
         </ScrollViewer>
       </TabItem>
 
       <TabItem Header="Recording">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
             <CheckBox Content="Enable automatic pass recording"
                       IsChecked="{Binding PassRecordingEnabled, Mode=TwoWay}" />
@@ -441,7 +463,7 @@
       </TabItem>
 
       <TabItem Header="Cloudlog">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
             <TextBlock TextWrapping="Wrap"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"

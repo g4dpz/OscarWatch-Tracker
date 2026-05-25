@@ -62,6 +62,78 @@ public sealed class RotatorControllerTests
     }
 
     [Fact]
+    public void Tracking_applies_azimuth_and_elevation_calibration_offsets()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            TrackStartElevationDeg = 5,
+            AzimuthOffsetDeg = 2.5,
+            ElevationOffsetDeg = -1.0
+        };
+
+        var target = new SatelliteTrackState
+        {
+            Name = "ISS",
+            NoradId = "25544",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(45, 20, 800, 0)
+        };
+
+        controller.UpdateSynchronously(settings, target);
+
+        Assert.Equal(47.5, rotator.LastAzimuthDeg);
+        Assert.Equal(19, rotator.LastElevationDeg);
+    }
+
+    [Fact]
+    public void Park_applies_calibration_offsets()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            ParkAzimuthDeg = 180,
+            ParkElevationDeg = 10,
+            AzimuthOffsetDeg = -5,
+            ElevationOffsetDeg = 2
+        };
+
+        controller.Park(settings);
+        controller.DrainCommandQueueForTests();
+
+        Assert.Equal(175, rotator.LastAzimuthDeg);
+        Assert.Equal(12, rotator.LastElevationDeg);
+    }
+
+    [Fact]
+    public void Manual_move_applies_calibration_offsets()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            AzimuthOffsetDeg = 1,
+            ElevationOffsetDeg = 0.5
+        };
+
+        controller.SetStandby(true, settings);
+        controller.DrainCommandQueueForTests();
+        controller.MoveTo(90, 30, settings);
+        controller.DrainCommandQueueForTests();
+
+        Assert.Equal(91, rotator.LastAzimuthDeg);
+        Assert.Equal(30.5, rotator.LastElevationDeg);
+    }
+
+    [Fact]
     public void Manual_move_during_standby_is_not_re_parked()
     {
         var rotator = new RecordingRotatorDriver();
