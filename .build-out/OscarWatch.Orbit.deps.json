@@ -1,0 +1,89 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "OscarWatch.Orbit/1.0.0": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.0",
+          "OscarWatch.Core": "1.0.0",
+          "Zeptomoby.OrbitTools.Orbit": "2.0.0"
+        },
+        "runtime": {
+          "OscarWatch.Orbit.dll": {}
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions/9.0.0": {
+        "runtime": {
+          "lib/net9.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.24.52809"
+          }
+        }
+      },
+      "Zeptomoby.OrbitTools.Core/2.0.0": {
+        "runtime": {
+          "lib/net8.0/Zeptomoby.OrbitTools.Core.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.0.0.0"
+          }
+        }
+      },
+      "Zeptomoby.OrbitTools.Orbit/2.0.0": {
+        "dependencies": {
+          "Zeptomoby.OrbitTools.Core": "2.0.0"
+        },
+        "runtime": {
+          "lib/net8.0/Zeptomoby.OrbitTools.Orbit.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.0.0.0"
+          }
+        }
+      },
+      "OscarWatch.Core/1.0.0": {
+        "runtime": {
+          "OscarWatch.Core.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "OscarWatch.Orbit/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.Extensions.DependencyInjection.Abstractions/9.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-+6f2qv2a3dLwd5w6JanPIPs47CxRbnk+ZocMJUhv9NxP88VlOcJYZs9jY+MYSjxvady08bUZn6qgiNh7DadGgg==",
+      "path": "microsoft.extensions.dependencyinjection.abstractions/9.0.0",
+      "hashPath": "microsoft.extensions.dependencyinjection.abstractions.9.0.0.nupkg.sha512"
+    },
+    "Zeptomoby.OrbitTools.Core/2.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-EOXwEdmmns+JCJWf/C8mITQ9oOHAekZoCy4sblTn6AmbvJ8EeQzAJjrY36CN/lNoTgwc/waK2qQXK/HiQU4aIQ==",
+      "path": "zeptomoby.orbittools.core/2.0.0",
+      "hashPath": "zeptomoby.orbittools.core.2.0.0.nupkg.sha512"
+    },
+    "Zeptomoby.OrbitTools.Orbit/2.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-0rkYmPVSU+9aHWytWjwguxd/+gdV1yYBEJ3sAYuBP/SvUhMDo44KKoKZBZ2LeyrD/EjoLWvX4JqbgvRmdZmSUQ==",
+      "path": "zeptomoby.orbittools.orbit/2.0.0",
+      "hashPath": "zeptomoby.orbittools.orbit.2.0.0.nupkg.sha512"
+    },
+    "OscarWatch.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

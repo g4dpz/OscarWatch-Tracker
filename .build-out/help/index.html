@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OscarWatch Help</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <img src="oscarwatch-icon.png" alt="" class="brand-icon" width="56" height="56" />
+        <div class="brand-text">
+          <h1>OscarWatch Help</h1>
+          <p class="tagline">A plain guide for amateur radio satellite operators</p>
+        </div>
+      </div>
+      <nav aria-label="Help topics">
+        <ul>
+          <li><a href="index.html" aria-current="page">Home</a></li>
+          <li><a href="quick-start.html">Quick start</a></li>
+          <li><a href="map-and-sidebar.html">Map &amp; sidebar</a></li>
+          <li><a href="frequencies.html">Frequencies</a></li>
+          <li><a href="satellites.html">Satellites &amp; TLEs</a></li>
+          <li><a href="passes.html">Pass planning</a></li>
+          <li><a href="radio-rotator.html">Radio &amp; rotator</a></li>
+          <li><a href="settings.html">Settings</a></li>
+          <li><a href="troubleshooting.html">Problems?</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h2>Who is this for?</h2>
+      <p>
+        OscarWatch is for licensed amateurs who work satellites on VHF and UHF:
+        FM repeaters, SSB transponders, and similar modes. You do not need to be a
+        software expert. If you know what a pass, azimuth, elevation, and Doppler
+        shift are, you are in the right place.
+      </p>
+
+      <h2>What OscarWatch does</h2>
+      <ul>
+        <li>Shows where satellites are on a world map and a sky plot at your station</li>
+        <li>Lists upcoming passes over your location</li>
+        <li>Works out uplink and downlink frequencies (including Doppler) from a transponder database</li>
+        <li>Can steer your rotator and update your radio on CAT during a pass (optional)</li>
+        <li>Can announce when a satellite is rising (optional voice)</li>
+        <li>Can record pass audio to WAV when a satellite is above a set elevation (optional)</li>
+      </ul>
+
+      <h2>Five-minute setup</h2>
+      <ol>
+        <li>Open <strong>Settings</strong> and enter your station position (latitude, longitude, and height if you know it).</li>
+        <li>Go to <strong>Satellites → Select satellites</strong> and tick the spacecraft you want to work.</li>
+        <li>Use <strong>Satellites → Refresh TLEs</strong> so orbital data is up to date.</li>
+        <li>Click a satellite on the map or in the pass list to focus on it.</li>
+        <li>During a pass, use the frequency panel on the map for modes, offsets, and (if configured) CAT tracking.</li>
+      </ol>
+      <p>See <a href="quick-start.html">Quick start</a> for a typical field-day workflow.</p>
+
+      <div class="tip">
+        <strong>Tip:</strong> Use <strong>Standby</strong> in the sidebar when you are only browsing the map.
+        It parks the rotator and pauses CAT so you do not send accidental commands to your hardware.
+      </div>
+
+      <h2>Help topics</h2>
+      <table>
+        <thead>
+          <tr><th>Topic</th><th>Read when…</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><a href="map-and-sidebar.html">Map &amp; sidebar</a></td><td>You want to understand the main screen</td></tr>
+          <tr><td><a href="frequencies.html">Frequencies</a></td><td>You are setting modes, offsets, or CTCSS</td></tr>
+          <tr><td><a href="satellites.html">Satellites &amp; TLEs</a></td><td>You choose satellites or update TLEs</td></tr>
+          <tr><td><a href="passes.html">Pass planning</a></td><td>You plan ahead or export passes to a calendar</td></tr>
+          <tr><td><a href="radio-rotator.html">Radio &amp; rotator</a></td><td>You connect a rig or rotator</td></tr>
+          <tr><td><a href="settings.html">Settings</a></td><td>You configure voice, recording, Cloudlog, appearance, etc.</td></tr>
+          <tr><td><a href="troubleshooting.html">Problems?</a></td><td>Something does not work as expected</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Where files are stored</h2>
+      <p>On Windows, OscarWatch keeps your data under:</p>
+      <p><code>%AppData%\OscarWatch\</code></p>
+      <p>That folder holds settings, TLE cache, your edited transponder database, pass recordings, and log files. Use <strong>Help → Open logs folder</strong> in the app if support asks for a log.</p>
+    </main>
+
+    <footer>OscarWatch — help for satellite operators</footer>
+  </div>
+</body>
+</html>

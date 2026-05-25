@@ -1,0 +1,19 @@
+{
+  "frequencyEncode": [
+    { "hz": 145950000, "payloadHex": "050000954501" },
+    { "hz": 432146000, "payloadHex": "050060143204" }
+  ],
+  "rigSatMode": [
+    { "downlinkKHz": 145950, "uplinkKHz": 432146, "useMainSub": true },
+    { "downlinkKHz": 436795, "uplinkKHz": 145850, "useMainSub": true }
+  ],
+  "setupVfos": [
+    { "downlinkMode": "FMN", "thresholdHz": 200, "interactive": false },
+    { "downlinkMode": "USB", "thresholdHz": 50, "interactive": true },
+    { "downlinkMode": "DATA-USB", "thresholdHz": 0, "interactive": false }
+  ],
+  "doppler": [
+    { "nominalHz": 145950000, "rangeVelocityMps": 7500, "rxHz": 145946363, "txHz": 145953637 },
+    { "nominalHz": 432146000, "rangeVelocityMps": -5000, "rxHz": 432153208, "txHz": 432138792 }
+  ]
+}
