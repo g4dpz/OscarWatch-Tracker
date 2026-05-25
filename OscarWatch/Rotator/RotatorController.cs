@@ -379,9 +379,10 @@ public sealed class RotatorController : IRotatorController, IDisposable
             return;
 
         var useSmartAzimuth = settings.SmartAzimuth450 && settings.MaxAzimuthDeg > 360;
+        var effectiveLastAzimuth = _lastAzimuth ?? _displayAzimuth;
         var commandAz = useSmartAzimuth
             ? RotatorAzimuthPlanner.ResolveCommandAz(
-                _lastAzimuth, azimuthDeg, settings.MaxAzimuthDeg, aheadAzimuthDeg)
+                effectiveLastAzimuth, azimuthDeg, settings.MaxAzimuthDeg, aheadAzimuthDeg)
             : azimuthDeg;
 
         _displayCommandedAzimuth = (int)Math.Round(commandAz);

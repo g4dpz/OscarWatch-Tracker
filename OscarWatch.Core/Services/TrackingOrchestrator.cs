@@ -114,7 +114,7 @@ public sealed class TrackingOrchestrator
     }
 
     /// <summary>Compass azimuth a few seconds ahead for rotator north-wrap lookahead.</summary>
-    public double? TryGetAheadAzimuthDeg(string noradId, double secondsAhead = 1.5)
+    public double? TryGetAheadAzimuthDeg(string noradId, double secondsAhead = 3.0)
     {
         if (!_propagator.HasSatellite(noradId))
             return null;

@@ -150,6 +150,68 @@ public sealed class RotatorControllerTests
     }
 
     [Fact]
+    public void Smart450_uses_polled_position_after_target_change()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            AzimuthRange = RotatorAzimuthRange.Deg450,
+            SmartAzimuth450 = true,
+            TrackStartElevationDeg = 5
+        };
+
+        controller.UpdateSynchronously(settings, TrackTarget("1", 350, 20));
+        controller.UpdateSynchronously(settings, TrackTarget("2", 15, 20));
+        Assert.Equal(375, rotator.LastAzimuthDeg);
+    }
+
+    [Fact]
+    public void Smart450_west_side_north_wrap_after_tca()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            AzimuthRange = RotatorAzimuthRange.Deg450,
+            SmartAzimuth450 = true,
+            TrackStartElevationDeg = 5
+        };
+
+        var norad = "25544";
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 15, 45));
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 330, 30));
+        Assert.Contains(375, rotator.AzimuthHistory);
+        Assert.Equal(330, rotator.LastAzimuthDeg);
+    }
+
+    [Fact]
+    public void Smart450_mid_pass_join_at_34_deg_uses_extended_before_west_jump()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            AzimuthRange = RotatorAzimuthRange.Deg450,
+            SmartAzimuth450 = true,
+            TrackStartElevationDeg = 5
+        };
+
+        var norad = "25544";
+        controller.UpdateSynchronously(settings, TrackTarget("other", 180, 30));
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 34, 25));
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 330, 20, aheadAzimuthDeg: 325));
+        Assert.Contains(394, rotator.AzimuthHistory);
+        Assert.Equal(330, rotator.LastAzimuthDeg);
+    }
+
+    [Fact]
     public void Smart450_east_side_north_crossing_commits_before_compass_wrap()
     {
         var rotator = new RecordingRotatorDriver();

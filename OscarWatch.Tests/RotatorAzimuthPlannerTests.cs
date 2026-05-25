@@ -50,6 +50,7 @@ public sealed class RotatorAzimuthPlannerTests
 
     [Theory]
     [InlineData(25, 20, 450, 380)]
+    [InlineData(34, 20, 450, 380)]
     [InlineData(15, 10, 450, 370)]
     [InlineData(80, 50, 450, 50)]
     public void ResolveCommandAz_east_descent_commits_to_extended_band(
@@ -65,8 +66,8 @@ public sealed class RotatorAzimuthPlannerTests
     [Fact]
     public void ResolveCommandAz_east_imminent_wrap_uses_extended_with_lookahead()
     {
-        var result = RotatorAzimuthPlanner.ResolveCommandAz(50, 15, 450, nextCompassAzDeg: 355);
-        Assert.Equal(375, result);
+        Assert.Equal(375, RotatorAzimuthPlanner.ResolveCommandAz(50, 15, 450, nextCompassAzDeg: 355));
+        Assert.Equal(394, RotatorAzimuthPlanner.ResolveCommandAz(34, 34, 450, nextCompassAzDeg: 330));
     }
 
     [Fact]
@@ -77,8 +78,41 @@ public sealed class RotatorAzimuthPlannerTests
     }
 
     [Theory]
+    [InlineData(10, 330, 370)]
+    [InlineData(15, 330, 375)]
+    [InlineData(34, 330, 394)]
+    [InlineData(5, 350, 365)]
+    [InlineData(25, 310, 385)]
+    public void ResolveCommandAz_west_side_north_wrap_commits_to_extended(
+        double last,
+        double target,
+        double expected)
+    {
+        var result = RotatorAzimuthPlanner.ResolveCommandAz(last, target, 450);
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData(10, 330, true)]
+    [InlineData(25, 310, true)]
+    [InlineData(34, 330, true)]
+    [InlineData(89, 330, true)]
+    [InlineData(95, 330, false)]
+    [InlineData(10, 260, false)]
+    public void ShouldCommitWestSideNorthWrap_detects_east_to_west_jump(
+        double last,
+        double target,
+        bool expected)
+    {
+        Assert.Equal(
+            expected,
+            RotatorAzimuthPlanner.ShouldCommitWestSideNorthWrap(target, last, 450));
+    }
+
+    [Theory]
     [InlineData(15, 355, true)]
-    [InlineData(25, 355, false)]
+    [InlineData(34, 330, true)]
+    [InlineData(45, 355, false)]
     [InlineData(80, 50, false)]
     [InlineData(10, 200, false)]
     public void ShouldUseExtendedForImminentEastWrap_detects_east_to_west_jump(

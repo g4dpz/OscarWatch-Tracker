@@ -6,6 +6,11 @@ namespace OscarWatch.Core.Rotator;
 /// </summary>
 public static class RotatorAzimuthPlanner
 {
+    /// <summary>Compass azimuths east of north that may use 361–450° before a west jump.</summary>
+    private const double EastOfNorthMaxDeg = 90;
+
+    /// <summary>Low east azimuths where extended-band descent is committed before north.</summary>
+    private const double EastDescentMaxDeg = 45;
     /// <summary>
     /// Picks the rotator command azimuth in [0, maxAzimuthDeg] that minimizes rotation
     /// from the last commanded position.
@@ -21,14 +26,21 @@ public static class RotatorAzimuthPlanner
     {
         var target = Normalize360(targetCompassAzDeg);
 
-        if (maxAzimuthDeg > 360 && target + 360 <= maxAzimuthDeg)
+        if (maxAzimuthDeg > 360)
         {
-            if (ShouldCommitEastSideNorthWrap(target, lastCommandedAzDeg, maxAzimuthDeg))
-                return target + 360;
+            if (target + 360 <= maxAzimuthDeg)
+            {
+                if (ShouldCommitEastSideNorthWrap(target, lastCommandedAzDeg, maxAzimuthDeg))
+                    return target + 360;
 
-            if (nextCompassAzDeg is { } next
-                && ShouldUseExtendedForImminentEastWrap(target, next, maxAzimuthDeg))
-                return target + 360;
+                if (nextCompassAzDeg is { } next
+                    && ShouldUseExtendedForImminentEastWrap(target, next, maxAzimuthDeg))
+                    return target + 360;
+            }
+
+            if (ShouldCommitWestSideNorthWrap(target, lastCommandedAzDeg, maxAzimuthDeg)
+                && lastCommandedAzDeg is { } westLast)
+                return westLast + 360;
         }
 
         Span<double> candidates = stackalloc double[2];
@@ -73,13 +85,13 @@ public static class RotatorAzimuthPlanner
             return false;
 
         var target = Normalize360(targetCompassAzDeg);
-        if (target >= 25 || target + 360 > maxAzimuthDeg)
+        if (target >= EastDescentMaxDeg || target + 360 > maxAzimuthDeg)
             return false;
 
         if (lastCommandedAzDeg is not { } last)
             return false;
 
-        return last < 30 && target <= last;
+        return last < EastOfNorthMaxDeg && target <= last;
     }
 
     /// <summary>Compass azimuth will soon jump from east of north to west (e.g. 20° → 355°).</summary>
@@ -96,7 +108,26 @@ public static class RotatorAzimuthPlanner
             return false;
 
         var next = Normalize360(nextCompassAzDeg);
-        return target < 20 && next > 270;
+        return target < EastDescentMaxDeg && next > 270;
+    }
+
+    /// <summary>
+    /// West-of-north descent after TCA (e.g. 10° → 330°): enter 361–450° from the east side
+    /// so the rotator does not slew the long way through south.
+    /// </summary>
+    internal static bool ShouldCommitWestSideNorthWrap(
+        double targetCompassAzDeg,
+        double? lastCommandedAzDeg,
+        double maxAzimuthDeg)
+    {
+        if (maxAzimuthDeg <= 360 || lastCommandedAzDeg is not { } last)
+            return false;
+
+        if (last + 360 > maxAzimuthDeg)
+            return false;
+
+        var target = Normalize360(targetCompassAzDeg);
+        return last < EastOfNorthMaxDeg && target > 270;
     }
 
     public static double Normalize360(double deg)

@@ -5,6 +5,8 @@ namespace OscarWatch.Tests;
 
 internal sealed class RecordingRotatorDriver : IRotatorDriver
 {
+    public List<double> AzimuthHistory { get; } = [];
+
     public double? LastAzimuthDeg { get; private set; }
     public double? LastElevationDeg { get; private set; }
     public int SetPositionCallCount { get; private set; }
@@ -17,6 +19,7 @@ internal sealed class RecordingRotatorDriver : IRotatorDriver
         SetPositionCallCount++;
         LastAzimuthDeg = azimuthDeg;
         LastElevationDeg = elevationDeg;
+        AzimuthHistory.Add(azimuthDeg);
     }
 
     public void Stop() { }
