@@ -239,7 +239,7 @@ Uses [OrbitTools](http://www.zeptomoby.com/satellites/) Public Edition via [Zept
 
 ## License
 
-Copyright © 2025–2026 **Peter Goodhall (MM9SQL)**.
+Copyright © 2026 **Peter Goodhall (MM9SQL)**.
 
 OscarWatch is free software: you can redistribute it and/or modify it under the terms of the [GNU Affero General Public License v3.0 or later](https://www.gnu.org/licenses/agpl-3.0.html) (AGPL-3.0-or-later). See [LICENSE.md](LICENSE.md) for the full license text.
 
