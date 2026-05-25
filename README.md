@@ -1,23 +1,57 @@
 # OscarWatch
 
-Desktop satellite tracking for amateur radio operators. Track passes, live azimuth/elevation, ground tracks, and visibility footprints on a world map using TLEs from [tle.oscarwatch.org](https://tle.oscarwatch.org/).
+Desktop satellite tracking for amateur radio operators. OscarWatch shows where AMSAT spacecraft are, predicts passes over your station, works out Doppler-corrected uplink and downlink frequencies, and can drive your rotator and radio during a pass — all from one map-centred window.
 
-## Requirements
+TLEs come from [tle.oscarwatch.org](https://tle.oscarwatch.org/).
 
-- [.NET 10 SDK](https://dotnet.microsoft.com/download)
+## Who is this for?
 
-## Build and run
+Licensed amateurs working **VHF/UHF satellites**: FM cubesats (SO-50, ISS, …), linear transponders (RS-44, FO-29, …), and similar modes. You should already be comfortable with pass times, azimuth, elevation, and Doppler; OscarWatch handles the maths and optional hardware control so you can focus on the contact.
 
-```bash
-dotnet build OscarWatch.slnx
-dotnet run --project OscarWatch/OscarWatch.csproj
-```
+You do **not** need to be a programmer to use published builds.
 
-For lower memory use, prefer **Release** (`-c Release`). Debug builds include Avalonia diagnostics overhead.
+## What OscarWatch does
 
-```bash
-dotnet run -c Release --project OscarWatch/OscarWatch.csproj
-```
+- **Map and sky plot** — subpoint, ground track, footprint, and a polar view from your QTH
+- **Pass list** — upcoming passes with max elevation and time-to-AOS
+- **Frequency panel** — transponder modes from a built-in database, live uplink/downlink with Doppler, TX/RX offsets, and CTCSS (access/arm tones)
+- **Optional automation** — serial **rotator** tracking and **radio CAT** (Doppler, satellite/split layout, tones) during a pass
+- **Optional extras** — voice “satellite rising” alerts, pass **WAV recording**, **Cloudlog** frequency sync
+
+OscarWatch does **not** decode telemetry or replace your logging software; it is a pass-tracking and station-assist tool for the shack or field.
+
+## Getting started
+
+### Download
+
+Pre-built packages for Windows, macOS, and Linux are on the [**Releases**](https://github.com/magicbug/OscarWatch-Tracker/releases) page (see [Cross-platform publish](#cross-platform-publish) for platform names). Extract the archive for your OS and run `OscarWatch`.
+
+To build from source instead, see [Build and run](#build-and-run) below.
+
+### First-time setup
+
+1. Open **Settings → Station** and enter your latitude, longitude, and grid square.
+2. **Satellites → Select satellites** — enable the spacecraft you plan to work.
+3. **Satellites → Refresh TLEs** — refresh at least once per operating day (or enable auto-update under **Settings → Tracking**).
+4. If you use a rig or rotator: **Settings → Radio** and **Settings → Rotator** — set COM ports (rig and rotator must use **different** ports).
+5. Click a satellite on the map or in the pass list to **focus** it — live az/el and frequencies apply to the focused pass.
+
+### During a pass
+
+1. Confirm the correct **transponder mode** in the frequency panel on the map (e.g. FM voice, Mode B USB/LSB).
+2. Watch **azimuth** and **elevation** in the sidebar — point your antenna there (or let the rotator track if enabled).
+3. Set your radio from the **Radio** / **Sat** columns in the overlay, or enable CAT so OscarWatch updates frequencies for Doppler.
+4. On FM satellites, pick the correct **CTCSS** tone when access and arm are both listed.
+
+### Standby (browsing only)
+
+Press **Standby** in the sidebar when you are only planning or browsing: the rotator parks, CAT pauses, and accidental tracking stops. Press **Resume** before a real pass. While in Standby, menu **Rotator** opens manual az/el control for a quick contact between passes.
+
+### Operator guide
+
+Plain-language help ships with the app: **Help → Operator guide** (also in the [`help/`](help/) folder). Topics include quick start, frequencies, TLEs, pass planning, radio/rotator setup, recording, and troubleshooting.
+
+---
 
 ## Features
 
@@ -50,7 +84,7 @@ OscarWatch talks to rigs and rotators over **serial CAT** (COM port on Windows, 
 | **ICOM IC-910** | CI-V | Satellite mode, Main/Sub VFOs, Sub uplink CTCSS |
 | **ICOM IC-9100** | CI-V | **Beta** — same CI-V layout as IC-9700; default CI-V address `7C` |
 | **ICOM IC-9700** | CI-V | Same layout as IC-910 |
-| **Yaesu FT-847** | Yaesu CAT | **Beta** — SAT RX/TX VFOs; verify on your hardware |
+| **Yaesu FT-847** | Yaesu CAT | Satellite mode, SAT RX/TX VFOs, doppler, uplink CTCSS |
 | **Kenwood TS-2000** | Kenwood ASCII CAT | **Beta** — cross-band SATL; enable SATL and turn TRACE off on the radio |
 | **Dummy rig** | — | No serial I/O; for UI and doppler testing without a radio |
 
@@ -79,6 +113,7 @@ Open **Settings** from the menu. Tabs:
 | **Tracking** | Minimum pass elevation, prediction window, TLE auto-update mode |
 | **Appearance** | Light / dark / system theme |
 | **Voice** | Enable announcements, trigger elevation (default −3°), voice selection, test button |
+| **Recording** | Automatic pass WAV capture, input device, start/stop elevation, output folder, test clip |
 | **Rotator** | Type (GS-232 / EasyComm), COM port, 360°/450° azimuth, smart 450°, park, track-start elevation |
 | **Radio** | Rig type, COM port, region (Icom), CI-V address, doppler thresholds, pause CAT |
 | **Cloudlog** | Base URL, API key, radio name, test connection; posts SAT uplink/downlink when tracking |
@@ -121,15 +156,30 @@ WAV files are uncompressed (~5 MB/min mono at 44.1 kHz). Use an external tool if
 
 Open the log folder from **Help → Open logs folder**. Unhandled crashes and rig/rotator/CAT errors are written here (not API keys).
 
-## Operator help (HTML)
+---
 
-Plain-language guides for satellite operators live in the [`help/`](help/) folder (UK English). In the app, open **Help → Operator guide** to read them in your browser.
+## For developers
 
-Topics include quick start, the map and sidebar, frequencies, TLEs, pass planning, radio/rotator setup, settings, and troubleshooting.
+### Requirements
 
-## Cross-platform publish
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
 
-### GitHub Actions
+### Build and run
+
+```bash
+dotnet build OscarWatch.slnx
+dotnet run --project OscarWatch/OscarWatch.csproj
+```
+
+For lower memory use, prefer **Release** (`-c Release`). Debug builds include Avalonia diagnostics overhead.
+
+```bash
+dotnet run -c Release --project OscarWatch/OscarWatch.csproj
+```
+
+### Cross-platform publish
+
+#### GitHub Actions
 
 [**Publish**](.github/workflows/publish.yml) runs on a version tag (`v*`) or a manual workflow dispatch. It builds and tests on Linux, then publishes installable packages per platform.
 
@@ -167,11 +217,7 @@ dotnet publish OscarWatch/OscarWatch.csproj -c Release -r linux-arm64 --self-con
 
 Publish profiles are under `OscarWatch/Properties/PublishProfiles/` (e.g. `dotnet publish -p:PublishProfile=win-x64`).
 
-## Orbit propagation
-
-Uses [OrbitTools](http://www.zeptomoby.com/satellites/) Public Edition via [Zeptomoby.OrbitTools.Orbit](https://www.nuget.org/packages/Zeptomoby.OrbitTools.Orbit) (non-commercial). For commercial use or the Track Library (pass engine, iso-elevation footprints), obtain a [Professional license](http://www.zeptomoby.com/satellites/editionInfo.htm).
-
-## Project structure
+### Project structure
 
 | Project | Role |
 |---------|------|
@@ -179,13 +225,17 @@ Uses [OrbitTools](http://www.zeptomoby.com/satellites/) Public Edition via [Zept
 | `OscarWatch.Orbit` | OrbitTools adapters, pass predictor, ground geometry |
 | `OscarWatch` | Avalonia UI |
 
-## Developer docs
+### Developer documentation
 
 - [documents/](documents/) — how to add **radio** and **rotator** drivers (`IRigDriver`, `IRotatorDriver`)
+- [help/](help/) — operator HTML help (bundled with the app)
+- [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) — UI contrast, colour-blind-safe tracking colours, keyboard
 
-## Accessibility
+### Orbit propagation
 
-UI work should follow [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) (contrast, color-blind-safe tracking colors, keyboard, no color-only meaning).
+Uses [OrbitTools](http://www.zeptomoby.com/satellites/) Public Edition via [Zeptomoby.OrbitTools.Orbit](https://www.nuget.org/packages/Zeptomoby.OrbitTools.Orbit) (non-commercial). For commercial use or the Track Library (pass engine, iso-elevation footprints), obtain a [Professional license](http://www.zeptomoby.com/satellites/editionInfo.htm).
+
+---
 
 ## License
 

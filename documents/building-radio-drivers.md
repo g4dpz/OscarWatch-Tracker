@@ -110,7 +110,7 @@ For Yaesu, Kenwood, Elecraft, etc.:
 
 Keep **protocol parsing in the app project**; put only reusable math (frequency validation, doppler) in **OscarWatch.Core/Radio/**.
 
-## Reference: Yaesu FT-847 (shipped, beta)
+## Reference: Yaesu FT-847 (shipped)
 
 | Piece | Path |
 |-------|------|

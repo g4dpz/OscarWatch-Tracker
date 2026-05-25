@@ -18,3 +18,7 @@ The default `OscarWatch/Assets/Maps/world_map.jpg` is an equirectangular Blue Ma
 ## UI framework
 
 - [Avalonia UI](https://avaloniaui.net/)
+
+## Hardware testing
+
+- **Abdel (M0NPT)** and **Joe (KE9AJ)** — Yaesu FT-847 CAT driver

@@ -46,7 +46,8 @@ See [building radio drivers](documents/building-radio-drivers.md) for adding rig
 - [ ] **Pass-debug log** (optional, Settings) — overlay offsets, computed RX/TX, CAT writes, knob/manual state, `vfo_not_moving`.
 - [ ] **Hardware validation** (real passes):
   - [ ] IC-9700 (satellite mode, Main/Sub, CTCSS on Sub, doppler).
-  - [ ] FT-847, TS-2000 (SAT mode / SATL, doppler, tones per driver docs).
+  - [x] FT-847 (SAT mode, doppler, tones per driver docs).
+  - [ ] TS-2000 (SATL, doppler, tones per driver docs).
 
 ### ICOM follow-ups
 
