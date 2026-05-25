@@ -203,7 +203,7 @@
                       MinWidth="72" />
             </Grid>
             <TextBlock Text="Baud rate" />
-            <ComboBox ItemsSource="{Binding BaudRateOptions}"
+            <ComboBox ItemsSource="{Binding RigBaudRateOptions}"
                       SelectedItem="{Binding RigBaudRate, Mode=TwoWay}"
                       HorizontalAlignment="Stretch" />
             <StackPanel Spacing="4" IsVisible="{Binding ShowRigCivAddress}">
@@ -305,7 +305,7 @@
                       MinWidth="72" />
             </Grid>
             <TextBlock Text="Baud rate" />
-            <ComboBox ItemsSource="{Binding BaudRateOptions}"
+            <ComboBox ItemsSource="{Binding RotatorBaudRateOptions}"
                       SelectedItem="{Binding RotatorBaudRate, Mode=TwoWay}"
                       HorizontalAlignment="Stretch" />
             <TextBlock Text="Azimuth range" />

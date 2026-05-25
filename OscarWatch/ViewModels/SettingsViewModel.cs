@@ -134,7 +134,9 @@ public partial class SettingsViewModel : ViewModelBase
         new(TleAutoUpdateMode.EverySixHours, "Every 6 hours while running")
     ];
 
-    public int[] BaudRateOptions { get; } = [1200, 2400, 4800, 9600, 19200];
+    public int[] RotatorBaudRateOptions { get; } = [1200, 2400, 4800, 9600, 19200];
+
+    public int[] RigBaudRateOptions { get; } = [1200, 2400, 4800, 9600, 19200, 38400, 57600];
 
     public IReadOnlyList<RotatorTypeOption> RotatorTypeChoices { get; } =
     [

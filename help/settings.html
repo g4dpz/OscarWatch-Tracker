@@ -9,8 +9,13 @@
 <body>
   <div class="wrap">
     <header>
-      <h1>Settings</h1>
-      <p class="tagline">Station, tracking, voice, recording, hardware, and Cloudlog</p>
+      <div class="brand">
+        <img src="oscarwatch-icon.png" alt="" class="brand-icon" width="56" height="56" />
+        <div class="brand-text">
+          <h1>Settings</h1>
+          <p class="tagline">Station, tracking, voice, recording, hardware, and Cloudlog</p>
+        </div>
+      </div>
       <nav aria-label="Help topics">
         <ul>
           <li><a href="index.html">Home</a></li>
@@ -20,7 +25,7 @@
           <li><a href="satellites.html">Satellites &amp; TLEs</a></li>
           <li><a href="passes.html">Pass planning</a></li>
           <li><a href="radio-rotator.html">Radio &amp; rotator</a></li>
-          <li><a href="settings.html">Settings</a></li>
+          <li><a href="settings.html" aria-current="page">Settings</a></li>
           <li><a href="troubleshooting.html">Problems?</a></li>
         </ul>
       </nav>
@@ -30,7 +35,7 @@
       <p>Open from the menu: <strong>Settings</strong>. Press <strong>Save</strong> when finished. Settings are stored in <code>%AppData%\OscarWatch\settings.json</code>.</p>
 
       <h2>Station</h2>
-      <p>Your operating position: name (for labels), latitude, longitude, Maidenhead grid, and height above sea level in metres. Accurate height helps slightly with geometry; position is essential for passes and az/el.</p>
+      <p>Your operating position: name (for labels), latitude, longitude, Maidenhead grid, and height above sea level in metres. The grid square is normalised to uppercase as you type. Accurate height helps slightly with geometry; position is essential for passes and az/el.</p>
 
       <h2>Tracking</h2>
       <ul>

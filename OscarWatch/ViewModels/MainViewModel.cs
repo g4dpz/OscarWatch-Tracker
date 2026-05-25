@@ -322,11 +322,13 @@ public partial class MainViewModel : ViewModelBase
 
     partial void OnRigCatPausedChanged(bool value)
     {
-        if (_settings.Current.Rig.CatUpdatesPaused == value)
-            return;
+        if (_settings.Current.Rig.CatUpdatesPaused != value)
+        {
+            _settings.Current.Rig.CatUpdatesPaused = value;
+            _ = _settings.SaveAsync();
+        }
 
-        _settings.Current.Rig.CatUpdatesPaused = value;
-        _ = _settings.SaveAsync();
+        SyncRigAfterOperationalModeChange();
     }
 
     private void UpdateRotatorDisplay()
@@ -372,15 +374,18 @@ public partial class MainViewModel : ViewModelBase
 
         if (IsStandby)
         {
-            _rigCatPausedBeforeStandby = RigCatPaused;
-            RigCatPaused = true;
+            _rigCatPausedBeforeStandby = _settings.Current.Rig.CatUpdatesPaused;
+            if (!_settings.Current.Rig.CatUpdatesPaused)
+                RigCatPaused = true;
             _rotator.SetStandby(true, _settings.Current.Rotator);
         }
         else
         {
-            RigCatPaused = _rigCatPausedBeforeStandby ?? false;
+            var restorePaused = _rigCatPausedBeforeStandby ?? false;
             _rigCatPausedBeforeStandby = null;
+            RigCatPaused = restorePaused;
             _rotator.SetStandby(false, _settings.Current.Rotator);
+            SyncRigAfterOperationalModeChange();
         }
 
         UpdateRotatorDisplay();
@@ -411,7 +416,6 @@ public partial class MainViewModel : ViewModelBase
         }
 
         status ??= _rig.GetStatus();
-        RigCatPaused = status.CatUpdatesPaused;
         RigStatusText = status.StatusMessage ?? (status.IsConnected ? "Connected" : "Disconnected");
         RigReceiveText = FormatSidebarFrequency(status.LastReceiveHz, Frequencies.RadioReceiveText, status.IsConnected);
         RigTransmitText = FormatSidebarFrequency(status.LastTransmitHz, Frequencies.RadioTransmitText, status.IsConnected);
@@ -588,34 +592,55 @@ public partial class MainViewModel : ViewModelBase
 
     partial void OnSelectedListItemChanged(IPassListItem? value)
     {
-        if (value is PassRowViewModel row)
+        if (value is not PassRowViewModel row)
+            return;
+
+        var pass = Passes.OfType<PassRowViewModel>().FirstOrDefault(p => p.NoradId == row.NoradId) ?? row;
+        if (!ReferenceEquals(SelectedListItem, pass))
+            SelectedListItem = pass;
+
+        if (string.Equals(FocusedNoradId, row.NoradId, StringComparison.Ordinal))
         {
-            if (string.Equals(FocusedNoradId, row.NoradId, StringComparison.Ordinal))
-                RefreshRigFromOverlay(reinitializePass: true);
-            FocusedNoradId = row.NoradId;
+            ApplySatelliteFocus(row.NoradId);
+            return;
         }
+
+        FocusedNoradId = row.NoradId;
     }
 
     partial void OnFocusedNoradIdChanged(string? value)
     {
-        var states = LiveStates.Count > 0 ? LiveStates : _liveTracking.GetSnapshot();
-        if (states.Count > 0)
-        {
-            UpdateLiveTelemetry(states);
-            var focused = string.IsNullOrEmpty(value)
-                ? null
-                : GetFocusedTrackState(states, value);
-            Frequencies.Update(focused);
-            PushCloudlogRadio(focused);
-            RefreshRigFromOverlay(reinitializePass: true);
-        }
-
-        if (value is null)
+        if (string.IsNullOrEmpty(value))
             return;
+
+        ApplySatelliteFocus(value);
 
         var pass = Passes.OfType<PassRowViewModel>().FirstOrDefault(p => p.NoradId == value);
         if (pass is not null && !ReferenceEquals(SelectedListItem, pass))
             SelectedListItem = pass;
+    }
+
+    private void ApplySatelliteFocus(string noradId)
+    {
+        var states = _liveStates.Count > 0 ? (IReadOnlyList<SatelliteTrackState>)_liveStates : _liveTracking.GetSnapshot();
+        if (states.Count == 0)
+            return;
+
+        UpdateLiveTelemetry(states);
+        var focused = GetFocusedTrackState(states, noradId);
+        Frequencies.Update(focused);
+        PushCloudlogRadio(focused);
+        RefreshRigFromOverlay(reinitializePass: true);
+    }
+
+    private void SyncRigAfterOperationalModeChange()
+    {
+        if (!_settings.Current.Rig.Enabled || ShowComPortConflict)
+            return;
+
+        PublishRigTrackingContext();
+        var focused = GetFocusedTrackState(_liveTracking.GetSnapshot(), FocusedNoradId);
+        RefreshRigUi(focused);
     }
 
     private void UpdateNextPassCountdown()
