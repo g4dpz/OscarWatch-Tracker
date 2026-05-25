@@ -93,7 +93,7 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ParkRotatorCommand))]
     [NotifyPropertyChangedFor(nameof(StandbyButtonText))]
-    [NotifyCanExecuteChangedFor(nameof(ParkRotatorCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ToggleRigCatPauseCommand))]
     private bool _isStandby;
 
     public string StandbyButtonText => IsStandby ? "Resume" : "Standby";
@@ -113,9 +113,13 @@ public partial class MainViewModel : ViewModelBase
     private string _rigTransmitText = "—";
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(RigCatPauseButtonText))]
     private bool _rigCatPaused;
 
+    public string RigCatPauseButtonText => RigCatPaused ? "Resume CAT" : "Pause CAT";
+
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ToggleRigCatPauseCommand))]
     private bool _showComPortConflict;
 
     [ObservableProperty]
@@ -397,6 +401,11 @@ public partial class MainViewModel : ViewModelBase
         _rotator.Park(_settings.Current.Rotator);
         UpdateRotatorDisplay();
     }
+
+    [RelayCommand(CanExecute = nameof(CanToggleRigCatPause))]
+    private void ToggleRigCatPause() => RigCatPaused = !RigCatPaused;
+
+    private bool CanToggleRigCatPause() => !IsStandby && !ShowComPortConflict;
 
     private void UpdateRigDisplay(RigConnectionStatus? status = null)
     {

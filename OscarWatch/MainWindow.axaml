@@ -215,7 +215,7 @@
             <Border Classes="live-panel"
                     IsVisible="{Binding ShowRigStatus}">
               <StackPanel Spacing="6">
-                <Grid ColumnDefinitions="*,Auto">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
                   <TextBlock Classes="live-panel-label"
                              Grid.Column="0"
                              Text="Radio"
@@ -227,7 +227,18 @@
                              TextAlignment="Right"
                              MaxWidth="140"
                              Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                             VerticalAlignment="Center" />
+                             VerticalAlignment="Center"
+                             Margin="0,0,6,0" />
+                  <Button Grid.Column="2"
+                          Classes="live-sidebar-action"
+                          Content="{Binding RigCatPauseButtonText}"
+                          Command="{Binding ToggleRigCatPauseCommand}"
+                          FontSize="11"
+                          MinWidth="0"
+                          Padding="8,0"
+                          HorizontalAlignment="Right"
+                          VerticalAlignment="Center"
+                          ToolTip.Tip="Stop sending frequency updates to the radio so you can tune manually." />
                 </Grid>
                 <Grid ColumnDefinitions="*,*">
                   <StackPanel Grid.Column="0" Spacing="2" Margin="0,0,4,0">
