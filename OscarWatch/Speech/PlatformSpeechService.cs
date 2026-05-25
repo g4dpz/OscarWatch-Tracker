@@ -93,12 +93,8 @@ public sealed class PlatformSpeechService : ISpeechService
         if (!OperatingSystem.IsWindows())
             return Task.CompletedTask;
 
-        return Task.Run(() => SpeakWindowsCore(text, voiceName), cancellationToken);
+        return WindowsSpeechHelper.SpeakAsync(text, voiceName, cancellationToken);
     }
-
-    [SupportedOSPlatform("windows")]
-    private static void SpeakWindowsCore(string text, string? voiceName) =>
-        WindowsSpeechHelper.Speak(text, voiceName);
 
     private static IReadOnlyList<SpeechVoiceOption> GetMacVoices()
     {

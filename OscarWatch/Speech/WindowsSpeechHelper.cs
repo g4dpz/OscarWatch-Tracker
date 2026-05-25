@@ -38,4 +38,33 @@ internal static class WindowsSpeechHelper
 
         synth.Speak(text);
     }
+
+    public static Task SpeakAsync(string text, string? voiceName, CancellationToken cancellationToken = default)
+    {
+        var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var thread = new Thread(() =>
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                tcs.TrySetCanceled(cancellationToken);
+                return;
+            }
+
+            try
+            {
+                Speak(text, voiceName);
+                tcs.TrySetResult();
+            }
+            catch (Exception ex)
+            {
+                tcs.TrySetException(ex);
+            }
+        })
+        {
+            IsBackground = true
+        };
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        return tcs.Task;
+    }
 }

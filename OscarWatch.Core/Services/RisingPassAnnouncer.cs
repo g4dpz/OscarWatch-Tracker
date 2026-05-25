@@ -39,7 +39,8 @@ public sealed class RisingPassAnnouncer
             }
             else if (!tracking.AnnouncedForPass
                      && tracking.PreviousElevationDeg < trigger
-                     && elevation >= trigger)
+                     && elevation >= trigger
+                     && elevation > tracking.PreviousElevationDeg)
             {
                 speak(SatelliteNamePhonetics.FormatRisingAnnouncement(state.Name));
                 tracking.AnnouncedForPass = true;

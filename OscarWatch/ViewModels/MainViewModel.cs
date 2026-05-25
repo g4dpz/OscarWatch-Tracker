@@ -258,7 +258,6 @@ public partial class MainViewModel : ViewModelBase
         PruneExpiredPasses();
         ProcessPassRecording(states);
         UpdatePassHighlightState();
-        ProcessVoiceAnnouncements(states);
         var focused = GetFocusedTrackState(states, FocusedNoradId);
         UpdateComPortConflictState();
         _rotator.Update(_settings.Current.Rotator, EnrichRotatorTarget(focused));
@@ -276,6 +275,7 @@ public partial class MainViewModel : ViewModelBase
     {
         var states = _liveTracking.GetSnapshot();
         UpdateLiveTelemetry(states);
+        ProcessVoiceAnnouncements(states);
 
         if (ShowComPortConflict || !_settings.Current.Rig.Enabled)
             return;
@@ -508,8 +508,12 @@ public partial class MainViewModel : ViewModelBase
         if (voiceSettings is null || !voiceSettings.Enabled)
             return;
 
+        if (!_speech.IsAvailable)
+            return;
+
         _passAnnouncer.Process(states, voiceSettings, text =>
         {
+            Log.Information("Voice announcement: {Text}", text);
             var voiceName = voiceSettings.VoiceName;
             _ = SpeakAnnouncementAsync(text, voiceName);
         });
@@ -523,9 +527,9 @@ public partial class MainViewModel : ViewModelBase
                 text,
                 string.IsNullOrWhiteSpace(voiceName) ? null : voiceName).ConfigureAwait(false);
         }
-        catch
+        catch (Exception ex)
         {
-            // speech failures should not interrupt tracking
+            Log.Warning(ex, "Voice announcement failed: {Text}", text);
         }
     }
 
