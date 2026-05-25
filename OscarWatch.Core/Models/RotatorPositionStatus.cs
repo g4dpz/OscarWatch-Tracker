@@ -5,4 +5,5 @@ public sealed record RotatorPositionStatus(
     int? AzimuthDeg,
     int? ElevationDeg,
     int? CommandedAzimuthDeg = null,
-    int? CompassAzimuthDeg = null);
+    int? CompassAzimuthDeg = null,
+    bool IsParked = false);

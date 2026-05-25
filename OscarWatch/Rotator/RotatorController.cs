@@ -423,7 +423,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
                 _displayAzimuth,
                 _displayElevation,
                 _displayCommandedAzimuth,
-                _displayCompassAzimuth);
+                _displayCompassAzimuth,
+                _parked);
     }
 
     private void ClearTrackingAzimuthDisplay()

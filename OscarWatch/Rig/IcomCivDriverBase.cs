@@ -111,23 +111,7 @@ public abstract class IcomCivDriverBase : IRigDriver
         if (_transport is null || !IsConnected)
             return;
 
-        var upper = mode.ToUpperInvariant();
-        if (upper is "FM" or "FMN")
-        {
-            WriteWithRetry([0x06, 0x04]);
-            WriteWithRetry([0x06, 0x05]);
-            return;
-        }
-
-        var cmd = upper switch
-        {
-            "USB" => new byte[] { 0x06, 0x01 },
-            "LSB" or "DATA-LSB" => new byte[] { 0x06, 0x00 },
-            "CW" => new byte[] { 0x06, 0x03 },
-            "DATA-USB" => new byte[] { 0x06, 0x01 },
-            _ => null
-        };
-        if (cmd is not null)
+        if (IcomCivCodec.EncodeSetModeCommand(mode) is { } cmd)
             WriteWithRetry(cmd);
     }
 

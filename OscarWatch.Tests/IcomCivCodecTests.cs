@@ -69,6 +69,33 @@ public class IcomCivCodecTests
         Assert.Equal(0xFD, frame[^1]);
     }
 
+    [Theory]
+    [InlineData("FM", "0605")]
+    [InlineData("FMN", "0605")]
+    [InlineData("fm", "0605")]
+    [InlineData("USB", "0601")]
+    [InlineData("LSB", "0600")]
+    [InlineData("DATA-USB", "0601")]
+    [InlineData("DATA-LSB", "0600")]
+    [InlineData("CW", "0603")]
+    public void EncodeSetModeCommand_maps_modes(string mode, string expectedHex)
+    {
+        var body = IcomCivCodec.EncodeSetModeCommand(mode);
+        Assert.NotNull(body);
+        Assert.Equal(expectedHex, Convert.ToHexString(body).ToLowerInvariant());
+    }
+
+    [Theory]
+    [InlineData("FM")]
+    [InlineData("FMN")]
+    public void EncodeSetModeCommand_fm_never_uses_rtty_byte(string mode)
+    {
+        var body = IcomCivCodec.EncodeSetModeCommand(mode);
+        Assert.NotNull(body);
+        Assert.DoesNotContain((byte)0x04, body);
+        Assert.Equal(0x05, body[1]);
+    }
+
     private static byte[] BuildReadResponseFromHz(long hz)
     {
         var body = IcomCivCodec.EncodeSetFrequencyHz(hz);

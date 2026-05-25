@@ -32,6 +32,7 @@ public sealed class RotatorControllerTests
         Assert.Equal(1, rotator.SetPositionCallCount);
         Assert.Equal(45, rotator.LastAzimuthDeg);
         Assert.Equal(20, rotator.LastElevationDeg);
+        Assert.False(controller.GetPositionStatus().IsParked);
 
         var status = controller.GetPositionStatus();
         Assert.True(status.IsConnected);
@@ -57,6 +58,7 @@ public sealed class RotatorControllerTests
 
         Assert.Equal(180, rotator.LastAzimuthDeg);
         Assert.Equal(0, rotator.LastElevationDeg);
+        Assert.True(controller.GetPositionStatus().IsParked);
     }
 
     [Fact]

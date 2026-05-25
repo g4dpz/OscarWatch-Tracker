@@ -202,7 +202,7 @@
                 </StackPanel>
                 <Button Grid.Column="1"
                         Classes="live-sidebar-action"
-                        Content="Park"
+                        Content="{Binding RotatorParkButtonText}"
                         Command="{Binding ParkRotatorCommand}"
                         VerticalAlignment="Top"
                         Margin="8,0,0,0" />

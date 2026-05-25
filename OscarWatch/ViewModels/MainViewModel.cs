@@ -88,6 +88,13 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ParkRotatorCommand))]
+    [NotifyPropertyChangedFor(nameof(RotatorParkButtonText))]
+    private bool _isRotatorParked;
+
+    public string RotatorParkButtonText => IsRotatorParked ? "Parked" : "Park";
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ParkRotatorCommand))]
     private bool _canParkRotator;
 
     [ObservableProperty]
@@ -353,7 +360,8 @@ public partial class MainViewModel : ViewModelBase
         RotatorElevationText = status is { IsConnected: true, ElevationDeg: not null }
             ? $"{status.ElevationDeg.Value}°"
             : "—";
-        CanParkRotator = status.IsConnected && !IsStandby;
+        IsRotatorParked = status.IsParked;
+        CanParkRotator = status.IsConnected && !IsStandby && !status.IsParked;
     }
 
     internal static string FormatRotatorAzimuthText(RotatorPositionStatus status)

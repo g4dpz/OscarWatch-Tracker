@@ -74,6 +74,17 @@ public static class IcomCivCodec
             : 0x60;
     }
 
+    /// <summary>CI-V SET mode (0x06) body for ICOM rigs. Returns null when unsupported.</summary>
+    public static byte[]? EncodeSetModeCommand(string mode) =>
+        mode.Trim().ToUpperInvariant() switch
+        {
+            "FM" or "FMN" => [0x06, 0x05],
+            "USB" or "DATA-USB" => [0x06, 0x01],
+            "LSB" or "DATA-LSB" => [0x06, 0x00],
+            "CW" => [0x06, 0x03],
+            _ => null
+        };
+
     public static byte[] EncodeToneHz(double hz, bool squelchTone)
     {
         var hertz = ((int)Math.Round(hz * 10)).ToString();

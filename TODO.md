@@ -6,7 +6,7 @@ Tracked ideas and deferred work. Not a commitment order; items may be split or d
 
 - [X] In Settings the button labels arent centered
 - [ ] Theres still some banding issues with the Footprints at the poles
-- [ ] if rotator is parked it should say "Parked" rather than Park
+- [X] if rotator is parked it should say "Parked" rather than Park
 - [X] function to move rotator wherever you want quick
 
 ---
