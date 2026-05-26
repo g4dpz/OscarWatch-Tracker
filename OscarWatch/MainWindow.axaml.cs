@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using OscarWatch.ViewModels;
@@ -11,7 +12,6 @@ public partial class MainWindow : Window
         InitializeComponent();
         PassesListBox.ContainerPrepared += OnPassListContainerPrepared;
         PassesListBox.ContainerClearing += OnPassListContainerClearing;
-        _ = new MapAspectWindowConstraint(this);
     }
 
     private static void OnPassListContainerClearing(object? sender, ContainerClearingEventArgs e)
@@ -33,6 +33,16 @@ public partial class MainWindow : Window
             item.Classes.Add("pass-day-header");
         else
             item.Classes.Remove("pass-day-header");
+    }
+
+    private void OnSidebarLayoutSizeChanged(object? sender, SizeChangedEventArgs e)
+    {
+        if (SidebarTopScrollViewer is null)
+            return;
+
+        const double minPassesHeight = 140;
+        var maxTopHeight = e.NewSize.Height - minPassesHeight;
+        SidebarTopScrollViewer.MaxHeight = maxTopHeight > 0 ? maxTopHeight : double.PositiveInfinity;
     }
 
     protected override async void OnOpened(EventArgs e)

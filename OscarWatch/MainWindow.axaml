@@ -6,7 +6,8 @@
         x:Class="OscarWatch.MainWindow"
         x:DataType="vm:MainViewModel"
         Title="OscarWatch"
-        Width="1280" Height="556">
+        Width="1280" Height="556"
+        MinWidth="720" MinHeight="320">
   <DockPanel>
     <Menu DockPanel.Dock="Top">
       <MenuItem Header="_File">
@@ -75,9 +76,7 @@
               BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
               BorderThickness="1,0,0,0"
               Padding="8">
-        <Grid RowDefinitions="Auto,Auto,Auto,*"
-              HorizontalAlignment="Stretch">
-          <Grid.Styles>
+        <Border.Styles>
             <Style Selector="Expander">
               <Setter Property="HorizontalAlignment" Value="Stretch" />
               <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -107,8 +106,17 @@
               <Setter Property="HorizontalContentAlignment" Value="Center" />
               <Setter Property="VerticalContentAlignment" Value="Center" />
             </Style>
-          </Grid.Styles>
-          <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+        </Border.Styles>
+        <Grid x:Name="SidebarLayoutGrid"
+              RowDefinitions="Auto,*"
+              MinHeight="0"
+              SizeChanged="OnSidebarLayoutSizeChanged">
+          <ScrollViewer x:Name="SidebarTopScrollViewer"
+                        Grid.Row="0"
+                        VerticalScrollBarVisibility="Auto"
+                        HorizontalScrollBarVisibility="Disabled">
+            <StackPanel MinWidth="0">
+              <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,8">
             <TextBlock Grid.Column="0"
                        Text="Live"
                        FontWeight="SemiBold"
@@ -120,7 +128,7 @@
                     Command="{Binding ToggleStandbyCommand}"
                     VerticalAlignment="Center" />
           </Grid>
-          <StackPanel Grid.Row="1" Spacing="8" Margin="0,0,0,8">
+          <StackPanel Spacing="8" Margin="0,0,0,8">
             <TextBlock Text="Browsing only — rotator parked, CAT paused"
                        FontSize="11"
                        TextWrapping="Wrap"
@@ -270,8 +278,7 @@
             </Border>
           </StackPanel>
 
-          <Expander Grid.Row="2"
-                    Header="Sky plot"
+          <Expander Header="Sky plot"
                     IsExpanded="{Binding IsSkyPlotExpanded, Mode=TwoWay}"
                     Margin="0,0,0,10"
                     Padding="0">
@@ -290,11 +297,12 @@
                                    MinimumElevationDeg="{Binding MinimumElevationDeg}" />
             </StackPanel>
           </Expander>
+            </StackPanel>
+          </ScrollViewer>
 
-          <DockPanel Grid.Row="3"
-                     HorizontalAlignment="Stretch"
-                     LastChildFill="True"
-                     MinWidth="0">
+          <DockPanel Grid.Row="1"
+                     MinHeight="0"
+                     LastChildFill="True">
             <TextBlock DockPanel.Dock="Top"
                        Text="Upcoming passes"
                        FontWeight="SemiBold"
@@ -305,6 +313,7 @@
                      TabIndex="3"
                      Padding="0"
                      MinWidth="0"
+                     MinHeight="0"
                      HorizontalAlignment="Stretch"
                      SelectedItem="{Binding SelectedListItem, Mode=TwoWay}">
               <ListBox.ItemsPanel>
