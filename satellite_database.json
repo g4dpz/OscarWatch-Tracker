@@ -289,8 +289,8 @@
           "uplink": 145850,
           "downlink_mode": "FM",
           "uplink_mode": "FM",
-          "doppler": "NOR"
-          "ctcss": 67.0,
+          "doppler": "NOR",
+          "ctcss": 67.0
         }
       ]
     },
