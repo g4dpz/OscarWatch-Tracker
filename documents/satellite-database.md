@@ -1,6 +1,6 @@
 # Satellite transponder database
 
-OscarWatch keeps **orbits** (TLEs) and **frequencies/modes** (transponder database) separate. This document describes where that data lives, how updates are published, and how in-app sync is intended to work.
+OscarWatch keeps **orbits** (TLEs) and **frequencies/modes** (transponder database) separate. This document describes where that data lives, how updates are published, and how in-app sync works.
 
 ## Data sources
 
@@ -8,7 +8,7 @@ OscarWatch keeps **orbits** (TLEs) and **frequencies/modes** (transponder databa
 |-------|----------|------|
 | **Remote** | [tle.oscarwatch.org/satellite_database.json](https://tle.oscarwatch.org/satellite_database.json) | Canonical published updates — new satellites and new/edited transponder modes |
 | **Bundled** | `OscarWatch/Assets/satellite_database.json` | Shipped with each app release; fallback when no user file exists |
-| **User** | `%AppData%/OscarWatch/satellite_database.json` | Your working copy after first edit (or after a future sync) |
+| **User** | `%AppData%/OscarWatch/satellite_database.json` | Your working copy after first edit or after a merge from the remote URL |
 
 TLEs are fetched from the same host: [tle.oscarwatch.org](https://tle.oscarwatch.org/).
 

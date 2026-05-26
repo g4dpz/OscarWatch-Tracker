@@ -57,7 +57,7 @@
           <tr><td>Range / Alt</td><td>Distance to the satellite and its altitude</td></tr>
           <tr><td>Sunlight / Eclipse</td><td>Whether the spacecraft is sunlit (when data is available)</td></tr>
           <tr><td>Rotator</td><td>Live az/el from your rotator controller, if connected</td></tr>
-          <tr><td>Park</td><td>Sends park command to the rotator</td></tr>
+          <tr><td>Park / Parked</td><td>Sends park command to the rotator; shows <strong>Parked</strong> when at your configured park position</td></tr>
           <tr><td>Radio</td><td>Last CAT-reported RX/TX, or overlay frequencies</td></tr>
         </tbody>
       </table>
@@ -65,14 +65,16 @@
       <h2>Sky plot</h2>
       <p>
         A polar view as seen from your station: centre is overhead, the outer ring is the horizon.
-        Click a satellite to select it, same as on the map.
+        Click a satellite to select it, same as on the map. Expand or collapse the section with the
+        <strong>Sky plot</strong> header — OscarWatch remembers which you prefer.
       </p>
 
       <h2>Upcoming passes</h2>
       <p>
         A list of predicted passes for your enabled satellites. Times use your local display;
         the footer shows UTC. Click a row to select that satellite. Passes above your minimum
-        elevation (Settings → Tracking) are included.
+        elevation (Settings → Tracking) are included. On smaller windows the sidebar scrolls so
+        you can reach the pass list; the list itself scrolls when there are many passes.
       </p>
       <p>Badges on the right of a pass row:</p>
       <table>

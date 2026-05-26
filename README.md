@@ -13,7 +13,7 @@ You do **not** need to be a programmer to use published builds.
 ## What OscarWatch does
 
 - **Map and sky plot** — subpoint, ground track, footprint, and a polar view from your QTH
-- **Pass list** — upcoming passes with max elevation and time-to-AOS
+- **Pass list** — upcoming passes with max elevation and time-to-AOS; sidebar scrolls on smaller windows
 - **Frequency panel** — transponder modes from a built-in database, live uplink/downlink with Doppler, TX/RX offsets, and CTCSS (access/arm tones)
 - **Optional automation** — serial **rotator** tracking and **radio CAT** (Doppler, satellite/split layout, tones) during a pass
 - **Optional extras** — voice “satellite rising” alerts, pass **WAV recording**, **Cloudlog** frequency sync
@@ -55,8 +55,8 @@ Plain-language help ships with the app: **Help → Operator guide** (also in the
 
 ## Features
 
-- **World map** — equirectangular Earth texture with satellite subpoint, ground track, and visibility footprint overlays (including correct rendering near the poles)
-- **Sky plot** — polar view of satellite azimuth/elevation relative to your station; click to focus a spacecraft on the map
+- **World map** — equirectangular Earth texture with satellite subpoint, ground track, footprint overlays (optional motion arrows), and correct rendering near the poles
+- **Sky plot** — polar view of satellite azimuth/elevation relative to your station; click to focus; expand/collapse state is remembered
 - **TLE catalog** — fetched from `https://tle.oscarwatch.org/`, cached under `%AppData%/OscarWatch/`
 - **TLE auto-update** — manual refresh, on startup (if stale), or every 6 hours while running (Settings → Tracking)
 - **Satellite picker** — choose which spacecraft to track
@@ -71,7 +71,7 @@ Plain-language help ships with the app: **Help → Operator guide** (also in the
 - **Radio CAT** — doppler tracking, satellite/split setup, Main/Sub VFOs, uplink CTCSS where supported; Settings → Radio (see [Supported hardware](#supported-hardware))
 - **Rotator control** — serial pass tracking, manual park, and **manual rotator** (az/el dialog in Standby for quick contacts between passes); Settings → Rotator (see [Supported hardware](#supported-hardware))
 - **Cloudlog** — optional Radio API v2 uplink/downlink when tracking (Settings → Cloudlog)
-- **Appearance** — light, dark, or system theme (sky plot adapts; world map image stays light)
+- **Appearance** — light, dark, or system theme (sky plot adapts; world map image stays light); optional footprint motion arrows on the map
 
 ## Supported hardware
 
@@ -99,7 +99,7 @@ More rigs: see [TODO.md](TODO.md) and [building radio drivers](documents/buildin
 | **Yaesu GS-232** | GS-232 | Yaesu rotators and many GS-232 clones |
 | **EasyComm** | EasyComm II | SPID, M2, and other EasyComm-compatible controllers |
 
-Pass tracking when elevation is above the track-start threshold; manual **Park** in the sidebar; **manual rotator** in Standby (menu **Rotator…** — set az/el, Rotate, Stop, Park for a quick contact without resuming pass tracking). Azimuth range **360°** or **450°** (e.g. G-5500). On **450°** rotators, optional **smart azimuth** chooses 361–450° commands for the shortest path across north (Settings → Rotator).
+Pass tracking when elevation is above the track-start threshold; manual **Park** in the sidebar; **manual rotator** in Standby (menu **Rotator…** — set az/el, Rotate, Stop, Park for a quick contact without resuming pass tracking). Azimuth range **360°** or **450°** (e.g. G-5500). On **450°** rotators, optional **smart azimuth** chooses 361–450° commands for the shortest path across north (Settings → Rotator). Optional **calibration offsets** correct pass tracking and manual moves; park uses your configured park az/el exactly.
 
 More controllers: [building rotator drivers](documents/building-rotator-drivers.md).
 
@@ -110,11 +110,11 @@ Open **Settings** from the menu. Tabs:
 | Tab | Purpose |
 |-----|---------|
 | **Station** | Display name, latitude/longitude, Maidenhead grid square, altitude ASL |
-| **Tracking** | Minimum pass elevation, prediction window, TLE auto-update mode |
-| **Appearance** | Light / dark / system theme |
+| **Tracking** | Minimum pass elevation, prediction window, TLE auto-update, transponder database check on startup |
+| **Appearance** | Light / dark / system theme; footprint motion arrows on/off |
 | **Voice** | Enable announcements, trigger elevation (default −3°), voice selection, test button |
 | **Recording** | Automatic pass WAV capture, input device, start/stop elevation, output folder, test clip |
-| **Rotator** | Type (GS-232 / EasyComm), COM port, 360°/450° azimuth, smart 450°, park, track-start elevation |
+| **Rotator** | Type (GS-232 / EasyComm), COM port, 360°/450° azimuth, smart 450°, park, track-start elevation, calibration offsets |
 | **Radio** | Rig type, COM port, region (Icom), CI-V address, doppler thresholds, pause CAT |
 | **Cloudlog** | Base URL, API key, radio name, test connection; posts SAT uplink/downlink when tracking |
 
