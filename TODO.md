@@ -46,6 +46,7 @@ See [building radio drivers](documents/building-radio-drivers.md) for adding rig
 - [ ] **Pass-debug log** (optional, Settings) — overlay offsets, computed RX/TX, CAT writes, knob/manual state, `vfo_not_moving`.
 - [ ] **Hardware validation** (real passes):
   - [ ] IC-9700 (satellite mode, Main/Sub, CTCSS on Sub, doppler).
+  - [x] IC-9100 (satellite mode, Main/Sub, CTCSS on Sub, doppler).
   - [x] FT-847 (SAT mode, doppler, tones per driver docs).
   - [ ] TS-2000 (SATL, doppler, tones per driver docs).
 
@@ -56,7 +57,7 @@ See [building radio drivers](documents/building-radio-drivers.md) for adding rig
 
 ### Additional rig drivers
 
-- [x] **ICOM IC-9100** — CI-V; same satellite/Main/Sub/tone path as IC-9700 (`16 5A` sat mode, default CI-V `7C`). **Beta** — verify on hardware.
+- [x] **ICOM IC-9100** — CI-V; same satellite/Main/Sub/tone path as IC-9700 (`16 5A` sat mode, default CI-V `7C`).
 - [ ] **Yaesu FT-817** — map single-VFO or A/B to `RigController` Main/Sub model.
 
 **Per driver:** protocol client, `IRigDriver` + `RigType` + Settings list, pass init (SAT/split/VFO/mode/CTCSS), `RigController` hooks, tests + hardware smoke test.
