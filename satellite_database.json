@@ -11,6 +11,14 @@
           "doppler": "REV"
         },
         {
+          "type": "Mode A",
+          "downlink": 29450,
+          "uplink": 145900,
+          "downlink_mode": "USB",
+          "uplink_mode": "USB",
+          "doppler": "NOR"
+        },
+        {
           "type": "CW",
           "downlink": 145970,
           "uplink": 0,
@@ -94,6 +102,22 @@
           "downlink_mode": "FM",
           "uplink_mode": "FM",
           "doppler": "NOR"
+        },
+        {
+          "type": "SSTV (VHF)",
+          "downlink": 145800,
+          "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        },
+        {
+          "type": "SSTV (UHF)",
+          "downlink": 437550,
+          "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
         }
       ]
     },
@@ -161,71 +185,6 @@
           "uplink": 0,
           "downlink_mode": "USB",
           "uplink_mode": "USB",
-          "doppler": "NOR"
-        }
-      ]
-    },
-    {
-      "name": "NOAA-15",
-      "modes": [
-        {
-          "type": "weather sat",
-          "downlink": 137620,
-          "uplink": 0,
-          "downlink_mode": "FM",
-          "uplink_mode": "FM",
-          "doppler": "NOR"
-        }
-      ]
-    },
-    {
-      "name": "NOAA-16",
-      "modes": [
-        {
-          "type": "weather sat",
-          "downlink": 137620,
-          "uplink": 0,
-          "downlink_mode": "FM",
-          "uplink_mode": "FM",
-          "doppler": "NOR"
-        }
-      ]
-    },
-    {
-      "name": "NOAA-17",
-      "modes": [
-        {
-          "type": "weather sat",
-          "downlink": 137500,
-          "uplink": 0,
-          "downlink_mode": "FM",
-          "uplink_mode": "FM",
-          "doppler": "NOR"
-        }
-      ]
-    },
-    {
-      "name": "NOAA-18",
-      "modes": [
-        {
-          "type": "weather sat",
-          "downlink": 137913,
-          "uplink": 0,
-          "downlink_mode": "FM",
-          "uplink_mode": "FM",
-          "doppler": "NOR"
-        }
-      ]
-    },
-    {
-      "name": "NOAA-19",
-      "modes": [
-        {
-          "type": "weather sat",
-          "downlink": 137100,
-          "uplink": 0,
-          "downlink_mode": "FM",
-          "uplink_mode": "FM",
           "doppler": "NOR"
         }
       ]
@@ -511,6 +470,14 @@
           "downlink_mode": "FMN",
           "uplink_mode": "FMN",
           "doppler": "NOR"
+        },
+        {
+          "type": "SSTV",
+          "downlink": 436950,
+          "uplink": 0,
+          "downlink_mode": "FMN",
+          "uplink_mode": "FMN",
+          "doppler": "NOR"
         }
       ]
     },
@@ -521,6 +488,14 @@
           "type": "FM VOICE",
           "downlink": 145910,
           "uplink": 435500,
+          "downlink_mode": "FMN",
+          "uplink_mode": "FMN",
+          "doppler": "NOR"
+        },
+        {
+          "type": "SSTV / SSDV",
+          "downlink": 436320,
+          "uplink": 0,
           "downlink_mode": "FMN",
           "uplink_mode": "FMN",
           "doppler": "NOR"
@@ -550,6 +525,97 @@
           "downlink_mode": "USB",
           "uplink_mode": "LSB",
           "doppler": "REV"
+        }
+      ]
+    },
+    {
+      "name": "ArcticSat-1",
+      "modes": [
+        {
+          "type": "SSTV",
+          "downlink": 455890,
+          "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "Monitor-3",
+      "modes": [
+        {
+          "type": "SSTV",
+          "downlink": 435290,
+          "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "Monitor-4",
+      "modes": [
+        {
+          "type": "SSTV",
+          "downlink": 436080,
+          "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "UmKA-1",
+      "modes": [
+        {
+          "type": "SSTV",
+          "downlink": 437625,
+          "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "VIZARD-meteo",
+      "modes": [
+        {
+          "type": "SSTV",
+          "downlink": 437825,
+          "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "SAKHACUBE-CHOLBON",
+      "modes": [
+        {
+          "type": "SSTV",
+          "downlink": "437350",
+          "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "GALAPAGOS-UTE-SWSU",
+      "modes": [
+        {
+          "type": "SSTV",
+          "downlink": "437050",
+          "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
         }
       ]
     }
