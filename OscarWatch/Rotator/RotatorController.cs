@@ -516,10 +516,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
         try
         {
-            var (az, el) = RotatorCalibration.ApplyOffsets(
-                settings.ParkAzimuthDeg,
-                settings.ParkElevationDeg,
-                settings);
+            var az = settings.ParkAzimuthDeg;
+            var el = settings.ParkElevationDeg;
             _rotator.SetPosition(az, el, settings);
             _lastAzimuth = az;
             _lastElevation = el;

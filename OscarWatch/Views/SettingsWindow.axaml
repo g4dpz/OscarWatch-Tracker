@@ -396,7 +396,7 @@
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Added to every rotator command (pass tracking, park, and manual rotate). Use positive values if the beam stops short of the target; negative if it overshoots." />
+                       Text="Added to pass tracking and manual rotate commands (not park). Use positive values if the beam stops short of the target; negative if it overshoots." />
           </StackPanel>
         </ScrollViewer>
       </TabItem>

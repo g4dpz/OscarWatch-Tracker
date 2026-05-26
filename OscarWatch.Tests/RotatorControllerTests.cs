@@ -90,7 +90,7 @@ public sealed class RotatorControllerTests
     }
 
     [Fact]
-    public void Park_applies_calibration_offsets()
+    public void Park_ignores_calibration_offsets()
     {
         var rotator = new RecordingRotatorDriver();
         var controller = new RotatorController(_ => rotator);
@@ -100,15 +100,15 @@ public sealed class RotatorControllerTests
             Port = "COM3",
             ParkAzimuthDeg = 180,
             ParkElevationDeg = 10,
-            AzimuthOffsetDeg = -5,
+            AzimuthOffsetDeg = -72,
             ElevationOffsetDeg = 2
         };
 
         controller.Park(settings);
         controller.DrainCommandQueueForTests();
 
-        Assert.Equal(175, rotator.LastAzimuthDeg);
-        Assert.Equal(12, rotator.LastElevationDeg);
+        Assert.Equal(180, rotator.LastAzimuthDeg);
+        Assert.Equal(10, rotator.LastElevationDeg);
     }
 
     [Fact]

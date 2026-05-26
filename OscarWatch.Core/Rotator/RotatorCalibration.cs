@@ -3,7 +3,8 @@ using OscarWatch.Core.Models;
 namespace OscarWatch.Core.Rotator;
 
 /// <summary>
-/// Applies user-configured az/el calibration offsets before rotator commands are sent.
+/// Applies user-configured az/el calibration offsets before pass-tracking and manual rotator commands.
+/// Park position is not offset — it is a physical rotator home position.
 /// </summary>
 public static class RotatorCalibration
 {
