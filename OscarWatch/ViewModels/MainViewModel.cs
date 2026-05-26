@@ -153,6 +153,12 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private double _minimumElevationDeg = 5;
 
+    [ObservableProperty]
+    private bool _showFootprintMotionArrows = true;
+
+    [ObservableProperty]
+    private bool _isSkyPlotExpanded = true;
+
     public MainViewModel(
         ISettingsService settings,
         ITleService tleService,
@@ -212,6 +218,12 @@ public partial class MainViewModel : ViewModelBase
         RefreshRigUi(focused);
     }
 
+    partial void OnIsSkyPlotExpandedChanged(bool value)
+    {
+        _settings.Current.SkyPlotExpanded = value;
+        _ = _settings.SaveAsync();
+    }
+
     private void RefreshRigUi(SatelliteTrackState? focused)
     {
         var rigStatus = _rig.GetStatus();
@@ -226,6 +238,8 @@ public partial class MainViewModel : ViewModelBase
         await _settings.LoadAsync().ConfigureAwait(true);
         AppThemeManager.Apply(_settings.Current.Theme);
         RefreshGroundStationFromSettings();
+        ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
+        IsSkyPlotExpanded = _settings.Current.SkyPlotExpanded;
         RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
 
         StatusText = "Loading TLE catalog…";
@@ -778,6 +792,7 @@ public partial class MainViewModel : ViewModelBase
             await RefreshPassesAsync();
             UpdateStatus();
             RefreshGroundStationFromSettings();
+            ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
             RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
             _liveDisplayTimer?.Start();
             Tick();

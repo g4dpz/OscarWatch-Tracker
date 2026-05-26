@@ -27,7 +27,8 @@ public class WorldMapControl : ThemeAwareControl
     public static readonly StyledProperty<string?> FocusedNoradIdProperty =
         AvaloniaProperty.Register<WorldMapControl, string?>(nameof(FocusedNoradId));
 
-    private const double HitRadiusPx = 16;
+    public static readonly StyledProperty<bool> ShowFootprintMotionArrowsProperty =
+        AvaloniaProperty.Register<WorldMapControl, bool>(nameof(ShowFootprintMotionArrows), true);
 
     private Bitmap? _mapBitmap;
     private INotifyCollectionChanged? _trackStatesSource;
@@ -45,8 +46,17 @@ public class WorldMapControl : ThemeAwareControl
         AffectsRender<WorldMapControl>(
             TrackStatesProperty,
             GroundStationProperty,
-            FocusedNoradIdProperty);
+            FocusedNoradIdProperty,
+            ShowFootprintMotionArrowsProperty);
     }
+
+    public bool ShowFootprintMotionArrows
+    {
+        get => GetValue(ShowFootprintMotionArrowsProperty);
+        set => SetValue(ShowFootprintMotionArrowsProperty, value);
+    }
+
+    private const double HitRadiusPx = 16;
 
     public IReadOnlyList<SatelliteTrackState>? TrackStates
     {
@@ -224,6 +234,9 @@ public class WorldMapControl : ThemeAwareControl
             if (isFocused)
                 DrawPolylineSegments(context, state.GroundTrack, w, h, color, 2);
 
+            var (sx, sy) = EquirectangularProjection.GeoToPixel(
+                state.Subpoint.LatitudeDeg, state.Subpoint.LongitudeDeg, w, h);
+
             if (state.Footprint.Count >= 3)
             {
                 var fill = Color.FromArgb(72, color.R, color.G, color.B);
@@ -238,10 +251,28 @@ public class WorldMapControl : ThemeAwareControl
                     fill,
                     stroke,
                     2);
-            }
 
-            var (sx, sy) = EquirectangularProjection.GeoToPixel(
-                state.Subpoint.LatitudeDeg, state.Subpoint.LongitudeDeg, w, h);
+                var heading = ShowFootprintMotionArrows
+                    ? GroundTrackHeading.EstimateHeadingDeg(state.Subpoint, state.GroundTrack)
+                    : null;
+                if (heading is { } headingDeg)
+                {
+                    foreach (var xOffset in GetSubpointWrapOffsets(sx, w))
+                    {
+                        PlotMarkerDrawing.DrawFootprintMotionArrow(
+                            context,
+                            state.Subpoint,
+                            headingDeg,
+                            state.FootprintRadiusDeg,
+                            sx + xOffset,
+                            sy,
+                            w,
+                            h,
+                            color,
+                            isFocused);
+                    }
+                }
+            }
 
             foreach (var xOffset in GetSubpointWrapOffsets(sx, w))
             {

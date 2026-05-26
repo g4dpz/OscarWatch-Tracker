@@ -12,11 +12,15 @@ public sealed class AppSettings
     public int TleStaleHours { get; set; } = 6;
     public TleAutoUpdateMode TleAutoUpdate { get; set; } = TleAutoUpdateMode.OnStartup;
     public AppThemePreference Theme { get; set; } = AppThemePreference.System;
+    /// <summary>Show ground-track direction arrows inside satellite footprints on the world map.</summary>
+    public bool ShowFootprintMotionArrows { get; set; } = true;
     public VoiceAnnouncementSettings VoiceAnnouncements { get; set; } = new();
     public Dictionary<string, SatelliteFrequencySelection> FrequencySelections { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public double FrequencyOverlayX { get; set; } = 12;
     public double FrequencyOverlayY { get; set; } = 12;
     public bool FrequencyOverlayCollapsed { get; set; }
+    /// <summary>Whether the sidebar sky plot expander is open.</summary>
+    public bool SkyPlotExpanded { get; set; } = true;
     public RotatorSettings Rotator { get; set; } = new();
     public RigSettings Rig { get; set; } = new();
     public CloudlogSettings Cloudlog { get; set; } = new();

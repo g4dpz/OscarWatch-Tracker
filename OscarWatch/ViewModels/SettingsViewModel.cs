@@ -48,6 +48,9 @@ public partial class SettingsViewModel : ViewModelBase
     private AppThemePreference _themePreference = AppThemePreference.System;
 
     [ObservableProperty]
+    private bool _showFootprintMotionArrows = true;
+
+    [ObservableProperty]
     private TleAutoUpdateOption? _tleAutoUpdateOption;
 
     [ObservableProperty]
@@ -317,6 +320,7 @@ public partial class SettingsViewModel : ViewModelBase
         _settings.Current.MinimumElevationDeg = MinimumElevationDeg;
         _settings.Current.PassPredictionHours = PassPredictionHours;
         _settings.Current.Theme = ThemePreference;
+        _settings.Current.ShowFootprintMotionArrows = ShowFootprintMotionArrows;
         if (TleAutoUpdateOption is not null)
             _settings.Current.TleAutoUpdate = TleAutoUpdateOption.Mode;
         _settings.Current.VoiceAnnouncements = new VoiceAnnouncementSettings
@@ -402,6 +406,7 @@ public partial class SettingsViewModel : ViewModelBase
             MinimumElevationDeg = _settings.Current.MinimumElevationDeg;
             PassPredictionHours = _settings.Current.PassPredictionHours;
             ThemePreference = _settings.Current.Theme;
+            ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
             TleAutoUpdateOption = TleAutoUpdateOptions.FirstOrDefault(o => o.Mode == _settings.Current.TleAutoUpdate)
                 ?? TleAutoUpdateOptions[1];
 
@@ -677,6 +682,15 @@ public partial class SettingsViewModel : ViewModelBase
             return;
 
         AppThemeManager.Apply(value);
+    }
+
+    partial void OnShowFootprintMotionArrowsChanged(bool value)
+    {
+        if (_isSynchronizing)
+            return;
+
+        if (App.MainWindow?.DataContext is MainViewModel main)
+            main.ShowFootprintMotionArrows = value;
     }
 
     partial void OnGridSquareChanged(string value)

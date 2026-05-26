@@ -58,7 +58,7 @@ public sealed class SampledGroundGeometry : IGroundGeometry
         for (var i = 0; i < samples; i++)
         {
             var bearing = i * 360.0 / samples;
-            var (lat, lon) = DestinationPoint(
+            var (lat, lon) = SphericalGeo.DestinationPoint(
                 subpoint.LatitudeDeg,
                 subpoint.LongitudeDeg,
                 radiusDeg,
@@ -69,27 +69,4 @@ public sealed class SampledGroundGeometry : IGroundGeometry
 
         return ring;
     }
-
-    private static (double Lat, double Lon) DestinationPoint(
-        double latDeg,
-        double lonDeg,
-        double distanceDeg,
-        double bearingDeg)
-    {
-        var lat1 = latDeg * Math.PI / 180.0;
-        var lon1 = lonDeg * Math.PI / 180.0;
-        var brng = bearingDeg * Math.PI / 180.0;
-        var d = distanceDeg * Math.PI / 180.0;
-
-        var lat2 = Math.Asin(
-            Math.Sin(lat1) * Math.Cos(d) +
-            Math.Cos(lat1) * Math.Sin(d) * Math.Cos(brng));
-
-        var lon2 = lon1 + Math.Atan2(
-            Math.Sin(brng) * Math.Sin(d) * Math.Cos(lat1),
-            Math.Cos(d) - Math.Sin(lat1) * Math.Sin(lat2));
-
-        return (lat2 * 180.0 / Math.PI, lon2 * 180.0 / Math.PI);
-    }
-
 }

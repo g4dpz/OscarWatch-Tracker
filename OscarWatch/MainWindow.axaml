@@ -60,7 +60,8 @@
                                 ClipToBounds="True"
                                 TrackStates="{Binding LiveStates}"
                                 GroundStation="{Binding GroundStation}"
-                                FocusedNoradId="{Binding FocusedNoradId, Mode=TwoWay}" />
+                                FocusedNoradId="{Binding FocusedNoradId, Mode=TwoWay}"
+                                ShowFootprintMotionArrows="{Binding ShowFootprintMotionArrows}" />
         </Grid>
         <ctrl:FrequencyOverlayControl DataContext="{Binding Frequencies}"
                                       ZIndex="1"
@@ -271,7 +272,7 @@
 
           <Expander Grid.Row="2"
                     Header="Sky plot"
-                    IsExpanded="True"
+                    IsExpanded="{Binding IsSkyPlotExpanded, Mode=TwoWay}"
                     Margin="0,0,0,10"
                     Padding="0">
             <StackPanel Spacing="4"
