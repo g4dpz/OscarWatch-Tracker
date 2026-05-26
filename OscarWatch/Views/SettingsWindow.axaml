@@ -369,7 +369,7 @@
               <StackPanel Grid.Column="0" Spacing="4">
                 <TextBlock Text="Azimuth offset" />
                 <NumericUpDown Value="{Binding RotatorAzimuthOffsetDeg, Mode=TwoWay}"
-                               Minimum="-45" Maximum="45"
+                               Minimum="-180" Maximum="180"
                                Increment="0.1" FormatString="F1" />
               </StackPanel>
               <StackPanel Grid.Column="1" Spacing="4">
