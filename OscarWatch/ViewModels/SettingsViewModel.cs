@@ -54,6 +54,9 @@ public partial class SettingsViewModel : ViewModelBase
     private TleAutoUpdateOption? _tleAutoUpdateOption;
 
     [ObservableProperty]
+    private bool _transponderDatabaseCheckOnStartup = true;
+
+    [ObservableProperty]
     private bool _voiceAnnouncementsEnabled;
 
     [ObservableProperty]
@@ -323,6 +326,7 @@ public partial class SettingsViewModel : ViewModelBase
         _settings.Current.ShowFootprintMotionArrows = ShowFootprintMotionArrows;
         if (TleAutoUpdateOption is not null)
             _settings.Current.TleAutoUpdate = TleAutoUpdateOption.Mode;
+        _settings.Current.TransponderDatabaseCheckOnStartup = TransponderDatabaseCheckOnStartup;
         _settings.Current.VoiceAnnouncements = new VoiceAnnouncementSettings
         {
             Enabled = VoiceAnnouncementsEnabled,
@@ -409,6 +413,7 @@ public partial class SettingsViewModel : ViewModelBase
             ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
             TleAutoUpdateOption = TleAutoUpdateOptions.FirstOrDefault(o => o.Mode == _settings.Current.TleAutoUpdate)
                 ?? TleAutoUpdateOptions[1];
+            TransponderDatabaseCheckOnStartup = _settings.Current.TransponderDatabaseCheckOnStartup;
 
             var voice = _settings.Current.VoiceAnnouncements ?? new VoiceAnnouncementSettings();
             VoiceAnnouncementsEnabled = voice.Enabled;

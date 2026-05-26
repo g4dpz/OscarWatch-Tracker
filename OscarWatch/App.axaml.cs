@@ -47,6 +47,7 @@ public partial class App : Application
             new SatelliteDatabaseEditor(
                 sp.GetRequiredService<ISatelliteDatabaseService>(),
                 bundledDb));
+        services.AddSingleton<ISatelliteDatabaseSyncService, SatelliteDatabaseSyncService>();
         services.AddSingleton<FrequencyOverlayViewModel>();
         services.AddSingleton<TrackingOrchestrator>();
         services.AddSingleton<LiveTrackingService>();

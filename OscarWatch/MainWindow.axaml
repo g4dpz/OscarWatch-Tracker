@@ -17,6 +17,7 @@
         <MenuItem Header="_Select Satellites" Command="{Binding OpenSatellitesCommand}" />
         <MenuItem Header="_Manage Transponder Database" Command="{Binding OpenSatelliteDatabaseCommand}" />
         <MenuItem Header="_Refresh TLEs" Command="{Binding RefreshTlesCommand}" />
+        <MenuItem Header="Update transponder _database…" Command="{Binding UpdateTransponderDatabaseCommand}" />
       </MenuItem>
       <MenuItem Header="_Passes">
         <MenuItem Header="_Pass Planner" Command="{Binding OpenPassPlanningCommand}" />

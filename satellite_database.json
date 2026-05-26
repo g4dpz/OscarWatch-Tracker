@@ -290,6 +290,7 @@
           "downlink_mode": "FM",
           "uplink_mode": "FM",
           "doppler": "NOR"
+          "ctcss": 67.0,
         }
       ]
     },
@@ -598,7 +599,7 @@
       "modes": [
         {
           "type": "SSTV",
-          "downlink": "437350",
+          "downlink": 437350,
           "uplink": 0,
           "downlink_mode": "FM",
           "uplink_mode": "FM",
@@ -611,8 +612,94 @@
       "modes": [
         {
           "type": "SSTV",
-          "downlink": "437050",
+          "downlink": 437050,
           "uplink": 0,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "NO-44",
+      "modes": [
+        {
+          "type": "APRS",
+          "downlink": 145825,
+          "uplink": 145825,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "LASARsat",
+      "modes": [
+        {
+          "type": "Packet (9k6 GFSK/G3RUH)",
+          "downlink": 436925,
+          "uplink": 436925,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "KNACKSAT-2",
+      "modes": [
+        {
+          "type": "Packet (9k6 APRS)",
+          "downlink": 145825,
+          "uplink": 145825,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "IO-86",
+      "modes": [
+        {
+          "type": "Voice FM",
+          "downlink": 435880,
+          "uplink": 145880,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        },
+        {
+          "type": "APRS",
+          "downlink": 145825,
+          "uplink": 145825,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "GRBBeta",
+      "modes": [
+        {
+          "type": "Packet (9k6 GMSK/Skylink)",
+          "downlink": 437125,
+          "uplink": 437125,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "CroCube",
+      "modes": [
+        {
+          "type": "Packet (9k6 GFSK/G3RUH)",
+          "downlink": 436775,
+          "uplink": 436775,
           "downlink_mode": "FM",
           "uplink_mode": "FM",
           "doppler": "NOR"

@@ -102,6 +102,13 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="TLEs can also be refreshed anytime from Satellites → Refresh TLEs." />
+            <CheckBox Content="Check for transponder database updates on startup"
+                      IsChecked="{Binding TransponderDatabaseCheckOnStartup, Mode=TwoWay}"
+                      Margin="0,8,0,0" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Downloads tle.oscarwatch.org/satellite_database.json when updates are available. New satellites and modes are offered for merge; your local edits are kept unless you accept published changes." />
           </StackPanel>
         </ScrollViewer>
       </TabItem>

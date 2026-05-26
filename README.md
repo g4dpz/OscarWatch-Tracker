@@ -2,7 +2,7 @@
 
 Desktop satellite tracking for amateur radio operators. OscarWatch shows where AMSAT spacecraft are, predicts passes over your station, works out Doppler-corrected uplink and downlink frequencies, and can drive your rotator and radio during a pass — all from one map-centred window.
 
-TLEs come from [tle.oscarwatch.org](https://tle.oscarwatch.org/).
+TLEs and the transponder frequency database are published from [tle.oscarwatch.org](https://tle.oscarwatch.org/) ([TLEs](https://tle.oscarwatch.org/), [transponder database](https://tle.oscarwatch.org/satellite_database.json)).
 
 ## Who is this for?
 
@@ -67,7 +67,7 @@ Plain-language help ships with the app: **Help → Operator guide** (also in the
 - **Voice announcements** — optional spoken “rising” alerts when a satellite crosses a configurable elevation while ascending (e.g. “Alpha Oscar Zero Seven is rising”); Settings → Voice
 - **Pass recording** — optional automatic WAV capture from a line-in or USB audio device while the **focused** satellite is above configurable elevation thresholds; Settings → Recording. Files save to `%AppData%/OscarWatch/recordings/` by default as `{sat-name}-{yy}-{MM}-{dd}-{HH}-{mm}.wav` (UTC). A red **REC** badge appears on the pass row while recording.
 - **Doppler frequencies** — draggable overlay on the world map with transponder modes from the satellite database, live radio/sat uplink & downlink, TX/RX offsets, and CTCSS (access/arm)
-- **Transponder database editor** — Satellites → Manage transponder database… (add/edit satellites and modes; saved under `%AppData%/OscarWatch/satellite_database.json`)
+- **Transponder database editor** — Satellites → Manage transponder database…; **Satellites → Update transponder database…** merges published modes from [tle.oscarwatch.org/satellite_database.json](https://tle.oscarwatch.org/satellite_database.json) (new entries added with your consent; local edits kept on conflicts unless you accept remote). See [documents/satellite-database.md](documents/satellite-database.md)
 - **Radio CAT** — doppler tracking, satellite/split setup, Main/Sub VFOs, uplink CTCSS where supported; Settings → Radio (see [Supported hardware](#supported-hardware))
 - **Rotator control** — serial pass tracking, manual park, and **manual rotator** (az/el dialog in Standby for quick contacts between passes); Settings → Rotator (see [Supported hardware](#supported-hardware))
 - **Cloudlog** — optional Radio API v2 uplink/downlink when tracking (Settings → Cloudlog)
@@ -120,7 +120,7 @@ Open **Settings** from the menu. Tabs:
 
 Settings are stored in `%AppData%/OscarWatch/settings.json`.
 
-Planned work (including deferred **remote transponder-database sync/merge**) is listed in [TODO.md](TODO.md).
+Planned work is listed in [TODO.md](TODO.md). Transponder database merge/sync is documented in [documents/satellite-database.md](documents/satellite-database.md).
 
 ### Voice announcements (platform notes)
 
@@ -152,13 +152,16 @@ WAV files are uncompressed (~5 MB/min mono at 44.1 kHz). Use an external tool if
 | Recordings | `%AppData%/OscarWatch/recordings/` |
 | TLE cache | `%AppData%/OscarWatch/tle-cache.txt` |
 | Transponder DB (user) | `%AppData%/OscarWatch/satellite_database.json` |
+| Transponder DB (remote) | [tle.oscarwatch.org/satellite_database.json](https://tle.oscarwatch.org/satellite_database.json) |
 | Logs | `%AppData%/OscarWatch/logs/` (daily rolling `oscarwatch-YYYYMMDD.log`, 14 days retained) |
 
 Open the log folder from **Help → Open logs folder**. Unhandled crashes and rig/rotator/CAT errors are written here (not API keys).
 
 ## Contributing
 
-Pull requests are welcome when they add something valuable to the **core** of OscarWatch — bug fixes, rig or rotator drivers, tracking behaviour, and operator-facing features that fit the project’s scope. For larger changes, open an issue first so direction can be agreed before you invest time in a big diff.
+Pull requests are welcome when they add something valuable to the **core** of OscarWatch — bug fixes, rig or rotator drivers, tracking behaviour, operator-facing features, and **transponder database** entries (new satellites/modes or corrections with a credible source). For larger changes, open an issue first so direction can be agreed before you invest time in a big diff.
+
+Transponder data is also published at [tle.oscarwatch.org/satellite_database.json](https://tle.oscarwatch.org/satellite_database.json); see [documents/satellite-database.md](documents/satellite-database.md).
 
 ## Support
 
@@ -235,7 +238,7 @@ Publish profiles are under `OscarWatch/Properties/PublishProfiles/` (e.g. `dotne
 
 ### Developer documentation
 
-- [documents/](documents/) — how to add **radio** and **rotator** drivers (`IRigDriver`, `IRotatorDriver`)
+- [documents/](documents/) — how to add **radio** and **rotator** drivers (`IRigDriver`, `IRotatorDriver`); [satellite transponder database](documents/satellite-database.md) (remote updates, merge policy, schema)
 - [help/](help/) — operator HTML help (bundled with the app)
 - [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) — UI contrast, colour-blind-safe tracking colours, keyboard
 

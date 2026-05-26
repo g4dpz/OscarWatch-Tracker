@@ -60,10 +60,20 @@
       <p>
         <strong>Satellites → Manage transponder database</strong> lets you add satellites, edit uplink/downlink
         frequencies in kHz, set mode names, Doppler type (normal or reverse), and CTCSS tones.
+        Changes are saved to your AppData copy, not the program installation folder.
+      </p>
+      <p>
+        OscarWatch publishes an updated transponder list at
+        <a href="https://tle.oscarwatch.org/satellite_database.json">tle.oscarwatch.org/satellite_database.json</a>.
+        Use <strong>Satellites → Update transponder database…</strong> (or <strong>Check for updates</strong> in the editor)
+        to download and merge new satellites and modes.
       </p>
       <ul>
-        <li>Use <strong>Restore defaults</strong> to reload the built-in database if you need a clean start.</li>
-        <li>Changes are saved to your AppData copy, not the program installation folder.</li>
+        <li><strong>Settings → Tracking</strong> — enable <em>Check for transponder database updates on startup</em> (on by default).</li>
+        <li>New remote entries are selected by default in the merge dialog; uncheck any you do not want.</li>
+        <li>If a mode you already have differs from the published copy, your version is kept unless you choose <strong>Use published version</strong>.</li>
+        <li><strong>Restore defaults</strong> reloads the database shipped with your app version, not the remote file.</li>
+        <li>Set <strong>uplink to 0</strong> for receive-only modes (SSTV, beacons, telemetry).</li>
       </ul>
     </main>
 

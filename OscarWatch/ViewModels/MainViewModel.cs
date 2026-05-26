@@ -31,6 +31,7 @@ public partial class MainViewModel : ViewModelBase
     private readonly IRotatorController _rotator;
     private readonly IRigController _rig;
     private readonly ICloudlogRadioSyncService _cloudlog;
+    private readonly ISatelliteDatabaseSyncService _transponderDatabaseSync;
     private readonly DispatcherTimer _timer;
     private string? _lastCloudlogErrorShown;
 
@@ -171,6 +172,7 @@ public partial class MainViewModel : ViewModelBase
         IRotatorController rotator,
         IRigController rig,
         ICloudlogRadioSyncService cloudlog,
+        ISatelliteDatabaseSyncService transponderDatabaseSync,
         FrequencyOverlayViewModel frequencies)
     {
         _settings = settings;
@@ -184,6 +186,7 @@ public partial class MainViewModel : ViewModelBase
         _rotator = rotator;
         _rig = rig;
         _cloudlog = cloudlog;
+        _transponderDatabaseSync = transponderDatabaseSync;
         Frequencies = frequencies;
         Frequencies.OffsetsChanged += (_, reinitializePass) => RefreshRigFromOverlay(reinitializePass);
         Frequencies.CtcssChanged += (_, _) => OnCtcssSelectorChanged();
@@ -270,6 +273,9 @@ public partial class MainViewModel : ViewModelBase
         await RefreshPassesAsync().ConfigureAwait(true);
         UpdateStatus();
         Tick();
+
+        if (_settings.Current.TransponderDatabaseCheckOnStartup)
+            await CheckTransponderDatabaseUpdatesAsync(showWhenUpToDate: false).ConfigureAwait(true);
     }
 
     private void Tick()
@@ -920,12 +926,54 @@ public partial class MainViewModel : ViewModelBase
         if (App.MainWindow is null)
             return;
 
-        var saved = await window.ShowDialog<bool?>(App.MainWindow) == true;
-        if (saved)
+        await window.ShowDialog<bool?>(App.MainWindow);
+        Frequencies.ReloadFromDatabase();
+        Tick();
+    }
+
+    [RelayCommand]
+    private async Task UpdateTransponderDatabaseAsync()
+    {
+        await CheckTransponderDatabaseUpdatesAsync(showWhenUpToDate: true);
+    }
+
+    private async Task CheckTransponderDatabaseUpdatesAsync(bool showWhenUpToDate)
+    {
+        if (App.MainWindow is null)
+            return;
+
+        try
         {
-            Frequencies.ReloadFromDatabase();
-            Tick();
-            StatusText = "Transponder database saved.";
+            StatusText = "Checking transponder database…";
+            var plan = await _transponderDatabaseSync.FetchMergePlanAsync().ConfigureAwait(true);
+            if (!plan.HasChanges)
+            {
+                if (showWhenUpToDate)
+                    StatusText = "Transponder database is up to date.";
+                else
+                    UpdateStatus();
+
+                return;
+            }
+
+            if (await TransponderDatabaseMergeDialog.TryShowAsync(App.MainWindow, plan, _transponderDatabaseSync))
+            {
+                Frequencies.ReloadFromDatabase();
+                Tick();
+                StatusText = "Transponder database updated.";
+            }
+            else
+            {
+                UpdateStatus();
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Transponder database update check failed");
+            if (showWhenUpToDate)
+                StatusText = $"Transponder update failed: {ex.Message}";
+            else
+                UpdateStatus();
         }
     }
 

@@ -3,12 +3,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
+using OscarWatch.Views;
 
 namespace OscarWatch.ViewModels;
 
 public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
 {
     private readonly ISatelliteDatabaseEditor _editor;
+    private readonly ISatelliteDatabaseSyncService _syncService;
     private bool _syncingModeFields;
 
     [ObservableProperty]
@@ -64,9 +66,12 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
 
     public IReadOnlyList<string> DopplerOptions { get; } = ["NOR", "REV"];
 
-    public SatelliteDatabaseEditorViewModel(ISatelliteDatabaseEditor editor)
+    public SatelliteDatabaseEditorViewModel(
+        ISatelliteDatabaseEditor editor,
+        ISatelliteDatabaseSyncService syncService)
     {
         _editor = editor;
+        _syncService = syncService;
         Load();
     }
 
@@ -288,5 +293,37 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
         _editor.ResetToBundled();
         Load();
         StatusMessage = "Restored shipped database.";
+    }
+
+    [RelayCommand]
+    private async Task CheckForUpdatesAsync()
+    {
+        if (App.MainWindow is null)
+            return;
+
+        try
+        {
+            StatusMessage = "Checking for transponder database updates…";
+            var plan = await _syncService.FetchMergePlanAsync().ConfigureAwait(true);
+            if (!plan.HasChanges)
+            {
+                StatusMessage = "Transponder database is up to date.";
+                return;
+            }
+
+            if (await TransponderDatabaseMergeDialog.TryShowAsync(App.MainWindow, plan, _syncService))
+            {
+                Load();
+                StatusMessage = "Updates applied.";
+            }
+            else
+            {
+                StatusMessage = "No changes applied.";
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Update check failed: {ex.Message}";
+        }
     }
 }

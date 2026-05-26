@@ -1,17 +1,22 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using OscarWatch.Core.Json;
 using OscarWatch.Core.Models;
 
 namespace OscarWatch.Core.Services;
 
 public static class SatelliteDatabaseFile
 {
-    private static readonly JsonSerializerOptions Options = new()
-    {
-        WriteIndented = true,
-        PropertyNamingPolicy = null,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
+    private static readonly JsonSerializerOptions Options = CreateOptions();
+
+    private static JsonSerializerOptions CreateOptions() =>
+        new()
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = null,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Converters = { new FlexibleDoubleJsonConverter() }
+        };
 
     public static List<SatelliteRadioEntry> Load(string path)
     {
@@ -19,8 +24,11 @@ public static class SatelliteDatabaseFile
             return [];
 
         var json = File.ReadAllText(path);
-        return JsonSerializer.Deserialize<List<SatelliteRadioEntry>>(json, Options) ?? [];
+        return ParseJson(json);
     }
+
+    public static List<SatelliteRadioEntry> ParseJson(string json) =>
+        JsonSerializer.Deserialize<List<SatelliteRadioEntry>>(json, Options) ?? [];
 
     public static void Save(string path, IEnumerable<SatelliteRadioEntry> entries)
     {

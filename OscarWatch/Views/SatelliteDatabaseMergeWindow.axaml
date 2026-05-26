@@ -1,0 +1,87 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OscarWatch.ViewModels"
+        x:Class="OscarWatch.Views.SatelliteDatabaseMergeWindow"
+        x:DataType="vm:SatelliteDatabaseMergeViewModel"
+        Title="Transponder database updates"
+        Width="720" Height="560"
+        MinWidth="560" MinHeight="420"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="12">
+    <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,8">
+      <TextBlock Text="{Binding SummaryText}"
+                 TextWrapping="Wrap" />
+      <TextBlock Text="New entries are selected by default. Conflicts keep your local copy unless you choose the published version."
+                 TextWrapping="Wrap"
+                 FontSize="11"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+    </StackPanel>
+
+    <StackPanel DockPanel.Dock="Bottom"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Spacing="8"
+                Margin="0,8,0,0">
+      <Button Content="Cancel" Classes="dialog-footer" Click="OnCancelClick" />
+      <Button Content="Apply selected" Classes="dialog-footer accent" Click="OnApplyClick" />
+    </StackPanel>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+      <StackPanel Spacing="16">
+        <StackPanel Spacing="6" IsVisible="{Binding HasNewSatellites}">
+          <TextBlock Text="New satellites" FontWeight="SemiBold" />
+          <ItemsControl ItemsSource="{Binding NewSatellites}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:MergeAdditionItem">
+                <CheckBox Content="{Binding Label}"
+                          IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                          Margin="0,2" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+
+        <StackPanel Spacing="6" IsVisible="{Binding HasNewModes}">
+          <TextBlock Text="New transponder modes" FontWeight="SemiBold" />
+          <ItemsControl ItemsSource="{Binding NewModes}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:MergeAdditionItem">
+                <CheckBox Content="{Binding Label}"
+                          IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                          Margin="0,2" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+
+        <StackPanel Spacing="8" IsVisible="{Binding HasConflicts}">
+          <TextBlock Text="Conflicts" FontWeight="SemiBold" />
+          <ItemsControl ItemsSource="{Binding Conflicts}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:MergeConflictItem">
+                <Border Padding="8"
+                        Margin="0,0,0,8"
+                        CornerRadius="4"
+                        BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                        BorderThickness="1">
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="{Binding Title}"
+                               FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding LocalSummary, StringFormat='Yours: {0}'}"
+                               FontSize="11"
+                               TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding RemoteSummary, StringFormat='Published: {0}'}"
+                               FontSize="11"
+                               TextWrapping="Wrap" />
+                    <CheckBox Content="Use published version"
+                              IsChecked="{Binding UseRemote, Mode=TwoWay}" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
+</Window>

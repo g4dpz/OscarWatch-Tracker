@@ -13,13 +13,16 @@ Tracked ideas and deferred work. Not a commitment order; items may be split or d
 
 ## Satellite database
 
-### Remote sync & merge (deferred)
+### Remote sync & merge
 
-Pull an authoritative `satellite_database.json` from a remote URL and **merge** with `%AppData%/OscarWatch/satellite_database.json` (not blind overwrite). Schedule and/or on-demand update; surface changes; fall back to bundled + local on failure.
+**Implemented:** fetch from **`https://tle.oscarwatch.org/satellite_database.json`**, merge dialog, startup check (Settings → Tracking). See [documents/satellite-database.md](documents/satellite-database.md).
 
-**Open design:** source URL, merge keys (`name` + mode `type`?), conflict/rename rules, whether “Restore defaults” re-fetches remote, optional `version`/checksum in JSON.
+**Possible follow-ups:**
 
-**Building blocks:** Satellites → Manage transponder database…, `SatelliteDatabaseFile`, `SatelliteDatabaseService.Reload()`, bundled `OscarWatch/Assets/satellite_database.json`.
+- [ ] Optional periodic check while running (like TLE every 6 hours)
+- [ ] “Restore defaults” choice: bundled only vs re-fetch remote
+- [ ] Optional `version` or `ETag` in published JSON for change detection without full compare
+- [ ] Import / export JSON from file picker in editor
 
 ### Transponder database editor
 
@@ -94,7 +97,7 @@ See [building rotator drivers](documents/building-rotator-drivers.md).
 ## Documentation
 
 - [ ] **NOR vs REV** — database tag, doppler sign, offset sign, knob pairing.
-- [ ] **Settings vs database paths** — repo vs `%AppData%` vs bundled vs future remote sync.
+- [ ] **Settings vs database paths** — repo vs `%AppData%` vs bundled vs [remote sync](documents/satellite-database.md).
 - [ ] **Offset storage** — `frequencySelections`, Remember checkbox, `modeOffsets`.
 - [ ] **Pre-pass checklist** — rebuild, Remember offsets, overlay vs sidebar freqs, Pause CAT, linear threshold.
 - [ ] Link **doppler behaviour matrix** from README when written (see Radio above).

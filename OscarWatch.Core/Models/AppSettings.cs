@@ -11,6 +11,8 @@ public sealed class AppSettings
     public int PassFilterMinDurationMinutes { get; set; } = 2;
     public int TleStaleHours { get; set; } = 6;
     public TleAutoUpdateMode TleAutoUpdate { get; set; } = TleAutoUpdateMode.OnStartup;
+    /// <summary>On startup, check tle.oscarwatch.org for new transponder database entries.</summary>
+    public bool TransponderDatabaseCheckOnStartup { get; set; } = true;
     public AppThemePreference Theme { get; set; } = AppThemePreference.System;
     /// <summary>Show ground-track direction arrows inside satellite footprints on the world map.</summary>
     public bool ShowFootprintMotionArrows { get; set; } = true;
