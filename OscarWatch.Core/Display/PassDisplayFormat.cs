@@ -59,12 +59,13 @@ public static class PassDisplayFormat
     public static (string Aos, string Los) FormatLocalTimes(
         DateTime aosUtc,
         DateTime losUtc,
-        CultureInfo? culture = null)
+        CultureInfo? culture = null,
+        bool useUtc = false)
     {
         culture ??= CultureInfo.CurrentCulture;
-        var timePattern = culture.DateTimeFormat.ShortTimePattern;
-        var aos = ToLocal(aosUtc).ToString(timePattern, culture);
-        var los = ToLocal(losUtc).ToString(timePattern, culture);
+        var timePattern = useUtc ? "HH:mm" : culture.DateTimeFormat.ShortTimePattern;
+        var aos = ToDisplayTime(aosUtc, useUtc).ToString(timePattern, culture);
+        var los = ToDisplayTime(losUtc, useUtc).ToString(timePattern, culture);
         return (aos, los);
     }
 
@@ -88,33 +89,38 @@ public static class PassDisplayFormat
         return $"{aos} to {los}";
     }
 
-    /// <summary>Compact local range for pass planner grid, e.g. <c>21/05 16:01–16:05</c>.</summary>
+    /// <summary>Compact range for pass planner grid, e.g. <c>21/05 16:01–16:05</c>.</summary>
     public static string FormatPlannerAosLosLine(
         DateTime aosUtc,
         DateTime losUtc,
-        CultureInfo? culture = null)
+        CultureInfo? culture = null,
+        bool useUtc = false)
     {
         culture ??= CultureInfo.CurrentCulture;
-        var timePattern = culture.DateTimeFormat.ShortTimePattern;
-        var aosLocal = ToLocal(aosUtc);
-        var losLocal = ToLocal(losUtc);
-        var aosPart = aosLocal.ToString($"dd/MM {timePattern}", culture);
-        var losPart = aosLocal.Date == losLocal.Date
-            ? losLocal.ToString(timePattern, culture)
-            : losLocal.ToString($"dd/MM {timePattern}", culture);
+        var timePattern = useUtc ? "HH:mm" : culture.DateTimeFormat.ShortTimePattern;
+        var aos = ToDisplayTime(aosUtc, useUtc);
+        var los = ToDisplayTime(losUtc, useUtc);
+        var aosPart = aos.ToString($"dd/MM {timePattern}", culture);
+        var losPart = aos.Date == los.Date
+            ? los.ToString(timePattern, culture)
+            : los.ToString($"dd/MM {timePattern}", culture);
         return $"{aosPart}–{losPart}";
     }
 
-    /// <summary>TCA time for pass planner; includes date when TCA is on a different local day than AOS.</summary>
-    public static string FormatPlannerTca(DateTime tcaUtc, DateTime aosUtc, CultureInfo? culture = null)
+    /// <summary>TCA time for pass planner; includes date when TCA is on a different day than AOS.</summary>
+    public static string FormatPlannerTca(
+        DateTime tcaUtc,
+        DateTime aosUtc,
+        CultureInfo? culture = null,
+        bool useUtc = false)
     {
         culture ??= CultureInfo.CurrentCulture;
-        var timePattern = culture.DateTimeFormat.ShortTimePattern;
-        var tcaLocal = ToLocal(tcaUtc);
-        if (tcaLocal.Date == ToLocal(aosUtc).Date)
-            return tcaLocal.ToString(timePattern, culture);
+        var timePattern = useUtc ? "HH:mm" : culture.DateTimeFormat.ShortTimePattern;
+        var tca = ToDisplayTime(tcaUtc, useUtc);
+        if (tca.Date == ToDisplayTime(aosUtc, useUtc).Date)
+            return tca.ToString(timePattern, culture);
 
-        return tcaLocal.ToString($"dd/MM {timePattern}", culture);
+        return tca.ToString($"dd/MM {timePattern}", culture);
     }
 
     public static string FormatDurationMinutes(TimeSpan duration)
@@ -145,16 +151,17 @@ public static class PassDisplayFormat
     public static string FormatMutualWindowLine(
         DateTime startUtc,
         DateTime endUtc,
-        CultureInfo? culture = null)
+        CultureInfo? culture = null,
+        bool useUtc = false)
     {
         culture ??= CultureInfo.CurrentCulture;
-        var timePattern = culture.DateTimeFormat.ShortTimePattern;
-        var startLocal = ToLocal(startUtc);
-        var endLocal = ToLocal(endUtc);
-        var startPart = startLocal.ToString(timePattern, culture);
-        var endPart = startLocal.Date == endLocal.Date
-            ? endLocal.ToString(timePattern, culture)
-            : endLocal.ToString($"dd/MM {timePattern}", culture);
+        var timePattern = useUtc ? "HH:mm" : culture.DateTimeFormat.ShortTimePattern;
+        var start = ToDisplayTime(startUtc, useUtc);
+        var end = ToDisplayTime(endUtc, useUtc);
+        var startPart = start.ToString(timePattern, culture);
+        var endPart = start.Date == end.Date
+            ? end.ToString(timePattern, culture)
+            : end.ToString($"dd/MM {timePattern}", culture);
         return $"{startPart}–{endPart}";
     }
 
@@ -168,6 +175,9 @@ public static class PassDisplayFormat
         return $"{(int)delta.TotalMinutes}:{delta.Seconds:D2}";
     }
 
+    private static DateTime ToDisplayTime(DateTime utc, bool useUtc) =>
+        useUtc ? EnsureUtc(utc) : ToLocal(utc);
+
     private static DateTime ToLocal(DateTime utc)
     {
         return utc.Kind switch
@@ -175,6 +185,16 @@ public static class PassDisplayFormat
             DateTimeKind.Utc => utc.ToLocalTime(),
             DateTimeKind.Local => utc,
             _ => DateTime.SpecifyKind(utc, DateTimeKind.Utc).ToLocalTime()
+        };
+    }
+
+    private static DateTime EnsureUtc(DateTime utc)
+    {
+        return utc.Kind switch
+        {
+            DateTimeKind.Utc => utc,
+            DateTimeKind.Local => utc.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(utc, DateTimeKind.Utc)
         };
     }
 }

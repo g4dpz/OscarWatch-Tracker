@@ -130,15 +130,19 @@
                              Value="{Binding FilterPredictionHours, Mode=TwoWay}"
                              Minimum="6" Maximum="168" FormatString="0" />
             </StackPanel>
-            <TextBlock Grid.Column="3"
-                       VerticalAlignment="Bottom"
-                       Margin="0,0,0,6"
-                       FontSize="10"
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                       TextWrapping="Wrap"
-                       HorizontalAlignment="Stretch"
-                       Text="Filters apply to this list and the main window when you close." />
+            <StackPanel Grid.Column="3" Spacing="2" MinWidth="0">
+              <TextBlock Text="Times shown in" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+              <ComboBox HorizontalAlignment="Stretch"
+                        SelectedIndex="{Binding TimeDisplayIndex, Mode=TwoWay}">
+                <ComboBoxItem Content="Local time" />
+                <ComboBoxItem Content="UTC" />
+              </ComboBox>
+            </StackPanel>
           </Grid>
+          <TextBlock FontSize="10"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                     TextWrapping="Wrap"
+                     Text="Filters apply to this list and the main window when you close." />
         </StackPanel>
       </Expander>
 

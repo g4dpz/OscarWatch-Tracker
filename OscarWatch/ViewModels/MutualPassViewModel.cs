@@ -40,6 +40,12 @@ public partial class MutualPassViewModel : ViewModelBase
     [ObservableProperty]
     private string _statusText = "";
 
+    [ObservableProperty]
+    private bool _useUtcTime;
+
+    private string _lastLocalLabel = "";
+    private string _lastRemoteLabel = "";
+
     public MutualPassViewModel(
         ISettingsService settings,
         ITleService tleService,
@@ -59,6 +65,38 @@ public partial class MutualPassViewModel : ViewModelBase
         FilterMinPassDurationMinutes = _settings.Current.PassFilterMinDurationMinutes;
         FilterMinMutualDurationMinutes = Math.Max(1, FilterMinPassDurationMinutes / 2);
         FilterPredictionHours = _settings.Current.PassPredictionHours;
+        UseUtcTime = _settings.Current.PassPlannerUseUtcTime;
+    }
+
+    partial void OnUseUtcTimeChanged(bool value)
+    {
+        OnPropertyChanged(nameof(TimeDisplayIndex));
+        _settings.Current.PassPlannerUseUtcTime = value;
+        RefreshPassDisplayTimes();
+        _ = _settings.SaveAsync();
+    }
+
+    public int TimeDisplayIndex
+    {
+        get => UseUtcTime ? 1 : 0;
+        set
+        {
+            if (value is not (0 or 1) || UseUtcTime == (value == 1))
+                return;
+
+            UseUtcTime = value == 1;
+        }
+    }
+
+    private void RefreshPassDisplayTimes()
+    {
+        if (Passes.Count == 0)
+            return;
+
+        var rows = Passes.ToList();
+        Passes.Clear();
+        foreach (var row in rows)
+            Passes.Add(MutualPassRow.From(row.Source, _lastLocalLabel, _lastRemoteLabel, UseUtcTime));
     }
 
     [RelayCommand]
@@ -98,9 +136,12 @@ public partial class MutualPassViewModel : ViewModelBase
                 FilterMinPassDurationMinutes,
                 FilterMinMutualDurationMinutes);
 
+            _lastLocalLabel = localSite.DisplayName;
+            _lastRemoteLabel = remoteSite.DisplayName;
+
             Passes.Clear();
             foreach (var pass in passes)
-                Passes.Add(MutualPassRow.From(pass, localSite.DisplayName, remoteSite.DisplayName));
+                Passes.Add(MutualPassRow.From(pass, _lastLocalLabel, _lastRemoteLabel, UseUtcTime));
 
             StatusText = passes.Count == 0
                 ? $"No mutual passes in the next {FilterPredictionHours} h for {localSite.GridSquare} and {remoteSite.GridSquare}."
@@ -128,19 +169,23 @@ public sealed class MutualPassRow
     public string LocalPassLine { get; init; } = "";
     public string RemotePassLine { get; init; } = "";
 
-    public static MutualPassRow From(MutualPassInfo pass, string localLabel, string remoteLabel)
+    public static MutualPassRow From(
+        MutualPassInfo pass,
+        string localLabel,
+        string remoteLabel,
+        bool useUtc = false)
     {
         return new()
         {
             Source = pass,
             SatelliteName = pass.SatelliteName,
             MutualWindowLine = PassDisplayFormat.FormatMutualWindowLine(
-                pass.MutualStartUtc, pass.MutualEndUtc),
+                pass.MutualStartUtc, pass.MutualEndUtc, useUtc: useUtc),
             OverlapDuration = PassDisplayFormat.FormatDurationMinutes(pass.Duration),
             LocalMaxEl = $"{pass.LocalPass.MaxElevationDeg:F1}°",
             RemoteMaxEl = $"{pass.RemotePass.MaxElevationDeg:F1}°",
-            LocalPassLine = $"{localLabel}: {PassDisplayFormat.FormatPlannerAosLosLine(pass.LocalPass.AosUtc, pass.LocalPass.LosUtc)}",
-            RemotePassLine = $"{remoteLabel}: {PassDisplayFormat.FormatPlannerAosLosLine(pass.RemotePass.AosUtc, pass.RemotePass.LosUtc)}"
+            LocalPassLine = $"{localLabel}: {PassDisplayFormat.FormatPlannerAosLosLine(pass.LocalPass.AosUtc, pass.LocalPass.LosUtc, useUtc: useUtc)}",
+            RemotePassLine = $"{remoteLabel}: {PassDisplayFormat.FormatPlannerAosLosLine(pass.RemotePass.AosUtc, pass.RemotePass.LosUtc, useUtc: useUtc)}"
         };
     }
 }

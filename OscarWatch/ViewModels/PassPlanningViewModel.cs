@@ -54,6 +54,9 @@ public partial class PassPlanningViewModel : ViewModelBase
     [ObservableProperty]
     private bool _canDeleteStation;
 
+    [ObservableProperty]
+    private bool _useUtcTime;
+
     public PassPlanningViewModel(
         ISettingsService settings,
         ITleService tleService,
@@ -74,6 +77,7 @@ public partial class PassPlanningViewModel : ViewModelBase
         FilterMinElevationDeg = _settings.Current.MinimumElevationDeg;
         FilterMinDurationMinutes = _settings.Current.PassFilterMinDurationMinutes;
         FilterPredictionHours = _settings.Current.PassPredictionHours;
+        UseUtcTime = _settings.Current.PassPlannerUseUtcTime;
 
         SelectedStation = Stations.FirstOrDefault(s => s.Id == _settings.Current.ActiveStationId)
             ?? Stations.FirstOrDefault();
@@ -224,6 +228,36 @@ public partial class PassPlanningViewModel : ViewModelBase
 
     private void UpdateCanDeleteStation() => CanDeleteStation = Stations.Count > 1;
 
+    partial void OnUseUtcTimeChanged(bool value)
+    {
+        OnPropertyChanged(nameof(TimeDisplayIndex));
+        _settings.Current.PassPlannerUseUtcTime = value;
+        RefreshPassDisplayTimes();
+    }
+
+    public int TimeDisplayIndex
+    {
+        get => UseUtcTime ? 1 : 0;
+        set
+        {
+            if (value is not (0 or 1) || UseUtcTime == (value == 1))
+                return;
+
+            UseUtcTime = value == 1;
+        }
+    }
+
+    private void RefreshPassDisplayTimes()
+    {
+        if (Passes.Count == 0)
+            return;
+
+        var rows = Passes.ToList();
+        Passes.Clear();
+        foreach (var row in rows)
+            Passes.Add(PassPlanningPassRow.From(row.Source, UseUtcTime));
+    }
+
     [RelayCommand]
     private async Task RefreshPassesAsync()
     {
@@ -242,7 +276,7 @@ public partial class PassPlanningViewModel : ViewModelBase
 
             Passes.Clear();
             foreach (var pass in passes)
-                Passes.Add(PassPlanningPassRow.From(pass));
+                Passes.Add(PassPlanningPassRow.From(pass, UseUtcTime));
 
             StatusText = $"{Passes.Count} pass(es) in the next {FilterPredictionHours} h";
         }
@@ -313,6 +347,7 @@ public partial class PassPlanningViewModel : ViewModelBase
         _settings.Current.MinimumElevationDeg = FilterMinElevationDeg;
         _settings.Current.PassFilterMinDurationMinutes = FilterMinDurationMinutes;
         _settings.Current.PassPredictionHours = FilterPredictionHours;
+        _settings.Current.PassPlannerUseUtcTime = UseUtcTime;
         await _settings.SaveAsync();
     }
 
@@ -327,6 +362,7 @@ public partial class PassPlanningViewModel : ViewModelBase
         _settings.Current.MinimumElevationDeg = FilterMinElevationDeg;
         _settings.Current.PassFilterMinDurationMinutes = FilterMinDurationMinutes;
         _settings.Current.PassPredictionHours = FilterPredictionHours;
+        _settings.Current.PassPlannerUseUtcTime = UseUtcTime;
         await _settings.SaveAsync();
     }
 }
@@ -343,11 +379,11 @@ public sealed class PassPlanningPassRow
     public string AzimuthSummary { get; init; } = "";
     public string AosLosLine { get; init; } = "";
 
-    public static PassPlanningPassRow From(PassInfo p)
+    public static PassPlanningPassRow From(PassInfo p, bool useUtc = false)
     {
-        var aosLosLine = PassDisplayFormat.FormatPlannerAosLosLine(p.AosUtc, p.LosUtc);
-        var (aos, los) = PassDisplayFormat.FormatLocalTimes(p.AosUtc, p.LosUtc);
-        var tca = PassDisplayFormat.FormatPlannerTca(p.MaxElevationUtc, p.AosUtc);
+        var aosLosLine = PassDisplayFormat.FormatPlannerAosLosLine(p.AosUtc, p.LosUtc, useUtc: useUtc);
+        var (aos, los) = PassDisplayFormat.FormatLocalTimes(p.AosUtc, p.LosUtc, useUtc: useUtc);
+        var tca = PassDisplayFormat.FormatPlannerTca(p.MaxElevationUtc, p.AosUtc, useUtc: useUtc);
         var az = $"{p.AosAzimuthDeg:F0}°→{p.LosAzimuthDeg:F0}°";
 
         return new()

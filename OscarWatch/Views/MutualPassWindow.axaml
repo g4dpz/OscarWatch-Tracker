@@ -125,6 +125,24 @@
                              Minimum="6" Maximum="168" FormatString="0" />
             </StackPanel>
           </Grid>
+
+          <Grid ColumnDefinitions="Auto,*"
+                ColumnSpacing="8"
+                HorizontalAlignment="Stretch"
+                MinWidth="0">
+            <TextBlock Grid.Column="0"
+                       Text="Times shown in"
+                       FontSize="12"
+                       VerticalAlignment="Center"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <ComboBox Grid.Column="1"
+                      HorizontalAlignment="Left"
+                      MinWidth="140"
+                      SelectedIndex="{Binding TimeDisplayIndex, Mode=TwoWay}">
+              <ComboBoxItem Content="Local time" />
+              <ComboBoxItem Content="UTC" />
+            </ComboBox>
+          </Grid>
         </StackPanel>
       </Expander>
 

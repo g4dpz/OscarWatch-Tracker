@@ -9,6 +9,8 @@ public sealed class AppSettings
     public double MinimumElevationDeg { get; set; } = 5.0;
     public int PassPredictionHours { get; set; } = 48;
     public int PassFilterMinDurationMinutes { get; set; } = 2;
+    /// <summary>Show pass planner and mutual pass times in UTC instead of local time.</summary>
+    public bool PassPlannerUseUtcTime { get; set; }
     public int TleStaleHours { get; set; } = 6;
     public TleAutoUpdateMode TleAutoUpdate { get; set; } = TleAutoUpdateMode.OnStartup;
     /// <summary>On startup, check tle.oscarwatch.org for new transponder database entries.</summary>
