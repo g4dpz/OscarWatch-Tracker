@@ -111,6 +111,7 @@ public partial class MainViewModel : ViewModelBase
     public bool ShowRotatorMenuItem => IsStandby && _settings.Current.Rotator.Enabled;
 
     private bool? _rigCatPausedBeforeStandby;
+    private bool _suppressCatPausePersist;
 
     [ObservableProperty]
     private bool _showRigStatus;
@@ -205,8 +206,9 @@ public partial class MainViewModel : ViewModelBase
 
         var focused = GetFocusedTrackState(_liveTracking.GetSnapshot(), FocusedNoradId);
         var context = Frequencies.TryBuildRigTrackingContext(focused);
-        _rig.ApplySelectedCtcss(_settings.Current.Rig, context);
-        _rig.PublishContext(_settings.Current.Rig, context);
+        var rigSettings = GetRigSettingsForController();
+        _rig.ApplySelectedCtcss(rigSettings, context);
+        _rig.PublishContext(rigSettings, context);
         RefreshRigUi(focused);
     }
 
@@ -217,7 +219,7 @@ public partial class MainViewModel : ViewModelBase
 
         var focused = GetFocusedTrackState(_liveTracking.GetSnapshot(), FocusedNoradId);
         var context = Frequencies.TryBuildRigTrackingContext(focused);
-        _rig.PublishContext(_settings.Current.Rig, context, reinitializePass);
+        _rig.PublishContext(GetRigSettingsForController(), context, reinitializePass);
         RefreshRigUi(focused);
     }
 
@@ -328,7 +330,28 @@ public partial class MainViewModel : ViewModelBase
             return;
 
         focused ??= GetFocusedTrackState(_liveTracking.GetSnapshot(), FocusedNoradId);
-        _rig.PublishContext(_settings.Current.Rig, Frequencies.TryBuildRigTrackingContext(focused));
+        _rig.PublishContext(GetRigSettingsForController(), Frequencies.TryBuildRigTrackingContext(focused));
+    }
+
+    private RigSettings GetRigSettingsForController()
+    {
+        var rig = _settings.Current.Rig;
+        if (rig.CatUpdatesPaused == RigCatPaused)
+            return rig;
+
+        return new RigSettings
+        {
+            Enabled = rig.Enabled,
+            Type = rig.Type,
+            Port = rig.Port,
+            BaudRate = rig.BaudRate,
+            CivAddress = rig.CivAddress,
+            Region = rig.Region,
+            DopplerThresholdFmHz = rig.DopplerThresholdFmHz,
+            DopplerThresholdLinearHz = rig.DopplerThresholdLinearHz,
+            CatDelayMs = rig.CatDelayMs,
+            CatUpdatesPaused = RigCatPaused,
+        };
     }
 
     private void PushCloudlogRadio(SatelliteTrackState? focused)
@@ -357,7 +380,7 @@ public partial class MainViewModel : ViewModelBase
 
     partial void OnRigCatPausedChanged(bool value)
     {
-        if (_settings.Current.Rig.CatUpdatesPaused != value)
+        if (!_suppressCatPausePersist && _settings.Current.Rig.CatUpdatesPaused != value)
         {
             _settings.Current.Rig.CatUpdatesPaused = value;
             _ = _settings.SaveAsync();
@@ -365,6 +388,33 @@ public partial class MainViewModel : ViewModelBase
 
         SyncRigAfterOperationalModeChange();
     }
+
+    private void SetRigCatPausedWithoutPersist(bool value)
+    {
+        _suppressCatPausePersist = true;
+        try
+        {
+            RigCatPaused = value;
+        }
+        finally
+        {
+            _suppressCatPausePersist = false;
+        }
+    }
+
+    internal bool PrepareForShutdown()
+    {
+        if (!IsStandby || _rigCatPausedBeforeStandby is not { } wasPaused)
+            return false;
+
+        if (_settings.Current.Rig.CatUpdatesPaused == wasPaused)
+            return false;
+
+        _settings.Current.Rig.CatUpdatesPaused = wasPaused;
+        return true;
+    }
+
+    internal Task SaveSettingsAsync() => _settings.SaveAsync();
 
     private void UpdateRotatorDisplay()
     {
@@ -412,7 +462,7 @@ public partial class MainViewModel : ViewModelBase
         {
             _rigCatPausedBeforeStandby = RigCatPaused;
             if (!RigCatPaused)
-                RigCatPaused = true;
+                SetRigCatPausedWithoutPersist(true);
             _rotator.SetStandby(true, _settings.Current.Rotator);
         }
         else

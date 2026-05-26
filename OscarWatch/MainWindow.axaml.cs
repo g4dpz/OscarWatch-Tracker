@@ -12,6 +12,16 @@ public partial class MainWindow : Window
         InitializeComponent();
         PassesListBox.ContainerPrepared += OnPassListContainerPrepared;
         PassesListBox.ContainerClearing += OnPassListContainerClearing;
+        Closing += OnClosing;
+    }
+
+    private async void OnClosing(object? sender, WindowClosingEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm)
+            return;
+
+        if (vm.PrepareForShutdown())
+            await vm.SaveSettingsAsync();
     }
 
     private static void OnPassListContainerClearing(object? sender, ContainerClearingEventArgs e)
