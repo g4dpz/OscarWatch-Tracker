@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using OscarWatch.Core.Services;
 using OscarWatch.Orbit;
@@ -77,8 +78,25 @@ public partial class App : Application
             var mainVm = Services.GetRequiredService<MainViewModel>();
             MainWindow = new MainWindow { DataContext = mainVm };
             desktop.MainWindow = MainWindow;
+
+            AppSingleInstance.StartActivationListener(ActivateMainWindow);
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private static void ActivateMainWindow()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (MainWindow is null)
+                return;
+
+            if (MainWindow.WindowState == WindowState.Minimized)
+                MainWindow.WindowState = WindowState.Normal;
+
+            MainWindow.Show();
+            MainWindow.Activate();
+        });
     }
 }

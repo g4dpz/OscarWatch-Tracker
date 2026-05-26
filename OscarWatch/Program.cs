@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using OscarWatch.Diagnostics;
+using Serilog;
 
 namespace OscarWatch;
 
@@ -10,12 +11,27 @@ internal class Program
     {
         AppLogging.Configure();
         AppLogging.RegisterGlobalHandlers();
+
+        IDisposable? singleInstance = null;
+        if (!AppSingleInstance.AllowsMultipleInstances(args)
+            && !AppSingleInstance.TryBecomePrimaryInstance(out singleInstance))
+        {
+            if (AppSingleInstance.NotifyPrimaryInstance())
+                Log.Information("Another OscarWatch instance is already running; activated existing window.");
+            else
+                Log.Warning("Another OscarWatch instance appears to be running but could not be activated.");
+
+            AppLogging.Shutdown();
+            return;
+        }
+
         try
         {
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }
         finally
         {
+            singleInstance?.Dispose();
             AppLogging.Shutdown();
         }
     }
