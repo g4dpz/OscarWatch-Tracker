@@ -99,7 +99,6 @@ See [building rotator drivers](documents/building-rotator-drivers.md).
 - [ ] Reuse the WSJT-X DSP/decoder code to build in a simple satellite focused duplex UI for operating FT modes
 - [ ] Native SSTV Decoder for common sat modes with sync etc.
 - [ ] Built in Packet Interface
-- [ ] Windows installer / auto-update for releases
 
 ---
 
