@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="OscarWatch: desktop satellite tracking for AMSAT operators. Pass predictions, Doppler-corrected CAT, rotator control, and transponder modes in one map-centred app." />
+  <title>OscarWatch | Satellite tracking for AMSAT operators</title>
+  <link rel="icon" href="assets/oscarwatch-icon.png" type="image/png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand-link" href="#top">
+        <img src="assets/oscarwatch-icon.png" alt="" width="44" height="44" />
+        <span class="brand-name">OscarWatch</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="#features">Features</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#hardware">Hardware</a>
+        <a class="btn btn-primary" href="https://github.com/magicbug/OscarWatch-Tracker/releases">Download</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="hero-eyebrow">For VHF/UHF satellite operators</p>
+          <h1>Track the pass.<br />Work the bird.<br />Let the shack keep up.</h1>
+          <p class="hero-lead">
+            OscarWatch is a free desktop app for radio amateurs working AMSAT spacecraft:
+            FM cubesats, linear transponders, and the usual Oscar fleet. One map-centred window
+            for pass times, live azimuth and elevation, Doppler-corrected frequencies, and
+            optional rotator and radio automation.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="https://github.com/magicbug/OscarWatch-Tracker/releases">Download for Windows, macOS &amp; Linux</a>
+            <a class="btn btn-secondary" href="https://github.com/magicbug/OscarWatch-Tracker">View on GitHub</a>
+          </div>
+          <ul class="hero-meta">
+            <li>Free &amp; open source (AGPL)</li>
+            <li>No cloud account required</li>
+          </ul>
+        </div>
+        <div class="hero-visual">
+          <img class="hero-logo" src="assets/oscarwatch-icon.png" alt="OscarWatch application logo, satellite orbiting Earth" width="320" height="320" />
+        </div>
+      </div>
+    </section>
+
+    <section class="audience" id="audience">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Built for operators who speak satellite</h2>
+          <p>
+            You know what AOS, TCA, and Doppler mean. OscarWatch does the orbit maths and station
+            chores so you can concentrate on the contact, whether in the shack or portable.
+          </p>
+        </div>
+        <div class="audience-grid">
+          <article class="audience-card">
+            <h3>FM &amp; digitals</h3>
+            <p>SO-50, ISS, AO-91 and friends: pass list, sky plot, CTCSS access and arm tones, live az/el pointing.</p>
+          </article>
+          <article class="audience-card">
+            <h3>Linear transponders</h3>
+            <p>Mode B/J/V modes from the built-in database, live uplink and downlink with Doppler, TX/RX offsets.</p>
+          </article>
+          <article class="audience-card">
+            <h3>DX skeds &amp; portable</h3>
+            <p>Pass planner with portable profiles, mutual-pass finder for two-station skeds, and iCalendar export for your calendar.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Everything you need around one pass</h2>
+          <p>Tracking, planning, and station assist, without replacing your logger or decoding telemetry.</p>
+        </div>
+        <div class="features-grid" id="features-grid">
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg></div>
+            <h3>World map &amp; sky plot</h3>
+            <p>Subpoint, ground track, footprint, and a polar sky view from your QTH. Click to focus a satellite.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg></div>
+            <h3>Pass predictions</h3>
+            <p>Upcoming passes with max elevation, duration, and countdown to AOS. Filter by min elevation and length.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18l4-8 4 4 4-10 4 14"/><path d="M4 20h16"/></svg></div>
+            <h3>Doppler frequencies</h3>
+            <p>Draggable overlay with transponder modes, live radio and satellite frequencies, and split offsets.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="10" rx="2"/><path d="M8 8V6a4 4 0 0 1 8 0v2M9 13h6"/></svg></div>
+            <h3>Radio CAT</h3>
+            <p>Built-in rig drivers with Doppler tracking, satellite/split layout, Main/Sub VFOs, and uplink CTCSS. No external CAT software.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 4v4M12 16v4M4 12h4M16 12h4"/><circle cx="12" cy="12" r="3"/><path d="M7 7l2.5 2.5M14.5 14.5L17 17M7 17l2.5-2.5M14.5 9.5L17 7"/></svg></div>
+            <h3>Rotator tracking</h3>
+            <p>Built-in GS-232 and EasyComm drivers for pass tracking, park, 450° smart azimuth, and manual control between passes.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 5h12v14H6z"/><path d="M9 9h6M9 13h4"/></svg></div>
+            <h3>Planning tools</h3>
+            <p>Multi-station pass planner, mutual-pass finder for two grids, and transponder database merge from tle.oscarwatch.org.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 9a4 4 0 0 1 8 0v5a3 3 0 0 1-6 0V9"/><path d="M12 17v3"/></svg></div>
+            <h3>Voice alerts</h3>
+            <p>Optional spoken &ldquo;satellite rising&rdquo; announcements at a configurable elevation, for example &ldquo;Alpha Oscar Zero Seven is rising&rdquo;.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg></div>
+            <h3>Pass recording</h3>
+            <p>Automatic WAV capture from line-in or USB audio while the focused bird is above your thresholds.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 16a5 5 0 0 1 0-8M17 16a5 5 0 0 0 0-8M5 12h14"/></svg></div>
+            <h3>Cloudlog sync</h3>
+            <p>Optional Radio API posts of SAT uplink and downlink while you are tracking, if you use Cloudlog.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="workflow" id="workflow">
+      <div class="container">
+        <div class="section-heading">
+          <h2>From cold start to QSO</h2>
+          <p>A typical pass workflow; most operators are on the air in minutes.</p>
+        </div>
+        <div class="workflow-steps">
+          <article class="workflow-step">
+            <h3>Set your QTH</h3>
+            <p>Enter latitude, longitude, and Maidenhead grid. Refresh TLEs from tle.oscarwatch.org.</p>
+          </article>
+          <article class="workflow-step">
+            <h3>Pick your birds</h3>
+            <p>Enable the satellites you plan to work. Choose transponder mode and CTCSS where needed.</p>
+          </article>
+          <article class="workflow-step">
+            <h3>Point &amp; tune</h3>
+            <p>Follow az/el on the sky plot or let the rotator track. Set frequencies manually or via CAT.</p>
+          </article>
+          <article class="workflow-step">
+            <h3>Resume &amp; work</h3>
+            <p>Leave Standby before the pass. Focus the satellite, work the contact, park when done.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="hardware" id="hardware">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Built-in drivers for rigs and rotators you already own</h2>
+          <p>
+            OscarWatch includes its own radio and rotator drivers for direct serial CAT and rotator
+            control from one app, with no third-party control software in the chain.
+          </p>
+        </div>
+        <div class="hardware-grid">
+          <div class="hardware-panel">
+            <h3>Supported radios (built-in drivers)</h3>
+            <ul>
+              <li>ICOM IC-910 / IC-9100 / IC-9700 (CI-V)</li>
+              <li>Yaesu FT-847 (Yaesu CAT)</li>
+              <li>Kenwood TS-2000 (beta, SATL mode)</li>
+              <li>Dummy rig for testing without hardware</li>
+            </ul>
+          </div>
+          <div class="hardware-panel">
+            <h3>Supported rotators (built-in drivers)</h3>
+            <ul>
+              <li>Yaesu GS-232 and compatible clones</li>
+              <li>EasyComm II (SPID, M2, and similar)</li>
+              <li>360° and 450° azimuth ranges</li>
+              <li>Calibration offsets and smart north crossing</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="platforms" id="download">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Windows, macOS, and Linux</h2>
+          <p>Pre-built release packages for x64 and ARM64. Extract and run: no account, no subscription.</p>
+        </div>
+        <div class="platform-badges">
+          <span class="platform-badge">Windows x64</span>
+          <span class="platform-badge">macOS Apple Silicon</span>
+          <span class="platform-badge">macOS Intel</span>
+          <span class="platform-badge">Linux x64</span>
+          <span class="platform-badge">Linux ARM64</span>
+        </div>
+        <p style="max-width: 38rem; margin: 0 auto 1.5rem; color: var(--muted); font-size: 0.95rem;">
+          macOS release builds are not code-signed. You may need to approve OscarWatch and
+          <code>libportaudio.dylib</code> once if you use pass recording. See the README for details.
+        </p>
+        <a class="btn btn-primary" href="https://github.com/magicbug/OscarWatch-Tracker/releases">Get OscarWatch</a>
+      </div>
+    </section>
+
+    <section class="cta-band">
+      <div class="container">
+        <h2>Ready for the next pass?</h2>
+        <p>
+          OscarWatch is free software by Peter Goodhall, MM9SQL. If it saves you time on a linear
+          or nails a DX sked, consider supporting development.
+        </p>
+        <div class="cta-actions">
+          <a class="btn btn-primary" href="https://github.com/magicbug/OscarWatch-Tracker/releases">Download latest release</a>
+          <a class="btn btn-outline" href="https://github.com/sponsors/magicbug">Sponsor on GitHub</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h3>OscarWatch</h3>
+          <p style="margin: 0; line-height: 1.55;">
+            Desktop satellite tracking for amateur radio operators.
+            TLE and transponder data from
+            <a href="https://tle.oscarwatch.org/">tle.oscarwatch.org</a>.
+          </p>
+        </div>
+        <div>
+          <h3>Links</h3>
+          <ul>
+            <li><a href="https://github.com/magicbug/OscarWatch-Tracker">Source on GitHub</a></li>
+            <li><a href="https://github.com/magicbug/OscarWatch-Tracker/releases">Releases</a></li>
+            <li><a href="https://tle.oscarwatch.org/">TLE catalogue</a></li>
+            <li><a href="https://github.com/sponsors/magicbug">GitHub Sponsors</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>AMSAT</h3>
+          <ul>
+            <li><a href="https://amsat.org/">AMSAT</a></li>
+            <li><a href="https://amsat.org/status/">AMSAT Status</a></li>
+            <li><a href="https://amsat-uk.org/">AMSAT-UK</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Project</h3>
+          <ul>
+            <li><a href="https://github.com/magicbug/OscarWatch-Tracker/blob/main/LICENSE.md">Licence (AGPL-3.0-or-later)</a></li>
+            <li><a href="https://www.paypal.com/paypalme/PGoodhall">PayPal</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p style="margin: 0;">Copyright &copy; 2026 Peter Goodhall, MM9SQL</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
