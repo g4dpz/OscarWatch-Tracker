@@ -32,6 +32,31 @@
     </header>
 
     <main>
+      <h2 id="macos-install">macOS — app or recording blocked on first install</h2>
+      <p>
+        Release builds from GitHub are not code-signed or notarized. macOS may block OscarWatch or
+        bundled native libraries the first time you run them. These steps are usually one-time per install.
+      </p>
+      <ul>
+        <li>
+          <strong>OscarWatch</strong> — if Finder says the app “cannot be opened”, right-click
+          <code>OscarWatch</code> → <strong>Open</strong> once, or use
+          <strong>System Settings → Privacy &amp; Security → Open Anyway</strong>.
+        </li>
+        <li>
+          <strong>Pass recording</strong> — if you use automatic WAV capture, macOS may also ask you to allow
+          <code>libportaudio.dylib</code> (in <code>runtimes/osx-*/native/</code> inside the app folder).
+          Approve it the same way when prompted.
+        </li>
+        <li>
+          <strong>Microphone</strong> — allow microphone access when you first enable recording in
+          <strong>Settings → Recording</strong>.
+        </li>
+      </ul>
+      <p>
+        Tracking, passes, and radio/rotator control work without pass recording if you skip the PortAudio step.
+      </p>
+
       <h2>Pass times look wrong</h2>
       <ul>
         <li>Refresh TLEs (<strong>Satellites → Refresh TLEs</strong>).</li>
@@ -79,7 +104,7 @@
         <li>Recording only runs for the <strong>focused</strong> satellite — click it on the map or pass list first.</li>
         <li>Check start/stop elevations: the satellite must rise through the start elevation while selected.</li>
         <li>On <strong>Linux</strong>, ensure PulseAudio or ALSA is running (<code>libasound2</code> on Debian/Ubuntu).</li>
-        <li>On <strong>macOS</strong>, grant microphone/audio input permission if the system prompts you.</li>
+        <li>On <strong>macOS</strong>, see <a href="#macos-install">macOS — app or recording blocked</a> if <code>libportaudio.dylib</code> is blocked; grant microphone permission when prompted.</li>
         <li>Recordings save to <code>%AppData%\OscarWatch\recordings\</code> unless you chose another folder.</li>
       </ul>
 

@@ -26,6 +26,14 @@ OscarWatch does **not** decode telemetry or replace your logging software; it is
 
 Pre-built packages for Windows, macOS, and Linux are on the [**Releases**](https://github.com/magicbug/OscarWatch-Tracker/releases) page (see [Cross-platform publish](#cross-platform-publish) for platform names). Extract the archive for your OS and run `OscarWatch`.
 
+**macOS (first install):** release builds are not code-signed or notarized. macOS may block the app or bundled native libraries on first use:
+
+1. **OscarWatch** — if Finder says the app “cannot be opened”, right-click `OscarWatch` → **Open** once, or use **System Settings → Privacy & Security → Open Anyway**.
+2. **Pass recording** — if you use automatic WAV capture, macOS may also ask you to allow **`libportaudio.dylib`** (in `runtimes/osx-*/native/` inside the app folder). Approve it the same way when prompted.
+3. **Microphone** — allow microphone access when you first enable recording in Settings.
+
+These prompts are usually one-time per install. Tracking, passes, and radio/rotator control work without pass recording if you skip step 2.
+
 To build from source instead, see [Build and run](#build-and-run) below.
 
 ### First-time setup
@@ -139,7 +147,7 @@ Audio capture uses [PortAudio](https://www.portaudio.com/) (via PortAudioSharp2)
 | Platform | Notes |
 |----------|--------|
 | **Windows** | Select your radio interface or sound card input in Settings → Recording |
-| **macOS** | Core Audio devices; grant microphone permission if prompted |
+| **macOS** | Core Audio devices; see [macOS (first install)](#download) if `libportaudio.dylib` is blocked; grant microphone permission when prompted |
 | **Linux** | Requires PulseAudio or ALSA; install `libasound2` / PulseAudio as needed for your distro |
 
 WAV files are uncompressed (~5 MB/min mono at 44.1 kHz). Use an external tool if you need MP3 later.
