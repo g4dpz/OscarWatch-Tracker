@@ -41,14 +41,6 @@ See [building radio drivers](documents/building-radio-drivers.md) for adding rig
 
 ---
 
-## Cloudlog
-
-- [ ] Optional: push updates only when satellite elevation ≥ threshold
-- [ ] Optional: retry/backoff and last-success timestamp in UI
-- [ ] Polish Test connection messaging (invalid/missing API key)
-
----
-
 ## Rotator
 
 See [building rotator drivers](documents/building-rotator-drivers.md).

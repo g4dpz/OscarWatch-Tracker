@@ -269,3 +269,7 @@ Third-party components (OrbitTools, Avalonia, TLE sources, map imagery, etc.) ha
 ## Credits
 
 See [CREDITS.md](CREDITS.md).
+
+## Supporters
+
+Donors who have helped fund development are listed in [supporters.md](supporters.md).
