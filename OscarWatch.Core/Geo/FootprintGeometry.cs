@@ -5,7 +5,15 @@ namespace OscarWatch.Core.Geo;
 public static class FootprintGeometry
 {
     private const double EarthRadiusKm = 6371.0;
-    private const double PoleLatitudeLimit = 89.9;
+
+    /// <summary>
+    /// The ring wraps around a pole only when the angular distance from the subpoint to that
+    /// pole is strictly less than the footprint radius, i.e. lat + radius &gt; 90°.  Using 90°
+    /// as the threshold (with ≥) is the exact mathematical condition; values below 90° would
+    /// trigger the polar-cap projection for rings that don't actually encircle the pole,
+    /// producing wide horizontal-band artefacts on the map.
+    /// </summary>
+    private const double PoleLatitudeLimit = 90.0;
 
     public static bool ContainsNorthPole(GeoCoordinate subpoint, double footprintRadiusDeg) =>
         subpoint.LatitudeDeg + footprintRadiusDeg >= PoleLatitudeLimit;
