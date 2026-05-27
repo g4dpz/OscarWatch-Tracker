@@ -51,5 +51,7 @@ public class RigSettingsSerializationTests
         Assert.Equal("7C", RigSettings.DefaultCivAddressFor(RigType.IcomIc910));
         Assert.Equal("7C", RigSettings.DefaultCivAddressFor(RigType.IcomIc9100));
         Assert.Equal("A2", RigSettings.DefaultCivAddressFor(RigType.IcomIc9700));
+        Assert.Equal(350, s.DopplerThresholdFmHz);
+        Assert.Equal(50, s.DopplerThresholdLinearHz);
     }
 }

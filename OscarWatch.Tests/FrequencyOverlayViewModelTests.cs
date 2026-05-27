@@ -194,6 +194,106 @@ public class FrequencyOverlayViewModelTests
     }
 
     [Fact]
+    public void Cw_operating_style_uses_separate_stored_receive_offset()
+    {
+        var settings = new TestSettingsService();
+        settings.Current.FrequencySelections["JO-97"] = new SatelliteFrequencySelection
+        {
+            ModeType = "SSB Transponder",
+            ModeIndex = 0
+        };
+        settings.Current.FrequencySelections["JO-97"].SetOffsetsForMode("SSB Transponder", 0, 2.0);
+        settings.Current.FrequencySelections["JO-97"].CwReceiveOffsetKHzByMode["SSB Transponder"] = -1.5;
+
+        var database = new TestSatelliteDatabaseService(
+        [
+            new SatelliteRadioEntry
+            {
+                Name = "JO-97",
+                Modes =
+                [
+                    new SatelliteTransponderMode
+                    {
+                        Type = "SSB Transponder",
+                        DownlinkKHz = 435_475,
+                        UplinkKHz = 145_920,
+                        DownlinkMode = "USB",
+                        UplinkMode = "LSB",
+                        Doppler = "REV"
+                    }
+                ]
+            }
+        ]);
+
+        var vm = new FrequencyOverlayViewModel(settings, database);
+        vm.Update(new SatelliteTrackState
+        {
+            Name = "JO-97",
+            NoradId = "1",
+            Subpoint = new GeoCoordinate(52, -4),
+            LookAngles = new LookAngles(180, 25, 800, 0)
+        });
+
+        Assert.InRange(vm.ReceiveOffsetKHz, 1.999, 2.001);
+
+        vm.SetCwUplink(true);
+        Assert.InRange(vm.ReceiveOffsetKHz, -1.501, -1.499);
+
+        vm.SetCwUplink(false);
+        Assert.InRange(vm.ReceiveOffsetKHz, 1.999, 2.001);
+    }
+
+    [Fact]
+    public void Store_offset_in_cw_mode_persists_cw_receive_offset_without_changing_voice()
+    {
+        var settings = new TestSettingsService();
+        settings.Current.FrequencySelections["JO-97"] = new SatelliteFrequencySelection
+        {
+            ModeType = "SSB Transponder",
+            ModeIndex = 0
+        };
+        settings.Current.FrequencySelections["JO-97"].SetOffsetsForMode("SSB Transponder", 0, 2.0);
+
+        var database = new TestSatelliteDatabaseService(
+        [
+            new SatelliteRadioEntry
+            {
+                Name = "JO-97",
+                Modes =
+                [
+                    new SatelliteTransponderMode
+                    {
+                        Type = "SSB Transponder",
+                        DownlinkKHz = 435_475,
+                        UplinkKHz = 145_920,
+                        DownlinkMode = "USB",
+                        UplinkMode = "LSB",
+                        Doppler = "REV"
+                    }
+                ]
+            }
+        ]);
+
+        var vm = new FrequencyOverlayViewModel(settings, database);
+        vm.Update(new SatelliteTrackState
+        {
+            Name = "JO-97",
+            NoradId = "1",
+            Subpoint = new GeoCoordinate(52, -4),
+            LookAngles = new LookAngles(180, 25, 800, 0)
+        });
+
+        vm.SetCwUplink(true);
+        vm.AdjustReceiveOffsetHz(-500);
+        vm.StoreOffsetCommand.Execute(null);
+
+        var stored = settings.Current.FrequencySelections["JO-97"];
+        Assert.InRange(stored.CwReceiveOffsetKHzByMode["SSB Transponder"], 1.499, 1.501);
+        Assert.InRange(stored.ModeOffsets["SSB Transponder"].ReceiveOffsetKHz, 1.999, 2.001);
+        Assert.Contains("CW", vm.OffsetAppliedHint, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void Offset_adjustment_does_not_persist_until_store()
     {
         var settings = new TestSettingsService();

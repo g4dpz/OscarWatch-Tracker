@@ -18,6 +18,10 @@ public sealed class SatelliteFrequencySelection
     public Dictionary<string, bool> CwUplinkByMode { get; set; } =
         new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>Per-mode receive offset when CW operating style is selected on linear voice transponders.</summary>
+    public Dictionary<string, double> CwReceiveOffsetKHzByMode { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
     public bool GetCwUplinkForMode(string modeType)
     {
         if (string.IsNullOrWhiteSpace(modeType))
@@ -70,5 +74,36 @@ public sealed class SatelliteFrequencySelection
         TransmitOffsetKHz = transmitOffsetKHz;
         ReceiveOffsetKHz = receiveOffsetKHz;
         ModeType = key;
+    }
+
+    public double GetReceiveOffsetForMode(string modeType, bool cwOperatingStyle)
+    {
+        if (string.IsNullOrWhiteSpace(modeType))
+            return 0;
+
+        var key = modeType.Trim();
+        if (cwOperatingStyle
+            && CwReceiveOffsetKHzByMode.TryGetValue(key, out var cwRx))
+            return cwRx;
+
+        return GetOffsetsForMode(key).ReceiveOffsetKHz;
+    }
+
+    public void SetReceiveOffsetForMode(string modeType, double receiveOffsetKHz, bool cwOperatingStyle)
+    {
+        if (string.IsNullOrWhiteSpace(modeType))
+            return;
+
+        var key = modeType.Trim();
+        if (cwOperatingStyle)
+        {
+            if (Math.Abs(receiveOffsetKHz) < 0.0001)
+                CwReceiveOffsetKHzByMode.Remove(key);
+            else
+                CwReceiveOffsetKHzByMode[key] = receiveOffsetKHz;
+            return;
+        }
+
+        SetOffsetsForMode(key, 0, receiveOffsetKHz);
     }
 }

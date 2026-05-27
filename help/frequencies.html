@@ -58,6 +58,7 @@
         <strong>Settings → Radio → Linear CW: keep receive in USB/LSB</strong> (usual split) or both VFOs to CW if
         that option is off. OscarWatch remembers Voice/CW per satellite and mode, applies it to CAT and Cloudlog,
         and you can press <strong>Ctrl+W</strong> to toggle quickly during a pass.
+        Voice and CW can each have their own stored <strong>RX offset</strong> — see below.
       </p>
 
       <h2>What the columns mean</h2>
@@ -81,7 +82,8 @@
       </p>
       <ul>
         <li>Changes apply to the displayed frequencies and to CAT (when tracking is active).</li>
-        <li><strong>Store offset</strong> saves the offset for this satellite and mode in your settings.</li>
+        <li><strong>Store offset</strong> saves the offset for this satellite and transponder mode in your settings.</li>
+        <li>On linear SSB modes, <strong>Voice</strong> and <strong>CW</strong> each keep a separate stored RX offset. The first time you switch to CW, OscarWatch starts from your voice offset until you store a CW value; toggling back restores the voice offset.</li>
         <li>On some satellites (reverse Doppler), you tune the uplink on the radio yourself; the hint text under the panel explains this.</li>
       </ul>
 

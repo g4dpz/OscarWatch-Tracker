@@ -271,7 +271,7 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Margin="0,-6,0,0"
-                       Text="FM / ISS cross-band: lower = more CAT updates (default 50 Hz)." />
+                       Text="FM / ISS cross-band: lower = more CAT updates (default 350 Hz)." />
             <TextBlock Text="Doppler threshold SSB/CW (Hz)" />
             <NumericUpDown Value="{Binding RigDopplerThresholdLinearHz, Mode=TwoWay}"
                            Minimum="0" Maximum="500"

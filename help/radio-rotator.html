@@ -70,6 +70,55 @@
         <strong>Pause CAT</strong> in Settings stops frequency commands while you can still see computed frequencies on screen.
       </p>
 
+      <h2 id="doppler-cat-thresholds">Doppler CAT thresholds</h2>
+      <p>
+        Under <strong>Settings → Radio</strong>, <strong>Doppler threshold FM</strong> and
+        <strong>Doppler threshold SSB/CW</strong> control how often OscarWatch sends new uplink and downlink
+        frequencies to the radio during a pass. They work like SatPC32: the rig is updated only when the
+        calculated frequency has moved by <em>more than</em> the threshold since the last CAT write.
+        Smaller values mean more frequent updates (and more serial traffic); larger values mean fewer writes.
+      </p>
+      <p>
+        OscarWatch picks the threshold from the <strong>downlink mode</strong> in the transponder database
+        (the mode you selected in the frequency panel):
+      </p>
+      <table>
+        <thead>
+          <tr><th>Downlink mode</th><th>Setting used</th><th>Typical use</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>FM</strong> / <strong>FMN</strong></td><td>Doppler threshold FM</td><td>FM cubesats, ISS cross-band FM</td></tr>
+          <tr><td><strong>USB</strong> / <strong>LSB</strong> / <strong>CW</strong></td><td>Doppler threshold SSB/CW</td><td>Linear voice and CW on transponders</td></tr>
+          <tr><td><strong>DATA-USB</strong> / <strong>DATA-LSB</strong></td><td>Always updates (0 Hz)</td><td>Digital modes — no threshold applied</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Ballpark numbers</h3>
+      <ul>
+        <li>
+          <strong>FM (default 350 Hz)</strong> — On a ~5 kHz FM channel, Doppler drift is small compared with
+          the passband. You do not need SSB-style precision. Defaults around <strong>200–500 Hz</strong> are
+          usually fine: the radio stays close enough without constant VFO churn. Try <strong>150–250 Hz</strong>
+          if you want slightly tighter tracking; go higher if your rig or USB link struggles with frequent CAT.
+        </li>
+        <li>
+          <strong>SSB/CW (default 50 Hz)</strong> — On a linear transponder you often listen in a narrow slice
+          of the passband, so smaller steps matter. Many operators use <strong>20–100 Hz</strong>.
+          <strong>50 Hz</strong> is a reasonable default. Set <strong>0 Hz</strong> to push every correction
+          (maximum CAT activity — only if you need it).
+        </li>
+      </ul>
+      <p>
+        These thresholds apply to <strong>automatic Doppler writes</strong>. On linear USB/LSB/CW modes,
+        OscarWatch also watches the Main dial when you tune by hand: small movements below about
+        <strong>100 Hz</strong> are treated as Doppler lag, not knob tuning, so you can still nudge the passband
+        without fighting the tracker.
+      </p>
+      <p>
+        <strong>CAT delay (ms)</strong> on the same settings page is separate: it spaces out CI-V (and similar)
+        commands to protect the serial link. It does not replace the Doppler thresholds above.
+      </p>
+
       <h2>Rotators</h2>
       <table>
         <thead>

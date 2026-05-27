@@ -387,13 +387,14 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
         var selection = GetOrCreateSelection();
         selection.RememberOffsets = true;
-        selection.SetOffsetsForMode(SelectedMode.Type, 0, ReceiveOffsetKHz);
+        selection.SetReceiveOffsetForMode(SelectedMode.Type, ReceiveOffsetKHz, UseCwReceiveOffsetStorage());
         _ = _settings.SaveAsync();
 
         var hz = (int)Math.Round(ReceiveOffsetKHz * 1000.0);
+        var style = UseCwReceiveOffsetStorage() ? "CW " : "";
         OffsetAppliedHint = hz == 0
-            ? "Stored offset cleared."
-            : $"Stored {hz} Hz offset.";
+            ? $"Stored {style}offset cleared."
+            : $"Stored {style}{hz} Hz offset.";
     }
 
     private bool CanStoreOffset() => HasTransponderData && SelectedMode is not null;
@@ -585,8 +586,9 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         try
         {
             var selection = GetOrCreateSelection();
-            var (_, rx) = selection.GetOffsetsForMode(SelectedMode.Type);
-            ReceiveOffsetKHz = rx;
+            ReceiveOffsetKHz = selection.GetReceiveOffsetForMode(
+                SelectedMode.Type,
+                UseCwReceiveOffsetStorage());
         }
         finally
         {
@@ -620,11 +622,15 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
         UpdateOperatingStyleHint();
         NotifyOperatingStyleSelectionChanged();
+        ApplyOffsetsForSelectedMode();
         PersistSelection();
         RefreshFrequencyDisplay();
         OffsetsChanged?.Invoke(this, true);
         RequestOverlayReclamp();
     }
+
+    private bool UseCwReceiveOffsetStorage() =>
+        ShowOperatingStyleRow && IsCwUplink;
 
     private void ApplyOperatingStyleForSelectedMode()
     {

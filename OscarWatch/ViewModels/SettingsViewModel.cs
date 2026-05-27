@@ -196,7 +196,7 @@ public partial class SettingsViewModel : ViewModelBase
     private string _rigCivAddress = "60";
 
     [ObservableProperty]
-    private int _rigDopplerThresholdFmHz = 50;
+    private int _rigDopplerThresholdFmHz = 350;
 
     [ObservableProperty]
     private int _rigDopplerThresholdLinearHz = 50;

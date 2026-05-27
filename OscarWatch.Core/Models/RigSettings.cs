@@ -15,7 +15,7 @@ public sealed class RigSettings
 
     public RigRegion Region { get; set; } = RigRegion.EU;
 
-    public int DopplerThresholdFmHz { get; set; } = 50;
+    public int DopplerThresholdFmHz { get; set; } = 350;
 
     public int DopplerThresholdLinearHz { get; set; } = 50;
 

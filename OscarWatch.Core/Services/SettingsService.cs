@@ -44,6 +44,7 @@ public sealed class SettingsService : ISettingsService
         {
             selection.ModeOffsets ??= new Dictionary<string, ModeOffsetSettings>(StringComparer.OrdinalIgnoreCase);
             selection.CwUplinkByMode ??= new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+            selection.CwReceiveOffsetKHzByMode ??= new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
         }
         Current.Rotator ??= new RotatorSettings();
         Current.Rig ??= new RigSettings();
