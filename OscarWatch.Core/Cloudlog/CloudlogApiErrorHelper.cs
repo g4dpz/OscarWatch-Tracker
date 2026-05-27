@@ -17,12 +17,46 @@ public static class CloudlogApiErrorHelper
         if (!string.IsNullOrWhiteSpace(parsed))
             return $"Cloudlog HTTP {statusCode}: {parsed}";
 
+        if (LooksLikeHtml(body) || string.IsNullOrWhiteSpace(body))
+        {
+            if (TryGetFriendlyStatusMessage(statusCode, out var friendly))
+                return friendly;
+        }
+
         if (!string.IsNullOrWhiteSpace(body))
             return $"Cloudlog HTTP {statusCode}: {Trim(body)}";
 
         return $"Cloudlog HTTP {statusCode}.";
     }
 
+    private static bool TryGetFriendlyStatusMessage(int statusCode, out string message)
+    {
+        message = statusCode switch
+        {
+            401 => "Cloudlog rejected the request (unauthorized). Check your API key in Settings.",
+            403 => "Cloudlog rejected the request (forbidden). Check your API key in Settings.",
+            404 => "Cloudlog API endpoint not found. Check your Cloudlog URL in Settings.",
+            500 => "Cloudlog server error. Try again later.",
+            502 => "Cloudlog is unreachable (bad gateway). Try again later.",
+            503 => "Cloudlog is temporarily unavailable. Try again in a few minutes.",
+            504 => "Cloudlog took too long to respond. Try again later.",
+            _ => ""
+        };
+
+        return message.Length > 0;
+    }
+
+    private static bool LooksLikeHtml(string? body)
+    {
+        if (string.IsNullOrWhiteSpace(body))
+            return false;
+
+        var trimmed = body.TrimStart();
+        return trimmed.StartsWith("<!DOCTYPE", StringComparison.OrdinalIgnoreCase)
+               || trimmed.StartsWith("<html", StringComparison.OrdinalIgnoreCase)
+               || trimmed.Contains("<body", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static string Trim(string body) =>
-        body.Length <= 240 ? body.Trim() : body.Trim()[..240] + "…";
+        body.Length <= 120 ? body.Trim() : body.Trim()[..120] + "…";
 }

@@ -64,6 +64,22 @@ public class CloudlogRadioMapperTests
     }
 
     [Fact]
+    public void DescribeFailure_503_html_does_not_dump_response_body()
+    {
+        const string html = """
+            <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+            <html><head><title>503 Service Unavailable</title></head>
+            <body><h1>Service Unavailable</h1></body></html>
+            """;
+
+        var msg = CloudlogApiErrorHelper.DescribeFailure(503, html, 12);
+
+        Assert.Contains("temporarily unavailable", msg, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("<html", msg, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("<!DOCTYPE", msg, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void BuildRadioEndpoint_normalizes_base_url()
     {
         var url = OscarWatch.Cloudlog.CloudlogRadioClient.BuildRadioEndpoint("https://log.example.com/");
