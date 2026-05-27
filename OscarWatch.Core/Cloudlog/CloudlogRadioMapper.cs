@@ -8,7 +8,8 @@ public static class CloudlogRadioMapper
     public static CloudlogRadioUpdate? TryCreate(
         string satelliteName,
         SatelliteTransponderMode? mode,
-        CorrectedFrequencies? corrected)
+        CorrectedFrequencies? corrected,
+        bool cwUplink = false)
     {
         if (string.IsNullOrWhiteSpace(satelliteName) || mode is null || corrected is null)
             return null;
@@ -25,12 +26,14 @@ public static class CloudlogRadioMapper
         if (downlinkHz <= 0)
             downlinkHz = uplinkHz;
 
+        var (uplinkMode, downlinkMode) = TransponderOperatingModes.GetEffectiveModes(mode, cwUplink);
+
         return new CloudlogRadioUpdate(
             satelliteName.Trim(),
             uplinkHz,
             downlinkHz,
-            MapMode(mode.UplinkMode),
-            MapMode(mode.DownlinkMode));
+            MapMode(uplinkMode),
+            MapMode(downlinkMode));
     }
 
     public static CloudlogRadioApiRequest ToApiRequest(CloudlogRadioUpdate update, CloudlogSettings settings)

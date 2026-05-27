@@ -71,6 +71,15 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     [ObservableProperty]
     private bool _showCtcssHint;
 
+    [ObservableProperty]
+    private bool _showOperatingStyleRow;
+
+    [ObservableProperty]
+    private bool _isCwUplink;
+
+    [ObservableProperty]
+    private string _operatingStyleHint = "";
+
     public ObservableCollection<CtcssToneOption> CtcssToneOptions { get; } = [];
 
     [ObservableProperty]
@@ -99,6 +108,12 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
     public string CollapseToggleToolTip => IsCollapsed ? "Expand frequency panel" : "Collapse to compact view";
 
+    public bool ShowHeaderOperatingStyle => ShowOperatingStyleRow && !IsCollapsed;
+
+    public bool IsVoiceOperatingStyleSelected => ShowOperatingStyleRow && !IsCwUplink;
+
+    public bool IsCwOperatingStyleSelected => ShowOperatingStyleRow && IsCwUplink;
+
     [ObservableProperty]
     private SatelliteTransponderMode? _selectedMode;
 
@@ -119,6 +134,23 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         IsCollapsed = !IsCollapsed;
     }
 
+    [RelayCommand]
+    private void SelectVoiceOperatingStyle() => SetCwUplink(false);
+
+    [RelayCommand]
+    private void SelectCwOperatingStyle() => SetCwUplink(true);
+
+    [RelayCommand]
+    private void ToggleCwUplink() => SetCwUplink(!IsCwUplink);
+
+    public void SetCwUplink(bool cwUplink)
+    {
+        if (!ShowOperatingStyleRow || IsCwUplink == cwUplink)
+            return;
+
+        IsCwUplink = cwUplink;
+    }
+
     partial void OnIsCollapsedChanged(bool value)
     {
         _settings.Current.FrequencyOverlayCollapsed = value;
@@ -127,6 +159,8 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         OnPropertyChanged(nameof(CollapseToggleToolTip));
         OnPropertyChanged(nameof(OverlayMinWidth));
         OnPropertyChanged(nameof(OverlayMaxWidth));
+        OnPropertyChanged(nameof(ShowHeaderOperatingStyle));
+        NotifyOperatingStyleSelectionChanged();
         RequestOverlayReclamp();
     }
 
@@ -214,7 +248,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         var rangeRate = state.LookAngles?.RangeRateKmPerSec ?? _lastRangeRateKmPerSec;
         var corrected = ComputeCorrected(rangeRate);
 
-        return CloudlogRadioMapper.TryCreate(state.Name, SelectedMode, corrected);
+        return CloudlogRadioMapper.TryCreate(state.Name, SelectedMode, corrected, IsCwUplink);
     }
 
     public RigTrackingContext? TryBuildRigTrackingContext(SatelliteTrackState? state)
@@ -240,7 +274,8 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             Corrected = corrected,
             TransmitOffsetKHz = 0,
             ReceiveOffsetKHz = ReceiveOffsetKHz,
-            SelectedCtcssHz = GetActiveCtcssHz()
+            SelectedCtcssHz = GetActiveCtcssHz(),
+            CwUplink = IsCwUplink
         };
     }
 
@@ -299,6 +334,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
         if (_currentSatelliteName is not null)
         {
+            ApplyOperatingStyleForSelectedMode();
             UpdateCtcssDisplay(restoreToneRole: GetOrCreateSelection().CtcssToneRole);
             ApplyOffsetsForSelectedMode();
             UpdateFromCurrentState();
@@ -352,6 +388,12 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     }
 
     private bool CanStoreOffset() => HasTransponderData && SelectedMode is not null;
+
+    partial void OnShowOperatingStyleRowChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ShowHeaderOperatingStyle));
+        NotifyOperatingStyleSelectionChanged();
+    }
 
     partial void OnHasTransponderDataChanged(bool value)
     {
@@ -407,6 +449,9 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         }
 
         var mode = SelectedMode.DisplayLabel;
+        if (IsCwUplink && ShowOperatingStyleRow)
+            mode += " · CW";
+
         if (corrected is null)
         {
             CollapsedSummaryText = SatelliteName;
@@ -478,6 +523,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
             var selection = GetOrCreateSelection();
             SelectedMode = ResolveSelectedMode(selection);
+            ApplyOperatingStyleForSelectedMode();
             ApplyOffsetsForSelectedMode();
             UpdateCtcssDisplay(restoreToneRole: selection.CtcssToneRole);
         }
@@ -553,7 +599,73 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             selection.ModeIndex = 0;
         if (SelectedCtcssTone is not null)
             selection.CtcssToneRole = SelectedCtcssTone.Role;
+        if (SelectedMode is not null)
+            selection.SetCwUplinkForMode(SelectedMode.Type, IsCwUplink);
         _ = _settings.SaveAsync();
+    }
+
+    partial void OnIsCwUplinkChanged(bool value)
+    {
+        if (_isLoadingSelection)
+            return;
+
+        UpdateOperatingStyleHint();
+        NotifyOperatingStyleSelectionChanged();
+        PersistSelection();
+        RefreshFrequencyDisplay();
+        OffsetsChanged?.Invoke(this, true);
+        RequestOverlayReclamp();
+    }
+
+    private void ApplyOperatingStyleForSelectedMode()
+    {
+        if (SelectedMode is null)
+        {
+            ShowOperatingStyleRow = false;
+            OperatingStyleHint = "";
+            _isLoadingSelection = true;
+            try
+            {
+                IsCwUplink = false;
+            }
+            finally
+            {
+                _isLoadingSelection = false;
+            }
+
+            return;
+        }
+
+        var show = TransponderOperatingModes.SupportsCwUplinkToggle(SelectedMode);
+        ShowOperatingStyleRow = show;
+
+        _isLoadingSelection = true;
+        try
+        {
+            IsCwUplink = show && GetOrCreateSelection().GetCwUplinkForMode(SelectedMode.Type);
+        }
+        finally
+        {
+            _isLoadingSelection = false;
+        }
+
+        UpdateOperatingStyleHint();
+        NotifyOperatingStyleSelectionChanged();
+    }
+
+    private void NotifyOperatingStyleSelectionChanged()
+    {
+        OnPropertyChanged(nameof(IsVoiceOperatingStyleSelected));
+        OnPropertyChanged(nameof(IsCwOperatingStyleSelected));
+    }
+
+    private void UpdateOperatingStyleHint()
+    {
+        OperatingStyleHint = IsCwUplink && ShowOperatingStyleRow
+            ? "CW on uplink and downlink. Ctrl+W to toggle."
+            : ShowOperatingStyleRow
+                ? "Voice uses database modes. Ctrl+W toggles CW."
+                : "";
     }
 
     private void UpdateFromCurrentState() => RefreshFrequencyDisplay();
@@ -634,6 +746,9 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         SelectedCtcssTone = null;
         CtcssHintText = "";
         ShowCtcssHint = false;
+        ShowOperatingStyleRow = false;
+        IsCwUplink = false;
+        OperatingStyleHint = "";
         OffsetAppliedHint = "";
         UpdateCollapsedSummaryText();
     }

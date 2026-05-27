@@ -669,7 +669,7 @@ public sealed class RigController : IRigController, IDisposable
             TryBandSwap(context);
 
         var setup = SetupVfosPolicy.Evaluate(
-            context.Mode.DownlinkMode,
+            context.EffectiveDownlinkMode,
             settings.DopplerThresholdFmHz,
             settings.DopplerThresholdLinearHz);
         _thresholdHz = setup.ThresholdHz;
@@ -752,16 +752,16 @@ public sealed class RigController : IRigController, IDisposable
         {
             // Satellite layout: downlink mode on Main, uplink mode on Sub.
             _driver.SelectVfo(RigVfo.Main);
-            _driver.SetMode(context.Mode.DownlinkMode);
+            _driver.SetMode(context.EffectiveDownlinkMode);
             _driver.SelectVfo(RigVfo.Sub);
-            _driver.SetMode(context.Mode.UplinkMode);
+            _driver.SetMode(context.EffectiveUplinkMode);
             return;
         }
 
         _driver.SelectVfo(RigVfo.VfoA);
-        _driver.SetMode(context.Mode.DownlinkMode);
+        _driver.SetMode(context.EffectiveDownlinkMode);
         _driver.SelectVfo(RigVfo.VfoB);
-        _driver.SetMode(context.Mode.UplinkMode);
+        _driver.SetMode(context.EffectiveUplinkMode);
     }
 
     private void ApplyCtcss(RigSettings settings, RigTrackingContext context, bool force)

@@ -1,6 +1,8 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using OscarWatch.ViewModels;
 
 namespace OscarWatch;
@@ -10,6 +12,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        AddHandler(KeyDownEvent, OnGlobalKeyDown, RoutingStrategies.Tunnel);
         PassesListBox.ContainerPrepared += OnPassListContainerPrepared;
         PassesListBox.ContainerClearing += OnPassListContainerClearing;
         Closing += OnClosing;
@@ -60,5 +63,17 @@ public partial class MainWindow : Window
         base.OnOpened(e);
         if (DataContext is MainViewModel vm)
             await vm.InitializeAsync();
+    }
+
+    private void OnGlobalKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.W || !e.KeyModifiers.HasFlag(KeyModifiers.Control))
+            return;
+
+        if (DataContext is not MainViewModel vm || !vm.Frequencies.ShowOperatingStyleRow)
+            return;
+
+        vm.Frequencies.ToggleCwUplinkCommand.Execute(null);
+        e.Handled = true;
     }
 }

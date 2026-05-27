@@ -102,6 +102,35 @@
       <Setter Property="BorderBrush" Value="#FF609060" />
       <Setter Property="Foreground" Value="#FFE0FFE0" />
     </Style>
+    <Style Selector="Button.operating-style-active /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#FF2A3A2A" />
+      <Setter Property="BorderBrush" Value="#FF507050" />
+      <Setter Property="Foreground" Value="#FFE0FFE0" />
+    </Style>
+    <Style Selector="Button.operating-style-header">
+      <Setter Property="MinHeight" Value="26" />
+      <Setter Property="MaxHeight" Value="26" />
+      <Setter Property="MinWidth" Value="52" />
+      <Setter Property="Padding" Value="10,0" />
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Background" Value="#FF1E1E1E" />
+      <Setter Property="BorderBrush" Value="#FF505050" />
+      <Setter Property="Foreground" Value="#FFFFFFFF" />
+    </Style>
+    <Style Selector="Button.operating-style-header /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.operating-style-header:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#FF2A2A2A" />
+      <Setter Property="BorderBrush" Value="#FF606060" />
+      <Setter Property="Foreground" Value="#FFFFFFFF" />
+    </Style>
     <Style Selector="Button.store-offset:pressed /template/ ContentPresenter#PART_ContentPresenter">
       <Setter Property="Background" Value="#FF243024" />
       <Setter Property="BorderBrush" Value="#FF507050" />
@@ -128,8 +157,8 @@
               Cursor="SizeAll"
               Padding="8,6"
               CornerRadius="8,8,0,0">
-        <Grid ColumnDefinitions="Auto,*,Auto"
-              ColumnSpacing="6"
+        <Grid ColumnDefinitions="Auto,Auto,*,Auto"
+              ColumnSpacing="8"
               VerticalAlignment="Center">
           <TextBlock x:Name="CollapseToggle"
                      Grid.Column="0"
@@ -149,8 +178,10 @@
                      FontSize="16"
                      Foreground="#FFFFFFFF"
                      VerticalAlignment="Center"
+                     MaxWidth="120"
                      TextTrimming="CharacterEllipsis" />
           <TextBlock Grid.Column="1"
+                     Grid.ColumnSpan="2"
                      Text="{Binding CollapsedSummaryText}"
                      IsVisible="{Binding IsCollapsed}"
                      FontFamily="Consolas,Courier New,monospace"
@@ -159,7 +190,28 @@
                      Foreground="#FFE0E0E0"
                      VerticalAlignment="Center"
                      TextTrimming="CharacterEllipsis" />
-          <TextBlock Grid.Column="2"
+          <UniformGrid x:Name="OperatingStyleHeader"
+                       Grid.Column="2"
+                       Columns="2"
+                       Rows="1"
+                       Width="108"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       IsVisible="{Binding ShowHeaderOperatingStyle}">
+            <Button Classes="operating-style-header"
+                    Classes.operating-style-active="{Binding IsVoiceOperatingStyleSelected}"
+                    Content="Voice"
+                    ToolTip.Tip="{Binding OperatingStyleHint}"
+                    Command="{Binding SelectVoiceOperatingStyleCommand}"
+                    Margin="0,0,3,0" />
+            <Button Classes="operating-style-header"
+                    Classes.operating-style-active="{Binding IsCwOperatingStyleSelected}"
+                    Content="CW"
+                    ToolTip.Tip="{Binding OperatingStyleHint}"
+                    Command="{Binding SelectCwOperatingStyleCommand}"
+                    Margin="3,0,0,0" />
+          </UniformGrid>
+          <TextBlock Grid.Column="3"
                      Text="⠿"
                      FontSize="14"
                      Foreground="#FF909090"

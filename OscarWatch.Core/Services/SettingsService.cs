@@ -41,7 +41,10 @@ public sealed class SettingsService : ISettingsService
         Current.VoiceAnnouncements ??= new VoiceAnnouncementSettings();
         Current.FrequencySelections ??= new Dictionary<string, SatelliteFrequencySelection>(StringComparer.OrdinalIgnoreCase);
         foreach (var selection in Current.FrequencySelections.Values)
+        {
             selection.ModeOffsets ??= new Dictionary<string, ModeOffsetSettings>(StringComparer.OrdinalIgnoreCase);
+            selection.CwUplinkByMode ??= new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+        }
         Current.Rotator ??= new RotatorSettings();
         Current.Rig ??= new RigSettings();
         Current.Cloudlog ??= new CloudlogSettings();

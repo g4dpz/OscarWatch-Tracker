@@ -236,8 +236,13 @@ public partial class FrequencyOverlayControl : UserControl
     if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
       return;
 
-    if (e.Source is Visual source && CollapseToggle is not null && IsDescendantOf(source, CollapseToggle))
-      return;
+    if (e.Source is Visual source)
+    {
+      if (CollapseToggle is not null && IsDescendantOf(source, CollapseToggle))
+        return;
+      if (OperatingStyleHeader is not null && IsDescendantOf(source, OperatingStyleHeader))
+        return;
+    }
 
     var host = GetCoordinateHost();
     if (host is null)

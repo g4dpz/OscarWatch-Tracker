@@ -137,6 +137,60 @@ public class FrequencyOverlayViewModelTests
     }
 
     [Fact]
+    public void Cw_uplink_toggle_persists_per_mode_and_updates_rig_context()
+    {
+        var settings = new TestSettingsService();
+        var database = new TestSatelliteDatabaseService(
+        [
+            new SatelliteRadioEntry
+            {
+                Name = "JO-97",
+                Modes =
+                [
+                    new SatelliteTransponderMode
+                    {
+                        Type = "SSB Transponder",
+                        DownlinkKHz = 435_475,
+                        UplinkKHz = 145_920,
+                        DownlinkMode = "USB",
+                        UplinkMode = "LSB",
+                        Doppler = "REV"
+                    }
+                ]
+            }
+        ]);
+
+        var vm = new FrequencyOverlayViewModel(settings, database);
+        vm.Update(new SatelliteTrackState
+        {
+            Name = "JO-97",
+            NoradId = "1",
+            Subpoint = new GeoCoordinate(52, -4),
+            LookAngles = new LookAngles(180, 25, 800, 0)
+        });
+
+        Assert.True(vm.ShowOperatingStyleRow);
+        Assert.False(vm.IsCwUplink);
+
+        vm.SetCwUplink(true);
+        Assert.True(vm.IsCwUplink);
+        Assert.Contains("· CW", vm.CollapsedSummaryText, StringComparison.Ordinal);
+
+        var ctx = vm.TryBuildRigTrackingContext(new SatelliteTrackState
+        {
+            Name = "JO-97",
+            NoradId = "1",
+            Subpoint = new GeoCoordinate(52, -4),
+            LookAngles = new LookAngles(180, 25, 800, 0)
+        });
+        Assert.NotNull(ctx);
+        Assert.Equal("CW", ctx.EffectiveUplinkMode);
+        Assert.Equal("CW", ctx.EffectiveDownlinkMode);
+
+        Assert.True(settings.Current.FrequencySelections["JO-97"].GetCwUplinkForMode("SSB Transponder"));
+    }
+
+    [Fact]
     public void Offset_adjustment_does_not_persist_until_store()
     {
         var settings = new TestSettingsService();

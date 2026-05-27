@@ -1,3 +1,5 @@
+using OscarWatch.Core.Radio;
+
 namespace OscarWatch.Core.Models;
 
 public sealed class RigTrackingContext
@@ -8,4 +10,13 @@ public sealed class RigTrackingContext
     public double TransmitOffsetKHz { get; init; }
     public double ReceiveOffsetKHz { get; init; }
     public double? SelectedCtcssHz { get; init; }
+
+    /// <summary>When true, uplink mode is CW for linear SSB voice database entries.</summary>
+    public bool CwUplink { get; init; }
+
+    public string EffectiveUplinkMode =>
+        TransponderOperatingModes.GetEffectiveUplinkMode(Mode, CwUplink);
+
+    public string EffectiveDownlinkMode =>
+        TransponderOperatingModes.GetEffectiveDownlinkMode(Mode, CwUplink);
 }
