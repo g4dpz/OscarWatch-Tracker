@@ -19,13 +19,20 @@ public static class TransponderOperatingModes
     public static string GetEffectiveUplinkMode(SatelliteTransponderMode mode, bool cwUplink) =>
         cwUplink && SupportsCwUplinkToggle(mode) ? "CW" : mode.UplinkMode;
 
-    public static string GetEffectiveDownlinkMode(SatelliteTransponderMode mode, bool cwUplink) =>
-        cwUplink && SupportsCwUplinkToggle(mode) ? "CW" : mode.DownlinkMode;
+    public static string GetEffectiveDownlinkMode(
+        SatelliteTransponderMode mode,
+        bool cwUplink,
+        bool cwKeepSidebandDownlink) =>
+        cwUplink && SupportsCwUplinkToggle(mode) && !cwKeepSidebandDownlink
+            ? "CW"
+            : mode.DownlinkMode;
 
     public static (string Uplink, string Downlink) GetEffectiveModes(
         SatelliteTransponderMode mode,
-        bool cwUplink) =>
-        (GetEffectiveUplinkMode(mode, cwUplink), GetEffectiveDownlinkMode(mode, cwUplink));
+        bool cwUplink,
+        bool cwKeepSidebandDownlink = false) =>
+        (GetEffectiveUplinkMode(mode, cwUplink),
+            GetEffectiveDownlinkMode(mode, cwUplink, cwKeepSidebandDownlink));
 
     private static bool IsLinearSideband(string mode)
     {

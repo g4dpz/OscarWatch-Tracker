@@ -57,7 +57,7 @@ public interface IRigDriver : IDisposable
 | `SetSplitOn` / `ExchangeVfos` | Satellite split operation. |
 | Tone methods | Sub uplink CTCSS for FM satellites. |
 
-`RigController` passes **`RigTrackingContext`** (from the frequency overlay) with uplink/downlink offsets and mode; the driver does not compute doppler.
+`RigController` passes **`RigTrackingContext`** (from the frequency overlay) with uplink/downlink offsets and database mode; the driver does not compute doppler. Use **`EffectiveUplinkMode`** / **`EffectiveDownlinkMode`** for `SetMode` — they apply the panel **Voice/CW** choice and **`RigSettings.CwKeepSidebandDownlink`** via **`TransponderOperatingModes`** in Core (drivers should not reimplement that logic).
 
 ## ICOM CI-V stack (recommended pattern)
 

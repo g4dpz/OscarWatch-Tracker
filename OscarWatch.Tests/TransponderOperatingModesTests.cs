@@ -39,7 +39,7 @@ public class TransponderOperatingModesTests
     }
 
     [Fact]
-    public void GetEffectiveModes_overrides_uplink_and_downlink()
+    public void GetEffectiveModes_cw_on_both_vfos_when_sideband_not_kept()
     {
         var mode = new SatelliteTransponderMode
         {
@@ -51,14 +51,33 @@ public class TransponderOperatingModesTests
             Doppler = "REV"
         };
 
-        var (tx, rx) = TransponderOperatingModes.GetEffectiveModes(mode, cwUplink: true);
+        var (tx, rx) = TransponderOperatingModes.GetEffectiveModes(mode, cwUplink: true, cwKeepSidebandDownlink: false);
 
         Assert.Equal("CW", tx);
         Assert.Equal("CW", rx);
     }
 
     [Fact]
-    public void CloudlogTryCreate_uses_cw_on_both_vfos_when_override_enabled()
+    public void GetEffectiveModes_keeps_sideband_downlink_when_setting_enabled()
+    {
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "SSB Transponder",
+            DownlinkKHz = 435_850,
+            UplinkKHz = 145_950,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var (tx, rx) = TransponderOperatingModes.GetEffectiveModes(mode, cwUplink: true, cwKeepSidebandDownlink: true);
+
+        Assert.Equal("CW", tx);
+        Assert.Equal("USB", rx);
+    }
+
+    [Fact]
+    public void CloudlogTryCreate_uses_cw_on_both_vfos_when_sideband_not_kept()
     {
         var mode = new SatelliteTransponderMode
         {
@@ -71,10 +90,31 @@ public class TransponderOperatingModesTests
         };
 
         var corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0);
-        var update = CloudlogRadioMapper.TryCreate("AO-73", mode, corrected, cwUplink: true);
+        var update = CloudlogRadioMapper.TryCreate("AO-73", mode, corrected, cwUplink: true, cwKeepSidebandDownlink: false);
 
         Assert.NotNull(update);
         Assert.Equal("CW", update.UplinkMode);
         Assert.Equal("CW", update.DownlinkMode);
+    }
+
+    [Fact]
+    public void CloudlogTryCreate_keeps_usb_downlink_when_sideband_setting_enabled()
+    {
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "Voice U/V",
+            DownlinkKHz = 145_960,
+            UplinkKHz = 435_148,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0);
+        var update = CloudlogRadioMapper.TryCreate("AO-73", mode, corrected, cwUplink: true, cwKeepSidebandDownlink: true);
+
+        Assert.NotNull(update);
+        Assert.Equal("CW", update.UplinkMode);
+        Assert.Equal("USB", update.DownlinkMode);
     }
 }

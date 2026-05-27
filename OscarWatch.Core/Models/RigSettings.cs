@@ -24,6 +24,12 @@ public sealed class RigSettings
     /// <summary>When true, automatic CAT frequency updates are suspended (SatPC32-style).</summary>
     public bool CatUpdatesPaused { get; set; }
 
+    /// <summary>
+    /// When the frequency panel CW style is active: keep receive in USB/LSB from the database
+    /// instead of setting downlink to CW.
+    /// </summary>
+    public bool CwKeepSidebandDownlink { get; set; }
+
     /// <summary>Factory CI-V address defaults (9700=A2, 9100/910=7C). User may still use 60.</summary>
     public static string DefaultCivAddressFor(RigType type) => type switch
     {

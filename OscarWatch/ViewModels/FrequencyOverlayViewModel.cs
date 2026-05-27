@@ -248,7 +248,12 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         var rangeRate = state.LookAngles?.RangeRateKmPerSec ?? _lastRangeRateKmPerSec;
         var corrected = ComputeCorrected(rangeRate);
 
-        return CloudlogRadioMapper.TryCreate(state.Name, SelectedMode, corrected, IsCwUplink);
+        return CloudlogRadioMapper.TryCreate(
+            state.Name,
+            SelectedMode,
+            corrected,
+            IsCwUplink,
+            CwKeepSidebandDownlink);
     }
 
     public RigTrackingContext? TryBuildRigTrackingContext(SatelliteTrackState? state)
@@ -275,9 +280,13 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             TransmitOffsetKHz = 0,
             ReceiveOffsetKHz = ReceiveOffsetKHz,
             SelectedCtcssHz = GetActiveCtcssHz(),
-            CwUplink = IsCwUplink
+            CwUplink = IsCwUplink,
+            CwKeepSidebandDownlink = CwKeepSidebandDownlink
         };
     }
+
+    private bool CwKeepSidebandDownlink =>
+        _settings.Current.Rig?.CwKeepSidebandDownlink == true;
 
     /// <summary>Hz sent to the uplink VFO (combo selection, or the mode's only tone).</summary>
     public double? GetActiveCtcssHz()
@@ -662,7 +671,9 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private void UpdateOperatingStyleHint()
     {
         OperatingStyleHint = IsCwUplink && ShowOperatingStyleRow
-            ? "CW on uplink and downlink. Ctrl+W to toggle."
+            ? CwKeepSidebandDownlink
+                ? "CW on uplink; receive stays USB/LSB. Ctrl+W to toggle."
+                : "CW on uplink and downlink. Ctrl+W to toggle."
             : ShowOperatingStyleRow
                 ? "Voice uses database modes. Ctrl+W toggles CW."
                 : "";

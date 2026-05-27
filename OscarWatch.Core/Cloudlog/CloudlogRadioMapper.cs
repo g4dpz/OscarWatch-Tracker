@@ -9,7 +9,8 @@ public static class CloudlogRadioMapper
         string satelliteName,
         SatelliteTransponderMode? mode,
         CorrectedFrequencies? corrected,
-        bool cwUplink = false)
+        bool cwUplink = false,
+        bool cwKeepSidebandDownlink = false)
     {
         if (string.IsNullOrWhiteSpace(satelliteName) || mode is null || corrected is null)
             return null;
@@ -26,7 +27,8 @@ public static class CloudlogRadioMapper
         if (downlinkHz <= 0)
             downlinkHz = uplinkHz;
 
-        var (uplinkMode, downlinkMode) = TransponderOperatingModes.GetEffectiveModes(mode, cwUplink);
+        var (uplinkMode, downlinkMode) =
+            TransponderOperatingModes.GetEffectiveModes(mode, cwUplink, cwKeepSidebandDownlink);
 
         return new CloudlogRadioUpdate(
             satelliteName.Trim(),

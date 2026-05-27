@@ -172,9 +172,12 @@ public class FrequencyOverlayViewModelTests
         Assert.True(vm.ShowOperatingStyleRow);
         Assert.False(vm.IsCwUplink);
 
+        settings.Current.Rig = new RigSettings { CwKeepSidebandDownlink = true };
+
         vm.SetCwUplink(true);
         Assert.True(vm.IsCwUplink);
         Assert.Contains("· CW", vm.CollapsedSummaryText, StringComparison.Ordinal);
+        Assert.Contains("USB/LSB", vm.OperatingStyleHint, StringComparison.OrdinalIgnoreCase);
 
         var ctx = vm.TryBuildRigTrackingContext(new SatelliteTrackState
         {
@@ -185,7 +188,7 @@ public class FrequencyOverlayViewModelTests
         });
         Assert.NotNull(ctx);
         Assert.Equal("CW", ctx.EffectiveUplinkMode);
-        Assert.Equal("CW", ctx.EffectiveDownlinkMode);
+        Assert.Equal("USB", ctx.EffectiveDownlinkMode);
 
         Assert.True(settings.Current.FrequencySelections["JO-97"].GetCwUplinkForMode("SSB Transponder"));
     }

@@ -14,9 +14,11 @@ public sealed class RigTrackingContext
     /// <summary>When true, uplink mode is CW for linear SSB voice database entries.</summary>
     public bool CwUplink { get; init; }
 
+    public bool CwKeepSidebandDownlink { get; init; }
+
     public string EffectiveUplinkMode =>
         TransponderOperatingModes.GetEffectiveUplinkMode(Mode, CwUplink);
 
     public string EffectiveDownlinkMode =>
-        TransponderOperatingModes.GetEffectiveDownlinkMode(Mode, CwUplink);
+        TransponderOperatingModes.GetEffectiveDownlinkMode(Mode, CwUplink, CwKeepSidebandDownlink);
 }

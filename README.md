@@ -46,7 +46,7 @@ To build from source instead, see [Build and run](#build-and-run) below.
 
 ### During a pass
 
-1. Confirm the correct **transponder mode** in the frequency panel on the map (e.g. FM voice, Mode B USB/LSB).
+1. Confirm the correct **transponder mode** in the frequency panel on the map (e.g. FM voice, Mode B USB/LSB). On linear SSB modes, use **Voice** / **CW** in the panel title bar (or **Ctrl+W**) — see [frequencies help](help/frequencies.html).
 2. Watch **azimuth** and **elevation** in the sidebar — point your antenna there (or let the rotator track if enabled).
 3. Set your radio from the **Radio** / **Sat** columns in the overlay, or enable CAT so OscarWatch updates frequencies for Doppler.
 4. On FM satellites, pick the correct **CTCSS** tone when access and arm are both listed.
@@ -74,7 +74,7 @@ Plain-language help ships with the app: **Help → Operator guide** (also in the
 - **Live telemetry** — azimuth, elevation, range, and altitude updated every second (UTC)
 - **Voice announcements** — optional spoken “rising” alerts when a satellite crosses a configurable elevation while ascending (e.g. “Alpha Oscar Zero Seven is rising”); Settings → Voice
 - **Pass recording** — optional automatic WAV capture from a line-in or USB audio device while the **focused** satellite is above configurable elevation thresholds; Settings → Recording. Files save to `%AppData%/OscarWatch/recordings/` by default as `{sat-name}-{yy}-{MM}-{dd}-{HH}-{mm}.wav` (UTC). A red **REC** badge appears on the pass row while recording.
-- **Doppler frequencies** — draggable overlay on the world map with transponder modes from the satellite database, live radio/sat uplink & downlink, TX/RX offsets, and CTCSS (access/arm)
+- **Doppler frequencies** — draggable overlay on the world map with transponder modes from the satellite database, live radio/sat uplink & downlink, TX/RX offsets, CTCSS (access/arm), and **Voice/CW** toggle for linear SSB (header buttons + **Ctrl+W**; CAT/Cloudlog follow **Settings → Radio → Linear CW: keep receive in USB/LSB**)
 - **Transponder database editor** — Satellites → Manage transponder database…; **Satellites → Update transponder database…** merges published modes from [tle.oscarwatch.org/satellite_database.json](https://tle.oscarwatch.org/satellite_database.json) (new entries added with your consent; local edits kept on conflicts unless you accept remote). See [documents/satellite-database.md](documents/satellite-database.md)
 - **Radio CAT** — doppler tracking, satellite/split setup, Main/Sub VFOs, uplink CTCSS where supported; Settings → Radio (see [Supported hardware](#supported-hardware))
 - **Rotator control** — serial pass tracking, manual park, and **manual rotator** (az/el dialog in Standby for quick contacts between passes); Settings → Rotator (see [Supported hardware](#supported-hardware))
@@ -123,7 +123,7 @@ Open **Settings** from the menu. Tabs:
 | **Voice** | Enable announcements, trigger elevation (default −3°), voice selection, test button |
 | **Recording** | Automatic pass WAV capture, input device, start/stop elevation, output folder, test clip |
 | **Rotator** | Type (GS-232 / EasyComm), COM port, 360°/450° azimuth, smart 450°, park, track-start elevation, calibration offsets |
-| **Radio** | Rig type, COM port, region (Icom), CI-V address, doppler thresholds, pause CAT |
+| **Radio** | Rig type, COM port, region (Icom), CI-V address, linear CW receive mode (USB/LSB vs CW on both VFOs), doppler thresholds, pause CAT |
 | **Cloudlog** | Base URL, API key, radio name, test connection; posts SAT uplink/downlink when tracking |
 
 Settings are stored in `%AppData%/OscarWatch/settings.json`.

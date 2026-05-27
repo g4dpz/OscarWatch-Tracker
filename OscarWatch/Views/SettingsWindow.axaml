@@ -256,6 +256,13 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="EU uses tone; USA uses tone squelch (subtone)." />
+            <CheckBox Content="Linear CW: keep receive in USB/LSB (transmit CW only)"
+                      IsChecked="{Binding RigCwKeepSidebandDownlink, Mode=TwoWay}"
+                      Margin="0,8,0,0" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Applies when the frequency panel is set to CW on linear SSB satellites. Checked is the usual split (CW TX, USB/LSB RX). Unchecked sets both VFOs to CW." />
             <TextBlock Text="Doppler threshold FM (Hz)" Margin="0,8,0,0" />
             <NumericUpDown Value="{Binding RigDopplerThresholdFmHz, Mode=TwoWay}"
                            Minimum="0" Maximum="2000"
