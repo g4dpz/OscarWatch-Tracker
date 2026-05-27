@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using Avalonia.Controls;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OscarWatch.Core.Models;
@@ -11,6 +13,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
 {
     private readonly ISatelliteDatabaseEditor _editor;
     private readonly ISatelliteDatabaseSyncService _syncService;
+    private readonly ITleService _tleService;
     private bool _syncingModeFields;
 
     [ObservableProperty]
@@ -68,10 +71,12 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
 
     public SatelliteDatabaseEditorViewModel(
         ISatelliteDatabaseEditor editor,
-        ISatelliteDatabaseSyncService syncService)
+        ISatelliteDatabaseSyncService syncService,
+        ITleService tleService)
     {
         _editor = editor;
         _syncService = syncService;
+        _tleService = tleService;
         Load();
     }
 
@@ -174,11 +179,31 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void AddSatellite()
+    private async Task AddSatelliteAsync()
     {
+        if (App.MainWindow is null)
+            return;
+
+        var existing = Satellites.Select(s => s.Name).ToList();
+        var name = await AddSatelliteFromTleDialog.TryPickAsync(App.MainWindow, _tleService, existing)
+            .ConfigureAwait(true);
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            StatusMessage = "Add satellite cancelled.";
+            return;
+        }
+
+        var trimmed = name.Trim();
+        if (Satellites.Any(s => s.Name.Equals(trimmed, StringComparison.OrdinalIgnoreCase)))
+        {
+            StatusMessage = $"Satellite “{trimmed}” is already in the database.";
+            return;
+        }
+
         var entry = new SatelliteRadioEntry
         {
-            Name = "New satellite",
+            Name = trimmed,
             Modes =
             [
                 new SatelliteTransponderMode
@@ -195,7 +220,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
         Satellites.Add(entry);
         SelectedSatellite = entry;
         NotifyFilteredSatellites();
-        StatusMessage = "Added satellite.";
+        StatusMessage = $"Added {trimmed}.";
     }
 
     [RelayCommand]
@@ -295,6 +320,118 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
         StatusMessage = "Restored shipped database.";
     }
 
+    private static readonly FilePickerFileType JsonFileType = new("JSON")
+    {
+        Patterns = ["*.json"],
+        MimeTypes = ["application/json"]
+    };
+
+    [RelayCommand]
+    private async Task ExportJsonAsync()
+    {
+        if (App.MainWindow is null)
+            return;
+
+        var storage = TopLevel.GetTopLevel(App.MainWindow)?.StorageProvider;
+        if (storage is null)
+            return;
+
+        var validationError = SatelliteDatabaseFile.ValidateEntries(Satellites);
+        if (validationError is not null)
+        {
+            StatusMessage = validationError;
+            return;
+        }
+
+        var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Export transponder database",
+            SuggestedFileName = "satellite_database.json",
+            DefaultExtension = "json",
+            FileTypeChoices = [JsonFileType]
+        }).ConfigureAwait(true);
+
+        if (file is null)
+            return;
+
+        try
+        {
+            var json = SatelliteDatabaseFile.SerializeEntries(Satellites);
+            await using var stream = await file.OpenWriteAsync().ConfigureAwait(true);
+            await using var writer = new StreamWriter(stream);
+            await writer.WriteAsync(json).ConfigureAwait(true);
+            StatusMessage = $"Exported {Satellites.Count} satellites to JSON.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Export failed: {ex.Message}";
+        }
+    }
+
+    [RelayCommand]
+    private async Task ImportJsonAsync()
+    {
+        if (App.MainWindow is null)
+            return;
+
+        var storage = TopLevel.GetTopLevel(App.MainWindow)?.StorageProvider;
+        if (storage is null)
+            return;
+
+        var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Import transponder database",
+            AllowMultiple = false,
+            FileTypeFilter = [JsonFileType]
+        }).ConfigureAwait(true);
+
+        var file = files.FirstOrDefault();
+        if (file is null)
+            return;
+
+        try
+        {
+            StatusMessage = "Reading import file…";
+            await using var stream = await file.OpenReadAsync().ConfigureAwait(true);
+            using var reader = new StreamReader(stream);
+            var json = await reader.ReadToEndAsync().ConfigureAwait(true);
+            var imported = SatelliteDatabaseFile.ParseJson(json);
+            var validationError = SatelliteDatabaseFile.ValidateEntries(imported);
+            if (validationError is not null)
+            {
+                StatusMessage = $"Invalid database: {validationError}";
+                return;
+            }
+
+            var local = SnapshotSatellites();
+            var plan = SatelliteDatabaseMerger.BuildPlan(local, imported);
+            if (!plan.HasChanges)
+            {
+                StatusMessage = "Import file matches the editor (no new or changed entries).";
+                return;
+            }
+
+            var merged = await TransponderDatabaseMergeDialog.TryMergeApplyAsync(
+                App.MainWindow,
+                plan,
+                local,
+                SatelliteDatabaseMergePresentation.FileImport).ConfigureAwait(true);
+
+            if (merged is null)
+            {
+                StatusMessage = "Import cancelled.";
+                return;
+            }
+
+            ReloadFromList(merged);
+            StatusMessage = "Import applied to editor — press Save to write to your user database.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Import failed: {ex.Message}";
+        }
+    }
+
     [RelayCommand]
     private async Task CheckForUpdatesAsync()
     {
@@ -326,4 +463,38 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
             StatusMessage = $"Update check failed: {ex.Message}";
         }
     }
+
+    private List<SatelliteRadioEntry> SnapshotSatellites() =>
+        Satellites.Select(CloneEntry).ToList();
+
+    private void ReloadFromList(IReadOnlyList<SatelliteRadioEntry> entries)
+    {
+        Satellites.Clear();
+        foreach (var entry in entries)
+            Satellites.Add(CloneEntry(entry));
+
+        NotifyFilteredSatellites();
+        SelectedSatellite = Satellites.FirstOrDefault();
+        StatusMessage = $"{Satellites.Count} satellites in editor.";
+    }
+
+    private static SatelliteRadioEntry CloneEntry(SatelliteRadioEntry source) =>
+        new()
+        {
+            Name = source.Name,
+            Modes = source.Modes.Select(CloneMode).ToList()
+        };
+
+    private static SatelliteTransponderMode CloneMode(SatelliteTransponderMode source) =>
+        new()
+        {
+            Type = source.Type,
+            DownlinkKHz = source.DownlinkKHz,
+            UplinkKHz = source.UplinkKHz,
+            DownlinkMode = source.DownlinkMode,
+            UplinkMode = source.UplinkMode,
+            Doppler = source.Doppler,
+            CtcssHz = source.CtcssHz,
+            CtcssArmHz = source.CtcssArmHz
+        };
 }

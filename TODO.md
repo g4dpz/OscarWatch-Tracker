@@ -10,21 +10,10 @@ Tracked ideas and deferred work. Not a commitment order; items may be split or d
 
 ## Satellite database
 
-### Remote sync & merge
-
-**Implemented:** fetch from **`https://tle.oscarwatch.org/satellite_database.json`**, merge dialog, startup check (Settings → Tracking). See [documents/satellite-database.md](documents/satellite-database.md).
-
-**Possible follow-ups:**
-
-- [ ] Optional periodic check while running (like TLE every 6 hours)
-- [ ] “Restore defaults” choice: bundled only vs re-fetch remote
-- [ ] Optional `version` or `ETag` in published JSON for change detection without full compare
-
 ### Transponder database editor
 
-- [ ] Import / export JSON (file picker)
-- [ ] “Open database folder” in Explorer/Finder
-- [ ] Pick satellite name from TLE catalog when adding an entry
+- [x] Import / export JSON (file picker)
+- [x] Pick satellite name from TLE catalog when adding an entry
 
 ---
 
@@ -41,11 +30,6 @@ See [building radio drivers](documents/building-radio-drivers.md) for adding rig
 - [ ] **Faster / adaptive CAT loop** — below fixed 150 ms or rate-based timing near TCA
 - [ ] **Linear doppler threshold** — default 50 Hz; consider 20 Hz or Settings guidance
 - [ ] **Doppler behaviour matrix** — NOR/REV, offsets, predictive, loop timing, knob threshold (README or `documents/`)
-
-### Pass debugging & validation
-
-- [ ] **Pass-debug log** (optional, Settings) — overlay offsets, computed RX/TX, CAT writes, knob/manual state, `vfo_not_moving`
-
 
 ### Additional rig drivers
 

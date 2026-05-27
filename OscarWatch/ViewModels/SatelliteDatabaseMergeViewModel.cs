@@ -7,10 +7,20 @@ namespace OscarWatch.ViewModels;
 
 public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
 {
-    public SatelliteDatabaseMergeViewModel(SatelliteDatabaseMergePlan plan)
+    private readonly SatelliteDatabaseMergePresentation _presentation;
+
+    public SatelliteDatabaseMergeViewModel(
+        SatelliteDatabaseMergePlan plan,
+        SatelliteDatabaseMergePresentation presentation = SatelliteDatabaseMergePresentation.RemoteUpdate)
     {
         Plan = plan;
-        SummaryText = BuildSummary(plan);
+        _presentation = presentation;
+        SummaryText = BuildSummary(plan, presentation);
+        IntroHintText = presentation.IntroHint();
+        ConflictRemoteLabel = presentation.ConflictRemoteLabel();
+        ConflictRemoteSummaryPrefix = presentation == SatelliteDatabaseMergePresentation.FileImport
+            ? "Imported"
+            : "Published";
 
         foreach (var item in plan.NewSatellites)
         {
@@ -33,13 +43,21 @@ public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
                 item.SatelliteName,
                 item.ModeType,
                 SatelliteDatabaseMerger.DescribeMode(item.LocalMode),
-                SatelliteDatabaseMerger.DescribeMode(item.RemoteMode)));
+                SatelliteDatabaseMerger.DescribeMode(item.RemoteMode),
+                ConflictRemoteSummaryPrefix,
+                ConflictRemoteLabel));
         }
     }
 
     public SatelliteDatabaseMergePlan Plan { get; }
 
     public string SummaryText { get; }
+
+    public string IntroHintText { get; }
+
+    public string ConflictRemoteLabel { get; }
+
+    public string ConflictRemoteSummaryPrefix { get; }
 
     public bool HasNewSatellites => NewSatellites.Count > 0;
     public bool HasNewModes => NewModes.Count > 0;
@@ -72,7 +90,7 @@ public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
         return Conflicts.Any(i => i.UseRemote);
     }
 
-    private static string BuildSummary(SatelliteDatabaseMergePlan plan)
+    private static string BuildSummary(SatelliteDatabaseMergePlan plan, SatelliteDatabaseMergePresentation presentation)
     {
         var parts = new List<string>();
         if (plan.NewSatellites.Count > 0)
@@ -82,9 +100,10 @@ public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
         if (plan.Conflicts.Count > 0)
             parts.Add($"{plan.Conflicts.Count} conflict{(plan.Conflicts.Count == 1 ? "" : "s")}");
 
+        var source = presentation.SourceDescription();
         return parts.Count == 0
-            ? "Your transponder database matches the published copy."
-            : string.Join(", ", parts) + " from tle.oscarwatch.org.";
+            ? $"Your transponder database matches {source}."
+            : string.Join(", ", parts) + $" from {source}.";
     }
 }
 
@@ -110,13 +129,17 @@ public partial class MergeConflictItem : ObservableObject
         string satelliteName,
         string modeType,
         string localSummary,
-        string remoteSummary)
+        string remoteSummary,
+        string remoteSummaryPrefix,
+        string useRemoteLabel)
     {
         Key = key;
         SatelliteName = satelliteName;
         ModeType = modeType;
         LocalSummary = localSummary;
         RemoteSummary = remoteSummary;
+        RemoteSummaryLine = $"{remoteSummaryPrefix}: {remoteSummary}";
+        UseRemoteLabel = useRemoteLabel;
     }
 
     public string Key { get; }
@@ -124,6 +147,8 @@ public partial class MergeConflictItem : ObservableObject
     public string ModeType { get; }
     public string LocalSummary { get; }
     public string RemoteSummary { get; }
+    public string RemoteSummaryLine { get; }
+    public string UseRemoteLabel { get; }
     public string Title => $"{SatelliteName} · {ModeType}";
 
     [ObservableProperty]

@@ -30,8 +30,11 @@ public sealed class SatelliteDatabaseSyncService : ISatelliteDatabaseSyncService
 
     public void ApplyMerge(SatelliteDatabaseMergePlan plan, SatelliteDatabaseMergeSelection selection)
     {
-        var localEntries = _editor.LoadForEditing();
-        var merged = SatelliteDatabaseMerger.Apply(localEntries, plan, selection);
-        _editor.Save(merged);
+        var localEntries = LoadLocalEntriesForMerge();
+        SaveMergedEntries(SatelliteDatabaseMerger.Apply(localEntries, plan, selection));
     }
+
+    public List<SatelliteRadioEntry> LoadLocalEntriesForMerge() => _editor.LoadForEditing();
+
+    public void SaveMergedEntries(IReadOnlyList<SatelliteRadioEntry> merged) => _editor.Save(merged);
 }

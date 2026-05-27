@@ -21,6 +21,8 @@ The app loads **user → bundled** (see `SatelliteDatabaseService`).
 - New satellites and modes from the server are **selected by default**; you can uncheck any before applying.
 - **Conflicts** (same satellite name and mode type, different fields) keep your local copy unless you tick **Use published version**.
 - **Restore defaults** deletes the user file and reloads the **bundled** database from the installation — not the remote URL.
+- **Import JSON…** / **Export JSON…** in the editor (file picker): export the current editor contents; import merges a chosen file into the editor (same merge UI as remote sync). Press **Save** in the editor after import to persist to `%AppData%`.
+- **Add satellite** opens a searchable list of TLE catalogue names not already in the database, or you can enter a custom name.
 
 ## JSON schema (per mode)
 

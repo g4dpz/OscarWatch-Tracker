@@ -17,17 +17,23 @@
                  FontSize="11"
                  TextWrapping="Wrap"
                  Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-      <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
+      <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="8">
         <TextBox Grid.Column="0"
                  Watermark="Search satellites…"
                  Text="{Binding SearchText, Mode=TwoWay}" />
         <Button Grid.Column="1"
+                Content="Import JSON…"
+                Command="{Binding ImportJsonCommand}" />
+        <Button Grid.Column="2"
+                Content="Export JSON…"
+                Command="{Binding ExportJsonCommand}" />
+        <Button Grid.Column="3"
                 Content="Check for updates"
                 Command="{Binding CheckForUpdatesCommand}" />
-        <Button Grid.Column="2"
+        <Button Grid.Column="4"
                 Content="Add satellite"
                 Command="{Binding AddSatelliteCommand}" />
-        <Button Grid.Column="3"
+        <Button Grid.Column="5"
                 Content="Restore defaults"
                 Command="{Binding ResetToBundledCommand}" />
       </Grid>

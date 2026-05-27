@@ -1,3 +1,5 @@
+using OscarWatch.Core.Models;
+
 namespace OscarWatch.Core.Services;
 
 public interface ISatelliteDatabaseSyncService
@@ -5,4 +7,8 @@ public interface ISatelliteDatabaseSyncService
     Task<SatelliteDatabaseMergePlan> FetchMergePlanAsync(CancellationToken cancellationToken = default);
 
     void ApplyMerge(SatelliteDatabaseMergePlan plan, SatelliteDatabaseMergeSelection selection);
+
+    List<SatelliteRadioEntry> LoadLocalEntriesForMerge();
+
+    void SaveMergedEntries(IReadOnlyList<SatelliteRadioEntry> merged);
 }

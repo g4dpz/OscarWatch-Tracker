@@ -36,14 +36,18 @@ public static class SatelliteDatabaseFile
         if (!string.IsNullOrEmpty(directory))
             Directory.CreateDirectory(directory);
 
+        File.WriteAllText(path, SerializeEntries(entries));
+    }
+
+    public static string SerializeEntries(IEnumerable<SatelliteRadioEntry> entries)
+    {
         var list = entries
             .Select(NormalizeEntry)
             .Where(e => !string.IsNullOrWhiteSpace(e.Name))
             .OrderBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        var json = JsonSerializer.Serialize(list, Options);
-        File.WriteAllText(path, json);
+        return JsonSerializer.Serialize(list, Options);
     }
 
     public static void CopyBundledToUser(string bundledPath, string userPath)

@@ -11,7 +11,7 @@
     <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,8">
       <TextBlock Text="{Binding SummaryText}"
                  TextWrapping="Wrap" />
-      <TextBlock Text="New entries are selected by default. Conflicts keep your local copy unless you choose the published version."
+      <TextBlock Text="{Binding IntroHintText}"
                  TextWrapping="Wrap"
                  FontSize="11"
                  Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
@@ -70,10 +70,10 @@
                     <TextBlock Text="{Binding LocalSummary, StringFormat='Yours: {0}'}"
                                FontSize="11"
                                TextWrapping="Wrap" />
-                    <TextBlock Text="{Binding RemoteSummary, StringFormat='Published: {0}'}"
+                    <TextBlock Text="{Binding RemoteSummaryLine}"
                                FontSize="11"
                                TextWrapping="Wrap" />
-                    <CheckBox Content="Use published version"
+                    <CheckBox Content="{Binding UseRemoteLabel}"
                               IsChecked="{Binding UseRemote, Mode=TwoWay}" />
                   </StackPanel>
                 </Border>

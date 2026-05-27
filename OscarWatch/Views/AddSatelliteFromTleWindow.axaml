@@ -1,0 +1,49 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OscarWatch.ViewModels"
+        x:Class="OscarWatch.Views.AddSatelliteFromTleWindow"
+        x:DataType="vm:AddSatelliteFromTleViewModel"
+        Title="Add satellite"
+        Width="520" Height="520"
+        MinWidth="420" MinHeight="400"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="12">
+    <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,8">
+      <TextBlock Text="{Binding IntroText}"
+                 TextWrapping="Wrap" />
+      <TextBox Watermark="Search TLE catalog…"
+               Text="{Binding SearchText, Mode=TwoWay}" />
+    </StackPanel>
+
+    <StackPanel DockPanel.Dock="Bottom" Spacing="8" Margin="0,8,0,0">
+      <TextBlock Text="Custom name (optional if you selected above)"
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+      <TextBox Watermark="Type name if not in list…"
+               Text="{Binding CustomName, Mode=TwoWay}" />
+      <TextBlock Text="{Binding StatusMessage}"
+                 FontSize="11"
+                 TextWrapping="Wrap"
+                 Foreground="#FFC07070"
+                 IsVisible="{Binding HasStatusMessage}" />
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+        <Button Content="Cancel" Classes="dialog-footer" Click="OnCancelClick" />
+        <Button Content="Add" Classes="dialog-footer accent" Click="OnOkClick" IsDefault="True" />
+      </StackPanel>
+    </StackPanel>
+
+    <ListBox ItemsSource="{Binding FilteredCandidates}"
+             SelectedItem="{Binding SelectedCandidate, Mode=TwoWay}"
+             IsEnabled="{Binding HasCatalogCandidates}"
+             MinHeight="240"
+             DoubleTapped="OnCandidateDoubleTapped">
+      <ListBox.ItemTemplate>
+        <DataTemplate x:DataType="vm:TleSatellitePickItem">
+          <TextBlock Text="{Binding Display}"
+                     FontWeight="SemiBold"
+                     Padding="2,4" />
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </DockPanel>
+</Window>
