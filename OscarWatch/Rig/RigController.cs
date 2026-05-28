@@ -406,12 +406,72 @@ public sealed class RigController : IRigController, IDisposable
 
         if (!_forceFrequencyApply && (!_vfoNotMoving || !_vfoNotMovingPrevious))
         {
+            TryCatchUpLinearDopplerLag(settings, context);
             RestoreOperatorVfo();
             return;
         }
 
         WriteDopplerFrequencies(settings, context);
         RestoreOperatorVfo();
+    }
+
+    /// <summary>
+    /// After TCA, range rate changes quickly; interactive mode may defer CAT while the dial is
+    /// "settling". If the radio still shows our last write and the operator is not spinning the
+    /// VFO, apply doppler even when the stable-dial gate has not fired yet.
+    /// </summary>
+    private void TryCatchUpLinearDopplerLag(RigSettings settings, RigTrackingContext context)
+    {
+        if (_blockKnobCapture || _driver is null || _lastRigRxHz <= 0
+            || context.TrackState.LookAngles is null)
+            return;
+
+        // Only correct orbit lag; passband trim is operator tuning (see SyncManualFromMainDial).
+        if (Math.Abs(_passbandDownlinkAdjustKHz) > 0.0001 || Math.Abs(_passbandUplinkAdjustKHz) > 0.0001)
+            return;
+
+        if (!TryReadReceiveDialHz(out var dialHz))
+            return;
+
+        var knobThreshold = KnobTuneThresholdHz();
+        if (Math.Abs(dialHz - _lastRigRxHz) >= knobThreshold)
+            return;
+
+        if (IsReceiveDialChanging())
+            return;
+
+        var corrected = DopplerFrequencyCalculator.Compute(
+            context.Mode,
+            context.TrackState.LookAngles.RangeRateKmPerSec,
+            context.ReceiveOffsetKHz,
+            _passbandDownlinkAdjustKHz,
+            _passbandUplinkAdjustKHz);
+
+        var rxHz = ToHz(corrected.RadioReceiveKHz);
+        var txHz = ToHz(corrected.RadioTransmitKHz);
+
+        if (!_forceFrequencyApply && !ShouldWrite(rxHz, txHz))
+            return;
+
+        if (!CanWrite(settings))
+            return;
+
+        _forceFrequencyApply = true;
+        WriteDopplerFrequencies(settings, context);
+    }
+
+    private bool IsReceiveDialChanging()
+    {
+        if (_rxDialHistoryCount < 2)
+            return false;
+
+        for (var i = 1; i < _rxDialHistoryCount; i++)
+        {
+            if (_rxDialHistory[i] != _rxDialHistory[i - 1])
+                return true;
+        }
+
+        return false;
     }
 
     private void ProcessAutomaticDoppler(RigSettings settings, RigTrackingContext context)

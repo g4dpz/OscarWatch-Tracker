@@ -1343,6 +1343,58 @@ public class RigControllerTests
         var status = controller.GetStatus();
         Assert.InRange(status.ManualReceiveAdjustKHz, -0.001, 0.001);
         Assert.InRange(status.ManualTransmitAdjustKHz, -0.001, 0.001);
+
+        var expectedRx = ToHz(DopplerFrequencyCalculator.Compute(mode, 4.2, 0).RadioReceiveKHz);
+        Assert.InRange(rig.MainHz, expectedRx - 50, expectedRx + 50);
+    }
+
+    [Fact]
+    public void Linear_doppler_lag_catch_up_blocked_while_operator_spins_vfo()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        RigTrackingContext Build(double rangeRateKmPerSec) => new()
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "RS-44",
+                NoradId = "99999",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, rangeRateKmPerSec)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, rangeRateKmPerSec, 0),
+            TransmitOffsetKHz = 0,
+            ReceiveOffsetKHz = 0
+        };
+
+        controller.Update(settings, Build(0));
+        Thread.Sleep(650);
+        var rxAfterInit = rig.MainHz;
+
+        rig.MainHz = rxAfterInit + 1_500;
+        controller.PublishContext(settings, Build(4.2));
+        for (var i = 0; i < 8; i++)
+            controller.RunTrackingLoopOnce();
+
+        Assert.Equal(rxAfterInit + 1_500, rig.MainHz);
     }
 
     [Fact]
@@ -1512,4 +1564,6 @@ public class RigControllerTests
         Assert.InRange(rig.MainHz, 430_000_000, 440_000_000);
         Assert.InRange(rig.SubHz, 145_000_000, 146_000_000);
     }
+
+    private static long ToHz(double kHz) => (long)Math.Round(kHz * 1000.0);
 }

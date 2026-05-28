@@ -132,9 +132,10 @@
       </ul>
       <p>
         These thresholds apply to <strong>automatic Doppler writes</strong>. On linear USB/LSB/CW modes,
-        OscarWatch also watches the Main dial when you tune by hand: small movements below about
-        <strong>100 Hz</strong> are treated as Doppler lag, not knob tuning, so you can still nudge the passband
-        without fighting the tracker.
+        OscarWatch also watches the Main dial when you tune by hand: movements of about
+        <strong>100 Hz or more</strong> are treated as knob tuning (passband adjust), not Doppler lag.
+        While the dial is steady at the last CAT frequency, OscarWatch can still catch up when the
+        calculated correction has moved beyond the threshold (common after TCA when range rate changes quickly).
       </p>
       <p>
         <strong>CAT delay (ms)</strong> on the same settings page is separate: it spaces out CI-V (and similar)
