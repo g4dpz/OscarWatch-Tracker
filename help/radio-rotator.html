@@ -37,7 +37,8 @@
         <li>Use a <strong>USB serial</strong> cable or proper interface to the radio and rotator.</li>
         <li>Radio and rotator need <strong>different COM ports</strong> (or device paths on Linux/macOS).</li>
         <li>Close other programs that might hold the port (HRD, WSJT-X rig control, etc.).</li>
-        <li>Put the radio in <strong>satellite mode</strong> (or the mode your rig manual describes) before a pass.</li>
+        <li>For <strong>normal cross-band</strong> passes, put the radio in <strong>satellite mode</strong> (or the mode your rig manual describes) if OscarWatch has not already done so when tracking starts.</li>
+        <li>For <strong>receive-only</strong> modes (uplink <strong>0</strong> in the database — ISS SSTV, beacons, telemetry), you do <strong>not</strong> need satellite mode: OscarWatch turns it off and tunes the downlink only.</li>
       </ul>
 
       <h2>Supported radios (summary)</h2>
@@ -46,7 +47,7 @@
           <tr><th>Radio</th><th>Notes</th></tr>
         </thead>
         <tbody>
-          <tr><td>ICOM IC-910 / IC-9700 / IC-9100</td><td>CI-V, Main/Sub VFOs, CTCSS on Sub where supported</td></tr>
+          <tr><td>ICOM IC-910 / IC-9700 / IC-9100</td><td>CI-V, Main/Sub for cross-band; receive-only modes use <strong>Main</strong> on the downlink band (VHF or UHF) with SAT off</td></tr>
           <tr><td>Yaesu FT-847</td><td>Satellite CAT — SAT RX/TX VFOs, doppler, uplink CTCSS</td></tr>
           <tr><td>Kenwood TS-2000</td><td>Enable SATL; turn TRACE off (beta)</td></tr>
           <tr><td>Dummy rig</td><td>No hardware — test UI and Doppler only</td></tr>
@@ -62,10 +63,31 @@
       <h2>What CAT does during a pass</h2>
       <ul>
         <li>Sets satellite/split layout and modes at pass start (rig-dependent), including Voice/CW from the frequency panel.</li>
-        <li>Updates RX and TX frequencies for Doppler as the satellite moves.</li>
-        <li>Applies CTCSS from the frequency panel when supported.</li>
+        <li>Updates RX and TX frequencies for Doppler as the satellite moves (receive-only when uplink is 0).</li>
+        <li>Applies CTCSS from the frequency panel when supported (cross-band uplink only).</li>
         <li>Respects your RX offset from the frequency panel.</li>
       </ul>
+
+      <h3 id="beacon-receive-only">Receive-only / beacon modes (uplink 0)</h3>
+      <p>
+        Examples: <strong>ISS SSTV (VHF)</strong>, <strong>ISS SSTV (UHF)</strong>, CW beacons. The frequency panel shows uplink as a dash.
+        At pass start OscarWatch:
+      </p>
+      <ul>
+        <li>
+          <strong>ICOM IC-910 / IC-9100 / IC-9700</strong> — turns <strong>satellite mode off</strong>, clears CTCSS on Main and Sub
+          (leftover from a previous FM satellite pass), swaps Main/Sub if needed so the downlink band is on <strong>Main</strong>,
+          sets downlink mode and frequency on Main, and applies Doppler on Main only.
+        </li>
+        <li>
+          <strong>Other supported rigs</strong> — leaves satellite layout according to that driver (often split/VFO A+B);
+          only the receive frequency is updated.
+        </li>
+      </ul>
+      <p>
+        You do not need to select CTCSS for these modes unless you add a tone in the database and panel deliberately.
+        After a cross-band pass, switching to ISS SSTV is enough — OscarWatch reconfigures the radio at the next track start.
+      </p>
       <p>
         <strong>Pause CAT</strong> in Settings stops frequency commands while you can still see computed frequencies on screen.
       </p>

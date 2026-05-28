@@ -48,7 +48,7 @@ The app loads **user → bundled** (see `SatelliteDatabaseService`).
 |-------|--------|
 | `name` | Must match the TLE catalogue name closely enough for lookup (see aliases in `SatelliteDatabaseService`) |
 | `type` | Label shown in the frequency panel mode list; unique per satellite |
-| `downlink` / `uplink` | kHz; use **`0` uplink** for beacon-only / receive-only (SSTV, telemetry, CW beacon) |
+| `downlink` / `uplink` | kHz; use **`0` uplink** for beacon-only / receive-only (SSTV, telemetry, CW beacon). OscarWatch treats these as receive-only for CAT (no uplink doppler; ICOM rigs exit satellite mode and tune Main on the downlink band). |
 | `downlink_mode` / `uplink_mode` | Rig mode strings: `FM`, `FMN`, `USB`, `LSB`, `CW`, `DATA-USB`, `DATA-LSB`, … |
 | `doppler` | `NOR` or `REV` |
 | `ctcss` / `ctcss_arm` | Optional Hz; FM access and arm tones |

@@ -205,9 +205,12 @@ Radio tab in [`SettingsWindow.axaml`](../OscarWatch/Views/SettingsWindow.axaml) 
 You rarely call the driver from the UI. Typical sequence on the worker thread:
 
 1. `EnsureConnected` → `RigDriverFactory.Create` → `Open`
-2. New pass → `SetSatelliteMode(true)`, `SetSplitOn`, mode FM/USB, initial frequencies
-3. Each context update → `SelectVfo` + `SetFrequencyHz` when doppler delta exceeds threshold
-4. CTCSS changes → `SetToneHz` / squelch on Sub
+2. New pass (`RunPassInit`) — layout depends on mode (see **`RigSatModeHelper.UseMainSubLayout`** and **`SatelliteTransponderMode.IsBeaconOnly`**):
+   - **Cross-band** (`downlink` and `uplink` both &gt; 0, &gt;10 MHz apart) → `SetSatelliteMode(true)`, `SetSplitOn(false)`, Main=RX / Sub=TX, optional `ExchangeVfos`, CTCSS on Sub
+   - **Beacon / receive-only** (`uplink` ≤ 0) → `SetSatelliteMode(false)`; on **IC-910 / IC-9100 / IC-9700** also clear tones on Main+Sub, ensure downlink band on **Main** (`ExchangeVfos` if needed), tune and doppler on Main only
+   - **Same-band** (both freqs, ≤10 MHz apart) → satellite mode off, split on, VFO A/B
+3. Each context update → `SelectVfo` + `SetFrequencyHz` when doppler delta exceeds threshold (`_receiveVfo` may be Main, Sub, VfoA, or VfoB)
+4. CTCSS changes → `SetToneHz` / squelch on uplink VFO (skipped when `IsBeaconOnly`)
 5. Disconnect / disable → dispose driver
 
 Respect **`RigSettings.CatDelayMs`** and thresholds in the controller; the driver should not sleep for doppler pacing unless the protocol requires it (Icom uses short delays inside `ReadFrequencyHz`).
