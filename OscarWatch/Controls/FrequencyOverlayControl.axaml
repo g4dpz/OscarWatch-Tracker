@@ -111,6 +111,7 @@
       <Setter Property="MinHeight" Value="26" />
       <Setter Property="MaxHeight" Value="26" />
       <Setter Property="MinWidth" Value="52" />
+      <Setter Property="Cursor" Value="Hand" />
       <Setter Property="Padding" Value="10,0" />
       <Setter Property="FontSize" Value="11" />
       <Setter Property="FontWeight" Value="SemiBold" />
