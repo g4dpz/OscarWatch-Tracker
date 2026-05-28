@@ -472,10 +472,12 @@ public sealed class RotatorController : IRotatorController, IDisposable
         if (_rotator is null)
             return;
 
-        var (commandAzInput, commandEl) = RotatorCalibration.ApplyOffsets(
-            azimuthDeg,
-            elevationDeg,
-            settings);
+        var commandAzInput = RotatorCalibration.ApplyAzimuthOffset(azimuthDeg, settings)
+            ?? RotatorAzimuthPlanner.Normalize360(azimuthDeg);
+        var commandEl = Math.Clamp(
+            elevationDeg + settings.ElevationOffsetDeg,
+            0,
+            settings.MaxElevationDeg);
         var aheadForPlanner = RotatorCalibration.ApplyAzimuthOffset(aheadAzimuthDeg, settings);
 
         var useSmartAzimuth = settings.SmartAzimuth450 && settings.MaxAzimuthDeg > 360;

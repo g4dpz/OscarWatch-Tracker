@@ -270,6 +270,29 @@ public sealed class RotatorControllerTests
     }
 
     [Fact]
+    public void Smart450_with_negative_azimuth_offset_wraps_in_compass_space()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            AzimuthRange = RotatorAzimuthRange.Deg450,
+            SmartAzimuth450 = true,
+            TrackStartElevationDeg = 5,
+            AzimuthOffsetDeg = -72
+        };
+
+        var norad = "25544";
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 350, 20));
+        Assert.Equal(278, rotator.LastAzimuthDeg);
+
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 11, 20));
+        Assert.Equal(299, rotator.LastAzimuthDeg);
+    }
+
+    [Fact]
     public void Smart450_disabled_uses_compass_azimuth_at_north_wrap()
     {
         var rotator = new RecordingRotatorDriver();
