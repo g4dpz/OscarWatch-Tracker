@@ -66,18 +66,36 @@ internal sealed class RecordingRigDriver : IRigDriver
     }
     public RigVfo? LastToneOffVfo { get; private set; }
 
+    private readonly List<RigVfo> _toneClearedVfos = [];
+
+    public IReadOnlyList<RigVfo> ToneClearedVfos => _toneClearedVfos;
+
     public void SetToneOn(bool on)
     {
         if (!on)
+        {
             LastToneOffVfo = _currentVfo;
+            RecordToneClearedVfo(_currentVfo);
+        }
+
         ToneOn = on;
     }
 
     public void SetToneSquelchOn(bool on)
     {
         if (!on)
+        {
             LastToneOffVfo = _currentVfo;
+            RecordToneClearedVfo(_currentVfo);
+        }
+
         ToneSquelchOn = on;
+    }
+
+    private void RecordToneClearedVfo(RigVfo vfo)
+    {
+        if (!_toneClearedVfos.Contains(vfo))
+            _toneClearedVfos.Add(vfo);
     }
 
     public void SetToneHz(double hz, bool squelchTone)

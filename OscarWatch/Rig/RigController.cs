@@ -39,6 +39,7 @@ public sealed class RigController : IRigController, IDisposable
     private bool _interactive;
     private bool _useMainSub;
     private bool _isBeaconOnly;
+    private RigVfo _receiveVfo = RigVfo.VfoA;
     private int _rxDialHistoryCount;
     private bool _vfoNotMoving;
     private bool _vfoNotMovingPrevious;
@@ -374,6 +375,7 @@ public sealed class RigController : IRigController, IDisposable
         _lastAppliedCtcssHz = null;
         _lastAppliedCtcssSquelch = null;
         _lastPassDownlinkOnVhf = null;
+        _receiveVfo = RigVfo.VfoA;
         _suspendDopplerUntilUtc = DateTime.MinValue;
     }
 
@@ -646,17 +648,22 @@ public sealed class RigController : IRigController, IDisposable
         if (_driver is null)
             return;
 
-        _useMainSub = RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz);
+        _useMainSub = !_isBeaconOnly
+            && RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz);
+        AssignReceiveVfo(settings, context);
 
-        if (!_useMainSub && !_isBeaconOnly)
-        {
-            _driver.SetSatelliteMode(false);
-            _driver.SetSplitOn(true);
-        }
-        else if (!_useMainSub && _isBeaconOnly)
+        if (_isBeaconOnly)
         {
             _driver.SetSatelliteMode(false);
             _driver.SetSplitOn(false);
+            ClearCtcssLeavingSatelliteMode(settings);
+            EnsureBeaconDownlinkOnMain(context);
+        }
+        else if (!_useMainSub)
+        {
+            _driver.SetSatelliteMode(false);
+            _driver.SetSplitOn(true);
+            ClearCtcssLeavingSatelliteMode(settings);
         }
         else
         {
@@ -743,10 +750,78 @@ public sealed class RigController : IRigController, IDisposable
     private static string PassKey(RigTrackingContext context) =>
         $"{context.TrackState.NoradId}|{context.Mode.Type}|{context.Mode.DownlinkKHz}|{context.Mode.UplinkKHz}";
 
+    private static bool IsIcomSatelliteLayoutRig(RigType type) =>
+        type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700;
+
+    private void AssignReceiveVfo(RigSettings settings, RigTrackingContext context)
+    {
+        if (_useMainSub)
+            _receiveVfo = RigVfo.Main;
+        else if (_isBeaconOnly && IsIcomSatelliteLayoutRig(settings.Type))
+            _receiveVfo = RigVfo.Main;
+        else
+            _receiveVfo = RigVfo.VfoA;
+    }
+
+    private void EnsureBeaconDownlinkOnMain(RigTrackingContext context)
+    {
+        if (_driver is null || _receiveVfo != RigVfo.Main || !_driver.SupportsVfoExchange)
+            return;
+
+        _driver.SelectVfo(RigVfo.Main);
+        Thread.Sleep(50);
+        var mainHz = _driver.ReadFrequencyHz(RigVfo.Main);
+        if (mainHz is > 0 && RigSatModeHelper.NeedsMainSubBandSwap(mainHz.Value, context.Mode.DownlinkKHz))
+            _driver.ExchangeVfos();
+    }
+
+    private void ClearCtcssLeavingSatelliteMode(RigSettings settings)
+    {
+        if (_driver is null)
+            return;
+
+        foreach (var vfo in VfosForSatelliteCtcssClear(settings.Type))
+            SetCtcssOffOnVfo(vfo);
+
+        _lastAppliedCtcssHz = null;
+        _lastAppliedCtcssSquelch = null;
+    }
+
+    private static IEnumerable<RigVfo> VfosForSatelliteCtcssClear(RigType type)
+    {
+        if (type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700
+            or RigType.YaesuFt847 or RigType.KenwoodTs2000)
+        {
+            yield return RigVfo.Main;
+            yield return RigVfo.Sub;
+            yield break;
+        }
+
+        yield return RigVfo.VfoA;
+        yield return RigVfo.VfoB;
+    }
+
+    private void SetCtcssOffOnVfo(RigVfo vfo)
+    {
+        if (_driver is null)
+            return;
+
+        _driver.SelectVfo(vfo, force: true);
+        _driver.SetToneOn(false);
+        _driver.SetToneSquelchOn(false);
+    }
+
     private void ConfigureVfoModes(RigTrackingContext context)
     {
         if (_driver is null)
             return;
+
+        if (_isBeaconOnly)
+        {
+            _driver.SelectVfo(ReceiveVfo());
+            _driver.SetMode(context.EffectiveDownlinkMode);
+            return;
+        }
 
         if (_useMainSub)
         {
@@ -822,7 +897,7 @@ public sealed class RigController : IRigController, IDisposable
         }
         else
         {
-            _driver.SelectVfo(RigVfo.VfoA);
+            _driver.SelectVfo(ReceiveVfo());
             _driver.SetFrequencyHz(rxHz);
             if (!_isBeaconOnly)
             {
@@ -877,13 +952,13 @@ public sealed class RigController : IRigController, IDisposable
         return true;
     }
 
-    private RigVfo ReceiveVfo() => _useMainSub ? RigVfo.Main : RigVfo.VfoA;
+    private RigVfo ReceiveVfo() => _receiveVfo;
 
     private RigVfo TransmitVfo() => _useMainSub ? RigVfo.Sub : RigVfo.VfoB;
 
     private void RestoreOperatorVfo()
     {
-        if (_driver is null || _isBeaconOnly)
+        if (_driver is null)
             return;
 
         _driver.SelectVfo(ReceiveVfo());

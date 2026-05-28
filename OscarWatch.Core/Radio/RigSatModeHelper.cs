@@ -2,9 +2,12 @@ namespace OscarWatch.Core.Radio;
 
 public static class RigSatModeHelper
 {
-    /// <summary>True when Main/Sub satellite layout (bands &gt; 10 MHz apart).</summary>
+    /// <summary>
+    /// True when Main/Sub satellite layout applies (real cross-band pass with both frequencies).
+    /// Beacon/downlink-only modes (uplink 0) must not use this — |downlink − 0| would always exceed 10 MHz.
+    /// </summary>
     public static bool UseMainSubLayout(double downlinkKHz, double uplinkKHz) =>
-        Math.Abs(downlinkKHz - uplinkKHz) > 10_000;
+        downlinkKHz > 0 && uplinkKHz > 0 && Math.Abs(downlinkKHz - uplinkKHz) > 10_000;
 
     public static bool IsVhfCenterKHz(double kHz) => kHz is > 0 and < 400_000;
 

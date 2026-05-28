@@ -15,6 +15,7 @@ public partial class FrequencyOverlayControl : UserControl
   private const double EdgeMarginPx = 8;
 
   private bool _isDragging;
+  private IPointer? _dragPointer;
   private Point _dragStartPointer;
   private double _dragStartX;
   private double _dragStartY;
@@ -45,6 +46,8 @@ public partial class FrequencyOverlayControl : UserControl
     {
       _hostWindow.Resized += OnHostWindowResized;
       _hostWindow.PropertyChanged += OnHostWindowPropertyChanged;
+      _hostWindow.Deactivated += OnHostWindowDeactivated;
+      _hostWindow.PointerReleased += OnHostWindowPointerReleased;
     }
 
     ScheduleEnsureVisiblePosition();
@@ -56,7 +59,11 @@ public partial class FrequencyOverlayControl : UserControl
     {
       _hostWindow.Resized -= OnHostWindowResized;
       _hostWindow.PropertyChanged -= OnHostWindowPropertyChanged;
+      _hostWindow.Deactivated -= OnHostWindowDeactivated;
+      _hostWindow.PointerReleased -= OnHostWindowPointerReleased;
     }
+
+    EndDrag();
 
     UnbindMapHosts();
     _hostWindow = null;
@@ -249,11 +256,21 @@ public partial class FrequencyOverlayControl : UserControl
       return;
 
     _isDragging = true;
+    _dragPointer = e.Pointer;
     _dragStartPointer = e.GetPosition(host);
     _dragStartX = vm.OverlayX;
     _dragStartY = vm.OverlayY;
     e.Pointer.Capture(this);
     e.Handled = true;
+  }
+
+  private void OnHostWindowDeactivated(object? sender, EventArgs e) =>
+    EndDrag(persistPosition: true);
+
+  private void OnHostWindowPointerReleased(object? sender, PointerReleasedEventArgs e)
+  {
+    if (_isDragging)
+      EndDrag(persistPosition: true);
   }
 
   private void OnCollapseToggleTapped(object? sender, TappedEventArgs e)
@@ -301,24 +318,30 @@ public partial class FrequencyOverlayControl : UserControl
     e.Handled = true;
   }
 
-  private void OnOverlayPointerReleased(object? sender, PointerReleasedEventArgs e)
-  {
-    if (!_isDragging)
-      return;
-
-    _isDragging = false;
-    e.Pointer.Capture(null);
-
-    if (DataContext is FrequencyOverlayViewModel vm)
-    {
-      EnsureVisiblePosition();
-      vm.PersistOverlayPosition();
-      ScheduleEnsureVisiblePosition();
-    }
-  }
+  private void OnOverlayPointerReleased(object? sender, PointerReleasedEventArgs e) =>
+    EndDrag(persistPosition: true);
 
   private void OnOverlayPointerCaptureLost(object? sender, PointerCaptureLostEventArgs e) =>
+    EndDrag();
+
+  /// <summary>
+  /// Release pointer capture from frequency-panel drags. Stale capture can steal wheel input
+  /// from other apps while OscarWatch stays visible in the background.
+  /// </summary>
+  private void EndDrag(bool persistPosition = false)
+  {
+    var wasDragging = _isDragging;
     _isDragging = false;
+    _dragPointer?.Capture(null);
+    _dragPointer = null;
+
+    if (!wasDragging || !persistPosition || DataContext is not FrequencyOverlayViewModel vm)
+      return;
+
+    EnsureVisiblePosition();
+    vm.PersistOverlayPosition();
+    ScheduleEnsureVisiblePosition();
+  }
 
   private void OnOffsetSpinValueChanged(object? sender, NumericUpDownValueChangedEventArgs e)
   {

@@ -585,6 +585,141 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Icom910_beacon_only_mode_disables_satellite_mode_and_tunes_downlink_vfo()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.IcomIc910,
+            Port = "COM1",
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "SSTV (UHF)",
+            DownlinkKHz = 437_550,
+            UplinkKHz = 0,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR"
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "ISS",
+            NoradId = "25544",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = state,
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0)
+        });
+        controller.DrainCommandQueueForTests();
+
+        Assert.False(rig.LastSatelliteModeOn);
+        Assert.Equal(437_550_000, rig.MainHz);
+        Assert.Equal(0, rig.SubHz);
+        Assert.Equal(RigVfo.Main, rig.CurrentVfo);
+        Assert.Contains(RigVfo.Main, rig.ToneClearedVfos);
+        Assert.Contains(RigVfo.Sub, rig.ToneClearedVfos);
+        Assert.False(rig.ToneOn);
+        Assert.False(rig.ToneSquelchOn);
+    }
+
+    [Fact]
+    public void Icom910_beacon_uhf_swaps_main_when_2m_was_on_main_after_sat()
+    {
+        var rig = new RecordingRigDriver { MainHz = 145_800_000, SubHz = 436_500_000 };
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.IcomIc910,
+            Port = "COM1",
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "SSTV (UHF)",
+            DownlinkKHz = 437_550,
+            UplinkKHz = 0,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR"
+        };
+
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "ISS",
+                NoradId = "25544",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, 0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0)
+        });
+        controller.DrainCommandQueueForTests();
+
+        Assert.Equal(1, rig.ExchangeVfoCallCount);
+        Assert.Equal(437_550_000, rig.MainHz);
+        Assert.Equal(RigVfo.Main, rig.CurrentVfo);
+    }
+
+    [Fact]
+    public void Icom910_beacon_vhf_tunes_main_and_swaps_when_70cm_was_on_main_after_sat()
+    {
+        var rig = new RecordingRigDriver { MainHz = 436_500_000, SubHz = 145_800_000 };
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.IcomIc910,
+            Port = "COM1",
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "SSTV (VHF)",
+            DownlinkKHz = 145_800,
+            UplinkKHz = 0,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR"
+        };
+
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "ISS",
+                NoradId = "25544",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, 0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0)
+        });
+        controller.DrainCommandQueueForTests();
+
+        Assert.Equal(1, rig.ExchangeVfoCallCount);
+        Assert.Equal(145_800_000, rig.MainHz);
+        Assert.Equal(RigVfo.Main, rig.CurrentVfo);
+        Assert.Contains(RigVfo.Main, rig.ToneClearedVfos);
+        Assert.Contains(RigVfo.Sub, rig.ToneClearedVfos);
+    }
+
+    [Fact]
     public void ApplySelectedCtcss_from_selector_while_cat_paused()
     {
         var rig = new RecordingRigDriver();

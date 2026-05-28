@@ -17,6 +17,12 @@ public class RigSatModeHelperTests
         Assert.Equal(expected, RigSatModeHelper.UseMainSubLayout(down, up));
 
     [Theory]
+    [InlineData(437_550, 0)]
+    [InlineData(145_800, 0)]
+    public void UseMainSubLayout_false_for_beacon_only_downlink(double down, double up) =>
+        Assert.False(RigSatModeHelper.UseMainSubLayout(down, up));
+
+    [Theory]
     [InlineData(435_700_000, 145_865, true)]
     [InlineData(145_900_000, 145_865, false)]
     [InlineData(145_900_000, 435_667, true)]
