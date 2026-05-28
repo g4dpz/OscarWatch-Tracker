@@ -64,6 +64,10 @@
         <Button Content="PayPal"
                 Classes="dialog-footer"
                 Click="OnPayPalClick" />
+        <Button Content="Supporters"
+                Classes="dialog-footer"
+                Click="OnGitHubContributorsClick"
+                MinWidth="120" />
       </StackPanel>
       <TextBlock TextWrapping="Wrap"
                  FontSize="12"

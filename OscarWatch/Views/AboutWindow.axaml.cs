@@ -9,6 +9,7 @@ namespace OscarWatch.Views;
 public partial class AboutWindow : Window
 {
     private const string GitHubRepoUrl = "https://github.com/magicbug/OscarWatch-Tracker";
+    private const string GitHubSupportersUrl = "https://github.com/magicbug/OscarWatch-Tracker/blob/main/supporters.md";
     private const string GitHubSponsorsUrl = "https://github.com/sponsors/magicbug";
     private const string PayPalUrl = "https://www.paypal.com/paypalme/PGoodhall";
 
@@ -37,6 +38,9 @@ public partial class AboutWindow : Window
 
     private void OnGitHubSponsorsClick(object? sender, RoutedEventArgs e) =>
         OpenUrl(GitHubSponsorsUrl);
+
+    private void OnGitHubContributorsClick(object? sender, RoutedEventArgs e) =>
+        OpenUrl(GitHubSupportersUrl);
 
     private void OnPayPalClick(object? sender, RoutedEventArgs e) =>
         OpenUrl(PayPalUrl);

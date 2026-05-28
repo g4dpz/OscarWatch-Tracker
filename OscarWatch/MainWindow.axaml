@@ -15,13 +15,16 @@
       </MenuItem>
       <MenuItem Header="_Satellites">
         <MenuItem Header="_Select Satellites" Command="{Binding OpenSatellitesCommand}" />
+        <Separator />
         <MenuItem Header="_Manage Transponder Database" Command="{Binding OpenSatelliteDatabaseCommand}" />
+        <Separator />
         <MenuItem Header="_Refresh TLEs" Command="{Binding RefreshTlesCommand}" />
         <MenuItem Header="Update transponder _database…" Command="{Binding UpdateTransponderDatabaseCommand}" />
       </MenuItem>
       <MenuItem Header="_Passes">
         <MenuItem Header="_Pass Planner" Command="{Binding OpenPassPlanningCommand}" />
         <MenuItem Header="_Mutual Pass Planner" Command="{Binding OpenMutualPassFinderCommand}" />
+        <Separator />
         <MenuItem Header="_Sunlight Prediction" Command="{Binding OpenSunlightPredictionCommand}" />
       </MenuItem>
       <MenuItem Header="_Rotator"
@@ -30,6 +33,7 @@
       <MenuItem Header="_Settings" Command="{Binding OpenSettingsCommand}" />
       <MenuItem Header="_Help">
         <MenuItem Header="Operator Guide" Command="{Binding OpenHelpCommand}" />
+        <Separator />
         <MenuItem Header="_About OscarWatch" Command="{Binding OpenAboutCommand}" />
         <MenuItem Header="Open _logs folder" Command="{Binding OpenLogsFolderCommand}" />
       </MenuItem>
