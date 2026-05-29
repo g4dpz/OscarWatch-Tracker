@@ -6,6 +6,8 @@ public sealed class SatelliteTrackState
     public required string NoradId { get; init; }
     public required GeoCoordinate Subpoint { get; init; }
     public LookAngles? LookAngles { get; init; }
+    /// <summary>Range rate at <see cref="LookAngles"/> time + 100 ms (for predictive linear Doppler).</summary>
+    public double? RangeRateProbeKmPerSec { get; init; }
     /// <summary>Compass azimuth ~1–2 s ahead (rotator east-side north-wrap lookahead).</summary>
     public double? AheadAzimuthDeg { get; init; }
     public IReadOnlyList<GeoCoordinate> GroundTrack { get; init; } = [];

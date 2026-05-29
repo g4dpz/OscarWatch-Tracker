@@ -272,6 +272,20 @@
                        TextWrapping="Wrap"
                        Margin="0,-6,0,0"
                        Text="FM / ISS cross-band: lower = more CAT updates (default 350 Hz)." />
+            <CheckBox Content="Predictive Doppler (linear SSB/CW)"
+                      IsChecked="{Binding RigPredictiveDopplerLinear, Mode=TwoWay}"
+                      Margin="0,8,0,0" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Leads CAT slightly ahead on USB/LSB/CW to reduce lag near TCA. FM and data modes unchanged." />
+            <CheckBox Content="Adaptive CAT threshold (linear SSB/CW)"
+                      IsChecked="{Binding RigAdaptiveDopplerThresholdLinear, Mode=TwoWay}"
+                      Margin="0,8,0,0" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Near TCA, temporarily lowers the SSB/CW threshold when correction is changing quickly so CAT keeps up. FM unchanged." />
             <TextBlock Text="Doppler threshold SSB/CW (Hz)" />
             <NumericUpDown Value="{Binding RigDopplerThresholdLinearHz, Mode=TwoWay}"
                            Minimum="0" Maximum="500"

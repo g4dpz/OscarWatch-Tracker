@@ -21,6 +21,12 @@ public sealed class RigSettings
 
     public int CatDelayMs { get; set; } = 50;
 
+    /// <summary>Linear USB/LSB/CW: lead Doppler CAT using short look-ahead (helps near TCA).</summary>
+    public bool PredictiveDopplerLinear { get; set; }
+
+    /// <summary>Linear USB/LSB/CW: lower the SSB/CW CAT threshold when Doppler correction rate is high.</summary>
+    public bool AdaptiveDopplerThresholdLinear { get; set; }
+
     /// <summary>When true, automatic CAT frequency updates are suspended (SatPC32-style).</summary>
     public bool CatUpdatesPaused { get; set; }
 

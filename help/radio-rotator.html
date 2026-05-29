@@ -92,6 +92,29 @@
         <strong>Pause CAT</strong> in Settings stops frequency commands while you can still see computed frequencies on screen.
       </p>
 
+      <h2 id="predictive-doppler">Predictive Doppler (linear)</h2>
+      <p>
+        Under <strong>Settings → Radio</strong>, <strong>Predictive Doppler (linear SSB/CW)</strong> is off by default.
+        When enabled, OscarWatch estimates Doppler a short time ahead (about 150–500&nbsp;ms, depending on how fast
+        correction is changing) so CAT targets are closer to where the satellite will be when the radio applies the
+        command. This helps near <strong>TCA</strong> when range rate changes quickly. FM and data modes are unchanged.
+      </p>
+      <p>
+        If voice sounds worse around TCA, turn predictive off or use <strong>Pause CAT</strong> while you tune.
+      </p>
+
+      <h2 id="adaptive-doppler">Adaptive CAT threshold (linear)</h2>
+      <p>
+        Under <strong>Settings → Radio</strong>, <strong>Adaptive CAT threshold (linear SSB/CW)</strong> is off by default.
+        When enabled, OscarWatch estimates how fast uplink and downlink correction is changing. Near
+        <strong>TCA</strong>, when that rate is high, the effective <strong>Doppler threshold SSB/CW</strong> is
+        lowered (down to about half your configured value, but not below 50&nbsp;Hz) so frequency commands are sent
+        more often. Your configured threshold still applies when correction is slow. FM and data modes are unchanged.
+      </p>
+      <p>
+        Adaptive threshold does not run while you are tuning the passband (knob capture) or when CAT is paused.
+      </p>
+
       <h2 id="doppler-cat-thresholds">Doppler CAT thresholds</h2>
       <p>
         Under <strong>Settings → Radio</strong>, <strong>Doppler threshold FM</strong> and

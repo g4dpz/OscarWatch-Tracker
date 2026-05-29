@@ -91,6 +91,7 @@ public sealed class TrackingOrchestrator
 
                 var satEci = _propagator.GetEciPosition(sat.NoradId, utc);
                 var isSunlit = SatelliteIllumination.IsSunlit(satEci, sunEci);
+                var rangeRateProbe = TryGetRangeRateProbeKmPerSec(sat.NoradId, site, utc);
 
                 states.Add(new SatelliteTrackState
                 {
@@ -98,6 +99,7 @@ public sealed class TrackingOrchestrator
                     NoradId = sat.NoradId,
                     Subpoint = subpoint,
                     LookAngles = look,
+                    RangeRateProbeKmPerSec = rangeRateProbe,
                     GroundTrack = groundTrack,
                     Footprint = footprint,
                     FootprintRadiusDeg = footprintRadiusDeg,
@@ -111,6 +113,22 @@ public sealed class TrackingOrchestrator
         }
 
         return states;
+    }
+
+    private double? TryGetRangeRateProbeKmPerSec(string noradId, GroundStation site, DateTime utc)
+    {
+        var rig = _settings.Current.Rig;
+        if (!rig.PredictiveDopplerLinear && !rig.AdaptiveDopplerThresholdLinear)
+            return null;
+
+        try
+        {
+            return _propagator.GetLookAngles(noradId, site, utc.AddSeconds(0.1)).RangeRateKmPerSec;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     /// <summary>Compass azimuth a few seconds ahead for rotator north-wrap lookahead.</summary>

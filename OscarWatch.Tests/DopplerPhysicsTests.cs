@@ -174,4 +174,60 @@ public class DopplerPhysicsTests
             Assert.Equal(baseline.RadioTransmitKHz, offset.RadioTransmitKHz, 3);
         }
     }
+
+    [Fact]
+    public void Predictive_linear_shifts_target_when_probe_range_rate_differs()
+    {
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        const double now = 2.0;
+        const double probe = 3.5;
+        var plain = DopplerFrequencyCalculator.Compute(mode, now, 0);
+        var predictive = DopplerFrequencyCalculator.Compute(
+            mode,
+            now,
+            0,
+            options: new DopplerComputeOptions(PredictiveLinear: true, RangeRateProbeKmPerSec: probe));
+
+        Assert.NotEqual(plain.RadioReceiveKHz, predictive.RadioReceiveKHz);
+    }
+
+    [Theory]
+    [InlineData(100, 500, 100)]
+    [InlineData(100, 900, 100)]
+    [InlineData(100, 1200, 100)]
+    [InlineData(100, 1600, 75)]
+    [InlineData(100, 2000, 75)]
+    [InlineData(100, 2600, 50)]
+    [InlineData(0, 3000, 0)]
+    public void Adaptive_linear_threshold_scales_with_combined_rate(
+        int configuredHz,
+        int combinedRateHzPerSec,
+        int expectedHz) =>
+        Assert.Equal(
+            expectedHz,
+            DopplerFrequencyCalculator.AdaptiveLinearThresholdHz(configuredHz, combinedRateHzPerSec));
+
+    [Fact]
+    public void Combined_doppler_rate_increases_when_probe_range_rate_differs()
+    {
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var rate = DopplerFrequencyCalculator.EstimateCombinedDopplerRateHzPerSec(mode, 0.5, 4.0, 0);
+        Assert.True(rate > 100);
+    }
 }
