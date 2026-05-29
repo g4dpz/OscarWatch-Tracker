@@ -37,6 +37,13 @@ public static class KenwoodCatCodec
 
     public static string BuildSatelliteStatusQuery() => "SA;";
 
+    /// <summary>
+    /// Enter SATL: P1 on, mem 0, Main=downlink/Sub=uplink, CTRL main, TRACE off, VFO mode (Kenwood PC manual SA).
+    /// </summary>
+    public static string BuildSetSatelliteModeOnCommand() => "SA10100000;";
+
+    public static string BuildSetSatelliteModeOffCommand() => "SA0;";
+
     public static string BuildAutoinfoOffCommand() => "AI0;";
 
     public static string BuildSelectVfoCommand(bool vfoB) => vfoB ? "FR1;" : "FR0;";

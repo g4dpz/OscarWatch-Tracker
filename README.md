@@ -93,7 +93,7 @@ OscarWatch talks to rigs and rotators over **serial CAT** (COM port on Windows, 
 | **ICOM IC-9100** | CI-V | Same as IC-9700; default CI-V address `7C` |
 | **ICOM IC-9700** | CI-V | Same layout as IC-910 |
 | **Yaesu FT-847** | Yaesu CAT | Satellite mode, SAT RX/TX VFOs, doppler, uplink CTCSS |
-| **Kenwood TS-2000** | Kenwood ASCII CAT | **Beta** — cross-band SATL; enable SATL and turn TRACE off on the radio |
+| **Kenwood TS-2000** | Kenwood ASCII CAT | **Beta** — SATL via CAT; auto `FA`/`FB` band swap; TRACE off via CAT |
 | **Dummy rig** | — | No serial I/O; for UI and doppler testing without a radio |
 
 All tracked rigs: linear NOR/REV doppler, interactive Main VFO tuning, TX/RX offset spinners, configurable CAT thresholds and pause.

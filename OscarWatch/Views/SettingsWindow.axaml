@@ -241,7 +241,7 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        IsVisible="{Binding ShowRigTs2000CatHint}"
-                       Text="TS-2000: CAT 57600 8N1 on the PC port. Press SATL before tracking; turn TRACE off so PC Doppler is not overridden." />
+                       Text="TS-2000: CAT 57600 8N1. SATL on for cross-band passes; VHF/UHF swapped automatically if Main is on the wrong band (TRACE off via CAT)." />
             <TextBlock Text="Region" />
             <ComboBox ItemsSource="{Binding RigRegionChoices}"
                       SelectedItem="{Binding SelectedRigRegionChoice, Mode=TwoWay}"

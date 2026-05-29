@@ -1,9 +1,12 @@
+using OscarWatch.Core.Radio;
 using OscarWatch.Rig;
 
 namespace OscarWatch.Tests;
 
 internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
 {
+    public long FaHz { get; set; } = 435_750_000;
+    public long FbHz { get; set; } = 145_900_000;
     public List<string> SentCommands { get; } = [];
     public bool IsOpen { get; private set; }
 
@@ -11,7 +14,9 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
 
     public bool SendCommand(string command, int postDelayMs = 50)
     {
-        SentCommands.Add(Normalize(command));
+        var normalized = Normalize(command);
+        SentCommands.Add(normalized);
+        ApplySetFrequency(normalized);
         return true;
     }
 
@@ -21,14 +26,27 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
         SentCommands.Add(normalized);
         return normalized switch
         {
+            "SA10100000;" => "SA1;",
+            "SA0;" => "SA0;",
             "SA;" => "SA1;",
-            "FA;" => "FA00435750000;",
-            "FB;" => "FB00145900000;",
+            "FA;" => KenwoodCatCodec.BuildSetFrequencyCommand('A', FaHz),
+            "FB;" => KenwoodCatCodec.BuildSetFrequencyCommand('B', FbHz),
             _ => normalized
         };
     }
 
     public void Dispose() => IsOpen = false;
+
+    private void ApplySetFrequency(string normalized)
+    {
+        if (KenwoodCatCodec.TryParseFrequencyHz(normalized, out var hz) && hz > 0)
+        {
+            if (normalized.StartsWith("FA", StringComparison.OrdinalIgnoreCase))
+                FaHz = hz;
+            else if (normalized.StartsWith("FB", StringComparison.OrdinalIgnoreCase))
+                FbHz = hz;
+        }
+    }
 
     private static string Normalize(string command)
     {

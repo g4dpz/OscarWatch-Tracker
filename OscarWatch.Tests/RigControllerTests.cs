@@ -1617,5 +1617,47 @@ public class RigControllerTests
         Assert.InRange(rig.SubHz, 145_000_000, 146_000_000);
     }
 
+    [Fact]
+    public void Ts2000_pass_init_swaps_FA_FB_when_main_is_on_wrong_band()
+    {
+        var transport = new RecordingKenwoodCatTransport { FaHz = 145_900_000, FbHz = 435_700_000 };
+        var driver = new KenwoodTs2000Driver(transport);
+        var controller = new RigController(_ => driver);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.KenwoodTs2000,
+            Port = "COM1",
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "FM",
+            DownlinkKHz = 435_825,
+            UplinkKHz = 145_900,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR"
+        };
+
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "SO-50",
+                NoradId = "27607",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, 0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0)
+        });
+        controller.DrainCommandQueueForTests();
+
+        Assert.InRange(transport.FaHz, 430_000_000, 440_000_000);
+        Assert.InRange(transport.FbHz, 145_000_000, 146_000_000);
+    }
+
     private static long ToHz(double kHz) => (long)Math.Round(kHz * 1000.0);
 }

@@ -17,14 +17,30 @@ public sealed class KenwoodTs2000DriverTests
     }
 
     [Fact]
-    public void SetSatelliteMode_queries_SA()
+    public void SetSatelliteMode_on_sends_SA_then_verifies()
     {
         var transport = new RecordingKenwoodCatTransport();
         var driver = new KenwoodTs2000Driver(transport);
         driver.Open();
         driver.SetSatelliteMode(true);
 
+        Assert.Contains("SA10100000;", transport.SentCommands);
         Assert.Contains("SA;", transport.SentCommands);
+        Assert.True(transport.SentCommands.IndexOf("SA10100000;") < transport.SentCommands.IndexOf("SA;"));
+    }
+
+    [Fact]
+    public void SetSatelliteMode_off_sends_SA0()
+    {
+        var transport = new RecordingKenwoodCatTransport();
+        var driver = new KenwoodTs2000Driver(transport);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        transport.SentCommands.Clear();
+        driver.SetSatelliteMode(false);
+
+        Assert.Contains("SA0;", transport.SentCommands);
+        Assert.DoesNotContain(transport.SentCommands, c => c == "SA;");
     }
 
     [Fact]
@@ -45,10 +61,37 @@ public sealed class KenwoodTs2000DriverTests
     }
 
     [Fact]
-    public void SupportsVfoExchange_is_false()
+    public void SupportsVfoExchange_is_true()
     {
         var driver = new KenwoodTs2000Driver(new RecordingKenwoodCatTransport());
-        Assert.False(driver.SupportsVfoExchange);
+        Assert.True(driver.SupportsVfoExchange);
+    }
+
+    [Fact]
+    public void ExchangeVfos_in_satellite_mode_swaps_FA_and_FB()
+    {
+        var transport = new RecordingKenwoodCatTransport { FaHz = 145_900_000, FbHz = 435_700_000 };
+        var driver = new KenwoodTs2000Driver(transport);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        transport.SentCommands.Clear();
+        driver.ExchangeVfos();
+
+        Assert.Contains("FA00435700000;", transport.SentCommands);
+        Assert.Contains("FB00145900000;", transport.SentCommands);
+        Assert.Equal(435_700_000, transport.FaHz);
+        Assert.Equal(145_900_000, transport.FbHz);
+    }
+
+    [Fact]
+    public void ExchangeVfos_noop_when_not_in_satellite_mode()
+    {
+        var transport = new RecordingKenwoodCatTransport();
+        var driver = new KenwoodTs2000Driver(transport);
+        driver.Open();
+        driver.ExchangeVfos();
+
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("FA", StringComparison.Ordinal));
     }
 
     [Fact]

@@ -12,6 +12,13 @@ public sealed class KenwoodCatCodecTests
     }
 
     [Fact]
+    public void BuildSetSatelliteMode_commands_match_manual_layout()
+    {
+        Assert.Equal("SA10100000;", KenwoodCatCodec.BuildSetSatelliteModeOnCommand());
+        Assert.Equal("SA0;", KenwoodCatCodec.BuildSetSatelliteModeOffCommand());
+    }
+
+    [Fact]
     public void TryParseFrequencyHz_reads_reply()
     {
         Assert.True(KenwoodCatCodec.TryParseFrequencyHz("FA00435750000;", out var hz));
