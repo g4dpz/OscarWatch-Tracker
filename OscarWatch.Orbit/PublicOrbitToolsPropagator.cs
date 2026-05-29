@@ -35,22 +35,28 @@ public sealed class PublicOrbitToolsPropagator : IOrbitPropagator
     {
         var orbit = GetOrbit(noradId);
         var groundSite = OrbitToolsMapping.CreateSite(site);
-        var eci = orbit.PositionEci(utc);
-        var topo = groundSite.GetLookAngle(eci);
+        var satEci = orbit.PositionEci(utc);
+        var topo = groundSite.GetLookAngle(satEci);
 
-        var rangeRate = 0.0;
+        var rangeRate = ComputeRangeRateKmPerSec(groundSite, satEci, utc);
+
+        return OrbitToolsMapping.ToLookAngles(topo, rangeRate);
+    }
+
+    private static double ComputeRangeRateKmPerSec(
+        Zeptomoby.OrbitTools.Site groundSite,
+        Zeptomoby.OrbitTools.EciTime satEci,
+        DateTime utc)
+    {
         try
         {
-            var eciNext = orbit.PositionEci(utc.AddSeconds(1));
-            var topoNext = groundSite.GetLookAngle(eciNext);
-            rangeRate = topoNext.Range - topo.Range;
+            var obsEci = groundSite.PositionEci(utc);
+            return RangeRateCalculator.ComputeKmPerSec(satEci, obsEci);
         }
         catch
         {
-            // ignore decay at boundary
+            return 0;
         }
-
-        return OrbitToolsMapping.ToLookAngles(topo, rangeRate);
     }
 
     private Zeptomoby.OrbitTools.Orbit GetOrbit(string noradId)
