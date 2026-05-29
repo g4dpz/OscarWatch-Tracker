@@ -229,28 +229,16 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         IsBeaconOnly = SelectedMode.IsBeaconOnly;
 
         _lastRangeRateKmPerSec = state.LookAngles?.RangeRateKmPerSec ?? 0;
-        ApplyCorrectedDisplay(ComputeCorrected(_lastRangeRateKmPerSec, state));
+        ApplyCorrectedDisplay(ComputeCorrected(_lastRangeRateKmPerSec));
     }
 
-    private CorrectedFrequencies ComputeCorrected(double rangeRateKmPerSec, SatelliteTrackState? state = null) =>
+    private CorrectedFrequencies ComputeCorrected(double rangeRateKmPerSec) =>
         DopplerFrequencyCalculator.Compute(
             SelectedMode!,
             rangeRateKmPerSec,
             ReceiveOffsetKHz,
             _rigPassbandDownlinkAdjustKHz,
-            _rigPassbandUplinkAdjustKHz,
-            BuildDopplerOptions(state));
-
-    private DopplerComputeOptions? BuildDopplerOptions(SatelliteTrackState? state)
-    {
-        if (SelectedMode is null
-            || !_settings.Current.Rig.PredictiveDopplerLinear
-            || !SetupVfosPolicy.IsLinearMode(SelectedMode.DownlinkMode)
-            || state?.RangeRateProbeKmPerSec is not { } probe)
-            return null;
-
-        return new DopplerComputeOptions(PredictiveLinear: true, RangeRateProbeKmPerSec: probe);
-    }
+            _rigPassbandUplinkAdjustKHz);
 
     public CloudlogRadioUpdate? TryBuildCloudlogUpdate(SatelliteTrackState? state)
     {
@@ -258,7 +246,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             return null;
 
         var rangeRate = state.LookAngles?.RangeRateKmPerSec ?? _lastRangeRateKmPerSec;
-        var corrected = ComputeCorrected(rangeRate, state);
+        var corrected = ComputeCorrected(rangeRate);
 
         return CloudlogRadioMapper.TryCreate(
             state.Name,
@@ -277,7 +265,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         if (!string.Equals(state.NoradId, _currentNoradId, StringComparison.Ordinal))
             return null;
 
-        var corrected = ComputeCorrected(state.LookAngles.RangeRateKmPerSec, state);
+        var corrected = ComputeCorrected(state.LookAngles.RangeRateKmPerSec);
 
         return new RigTrackingContext
         {
@@ -428,7 +416,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         }
 
         _lastRangeRateKmPerSec = _lastTrackState?.LookAngles?.RangeRateKmPerSec ?? _lastRangeRateKmPerSec;
-        ApplyCorrectedDisplay(ComputeCorrected(_lastRangeRateKmPerSec, _lastTrackState));
+        ApplyCorrectedDisplay(ComputeCorrected(_lastRangeRateKmPerSec));
         UpdateOffsetAppliedHint();
     }
 

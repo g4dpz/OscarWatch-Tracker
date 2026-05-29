@@ -544,7 +544,7 @@ public sealed class RigController : IRigController, IDisposable
 
     private void WriteDopplerFrequencies(RigSettings settings, RigTrackingContext context)
     {
-        var corrected = ComputeDoppler(settings, context, usePredictive: true);
+        var corrected = ComputeDoppler(context);
 
         SyncDisplayFrequencies(context);
 
@@ -556,7 +556,7 @@ public sealed class RigController : IRigController, IDisposable
 
         var forceApply = _forceFrequencyApply;
         _forceFrequencyApply = false;
-        var thresholdHz = EffectiveLinearThresholdHz(settings, context);
+        var thresholdHz = _thresholdHz;
         if (!forceApply && !ShouldWrite(thresholdHz, rxHz, txHz))
             return;
 
@@ -919,28 +919,6 @@ public sealed class RigController : IRigController, IDisposable
         ClearDialHistory();
     }
 
-    private int EffectiveLinearThresholdHz(RigSettings settings, RigTrackingContext context)
-    {
-        if (_thresholdHz == 0)
-            return 0;
-
-        if (!settings.AdaptiveDopplerThresholdLinear
-            || !SetupVfosPolicy.IsLinearMode(context.Mode.DownlinkMode))
-            return _thresholdHz;
-
-        var look = context.TrackState.LookAngles!;
-        var probe = context.TrackState.RangeRateProbeKmPerSec ?? look.RangeRateKmPerSec;
-        var rate = DopplerFrequencyCalculator.EstimateCombinedDopplerRateHzPerSec(
-            context.Mode,
-            look.RangeRateKmPerSec,
-            probe,
-            context.ReceiveOffsetKHz,
-            _passbandDownlinkAdjustKHz,
-            _passbandUplinkAdjustKHz);
-
-        return DopplerFrequencyCalculator.AdaptiveLinearThresholdHz(_thresholdHz, rate);
-    }
-
     private bool ShouldWrite(int thresholdHz, long rxHz, long txHz)
     {
         var rxDelta = Math.Abs(rxHz - _lastRigRxHz);
@@ -1010,15 +988,12 @@ public sealed class RigController : IRigController, IDisposable
         if (context.TrackState.LookAngles is null)
             return;
 
-        var corrected = ComputeDoppler(_cachedSettings!, context, usePredictive: true);
+        var corrected = ComputeDoppler(context);
         _displayRxHz = ToHz(corrected.RadioReceiveKHz);
         _displayTxHz = ToHz(corrected.RadioTransmitKHz);
     }
 
-    private CorrectedFrequencies ComputeDoppler(
-        RigSettings settings,
-        RigTrackingContext context,
-        bool usePredictive)
+    private CorrectedFrequencies ComputeDoppler(RigTrackingContext context)
     {
         var look = context.TrackState.LookAngles!;
         return DopplerFrequencyCalculator.Compute(
@@ -1026,18 +1001,7 @@ public sealed class RigController : IRigController, IDisposable
             look.RangeRateKmPerSec,
             context.ReceiveOffsetKHz,
             _passbandDownlinkAdjustKHz,
-            _passbandUplinkAdjustKHz,
-            usePredictive ? DopplerOptionsFor(settings, context) : null);
-    }
-
-    private static DopplerComputeOptions? DopplerOptionsFor(RigSettings settings, RigTrackingContext context)
-    {
-        if (!settings.PredictiveDopplerLinear
-            || !SetupVfosPolicy.IsLinearMode(context.Mode.DownlinkMode)
-            || context.TrackState.RangeRateProbeKmPerSec is not { } probe)
-            return null;
-
-        return new DopplerComputeOptions(PredictiveLinear: true, RangeRateProbeKmPerSec: probe);
+            _passbandUplinkAdjustKHz);
     }
 
     private static long ToHz(double kHz) => (long)Math.Round(kHz * 1000.0);

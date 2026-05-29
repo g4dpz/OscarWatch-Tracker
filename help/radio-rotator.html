@@ -56,8 +56,7 @@
       </table>
       <p>
         Configure under <strong>Settings → Radio</strong>: rig type, COM port, CI-V address (ICOM),
-        <a href="#doppler-cat-thresholds">Doppler thresholds</a>, optional
-        <a href="#linear-cat-tca">predictive and adaptive linear CAT</a> near TCA, and
+        <a href="#doppler-cat-thresholds">Doppler thresholds</a>, and
         <strong>Pause CAT</strong> if you want to tune manually.
       </p>
       <p>
@@ -98,58 +97,6 @@
         <strong>Pause CAT</strong> in Settings stops frequency commands while you can still see computed frequencies on screen.
       </p>
 
-      <h2 id="linear-cat-tca">Linear CAT near TCA</h2>
-      <p>
-        On linear USB/LSB/CW passes, Doppler correction changes fastest near <strong>TCA</strong> (time of closest approach).
-        Two optional settings on <strong>Settings → Radio</strong> address different problems. Both are off by default;
-        FM and data modes are unchanged.
-      </p>
-      <table>
-        <thead>
-          <tr><th>Setting</th><th>What it changes</th><th>Try it when…</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><a href="#predictive-doppler">Predictive Doppler</a></td>
-            <td><em>Which</em> frequency is aimed at — CAT (and the on-screen Radio row) lead correction slightly ahead</td>
-            <td>Voice or tone sounds behind the passband near TCA; the rig lags the computed frequency</td>
-          </tr>
-          <tr>
-            <td><a href="#adaptive-doppler">Adaptive CAT threshold</a></td>
-            <td><em>How often</em> CAT writes happen — temporarily lowers <a href="#doppler-cat-thresholds">Doppler threshold SSB/CW</a> when correction is changing quickly</td>
-            <td>Tracking feels “steppy” with a normal SSB/CW threshold (e.g. 50–100&nbsp;Hz) even though lag is acceptable</td>
-          </tr>
-        </tbody>
-      </table>
-      <p>
-        You can enable <strong>one or both</strong>. Predictive helps timing lag; adaptive helps sparse updates.
-        Neither replaces <a href="#passband-knob">passband tuning by hand</a> or
-        <strong>Pause CAT</strong> while you hunt the transponder.
-      </p>
-
-      <h3 id="predictive-doppler">Predictive Doppler (linear)</h3>
-      <p>
-        <strong>Predictive Doppler (linear SSB/CW)</strong> estimates correction a short time ahead (about
-        150–500&nbsp;ms, depending on how fast it is changing) so targets are closer to where the satellite will be
-        when the radio applies the command. The frequency panel <strong>Radio</strong> row uses the same lead when
-        predictive is on.
-      </p>
-      <p>
-        If voice sounds worse around TCA, turn predictive off or use <strong>Pause CAT</strong> while you tune.
-      </p>
-
-      <h3 id="adaptive-doppler">Adaptive CAT threshold (linear)</h3>
-      <p>
-        <strong>Adaptive CAT threshold (linear SSB/CW)</strong> estimates how fast uplink and downlink correction is
-        changing. Near TCA, when that rate is high, the effective <strong>Doppler threshold SSB/CW</strong> is lowered
-        (down to about half your configured value, but not below 50&nbsp;Hz) so frequency commands are sent more often.
-        Your configured threshold still applies when correction is slow.
-      </p>
-      <p>
-        Adaptive threshold does not run while you are tuning the passband (knob capture) or when CAT is paused.
-        See <a href="#doppler-cat-thresholds">Doppler CAT thresholds</a> for the base SSB/CW value and knob behaviour.
-      </p>
-
       <h2 id="doppler-cat-thresholds">Doppler CAT thresholds</h2>
       <p>
         Under <strong>Settings → Radio</strong>, <strong>Doppler threshold FM</strong> and
@@ -157,8 +104,8 @@
         frequencies to the radio during a pass. They work like SatPC32: the rig is updated only when the
         calculated frequency has moved by <em>more than</em> the threshold since the last CAT write.
         Smaller values mean more frequent updates (and more serial traffic); larger values mean fewer writes.
-        On linear SSB/CW, <a href="#adaptive-doppler">adaptive threshold</a> can lower the effective SSB/CW value near TCA;
-        <a href="#predictive-doppler">predictive Doppler</a> does not change the threshold — it shifts the target frequency.
+        On steep or overhead passes, Doppler changes fastest near <strong>TCA</strong> (time of closest approach);
+        a lower SSB/CW threshold or <strong>Pause CAT</strong> while you tune by hand may help if tracking feels off.
       </p>
       <p>
         OscarWatch picks the threshold from the <strong>downlink mode</strong> in the transponder database
@@ -197,7 +144,6 @@
         smaller differences are treated as Doppler lag.
         After you stop turning the knob, OscarWatch waits for three stable dial reads (~300&nbsp;ms)
         before resuming automatic RX/TX Doppler writes.
-        <a href="#linear-cat-tca">Predictive and adaptive options</a> pause or stand down during that knob capture.
       </p>
       <p>
         <strong>CAT delay (ms)</strong> on the same settings page is separate: it spaces out CI-V (and similar)

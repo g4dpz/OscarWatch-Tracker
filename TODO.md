@@ -25,11 +25,10 @@ See [building radio drivers](documents/building-radio-drivers.md) for adding rig
 
 ### Doppler & CAT timing
 
-- [ ] **Predictive doppler** — adaptive lookahead on range rate (steep passes / high latitude)
 - [ ] **Instantaneous range rate** — propagator range velocity instead of 1 s Δrange
-- [ ] **Faster / adaptive CAT loop** — below fixed 150 ms or rate-based timing near TCA
+- [ ] **Doppler output smoothing** — optional rate limit / EMA on CAT targets (e.g. QRTRigDoppler-style)
 - [ ] **Linear doppler threshold** — default 50 Hz; consider 20 Hz or Settings guidance
-- [ ] **Doppler behaviour matrix** — NOR/REV, offsets, predictive, loop timing, knob threshold (README or `documents/`)
+- [ ] **Doppler behaviour matrix** — NOR/REV, offsets, loop timing, knob threshold (README or `documents/`)
 
 ### Additional rig drivers
 

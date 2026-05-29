@@ -350,8 +350,6 @@ public partial class MainViewModel : ViewModelBase
             DopplerThresholdFmHz = rig.DopplerThresholdFmHz,
             DopplerThresholdLinearHz = rig.DopplerThresholdLinearHz,
             CatDelayMs = rig.CatDelayMs,
-            PredictiveDopplerLinear = rig.PredictiveDopplerLinear,
-            AdaptiveDopplerThresholdLinear = rig.AdaptiveDopplerThresholdLinear,
             CatUpdatesPaused = RigCatPaused,
         };
     }

@@ -1,6 +1,5 @@
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
-using OscarWatch.Core.Radio;
 using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Tle;
 
@@ -92,15 +91,12 @@ public sealed class TrackingOrchestrator
 
                 var satEci = _propagator.GetEciPosition(sat.NoradId, utc);
                 var isSunlit = SatelliteIllumination.IsSunlit(satEci, sunEci);
-                var rangeRateProbe = TryGetRangeRateProbeKmPerSec(sat.NoradId, site, utc);
-
                 states.Add(new SatelliteTrackState
                 {
                     Name = sat.Name,
                     NoradId = sat.NoradId,
                     Subpoint = subpoint,
                     LookAngles = look,
-                    RangeRateProbeKmPerSec = rangeRateProbe,
                     GroundTrack = groundTrack,
                     Footprint = footprint,
                     FootprintRadiusDeg = footprintRadiusDeg,
@@ -114,29 +110,6 @@ public sealed class TrackingOrchestrator
         }
 
         return states;
-    }
-
-    private double? TryGetRangeRateProbeKmPerSec(string noradId, GroundStation site, DateTime utc)
-    {
-        var rig = _settings.Current.Rig;
-        if (!rig.PredictiveDopplerLinear && !rig.AdaptiveDopplerThresholdLinear)
-            return null;
-
-        try
-        {
-            var lookNow = _propagator.GetLookAngles(noradId, site, utc);
-            var lookAhead = _propagator.GetLookAngles(
-                noradId,
-                site,
-                utc.AddSeconds(DopplerFrequencyCalculator.RangeRateProbeDeltaSec));
-            return DopplerFrequencyCalculator.ShortWindowRangeRateKmPerSec(
-                lookNow.RangeKm,
-                lookAhead.RangeKm);
-        }
-        catch
-        {
-            return null;
-        }
     }
 
     /// <summary>Compass azimuth a few seconds ahead for rotator north-wrap lookahead.</summary>
