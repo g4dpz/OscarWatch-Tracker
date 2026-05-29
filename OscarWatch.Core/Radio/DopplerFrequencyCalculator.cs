@@ -7,6 +7,10 @@ public static class DopplerFrequencyCalculator
     private const double SpeedOfLightKmPerSec = 299792.458;
     internal const double RangeRateProbeDeltaSec = 0.1;
 
+    /// <summary>Short-window range rate (km/s) from slant range now vs at <paramref name="utc"/> + probe interval.</summary>
+    public static double ShortWindowRangeRateKmPerSec(double rangeNowKm, double rangeAtProbeKm) =>
+        (rangeAtProbeKm - rangeNowKm) / RangeRateProbeDeltaSec;
+
     /// <summary>
     /// Applies the same doppler formula to downlink and uplink for NOR and REV.
     /// REV passband coupling is handled outside this type (Main dial mutates passband baselines).

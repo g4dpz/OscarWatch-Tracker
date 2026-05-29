@@ -1,5 +1,6 @@
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Radio;
 using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Tle;
 
@@ -123,7 +124,14 @@ public sealed class TrackingOrchestrator
 
         try
         {
-            return _propagator.GetLookAngles(noradId, site, utc.AddSeconds(0.1)).RangeRateKmPerSec;
+            var lookNow = _propagator.GetLookAngles(noradId, site, utc);
+            var lookAhead = _propagator.GetLookAngles(
+                noradId,
+                site,
+                utc.AddSeconds(DopplerFrequencyCalculator.RangeRateProbeDeltaSec));
+            return DopplerFrequencyCalculator.ShortWindowRangeRateKmPerSec(
+                lookNow.RangeKm,
+                lookAhead.RangeKm);
         }
         catch
         {

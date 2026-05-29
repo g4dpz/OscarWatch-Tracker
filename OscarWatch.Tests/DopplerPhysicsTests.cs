@@ -216,6 +216,47 @@ public class DopplerPhysicsTests
             DopplerFrequencyCalculator.AdaptiveLinearThresholdHz(configuredHz, combinedRateHzPerSec));
 
     [Fact]
+    public void Short_window_range_rate_uses_probe_interval()
+    {
+        const double rangeNow = 1200.0;
+        const double rangeAhead = 1199.85;
+        var rate = DopplerFrequencyCalculator.ShortWindowRangeRateKmPerSec(rangeNow, rangeAhead);
+        Assert.InRange(rate, -1.51, -1.49);
+    }
+
+    [Fact]
+    public void Predictive_extrapolation_uses_probe_as_rate_at_delta_not_one_second_average()
+    {
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        const double rateNow = -2.0;
+        const double rateProbe = -1.5;
+        var plain = DopplerFrequencyCalculator.Compute(mode, rateNow, 0);
+        var predictive = DopplerFrequencyCalculator.Compute(
+            mode,
+            rateNow,
+            0,
+            options: new DopplerComputeOptions(PredictiveLinear: true, RangeRateProbeKmPerSec: rateProbe));
+
+        var expectedLead = DopplerFrequencyCalculator.SelectPredictionLeadSeconds(
+            Math.Abs(plain.RadioReceiveKHz
+                - DopplerFrequencyCalculator.Compute(mode, rateProbe, 0).RadioReceiveKHz)
+            * 1000.0
+            / DopplerFrequencyCalculator.RangeRateProbeDeltaSec);
+        var expectedRate = rateNow + (rateProbe - rateNow) / DopplerFrequencyCalculator.RangeRateProbeDeltaSec * expectedLead;
+        var expected = DopplerFrequencyCalculator.Compute(mode, expectedRate, 0);
+
+        Assert.InRange(predictive.RadioReceiveKHz, expected.RadioReceiveKHz - 0.01, expected.RadioReceiveKHz + 0.01);
+    }
+
+    [Fact]
     public void Combined_doppler_rate_increases_when_probe_range_rate_differs()
     {
         var mode = new SatelliteTransponderMode
