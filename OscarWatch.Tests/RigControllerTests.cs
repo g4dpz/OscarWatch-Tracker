@@ -1030,6 +1030,58 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Rev_linear_small_knob_tune_captures_passband_below_cat_threshold()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 145_865,
+            UplinkKHz = 435_110.1,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "JO-97",
+                NoradId = "22222",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, 0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            TransmitOffsetKHz = 0,
+            ReceiveOffsetKHz = 0
+        };
+
+        controller.Update(settings, ctx);
+        Thread.Sleep(650);
+        var rxAfterInit = rig.MainHz;
+        Assert.True(rxAfterInit > 0);
+
+        rig.MainHz = rxAfterInit + 50;
+        for (var i = 0; i < 8; i++)
+            controller.RunTrackingLoopOnce();
+
+        Assert.Equal(rxAfterInit + 50, rig.MainHz);
+        var status = controller.GetStatus();
+        Assert.InRange(status.ManualReceiveAdjustKHz, 0.04, 0.06);
+        Assert.InRange(status.ManualTransmitAdjustKHz, -0.06, -0.04);
+    }
+
+    [Fact]
     public void Rev_linear_clears_phantom_manual_when_dial_matches_doppler_baseline()
     {
         var rig = new RecordingRigDriver();

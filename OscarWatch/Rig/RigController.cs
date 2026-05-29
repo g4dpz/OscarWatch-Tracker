@@ -12,9 +12,13 @@ namespace OscarWatch.Rig;
 public sealed class RigController : IRigController, IDisposable
 {
     private static readonly ILogger Log = Serilog.Log.ForContext<RigController>();
-    private const int DialHistoryLength = 4;
+    private const int DialHistoryLength = 3;
     private const int FmCompanionLegHz = 10;
-    private static readonly TimeSpan LoopInterval = TimeSpan.FromMilliseconds(150);
+    /// <summary>Min Hz between dial and last CAT RX to treat as operator tuning (QTrigdoppler uses 1 Hz).</summary>
+    private const int KnobTuneCaptureThresholdHz = 1;
+    /// <summary>After a CAT frequency write, ignore dial stability briefly so reads settle.</summary>
+    private const int PostCatWriteDialSettleMs = 350;
+    private static readonly TimeSpan LoopInterval = TimeSpan.FromMilliseconds(100);
     private static readonly TimeSpan CommandWaitTimeout = TimeSpan.FromSeconds(10);
 
     private readonly Func<RigSettings, IRigDriver>? _driverFactory;
@@ -404,7 +408,7 @@ public sealed class RigController : IRigController, IDisposable
         SampleReceiveDial();
         SyncManualFromMainDial(context);
 
-        if (!_forceFrequencyApply && (!_vfoNotMoving || !_vfoNotMovingPrevious))
+        if (!_forceFrequencyApply && !_vfoNotMoving)
         {
             TryCatchUpLinearDopplerLag(settings, context);
             RestoreOperatorVfo();
@@ -557,7 +561,7 @@ public sealed class RigController : IRigController, IDisposable
         _rxDialHistoryCount = DialHistoryLength;
     }
 
-    private int KnobTuneThresholdHz() => Math.Max(_thresholdHz, 100);
+    private static int KnobTuneThresholdHz() => KnobTuneCaptureThresholdHz;
 
     private void SampleReceiveDial()
     {
@@ -578,8 +582,7 @@ public sealed class RigController : IRigController, IDisposable
         ShiftDialHistory(dialHz);
         _vfoNotMoving = _rxDialHistoryCount >= DialHistoryLength
             && _rxDialHistory[0] == _rxDialHistory[1]
-            && _rxDialHistory[1] == _rxDialHistory[2]
-            && _rxDialHistory[2] == _rxDialHistory[3];
+            && _rxDialHistory[1] == _rxDialHistory[2];
     }
 
     private void ShiftDialHistory(long dialHz)
@@ -981,7 +984,7 @@ public sealed class RigController : IRigController, IDisposable
 
     private void MarkProgrammaticFrequencySettle()
     {
-        _ignoreDialUntilUtc = DateTime.UtcNow.AddMilliseconds(600);
+        _ignoreDialUntilUtc = DateTime.UtcNow.AddMilliseconds(PostCatWriteDialSettleMs);
         ClearDialHistory();
     }
 
