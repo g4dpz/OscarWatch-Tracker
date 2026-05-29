@@ -67,13 +67,39 @@ public partial class MainWindow : Window
 
     private void OnGlobalKeyDown(object? sender, KeyEventArgs e)
     {
-        if (e.Key != Key.W || !e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        if (e.Key == Key.W && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        {
+            if (DataContext is MainViewModel vm && vm.Frequencies.ShowOperatingStyleRow)
+            {
+                vm.Frequencies.ToggleCwUplinkCommand.Execute(null);
+                e.Handled = true;
+            }
+
+            return;
+        }
+
+        if (e.Key is not (Key.Add or Key.Subtract))
             return;
 
-        if (DataContext is not MainViewModel vm || !vm.Frequencies.ShowOperatingStyleRow)
+        if (IsTextEntryFocused(TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement()))
             return;
 
-        vm.Frequencies.ToggleCwUplinkCommand.Execute(null);
+        if (DataContext is not MainViewModel main || !main.Frequencies.HasTransponderData)
+            return;
+
+        const int stepHz = 10;
+        main.Frequencies.AdjustReceiveOffsetHz(e.Key == Key.Add ? stepHz : -stepHz);
         e.Handled = true;
+    }
+
+    private static bool IsTextEntryFocused(IInputElement? focused)
+    {
+        for (var current = focused as Control; current is not null; current = current.Parent as Control)
+        {
+            if (current is TextBox or NumericUpDown)
+                return true;
+        }
+
+        return false;
     }
 }

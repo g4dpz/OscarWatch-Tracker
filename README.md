@@ -14,7 +14,7 @@ You do **not** need to be a programmer to use published builds.
 
 - **Map and sky plot** — subpoint, ground track, footprint, and a polar view from your QTH
 - **Pass list** — upcoming passes with max elevation and time-to-AOS; sidebar scrolls on smaller windows
-- **Frequency panel** — transponder modes from a built-in database, live uplink/downlink with Doppler, RX offsets (separate for Voice and CW on linear SSB), and CTCSS (access/arm tones)
+- **Frequency panel** — transponder modes from a built-in database, live uplink/downlink with Doppler, RX offsets (separate for Voice and CW on linear SSB), and CTCSS (access/arm tones). Keyboard shortcuts: [help/keyboard-shortcuts.html](help/keyboard-shortcuts.html) (**Ctrl+W**, numpad **+** / **−** for RX offset, map arrows, etc.)
 - **Optional automation** — serial **rotator** tracking and **radio CAT** (Doppler, satellite/split layout, tones) during a pass
 - **Optional extras** — voice “satellite rising” alerts, pass **WAV recording**, **Cloudlog** frequency sync
 
