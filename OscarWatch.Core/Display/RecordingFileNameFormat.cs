@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 
 namespace OscarWatch.Core.Display;
@@ -40,6 +41,17 @@ public static class RecordingFileNameFormat
         string.IsNullOrWhiteSpace(configuredFolder)
             ? GetDefaultOutputFolder()
             : configuredFolder.Trim();
+
+    public static void OpenOutputFolder(string? configuredFolder)
+    {
+        var folder = ResolveOutputFolder(configuredFolder);
+        Directory.CreateDirectory(folder);
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = folder,
+            UseShellExecute = true
+        });
+    }
 
     internal static string SanitizeSatelliteName(string satelliteName)
     {

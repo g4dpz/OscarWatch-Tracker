@@ -35,6 +35,7 @@
         <MenuItem Header="Operator Guide" Command="{Binding OpenHelpCommand}" />
         <Separator />
         <MenuItem Header="_About OscarWatch" Command="{Binding OpenAboutCommand}" />
+        <MenuItem Header="Open _recordings folder" Command="{Binding OpenRecordingsFolderCommand}" />
         <MenuItem Header="Open _logs folder" Command="{Binding OpenLogsFolderCommand}" />
       </MenuItem>
     </Menu>

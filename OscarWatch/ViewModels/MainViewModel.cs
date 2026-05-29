@@ -930,6 +930,20 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void OpenRecordingsFolder()
+    {
+        try
+        {
+            RecordingFileNameFormat.OpenOutputFolder(_settings.Current.PassRecording.OutputFolder);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Could not open recordings directory");
+            StatusText = "Could not open recordings folder";
+        }
+    }
+
+    [RelayCommand]
     private void OpenLogsFolder()
     {
         try
