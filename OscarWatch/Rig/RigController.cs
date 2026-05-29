@@ -602,12 +602,8 @@ public sealed class RigController : IRigController, IDisposable
 
     private void FinishOffsetKnobCaptureBlock()
     {
-        if (!_blockKnobCapture)
-            return;
-
-        if (TryReadReceiveDialHz(out var dialHz))
-            _lastRigRxHz = dialHz;
-
+        // Keep _lastRigRxHz from WriteRx — an immediate dial read often still shows the pre-offset
+        // frequency and leaves linear tracking matched to the wrong baseline until the knob moves.
         _blockKnobCapture = false;
     }
 
@@ -681,8 +677,9 @@ public sealed class RigController : IRigController, IDisposable
         if (!deferModeSetup)
             ConfigureVfoModes(context);
 
-        var rxHz = ToHz(context.Corrected.RadioReceiveKHz);
-        var txHz = ToHz(context.Corrected.RadioTransmitKHz);
+        var corrected = ComputeDoppler(context);
+        var rxHz = ToHz(corrected.RadioReceiveKHz);
+        var txHz = ToHz(corrected.RadioTransmitKHz);
         WriteInitialFrequencies(settings, rxHz, txHz);
         ApplyCtcss(settings, context, force: true);
 

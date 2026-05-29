@@ -430,6 +430,63 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Rx_offset_applies_on_rig_when_main_read_lags_after_cat_write()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_850.45,
+            UplinkKHz = 145_952.65,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "FO-29",
+            NoradId = "44208",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        RigTrackingContext Build(double rxOffset) =>
+            new()
+            {
+                TrackState = state,
+                Mode = mode,
+                Corrected = DopplerFrequencyCalculator.Compute(mode, 0, rxOffset),
+                TransmitOffsetKHz = 0,
+                ReceiveOffsetKHz = rxOffset
+            };
+
+        controller.Update(settings, Build(0));
+        controller.DrainCommandQueueForTests();
+        var baselineMain = rig.MainHz;
+
+        rig.NextStaleMainReadHz = baselineMain;
+        controller.PublishContext(settings, Build(5.2), reinitializePass: false);
+        controller.DrainCommandQueueForTests();
+
+        Assert.Equal(baselineMain + 5_200, rig.MainHz);
+
+        rig.NextStaleMainReadHz = baselineMain;
+        for (var i = 0; i < 12; i++)
+            controller.RunTrackingLoopOnce();
+
+        Assert.Equal(baselineMain + 5_200, rig.MainHz);
+    }
+
+    [Fact]
     public void Rx_offset_sends_cat_frequency_to_rig()
     {
         var rig = new RecordingRigDriver();

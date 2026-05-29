@@ -7,6 +7,9 @@ internal sealed class RecordingRigDriver : IRigDriver
 {
     public long MainHz { get; set; }
     public long SubHz { get; set; }
+
+    /// <summary>When set, the next Main/VfoA read returns this value once (simulates CAT display lag).</summary>
+    public long? NextStaleMainReadHz { get; set; }
     public int SetFrequencyCallCount { get; private set; }
     public double? LastToneHz { get; private set; }
     public bool? LastToneSquelch { get; private set; }
@@ -19,8 +22,21 @@ internal sealed class RecordingRigDriver : IRigDriver
 
     public void Open() { }
 
-    public long? ReadFrequencyHz(RigVfo vfo) =>
-        vfo is RigVfo.VfoA or RigVfo.Main ? MainHz : SubHz;
+    public long? ReadFrequencyHz(RigVfo vfo)
+    {
+        if (vfo is RigVfo.VfoA or RigVfo.Main)
+        {
+            if (NextStaleMainReadHz is long stale)
+            {
+                NextStaleMainReadHz = null;
+                return stale;
+            }
+
+            return MainHz;
+        }
+
+        return SubHz;
+    }
 
     public bool SetFrequencyHz(long hz)
     {

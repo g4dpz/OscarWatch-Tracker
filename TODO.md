@@ -5,6 +5,7 @@ Tracked ideas and deferred work. Not a commitment order; items may be split or d
 ## General
 
 - [ ] Pole footprint banding at high latitudes
+- [ ] Small Dialog for triggering keyer memories on the 9700
 
 ---
 

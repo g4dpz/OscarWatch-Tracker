@@ -1,5 +1,6 @@
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Radio;
 using OscarWatch.Core.Services;
 using OscarWatch.ViewModels;
 
@@ -68,6 +69,62 @@ public class FrequencyOverlayRigContextTests
 
         vm.Update(jo97);
         Assert.NotNull(vm.TryBuildRigTrackingContext(jo97));
+    }
+
+    [Fact]
+    public void TryBuildRigTrackingContext_includes_receive_offset_on_radio_and_sat_rows()
+    {
+        var settings = new TestSettingsService();
+        var database = new TestSatelliteDatabaseService(
+        [
+            new SatelliteRadioEntry
+            {
+                Name = "RS-44",
+                Modes =
+                [
+                    new SatelliteTransponderMode
+                    {
+                        Type = "SSB Transponder",
+                        DownlinkKHz = 435_667,
+                        UplinkKHz = 145_937,
+                        DownlinkMode = "USB",
+                        UplinkMode = "LSB",
+                        Doppler = "REV"
+                    }
+                ]
+            }
+        ]);
+
+        var vm = new FrequencyOverlayViewModel(settings, database);
+        vm.Update(new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "99999",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        });
+
+        const double rxOffsetKHz = 4.025;
+        vm.ReceiveOffsetKHz = rxOffsetKHz;
+
+        var ctx = vm.TryBuildRigTrackingContext(new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "99999",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        });
+
+        Assert.NotNull(ctx);
+        Assert.Equal(rxOffsetKHz, ctx.ReceiveOffsetKHz);
+
+        var baseline = DopplerFrequencyCalculator.Compute(ctx.Mode, 0, 0);
+        var withOffset = DopplerFrequencyCalculator.Compute(ctx.Mode, 0, rxOffsetKHz);
+
+        Assert.InRange(ctx.Corrected.RadioReceiveKHz - baseline.RadioReceiveKHz, 4.0, 4.1);
+        Assert.InRange(ctx.Corrected.SatelliteReceiveKHz - ctx.Mode.DownlinkKHz, 4.0, 4.1);
+        Assert.Equal(withOffset.RadioReceiveKHz, ctx.Corrected.RadioReceiveKHz, 3);
+        Assert.Equal(baseline.RadioTransmitKHz, ctx.Corrected.RadioTransmitKHz, 3);
     }
 
     private sealed class TestSettingsService : ISettingsService

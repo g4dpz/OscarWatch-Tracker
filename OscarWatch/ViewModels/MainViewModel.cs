@@ -314,8 +314,8 @@ public partial class MainViewModel : ViewModelBase
             return;
 
         var focused = GetFocusedTrackState(states, FocusedNoradId);
-        PublishRigTrackingContext(focused);
         SyncOverlayPassbandFromRig();
+        PublishRigTrackingContext(focused);
     }
 
     private void SyncOverlayPassbandFromRig()
