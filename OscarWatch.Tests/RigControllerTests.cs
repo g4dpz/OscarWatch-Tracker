@@ -1401,7 +1401,7 @@ public class RigControllerTests
     }
 
     [Fact]
-    public void Linear_doppler_lag_catch_up_blocked_while_operator_spins_vfo()
+    public void Linear_doppler_writes_blocked_while_operator_spins_vfo()
     {
         var rig = new RecordingRigDriver();
         var controller = new RigController(_ => rig);
