@@ -107,6 +107,31 @@
       <Setter Property="BorderBrush" Value="#FF507050" />
       <Setter Property="Foreground" Value="#FFE0FFE0" />
     </Style>
+    <Style Selector="Button.doppler-strategy-header">
+      <Setter Property="MinHeight" Value="26" />
+      <Setter Property="MaxHeight" Value="26" />
+      <Setter Property="MinWidth" Value="44" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Padding" Value="6,0" />
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Background" Value="#FF1E1E1E" />
+      <Setter Property="BorderBrush" Value="#FF505050" />
+      <Setter Property="Foreground" Value="#FFFFFFFF" />
+    </Style>
+    <Style Selector="Button.doppler-strategy-header /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.doppler-strategy-header:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#FF2A2A2A" />
+      <Setter Property="BorderBrush" Value="#FF606060" />
+      <Setter Property="Foreground" Value="#FFFFFFFF" />
+    </Style>
     <Style Selector="Button.operating-style-header">
       <Setter Property="MinHeight" Value="26" />
       <Setter Property="MaxHeight" Value="26" />
@@ -304,11 +329,48 @@
                      FontSize="16"
                      Foreground="#FF909090" />
 
-          <TextBlock Grid.Row="3" Grid.Column="0" Text="CTCSS" FontSize="14"
+          <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
+                ColumnDefinitions="Auto,*"
+                VerticalAlignment="Center">
+            <UniformGrid x:Name="DopplerStrategyRow"
+                         Columns="3"
+                         Rows="1"
+                         IsVisible="{Binding ShowDopplerStrategyRow}"
+                         HorizontalAlignment="Left"
+                         Width="156">
+              <Button Classes="doppler-strategy-header"
+                      Classes.operating-style-active="{Binding IsFullDopplerSelected}"
+                      Content="Full"
+                      ToolTip.Tip="{Binding DopplerStrategyHint}"
+                      Command="{Binding SelectFullDopplerCommand}"
+                      Margin="0,0,3,0" />
+              <Button Classes="doppler-strategy-header"
+                      Classes.operating-style-active="{Binding IsTxFixedDopplerSelected}"
+                      Content="TX"
+                      ToolTip.Tip="TX fixed — downlink Doppler only (SatPC32 TX-Fixed). Uplink stays on your CQ spot."
+                      Command="{Binding SelectTxFixedDopplerCommand}"
+                      Margin="3,0,3,0" />
+              <Button Classes="doppler-strategy-header"
+                      Classes.operating-style-active="{Binding IsRxFixedDopplerSelected}"
+                      Content="RX"
+                      ToolTip.Tip="RX fixed — uplink Doppler only (SatPC32 RX-Fixed). Downlink stays put."
+                      Command="{Binding SelectRxFixedDopplerCommand}"
+                      Margin="3,0,0,0" />
+            </UniformGrid>
+            <TextBlock Grid.Column="1"
+                       Classes="freq-mono"
+                       Text="{Binding DopplerShiftText}"
+                       FontSize="13"
+                       Foreground="#FFB0B0B0"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Center" />
+          </Grid>
+
+          <TextBlock Grid.Row="4" Grid.Column="0" Text="CTCSS" FontSize="14"
                      IsVisible="{Binding ShowCtcssRow}"
                      Foreground="#FFE0E0E0" VerticalAlignment="Center" />
 
-          <ComboBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2"
+          <ComboBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
                     ItemsSource="{Binding CtcssToneOptions}"
                     SelectedItem="{Binding SelectedCtcssTone, Mode=TwoWay}"
                     IsVisible="{Binding ShowCtcssSelector}"
@@ -338,7 +400,7 @@
             </ComboBox.ItemTemplate>
           </ComboBox>
 
-          <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2"
+          <TextBlock Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
                      Text="{Binding SelectedCtcssText}"
                      IsVisible="{Binding ShowCtcssStatic}"
                      FontFamily="Consolas,Courier New,monospace"
@@ -346,18 +408,12 @@
                      Foreground="#FFFFFFFF"
                      VerticalAlignment="Center" />
 
-          <TextBlock Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
+          <TextBlock Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"
                      Text="{Binding CtcssHintText}"
                      IsVisible="{Binding ShowCtcssHint}"
                      FontSize="11"
                      TextWrapping="Wrap"
                      Foreground="#FFB0B0B0" />
-
-          <TextBlock Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Classes="freq-mono"
-                     Text="{Binding DopplerShiftText}"
-                     FontSize="13"
-                     Foreground="#FFB0B0B0"
-                     HorizontalAlignment="Right" />
         </Grid>
 
         <StackPanel IsVisible="{Binding HasTransponderData}" Spacing="10">

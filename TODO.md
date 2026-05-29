@@ -6,7 +6,7 @@ Tracked ideas and deferred work. Not a commitment order; items may be split or d
 
 - [ ] Pole footprint banding at high latitudes
 - [ ] Small Dialog for triggering keyer memories on the 9700
-- [ ] Ability to have fixed uplink only or fixed downlink like SatPC32
+- [x] Doppler strategy buttons in frequency panel (Full / TX fixed / RX fixed), per mode in settings
 
 ---
 

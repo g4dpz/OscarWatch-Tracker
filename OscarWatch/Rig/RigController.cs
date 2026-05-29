@@ -55,6 +55,7 @@ public sealed class RigController : IRigController, IDisposable
     private double? _lastAppliedCtcssHz;
     private bool? _lastAppliedCtcssSquelch;
     private double _lastContextRxOffsetKHz;
+    private DopplerStrategy _lastContextDopplerStrategy = DopplerStrategy.Full;
     private bool _forceFrequencyApply;
     private bool _blockKnobCapture;
     private DateTime _ignoreDialUntilUtc = DateTime.MinValue;
@@ -335,6 +336,7 @@ public sealed class RigController : IRigController, IDisposable
             ApplyCtcss(settings, context, force: false);
 
         NoteContextOffsetChange(context);
+        NoteContextDopplerStrategyChange(context);
         _isTracking = true;
         _statusMessage = "Tracking";
     }
@@ -348,6 +350,7 @@ public sealed class RigController : IRigController, IDisposable
         _lastAppliedCtcssHz = null;
         _lastAppliedCtcssSquelch = null;
         _lastContextRxOffsetKHz = context.ReceiveOffsetKHz;
+        _lastContextDopplerStrategy = context.DopplerStrategy;
         _forceFrequencyApply = false;
 
         if (settings.CatUpdatesPaused)
@@ -439,13 +442,15 @@ public sealed class RigController : IRigController, IDisposable
             context.TrackState.LookAngles.RangeRateKmPerSec,
             context.ReceiveOffsetKHz,
             _passbandDownlinkAdjustKHz,
-            _passbandUplinkAdjustKHz);
+            _passbandUplinkAdjustKHz,
+            context.DopplerStrategy);
         var pureBaselineHz = ToHz(DopplerFrequencyCalculator.Compute(
             context.Mode,
             context.TrackState.LookAngles.RangeRateKmPerSec,
             context.ReceiveOffsetKHz,
             0,
-            0).RadioReceiveKHz);
+            0,
+            context.DopplerStrategy).RadioReceiveKHz);
         var expectedMainHz = ToHz(baseline.RadioReceiveKHz);
         var deltaFromBaselineHz = dialHz - expectedMainHz;
         var threshold = KnobTuneThresholdHz();
@@ -557,16 +562,19 @@ public sealed class RigController : IRigController, IDisposable
         var forceApply = _forceFrequencyApply;
         _forceFrequencyApply = false;
         var thresholdHz = _thresholdHz;
-        if (!forceApply && !ShouldWrite(thresholdHz, rxHz, txHz))
+        var strategy = context.DopplerStrategy;
+        if (!forceApply && !ShouldWrite(thresholdHz, rxHz, txHz, strategy))
             return;
 
         var rxDelta = Math.Abs(rxHz - _lastRigRxHz);
         var txDelta = _isBeaconOnly ? 0 : Math.Abs(txHz - _lastRigTxHz);
-        var writeRx = forceApply || rxDelta > thresholdHz || thresholdHz == 0;
-        var writeTx = !_isBeaconOnly && (forceApply || txDelta > thresholdHz || thresholdHz == 0);
+        var correctRx = strategy != DopplerStrategy.UplinkOnly;
+        var correctTx = !_isBeaconOnly && strategy != DopplerStrategy.DownlinkOnly;
+        var writeRx = correctRx && (forceApply || rxDelta > thresholdHz || thresholdHz == 0);
+        var writeTx = correctTx && (forceApply || txDelta > thresholdHz || thresholdHz == 0);
 
         // Cross-band: keep RX/TX CAT in sync when either leg triggers (FM automatic, or linear interactive).
-        if (!forceApply)
+        if (!forceApply && strategy == DopplerStrategy.Full)
         {
             var crossBand = RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz);
             if (crossBand)
@@ -910,20 +918,42 @@ public sealed class RigController : IRigController, IDisposable
         MarkProgrammaticFrequencySettle();
     }
 
+    private void NoteContextDopplerStrategyChange(RigTrackingContext context)
+    {
+        if (context.DopplerStrategy == _lastContextDopplerStrategy)
+            return;
+
+        _lastContextDopplerStrategy = context.DopplerStrategy;
+        _forceFrequencyApply = true;
+        MarkProgrammaticFrequencySettle();
+    }
+
     private void MarkProgrammaticFrequencySettle()
     {
         _ignoreDialUntilUtc = DateTime.UtcNow.AddMilliseconds(PostCatWriteDialSettleMs);
         ClearDialHistory();
     }
 
-    private bool ShouldWrite(int thresholdHz, long rxHz, long txHz)
+    private bool ShouldWrite(int thresholdHz, long rxHz, long txHz, DopplerStrategy strategy)
     {
         var rxDelta = Math.Abs(rxHz - _lastRigRxHz);
         var txDelta = Math.Abs(txHz - _lastRigTxHz);
         if (thresholdHz == 0)
-            return rxDelta > 0 || txDelta > 0;
+        {
+            return strategy switch
+            {
+                DopplerStrategy.UplinkOnly => txDelta > 0,
+                DopplerStrategy.DownlinkOnly => rxDelta > 0,
+                _ => rxDelta > 0 || txDelta > 0
+            };
+        }
 
-        return rxDelta > thresholdHz || txDelta > thresholdHz;
+        return strategy switch
+        {
+            DopplerStrategy.UplinkOnly => txDelta > thresholdHz,
+            DopplerStrategy.DownlinkOnly => rxDelta > thresholdHz,
+            _ => rxDelta > thresholdHz || txDelta > thresholdHz
+        };
     }
 
     private bool TryReadReceiveDialHz(out long hz)
@@ -998,7 +1028,8 @@ public sealed class RigController : IRigController, IDisposable
             look.RangeRateKmPerSec,
             context.ReceiveOffsetKHz,
             _passbandDownlinkAdjustKHz,
-            _passbandUplinkAdjustKHz);
+            _passbandUplinkAdjustKHz,
+            context.DopplerStrategy);
     }
 
     private static long ToHz(double kHz) => (long)Math.Round(kHz * 1000.0);

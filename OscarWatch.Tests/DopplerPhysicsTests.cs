@@ -154,6 +154,46 @@ public class DopplerPhysicsTests
     }
 
     [Fact]
+    public void Downlink_only_leaves_uplink_unchanged_by_doppler()
+    {
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var full = DopplerFrequencyCalculator.Compute(mode, 2.5, 0, strategy: DopplerStrategy.Full);
+        var txFixed = DopplerFrequencyCalculator.Compute(mode, 2.5, 0, strategy: DopplerStrategy.DownlinkOnly);
+
+        Assert.Equal(full.RadioReceiveKHz, txFixed.RadioReceiveKHz, 3);
+        Assert.Equal(mode.UplinkKHz, txFixed.RadioTransmitKHz, 3);
+        Assert.NotEqual(full.RadioTransmitKHz, txFixed.RadioTransmitKHz);
+    }
+
+    [Fact]
+    public void Uplink_only_leaves_downlink_unchanged_by_doppler()
+    {
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var full = DopplerFrequencyCalculator.Compute(mode, 2.5, 0, strategy: DopplerStrategy.Full);
+        var rxFixed = DopplerFrequencyCalculator.Compute(mode, 2.5, 0, strategy: DopplerStrategy.UplinkOnly);
+
+        Assert.Equal(mode.DownlinkKHz, rxFixed.RadioReceiveKHz, 3);
+        Assert.Equal(full.RadioTransmitKHz, rxFixed.RadioTransmitKHz, 3);
+        Assert.NotEqual(full.RadioReceiveKHz, rxFixed.RadioReceiveKHz);
+    }
+
+    [Fact]
     public void Rx_offset_is_preserved_across_range_rate_changes()
     {
         var mode = new SatelliteTransponderMode

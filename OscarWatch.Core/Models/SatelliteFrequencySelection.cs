@@ -22,6 +22,32 @@ public sealed class SatelliteFrequencySelection
     public Dictionary<string, double> CwReceiveOffsetKHzByMode { get; set; } =
         new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>Per-mode Doppler strategy (omitted entries default to <see cref="DopplerStrategy.Full"/>).</summary>
+    public Dictionary<string, DopplerStrategy> DopplerStrategyByMode { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
+    public DopplerStrategy GetDopplerStrategyForMode(string modeType)
+    {
+        if (string.IsNullOrWhiteSpace(modeType))
+            return DopplerStrategy.Full;
+
+        return DopplerStrategyByMode.TryGetValue(modeType.Trim(), out var strategy)
+            ? strategy
+            : DopplerStrategy.Full;
+    }
+
+    public void SetDopplerStrategyForMode(string modeType, DopplerStrategy strategy)
+    {
+        if (string.IsNullOrWhiteSpace(modeType))
+            return;
+
+        var key = modeType.Trim();
+        if (strategy == DopplerStrategy.Full)
+            DopplerStrategyByMode.Remove(key);
+        else
+            DopplerStrategyByMode[key] = strategy;
+    }
+
     public bool GetCwUplinkForMode(string modeType)
     {
         if (string.IsNullOrWhiteSpace(modeType))

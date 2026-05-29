@@ -16,15 +16,19 @@ public static class DopplerFrequencyCalculator
         double rangeRateKmPerSec,
         double receiveOffsetKHz,
         double passbandDownlinkAdjustKHz = 0,
-        double passbandUplinkAdjustKHz = 0)
+        double passbandUplinkAdjustKHz = 0,
+        DopplerStrategy strategy = DopplerStrategy.Full)
     {
         var isBeaconOnly = mode.IsBeaconOnly;
 
         var downlinkBase = mode.DownlinkKHz + receiveOffsetKHz + passbandDownlinkAdjustKHz;
         var uplinkBase = mode.UplinkKHz + passbandUplinkAdjustKHz;
 
-        var shiftDown = ComputeShiftKHz(downlinkBase, rangeRateKmPerSec);
-        var shiftUp = isBeaconOnly ? 0 : ComputeShiftKHz(uplinkBase, rangeRateKmPerSec);
+        var applyRxDoppler = strategy != DopplerStrategy.UplinkOnly;
+        var applyTxDoppler = !isBeaconOnly && strategy != DopplerStrategy.DownlinkOnly;
+
+        var shiftDown = applyRxDoppler ? ComputeShiftKHz(downlinkBase, rangeRateKmPerSec) : 0;
+        var shiftUp = applyTxDoppler ? ComputeShiftKHz(uplinkBase, rangeRateKmPerSec) : 0;
 
         var radioRx = downlinkBase + shiftDown;
         var radioTx = isBeaconOnly ? 0 : uplinkBase - shiftUp;

@@ -78,7 +78,13 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private bool _isCwUplink;
 
     [ObservableProperty]
+    private DopplerStrategy _dopplerStrategy = DopplerStrategy.Full;
+
+    [ObservableProperty]
     private string _operatingStyleHint = "";
+
+    [ObservableProperty]
+    private string _dopplerStrategyHint = "";
 
     public ObservableCollection<CtcssToneOption> CtcssToneOptions { get; } = [];
 
@@ -114,6 +120,14 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
     public bool IsCwOperatingStyleSelected => ShowOperatingStyleRow && IsCwUplink;
 
+    public bool ShowDopplerStrategyRow => HasTransponderData && !IsBeaconOnly;
+
+    public bool IsFullDopplerSelected => DopplerStrategy == DopplerStrategy.Full;
+
+    public bool IsTxFixedDopplerSelected => DopplerStrategy == DopplerStrategy.DownlinkOnly;
+
+    public bool IsRxFixedDopplerSelected => DopplerStrategy == DopplerStrategy.UplinkOnly;
+
     [ObservableProperty]
     private SatelliteTransponderMode? _selectedMode;
 
@@ -142,6 +156,23 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
     [RelayCommand]
     private void ToggleCwUplink() => SetCwUplink(!IsCwUplink);
+
+    [RelayCommand]
+    private void SelectFullDoppler() => SetDopplerStrategy(DopplerStrategy.Full);
+
+    [RelayCommand]
+    private void SelectTxFixedDoppler() => SetDopplerStrategy(DopplerStrategy.DownlinkOnly);
+
+    [RelayCommand]
+    private void SelectRxFixedDoppler() => SetDopplerStrategy(DopplerStrategy.UplinkOnly);
+
+    public void SetDopplerStrategy(DopplerStrategy strategy)
+    {
+        if (!ShowDopplerStrategyRow || DopplerStrategy == strategy)
+            return;
+
+        DopplerStrategy = strategy;
+    }
 
     public void SetCwUplink(bool cwUplink)
     {
@@ -238,7 +269,8 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             rangeRateKmPerSec,
             ReceiveOffsetKHz,
             _rigPassbandDownlinkAdjustKHz,
-            _rigPassbandUplinkAdjustKHz);
+            _rigPassbandUplinkAdjustKHz,
+            DopplerStrategy);
 
     public CloudlogRadioUpdate? TryBuildCloudlogUpdate(SatelliteTrackState? state)
     {
@@ -276,7 +308,8 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             ReceiveOffsetKHz = ReceiveOffsetKHz,
             SelectedCtcssHz = GetActiveCtcssHz(),
             CwUplink = IsCwUplink,
-            CwKeepSidebandDownlink = CwKeepSidebandDownlink
+            CwKeepSidebandDownlink = CwKeepSidebandDownlink,
+            DopplerStrategy = DopplerStrategy
         };
     }
 
@@ -339,6 +372,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         if (_currentSatelliteName is not null)
         {
             ApplyOperatingStyleForSelectedMode();
+            ApplyDopplerStrategyForSelectedMode();
             UpdateCtcssDisplay(restoreToneRole: GetOrCreateSelection().CtcssToneRole);
             ApplyOffsetsForSelectedMode();
             UpdateFromCurrentState();
@@ -403,6 +437,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     partial void OnHasTransponderDataChanged(bool value)
     {
         StoreOffsetCommand.NotifyCanExecuteChanged();
+        NotifyDopplerStrategySelectionChanged();
         UpdateCollapsedSummaryText();
     }
 
@@ -492,9 +527,18 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             return;
         }
 
-        OffsetAppliedHint = isRev
+        var offsetHint = isRev
             ? "Downlink only. Tune Main for uplink."
             : "Offsets downlink only.";
+
+        OffsetAppliedHint = DopplerStrategy switch
+        {
+            DopplerStrategy.DownlinkOnly =>
+                $"TX fixed (downlink Doppler only). {offsetHint}",
+            DopplerStrategy.UplinkOnly =>
+                $"RX fixed (uplink Doppler only). {offsetHint}",
+            _ => offsetHint
+        };
     }
 
     partial void OnSelectedCtcssToneChanged(CtcssToneOption? value)
@@ -529,6 +573,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             var selection = GetOrCreateSelection();
             SelectedMode = ResolveSelectedMode(selection);
             ApplyOperatingStyleForSelectedMode();
+            ApplyDopplerStrategyForSelectedMode();
             ApplyOffsetsForSelectedMode();
             UpdateCtcssDisplay(restoreToneRole: selection.CtcssToneRole);
         }
@@ -606,8 +651,31 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         if (SelectedCtcssTone is not null)
             selection.CtcssToneRole = SelectedCtcssTone.Role;
         if (SelectedMode is not null)
+        {
             selection.SetCwUplinkForMode(SelectedMode.Type, IsCwUplink);
+            selection.SetDopplerStrategyForMode(SelectedMode.Type, DopplerStrategy);
+        }
+
         _ = _settings.SaveAsync();
+    }
+
+    partial void OnDopplerStrategyChanged(DopplerStrategy value)
+    {
+        if (_isLoadingSelection)
+            return;
+
+        UpdateDopplerStrategyHint();
+        NotifyDopplerStrategySelectionChanged();
+        PersistSelection();
+        RefreshFrequencyDisplay();
+        OffsetsChanged?.Invoke(this, false);
+        RequestOverlayReclamp();
+    }
+
+    partial void OnIsBeaconOnlyChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ShowDopplerStrategyRow));
+        NotifyDopplerStrategySelectionChanged();
     }
 
     partial void OnIsCwUplinkChanged(bool value)
@@ -668,6 +736,57 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsVoiceOperatingStyleSelected));
         OnPropertyChanged(nameof(IsCwOperatingStyleSelected));
     }
+
+    private void ApplyDopplerStrategyForSelectedMode()
+    {
+        if (SelectedMode is null || SelectedMode.IsBeaconOnly)
+        {
+            _isLoadingSelection = true;
+            try
+            {
+                DopplerStrategy = DopplerStrategy.Full;
+            }
+            finally
+            {
+                _isLoadingSelection = false;
+            }
+
+            UpdateDopplerStrategyHint();
+            NotifyDopplerStrategySelectionChanged();
+            return;
+        }
+
+        _isLoadingSelection = true;
+        try
+        {
+            DopplerStrategy = GetOrCreateSelection().GetDopplerStrategyForMode(SelectedMode.Type);
+        }
+        finally
+        {
+            _isLoadingSelection = false;
+        }
+
+        UpdateDopplerStrategyHint();
+        NotifyDopplerStrategySelectionChanged();
+    }
+
+    private void NotifyDopplerStrategySelectionChanged()
+    {
+        OnPropertyChanged(nameof(ShowDopplerStrategyRow));
+        OnPropertyChanged(nameof(IsFullDopplerSelected));
+        OnPropertyChanged(nameof(IsTxFixedDopplerSelected));
+        OnPropertyChanged(nameof(IsRxFixedDopplerSelected));
+    }
+
+    private void UpdateDopplerStrategyHint() =>
+        DopplerStrategyHint = DopplerStrategy switch
+        {
+            DopplerStrategy.DownlinkOnly =>
+                "TX fixed — uplink stays put; downlink tracks Doppler (roving CQ).",
+            DopplerStrategy.UplinkOnly =>
+                "RX fixed — downlink stays put; uplink tracks Doppler.",
+            _ => "Full — uplink and downlink both track Doppler."
+        };
 
     private void UpdateOperatingStyleHint()
     {
@@ -761,7 +880,10 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         ShowOperatingStyleRow = false;
         IsCwUplink = false;
         OperatingStyleHint = "";
+        DopplerStrategy = DopplerStrategy.Full;
+        DopplerStrategyHint = "";
         OffsetAppliedHint = "";
+        NotifyDopplerStrategySelectionChanged();
         UpdateCollapsedSummaryText();
     }
 }

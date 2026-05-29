@@ -16,6 +16,8 @@ public sealed class RigTrackingContext
 
     public bool CwKeepSidebandDownlink { get; init; }
 
+    public DopplerStrategy DopplerStrategy { get; init; } = DopplerStrategy.Full;
+
     public string EffectiveUplinkMode =>
         TransponderOperatingModes.GetEffectiveUplinkMode(Mode, CwUplink);
 

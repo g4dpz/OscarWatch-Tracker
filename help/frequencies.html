@@ -98,6 +98,20 @@
         Pick the tone required to open the repeater. OscarWatch can send the tone on CAT when your radio supports it.
       </p>
 
+      <h2>Doppler correction (Full / TX / RX)</h2>
+      <p>
+        For modes with an uplink, three buttons under the frequency table choose how CAT applies Doppler
+        (remembered per satellite and transponder mode):
+      </p>
+      <ul>
+        <li><strong>Full</strong> — uplink and downlink both track Doppler (default).</li>
+        <li><strong>TX</strong> — TX fixed (SatPC32 TX-Fixed): only the downlink is corrected; uplink stays on your CQ spot — useful for roving SSB.</li>
+        <li><strong>RX</strong> — RX fixed (SatPC32 RX-Fixed): only the uplink is corrected.</li>
+      </ul>
+      <p>
+        Switching mode (e.g. RS-44 SSB vs FT4) restores each mode’s last choice. Beacon-only modes hide these buttons.
+      </p>
+
       <h2>Doppler line</h2>
       <p>
         Shows the current Doppler correction in kHz. It updates as the satellite moves — largest near acquisition and loss of signal.

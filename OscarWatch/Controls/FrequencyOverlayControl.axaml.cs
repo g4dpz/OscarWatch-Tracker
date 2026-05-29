@@ -249,6 +249,8 @@ public partial class FrequencyOverlayControl : UserControl
         return;
       if (OperatingStyleHeader is not null && IsDescendantOf(source, OperatingStyleHeader))
         return;
+      if (DopplerStrategyRow is not null && IsDescendantOf(source, DopplerStrategyRow))
+        return;
     }
 
     var host = GetCoordinateHost();

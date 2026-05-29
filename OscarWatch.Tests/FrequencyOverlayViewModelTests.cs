@@ -70,6 +70,65 @@ public class FrequencyOverlayViewModelTests
     }
 
     [Fact]
+    public void Doppler_strategy_persists_per_mode()
+    {
+        var settings = new TestSettingsService();
+        var database = new TestSatelliteDatabaseService(
+        [
+            new SatelliteRadioEntry
+            {
+                Name = "RS-44",
+                Modes =
+                [
+                    new SatelliteTransponderMode
+                    {
+                        Type = "SSB Transponder",
+                        DownlinkKHz = 435_667,
+                        UplinkKHz = 145_937.61,
+                        DownlinkMode = "USB",
+                        UplinkMode = "LSB",
+                        Doppler = "REV"
+                    },
+                    new SatelliteTransponderMode
+                    {
+                        Type = "FT4",
+                        DownlinkKHz = 435_611,
+                        UplinkKHz = 145_993.61,
+                        DownlinkMode = "DATA-USB",
+                        UplinkMode = "DATA-LSB",
+                        Doppler = "REV"
+                    }
+                ]
+            }
+        ]);
+
+        var vm = new FrequencyOverlayViewModel(settings, database);
+        vm.Update(new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "99999",
+            Subpoint = new GeoCoordinate(57, 18),
+            LookAngles = new LookAngles(180, 25, 800, 2.5)
+        });
+
+        Assert.True(vm.ShowDopplerStrategyRow);
+        Assert.True(vm.IsFullDopplerSelected);
+
+        vm.SetDopplerStrategy(DopplerStrategy.DownlinkOnly);
+        Assert.True(vm.IsTxFixedDopplerSelected);
+
+        vm.SelectedMode = vm.AvailableModes.First(m => m.Type == "FT4");
+        Assert.True(vm.IsFullDopplerSelected);
+
+        vm.SelectedMode = vm.AvailableModes.First(m => m.Type == "SSB Transponder");
+        Assert.True(vm.IsTxFixedDopplerSelected);
+
+        var stored = settings.Current.FrequencySelections["RS-44"];
+        Assert.Equal(DopplerStrategy.DownlinkOnly, stored.GetDopplerStrategyForMode("SSB Transponder"));
+        Assert.Equal(DopplerStrategy.Full, stored.GetDopplerStrategyForMode("FT4"));
+    }
+
+    [Fact]
     public void EnsureOverlayWithinHost_clamps_position_using_measured_overlay_size()
     {
         var settings = new TestSettingsService();
