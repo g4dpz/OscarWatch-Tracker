@@ -412,13 +412,14 @@ public sealed class RigController : IRigController, IDisposable
     private void ProcessInteractiveLinear(RigSettings settings, RigTrackingContext context)
     {
         SampleReceiveDial();
-        SyncManualFromMainDial(context);
 
         if (ShouldTrackDopplerAutomatically(context))
         {
             ProcessAutomaticDoppler(settings, context);
             return;
         }
+
+        SyncManualFromMainDial(context);
 
         if (!_vfoNotMoving)
         {
