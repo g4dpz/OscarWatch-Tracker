@@ -58,20 +58,37 @@ public sealed class SettingsServiceTests
     }
 
     [Fact]
-    public async Task RequestSave_reports_failure_when_destination_is_not_writable()
+    public async Task SaveAsync_reports_failure_when_settings_directory_is_blocked()
     {
-        var path = Path.Combine(Path.GetTempPath(), $"oscarwatch-settings-{Guid.NewGuid():N}.json");
+        var settingsPath = CreateSettingsPathWithBlockedParentDirectory(out var blockerPath);
         Exception? reported = null;
         void Handler(Exception ex) => reported = ex;
         SettingsService.SaveFailed += Handler;
 
         try
         {
-            var service = new SettingsService(path);
-            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            File.WriteAllText(path, "{}");
-            MakeFileReadOnly(path);
+            var service = new SettingsService(settingsPath);
+            await Assert.ThrowsAnyAsync<Exception>(() => service.SaveAsync());
+            Assert.NotNull(reported);
+        }
+        finally
+        {
+            SettingsService.SaveFailed -= Handler;
+            DeleteIfExists(blockerPath);
+        }
+    }
 
+    [Fact]
+    public async Task RequestSave_reports_failure_when_settings_directory_is_blocked()
+    {
+        var settingsPath = CreateSettingsPathWithBlockedParentDirectory(out var blockerPath);
+        Exception? reported = null;
+        void Handler(Exception ex) => reported = ex;
+        SettingsService.SaveFailed += Handler;
+
+        try
+        {
+            var service = new SettingsService(settingsPath);
             service.RequestSave();
 
             var deadline = DateTime.UtcNow.AddSeconds(5);
@@ -83,30 +100,19 @@ public sealed class SettingsServiceTests
         finally
         {
             SettingsService.SaveFailed -= Handler;
-            MakeFileWritable(path);
-            DeleteIfExists(path);
-            DeleteIfExists(path + ".tmp");
-            DeleteIfExists(path + ".bak");
+            DeleteIfExists(blockerPath);
         }
     }
 
-    private static void MakeFileReadOnly(string path)
+    /// <summary>
+    /// Parent path is an ordinary file, so <see cref="SettingsService"/> cannot create the settings directory.
+    /// Reliable on Windows and Linux (unlike exclusive file locks or read-only targets).
+    /// </summary>
+    private static string CreateSettingsPathWithBlockedParentDirectory(out string blockerPath)
     {
-        if (OperatingSystem.IsWindows())
-            File.SetAttributes(path, FileAttributes.ReadOnly);
-        else
-            File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.GroupRead | UnixFileMode.OtherRead);
-    }
-
-    private static void MakeFileWritable(string path)
-    {
-        if (!File.Exists(path))
-            return;
-
-        if (OperatingSystem.IsWindows())
-            File.SetAttributes(path, FileAttributes.Normal);
-        else
-            File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.GroupRead | UnixFileMode.OtherRead);
+        blockerPath = Path.Combine(Path.GetTempPath(), $"oscarwatch-blocker-{Guid.NewGuid():N}");
+        File.WriteAllText(blockerPath, "blocks directory creation");
+        return Path.Combine(blockerPath, "settings.json");
     }
 
     private static void DeleteIfExists(string path)
