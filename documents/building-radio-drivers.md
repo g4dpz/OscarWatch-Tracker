@@ -141,7 +141,7 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 - Cross-band **SATL** via CAT `SA10100000;` (Main downlink / Sub uplink, TRACE off); `SA0;` when leaving satellite layout; warns if `SA;` read does not confirm SATL.
 - `Main`/`Sub` → **`FA`/`FB`**; no `FR` while satellite layout is active.
 - `SupportsVfoExchange` is **true** — swaps `FA`/`FB` frequencies in SATL when Main is on the wrong band (same logic as ICOM `TryBandSwap`).
-- CTCSS encode: `TN` + `TO`; TSQL squelch: `CN` + `CT` (Hamlib `ts2000_ctcss_list`, 1-based index). In SATL, `DC01`/`DC00` select Sub/Main CTRL before tone commands.
+- CTCSS encode: `TN` + `TO`; TSQL squelch: `CN` + `CT` (Hamlib `ts2000_ctcss_list`, 1-based index). In SATL, `DC01`/`DC00` select Sub/Main CTRL before tone commands; **`MD` uses TX band (DC P1)** — uplink mode needs `DC10;` before `MD`, not `DC01;`.
 - Cross-check against [Hamlib `kenwood.c`](https://github.com/Hamlib/Hamlib/blob/master/rigs/kenwood/kenwood.c) and [`ts2000.txt`](https://github.com/Hamlib/Hamlib/blob/master/rigs/kenwood/ts2000.txt).
 
 ### Hardware checklist (TS-2000)

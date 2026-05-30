@@ -99,7 +99,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
             return;
         }
 
-        WithControlForCurrentVfo(() =>
+        WithTransmitBandForCurrentVfo(() =>
             _transport.SendCommand(KenwoodCatCodec.BuildSetModeCommand(modeCode), _catDelayMs));
     }
 
@@ -193,24 +193,49 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     }
 
     /// <summary>
-    /// Tone/CTCSS CAT applies to the CTRL receiver; in SATL select Main/Sub via DC before MD/TN/CN/TO/CT.
+    /// Tone/CTCSS CAT applies to the CTRL band (DC P2); in SATL use DC01/DC00 before TN/CN/TO/CT.
     /// </summary>
     private void WithControlForCurrentVfo(Action action)
     {
         if (_satelliteMode)
-            SelectControlForCurrentVfo();
+            SelectControlBandForCurrentVfo();
 
         action();
 
         if (_satelliteMode)
-            _transport.SendCommand(KenwoodCatCodec.BuildControlMainCommand(), _catDelayMs);
+            RestoreSatelliteDcLayout();
     }
 
-    private void SelectControlForCurrentVfo()
+    /// <summary>
+    /// MD follows the TX band (DC P1). In SATL, VFO A/downlink needs DC00 and VFO B/uplink needs DC10.
+    /// </summary>
+    private void WithTransmitBandForCurrentVfo(Action action)
+    {
+        if (_satelliteMode)
+            SelectTransmitBandForCurrentVfo();
+
+        action();
+
+        if (_satelliteMode)
+            RestoreSatelliteDcLayout();
+    }
+
+    private void RestoreSatelliteDcLayout() =>
+        _transport.SendCommand(KenwoodCatCodec.BuildControlMainCommand(), _catDelayMs);
+
+    private void SelectControlBandForCurrentVfo()
     {
         var sub = _currentVfo is RigVfo.Sub or RigVfo.VfoB;
         _transport.SendCommand(
             sub ? KenwoodCatCodec.BuildControlSubCommand() : KenwoodCatCodec.BuildControlMainCommand(),
+            _catDelayMs);
+    }
+
+    private void SelectTransmitBandForCurrentVfo()
+    {
+        var sub = _currentVfo is RigVfo.Sub or RigVfo.VfoB;
+        _transport.SendCommand(
+            sub ? KenwoodCatCodec.BuildTransmitSubCommand() : KenwoodCatCodec.BuildControlMainCommand(),
             _catDelayMs);
     }
 

@@ -143,7 +143,7 @@ public sealed class KenwoodTs2000DriverTests
     }
 
     [Fact]
-    public void SetMode_on_sub_in_satellite_mode_selects_sub_control()
+    public void SetMode_on_sub_in_satellite_mode_selects_sub_tx_band()
     {
         var transport = new RecordingKenwoodCatTransport();
         var driver = new KenwoodTs2000Driver(transport);
@@ -154,7 +154,23 @@ public sealed class KenwoodTs2000DriverTests
 
         var mdIndex = transport.SentCommands.IndexOf("MD4;");
         Assert.True(mdIndex >= 0);
-        Assert.Equal("DC01;", transport.SentCommands[mdIndex - 1]);
+        Assert.Equal("DC10;", transport.SentCommands[mdIndex - 1]);
+        Assert.Equal("DC00;", transport.SentCommands[mdIndex + 1]);
+    }
+
+    [Fact]
+    public void SetMode_on_main_in_satellite_mode_selects_main_tx_band()
+    {
+        var transport = new RecordingKenwoodCatTransport();
+        var driver = new KenwoodTs2000Driver(transport);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        driver.SelectVfo(RigVfo.Main);
+        driver.SetMode("USB");
+
+        var mdIndex = transport.SentCommands.IndexOf("MD2;");
+        Assert.True(mdIndex >= 0);
+        Assert.Equal("DC00;", transport.SentCommands[mdIndex - 1]);
         Assert.Equal("DC00;", transport.SentCommands[mdIndex + 1]);
     }
 
