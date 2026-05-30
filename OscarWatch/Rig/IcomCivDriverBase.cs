@@ -147,8 +147,13 @@ public abstract class IcomCivDriverBase : IRigDriver
             _ => new byte[] { 0x07, 0x00 }
         };
 
+        var previousVfo = _currentVfo;
         if (TrySelectVfo(cmd, vfo, $"select VFO {vfo}"))
+        {
+            if (previousVfo != vfo)
+                Thread.Sleep(_catDelayMs);
             return;
+        }
 
         Log.Warning("CI-V select VFO {Vfo} failed after retry", vfo);
     }

@@ -12,7 +12,8 @@ namespace OscarWatch.Rig;
 public sealed class RigController : IRigController, IDisposable
 {
     private static readonly ILogger Log = Serilog.Log.ForContext<RigController>();
-    private const int DialHistoryLength = 3;
+    /// <summary>Consecutive identical Main dial samples before linear CAT (8 × ~100 ms loop ≈ 0.8 s).</summary>
+    private const int DialHistoryLength = 8;
     private const int FmCompanionLegHz = 10;
     /// <summary>Min Hz between dial and last CAT RX to treat as operator tuning (QTrigdoppler uses 1 Hz).</summary>
     private const int KnobTuneCaptureThresholdHz = 1;

@@ -1125,7 +1125,7 @@ public class RigControllerTests
         var rxAfterOffset = rig.MainHz;
 
         rig.MainHz = rxAfterOffset + 35;
-        for (var i = 0; i < 8; i++)
+        for (var i = 0; i < 14; i++)
             controller.RunTrackingLoopOnce();
 
         var status = controller.GetStatus();
@@ -1180,7 +1180,7 @@ public class RigControllerTests
         Assert.True(txAfterInit > 0);
 
         rig.MainHz = rxAfterInit + 2_500;
-        for (var i = 0; i < 8; i++)
+        for (var i = 0; i < 14; i++)
             controller.RunTrackingLoopOnce();
 
         Assert.Equal(rxAfterInit + 2_500, rig.MainHz);
@@ -1233,7 +1233,7 @@ public class RigControllerTests
         Assert.True(rxAfterInit > 0);
 
         rig.MainHz = rxAfterInit + 50;
-        for (var i = 0; i < 8; i++)
+        for (var i = 0; i < 14; i++)
             controller.RunTrackingLoopOnce();
 
         Assert.Equal(rxAfterInit + 50, rig.MainHz);
@@ -1290,7 +1290,7 @@ public class RigControllerTests
         typeof(RigController).GetField("_passbandUplinkAdjustKHz", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .SetValue(controller, 9.8);
 
-        for (var i = 0; i < 8; i++)
+        for (var i = 0; i < 14; i++)
             controller.RunTrackingLoopOnce();
 
         var status = controller.GetStatus();
@@ -1342,7 +1342,7 @@ public class RigControllerTests
 
         var rxAfterInit = rig.MainHz;
         rig.MainHz = rxAfterInit + 2_500;
-        for (var i = 0; i < 8; i++)
+        for (var i = 0; i < 14; i++)
             controller.RunTrackingLoopOnce();
 
         var rxBeforeOffset = rig.MainHz;
@@ -1405,7 +1405,7 @@ public class RigControllerTests
         var txAfterInit = rig.SubHz;
 
         rig.MainHz = rxAfterInit + 3_000;
-        for (var i = 0; i < 8; i++)
+        for (var i = 0; i < 14; i++)
             controller.RunTrackingLoopOnce();
 
         Assert.Equal(rxAfterInit + 3_000, rig.MainHz);
@@ -1604,7 +1604,7 @@ public class RigControllerTests
 
         rig.MainHz = rxAfterInit + 1_500;
         controller.PublishContext(settings, Build(4.2));
-        for (var i = 0; i < 8; i++)
+        for (var i = 0; i < 14; i++)
             controller.RunTrackingLoopOnce();
 
         Assert.Equal(rxAfterInit + 1_500, rig.MainHz);
