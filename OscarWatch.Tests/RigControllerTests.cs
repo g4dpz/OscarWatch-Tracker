@@ -1568,6 +1568,61 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Rev_linear_cat_only_tracks_rapid_range_rate_without_dial_stability_wait()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        RigTrackingContext Build(double rangeRateKmPerSec) => new()
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "RS-44",
+                NoradId = "99999",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, rangeRateKmPerSec)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, rangeRateKmPerSec, 0),
+            TransmitOffsetKHz = 0,
+            ReceiveOffsetKHz = 0
+        };
+
+        controller.Update(settings, Build(0));
+        Thread.Sleep(650);
+
+        foreach (var rangeRateKmPerSec in new[] { 1.0, 2.5, 4.0, 5.5, 4.0, 2.5, 0.5, -0.5, -2.0, -4.0 })
+        {
+            controller.PublishContext(settings, Build(rangeRateKmPerSec));
+            for (var i = 0; i < 3; i++)
+                controller.RunTrackingLoopOnce();
+        }
+
+        var status = controller.GetStatus();
+        Assert.InRange(status.ManualReceiveAdjustKHz, -0.001, 0.001);
+        Assert.InRange(status.ManualTransmitAdjustKHz, -0.001, 0.001);
+
+        var expectedRx = ToHz(DopplerFrequencyCalculator.Compute(mode, -4.0, 0).RadioReceiveKHz);
+        Assert.InRange(rig.MainHz, expectedRx - 55, expectedRx + 55);
+    }
+
+    [Fact]
     public void Linear_doppler_writes_blocked_while_operator_spins_vfo()
     {
         var rig = new RecordingRigDriver();

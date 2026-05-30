@@ -151,6 +151,8 @@
         2.5 seconds</strong> after the last dial movement so brief pauses while scanning the passband do not
         hop the radio to Sub or fight your tuning. OscarWatch then returns the selected VFO to Main for receive.
         FM modes do not use this interactive path — both legs update automatically from the Doppler thresholds.
+        If you are <strong>not</strong> tuning the passband (hands off the dial), linear modes track Doppler
+        continuously like FM so CAT is not throttled by the stability wait after each frequency write.
       </p>
       <p>
         <strong>CAT delay (ms)</strong> on the same settings page is separate: it spaces out CI-V (and similar)

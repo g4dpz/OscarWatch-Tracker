@@ -411,6 +411,12 @@ public sealed class RigController : IRigController, IDisposable
 
     private void ProcessInteractiveLinear(RigSettings settings, RigTrackingContext context)
     {
+        if (ShouldTrackDopplerAutomatically(context))
+        {
+            ProcessAutomaticDoppler(settings, context);
+            return;
+        }
+
         SampleReceiveDial();
         SyncManualFromMainDial(context);
 
@@ -427,6 +433,31 @@ public sealed class RigController : IRigController, IDisposable
         WriteDopplerFrequencies(settings, context);
         RestoreOperatorVfo();
     }
+
+    /// <summary>
+    /// Hands-off linear passes: when passband trim is neutral and Main still shows the last CAT RX write,
+    /// track doppler every loop instead of waiting for dial-stability (which our own writes reset).
+    /// </summary>
+    private bool ShouldTrackDopplerAutomatically(RigTrackingContext context)
+    {
+        if (!HasNeutralPassbandTrim() || _lastRigRxHz <= 0)
+            return false;
+
+        if (DateTime.UtcNow < _ignoreDialUntilUtc)
+            return true;
+
+        if (!TryReadReceiveDialHz(out var dialHz))
+            return false;
+
+        return Math.Abs(dialHz - _lastRigRxHz) < AutomaticDialMatchToleranceHz();
+    }
+
+    /// <summary>Match window for CAT-only tracking: within doppler threshold so display jitter is not passband trim.</summary>
+    private int AutomaticDialMatchToleranceHz() =>
+        _thresholdHz > 0 ? Math.Max(KnobTuneThresholdHz(), _thresholdHz) : KnobTuneThresholdHz();
+
+    private bool HasNeutralPassbandTrim() =>
+        Math.Abs(_passbandDownlinkAdjustKHz) < 0.0001 && Math.Abs(_passbandUplinkAdjustKHz) < 0.0001;
 
     private void ProcessAutomaticDoppler(RigSettings settings, RigTrackingContext context)
     {
@@ -521,7 +552,13 @@ public sealed class RigController : IRigController, IDisposable
     {
         if (DateTime.UtcNow < _ignoreDialUntilUtc)
         {
-            _vfoNotMoving = false;
+            if (_lastRigRxHz > 0
+                && _rxDialHistoryCount >= DialHistoryLength
+                && _rxDialHistory[0] == _lastRigRxHz)
+                _vfoNotMoving = true;
+            else
+                _vfoNotMoving = false;
+
             return;
         }
 
@@ -995,7 +1032,10 @@ public sealed class RigController : IRigController, IDisposable
     private void MarkProgrammaticFrequencySettle()
     {
         _ignoreDialUntilUtc = DateTime.UtcNow.AddMilliseconds(PostCatWriteDialSettleMs);
-        ClearDialHistory();
+        if (_lastRigRxHz > 0)
+            SeedDialHistoryStable(_lastRigRxHz);
+        else
+            ClearDialHistory();
     }
 
     private bool ShouldWrite(int thresholdHz, long rxHz, long txHz, DopplerStrategy strategy)
