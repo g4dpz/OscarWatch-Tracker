@@ -449,6 +449,32 @@
       ]
     },
     {
+      "name": "TEVEL2-8",
+      "modes": [
+        {
+          "type": "Voice",
+          "downlink": 436400,
+          "uplink": 145970,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
+      "name": "TEVEL2-9",
+      "modes": [
+        {
+          "type": "Voice",
+          "downlink": 436400,
+          "uplink": 145970,
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
+          "doppler": "NOR"
+        }
+      ]
+    },
+    {
       "name": "PARUS-T2",
       "modes": [
         {
