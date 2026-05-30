@@ -96,6 +96,21 @@ public class IcomCivCodecTests
         Assert.Equal(0x05, body[1]);
     }
 
+    [Theory]
+    [InlineData("DATA-USB", new[] { "0601", "1a060101" })]
+    [InlineData("DATA-LSB", new[] { "0600", "1a060101" })]
+    [InlineData("USB", new[] { "0601", "1a060000" })]
+    [InlineData("LSB", new[] { "0600", "1a060000" })]
+    [InlineData("FM", new[] { "0605" })]
+    [InlineData("CW", new[] { "0603" })]
+    public void Encode9700SetModeCommands_includes_data_mode_for_digital_sideband(string mode, string[] expectedHex)
+    {
+        var commands = IcomCivCodec.Encode9700SetModeCommands(mode);
+        Assert.Equal(expectedHex.Length, commands.Length);
+        for (var i = 0; i < expectedHex.Length; i++)
+            Assert.Equal(expectedHex[i], Convert.ToHexString(commands[i]).ToLowerInvariant());
+    }
+
     private static byte[] BuildReadResponseFromHz(long hz)
     {
         var body = IcomCivCodec.EncodeSetFrequencyHz(hz);

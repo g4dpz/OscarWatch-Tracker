@@ -117,4 +117,29 @@ public sealed class IcomCivDriverTests
 
         Assert.Equal(3, transport.CommandCount);
     }
+
+    [Fact]
+    public void Ic9700_SetMode_DATA_USB_sends_base_mode_then_data_on()
+    {
+        var transport = new RecordingIcomCivTransport();
+        var driver = new IcomIc9700Driver(transport);
+        driver.Open();
+        driver.SelectVfo(RigVfo.Main);
+        transport.SentCommandBodies.Clear();
+        driver.SetMode("DATA-USB");
+
+        Assert.Equal(["0601", "1a060101"], transport.SentCommandBodies);
+    }
+
+    [Fact]
+    public void Ic910_SetMode_DATA_USB_sends_voice_usb_only()
+    {
+        var transport = new RecordingIcomCivTransport();
+        var driver = new IcomIc910Driver(transport);
+        driver.Open();
+        transport.SentCommandBodies.Clear();
+        driver.SetMode("DATA-USB");
+
+        Assert.Equal(["0601"], transport.SentCommandBodies);
+    }
 }

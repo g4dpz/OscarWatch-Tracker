@@ -11,6 +11,7 @@ internal sealed class RecordingIcomCivTransport : IIcomCivTransport
     public byte[]? NextReadResponse { get; set; }
     public int SetFrequencyCommandCount { get; private set; }
     public int CommandCount { get; private set; }
+    public List<string> SentCommandBodies { get; } = [];
     public bool IsOpen { get; private set; }
 
     public void Open() => IsOpen = true;
@@ -21,6 +22,7 @@ internal sealed class RecordingIcomCivTransport : IIcomCivTransport
             return [];
 
         CommandCount++;
+        SentCommandBodies.Add(Convert.ToHexString(body).ToLowerInvariant());
 
         if (CommandResponses.Count > 0)
             return CommandResponses.Dequeue();

@@ -1,4 +1,5 @@
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Radio;
 
 namespace OscarWatch.Rig;
 
@@ -12,8 +13,16 @@ public sealed class IcomIc9700Driver : IcomCivDriverBase
     {
     }
 
+    internal IcomIc9700Driver(IIcomCivTransport transport)
+        : base(RigType.IcomIc9700, transport)
+    {
+    }
+
     public override bool SupportsTracking => true;
 
     public override void SetSatelliteMode(bool on) =>
         WriteWithRetry(on ? [0x16, 0x5A, 0x01] : [0x16, 0x5A, 0x00]);
+
+    protected override IEnumerable<byte[]> GetSetModeCommands(string mode) =>
+        IcomCivCodec.Encode9700SetModeCommands(mode);
 }

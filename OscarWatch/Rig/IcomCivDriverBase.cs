@@ -203,14 +203,17 @@ public abstract class IcomCivDriverBase : IRigDriver
         return false;
     }
 
-    public void SetMode(string mode)
+    public virtual void SetMode(string mode)
     {
         if (_transport is null || !IsConnected)
             return;
 
-        if (IcomCivCodec.EncodeSetModeCommand(mode) is { } cmd)
+        foreach (var cmd in GetSetModeCommands(mode))
             SendWithAckRetry(cmd, $"set mode {mode}");
     }
+
+    protected virtual IEnumerable<byte[]> GetSetModeCommands(string mode) =>
+        IcomCivCodec.EncodeSetModeCommand(mode) is { } cmd ? [cmd] : [];
 
     public void SetSplitOn(bool on) =>
         SendWithAckRetry(on ? [0x0F, 0x01] : [0x0F, 0x00], on ? "split on" : "split off");

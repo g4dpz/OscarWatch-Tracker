@@ -85,6 +85,32 @@ public static class IcomCivCodec
             _ => null
         };
 
+    /// <summary>
+    /// IC-9700 SATL mode sequence: base mode (0x06) plus DATA on/off (0x1A/0x06).
+    /// Command 0x26 is unavailable in satellite mode; Hamlib uses this fallback path.
+    /// </summary>
+    public static byte[][] Encode9700SetModeCommands(string mode)
+    {
+        var upper = mode.Trim().ToUpperInvariant();
+        var baseMode = upper switch
+        {
+            "DATA-USB" => "USB",
+            "DATA-LSB" => "LSB",
+            _ => upper
+        };
+
+        if (EncodeSetModeCommand(baseMode) is not { } baseCmd)
+            return [];
+
+        if (upper is "DATA-USB" or "DATA-LSB")
+            return [baseCmd, [0x1A, 0x06, 0x01, 0x01]];
+
+        if (baseMode is "USB" or "LSB")
+            return [baseCmd, [0x1A, 0x06, 0x00, 0x00]];
+
+        return [baseCmd];
+    }
+
     public static byte[] EncodeToneHz(double hz, bool squelchTone)
     {
         var hertz = ((int)Math.Round(hz * 10)).ToString();
