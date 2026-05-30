@@ -66,4 +66,13 @@ internal static class TrackingPlotAccessibility
         index = (index + direction + states.Count) % states.Count;
         return states[index].NoradId;
     }
+
+    public static bool IsPlotSatelliteVisible(bool soloFocusedSatellite, string? focusedNoradId, string noradId)
+    {
+        if (!soloFocusedSatellite)
+            return true;
+
+        return !string.IsNullOrEmpty(focusedNoradId)
+            && string.Equals(focusedNoradId, noradId, StringComparison.Ordinal);
+    }
 }

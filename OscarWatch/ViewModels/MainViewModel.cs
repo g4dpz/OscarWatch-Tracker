@@ -140,6 +140,9 @@ public partial class MainViewModel : ViewModelBase
     private string _comPortConflictText = "";
 
     [ObservableProperty]
+    private bool _soloFocusedSatellite;
+
+    [ObservableProperty]
     private string? _focusedNoradId;
 
     public ObservableCollection<IPassListItem> Passes { get; } = [];
@@ -725,7 +728,10 @@ public partial class MainViewModel : ViewModelBase
     partial void OnFocusedNoradIdChanged(string? value)
     {
         if (string.IsNullOrEmpty(value))
+        {
+            SoloFocusedSatellite = false;
             return;
+        }
 
         ApplySatelliteFocus(value);
 
@@ -806,6 +812,24 @@ public partial class MainViewModel : ViewModelBase
         await RefreshPassesAsync();
         if (appliedActive)
             Tick();
+    }
+
+    [RelayCommand]
+    private void ToggleSoloFocusedSatellite()
+    {
+        if (!SoloFocusedSatellite)
+        {
+            if (string.IsNullOrEmpty(FocusedNoradId))
+            {
+                var states = _liveTracking.GetSnapshot();
+                if (states.Count == 0)
+                    return;
+
+                FocusedNoradId = states[0].NoradId;
+            }
+        }
+
+        SoloFocusedSatellite = !SoloFocusedSatellite;
     }
 
     [RelayCommand]

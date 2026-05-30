@@ -33,6 +33,9 @@ public class WorldMapControl : ThemeAwareControl
     public static readonly StyledProperty<GeoCoordinate?> RemoteStationProperty =
         AvaloniaProperty.Register<WorldMapControl, GeoCoordinate?>(nameof(RemoteStation));
 
+    public static readonly StyledProperty<bool> SoloFocusedSatelliteProperty =
+        AvaloniaProperty.Register<WorldMapControl, bool>(nameof(SoloFocusedSatellite));
+
     private Bitmap? _mapBitmap;
     private INotifyCollectionChanged? _trackStatesSource;
     private Size _lastLayoutInvalidationSize;
@@ -51,7 +54,8 @@ public class WorldMapControl : ThemeAwareControl
             GroundStationProperty,
             FocusedNoradIdProperty,
             ShowFootprintMotionArrowsProperty,
-            RemoteStationProperty);
+            RemoteStationProperty,
+            SoloFocusedSatelliteProperty);
     }
 
     public bool ShowFootprintMotionArrows
@@ -84,6 +88,12 @@ public class WorldMapControl : ThemeAwareControl
     {
         get => GetValue(RemoteStationProperty);
         set => SetValue(RemoteStationProperty, value);
+    }
+
+    public bool SoloFocusedSatellite
+    {
+        get => GetValue(SoloFocusedSatelliteProperty);
+        set => SetValue(SoloFocusedSatelliteProperty, value);
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -244,8 +254,11 @@ public class WorldMapControl : ThemeAwareControl
         // Pass 1: tracks, footprints, and subpoints (no labels yet).
         for (var i = 0; i < states.Count; i++)
         {
-            var color = PlotColors.ForIndex(i);
             var state = states[i];
+            if (!TrackingPlotAccessibility.IsPlotSatelliteVisible(SoloFocusedSatellite, FocusedNoradId, state.NoradId))
+                continue;
+
+            var color = PlotColors.ForIndex(i);
             var isFocused = state.NoradId == FocusedNoradId;
 
             if (isFocused)
@@ -306,8 +319,11 @@ public class WorldMapControl : ThemeAwareControl
 
         foreach (var i in labelOrder)
         {
-            var color = PlotColors.ForIndex(i);
             var state = states[i];
+            if (!TrackingPlotAccessibility.IsPlotSatelliteVisible(SoloFocusedSatellite, FocusedNoradId, state.NoradId))
+                continue;
+
+            var color = PlotColors.ForIndex(i);
             var isFocused = state.NoradId == FocusedNoradId;
             var (ax, ay) = GetLabelAnchor(state, w, h);
 
@@ -341,6 +357,9 @@ public class WorldMapControl : ThemeAwareControl
 
         foreach (var state in states)
         {
+            if (!TrackingPlotAccessibility.IsPlotSatelliteVisible(SoloFocusedSatellite, FocusedNoradId, state.NoradId))
+                continue;
+
             var (sx, sy) = EquirectangularProjection.GeoToPixel(
                 state.Subpoint.LatitudeDeg, state.Subpoint.LongitudeDeg, w, h);
 

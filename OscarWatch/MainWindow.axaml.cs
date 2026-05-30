@@ -78,6 +78,20 @@ public partial class MainWindow : Window
             return;
         }
 
+        if (e.Key == Key.S && e.KeyModifiers == KeyModifiers.None)
+        {
+            if (IsTextEntryFocused(TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement()))
+                return;
+
+            if (DataContext is MainViewModel vm)
+            {
+                vm.ToggleSoloFocusedSatelliteCommand.Execute(null);
+                e.Handled = true;
+            }
+
+            return;
+        }
+
         if (e.Key is not (Key.Add or Key.Subtract))
             return;
 

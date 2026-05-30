@@ -28,12 +28,16 @@ public class SkyPlotControl : ThemeAwareControl
     public static readonly StyledProperty<double> MinimumElevationDegProperty =
         AvaloniaProperty.Register<SkyPlotControl, double>(nameof(MinimumElevationDeg), 5.0);
 
+    public static readonly StyledProperty<bool> SoloFocusedSatelliteProperty =
+        AvaloniaProperty.Register<SkyPlotControl, bool>(nameof(SoloFocusedSatellite));
+
     static SkyPlotControl()
     {
         AffectsRender<SkyPlotControl>(
             TrackStatesProperty,
             FocusedNoradIdProperty,
-            MinimumElevationDegProperty);
+            MinimumElevationDegProperty,
+            SoloFocusedSatelliteProperty);
     }
 
     public SkyPlotControl()
@@ -64,6 +68,12 @@ public class SkyPlotControl : ThemeAwareControl
     {
         get => GetValue(MinimumElevationDegProperty);
         set => SetValue(MinimumElevationDegProperty, value);
+    }
+
+    public bool SoloFocusedSatellite
+    {
+        get => GetValue(SoloFocusedSatelliteProperty);
+        set => SetValue(SoloFocusedSatelliteProperty, value);
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -178,6 +188,9 @@ public class SkyPlotControl : ThemeAwareControl
         var visibleCount = 0;
         for (var i = 0; i < states.Count; i++)
         {
+            if (!TrackingPlotAccessibility.IsPlotSatelliteVisible(SoloFocusedSatellite, FocusedNoradId, states[i].NoradId))
+                continue;
+
             if (states[i].LookAngles is not { } la)
                 continue;
 
@@ -222,6 +235,9 @@ public class SkyPlotControl : ThemeAwareControl
 
         for (var i = 0; i < states.Count; i++)
         {
+            if (!TrackingPlotAccessibility.IsPlotSatelliteVisible(SoloFocusedSatellite, FocusedNoradId, states[i].NoradId))
+                continue;
+
             if (states[i].LookAngles is not { } la)
                 continue;
 

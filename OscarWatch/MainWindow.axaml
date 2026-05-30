@@ -69,6 +69,7 @@
                                 GroundStation="{Binding GroundStation}"
                                 RemoteStation="{Binding DxStation.RemoteCoordinate}"
                                 FocusedNoradId="{Binding FocusedNoradId, Mode=TwoWay}"
+                                SoloFocusedSatellite="{Binding SoloFocusedSatellite}"
                                 ShowFootprintMotionArrows="{Binding ShowFootprintMotionArrows}" />
         </Grid>
         <ctrl:FrequencyOverlayControl DataContext="{Binding Frequencies}"
@@ -307,6 +308,7 @@
                                    HorizontalAlignment="Stretch"
                                    TrackStates="{Binding LiveStates}"
                                    FocusedNoradId="{Binding FocusedNoradId, Mode=TwoWay}"
+                                   SoloFocusedSatellite="{Binding SoloFocusedSatellite}"
                                    MinimumElevationDeg="{Binding MinimumElevationDeg}" />
             </StackPanel>
           </Expander>
