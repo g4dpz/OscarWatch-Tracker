@@ -411,14 +411,14 @@ public sealed class RigController : IRigController, IDisposable
 
     private void ProcessInteractiveLinear(RigSettings settings, RigTrackingContext context)
     {
+        SampleReceiveDial();
+        SyncManualFromMainDial(context);
+
         if (ShouldTrackDopplerAutomatically(context))
         {
             ProcessAutomaticDoppler(settings, context);
             return;
         }
-
-        SampleReceiveDial();
-        SyncManualFromMainDial(context);
 
         if (!_vfoNotMoving)
         {
@@ -445,6 +445,9 @@ public sealed class RigController : IRigController, IDisposable
 
         if (DateTime.UtcNow < _ignoreDialUntilUtc)
             return true;
+
+        if (!_vfoNotMoving)
+            return false;
 
         if (!TryReadReceiveDialHz(out var dialHz))
             return false;

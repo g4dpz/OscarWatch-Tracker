@@ -65,11 +65,8 @@ public static class KenwoodCatCodec
     /// <summary>DC P1=0 P2=0 — TX and CTRL on main (VFO A / downlink in SATL).</summary>
     public static string BuildControlMainCommand() => "DC00;";
 
-    /// <summary>DC P1=0 P2=1 — TX main, CTRL sub (tone/CTCSS on sub band).</summary>
+    /// <summary>DC P1=0 P2=1 — TX main, CTRL sub (tone/CTCSS and <c>MD</c> on sub band).</summary>
     public static string BuildControlSubCommand() => "DC01;";
-
-    /// <summary>DC P1=1 P2=0 — TX sub (VFO B / uplink in SATL); required before <c>MD</c> for uplink mode.</summary>
-    public static string BuildTransmitSubCommand() => "DC10;";
 
     public static bool TryParseFrequencyHz(ReadOnlySpan<char> response, out long hz)
     {
