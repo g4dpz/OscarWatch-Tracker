@@ -185,7 +185,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     partial void OnIsCollapsedChanged(bool value)
     {
         _settings.Current.FrequencyOverlayCollapsed = value;
-        _ = _settings.SaveAsync();
+        _settings.RequestSave();
         OnPropertyChanged(nameof(CollapseToggleGlyph));
         OnPropertyChanged(nameof(CollapseToggleToolTip));
         OnPropertyChanged(nameof(OverlayMinWidth));
@@ -341,14 +341,14 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         _settings.Current.FrequencyOverlayX = x;
         _settings.Current.FrequencyOverlayY = y;
         if (persist)
-            _ = _settings.SaveAsync();
+            _settings.RequestSave();
     }
 
     partial void OnOverlayXChanged(double value) => OnPropertyChanged(nameof(OverlayMargin));
 
     partial void OnOverlayYChanged(double value) => OnPropertyChanged(nameof(OverlayMargin));
 
-    public void PersistOverlayPosition() => _ = _settings.SaveAsync();
+    public void PersistOverlayPosition() => _settings.RequestSave();
 
     /// <summary>Height may change when modes load; view reclamps on next layout pass.</summary>
     public event EventHandler? OverlayLayoutChanged;
@@ -417,7 +417,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         var selection = GetOrCreateSelection();
         selection.RememberOffsets = true;
         selection.SetReceiveOffsetForMode(SelectedMode.Type, ReceiveOffsetKHz, UseCwReceiveOffsetStorage());
-        _ = _settings.SaveAsync();
+        _settings.RequestSave();
 
         var hz = (int)Math.Round(ReceiveOffsetKHz * 1000.0);
         var style = UseCwReceiveOffsetStorage() ? "CW " : "";
@@ -656,7 +656,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             selection.SetDopplerStrategyForMode(SelectedMode.Type, DopplerStrategy);
         }
 
-        _ = _settings.SaveAsync();
+        _settings.RequestSave();
     }
 
     partial void OnDopplerStrategyChanged(DopplerStrategy value)

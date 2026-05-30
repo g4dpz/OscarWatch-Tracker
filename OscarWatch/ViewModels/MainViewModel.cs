@@ -226,7 +226,7 @@ public partial class MainViewModel : ViewModelBase
     partial void OnIsSkyPlotExpandedChanged(bool value)
     {
         _settings.Current.SkyPlotExpanded = value;
-        _ = _settings.SaveAsync();
+        _settings.RequestSave();
     }
 
     private void RefreshRigUi(SatelliteTrackState? focused)
@@ -383,7 +383,7 @@ public partial class MainViewModel : ViewModelBase
         if (!_suppressCatPausePersist && _settings.Current.Rig.CatUpdatesPaused != value)
         {
             _settings.Current.Rig.CatUpdatesPaused = value;
-            _ = _settings.SaveAsync();
+            _settings.RequestSave();
         }
 
         SyncRigAfterOperationalModeChange();

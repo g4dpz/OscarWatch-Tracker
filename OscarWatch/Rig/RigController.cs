@@ -587,25 +587,22 @@ public sealed class RigController : IRigController, IDisposable
             }
         }
 
-        var wrote = false;
+        var okRx = true;
+        var okTx = true;
         if (writeRx)
-        {
-            WriteRx(rxHz);
-            wrote = true;
-        }
-
+            okRx = WriteRx(rxHz);
         if (writeTx)
-        {
-            WriteTx(txHz);
-            wrote = true;
-        }
+            okTx = WriteTx(txHz);
 
-        _lastWriteUtc = DateTime.UtcNow;
-        if (wrote)
+        if (okRx || okTx)
         {
+            _lastWriteUtc = DateTime.UtcNow;
             MarkProgrammaticFrequencySettle();
             FinishOffsetKnobCaptureBlock();
         }
+
+        if ((writeRx && !okRx) || (writeTx && !okTx))
+            _forceFrequencyApply = true;
     }
 
     private void FinishOffsetKnobCaptureBlock()
@@ -653,7 +650,8 @@ public sealed class RigController : IRigController, IDisposable
         if (_isBeaconOnly)
         {
             _driver.SetSatelliteMode(false);
-            _driver.SetSplitOn(false);
+            if (!IsIcomSatelliteLayoutRig(settings.Type))
+                _driver.SetSplitOn(false);
             ClearCtcssLeavingSatelliteMode(settings);
             EnsureBeaconDownlinkOnMain(context);
         }
@@ -666,7 +664,9 @@ public sealed class RigController : IRigController, IDisposable
         else
         {
             _driver.SetSatelliteMode(true);
-            _driver.SetSplitOn(false);
+            // IC-910/9100/9700 reject split CI-V in satellite (Main/Sub) mode with NAK.
+            if (!IsIcomSatelliteLayoutRig(settings.Type))
+                _driver.SetSplitOn(false);
             Thread.Sleep(150);
         }
 
@@ -688,14 +688,24 @@ public sealed class RigController : IRigController, IDisposable
         var corrected = ComputeDoppler(context);
         var rxHz = ToHz(corrected.RadioReceiveKHz);
         var txHz = ToHz(corrected.RadioTransmitKHz);
-        WriteInitialFrequencies(settings, rxHz, txHz);
+        _lastRigRxHz = 0;
+        _lastRigTxHz = 0;
+        var initResult = WriteInitialFrequencies(settings, rxHz, txHz);
         ApplyCtcss(settings, context, force: true);
 
         if (deferModeSetup)
             ConfigureVfoModes(context);
-        _lastRigRxHz = rxHz;
-        _lastRigTxHz = txHz;
-        _lastWriteUtc = DateTime.UtcNow;
+
+        if (initResult.RxWritten)
+            _lastRigRxHz = rxHz;
+        if (initResult.TxWritten)
+            _lastRigTxHz = txHz;
+
+        if (initResult.RequiresRetry(_isBeaconOnly))
+            _forceFrequencyApply = true;
+
+        if (initResult.RxWritten || initResult.TxWritten)
+            _lastWriteUtc = DateTime.UtcNow;
         _lastPassDownlinkOnVhf = RigSatModeHelper.IsVhfCenterKHz(context.Mode.DownlinkKHz);
         MarkProgrammaticFrequencySettle();
         _suspendDopplerUntilUtc = DateTime.UtcNow.AddMilliseconds(500);
@@ -874,10 +884,10 @@ public sealed class RigController : IRigController, IDisposable
             : RigVfo.VfoB;
     }
 
-    private void WriteInitialFrequencies(RigSettings settings, long rxHz, long txHz)
+    private InitialFrequencyWriteResult WriteInitialFrequencies(RigSettings settings, long rxHz, long txHz)
     {
         if (_driver is null)
-            return;
+            return new InitialFrequencyWriteResult(false, false);
 
         if (_useMainSub)
         {
@@ -887,23 +897,29 @@ public sealed class RigController : IRigController, IDisposable
                 _driver.SetToneSquelchOn(false);
             else
                 _driver.SetToneOn(false);
-            _driver.SetFrequencyHz(rxHz);
-            if (!_isBeaconOnly)
-            {
-                _driver.SelectVfo(RigVfo.Sub, force: true);
-                _driver.SetFrequencyHz(txHz);
-            }
+            var rxWritten = _driver.SetFrequencyHz(rxHz);
+            if (_isBeaconOnly)
+                return new InitialFrequencyWriteResult(rxWritten, TxWritten: true);
+
+            _driver.SelectVfo(RigVfo.Sub, force: true);
+            var txWritten = _driver.SetFrequencyHz(txHz);
+            return new InitialFrequencyWriteResult(rxWritten, txWritten);
         }
-        else
-        {
-            _driver.SelectVfo(ReceiveVfo());
-            _driver.SetFrequencyHz(rxHz);
-            if (!_isBeaconOnly)
-            {
-                _driver.SelectVfo(RigVfo.VfoB);
-                _driver.SetFrequencyHz(txHz);
-            }
-        }
+
+        _driver.SelectVfo(ReceiveVfo());
+        var rxOk = _driver.SetFrequencyHz(rxHz);
+        if (_isBeaconOnly)
+            return new InitialFrequencyWriteResult(rxOk, TxWritten: true);
+
+        _driver.SelectVfo(RigVfo.VfoB);
+        var txOk = _driver.SetFrequencyHz(txHz);
+        return new InitialFrequencyWriteResult(rxOk, txOk);
+    }
+
+    private readonly record struct InitialFrequencyWriteResult(bool RxWritten, bool TxWritten)
+    {
+        public bool RequiresRetry(bool isBeaconOnly) =>
+            !RxWritten || (!isBeaconOnly && !TxWritten);
     }
 
     private void NoteContextOffsetChange(RigTrackingContext context)
@@ -988,24 +1004,34 @@ public sealed class RigController : IRigController, IDisposable
     private bool CanWrite(RigSettings settings) =>
         (DateTime.UtcNow - _lastWriteUtc).TotalMilliseconds >= settings.CatDelayMs;
 
-    private void WriteRx(long hz)
+    private bool WriteRx(long hz)
     {
         if (_driver is null)
-            return;
+            return false;
 
         _driver.SelectVfo(ReceiveVfo());
         if (_driver.SetFrequencyHz(hz))
+        {
             _lastRigRxHz = hz;
+            return true;
+        }
+
+        return false;
     }
 
-    private void WriteTx(long hz)
+    private bool WriteTx(long hz)
     {
         if (_driver is null)
-            return;
+            return false;
 
         _driver.SelectVfo(TransmitVfo());
         if (_driver.SetFrequencyHz(hz))
+        {
             _lastRigTxHz = hz;
+            return true;
+        }
+
+        return false;
     }
 
     private static bool NearlyEqual(double a, double b) => Math.Abs(a - b) < 0.0001;

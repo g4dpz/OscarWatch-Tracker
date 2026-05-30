@@ -4,8 +4,13 @@ namespace OscarWatch.Rig;
 
 public sealed class IcomIc910Driver : IcomCivDriverBase
 {
-    public IcomIc910Driver(string port, int baudRate, string civAddressHex)
-        : base(RigType.IcomIc910, port, baudRate, civAddressHex)
+    public IcomIc910Driver(string port, int baudRate, string civAddressHex, int catDelayMs = 50)
+        : base(RigType.IcomIc910, port, baudRate, civAddressHex, catDelayMs)
+    {
+    }
+
+    internal IcomIc910Driver(IIcomCivTransport transport)
+        : base(RigType.IcomIc910, transport)
     {
     }
 

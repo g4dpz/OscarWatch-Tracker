@@ -6,9 +6,9 @@ public static class RigDriverFactory
 {
     public static IRigDriver Create(RigSettings settings) => settings.Type switch
     {
-        RigType.IcomIc910 => new IcomIc910Driver(settings.Port, settings.BaudRate, settings.CivAddress),
-        RigType.IcomIc9100 => new IcomIc9100Driver(settings.Port, settings.BaudRate, settings.CivAddress),
-        RigType.IcomIc9700 => new IcomIc9700Driver(settings.Port, settings.BaudRate, settings.CivAddress),
+        RigType.IcomIc910 => new IcomIc910Driver(settings.Port, settings.BaudRate, settings.CivAddress, settings.CatDelayMs),
+        RigType.IcomIc9100 => new IcomIc9100Driver(settings.Port, settings.BaudRate, settings.CivAddress, settings.CatDelayMs),
+        RigType.IcomIc9700 => new IcomIc9700Driver(settings.Port, settings.BaudRate, settings.CivAddress, settings.CatDelayMs),
         RigType.YaesuFt847 => new YaesuFt847Driver(settings.Port, settings.BaudRate, settings.CatDelayMs),
         RigType.KenwoodTs2000 => new KenwoodTs2000Driver(settings.Port, settings.BaudRate, settings.CatDelayMs),
         RigType.Dummy => new DummyRigDriver(),

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using OscarWatch.Core.Geo;
@@ -15,12 +16,21 @@ public sealed class SettingsService : ISettingsService
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
     };
 
+    private readonly SemaphoreSlim _saveGate = new(1, 1);
+
+    public SettingsService(string? settingsPath = null)
+    {
+        SettingsPath = settingsPath ?? Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "OscarWatch",
+            "settings.json");
+    }
+
     public AppSettings Current { get; private set; } = new();
 
-    public string SettingsPath { get; } = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "OscarWatch",
-        "settings.json");
+    public string SettingsPath { get; }
+
+    public static event Action<Exception>? SaveFailed;
 
     public void Load()
     {
@@ -31,7 +41,7 @@ public sealed class SettingsService : ISettingsService
             Current = new AppSettings();
             SyncGridFromLatLon();
             EnsureSavedStations();
-            Save();
+            SaveToDisk();
             return;
         }
 
@@ -62,11 +72,31 @@ public sealed class SettingsService : ISettingsService
         await Task.Run(() => Load(), cancellationToken).ConfigureAwait(false);
     }
 
-    private void Save()
+    public async Task SaveAsync(CancellationToken cancellationToken = default)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);
-        var json = JsonSerializer.Serialize(Current, JsonOptions);
-        File.WriteAllText(SettingsPath, json);
+        await _saveGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await Task.Run(SaveToDisk, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            ReportSaveFailed(ex);
+            throw;
+        }
+        finally
+        {
+            _saveGate.Release();
+        }
+    }
+
+    public void RequestSave()
+    {
+        _ = SaveAsync().ContinueWith(
+            static _ => { },
+            CancellationToken.None,
+            TaskContinuationOptions.OnlyOnFaulted,
+            TaskScheduler.Default);
     }
 
     public void EnsureSavedStations()
@@ -108,11 +138,6 @@ public sealed class SettingsService : ISettingsService
         profile.GridSquare = Current.GroundStation.GridSquare;
     }
 
-    public Task SaveAsync(CancellationToken cancellationToken = default)
-    {
-        return Task.Run(() => Save(), cancellationToken);
-    }
-
     public void SyncGridFromLatLon()
     {
         Current.GroundStation.GridSquare = MaidenheadGrid.FromLatLon(
@@ -125,5 +150,65 @@ public sealed class SettingsService : ISettingsService
         var (lat, lon) = MaidenheadGrid.ToLatLonCenter(Current.GroundStation.GridSquare);
         Current.GroundStation.LatitudeDeg = lat;
         Current.GroundStation.LongitudeDeg = lon;
+    }
+
+    private void SaveToDisk()
+    {
+        var json = JsonSerializer.Serialize(Current, JsonOptions);
+        WriteAtomic(SettingsPath, json);
+    }
+
+    internal static void WriteAtomic(string path, string contents)
+    {
+        var directory = Path.GetDirectoryName(path)!;
+        Directory.CreateDirectory(directory);
+
+        var tempPath = path + ".tmp";
+        WriteAllTextWithRetry(tempPath, contents);
+        ReplaceFileWithRetry(tempPath, path);
+    }
+
+    private static void WriteAllTextWithRetry(string path, string contents)
+    {
+        const int maxAttempts = 4;
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                File.WriteAllText(path, contents);
+                return;
+            }
+            catch (IOException) when (attempt < maxAttempts)
+            {
+                Thread.Sleep(25 * attempt);
+            }
+        }
+    }
+
+    private static void ReplaceFileWithRetry(string sourcePath, string destinationPath)
+    {
+        const int maxAttempts = 4;
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                if (File.Exists(destinationPath))
+                    File.Replace(sourcePath, destinationPath, destinationPath + ".bak", ignoreMetadataErrors: true);
+                else
+                    File.Move(sourcePath, destinationPath);
+
+                return;
+            }
+            catch (IOException) when (attempt < maxAttempts)
+            {
+                Thread.Sleep(25 * attempt);
+            }
+        }
+    }
+
+    private static void ReportSaveFailed(Exception ex)
+    {
+        Trace.TraceError("OscarWatch settings save failed: {0}", ex.Message);
+        SaveFailed?.Invoke(ex);
     }
 }

@@ -7,19 +7,45 @@ namespace OscarWatch.Rig;
 public abstract class IcomCivDriverBase : IRigDriver
 {
     private static readonly ILogger Log = Serilog.Log.ForContext<IcomCivDriverBase>();
-    private IcomSerialTransport? _transport;
+    private IIcomCivTransport? _transport;
+    private readonly IIcomCivTransport? _injectedTransport;
+    private readonly int _catDelayMs;
     private RigVfo _currentVfo = RigVfo.VfoA;
     private long _lastMainHz;
     private long _lastSubHz;
     private long _lastVfoAFreq;
     private long _lastVfoBFreq;
 
-    protected IcomCivDriverBase(RigType rigType, string port, int baudRate, string civAddressHex)
+    protected IcomCivDriverBase(RigType rigType, string port, int baudRate, string civAddressHex, int catDelayMs = 50)
+        : this(rigType, port, baudRate, civAddressHex, catDelayMs, injectedTransport: null)
+    {
+    }
+
+    internal IcomCivDriverBase(RigType rigType, IIcomCivTransport injectedTransport)
+    {
+        RigType = rigType;
+        Port = "";
+        BaudRate = 0;
+        CivAddress = 0x60;
+        _catDelayMs = 50;
+        _injectedTransport = injectedTransport;
+        _transport = injectedTransport;
+    }
+
+    private IcomCivDriverBase(
+        RigType rigType,
+        string port,
+        int baudRate,
+        string civAddressHex,
+        int catDelayMs,
+        IIcomCivTransport? injectedTransport)
     {
         RigType = rigType;
         Port = port;
         BaudRate = baudRate;
         CivAddress = IcomCivCodec.ParseCivAddressHex(civAddressHex);
+        _catDelayMs = Math.Max(catDelayMs, 15);
+        _injectedTransport = injectedTransport;
     }
 
     public RigType RigType { get; }
@@ -32,8 +58,22 @@ public abstract class IcomCivDriverBase : IRigDriver
 
     public void Open()
     {
+        if (_injectedTransport is not null)
+        {
+            try
+            {
+                _injectedTransport.Open();
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Failed to open injected CI-V transport");
+            }
+
+            return;
+        }
+
         _transport?.Dispose();
-        _transport = new IcomSerialTransport(Port, BaudRate, CivAddress);
+        _transport = new IcomSerialTransport(Port, BaudRate, CivAddress, _catDelayMs);
         try
         {
             _transport.Open();
@@ -54,8 +94,8 @@ public abstract class IcomCivDriverBase : IRigDriver
         if (_transport is null || !IsConnected)
             return cached > 0 ? cached : null;
 
-        Thread.Sleep(50);
-        var response = _transport.WriteCommand([0x03]);
+        Thread.Sleep(_catDelayMs);
+        var response = _transport.WriteCommand([0x03], _catDelayMs);
         var hz = IcomCivCodec.DecodeFrequencyFromResponse(response);
         if (hz is { } value && IcomCivCodec.IsValidSatelliteFrequencyHz(value))
         {
@@ -77,11 +117,12 @@ public abstract class IcomCivDriverBase : IRigDriver
             return true;
         }
 
-        StoreFrequencyHz(_currentVfo, hz);
-
         var body = IcomCivCodec.EncodeSetFrequencyHz(hz);
-        var response = _transport.WriteCommand(body);
-        return response.Length > 0 && response.Contains((byte)0xFB);
+        if (!SendWithAckRetry(body, $"set frequency on {_currentVfo}"))
+            return false;
+
+        StoreFrequencyHz(_currentVfo, hz);
+        return true;
     }
 
     public void SelectVfo(RigVfo vfo, bool force = false) => SelectVfoInternal(vfo, force);
@@ -91,9 +132,11 @@ public abstract class IcomCivDriverBase : IRigDriver
         if (!force && _currentVfo == vfo && _transport is { IsOpen: true })
             return;
 
-        _currentVfo = vfo;
         if (_transport is null || !IsConnected)
+        {
+            _currentVfo = vfo;
             return;
+        }
 
         var cmd = vfo switch
         {
@@ -103,7 +146,9 @@ public abstract class IcomCivDriverBase : IRigDriver
             RigVfo.Sub => new byte[] { 0x07, 0xD1 },
             _ => new byte[] { 0x07, 0x00 }
         };
-        WriteWithRetry(cmd);
+
+        if (SendWithAckRetry(cmd, $"select VFO {vfo}"))
+            _currentVfo = vfo;
     }
 
     public void SetMode(string mode)
@@ -112,16 +157,27 @@ public abstract class IcomCivDriverBase : IRigDriver
             return;
 
         if (IcomCivCodec.EncodeSetModeCommand(mode) is { } cmd)
-            WriteWithRetry(cmd);
+            SendWithAckRetry(cmd, $"set mode {mode}");
     }
 
     public void SetSplitOn(bool on) =>
-        WriteWithRetry(on ? [0x0F, 0x01] : [0x0F, 0x00]);
+        SendWithAckRetry(on ? [0x0F, 0x01] : [0x0F, 0x00], on ? "split on" : "split off");
 
     public abstract void SetSatelliteMode(bool on);
 
     public void ExchangeVfos()
     {
+        if (_transport is null || !IsConnected)
+            return;
+
+        // Exchange is a toggle — send once only; a retry would swap twice and undo it.
+        var response = _transport.WriteCommand([0x07, 0xB0], _catDelayMs);
+        if (!IsCivAck(response))
+        {
+            Log.Warning("CI-V VFO exchange failed");
+            return;
+        }
+
         _currentVfo = _currentVfo switch
         {
             RigVfo.Main => RigVfo.Sub,
@@ -131,8 +187,6 @@ public abstract class IcomCivDriverBase : IRigDriver
         };
         (_lastMainHz, _lastSubHz) = (_lastSubHz, _lastMainHz);
         (_lastVfoAFreq, _lastVfoBFreq) = (_lastVfoBFreq, _lastVfoAFreq);
-        // Exchange is a toggle — must be sent once; WriteWithRetry would swap twice and undo it.
-        WriteOnce([0x07, 0xB0]);
         Thread.Sleep(150);
     }
 
@@ -165,37 +219,58 @@ public abstract class IcomCivDriverBase : IRigDriver
     }
 
     public void SetToneOn(bool on) =>
-        _transport?.WriteCommand(on ? [0x16, 0x42, 0x01] : [0x16, 0x42, 0x00]);
+        SendWithAckRetry(on ? [0x16, 0x42, 0x01] : [0x16, 0x42, 0x00], on ? "tone on" : "tone off");
 
     public void SetToneSquelchOn(bool on) =>
-        _transport?.WriteCommand(on ? [0x16, 0x43, 0x01] : [0x16, 0x43, 0x00]);
+        SendWithAckRetry(on ? [0x16, 0x43, 0x01] : [0x16, 0x43, 0x00], on ? "tone squelch on" : "tone squelch off");
 
     public void SetToneHz(double hz, bool squelchTone)
     {
         if (_transport is null || !IsConnected)
             return;
-        _transport.WriteCommand(IcomCivCodec.EncodeToneHz(hz, squelchTone));
+
+        SendWithAckRetry(IcomCivCodec.EncodeToneHz(hz, squelchTone), "set tone");
     }
 
-    protected void WriteWithRetry(ReadOnlySpan<byte> body)
+    protected void WriteWithRetry(ReadOnlySpan<byte> body) =>
+        SendWithAckRetry(body, "CI-V command");
+
+    private bool SendWithAckRetry(ReadOnlySpan<byte> body, string description)
     {
         if (_transport is null || !IsConnected)
-            return;
-        _transport.WriteCommand(body, retry: true);
-        Thread.Sleep(100);
-        _transport.WriteCommand(body, retry: true);
+            return false;
+
+        for (var attempt = 0; attempt < 2; attempt++)
+        {
+            if (attempt > 0)
+                Thread.Sleep(_catDelayMs);
+
+            var response = _transport.WriteCommand(body, _catDelayMs);
+            if (IsCivAck(response))
+                return true;
+
+            if (IsCivNak(response))
+                Log.Debug("CI-V {Description} NAK (0xFA), attempt {Attempt}", description, attempt + 1);
+            else
+                Log.Debug("CI-V {Description} no ACK, attempt {Attempt}", description, attempt + 1);
+        }
+
+        Log.Warning("CI-V {Description} failed after retry", description);
+        return false;
     }
 
-    private void WriteOnce(ReadOnlySpan<byte> body)
-    {
-        if (_transport is null || !IsConnected)
-            return;
-        _transport.WriteCommand(body, retry: true);
-    }
+    private static bool IsCivAck(ReadOnlySpan<byte> response) =>
+        response.Length > 0 && response.Contains((byte)0xFB);
+
+    private static bool IsCivNak(ReadOnlySpan<byte> response) =>
+        response.Length > 0 && response.Contains((byte)0xFA);
 
     public void Dispose()
     {
-        _transport?.Dispose();
-        _transport = null;
+        if (_injectedTransport is null)
+        {
+            _transport?.Dispose();
+            _transport = null;
+        }
     }
 }

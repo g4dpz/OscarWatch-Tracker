@@ -11,6 +11,7 @@ internal sealed class RecordingRigDriver : IRigDriver
     /// <summary>When set, the next Main/VfoA read returns this value once (simulates CAT display lag).</summary>
     public long? NextStaleMainReadHz { get; set; }
     public int SetFrequencyCallCount { get; private set; }
+    public Queue<bool> SetFrequencyResults { get; } = new();
     public double? LastToneHz { get; private set; }
     public bool? LastToneSquelch { get; private set; }
     public bool ToneSquelchOn { get; private set; }
@@ -41,6 +42,10 @@ internal sealed class RecordingRigDriver : IRigDriver
     public bool SetFrequencyHz(long hz)
     {
         SetFrequencyCallCount++;
+        var success = SetFrequencyResults.Count > 0 ? SetFrequencyResults.Dequeue() : true;
+        if (!success)
+            return false;
+
         if (_currentVfo is RigVfo.VfoA or RigVfo.Main)
             MainHz = hz;
         else
@@ -64,7 +69,9 @@ internal sealed class RecordingRigDriver : IRigDriver
         ModeSetCount++;
         LastModeVfo = _currentVfo;
     }
-    public void SetSplitOn(bool on) { }
+    public int SetSplitOnCallCount { get; private set; }
+
+    public void SetSplitOn(bool on) => SetSplitOnCallCount++;
     public int SetSatelliteModeCallCount { get; private set; }
     public bool? LastSatelliteModeOn { get; private set; }
 

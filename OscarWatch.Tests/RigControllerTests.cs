@@ -65,6 +65,7 @@ public class RigControllerTests
         Assert.NotNull(status.LastTransmitHz);
         Assert.Equal(67.0, rig.LastToneHz);
         Assert.Equal(RigVfo.Sub, rig.LastToneVfo);
+        Assert.Equal(0, rig.SetSplitOnCallCount);
     }
 
     [Fact]
@@ -214,6 +215,109 @@ public class RigControllerTests
         controller.DrainCommandQueueForTests();
         Assert.Equal(2, rig.SetSatelliteModeCallCount);
         Assert.True(rig.LastSatelliteModeOn);
+    }
+
+    [Fact]
+    public void Pass_init_failed_frequency_write_retries_on_tracking_loop()
+    {
+        var rig = new RecordingRigDriver();
+        rig.SetFrequencyResults.Enqueue(false);
+        rig.SetFrequencyResults.Enqueue(false);
+        rig.SetFrequencyResults.Enqueue(true);
+        rig.SetFrequencyResults.Enqueue(true);
+
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "99999",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        var corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0);
+        var ctx = new RigTrackingContext
+        {
+            TrackState = state,
+            Mode = mode,
+            Corrected = corrected,
+            ReceiveOffsetKHz = 0
+        };
+
+        var expectedRx = (long)Math.Round(corrected.RadioReceiveKHz * 1000.0);
+        var expectedTx = (long)Math.Round(corrected.RadioTransmitKHz * 1000.0);
+
+        controller.Update(settings, ctx);
+        controller.DrainCommandQueueForTests();
+
+        Assert.Equal(expectedRx, rig.MainHz);
+        Assert.Equal(expectedTx, rig.SubHz);
+        Assert.Equal(4, rig.SetFrequencyCallCount);
+    }
+
+    [Fact]
+    public void Pass_init_failed_frequency_write_keeps_rig_unchanged_when_retries_also_fail()
+    {
+        var rig = new RecordingRigDriver();
+        for (var i = 0; i < 4; i++)
+            rig.SetFrequencyResults.Enqueue(false);
+
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "99999",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = state,
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            ReceiveOffsetKHz = 0
+        };
+
+        controller.Update(settings, ctx);
+        controller.DrainCommandQueueForTests();
+
+        Assert.Equal(0, rig.MainHz);
+        Assert.Equal(0, rig.SubHz);
     }
 
     [Fact]

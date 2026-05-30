@@ -7,8 +7,8 @@ namespace OscarWatch.Rig;
 /// </summary>
 public sealed class IcomIc9700Driver : IcomCivDriverBase
 {
-    public IcomIc9700Driver(string port, int baudRate, string civAddressHex)
-        : base(RigType.IcomIc9700, port, baudRate, civAddressHex)
+    public IcomIc9700Driver(string port, int baudRate, string civAddressHex, int catDelayMs = 50)
+        : base(RigType.IcomIc9700, port, baudRate, civAddressHex, catDelayMs)
     {
     }
 

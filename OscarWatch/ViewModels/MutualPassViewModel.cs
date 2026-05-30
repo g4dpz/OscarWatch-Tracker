@@ -73,7 +73,7 @@ public partial class MutualPassViewModel : ViewModelBase
         OnPropertyChanged(nameof(TimeDisplayIndex));
         _settings.Current.PassPlannerUseUtcTime = value;
         RefreshPassDisplayTimes();
-        _ = _settings.SaveAsync();
+        _settings.RequestSave();
     }
 
     public int TimeDisplayIndex

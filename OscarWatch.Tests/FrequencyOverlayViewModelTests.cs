@@ -413,6 +413,7 @@ public class FrequencyOverlayViewModelTests
         public void Load() { }
         public Task LoadAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task SaveAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public void RequestSave() { }
         public void SyncGridFromLatLon() { }
         public void SyncLatLonFromGrid() { }
         public void EnsureSavedStations() { }

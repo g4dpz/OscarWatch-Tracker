@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using OscarWatch.Core.Services;
 using Serilog;
 using Serilog.Events;
 
@@ -59,6 +60,9 @@ public static class AppLogging
             Log.Error(e.Exception, "Unobserved task exception");
             e.SetObserved();
         };
+
+        SettingsService.SaveFailed += ex =>
+            Log.Warning(ex, "Settings save failed");
     }
 
     public static void Shutdown()
