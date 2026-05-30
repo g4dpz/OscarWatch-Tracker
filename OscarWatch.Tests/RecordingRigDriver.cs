@@ -56,10 +56,17 @@ internal sealed class RecordingRigDriver : IRigDriver
     private RigVfo _currentVfo = RigVfo.Main;
 
     public RigVfo CurrentVfo => _currentVfo;
+    public int SelectVfoCallCount { get; private set; }
+    public bool LastSelectVfoForce { get; private set; }
 
     public RigVfo? LastToneVfo { get; private set; }
 
-    public void SelectVfo(RigVfo vfo, bool force = false) => _currentVfo = vfo;
+    public void SelectVfo(RigVfo vfo, bool force = false)
+    {
+        SelectVfoCallCount++;
+        LastSelectVfoForce = force;
+        _currentVfo = vfo;
+    }
 
     public RigVfo? LastModeVfo { get; private set; }
     public int ModeSetCount { get; private set; }

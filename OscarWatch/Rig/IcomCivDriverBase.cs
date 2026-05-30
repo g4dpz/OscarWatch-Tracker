@@ -88,7 +88,7 @@ public abstract class IcomCivDriverBase : IRigDriver
 
     public long? ReadFrequencyHz(RigVfo vfo)
     {
-        SelectVfoInternal(vfo, force: true);
+        SelectVfoInternal(vfo, force: false);
         var cached = CachedFrequencyHz(vfo);
 
         if (_transport is null || !IsConnected)
@@ -147,8 +147,54 @@ public abstract class IcomCivDriverBase : IRigDriver
             _ => new byte[] { 0x07, 0x00 }
         };
 
-        if (SendWithAckRetry(cmd, $"select VFO {vfo}"))
+        if (TrySelectVfo(cmd, vfo, $"select VFO {vfo}"))
+            return;
+
+        Log.Warning("CI-V select VFO {Vfo} failed after retry", vfo);
+    }
+
+    /// <summary>
+    /// VFO select (0x07). NAK means rejected; empty/no reply often means already selected — ICOM omits FB in SAT mode.
+    /// </summary>
+    private bool TrySelectVfo(ReadOnlySpan<byte> body, RigVfo vfo, string description)
+    {
+        if (_transport is null || !IsConnected)
+        {
             _currentVfo = vfo;
+            return true;
+        }
+
+        var changingVfo = _currentVfo != vfo;
+        for (var attempt = 0; attempt < 2; attempt++)
+        {
+            if (attempt > 0)
+                Thread.Sleep(_catDelayMs);
+
+            var response = _transport.WriteCommand(body, _catDelayMs);
+            if (IsCivAck(response))
+            {
+                _currentVfo = vfo;
+                return true;
+            }
+
+            if (IsCivNak(response))
+            {
+                Log.Debug("CI-V {Description} NAK (0xFA), attempt {Attempt}", description, attempt + 1);
+                continue;
+            }
+
+            if (changingVfo && attempt == 0)
+            {
+                Log.Debug("CI-V {Description} no ACK while changing VFO; retrying", description);
+                continue;
+            }
+
+            Log.Debug("CI-V {Description} no ACK; assuming VFO selected", description);
+            _currentVfo = vfo;
+            return true;
+        }
+
+        return false;
     }
 
     public void SetMode(string mode)

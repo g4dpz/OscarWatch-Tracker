@@ -88,4 +88,32 @@ public sealed class IcomCivDriverTests
 
         Assert.Equal(2, transport.CommandCount);
     }
+
+    [Fact]
+    public void SelectVfo_without_ack_assumes_success_and_skips_redundant_select()
+    {
+        var transport = new RecordingIcomCivTransport();
+        var driver = new IcomIc910Driver(transport);
+        driver.Open();
+
+        transport.CommandResponses.Enqueue([]);
+        driver.SelectVfo(RigVfo.Main, force: true);
+        driver.SelectVfo(RigVfo.Main);
+
+        Assert.Equal(2, transport.CommandCount);
+    }
+
+    [Fact]
+    public void SelectVfo_without_ack_retries_once_when_changing_vfo()
+    {
+        var transport = new RecordingIcomCivTransport();
+        var driver = new IcomIc910Driver(transport);
+        driver.Open();
+
+        transport.CommandResponses.Enqueue([]);
+        transport.CommandResponses.Enqueue([]);
+        driver.SelectVfo(RigVfo.Main, force: true);
+
+        Assert.Equal(2, transport.CommandCount);
+    }
 }

@@ -410,9 +410,13 @@ public sealed class RigController : IRigController, IDisposable
         SampleReceiveDial();
         SyncManualFromMainDial(context);
 
-        if (!_forceFrequencyApply && !_vfoNotMoving)
+        if (!_vfoNotMoving)
         {
-            RestoreOperatorVfo();
+            // Offset / strategy changes must apply immediately; failed doppler retries wait for a stable dial.
+            if (!_forceFrequencyApply || !_blockKnobCapture)
+                return;
+
+            WriteDopplerFrequencies(settings, context);
             return;
         }
 
@@ -433,8 +437,11 @@ public sealed class RigController : IRigController, IDisposable
     private void SyncManualFromMainDial(RigTrackingContext context)
     {
         if (_blockKnobCapture || DateTime.UtcNow < _ignoreDialUntilUtc || !_vfoNotMoving
-            || context.TrackState.LookAngles is null
-            || !TryReadReceiveDialHz(out var dialHz))
+            || context.TrackState.LookAngles is null)
+            return;
+
+        _driver?.SelectVfo(ReceiveVfo(), force: true);
+        if (!TryReadReceiveDialHz(out var dialHz))
             return;
 
         var baseline = DopplerFrequencyCalculator.Compute(
@@ -702,7 +709,10 @@ public sealed class RigController : IRigController, IDisposable
             _lastRigTxHz = txHz;
 
         if (initResult.RequiresRetry(_isBeaconOnly))
+        {
             _forceFrequencyApply = true;
+            WriteDopplerFrequencies(settings, context);
+        }
 
         if (initResult.RxWritten || initResult.TxWritten)
             _lastWriteUtc = DateTime.UtcNow;
@@ -998,7 +1008,7 @@ public sealed class RigController : IRigController, IDisposable
         if (_driver is null)
             return;
 
-        _driver.SelectVfo(ReceiveVfo());
+        _driver.SelectVfo(ReceiveVfo(), force: true);
     }
 
     private bool CanWrite(RigSettings settings) =>
@@ -1009,7 +1019,7 @@ public sealed class RigController : IRigController, IDisposable
         if (_driver is null)
             return false;
 
-        _driver.SelectVfo(ReceiveVfo());
+        _driver.SelectVfo(ReceiveVfo(), force: true);
         if (_driver.SetFrequencyHz(hz))
         {
             _lastRigRxHz = hz;
@@ -1024,7 +1034,7 @@ public sealed class RigController : IRigController, IDisposable
         if (_driver is null)
             return false;
 
-        _driver.SelectVfo(TransmitVfo());
+        _driver.SelectVfo(TransmitVfo(), force: true);
         if (_driver.SetFrequencyHz(hz))
         {
             _lastRigTxHz = hz;
