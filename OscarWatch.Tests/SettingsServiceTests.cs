@@ -58,7 +58,7 @@ public sealed class SettingsServiceTests
     }
 
     [Fact]
-    public async Task RequestSave_reports_failure_when_file_is_locked()
+    public async Task RequestSave_reports_failure_when_destination_is_not_writable()
     {
         var path = Path.Combine(Path.GetTempPath(), $"oscarwatch-settings-{Guid.NewGuid():N}.json");
         Exception? reported = null;
@@ -70,22 +70,43 @@ public sealed class SettingsServiceTests
             var service = new SettingsService(path);
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
             File.WriteAllText(path, "{}");
+            MakeFileReadOnly(path);
 
-            await using (var stream = File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
-            {
-                service.RequestSave();
-                await Task.Delay(500);
-            }
+            service.RequestSave();
+
+            var deadline = DateTime.UtcNow.AddSeconds(5);
+            while (reported is null && DateTime.UtcNow < deadline)
+                await Task.Delay(50);
 
             Assert.NotNull(reported);
         }
         finally
         {
             SettingsService.SaveFailed -= Handler;
+            MakeFileWritable(path);
             DeleteIfExists(path);
             DeleteIfExists(path + ".tmp");
             DeleteIfExists(path + ".bak");
         }
+    }
+
+    private static void MakeFileReadOnly(string path)
+    {
+        if (OperatingSystem.IsWindows())
+            File.SetAttributes(path, FileAttributes.ReadOnly);
+        else
+            File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.GroupRead | UnixFileMode.OtherRead);
+    }
+
+    private static void MakeFileWritable(string path)
+    {
+        if (!File.Exists(path))
+            return;
+
+        if (OperatingSystem.IsWindows())
+            File.SetAttributes(path, FileAttributes.Normal);
+        else
+            File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.GroupRead | UnixFileMode.OtherRead);
     }
 
     private static void DeleteIfExists(string path)
