@@ -170,7 +170,8 @@ public abstract class IcomCivDriverBase : IRigDriver
         }
 
         var changingVfo = _currentVfo != vfo;
-        for (var attempt = 0; attempt < 2; attempt++)
+        var maxAttempts = changingVfo ? 3 : 2;
+        for (var attempt = 0; attempt < maxAttempts; attempt++)
         {
             if (attempt > 0)
                 Thread.Sleep(_catDelayMs);
@@ -188,7 +189,7 @@ public abstract class IcomCivDriverBase : IRigDriver
                 continue;
             }
 
-            if (changingVfo && attempt == 0)
+            if (changingVfo && attempt < maxAttempts - 1)
             {
                 Log.Debug("CI-V {Description} no ACK while changing VFO; retrying", description);
                 continue;

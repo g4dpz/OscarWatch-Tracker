@@ -50,7 +50,7 @@
         <tbody>
           <tr><td>ICOM IC-910 / IC-9700 / IC-9100</td><td>CI-V, Main/Sub for cross-band; receive-only modes use <strong>Main</strong> on the downlink band (VHF or UHF) with SAT off</td></tr>
           <tr><td>Yaesu FT-847</td><td>Satellite CAT — SAT RX/TX VFOs, doppler, uplink CTCSS</td></tr>
-          <tr><td>Kenwood TS-2000</td><td>CAT enables SATL; auto band swap via <code>FA</code>/<code>FB</code> exchange; TRACE off via CAT (beta)</td></tr>
+          <tr><td>Kenwood TS-2000</td><td>CAT enables SATL; auto band swap via <code>FA</code>/<code>FB</code> exchange; linear CW uplink in SATL; TRACE off via CAT (beta)</td></tr>
           <tr><td>Dummy rig</td><td>No hardware — test UI and Doppler only</td></tr>
         </tbody>
       </table>
@@ -138,12 +138,19 @@
         </li>
       </ul>
       <p id="passband-knob">
-        These thresholds apply to <strong>automatic Doppler writes</strong>. On linear USB/LSB/CW modes,
-        OscarWatch also watches the Main dial when you tune by hand: movements of more than
-        <strong>1 Hz</strong> from the last CAT receive frequency are treated as knob tuning (passband adjust);
-        smaller differences are treated as Doppler lag.
-        After you stop turning the knob, OscarWatch waits for three stable dial reads (~300&nbsp;ms)
-        before resuming automatic RX/TX Doppler writes.
+        These thresholds apply to <strong>automatic Doppler writes</strong>. On linear <strong>USB</strong>,
+        <strong>LSB</strong>, and <strong>CW</strong> modes, OscarWatch also watches the Main (receive) dial
+        when you tune by hand: movements of more than <strong>1 Hz</strong> from the last CAT receive frequency
+        are treated as knob tuning (passband adjust); smaller differences are treated as Doppler lag.
+        While the dial is moving, automatic CAT is paused. After you stop turning, OscarWatch waits for
+        <strong>eight</strong> stable dial reads (~800&nbsp;ms) before resuming automatic RX/TX Doppler writes.
+      </p>
+      <p>
+        On rigs that use <strong>Main/Sub</strong> (ICOM IC-910 / IC-9700 / IC-9100, Kenwood TS-2000 in SATL),
+        receive updates on Main as soon as the dial is stable. <strong>Uplink (Sub) CAT is deferred for about
+        2.5 seconds</strong> after the last dial movement so brief pauses while scanning the passband do not
+        hop the radio to Sub or fight your tuning. OscarWatch then returns the selected VFO to Main for receive.
+        FM modes do not use this interactive path — both legs update automatically from the Doppler thresholds.
       </p>
       <p>
         <strong>CAT delay (ms)</strong> on the same settings page is separate: it spaces out CI-V (and similar)

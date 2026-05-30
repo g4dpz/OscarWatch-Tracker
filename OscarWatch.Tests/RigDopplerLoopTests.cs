@@ -55,6 +55,7 @@ public class RigDopplerLoopTests
         Assert.Equal(baselineTx, rig.SubHz);
 
         rig.MainHz = baselineRx + 1_000;
+        Thread.Sleep(2600);
         for (var i = 0; i < 8; i++)
             controller.RunTrackingLoopOnce();
 

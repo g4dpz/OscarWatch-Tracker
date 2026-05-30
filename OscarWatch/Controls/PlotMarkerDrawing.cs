@@ -53,6 +53,26 @@ internal static class PlotMarkerDrawing
         context.DrawEllipse(null, new Pen(Brushes.White, 1.5), rect);
     }
 
+    public static void DrawRemoteStationMarker(DrawingContext context, double x, double y)
+    {
+        const double radius = 7;
+        var fill = Color.Parse("#E69F00");
+        var outline = Color.Parse("#1a2028");
+
+        var geometry = new StreamGeometry();
+        using (var ctx = geometry.Open())
+        {
+            ctx.BeginFigure(new Point(x, y - radius), true);
+            ctx.LineTo(new Point(x + radius, y));
+            ctx.LineTo(new Point(x, y + radius));
+            ctx.LineTo(new Point(x - radius, y));
+            ctx.EndFigure(true);
+        }
+
+        context.DrawGeometry(new SolidColorBrush(fill), new Pen(new SolidColorBrush(outline), 2.5), geometry);
+        context.DrawGeometry(null, new Pen(Brushes.White, 1.5), geometry);
+    }
+
     public static void DrawFootprintMotionArrow(
         DrawingContext context,
         GeoCoordinate subpoint,

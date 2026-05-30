@@ -1182,6 +1182,9 @@ public class RigControllerTests
         rig.MainHz = rxAfterInit + 2_500;
         for (var i = 0; i < 14; i++)
             controller.RunTrackingLoopOnce();
+        Thread.Sleep(2600);
+        for (var i = 0; i < 4; i++)
+            controller.RunTrackingLoopOnce();
 
         Assert.Equal(rxAfterInit + 2_500, rig.MainHz);
         Assert.True(rig.SubHz < txAfterInit, $"REV expects TX to drop when RX rises: tx={rig.SubHz} was {txAfterInit}");
@@ -1406,6 +1409,9 @@ public class RigControllerTests
 
         rig.MainHz = rxAfterInit + 3_000;
         for (var i = 0; i < 14; i++)
+            controller.RunTrackingLoopOnce();
+        Thread.Sleep(2600);
+        for (var i = 0; i < 4; i++)
             controller.RunTrackingLoopOnce();
 
         Assert.Equal(rxAfterInit + 3_000, rig.MainHz);

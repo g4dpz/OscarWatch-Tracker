@@ -14,6 +14,8 @@ public sealed class RigController : IRigController, IDisposable
     private static readonly ILogger Log = Serilog.Log.ForContext<RigController>();
     /// <summary>Consecutive identical Main dial samples before linear CAT (8 × ~100 ms loop ≈ 0.8 s).</summary>
     private const int DialHistoryLength = 8;
+    /// <summary>After operator moves the Main dial, defer Sub (uplink) CAT so brief pauses while scanning do not select Sub.</summary>
+    private const int InteractiveSubWriteCooldownMs = 2500;
     private const int FmCompanionLegHz = 10;
     /// <summary>Min Hz between dial and last CAT RX to treat as operator tuning (QTrigdoppler uses 1 Hz).</summary>
     private const int KnobTuneCaptureThresholdHz = 1;
@@ -60,6 +62,7 @@ public sealed class RigController : IRigController, IDisposable
     private bool _forceFrequencyApply;
     private bool _blockKnobCapture;
     private DateTime _ignoreDialUntilUtc = DateTime.MinValue;
+    private DateTime _lastDialChangeUtc = DateTime.MinValue;
     private DateTime _suspendDopplerUntilUtc = DateTime.MinValue;
     private bool? _lastPassDownlinkOnVhf;
 
@@ -529,13 +532,36 @@ public sealed class RigController : IRigController, IDisposable
         }
 
         ShiftDialHistory(dialHz);
-        _vfoNotMoving = _rxDialHistoryCount >= DialHistoryLength
-            && _rxDialHistory[0] == _rxDialHistory[1]
-            && _rxDialHistory[1] == _rxDialHistory[2];
+        _vfoNotMoving = IsDialHistoryStable();
     }
+
+    private bool IsDialHistoryStable()
+    {
+        if (_rxDialHistoryCount < DialHistoryLength)
+            return false;
+
+        var reference = _rxDialHistory[0];
+        for (var i = 1; i < DialHistoryLength; i++)
+        {
+            if (_rxDialHistory[i] != reference)
+                return false;
+        }
+
+        return true;
+    }
+
+    private bool CanWriteInteractiveSub() =>
+        (DateTime.UtcNow - _lastDialChangeUtc).TotalMilliseconds >= InteractiveSubWriteCooldownMs;
 
     private void ShiftDialHistory(long dialHz)
     {
+        if (_rxDialHistoryCount > 0)
+        {
+            var previous = _rxDialHistory[Math.Min(_rxDialHistoryCount, DialHistoryLength) - 1];
+            if (previous != dialHz)
+                _lastDialChangeUtc = DateTime.UtcNow;
+        }
+
         if (_rxDialHistoryCount < DialHistoryLength)
         {
             _rxDialHistory[_rxDialHistoryCount++] = dialHz;
@@ -552,6 +578,7 @@ public sealed class RigController : IRigController, IDisposable
     {
         _rxDialHistoryCount = 0;
         _vfoNotMoving = false;
+        _lastDialChangeUtc = DateTime.MinValue;
         Array.Clear(_rxDialHistory);
     }
 
@@ -597,10 +624,20 @@ public sealed class RigController : IRigController, IDisposable
 
         var okRx = true;
         var okTx = true;
+        if (writeTx && _interactive && !CanWriteInteractiveSub())
+        {
+            _forceFrequencyApply = true;
+            writeTx = false;
+        }
+
         if (writeRx)
             okRx = WriteRx(rxHz);
         if (writeTx)
+        {
             okTx = WriteTx(txHz);
+            if (_interactive && okTx)
+                RestoreOperatorVfo();
+        }
 
         if (okRx || okTx)
         {
@@ -1009,6 +1046,12 @@ public sealed class RigController : IRigController, IDisposable
         if (_driver is null)
             return;
 
+        _driver.SelectVfo(ReceiveVfo(), force: true);
+        if (!_interactive)
+            return;
+
+        var delayMs = Math.Clamp(_cachedSettings.CatDelayMs, 50, 200);
+        Thread.Sleep(delayMs);
         _driver.SelectVfo(ReceiveVfo(), force: true);
     }
 

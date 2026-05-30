@@ -67,6 +67,7 @@
                                 ClipToBounds="True"
                                 TrackStates="{Binding LiveStates}"
                                 GroundStation="{Binding GroundStation}"
+                                RemoteStation="{Binding DxStation.RemoteCoordinate}"
                                 FocusedNoradId="{Binding FocusedNoradId, Mode=TwoWay}"
                                 ShowFootprintMotionArrows="{Binding ShowFootprintMotionArrows}" />
         </Grid>
@@ -76,6 +77,18 @@
                                       VerticalAlignment="Top"
                                       Margin="{Binding OverlayMargin}"
                                       IsHitTestVisible="True" />
+        <ctrl:DxStationOverlayControl DataContext="{Binding DxStation}"
+                                     ZIndex="1"
+                                     HorizontalAlignment="Left"
+                                     VerticalAlignment="Top"
+                                     Margin="{Binding OverlayMargin}"
+                                     IsHitTestVisible="True" />
+        <ctrl:DxStationMapLauncherControl DataContext="{Binding DxStation}"
+                                          ZIndex="2"
+                                          HorizontalAlignment="Right"
+                                          VerticalAlignment="Top"
+                                          Margin="0,8,8,0"
+                                          IsHitTestVisible="True" />
       </Grid>
 
       <Border Grid.Column="1"

@@ -30,6 +30,9 @@ public class WorldMapControl : ThemeAwareControl
     public static readonly StyledProperty<bool> ShowFootprintMotionArrowsProperty =
         AvaloniaProperty.Register<WorldMapControl, bool>(nameof(ShowFootprintMotionArrows), true);
 
+    public static readonly StyledProperty<GeoCoordinate?> RemoteStationProperty =
+        AvaloniaProperty.Register<WorldMapControl, GeoCoordinate?>(nameof(RemoteStation));
+
     private Bitmap? _mapBitmap;
     private INotifyCollectionChanged? _trackStatesSource;
     private Size _lastLayoutInvalidationSize;
@@ -47,7 +50,8 @@ public class WorldMapControl : ThemeAwareControl
             TrackStatesProperty,
             GroundStationProperty,
             FocusedNoradIdProperty,
-            ShowFootprintMotionArrowsProperty);
+            ShowFootprintMotionArrowsProperty,
+            RemoteStationProperty);
     }
 
     public bool ShowFootprintMotionArrows
@@ -74,6 +78,12 @@ public class WorldMapControl : ThemeAwareControl
     {
         get => GetValue(FocusedNoradIdProperty);
         set => SetValue(FocusedNoradIdProperty, value);
+    }
+
+    public GeoCoordinate? RemoteStation
+    {
+        get => GetValue(RemoteStationProperty);
+        set => SetValue(RemoteStationProperty, value);
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -218,6 +228,13 @@ public class WorldMapControl : ThemeAwareControl
         {
             var (gx, gy) = EquirectangularProjection.GeoToPixel(gs.LatitudeDeg, gs.LongitudeDeg, w, h);
             DrawGroundStationDot(context, gx, gy, palette);
+        }
+
+        if (RemoteStation is { } remote)
+        {
+            var (rx, ry) = EquirectangularProjection.GeoToPixel(remote.LatitudeDeg, remote.LongitudeDeg, w, h);
+            foreach (var xOffset in GetSubpointWrapOffsets(rx, w))
+                PlotMarkerDrawing.DrawRemoteStationMarker(context, rx + xOffset, ry);
         }
 
         var states = TrackStates;

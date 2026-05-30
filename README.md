@@ -12,7 +12,7 @@ You do **not** need to be a programmer to use published builds.
 
 ## What OscarWatch does
 
-- **Map and sky plot** — subpoint, ground track, footprint, and a polar view from your QTH
+- **Map and sky plot** — subpoint, ground track, footprint, and a polar view from your QTH; optional **DX station** marker and live Az/El at a remote grid for the focused satellite
 - **Pass list** — upcoming passes with max elevation and time-to-AOS; sidebar scrolls on smaller windows
 - **Frequency panel** — transponder modes from a built-in database, live uplink/downlink with Doppler, RX offsets (separate for Voice and CW on linear SSB), and CTCSS (access/arm tones). Keyboard shortcuts: [help/keyboard-shortcuts.html](help/keyboard-shortcuts.html) (**Ctrl+W**, numpad **+** / **−** for RX offset, map arrows, etc.)
 - **Optional automation** — serial **rotator** tracking and **radio CAT** (Doppler, satellite/split layout, tones) during a pass
@@ -63,7 +63,7 @@ Plain-language help ships with the app: **Help → Operator guide** (also in the
 
 ## Features
 
-- **World map** — equirectangular Earth texture with satellite subpoint, ground track, footprint overlays (optional motion arrows), and correct rendering near the poles
+- **World map** — equirectangular Earth texture with satellite subpoint, ground track, footprint overlays (optional motion arrows), your QTH, and an optional remote **DX station** grid marker
 - **Sky plot** — polar view of satellite azimuth/elevation relative to your station; click to focus; expand/collapse state is remembered
 - **TLE catalog** — fetched from `https://tle.oscarwatch.org/`, cached under `%AppData%/OscarWatch/`
 - **TLE auto-update** — manual refresh, on startup (if stale), or every 6 hours while running (Settings → Tracking)
@@ -71,6 +71,7 @@ Plain-language help ships with the app: **Help → Operator guide** (also in the
 - **Pass predictions** — upcoming passes with TCA (time of closest approach / max elevation), min-elevation and min-duration filters
 - **Pass planner** — multi-station profiles (home / portable), pass quality filters, and `.ics` calendar export for contest or field-day planning
 - **Mutual pass finder** — find passes visible from two stations at once (Passes → Mutual pass finder)
+- **DX station monitor** — enter a remote Maidenhead grid on the map; see where that station is and live azimuth/elevation for the focused satellite from their QTH (compact draggable overlay)
 - **Live telemetry** — azimuth, elevation, range, and altitude updated every second (UTC)
 - **Voice announcements** — optional spoken “rising” alerts when a satellite crosses a configurable elevation while ascending (e.g. “Alpha Oscar Zero Seven is rising”); Settings → Voice
 - **Pass recording** — optional automatic WAV capture from a line-in or USB audio device while the **focused** satellite is above configurable elevation thresholds; Settings → Recording. Files save to `%AppData%/OscarWatch/recordings/` by default as `{sat-name}-{yy}-{MM}-{dd}-{HH}-{mm}.wav` (UTC). A red **REC** badge appears on the pass row while recording.
@@ -93,10 +94,10 @@ OscarWatch talks to rigs and rotators over **serial CAT** (COM port on Windows, 
 | **ICOM IC-9100** | CI-V | Same as IC-9700; default CI-V address `7C` |
 | **ICOM IC-9700** | CI-V | Same layout as IC-910 |
 | **Yaesu FT-847** | Yaesu CAT | Satellite mode, SAT RX/TX VFOs, doppler, uplink CTCSS |
-| **Kenwood TS-2000** | Kenwood ASCII CAT | **Beta** — SATL via CAT; auto `FA`/`FB` band swap; TRACE off via CAT |
+| **Kenwood TS-2000** | Kenwood ASCII CAT | **Beta** — SATL via CAT; auto `FA`/`FB` band swap; linear CW uplink in SATL; TRACE off via CAT |
 | **Dummy rig** | — | No serial I/O; for UI and doppler testing without a radio |
 
-All tracked rigs: linear NOR/REV doppler, interactive Main VFO tuning, TX/RX offset spinners, configurable CAT thresholds and pause.
+All tracked rigs: linear NOR/REV doppler, interactive Main VFO tuning on USB/LSB/CW (Sub uplink deferred briefly after dial moves on Main/Sub rigs), TX/RX offset spinners, configurable CAT thresholds and pause.
 
 More rigs: see [TODO.md](TODO.md) and [building radio drivers](documents/building-radio-drivers.md).
 

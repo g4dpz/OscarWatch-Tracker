@@ -104,7 +104,7 @@ public sealed class IcomCivDriverTests
     }
 
     [Fact]
-    public void SelectVfo_without_ack_retries_once_when_changing_vfo()
+    public void SelectVfo_without_ack_retries_when_changing_vfo()
     {
         var transport = new RecordingIcomCivTransport();
         var driver = new IcomIc910Driver(transport);
@@ -112,8 +112,9 @@ public sealed class IcomCivDriverTests
 
         transport.CommandResponses.Enqueue([]);
         transport.CommandResponses.Enqueue([]);
+        transport.CommandResponses.Enqueue([]);
         driver.SelectVfo(RigVfo.Main, force: true);
 
-        Assert.Equal(2, transport.CommandCount);
+        Assert.Equal(3, transport.CommandCount);
     }
 }

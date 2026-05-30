@@ -36,6 +36,7 @@ public partial class MainViewModel : ViewModelBase
     private string? _lastCloudlogErrorShown;
 
     public FrequencyOverlayViewModel Frequencies { get; }
+    public DxStationOverlayViewModel DxStation { get; }
     private DispatcherTimer? _tleRefreshTimer;
     private DispatcherTimer? _passListRefreshTimer;
     private DispatcherTimer? _liveDisplayTimer;
@@ -174,7 +175,8 @@ public partial class MainViewModel : ViewModelBase
         IRigController rig,
         ICloudlogRadioSyncService cloudlog,
         ISatelliteDatabaseSyncService transponderDatabaseSync,
-        FrequencyOverlayViewModel frequencies)
+        FrequencyOverlayViewModel frequencies,
+        DxStationOverlayViewModel dxStation)
     {
         _settings = settings;
         _tleService = tleService;
@@ -189,6 +191,7 @@ public partial class MainViewModel : ViewModelBase
         _cloudlog = cloudlog;
         _transponderDatabaseSync = transponderDatabaseSync;
         Frequencies = frequencies;
+        DxStation = dxStation;
         Frequencies.OffsetsChanged += (_, reinitializePass) => RefreshRigFromOverlay(reinitializePass);
         Frequencies.CtcssChanged += (_, _) => OnCtcssSelectorChanged();
 
@@ -296,6 +299,7 @@ public partial class MainViewModel : ViewModelBase
         _rotator.Update(_settings.Current.Rotator, EnrichRotatorTarget(focused));
         UpdateRotatorDisplay();
         Frequencies.Update(focused);
+        DxStation.Update(focused);
 
         if (ShowComPortConflict)
             _rig.Disconnect();
@@ -310,10 +314,12 @@ public partial class MainViewModel : ViewModelBase
         UpdateLiveTelemetry(states);
         ProcessVoiceAnnouncements(states);
 
+        var focused = GetFocusedTrackState(states, FocusedNoradId);
+        DxStation.Update(focused);
+
         if (ShowComPortConflict || !_settings.Current.Rig.Enabled)
             return;
 
-        var focused = GetFocusedTrackState(states, FocusedNoradId);
         SyncOverlayPassbandFromRig();
         PublishRigTrackingContext(focused);
     }
@@ -737,6 +743,7 @@ public partial class MainViewModel : ViewModelBase
         UpdateLiveTelemetry(states);
         var focused = GetFocusedTrackState(states, noradId);
         Frequencies.Update(focused);
+        DxStation.Update(focused);
         PushCloudlogRadio(focused);
         RefreshRigFromOverlay(reinitializePass: true);
     }

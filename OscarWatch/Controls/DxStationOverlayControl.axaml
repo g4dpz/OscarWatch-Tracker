@@ -1,0 +1,105 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:OscarWatch.ViewModels"
+             x:Class="OscarWatch.Controls.DxStationOverlayControl"
+             x:DataType="vm:DxStationOverlayViewModel"
+             MinWidth="{Binding OverlayMinWidth}"
+             MaxWidth="{Binding OverlayMaxWidth}"
+             IsVisible="{Binding IsPanelOpen}">
+  <Border Background="#FF121212"
+          BorderBrush="#FF505050"
+          BorderThickness="1"
+          CornerRadius="8"
+          Padding="0"
+          BoxShadow="0 6 20 0 #AA000000">
+    <StackPanel Spacing="0">
+      <Border x:Name="DragHandle"
+              Background="#FF1E1E1E"
+              BorderBrush="#FF404040"
+              BorderThickness="0,0,0,1"
+              Cursor="SizeAll"
+              Padding="8,6"
+              CornerRadius="8,8,0,0">
+        <Grid ColumnDefinitions="Auto,*,Auto"
+              ColumnSpacing="8"
+              VerticalAlignment="Center">
+          <TextBlock x:Name="CollapseToggle"
+                     Grid.Column="0"
+                     Text="{Binding CollapseToggleGlyph}"
+                     ToolTip.Tip="{Binding CollapseToggleToolTip}"
+                     FontSize="12"
+                     LineHeight="16"
+                     Foreground="#FFB0B0B0"
+                     VerticalAlignment="Center"
+                     Margin="0,0,2,0"
+                     Cursor="Hand"
+                     Tapped="OnCollapseToggleTapped" />
+          <TextBlock Grid.Column="1"
+                     Text="{Binding CollapsedSummaryText}"
+                     IsVisible="{Binding IsCollapsed}"
+                     FontFamily="Consolas,Courier New,monospace"
+                     FontSize="12"
+                     LineHeight="16"
+                     Foreground="#FFE0E0E0"
+                     VerticalAlignment="Center"
+                     TextTrimming="CharacterEllipsis" />
+          <TextBlock Grid.Column="1"
+                     Text="DX station"
+                     IsVisible="{Binding !IsCollapsed}"
+                     FontWeight="SemiBold"
+                     FontSize="14"
+                     Foreground="#FFFFFFFF"
+                     VerticalAlignment="Center" />
+          <TextBlock Grid.Column="2"
+                     Text="⠿"
+                     FontSize="14"
+                     Foreground="#FF808080"
+                     VerticalAlignment="Center"
+                     IsHitTestVisible="False" />
+        </Grid>
+      </Border>
+
+      <StackPanel x:Name="ExpandedBody"
+                  IsVisible="{Binding !IsCollapsed}"
+                  Spacing="8"
+                  Margin="10,8,10,10">
+        <TextBox Text="{Binding GridSquare, Mode=TwoWay}"
+                 Watermark="Maidenhead grid (e.g. JO22 or JO22lk)"
+                 FontFamily="Consolas,Courier New,monospace"
+                 MaxLength="6" />
+        <TextBlock Text="{Binding ValidationHint}"
+                   IsVisible="{Binding ShowValidationHint}"
+                   FontSize="11"
+                   Foreground="#FFFF8080"
+                   TextWrapping="Wrap" />
+        <Grid ColumnDefinitions="*,*"
+              ColumnSpacing="12">
+          <StackPanel Grid.Column="0" Spacing="2">
+            <TextBlock Text="Az (their sky)"
+                       FontSize="10"
+                       Foreground="#FF909090" />
+            <TextBlock Text="{Binding AzimuthText}"
+                       FontFamily="Consolas,Courier New,monospace"
+                       FontSize="16"
+                       FontWeight="SemiBold"
+                       Foreground="#FFFFFFFF" />
+          </StackPanel>
+          <StackPanel Grid.Column="1" Spacing="2">
+            <TextBlock Text="El (their sky)"
+                       FontSize="10"
+                       Foreground="#FF909090" />
+            <TextBlock Text="{Binding ElevationText}"
+                       FontFamily="Consolas,Courier New,monospace"
+                       FontSize="16"
+                       FontWeight="SemiBold"
+                       Foreground="#FFFFFFFF" />
+          </StackPanel>
+        </Grid>
+        <Button Content="Clear"
+                Command="{Binding ClearTargetCommand}"
+                HorizontalAlignment="Stretch"
+                MinHeight="32" />
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</UserControl>

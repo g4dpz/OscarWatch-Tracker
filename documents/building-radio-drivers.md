@@ -17,7 +17,7 @@ flowchart LR
   Drv --> HW
 ```
 
-- **`RigController`** ([`OscarWatch/Rig/RigController.cs`](../OscarWatch/Rig/RigController.cs)) — background thread (~150 ms loop): satellite mode, Main/Sub VFO selection, doppler frequency writes, CTCSS, split, FM companion leg, dial-change detection.
+- **`RigController`** ([`OscarWatch/Rig/RigController.cs`](../OscarWatch/Rig/RigController.cs)) — background thread (~100 ms loop): satellite mode, Main/Sub VFO selection, doppler frequency writes, CTCSS, split, FM companion leg, dial-change detection. Linear USB/LSB/CW uses **interactive** tuning: pause CAT while Main moves, resume after eight stable dial samples (~800 ms), defer Sub uplink writes for 2.5 s after dial activity, and `RestoreOperatorVfo()` to keep receive VFO selected on ICOM-style rigs.
 - **`IRigDriver`** — open port, read/set frequency, VFO, mode, satellite mode, tones.
 - **`RigSettings`** ([`OscarWatch.Core/Models/RigSettings.cs`](../OscarWatch.Core/Models/RigSettings.cs)) — port, baud rate, CI-V address, doppler thresholds, CAT delay.
 - **`IcomCivCodec`** ([`OscarWatch.Core/Radio/IcomCivCodec.cs`](../OscarWatch.Core/Radio/IcomCivCodec.cs)) — encode/decode CI-V frames (Core, no serial I/O).

@@ -50,6 +50,7 @@ public partial class App : Application
                 bundledDb));
         services.AddSingleton<ISatelliteDatabaseSyncService, SatelliteDatabaseSyncService>();
         services.AddSingleton<FrequencyOverlayViewModel>();
+        services.AddSingleton<DxStationOverlayViewModel>();
         services.AddSingleton<TrackingOrchestrator>();
         services.AddSingleton<LiveTrackingService>();
         services.AddSingleton<ILiveTrackingService>(sp => sp.GetRequiredService<LiveTrackingService>());

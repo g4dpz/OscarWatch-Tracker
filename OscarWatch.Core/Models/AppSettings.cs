@@ -23,6 +23,10 @@ public sealed class AppSettings
     public double FrequencyOverlayX { get; set; } = 12;
     public double FrequencyOverlayY { get; set; } = 12;
     public bool FrequencyOverlayCollapsed { get; set; }
+    public string RemoteStationGridSquare { get; set; } = "";
+    public double DxOverlayX { get; set; } = 12;
+    public double DxOverlayY { get; set; } = 56;
+    public bool DxOverlayCollapsed { get; set; } = true;
     /// <summary>Whether the sidebar sky plot expander is open.</summary>
     public bool SkyPlotExpanded { get; set; } = true;
     public RotatorSettings Rotator { get; set; } = new();

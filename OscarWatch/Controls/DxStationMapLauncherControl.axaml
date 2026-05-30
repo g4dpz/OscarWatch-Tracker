@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:OscarWatch.ViewModels"
+             x:Class="OscarWatch.Controls.DxStationMapLauncherControl"
+             x:DataType="vm:DxStationOverlayViewModel">
+  <Border CornerRadius="8"
+          BoxShadow="0 4 12 0 #88000000">
+    <Button Command="{Binding OpenFromMapIconCommand}"
+            ToolTip.Tip="{Binding MapLauncherToolTip}"
+            Width="34"
+            Height="34"
+            Padding="0"
+            HorizontalContentAlignment="Center"
+            VerticalContentAlignment="Center"
+            Background="#E6121212"
+            BorderBrush="#FF505050"
+            BorderThickness="1"
+            CornerRadius="8"
+            Cursor="Hand">
+      <Panel Width="16" Height="16">
+        <Polygon Points="8,0 16,8 8,16 0,8"
+                 Fill="#E69F00"
+                 Stroke="#FFFFFFFF"
+                 StrokeThickness="1.2" />
+      </Panel>
+    </Button>
+  </Border>
+</UserControl>
