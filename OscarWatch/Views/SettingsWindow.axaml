@@ -6,8 +6,8 @@
         x:Class="OscarWatch.Views.SettingsWindow"
         x:DataType="vm:SettingsViewModel"
         Title="Settings"
-        Width="640" Height="520"
-        MinWidth="560" MinHeight="360"
+        Width="800" Height="520"
+        MinWidth="760" MinHeight="360"
         WindowStartupLocation="CenterOwner">
   <DockPanel Margin="0">
     <Border DockPanel.Dock="Bottom"
