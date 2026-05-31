@@ -27,6 +27,8 @@ Thumbs.db
 project.lock.json
 project.fragment.lock.json
 artifacts/
+.build-out/
+.test-out/
 
 ## App data (local dev only)
 *.local.json
