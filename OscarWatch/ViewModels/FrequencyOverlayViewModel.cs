@@ -12,6 +12,9 @@ namespace OscarWatch.ViewModels;
 
 public partial class FrequencyOverlayViewModel : ViewModelBase
 {
+    private const string SelectSatelliteMessage = "Select a satellite on the map or from upcoming passes.";
+    private const string NoTransponderDataMessage = "No transponder data for this satellite";
+
     private readonly ISettingsService _settings;
     private readonly ISatelliteDatabaseService _database;
     private string? _currentSatelliteName;
@@ -104,7 +107,10 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private bool _isCollapsed;
 
     [ObservableProperty]
-    private string _collapsedSummaryText = "—";
+    private string _collapsedSummaryText = "Select a satellite";
+
+    [ObservableProperty]
+    private string _emptyStateMessage = SelectSatelliteMessage;
 
     public double OverlayMinWidth => IsCollapsed ? 220 : 380;
 
@@ -231,6 +237,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             _currentSatelliteName = null;
             _currentStorageKey = null;
             HasTransponderData = false;
+            EmptyStateMessage = SelectSatelliteMessage;
             ClearFrequencyDisplay();
             return;
         }
@@ -252,6 +259,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         if (SelectedMode is null)
         {
             HasTransponderData = false;
+            EmptyStateMessage = NoTransponderDataMessage;
             ClearFrequencyDisplay();
             return;
         }
@@ -482,8 +490,8 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     {
         if (!HasTransponderData || SelectedMode is null)
         {
-            CollapsedSummaryText = string.IsNullOrEmpty(SatelliteName) || SatelliteName == "—"
-                ? "—"
+            CollapsedSummaryText = _currentNoradId is null
+                ? "Select a satellite"
                 : $"{SatelliteName} · no transponder data";
             return;
         }

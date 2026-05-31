@@ -249,7 +249,7 @@
                   Spacing="12"
                   Margin="14,12,14,14"
                   IsVisible="{Binding !IsCollapsed}">
-        <TextBlock Text="No transponder data for this satellite"
+        <TextBlock Text="{Binding EmptyStateMessage}"
                    IsVisible="{Binding !HasTransponderData}"
                    FontSize="13"
                    TextWrapping="Wrap"

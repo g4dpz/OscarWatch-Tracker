@@ -598,13 +598,13 @@ public partial class MainViewModel : ViewModelBase
         };
     }
 
-    private static SatelliteTrackState? GetFocusedTrackState(IReadOnlyList<SatelliteTrackState> states, string? focusedNoradId) =>
-        states.FirstOrDefault(s => s.NoradId == focusedNoradId)
-        ?? states
-            .Where(s => s.LookAngles is { ElevationDeg: > 0 })
-            .OrderByDescending(s => s.LookAngles!.ElevationDeg)
-            .FirstOrDefault()
-        ?? states.FirstOrDefault();
+    private static SatelliteTrackState? GetFocusedTrackState(IReadOnlyList<SatelliteTrackState> states, string? focusedNoradId)
+    {
+        if (string.IsNullOrEmpty(focusedNoradId))
+            return null;
+
+        return states.FirstOrDefault(s => string.Equals(s.NoradId, focusedNoradId, StringComparison.Ordinal));
+    }
 
     private void ProcessVoiceAnnouncements(IReadOnlyList<SatelliteTrackState> states)
     {
@@ -685,6 +685,11 @@ public partial class MainViewModel : ViewModelBase
 
         if (target is null)
         {
+            SelectedSatelliteName = "—";
+            AzimuthText = "—";
+            ElevationText = "—";
+            RangeText = "—";
+            AltitudeText = "—";
             ShowSunlightStatus = false;
             return;
         }
