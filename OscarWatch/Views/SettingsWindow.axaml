@@ -75,19 +75,40 @@
         </ScrollViewer>
       </TabItem>
 
-      <TabItem Header="Tracking">
+      <TabItem Header="TLE">
         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
-            <TextBlock Text="Minimum elevation (°)" />
-            <NumericUpDown Value="{Binding MinimumElevationDeg, Mode=TwoWay}"
-                           Minimum="0" Maximum="90" FormatString="F1" />
-            <TextBlock Text="Pass prediction window (hours)" />
-            <NumericUpDown Value="{Binding PassPredictionHours, Mode=TwoWay}"
-                           Minimum="6" Maximum="168" FormatString="F0" />
+            <TextBlock Text="TLE catalog source" />
+            <ComboBox ItemsSource="{Binding TleSourceOptions}"
+                      SelectedItem="{Binding TleSourceOption, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:TleSourceOption">
+                  <TextBlock Text="{Binding Label}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Used for the upcoming pass list and as defaults in the pass planner." />
+                       Text="OscarWatch is the default AMSAT-oriented catalog. Use a custom URL or a local file if you maintain your own TLE set." />
+            <TextBlock Text="Download URL"
+                       IsVisible="{Binding ShowTleCustomUrl}" />
+            <TextBox Text="{Binding TleCustomUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Watermark="{Binding TleCustomUrlWatermark}"
+                     IsVisible="{Binding ShowTleCustomUrl}" />
+            <TextBlock Text="Local TLE file"
+                       IsVisible="{Binding ShowTleLocalFile}" />
+            <Grid ColumnDefinitions="*,Auto"
+                  ColumnSpacing="8"
+                  IsVisible="{Binding ShowTleLocalFile}">
+              <TextBox Grid.Column="0"
+                       Text="{Binding TleLocalFilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                       Watermark="Path to .txt or .tle file" />
+              <Button Grid.Column="1"
+                      Content="Browse…"
+                      Click="OnBrowseTleFileClick" />
+            </Grid>
             <TextBlock Text="TLE updates" Margin="0,8,0,0" />
             <ComboBox ItemsSource="{Binding TleAutoUpdateOptions}"
                       SelectedItem="{Binding TleAutoUpdateOption, Mode=TwoWay}"
@@ -101,7 +122,24 @@
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="TLEs can also be refreshed anytime from Satellites → Refresh TLEs." />
+                       Text="Automatic download applies to OscarWatch and custom URLs only. Local files are re-read when you save settings or choose Satellites → Refresh TLEs." />
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="Tracking">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
+          <StackPanel Spacing="10" MaxWidth="420">
+            <TextBlock Text="Minimum elevation (°)" />
+            <NumericUpDown Value="{Binding MinimumElevationDeg, Mode=TwoWay}"
+                           Minimum="0" Maximum="90" FormatString="F1" />
+            <TextBlock Text="Pass prediction window (hours)" />
+            <NumericUpDown Value="{Binding PassPredictionHours, Mode=TwoWay}"
+                           Minimum="6" Maximum="168" FormatString="F0" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Used for the upcoming pass list and as defaults in the pass planner." />
             <CheckBox Content="Check for transponder database updates on startup"
                       IsChecked="{Binding TransponderDatabaseCheckOnStartup, Mode=TwoWay}"
                       Margin="0,8,0,0" />

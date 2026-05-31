@@ -51,10 +51,32 @@ public partial class SettingsViewModel : ViewModelBase
     private bool _showFootprintMotionArrows = true;
 
     [ObservableProperty]
+    private TleSourceOption? _tleSourceOption;
+
+    [ObservableProperty]
+    private string _tleCustomUrl = "";
+
+    [ObservableProperty]
+    private string _tleLocalFilePath = "";
+
+    [ObservableProperty]
     private TleAutoUpdateOption? _tleAutoUpdateOption;
 
     [ObservableProperty]
     private bool _transponderDatabaseCheckOnStartup = true;
+
+    public IReadOnlyList<TleSourceOption> TleSourceOptions { get; } =
+    [
+        new(TleSourceMode.OscarWatch, "OscarWatch (tle.oscarwatch.org)"),
+        new(TleSourceMode.CustomUrl, "Custom URL"),
+        new(TleSourceMode.LocalFile, "Local file")
+    ];
+
+    public string TleCustomUrlWatermark { get; } = TleSourceResolver.CelestrakAmsatExampleUrl;
+
+    public bool ShowTleCustomUrl => TleSourceOption?.Mode == TleSourceMode.CustomUrl;
+
+    public bool ShowTleLocalFile => TleSourceOption?.Mode == TleSourceMode.LocalFile;
 
     [ObservableProperty]
     private bool _voiceAnnouncementsEnabled;
@@ -327,6 +349,12 @@ public partial class SettingsViewModel : ViewModelBase
         _settings.Current.PassPredictionHours = PassPredictionHours;
         _settings.Current.Theme = ThemePreference;
         _settings.Current.ShowFootprintMotionArrows = ShowFootprintMotionArrows;
+        _settings.Current.TleSource = new TleSourceSettings
+        {
+            Mode = TleSourceOption?.Mode ?? TleSourceMode.OscarWatch,
+            CustomUrl = TleCustomUrl.Trim(),
+            LocalFilePath = TleLocalFilePath.Trim()
+        };
         if (TleAutoUpdateOption is not null)
             _settings.Current.TleAutoUpdate = TleAutoUpdateOption.Mode;
         _settings.Current.TransponderDatabaseCheckOnStartup = TransponderDatabaseCheckOnStartup;
@@ -415,6 +443,11 @@ public partial class SettingsViewModel : ViewModelBase
             PassPredictionHours = _settings.Current.PassPredictionHours;
             ThemePreference = _settings.Current.Theme;
             ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
+            var tleSource = _settings.Current.TleSource ?? new TleSourceSettings();
+            TleSourceOption = TleSourceOptions.FirstOrDefault(o => o.Mode == tleSource.Mode)
+                ?? TleSourceOptions[0];
+            TleCustomUrl = tleSource.CustomUrl;
+            TleLocalFilePath = tleSource.LocalFilePath;
             TleAutoUpdateOption = TleAutoUpdateOptions.FirstOrDefault(o => o.Mode == _settings.Current.TleAutoUpdate)
                 ?? TleAutoUpdateOptions[1];
             TransponderDatabaseCheckOnStartup = _settings.Current.TransponderDatabaseCheckOnStartup;
@@ -530,6 +563,35 @@ public partial class SettingsViewModel : ViewModelBase
 
     private bool CanTestRecording() =>
         RecordingAvailable && SelectedRecordingDevice is not null && !_recording.IsRecording;
+
+    partial void OnTleSourceOptionChanged(TleSourceOption? value)
+    {
+        OnPropertyChanged(nameof(ShowTleCustomUrl));
+        OnPropertyChanged(nameof(ShowTleLocalFile));
+    }
+
+    public async Task BrowseTleLocalFileAsync(Window owner)
+    {
+        var storage = TopLevel.GetTopLevel(owner)?.StorageProvider;
+        if (storage is null)
+            return;
+
+        var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Choose TLE file",
+            AllowMultiple = false,
+            FileTypeFilter =
+            [
+                new FilePickerFileType("TLE files")
+                {
+                    Patterns = ["*.txt", "*.tle", "*.*"]
+                }
+            ]
+        }).ConfigureAwait(true);
+
+        if (files.Count > 0)
+            TleLocalFilePath = files[0].Path.LocalPath;
+    }
 
     public async Task BrowseRecordingOutputFolderAsync(Window owner)
     {
@@ -749,6 +811,8 @@ public partial class SettingsViewModel : ViewModelBase
         }
     }
 }
+
+public sealed record TleSourceOption(TleSourceMode Mode, string Label);
 
 public sealed record TleAutoUpdateOption(TleAutoUpdateMode Mode, string Label);
 

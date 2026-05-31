@@ -12,6 +12,7 @@ public sealed class AppSettings
     /// <summary>Show pass planner and mutual pass times in UTC instead of local time.</summary>
     public bool PassPlannerUseUtcTime { get; set; }
     public int TleStaleHours { get; set; } = 6;
+    public TleSourceSettings TleSource { get; set; } = new();
     public TleAutoUpdateMode TleAutoUpdate { get; set; } = TleAutoUpdateMode.OnStartup;
     /// <summary>On startup, check tle.oscarwatch.org for new transponder database entries.</summary>
     public bool TransponderDatabaseCheckOnStartup { get; set; } = true;

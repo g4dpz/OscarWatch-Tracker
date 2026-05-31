@@ -10,5 +10,7 @@ public interface ITleService
     bool IsStale(int staleHours);
     Task RefreshAsync(bool force = false, CancellationToken cancellationToken = default);
     Task EnsureLoadedAsync(CancellationToken cancellationToken = default);
+    void InvalidateCatalog();
+    string ActiveSourceLabel { get; }
     IReadOnlyList<SatelliteCatalogEntry> GetEnabledSatellites(AppSettings settings);
 }

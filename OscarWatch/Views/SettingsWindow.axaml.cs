@@ -56,6 +56,12 @@ public partial class SettingsWindow : Window
             await vm.BrowseRecordingOutputFolderAsync(this).ConfigureAwait(true);
     }
 
+    private async void OnBrowseTleFileClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is SettingsViewModel vm)
+            await vm.BrowseTleLocalFileAsync(this).ConfigureAwait(true);
+    }
+
     private async void OnTestCloudlogClick(object? sender, RoutedEventArgs e)
     {
         var testButton = sender as Button;

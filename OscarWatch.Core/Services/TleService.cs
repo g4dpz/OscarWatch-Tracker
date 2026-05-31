@@ -7,11 +7,14 @@ public sealed class TleService : ITleService
 {
     public const string DefaultTleUrl = "https://tle.oscarwatch.org/";
 
+    private readonly ISettingsService? _settings;
     private readonly HttpClient _httpClient;
     private List<SatelliteCatalogEntry> _catalog = [];
+    private string? _loadedSourceKey;
 
-    public TleService(HttpClient? httpClient = null)
+    public TleService(ISettingsService? settings = null, HttpClient? httpClient = null)
     {
+        _settings = settings;
         _httpClient = httpClient ?? new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
     }
 
@@ -28,14 +31,22 @@ public sealed class TleService : ITleService
         "Assets",
         "tle-seed.txt");
 
+    public string ActiveSourceLabel => TleSourceResolver.GetDisplayLabel(EffectiveSettings);
+
     public bool IsStale(int staleHours) =>
         !LastFetchedUtc.HasValue ||
         DateTime.UtcNow - LastFetchedUtc.Value > TimeSpan.FromHours(staleHours);
 
     public async Task EnsureLoadedAsync(CancellationToken cancellationToken = default)
     {
-        if (_catalog.Count > 0)
+        var settings = EffectiveSettings;
+        var sourceKey = TleSourceResolver.GetSourceKey(settings);
+        if (_catalog.Count > 0 && string.Equals(_loadedSourceKey, sourceKey, StringComparison.Ordinal))
             return;
+
+        _catalog = [];
+        _loadedSourceKey = sourceKey;
+        LastFetchedUtc = null;
 
         Directory.CreateDirectory(Path.GetDirectoryName(CachePath)!);
         if (File.Exists(CachePath))
@@ -45,7 +56,16 @@ public sealed class TleService : ITleService
             LastFetchedUtc = File.GetLastWriteTimeUtc(CachePath);
         }
 
-        if (_catalog.Count == 0)
+        if (_catalog.Count > 0)
+            return;
+
+        if (TleSourceResolver.TryGetLocalFilePath(settings) is { } localPath)
+        {
+            TryLoadFromFile(localPath);
+            return;
+        }
+
+        if (settings.Mode == TleSourceMode.OscarWatch)
             TryLoadBundledSeed();
     }
 
@@ -53,18 +73,73 @@ public sealed class TleService : ITleService
     {
         await EnsureLoadedAsync(cancellationToken);
 
-        var text = await _httpClient.GetStringAsync(DefaultTleUrl, cancellationToken);
+        var settings = EffectiveSettings;
+        if (TleSourceResolver.TryGetLocalFilePath(settings) is { } localPath)
+        {
+            if (!File.Exists(localPath))
+                throw new FileNotFoundException($"TLE file not found: {localPath}");
+
+            var localText = await File.ReadAllTextAsync(localPath, cancellationToken);
+            ApplyCatalog(localText, fromNetwork: false);
+            return;
+        }
+
+        var url = TleSourceResolver.TryGetNetworkUrl(settings);
+        if (string.IsNullOrWhiteSpace(url))
+            throw new InvalidOperationException("Enter a TLE download URL in Settings → TLE.");
+
+        var text = await _httpClient.GetStringAsync(url, cancellationToken);
         Directory.CreateDirectory(Path.GetDirectoryName(CachePath)!);
         await File.WriteAllTextAsync(CachePath, text, cancellationToken);
+        ApplyCatalog(text, fromNetwork: true);
+    }
 
-        _catalog = TleParser.ParseCatalog(text).ToList();
-        LastFetchedUtc = DateTime.UtcNow;
+    public void InvalidateCatalog()
+    {
+        _catalog = [];
+        _loadedSourceKey = null;
+        LastFetchedUtc = null;
+
+        if (File.Exists(CachePath))
+        {
+            try
+            {
+                File.Delete(CachePath);
+            }
+            catch
+            {
+                // best effort — stale cache is preferable to a crash
+            }
+        }
     }
 
     public IReadOnlyList<SatelliteCatalogEntry> GetEnabledSatellites(AppSettings settings)
     {
         var enabled = new HashSet<string>(settings.EnabledSatelliteNames, StringComparer.OrdinalIgnoreCase);
         return _catalog.Where(s => SatelliteCatalogMatching.IsEnabled(s, enabled)).ToList();
+    }
+
+    private TleSourceSettings EffectiveSettings =>
+        _settings?.Current.TleSource ?? new TleSourceSettings();
+
+    private void ApplyCatalog(string text, bool fromNetwork)
+    {
+        _catalog = TleParser.ParseCatalog(text).ToList();
+        _loadedSourceKey = TleSourceResolver.GetSourceKey(EffectiveSettings);
+        LastFetchedUtc = fromNetwork ? DateTime.UtcNow : File.Exists(CachePath)
+            ? File.GetLastWriteTimeUtc(CachePath)
+            : DateTime.UtcNow;
+    }
+
+    private void TryLoadFromFile(string path)
+    {
+        if (!File.Exists(path))
+            return;
+
+        var text = File.ReadAllText(path);
+        _catalog = TleParser.ParseCatalog(text).ToList();
+        if (_catalog.Count > 0)
+            LastFetchedUtc = File.GetLastWriteTimeUtc(path);
     }
 
     private void TryLoadBundledSeed()

@@ -33,7 +33,8 @@ public partial class App : Application
     {
         var services = new ServiceCollection();
         services.AddSingleton<ISettingsService, SettingsService>();
-        services.AddSingleton<ITleService, TleService>();
+        services.AddSingleton<ITleService>(sp =>
+            new TleService(sp.GetRequiredService<ISettingsService>()));
         services.AddSingleton<ISpeechService, PlatformSpeechService>();
         services.AddSingleton<IAudioRecordingService, PortAudioRecordingService>();
         services.AddSingleton<RisingPassAnnouncer>();

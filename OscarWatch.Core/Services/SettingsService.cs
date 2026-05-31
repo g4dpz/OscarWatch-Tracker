@@ -61,6 +61,7 @@ public sealed class SettingsService : ISettingsService
         Current.Rig ??= new RigSettings();
         Current.Cloudlog ??= new CloudlogSettings();
         Current.PassRecording ??= new PassRecordingSettings();
+        Current.TleSource ??= new TleSourceSettings();
         EnsureSavedStations();
 
         if (string.IsNullOrWhiteSpace(Current.GroundStation.GridSquare))

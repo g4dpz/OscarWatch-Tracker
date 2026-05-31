@@ -256,7 +256,8 @@ public partial class MainViewModel : ViewModelBase
         StatusText = "Loading TLE catalog…";
         await _tleService.EnsureLoadedAsync().ConfigureAwait(true);
 
-        if (_tleService.IsStale(_settings.Current.TleStaleHours))
+        if (TleSourceResolver.UsesNetwork(_settings.Current.TleSource)
+            && _tleService.IsStale(_settings.Current.TleStaleHours))
         {
             try
             {
@@ -790,12 +791,13 @@ public partial class MainViewModel : ViewModelBase
     {
         var catalogCount = _tleService.Catalog.Count;
         var count = _tleService.GetEnabledSatellites(_settings.Current).Count;
+        var source = _tleService.ActiveSourceLabel;
         var tleAge = _tleService.LastFetchedUtc.HasValue
-            ? $"TLE {DateTime.UtcNow - _tleService.LastFetchedUtc.Value:hh\\:mm} ago"
-            : catalogCount > 0 ? "TLE bundled seed" : "TLE not loaded";
+            ? $"TLE {DateTime.UtcNow - _tleService.LastFetchedUtc.Value:hh\\:mm} ago ({source})"
+            : catalogCount > 0 ? $"TLE cached ({source})" : "TLE not loaded";
 
         StatusText = catalogCount == 0
-            ? "No TLE data — check network and use Refresh TLEs"
+            ? "No TLE data — check Settings → TLE or use Satellites → Refresh TLEs"
             : count == 0
                 ? $"{tleAge} | 0 enabled — Satellites menu → enable some"
                 : $"{tleAge} | {count} satellite(s) enabled";
@@ -874,6 +876,7 @@ public partial class MainViewModel : ViewModelBase
         if (saved)
         {
             ConfigureTleAutoUpdateTimer();
+            await ReloadTleCatalogAfterSettingsAsync().ConfigureAwait(true);
             _liveTracking.RequestReload();
             _rotator.Disconnect();
             _rig.Disconnect();
@@ -907,8 +910,34 @@ public partial class MainViewModel : ViewModelBase
         _tleRefreshTimer.Start();
     }
 
+    private async Task ReloadTleCatalogAfterSettingsAsync()
+    {
+        _tleService.InvalidateCatalog();
+        try
+        {
+            StatusText = "Loading TLE catalog…";
+            await _tleService.EnsureLoadedAsync().ConfigureAwait(true);
+
+            var source = _settings.Current.TleSource;
+            if (TleSourceResolver.UsesNetwork(source)
+                || !string.IsNullOrWhiteSpace(TleSourceResolver.TryGetLocalFilePath(source)))
+            {
+                StatusText = "Refreshing TLEs…";
+                await _tleService.RefreshAsync().ConfigureAwait(true);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "TLE reload after settings failed");
+            StatusText = $"TLE reload failed: {ex.Message}";
+        }
+    }
+
     private async Task MaybeAutoRefreshTlesAsync(bool force = false)
     {
+        if (!TleSourceResolver.UsesNetwork(_settings.Current.TleSource))
+            return;
+
         var mode = _settings.Current.TleAutoUpdate;
         if (mode == TleAutoUpdateMode.Manual && !force)
             return;
