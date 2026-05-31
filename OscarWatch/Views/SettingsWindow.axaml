@@ -91,7 +91,7 @@
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="OscarWatch is the default AMSAT-oriented catalog. Use a custom URL or a local file if you maintain your own TLE set." />
+                       Text="OscarWatch is the default AMSAT-oriented catalog. AMSAT.org uses the published nasabare.txt set. Use a custom URL or local file if you maintain your own TLE set." />
             <TextBlock Text="Download URL"
                        IsVisible="{Binding ShowTleCustomUrl}" />
             <TextBox Text="{Binding TleCustomUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"

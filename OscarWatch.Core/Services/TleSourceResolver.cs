@@ -4,6 +4,8 @@ namespace OscarWatch.Core.Services;
 
 public static class TleSourceResolver
 {
+    public const string AmsatNasabareUrl = "https://www.amsat.org/tle/current/nasabare.txt";
+
     public const string CelestrakAmsatExampleUrl =
         "https://celestrak.org/NORAD/elements/gp.php?GROUP=amateur&FORMAT=tle";
 
@@ -17,11 +19,14 @@ public static class TleSourceResolver
         TleSourceMode.LocalFile when !string.IsNullOrWhiteSpace(settings.LocalFilePath) =>
             Path.GetFileName(settings.LocalFilePath.Trim()),
         TleSourceMode.LocalFile => "local file",
+        TleSourceMode.AmsatOrg => "amsat.org",
         _ => "tle.oscarwatch.org"
     };
 
     public static bool UsesNetwork(TleSourceSettings settings) =>
-        settings.Mode is TleSourceMode.OscarWatch or TleSourceMode.CustomUrl;
+        settings.Mode is TleSourceMode.OscarWatch
+            or TleSourceMode.AmsatOrg
+            or TleSourceMode.CustomUrl;
 
     public static string? TryGetNetworkUrl(TleSourceSettings settings)
     {
@@ -30,6 +35,7 @@ public static class TleSourceResolver
 
         return settings.Mode switch
         {
+            TleSourceMode.AmsatOrg => AmsatNasabareUrl,
             TleSourceMode.CustomUrl => string.IsNullOrWhiteSpace(settings.CustomUrl)
                 ? null
                 : settings.CustomUrl.Trim(),

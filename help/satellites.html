@@ -40,19 +40,21 @@
 
       <h2>TLEs (orbital data)</h2>
       <p>
-        Pass times and positions come from <strong>Two-Line Elements</strong> downloaded from
-        <a href="https://tle.oscarwatch.org/">tle.oscarwatch.org</a>. OscarWatch caches them on your PC.
+        Pass times and positions come from <strong>Two-Line Elements</strong>. By default OscarWatch downloads them from
+        <a href="https://tle.oscarwatch.org/">tle.oscarwatch.org</a> and caches a copy under
+        <code>%AppData%\OscarWatch\tle-cache.txt</code>.
       </p>
       <ul>
-        <li><strong>Satellites → Refresh TLEs</strong> — update now.</li>
-        <li><strong>Settings → Tracking</strong> — choose when to refresh automatically (e.g. on startup, every few hours).</li>
-        <li>The status bar shows how long ago TLEs were updated (e.g. “TLE 2 h ago”).</li>
+        <li><strong>Settings → TLE</strong> — use the OscarWatch feed (default), the <strong>AMSAT.org nasabare.txt</strong> set, a <strong>custom URL</strong>, or a <strong>local file</strong> you maintain yourself.</li>
+        <li><strong>Satellites → Refresh TLEs</strong> — download or re-read the catalogue now.</li>
+        <li><strong>Settings → TLE → TLE updates</strong> — choose when to refresh automatically (URLs only; e.g. on startup, every six hours).</li>
+        <li>The status bar shows how long ago TLEs were updated and which source is in use (e.g. “TLE 2 h ago (tle.oscarwatch.org)”).</li>
       </ul>
       <div class="warn">
         <strong>Important:</strong> Stale TLEs mean pass times and azimuth/el can be wrong. Refresh before a serious operating session.
       </div>
 
-      <h2>Transponder database</h2>
+      <h2 id="transponder-database">Transponder database</h2>
       <p>
         Frequencies and modes are stored separately from TLEs, in your user database:
       </p>
@@ -72,7 +74,7 @@
         import opens the same merge dialog as remote updates (press <strong>Save</strong> in the editor to keep changes).
       </p>
       <ul>
-        <li><strong>Settings → Tracking</strong> — enable <em>Check for transponder database updates on startup</em> (on by default).</li>
+        <li><strong>Settings → Tracking</strong> — enable <em>Check for transponder database updates on startup</em> (on by default; this is separate from the TLE catalog source).</li>
         <li>New remote entries are selected by default in the merge dialog; uncheck any you do not want.</li>
         <li>If a mode you already have differs from the published copy, your version is kept unless you choose <strong>Use published version</strong>.</li>
         <li><strong>Restore defaults</strong> reloads the database shipped with your app version, not the remote file.</li>

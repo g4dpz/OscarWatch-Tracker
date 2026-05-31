@@ -13,7 +13,7 @@
         <a href="index.html" class="brand-home" title="Home"><img src="oscarwatch-icon.png" alt="" class="brand-icon" width="56" height="56" /></a>
         <div class="brand-text">
           <h1>Settings</h1>
-          <p class="tagline">Station, tracking, voice, recording, hardware, and Cloudlog</p>
+          <p class="tagline">Station, TLE source, tracking, voice, recording, hardware, and Cloudlog</p>
         </div>
       </div>
       <nav aria-label="Help topics">
@@ -37,11 +37,27 @@
       <h2>Station</h2>
       <p>Your operating position: name (for labels), latitude, longitude, Maidenhead grid, and height above sea level in metres. The grid square is normalised to uppercase as you type. Accurate height helps slightly with geometry; position is essential for passes and az/el.</p>
 
+      <h2>TLE</h2>
+      <p>
+        Choose where pass times and orbital positions come from. The transponder frequency database is separate — see
+        <a href="satellites.html#transponder-database">Transponder database</a>.
+      </p>
+      <ul>
+        <li><strong>OscarWatch (tle.oscarwatch.org)</strong> — default AMSAT-oriented catalogue (recommended).</li>
+        <li><strong>AMSAT.org (nasabare.txt)</strong> — the published set from <a href="https://www.amsat.org/tle/current/nasabare.txt">amsat.org/tle/current/nasabare.txt</a>.</li>
+        <li><strong>Custom URL</strong> — any HTTP(S) address that returns a standard two-line TLE text file (for example Celestrak amateur-group TLEs).</li>
+        <li><strong>Local file</strong> — browse to a <code>.txt</code> or <code>.tle</code> file on your PC; use <strong>Browse…</strong> to pick it.</li>
+        <li><strong>TLE updates</strong> — when to download fresh data automatically (OscarWatch and custom URLs only). Local files are re-read when you save Settings or use <strong>Satellites → Refresh TLEs</strong>.</li>
+      </ul>
+      <p>
+        Changing the source and pressing <strong>Save</strong> reloads the catalogue. The status bar shows which source is active
+        (for example “TLE 2 h ago (tle.oscarwatch.org)”).
+      </p>
+
       <h2>Tracking</h2>
       <ul>
         <li><strong>Minimum elevation</strong> — passes below this angle are hidden from predictions.</li>
         <li><strong>Prediction hours</strong> — how far ahead to compute passes.</li>
-        <li><strong>TLE updates</strong> — when to fetch fresh orbital data automatically. You can also use <strong>Satellites → Refresh TLEs</strong> anytime.</li>
         <li><strong>Check for transponder database updates on startup</strong> — downloads <a href="https://tle.oscarwatch.org/satellite_database.json">tle.oscarwatch.org/satellite_database.json</a> when the app opens and offers to merge new satellites/modes (on by default). Use <strong>Satellites → Update transponder database…</strong> to check manually.</li>
       </ul>
 

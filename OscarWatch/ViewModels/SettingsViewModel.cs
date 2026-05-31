@@ -68,6 +68,7 @@ public partial class SettingsViewModel : ViewModelBase
     public IReadOnlyList<TleSourceOption> TleSourceOptions { get; } =
     [
         new(TleSourceMode.OscarWatch, "OscarWatch (tle.oscarwatch.org)"),
+        new(TleSourceMode.AmsatOrg, "AMSAT.org (nasabare.txt)"),
         new(TleSourceMode.CustomUrl, "Custom URL"),
         new(TleSourceMode.LocalFile, "Local file")
     ];

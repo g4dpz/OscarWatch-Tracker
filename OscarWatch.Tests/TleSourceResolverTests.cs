@@ -13,6 +13,16 @@ public sealed class TleSourceResolverTests
     }
 
     [Fact]
+    public void TryGetNetworkUrl_returns_amsat_nasabare()
+    {
+        var url = TleSourceResolver.TryGetNetworkUrl(new TleSourceSettings
+        {
+            Mode = TleSourceMode.AmsatOrg
+        });
+        Assert.Equal(TleSourceResolver.AmsatNasabareUrl, url);
+    }
+
+    [Fact]
     public void TryGetNetworkUrl_returns_custom_url()
     {
         var url = TleSourceResolver.TryGetNetworkUrl(new TleSourceSettings
