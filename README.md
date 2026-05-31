@@ -1,6 +1,8 @@
 # OscarWatch
 
-** OscarWatch is still in development **
+**OscarWatch is still in development**
+
+![OscarWatch main screen](screenshots/oscarwatch-mainscreen.png)
 
 Desktop satellite tracking for amateur radio operators. OscarWatch shows where AMSAT spacecraft are, predicts passes over your station, works out Doppler-corrected uplink and downlink frequencies, and can drive your rotator and radio during a pass — all from one map-centred window.
 
@@ -26,12 +28,12 @@ OscarWatch does **not** decode telemetry or replace your logging software; it is
 
 ### Download
 
-Pre-built packages for Windows, macOS, and Linux are on the [**Releases**](https://github.com/magicbug/OscarWatch-Tracker/releases) page (see [Cross-platform publish](#cross-platform-publish) for platform names). Extract the archive for your OS and run `OscarWatch`.
+Pre-built packages for Windows, macOS, and Linux are on the **[Releases](https://github.com/magicbug/OscarWatch-Tracker/releases)** page (see [Cross-platform publish](#cross-platform-publish) for platform names). Extract the archive for your OS and run `OscarWatch`.
 
 **macOS (first install):** release builds are not code-signed or notarized. macOS may block the app or bundled native libraries on first use:
 
 1. **OscarWatch** — if Finder says the app “cannot be opened”, right-click `OscarWatch` → **Open** once, or use **System Settings → Privacy & Security → Open Anyway**.
-2. **Pass recording** — if you use automatic WAV capture, macOS may also ask you to allow **`libportaudio.dylib`** (in `runtimes/osx-*/native/` inside the app folder). Approve it the same way when prompted.
+2. **Pass recording** — if you use automatic WAV capture, macOS may also ask you to allow `**libportaudio.dylib`** (in `runtimes/osx-*/native/` inside the app folder). Approve it the same way when prompted.
 3. **Microphone** — allow microphone access when you first enable recording in Settings.
 
 These prompts are usually one-time per install. Tracking, passes, and radio/rotator control work without pass recording if you skip step 2.
@@ -59,7 +61,7 @@ Press **Standby** in the sidebar when you are only planning or browsing: the rot
 
 ### Operator guide
 
-Plain-language help ships with the app: **Help → Operator guide** (also in the [`help/`](help/) folder). Topics include quick start, frequencies, TLEs, pass planning, radio/rotator setup, recording, and troubleshooting.
+Plain-language help ships with the app: **Help → Operator guide** (also in the `[help/](help/)` folder). Topics include quick start, frequencies, TLEs, pass planning, radio/rotator setup, recording, and troubleshooting.
 
 ---
 
@@ -90,14 +92,16 @@ OscarWatch talks to rigs and rotators over **serial CAT** (COM port on Windows, 
 
 ### Radios
 
-| Radio | Protocol | Notes |
-|-------|----------|--------|
-| **ICOM IC-910** | CI-V | Cross-band: satellite mode, Main/Sub, Sub uplink CTCSS. Receive-only (uplink 0): SAT off, downlink on Main |
-| **ICOM IC-9100** | CI-V | Same as IC-9700; default CI-V address `7C` |
-| **ICOM IC-9700** | CI-V | Same layout as IC-910 |
-| **Yaesu FT-847** | Yaesu CAT | Satellite mode, SAT RX/TX VFOs, doppler, uplink CTCSS |
-| **Kenwood TS-2000** | Kenwood ASCII CAT | **Beta** — SATL via CAT; auto `FA`/`FB` band swap; linear CW uplink in SATL; TRACE off via CAT |
-| **Dummy rig** | — | No serial I/O; for UI and doppler testing without a radio |
+
+| Radio               | Protocol          | Notes                                                                                                      |
+| ------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------- |
+| **ICOM IC-910**     | CI-V              | Cross-band: satellite mode, Main/Sub, Sub uplink CTCSS. Receive-only (uplink 0): SAT off, downlink on Main |
+| **ICOM IC-9100**    | CI-V              | Same as IC-9700; default CI-V address `7C`                                                                 |
+| **ICOM IC-9700**    | CI-V              | Same layout as IC-910                                                                                      |
+| **Yaesu FT-847**    | Yaesu CAT         | Satellite mode, SAT RX/TX VFOs, doppler, uplink CTCSS                                                      |
+| **Kenwood TS-2000** | Kenwood ASCII CAT | **Beta** — SATL via CAT; auto `FA`/`FB` band swap; linear CW uplink in SATL; TRACE off via CAT             |
+| **Dummy rig**       | —                 | No serial I/O; for UI and doppler testing without a radio                                                  |
+
 
 All tracked rigs: linear NOR/REV doppler, interactive Main VFO tuning on USB/LSB/CW (Sub uplink deferred briefly after dial moves on Main/Sub rigs), TX/RX offset spinners, configurable CAT thresholds and pause.
 
@@ -105,10 +109,12 @@ More rigs: see [TODO.md](TODO.md) and [building radio drivers](documents/buildin
 
 ### Rotators
 
-| Controller | Protocol | Notes |
-|------------|----------|--------|
-| **Yaesu GS-232** | GS-232 | Yaesu rotators and many GS-232 clones |
-| **EasyComm** | EasyComm II | SPID, M2, and other EasyComm-compatible controllers |
+
+| Controller       | Protocol    | Notes                                               |
+| ---------------- | ----------- | --------------------------------------------------- |
+| **Yaesu GS-232** | GS-232      | Yaesu rotators and many GS-232 clones               |
+| **EasyComm**     | EasyComm II | SPID, M2, and other EasyComm-compatible controllers |
+
 
 Pass tracking when elevation is above the track-start threshold; manual **Park** in the sidebar; **manual rotator** in Standby (menu **Rotator…** — set az/el, Rotate, Stop, Park for a quick contact without resuming pass tracking). Azimuth range **360°** or **450°** (e.g. G-5500). On **450°** rotators, optional **smart azimuth** chooses 361–450° commands for the shortest path across north (Settings → Rotator). Optional **calibration offsets** correct pass tracking and manual moves; park uses your configured park az/el exactly.
 
@@ -118,16 +124,18 @@ More controllers: [building rotator drivers](documents/building-rotator-drivers.
 
 Open **Settings** from the menu. Tabs:
 
-| Tab | Purpose |
-|-----|---------|
-| **Station** | Display name, latitude/longitude, Maidenhead grid square, altitude ASL |
-| **Tracking** | Minimum pass elevation, prediction window, TLE auto-update, transponder database check on startup |
-| **Appearance** | Light / dark / system theme; footprint motion arrows on/off |
-| **Voice** | Enable announcements, trigger elevation (default −3°), voice selection, test button |
-| **Recording** | Automatic pass WAV capture, input device, start/stop elevation, output folder, test clip |
-| **Rotator** | Type (GS-232 / EasyComm), COM port, 360°/450° azimuth, smart 450°, park, track-start elevation, calibration offsets |
-| **Radio** | Rig type, COM port, region (Icom), CI-V address, linear CW receive mode (USB/LSB vs CW on both VFOs), Doppler CAT thresholds (FM default 350 Hz, SSB/CW default 50 Hz — see [help](help/radio-rotator.html#doppler-cat-thresholds)), pause CAT |
-| **Cloudlog** | Base URL, API key, radio name, test connection; posts SAT uplink/downlink when tracking |
+
+| Tab            | Purpose                                                                                                                                                                                                                                        |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Station**    | Display name, latitude/longitude, Maidenhead grid square, altitude ASL                                                                                                                                                                         |
+| **Tracking**   | Minimum pass elevation, prediction window, TLE auto-update, transponder database check on startup                                                                                                                                              |
+| **Appearance** | Light / dark / system theme; footprint motion arrows on/off                                                                                                                                                                                    |
+| **Voice**      | Enable announcements, trigger elevation (default −3°), voice selection, test button                                                                                                                                                            |
+| **Recording**  | Automatic pass WAV capture, input device, start/stop elevation, output folder, test clip                                                                                                                                                       |
+| **Rotator**    | Type (GS-232 / EasyComm), COM port, 360°/450° azimuth, smart 450°, park, track-start elevation, calibration offsets                                                                                                                            |
+| **Radio**      | Rig type, COM port, region (Icom), CI-V address, linear CW receive mode (USB/LSB vs CW on both VFOs), Doppler CAT thresholds (FM default 350 Hz, SSB/CW default 50 Hz — see [help](help/radio-rotator.html#doppler-cat-thresholds)), pause CAT |
+| **Cloudlog**   | Base URL, API key, radio name, test connection; posts SAT uplink/downlink when tracking                                                                                                                                                        |
+
 
 Settings are stored in `%AppData%/OscarWatch/settings.json`.
 
@@ -135,11 +143,13 @@ Planned work is listed in [TODO.md](TODO.md). Transponder database merge/sync is
 
 ### Voice announcements (platform notes)
 
-| Platform | Text-to-speech |
-|----------|----------------|
-| **Windows** | Built-in (`System.Speech`) |
-| **macOS** | Built-in (`/usr/bin/say`) |
-| **Linux** | Requires `espeak-ng` (preferred) or `spd-say` on `PATH` |
+
+| Platform    | Text-to-speech                                          |
+| ----------- | ------------------------------------------------------- |
+| **Windows** | Built-in (`System.Speech`)                              |
+| **macOS**   | Built-in (`/usr/bin/say`)                               |
+| **Linux**   | Requires `espeak-ng` (preferred) or `spd-say` on `PATH` |
+
 
 If TTS is unavailable, the Voice tab shows a notice and announcements are skipped.
 
@@ -147,24 +157,28 @@ If TTS is unavailable, the Voice tab shows a notice and announcements are skippe
 
 Audio capture uses [PortAudio](https://www.portaudio.com/) (via PortAudioSharp2). Native runtimes are included in published builds for Windows x64, macOS (Intel/Apple Silicon), and Linux x64/ARM64.
 
-| Platform | Notes |
-|----------|--------|
-| **Windows** | Select your radio interface or sound card input in Settings → Recording |
-| **macOS** | Core Audio devices; see [macOS (first install)](#download) if `libportaudio.dylib` is blocked; grant microphone permission when prompted |
-| **Linux** | Requires PulseAudio or ALSA; install `libasound2` / PulseAudio as needed for your distro |
+
+| Platform    | Notes                                                                                                                                    |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **Windows** | Select your radio interface or sound card input in Settings → Recording                                                                  |
+| **macOS**   | Core Audio devices; see [macOS (first install)](#download) if `libportaudio.dylib` is blocked; grant microphone permission when prompted |
+| **Linux**   | Requires PulseAudio or ALSA; install `libasound2` / PulseAudio as needed for your distro                                                 |
+
 
 WAV files are uncompressed (~5 MB/min mono at 44.1 kHz). Use an external tool if you need MP3 later.
 
 ## Settings location
 
-| File | Path |
-|------|------|
-| Settings | `%AppData%/OscarWatch/settings.json` |
-| Recordings | `%AppData%/OscarWatch/recordings/` |
-| TLE cache | `%AppData%/OscarWatch/tle-cache.txt` |
-| Transponder DB (user) | `%AppData%/OscarWatch/satellite_database.json` |
+
+| File                    | Path                                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------------------ |
+| Settings                | `%AppData%/OscarWatch/settings.json`                                                             |
+| Recordings              | `%AppData%/OscarWatch/recordings/`                                                               |
+| TLE cache               | `%AppData%/OscarWatch/tle-cache.txt`                                                             |
+| Transponder DB (user)   | `%AppData%/OscarWatch/satellite_database.json`                                                   |
 | Transponder DB (remote) | [tle.oscarwatch.org/satellite_database.json](https://tle.oscarwatch.org/satellite_database.json) |
-| Logs | `%AppData%/OscarWatch/logs/` (daily rolling `oscarwatch-YYYYMMDD.log`, 14 days retained) |
+| Logs                    | `%AppData%/OscarWatch/logs/` (daily rolling `oscarwatch-YYYYMMDD.log`, 14 days retained)         |
+
 
 Open the recordings or log folder from **Help → Open recordings folder** or **Help → Open logs folder**. Unhandled crashes and rig/rotator/CAT errors are written to logs (not API keys).
 
@@ -203,17 +217,19 @@ dotnet run -c Release --project OscarWatch/OscarWatch.csproj
 
 #### GitHub Actions
 
-[**Publish**](.github/workflows/publish.yml) runs on a version tag (`v*`) or a manual workflow dispatch. It builds and tests on Linux, then publishes installable packages per platform.
+**[Publish](.github/workflows/publish.yml)** runs on a version tag (`v`*) or a manual workflow dispatch. It builds and tests on Linux, then publishes installable packages per platform.
 
 **Artifacts:**
 
-| Artifact | Runtime |
-|----------|---------|
-| `OscarWatch-win-x64` | Windows x64 |
-| `OscarWatch-osx-arm64` | macOS Apple Silicon |
-| `OscarWatch-osx-x64` | macOS Intel |
-| `OscarWatch-linux-x64` | Linux x64 |
+
+| Artifact                 | Runtime                              |
+| ------------------------ | ------------------------------------ |
+| `OscarWatch-win-x64`     | Windows x64                          |
+| `OscarWatch-osx-arm64`   | macOS Apple Silicon                  |
+| `OscarWatch-osx-x64`     | macOS Intel                          |
+| `OscarWatch-linux-x64`   | Linux x64                            |
 | `OscarWatch-linux-arm64` | Linux ARM64 (Raspberry Pi 64-bit OS) |
+
 
 - **Manual run:** Actions → **Publish** → **Run workflow**
 - **Release:** `git tag v1.0.0 && git push origin v1.0.0` → GitHub Release with all archives
@@ -241,11 +257,13 @@ Publish profiles are under `OscarWatch/Properties/PublishProfiles/` (e.g. `dotne
 
 ### Project structure
 
-| Project | Role |
-|---------|------|
-| `OscarWatch.Core` | Models, TLE parser, settings, Maidenhead grid, orbit interfaces, voice/phonetics |
-| `OscarWatch.Orbit` | OrbitTools adapters, pass predictor, ground geometry |
-| `OscarWatch` | Avalonia UI |
+
+| Project            | Role                                                                             |
+| ------------------ | -------------------------------------------------------------------------------- |
+| `OscarWatch.Core`  | Models, TLE parser, settings, Maidenhead grid, orbit interfaces, voice/phonetics |
+| `OscarWatch.Orbit` | OrbitTools adapters, pass predictor, ground geometry                             |
+| `OscarWatch`       | Avalonia UI                                                                      |
+
 
 ### Developer documentation
 
