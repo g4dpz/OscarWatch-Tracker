@@ -60,6 +60,11 @@
         <ListBox ItemsSource="{Binding FilteredSatellites}"
                  SelectedItem="{Binding SelectedSatellite, Mode=TwoWay}"
                  MinHeight="200">
+          <ListBox.Styles>
+            <Style Selector="ListBoxItem">
+              <Setter Property="Padding" Value="8,6,14,6" />
+            </Style>
+          </ListBox.Styles>
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="models:SatelliteRadioEntry">
               <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
@@ -68,8 +73,12 @@
         </ListBox>
       </DockPanel>
 
-      <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
-        <StackPanel Spacing="12" IsEnabled="{Binding HasSelectedSatellite}">
+      <ScrollViewer Grid.Column="1"
+                    VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="12"
+                    Margin="0,0,14,0"
+                    IsEnabled="{Binding HasSelectedSatellite}">
           <TextBlock Text="Satellite" FontWeight="SemiBold" />
           <TextBox Watermark="Name (match TLE name when possible)"
                    Text="{Binding SatelliteName, Mode=TwoWay}" />
@@ -85,12 +94,18 @@
                    SelectedItem="{Binding SelectedMode, Mode=TwoWay}"
                    MinHeight="120"
                    MaxHeight="180">
+            <ListBox.Styles>
+              <Style Selector="ListBoxItem">
+                <Setter Property="Padding" Value="8,6,14,6" />
+              </Style>
+            </ListBox.Styles>
             <ListBox.ItemTemplate>
               <DataTemplate x:DataType="models:SatelliteTransponderMode">
-                <StackPanel>
+                <StackPanel Spacing="2">
                   <TextBlock Text="{Binding DisplayLabel}" FontWeight="SemiBold" />
                   <TextBlock Text="{Binding SummaryLine}"
                              FontSize="11"
+                             TextWrapping="Wrap"
                              Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
                 </StackPanel>
               </DataTemplate>
