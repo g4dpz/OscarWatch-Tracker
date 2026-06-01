@@ -8,7 +8,11 @@ namespace OscarWatch.Recording;
 
 public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposable
 {
-    private const int FramesPerBuffer = 1024;
+    /// <summary>Let PortAudio pick buffer size (required on many WASAPI devices).</summary>
+    private const uint UnspecifiedFramesPerBuffer = 0;
+    private const uint FallbackFramesPerBuffer = 1024;
+    /// <summary>Scratch size when frame count is host-selected (variable per callback).</summary>
+    private const int MaxCallbackFrameCount = 8192;
     private const int RingBufferBytes = 4 * 1024 * 1024;
     /// <summary>Log only when backlog or peak exceeds this (25% of ring).</summary>
     private const int BacklogPressureBytes = RingBufferBytes / 4;
@@ -93,13 +97,13 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
             if (!int.TryParse(deviceId, out var deviceIndex))
                 throw new InvalidOperationException($"Invalid audio device id '{deviceId}'.");
 
-            var (sampleRate, channels) = format.GetFormat();
+            var (preferredSampleRate, channels) = format.GetFormat();
             var deviceInfo = PortAudio.GetDeviceInfo(deviceIndex);
             if (deviceInfo.maxInputChannels < channels)
                 throw new InvalidOperationException(
                     $"Device '{deviceInfo.name}' does not support {channels} input channel(s).");
 
-            _maxCallbackBytes = FramesPerBuffer * channels * 2;
+            _maxCallbackBytes = MaxCallbackFrameCount * channels * 2;
             _ringBuffer = new PcmRingBuffer(RingBufferBytes);
             _ringBuffer.ResetStats();
             _callbackScratch = new byte[_maxCallbackBytes];
@@ -107,30 +111,23 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
             _lastStatsUtc = DateTime.UtcNow;
             _lastWarnedDroppedBytes = 0;
 
-            _wavWriter = new WavWriter(outputPath, sampleRate, (short)channels);
-            StartWriterThread();
-
-            var input = new StreamParameters
-            {
-                device = deviceIndex,
-                channelCount = channels,
-                sampleFormat = SampleFormat.Int16,
-                suggestedLatency = deviceInfo.defaultLowInputLatency,
-                hostApiSpecificStreamInfo = IntPtr.Zero
-            };
-
             PortAudioSharp.Stream.Callback callback = OnAudioCallback;
+            int actualSampleRate;
+            uint framesPerBuffer;
 
             lock (_streamGate)
             {
-                _stream = new PortAudioSharp.Stream(
-                    inParams: input,
-                    outParams: null,
-                    sampleRate: sampleRate,
-                    framesPerBuffer: FramesPerBuffer,
-                    streamFlags: StreamFlags.ClipOff,
-                    callback: callback,
-                    userData: IntPtr.Zero);
+                _stream = OpenCaptureStream(
+                    deviceIndex,
+                    deviceInfo,
+                    channels,
+                    preferredSampleRate,
+                    callback,
+                    out actualSampleRate,
+                    out framesPerBuffer);
+
+                _wavWriter = new WavWriter(outputPath, actualSampleRate, (short)channels);
+                StartWriterThread();
 
                 _captureActive = true;
                 _stream.Start();
@@ -140,11 +137,12 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
             ActiveNoradId = noradId;
             ActiveOutputPath = outputPath;
             Log.Information(
-                "Recording started for {Satellite} ({NoradId}) -> {Path} (frames={Frames}, ring={RingKb} KB)",
+                "Recording started for {Satellite} ({NoradId}) -> {Path} (rate={SampleRate} Hz, frames={Frames}, ring={RingKb} KB)",
                 satelliteName,
                 noradId,
                 outputPath,
-                FramesPerBuffer,
+                actualSampleRate,
+                framesPerBuffer,
                 RingBufferBytes / 1024);
         }
         catch (Exception ex)
@@ -216,6 +214,91 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
         _wavWriter = null;
         _ringBuffer = null;
         _callbackScratch = null;
+    }
+
+    private static PortAudioSharp.Stream OpenCaptureStream(
+        int deviceIndex,
+        DeviceInfo deviceInfo,
+        int channels,
+        int preferredSampleRate,
+        PortAudioSharp.Stream.Callback callback,
+        out int actualSampleRate,
+        out uint framesPerBuffer)
+    {
+        var input = new StreamParameters
+        {
+            device = deviceIndex,
+            channelCount = channels,
+            sampleFormat = SampleFormat.Int16,
+            suggestedLatency = deviceInfo.defaultLowInputLatency,
+            hostApiSpecificStreamInfo = IntPtr.Zero
+        };
+
+        var sampleRates = BuildSampleRatesToTry(preferredSampleRate, deviceInfo);
+        uint[] frameBuffers = [UnspecifiedFramesPerBuffer, FallbackFramesPerBuffer];
+        PortAudioException? lastError = null;
+
+        foreach (var rate in sampleRates)
+        {
+            foreach (var frames in frameBuffers)
+            {
+                try
+                {
+                    var stream = new PortAudioSharp.Stream(
+                        inParams: input,
+                        outParams: null,
+                        sampleRate: rate,
+                        framesPerBuffer: frames,
+                        streamFlags: StreamFlags.ClipOff,
+                        callback: callback,
+                        userData: IntPtr.Zero);
+
+                    actualSampleRate = rate;
+                    framesPerBuffer = frames;
+                    if (rate != preferredSampleRate)
+                    {
+                        Log.Information(
+                            "Opened {Device} at {Rate} Hz (requested {Requested} Hz)",
+                            deviceInfo.name,
+                            rate,
+                            preferredSampleRate);
+                    }
+
+                    return stream;
+                }
+                catch (PortAudioException ex)
+                {
+                    lastError = ex;
+                    Log.Debug(
+                        ex,
+                        "PortAudio open failed for {Device} at {Rate} Hz, frames={Frames}",
+                        deviceInfo.name,
+                        rate,
+                        frames);
+                }
+            }
+        }
+
+        var tried = string.Join(", ", sampleRates.Select(r => $"{r} Hz"));
+        throw new InvalidOperationException(
+            $"Could not open audio input on '{deviceInfo.name}'. Try another device or recording format (tried {tried}).",
+            lastError);
+    }
+
+    private static List<int> BuildSampleRatesToTry(int preferredSampleRate, DeviceInfo deviceInfo)
+    {
+        var rates = new List<int>();
+        if (preferredSampleRate > 0)
+            rates.Add(preferredSampleRate);
+
+        var deviceRate = (int)Math.Round(deviceInfo.defaultSampleRate);
+        if (deviceRate > 0 && !rates.Contains(deviceRate))
+            rates.Add(deviceRate);
+
+        if (rates.Count == 0)
+            rates.Add(44100);
+
+        return rates;
     }
 
     private StreamCallbackResult OnAudioCallback(

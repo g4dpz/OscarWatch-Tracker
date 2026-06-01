@@ -3,28 +3,101 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
 using OscarWatch.ViewModels;
 
 namespace OscarWatch;
 
 public partial class MainWindow : Window
 {
+    private static readonly TimeSpan PassListScrollResetIdle = TimeSpan.FromMinutes(5);
+    private static readonly TimeSpan PassListScrollResetCheckInterval = TimeSpan.FromSeconds(30);
+    private const double PassListTopEpsilon = 1.0;
+
+    private ScrollViewer? _passListScrollViewer;
+    private DispatcherTimer? _passListScrollResetTimer;
+    private DateTime _passListLastUserScrollUtc = DateTime.MinValue;
+    private bool _passListIsScrolledDown;
+
     public MainWindow()
     {
         InitializeComponent();
         AddHandler(KeyDownEvent, OnGlobalKeyDown, RoutingStrategies.Tunnel);
         PassesListBox.ContainerPrepared += OnPassListContainerPrepared;
         PassesListBox.ContainerClearing += OnPassListContainerClearing;
+        PassesListBox.AttachedToVisualTree += (_, _) => TryAttachPassListScrollViewer();
         Closing += OnClosing;
+
+        _passListScrollResetTimer = new DispatcherTimer { Interval = PassListScrollResetCheckInterval };
+        _passListScrollResetTimer.Tick += OnPassListScrollResetTick;
+        _passListScrollResetTimer.Start();
     }
 
     private async void OnClosing(object? sender, WindowClosingEventArgs e)
     {
+        _passListScrollResetTimer?.Stop();
+        DetachPassListScrollViewer();
+
         if (DataContext is not MainViewModel vm)
             return;
 
         if (vm.PrepareForShutdown())
             await vm.SaveSettingsAsync();
+    }
+
+    private void TryAttachPassListScrollViewer()
+    {
+        if (_passListScrollViewer is not null)
+            return;
+
+        _passListScrollViewer = PassesListBox.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
+        if (_passListScrollViewer is null)
+            return;
+
+        _passListScrollViewer.ScrollChanged += OnPassListScrollChanged;
+        UpdatePassListScrollState(_passListScrollViewer.Offset.Y);
+    }
+
+    private void DetachPassListScrollViewer()
+    {
+        if (_passListScrollViewer is null)
+            return;
+
+        _passListScrollViewer.ScrollChanged -= OnPassListScrollChanged;
+        _passListScrollViewer = null;
+    }
+
+    private void OnPassListScrollChanged(object? sender, ScrollChangedEventArgs e)
+    {
+        if (sender is ScrollViewer viewer)
+            UpdatePassListScrollState(viewer.Offset.Y);
+    }
+
+    private void UpdatePassListScrollState(double offsetY)
+    {
+        _passListIsScrolledDown = offsetY > PassListTopEpsilon;
+        if (_passListIsScrolledDown)
+            _passListLastUserScrollUtc = DateTime.UtcNow;
+        else
+            _passListLastUserScrollUtc = DateTime.MinValue;
+    }
+
+    private void OnPassListScrollResetTick(object? sender, EventArgs e)
+    {
+        if (!_passListIsScrolledDown || _passListScrollViewer is null)
+            return;
+
+        if (_passListLastUserScrollUtc == DateTime.MinValue)
+            return;
+
+        if (DateTime.UtcNow - _passListLastUserScrollUtc < PassListScrollResetIdle)
+            return;
+
+        var offset = _passListScrollViewer.Offset;
+        _passListScrollViewer.Offset = new Vector(offset.X, 0);
+        _passListIsScrolledDown = false;
+        _passListLastUserScrollUtc = DateTime.MinValue;
     }
 
     private static void OnPassListContainerClearing(object? sender, ContainerClearingEventArgs e)
