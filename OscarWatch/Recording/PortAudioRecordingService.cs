@@ -236,6 +236,7 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
 
         var sampleRates = BuildSampleRatesToTry(preferredSampleRate, deviceInfo);
         uint[] frameBuffers = [UnspecifiedFramesPerBuffer, FallbackFramesPerBuffer];
+        var failedAttempts = new List<string>();
         PortAudioException? lastError = null;
 
         foreach (var rate in sampleRates)
@@ -255,34 +256,69 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
 
                     actualSampleRate = rate;
                     framesPerBuffer = frames;
-                    if (rate != preferredSampleRate)
-                    {
-                        Log.Information(
-                            "Opened {Device} at {Rate} Hz (requested {Requested} Hz)",
-                            deviceInfo.name,
-                            rate,
-                            preferredSampleRate);
-                    }
-
+                    LogStreamOpenFallback(deviceInfo.name, preferredSampleRate, rate, frames, failedAttempts);
                     return stream;
                 }
                 catch (PortAudioException ex)
                 {
                     lastError = ex;
-                    Log.Debug(
-                        ex,
-                        "PortAudio open failed for {Device} at {Rate} Hz, frames={Frames}",
-                        deviceInfo.name,
-                        rate,
-                        frames);
+                    failedAttempts.Add(DescribeOpenAttempt(rate, frames));
                 }
             }
         }
 
-        var tried = string.Join(", ", sampleRates.Select(r => $"{r} Hz"));
+        var tried = string.Join("; ", failedAttempts);
+        Log.Warning(
+            lastError,
+            "Could not open audio input on '{Device}' (tried {Attempts})",
+            deviceInfo.name,
+            tried);
         throw new InvalidOperationException(
-            $"Could not open audio input on '{deviceInfo.name}'. Try another device or recording format (tried {tried}).",
+            $"Could not open audio input on '{deviceInfo.name}'. Try another device or recording format.",
             lastError);
+    }
+
+    private static string DescribeOpenAttempt(int sampleRate, uint frames) =>
+        frames == UnspecifiedFramesPerBuffer
+            ? $"{sampleRate} Hz"
+            : $"{sampleRate} Hz, {frames}-frame buffer";
+
+    private static void LogStreamOpenFallback(
+        string deviceName,
+        int preferredSampleRate,
+        int actualSampleRate,
+        uint framesPerBuffer,
+        IReadOnlyList<string> failedAttempts)
+    {
+        if (actualSampleRate != preferredSampleRate)
+        {
+            Log.Information(
+                "Using {Rate} Hz on '{Device}' ({Requested} Hz not supported on this device)",
+                actualSampleRate,
+                deviceName,
+                preferredSampleRate);
+            return;
+        }
+
+        if (framesPerBuffer != UnspecifiedFramesPerBuffer)
+        {
+            Log.Information(
+                "Opened '{Device}' at {Rate} Hz with {Frames}-frame buffers (host default buffer size was rejected)",
+                deviceName,
+                actualSampleRate,
+                framesPerBuffer);
+            return;
+        }
+
+        if (failedAttempts.Count > 0)
+        {
+            Log.Information(
+                "Opened '{Device}' at {Rate} Hz after {AttemptCount} failed open attempt(s): {Attempts}",
+                deviceName,
+                actualSampleRate,
+                failedAttempts.Count,
+                string.Join("; ", failedAttempts));
+        }
     }
 
     private static List<int> BuildSampleRatesToTry(int preferredSampleRate, DeviceInfo deviceInfo)
