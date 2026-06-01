@@ -25,6 +25,7 @@ public sealed class RigController : IRigController, IDisposable
     private static readonly TimeSpan CommandWaitTimeout = TimeSpan.FromSeconds(10);
 
     private readonly Func<RigSettings, IRigDriver>? _driverFactory;
+    private readonly Func<RigEndpointSettings, IRigDriver>? _endpointFactory;
     private readonly long[] _rxDialHistory = new long[DialHistoryLength];
     private readonly object _statusLock = new();
     private readonly object _workerStartLock = new();
@@ -35,13 +36,19 @@ public sealed class RigController : IRigController, IDisposable
     private volatile bool _shutdownRequested;
 
     private IRigDriver? _driver;
+    private IRigDriver? _downlinkDriver;
+    private IRigDriver? _uplinkDriver;
     private string? _connectedKey;
+    private string? _downlinkConnectedKey;
+    private string? _uplinkConnectedKey;
     private string? _passKey;
     private long _lastRigRxHz;
     private long _lastRigTxHz;
     private long _displayRxHz;
     private long _displayTxHz;
     private DateTime _lastWriteUtc = DateTime.MinValue;
+    private DateTime _lastRxWriteUtc = DateTime.MinValue;
+    private DateTime _lastTxWriteUtc = DateTime.MinValue;
     private int _thresholdHz;
     private bool _interactive;
     private bool _useMainSub;
@@ -70,8 +77,13 @@ public sealed class RigController : IRigController, IDisposable
     private RigTrackingContext? _cachedContext;
     private RigConnectionStatus _status = new(false, false, null, null, null, false, 0, 0);
 
-    public RigController(Func<RigSettings, IRigDriver>? driverFactory = null) =>
+    public RigController(
+        Func<RigSettings, IRigDriver>? driverFactory = null,
+        Func<RigEndpointSettings, IRigDriver>? endpointFactory = null)
+    {
         _driverFactory = driverFactory;
+        _endpointFactory = endpointFactory;
+    }
 
     public RigConnectionStatus GetStatus()
     {
@@ -244,10 +256,10 @@ public sealed class RigController : IRigController, IDisposable
 
     private void ApplySelectedCtcssOnWorker(RigSettings settings, RigTrackingContext context)
     {
-        if (!settings.Enabled || settings.Type == RigType.None)
+        if (!RigIsConfigured(settings))
             return;
 
-        if (string.IsNullOrWhiteSpace(settings.Port) && settings.Type != RigType.Dummy)
+        if (!HasRequiredPorts(settings))
             return;
 
         if (!EnsureConnected(settings))
@@ -256,7 +268,9 @@ public sealed class RigController : IRigController, IDisposable
         if (context.SelectedCtcssHz is not { } hz || hz <= 0 || context.Mode.IsBeaconOnly)
             return;
 
-        _useMainSub = RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz);
+        if (!settings.DualRadioEnabled)
+            _useMainSub = RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz);
+
         ApplyCtcss(settings, context, force: true);
         RestoreOperatorVfo();
     }
@@ -264,7 +278,7 @@ public sealed class RigController : IRigController, IDisposable
     private void RefreshStatusSnapshot()
     {
         var snapshot = new RigConnectionStatus(
-            _driver?.IsConnected == true,
+            IsRigConnected(),
             _isTracking,
             _statusMessage,
             DisplayHz(_displayRxHz, _lastRigRxHz),
@@ -279,23 +293,25 @@ public sealed class RigController : IRigController, IDisposable
 
     private void ApplyPublishState(RigSettings settings, RigTrackingContext? context, bool reinitializePass = false)
     {
-        if (!settings.Enabled || settings.Type == RigType.None)
+        if (!RigIsConfigured(settings))
         {
             TearDownRig();
             _statusMessage = null;
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(settings.Port) && settings.Type != RigType.Dummy)
+        if (!HasRequiredPorts(settings))
         {
             TearDownRig();
-            _statusMessage = "No COM port selected";
+            _statusMessage = settings.DualRadioEnabled
+                ? "Select COM ports for downlink and uplink radios"
+                : "No COM port selected";
             return;
         }
 
         if (!EnsureConnected(settings))
         {
-            _statusMessage = "Rig not connected";
+            _statusMessage = DescribeConnectionFailure(settings);
             return;
         }
 
@@ -314,7 +330,7 @@ public sealed class RigController : IRigController, IDisposable
 
         _isBeaconOnly = context.Mode.IsBeaconOnly;
 
-        if (_driver is null || !_driver.SupportsTracking)
+        if (!SupportsTracking())
             return;
 
         var newPassKey = PassKey(context);
@@ -367,7 +383,13 @@ public sealed class RigController : IRigController, IDisposable
     {
         _driver?.Dispose();
         _driver = null;
+        _downlinkDriver?.Dispose();
+        _downlinkDriver = null;
+        _uplinkDriver?.Dispose();
+        _uplinkDriver = null;
         _connectedKey = null;
+        _downlinkConnectedKey = null;
+        _uplinkConnectedKey = null;
         ResetTrackingState();
     }
 
@@ -391,7 +413,7 @@ public sealed class RigController : IRigController, IDisposable
 
     private void RunLoopIteration(bool ignoreDopplerSuspend = false)
     {
-        if (_driver is null || !_driver.IsConnected || _cachedContext is null)
+        if (!IsRigConnected() || _cachedContext is null)
             return;
 
         if (!_cachedSettings.Enabled || _cachedSettings.CatUpdatesPaused || !_isTracking)
@@ -479,7 +501,7 @@ public sealed class RigController : IRigController, IDisposable
             || context.TrackState.LookAngles is null)
             return;
 
-        _driver?.SelectVfo(ReceiveVfo(), force: true);
+        RxDriver()?.SelectVfo(ReceiveVfo(), force: true);
         if (!TryReadReceiveDialHz(out var dialHz))
             return;
 
@@ -632,9 +654,6 @@ public sealed class RigController : IRigController, IDisposable
         var rxHz = ToHz(corrected.RadioReceiveKHz);
         var txHz = ToHz(corrected.RadioTransmitKHz);
 
-        if (!CanWrite(settings))
-            return;
-
         var forceApply = _forceFrequencyApply;
         _forceFrequencyApply = false;
         var thresholdHz = _thresholdHz;
@@ -652,7 +671,8 @@ public sealed class RigController : IRigController, IDisposable
         // Cross-band: keep RX/TX CAT in sync when either leg triggers (FM automatic, or linear interactive).
         if (!forceApply && strategy == DopplerStrategy.Full)
         {
-            var crossBand = RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz);
+            var crossBand = !settings.DualRadioEnabled
+                && RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz);
             if (crossBand)
             {
                 var companionHz = _interactive ? 0 : FmCompanionLegHz;
@@ -671,17 +691,24 @@ public sealed class RigController : IRigController, IDisposable
             writeTx = false;
         }
 
+        if (!CanWriteDoppler(settings, writeRx, writeTx))
+            return;
+
         if (writeRx)
-            okRx = WriteRx(rxHz);
+            okRx = WriteRx(settings, rxHz);
         if (writeTx)
         {
-            okTx = WriteTx(txHz);
+            okTx = WriteTx(settings, txHz);
             if (_interactive && okTx)
                 RestoreOperatorVfo();
         }
 
         if (okRx || okTx)
         {
+            if (okRx)
+                _lastRxWriteUtc = DateTime.UtcNow;
+            if (okTx)
+                _lastTxWriteUtc = DateTime.UtcNow;
             _lastWriteUtc = DateTime.UtcNow;
             MarkProgrammaticFrequencySettle();
             FinishOffsetKnobCaptureBlock();
@@ -701,13 +728,16 @@ public sealed class RigController : IRigController, IDisposable
     private static long? DisplayHz(long displayHz, long lastWrittenHz) =>
         displayHz > 0 ? displayHz : lastWrittenHz > 0 ? lastWrittenHz : null;
 
-    private bool EnsureConnected(RigSettings settings)
+    private bool EnsureConnected(RigSettings settings) =>
+        settings.DualRadioEnabled ? EnsureDualConnected(settings) : EnsureSingleConnected(settings);
+
+    private bool EnsureSingleConnected(RigSettings settings)
     {
         var key = $"{settings.Type}|{settings.Port}|{settings.BaudRate}|{settings.CivAddress}";
         if (_driver is not null && _connectedKey == key && _driver.IsConnected)
             return true;
 
-        _driver?.Dispose();
+        TearDownRig();
         try
         {
             _driver = (_driverFactory ?? RigDriverFactory.Create)(settings);
@@ -724,13 +754,64 @@ public sealed class RigController : IRigController, IDisposable
         }
     }
 
+    private bool EnsureDualConnected(RigSettings settings)
+    {
+        var downKey = EndpointConnectionKey(settings.Downlink);
+        var upKey = EndpointConnectionKey(settings.Uplink);
+        var downOk = _downlinkDriver is not null
+            && _downlinkConnectedKey == downKey
+            && _downlinkDriver.IsConnected;
+        var upOk = _uplinkDriver is not null
+            && _uplinkConnectedKey == upKey
+            && _uplinkDriver.IsConnected;
+
+        if (downOk && upOk)
+            return true;
+
+        TearDownRig();
+
+        try
+        {
+            _downlinkDriver = CreateEndpointDriver(settings.Downlink);
+            _downlinkDriver.Open();
+            _downlinkConnectedKey = downKey;
+            if (!_downlinkDriver.IsConnected)
+                return false;
+
+            _uplinkDriver = CreateEndpointDriver(settings.Uplink);
+            _uplinkDriver.Open();
+            _uplinkConnectedKey = upKey;
+            return _uplinkDriver.IsConnected;
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Dual rig connect failed (down {DownPort}, up {UpPort})",
+                settings.Downlink.Port, settings.Uplink.Port);
+            TearDownRig();
+            return false;
+        }
+    }
+
+    private IRigDriver CreateEndpointDriver(RigEndpointSettings endpoint) =>
+        _endpointFactory?.Invoke(endpoint) ?? RigDriverFactory.Create(endpoint);
+
+    private static string EndpointConnectionKey(RigEndpointSettings endpoint) =>
+        $"{endpoint.Type}|{endpoint.Port}|{endpoint.BaudRate}|{endpoint.CatDelayMs}";
+
     private void RunPassInit(RigSettings settings, RigTrackingContext context)
     {
+        if (settings.DualRadioEnabled)
+        {
+            RunPassInitDual(settings, context);
+            return;
+        }
+
         if (_driver is null)
             return;
 
         _useMainSub = !_isBeaconOnly
-            && RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz);
+            && RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz)
+            && UsesMainSubSatelliteLayout(settings.Type);
         AssignReceiveVfo(settings, context);
 
         if (_isBeaconOnly)
@@ -767,7 +848,7 @@ public sealed class RigController : IRigController, IDisposable
         _interactive = setup.Interactive;
 
         // FT-847 can revert to narrow FM when SAT frequencies/CTCSS are programmed after mode.
-        var deferModeSetup = settings.Type == RigType.YaesuFt847;
+        var deferModeSetup = settings.Type is RigType.YaesuFt847 or RigType.YaesuFt817 or RigType.YaesuFt818;
         if (!deferModeSetup)
             ConfigureVfoModes(context);
 
@@ -795,6 +876,72 @@ public sealed class RigController : IRigController, IDisposable
 
         if (initResult.RxWritten || initResult.TxWritten)
             _lastWriteUtc = DateTime.UtcNow;
+        _lastPassDownlinkOnVhf = RigSatModeHelper.IsVhfCenterKHz(context.Mode.DownlinkKHz);
+        MarkProgrammaticFrequencySettle();
+        _suspendDopplerUntilUtc = DateTime.UtcNow.AddMilliseconds(500);
+        RestoreOperatorVfo();
+    }
+
+    private void RunPassInitDual(RigSettings settings, RigTrackingContext context)
+    {
+        if (_downlinkDriver is null || _uplinkDriver is null)
+            return;
+
+        _useMainSub = false;
+        _receiveVfo = RigVfo.Main;
+
+        _downlinkDriver.SelectVfo(RigVfo.Main, force: true);
+        if (settings.ReceiveRegion() == RigRegion.USA)
+            _downlinkDriver.SetToneSquelchOn(false);
+        else
+            _downlinkDriver.SetToneOn(false);
+
+        _uplinkDriver.SelectVfo(RigVfo.Main, force: true);
+        _uplinkDriver.SetToneOn(false);
+        _uplinkDriver.SetToneSquelchOn(false);
+
+        var setup = SetupVfosPolicy.Evaluate(
+            context.EffectiveDownlinkMode,
+            settings.DopplerThresholdFmHz,
+            settings.DopplerThresholdLinearHz);
+        _thresholdHz = setup.ThresholdHz;
+        _interactive = setup.Interactive;
+
+        var corrected = ComputeDoppler(context);
+        var rxHz = ToHz(corrected.RadioReceiveKHz);
+        var txHz = ToHz(corrected.RadioTransmitKHz);
+        _lastRigRxHz = 0;
+        _lastRigTxHz = 0;
+
+        _downlinkDriver.SelectVfo(RigVfo.Main);
+        _downlinkDriver.SetMode(context.EffectiveDownlinkMode);
+        var rxWritten = _downlinkDriver.SetFrequencyHz(rxHz);
+
+        var txWritten = true;
+        if (!_isBeaconOnly)
+        {
+            _uplinkDriver.SelectVfo(RigVfo.Main);
+            _uplinkDriver.SetMode(context.EffectiveUplinkMode);
+            txWritten = _uplinkDriver.SetFrequencyHz(txHz);
+        }
+
+        ApplyCtcss(settings, context, force: true);
+
+        if (rxWritten)
+            _lastRigRxHz = rxHz;
+        if (txWritten)
+            _lastRigTxHz = txHz;
+
+        var initResult = new InitialFrequencyWriteResult(rxWritten, txWritten);
+        if (initResult.RequiresRetry(_isBeaconOnly))
+        {
+            _forceFrequencyApply = true;
+            WriteDopplerFrequencies(settings, context);
+        }
+
+        if (initResult.RxWritten || initResult.TxWritten)
+            _lastWriteUtc = DateTime.UtcNow;
+
         _lastPassDownlinkOnVhf = RigSatModeHelper.IsVhfCenterKHz(context.Mode.DownlinkKHz);
         MarkProgrammaticFrequencySettle();
         _suspendDopplerUntilUtc = DateTime.UtcNow.AddMilliseconds(500);
@@ -851,6 +998,10 @@ public sealed class RigController : IRigController, IDisposable
     private static bool IsIcomSatelliteLayoutRig(RigType type) =>
         type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700;
 
+    private static bool UsesMainSubSatelliteLayout(RigType type) =>
+        type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700
+            or RigType.YaesuFt847 or RigType.KenwoodTs2000 or RigType.Dummy;
+
     private void AssignReceiveVfo(RigSettings settings, RigTrackingContext context)
     {
         if (_useMainSub)
@@ -888,7 +1039,7 @@ public sealed class RigController : IRigController, IDisposable
     private static IEnumerable<RigVfo> VfosForSatelliteCtcssClear(RigType type)
     {
         if (type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700
-            or RigType.YaesuFt847 or RigType.KenwoodTs2000)
+            or RigType.YaesuFt847 or RigType.YaesuFt817 or RigType.YaesuFt818 or RigType.KenwoodTs2000)
         {
             yield return RigVfo.Main;
             yield return RigVfo.Sub;
@@ -939,24 +1090,25 @@ public sealed class RigController : IRigController, IDisposable
 
     private void ApplyCtcss(RigSettings settings, RigTrackingContext context, bool force)
     {
-        if (_driver is null || context.SelectedCtcssHz is not { } hz || hz <= 0)
+        var driver = TxDriver();
+        if (driver is null || context.SelectedCtcssHz is not { } hz || hz <= 0)
             return;
 
-        var squelch = settings.Region == RigRegion.USA;
+        var squelch = settings.TransmitRegion() == RigRegion.USA;
         if (!force && _lastAppliedCtcssHz == hz && _lastAppliedCtcssSquelch == squelch)
             return;
 
         // CTCSS on uplink VFO: tone Hz then enable (US: TSQL, EU: repeater tone).
-        _driver.SelectVfo(UplinkVfoForCtcss(settings, context), force: true);
+        driver.SelectVfo(UplinkVfoForCtcss(settings, context), force: true);
         if (squelch)
         {
-            _driver.SetToneHz(hz, squelchTone: true);
-            _driver.SetToneSquelchOn(true);
+            driver.SetToneHz(hz, squelchTone: true);
+            driver.SetToneSquelchOn(true);
         }
         else
         {
-            _driver.SetToneHz(hz, squelchTone: false);
-            _driver.SetToneOn(true);
+            driver.SetToneHz(hz, squelchTone: false);
+            driver.SetToneOn(true);
         }
 
         _lastAppliedCtcssHz = hz;
@@ -965,6 +1117,9 @@ public sealed class RigController : IRigController, IDisposable
 
     private static RigVfo UplinkVfoForCtcss(RigSettings settings, RigTrackingContext context)
     {
+        if (settings.DualRadioEnabled)
+            return RigVfo.Main;
+
         if (settings.Type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700 or RigType.YaesuFt847 or RigType.KenwoodTs2000)
             return RigVfo.Sub;
 
@@ -975,6 +1130,9 @@ public sealed class RigController : IRigController, IDisposable
 
     private InitialFrequencyWriteResult WriteInitialFrequencies(RigSettings settings, long rxHz, long txHz)
     {
+        if (settings.DualRadioEnabled)
+            return WriteInitialFrequenciesDual(settings, rxHz, txHz);
+
         if (_driver is null)
             return new InitialFrequencyWriteResult(false, false);
 
@@ -982,7 +1140,7 @@ public sealed class RigController : IRigController, IDisposable
         {
             // Pass init: clear tone on Main, set RX, then set TX on Sub (CTCSS applied after).
             _driver.SelectVfo(RigVfo.Main);
-            if (settings.Region == RigRegion.USA)
+            if (settings.ReceiveRegion() == RigRegion.USA)
                 _driver.SetToneSquelchOn(false);
             else
                 _driver.SetToneOn(false);
@@ -1003,6 +1161,26 @@ public sealed class RigController : IRigController, IDisposable
         _driver.SelectVfo(RigVfo.VfoB);
         var txOk = _driver.SetFrequencyHz(txHz);
         return new InitialFrequencyWriteResult(rxOk, txOk);
+    }
+
+    private InitialFrequencyWriteResult WriteInitialFrequenciesDual(RigSettings settings, long rxHz, long txHz)
+    {
+        if (_downlinkDriver is null || _uplinkDriver is null)
+            return new InitialFrequencyWriteResult(false, false);
+
+        _downlinkDriver.SelectVfo(RigVfo.Main);
+        if (settings.ReceiveRegion() == RigRegion.USA)
+            _downlinkDriver.SetToneSquelchOn(false);
+        else
+            _downlinkDriver.SetToneOn(false);
+
+        var rxWritten = _downlinkDriver.SetFrequencyHz(rxHz);
+        if (_isBeaconOnly)
+            return new InitialFrequencyWriteResult(rxWritten, TxWritten: true);
+
+        _uplinkDriver.SelectVfo(RigVfo.Main);
+        var txWritten = _uplinkDriver.SetFrequencyHz(txHz);
+        return new InitialFrequencyWriteResult(rxWritten, txWritten);
     }
 
     private readonly record struct InitialFrequencyWriteResult(bool RxWritten, bool TxWritten)
@@ -1067,10 +1245,11 @@ public sealed class RigController : IRigController, IDisposable
     private bool TryReadReceiveDialHz(out long hz)
     {
         hz = 0;
-        if (_driver is null)
+        var driver = RxDriver();
+        if (driver is null)
             return false;
 
-        var dial = _driver.ReadFrequencyHz(ReceiveVfo());
+        var dial = driver.ReadFrequencyHz(ReceiveVfo());
         if (dial is null or <= 0)
             return false;
 
@@ -1087,28 +1266,44 @@ public sealed class RigController : IRigController, IDisposable
 
     private void RestoreOperatorVfo()
     {
-        if (_driver is null)
+        var driver = RxDriver();
+        if (driver is null)
             return;
 
-        _driver.SelectVfo(ReceiveVfo(), force: true);
+        driver.SelectVfo(ReceiveVfo(), force: true);
         if (!_interactive)
             return;
 
-        var delayMs = Math.Clamp(_cachedSettings.CatDelayMs, 50, 200);
+        var delayMs = Math.Clamp(_cachedSettings.ReceiveCatDelayMs(), 50, 200);
         Thread.Sleep(delayMs);
-        _driver.SelectVfo(ReceiveVfo(), force: true);
+        driver.SelectVfo(ReceiveVfo(), force: true);
     }
 
-    private bool CanWrite(RigSettings settings) =>
-        (DateTime.UtcNow - _lastWriteUtc).TotalMilliseconds >= settings.CatDelayMs;
-
-    private bool WriteRx(long hz)
+    private bool CanWriteDoppler(RigSettings settings, bool writeRx, bool writeTx)
     {
-        if (_driver is null)
+        if (writeRx && !CanWriteRx(settings))
             return false;
 
-        _driver.SelectVfo(ReceiveVfo(), force: true);
-        if (_driver.SetFrequencyHz(hz))
+        if (writeTx && !CanWriteTx(settings))
+            return false;
+
+        return true;
+    }
+
+    private bool CanWriteRx(RigSettings settings) =>
+        (DateTime.UtcNow - _lastRxWriteUtc).TotalMilliseconds >= settings.ReceiveCatDelayMs();
+
+    private bool CanWriteTx(RigSettings settings) =>
+        (DateTime.UtcNow - _lastTxWriteUtc).TotalMilliseconds >= settings.TransmitCatDelayMs();
+
+    private bool WriteRx(RigSettings settings, long hz)
+    {
+        var driver = RxDriver();
+        if (driver is null)
+            return false;
+
+        driver.SelectVfo(ReceiveVfoForWrite(settings), force: true);
+        if (driver.SetFrequencyHz(hz))
         {
             _lastRigRxHz = hz;
             return true;
@@ -1117,13 +1312,14 @@ public sealed class RigController : IRigController, IDisposable
         return false;
     }
 
-    private bool WriteTx(long hz)
+    private bool WriteTx(RigSettings settings, long hz)
     {
-        if (_driver is null)
+        var driver = TxDriver();
+        if (driver is null)
             return false;
 
-        _driver.SelectVfo(TransmitVfo(), force: true);
-        if (_driver.SetFrequencyHz(hz))
+        driver.SelectVfo(TransmitVfoForWrite(settings), force: true);
+        if (driver.SetFrequencyHz(hz))
         {
             _lastRigTxHz = hz;
             return true;
@@ -1131,6 +1327,12 @@ public sealed class RigController : IRigController, IDisposable
 
         return false;
     }
+
+    private RigVfo ReceiveVfoForWrite(RigSettings settings) =>
+        settings.DualRadioEnabled ? RigVfo.Main : ReceiveVfo();
+
+    private RigVfo TransmitVfoForWrite(RigSettings settings) =>
+        settings.DualRadioEnabled ? RigVfo.Main : TransmitVfo();
 
     private static bool NearlyEqual(double a, double b) => Math.Abs(a - b) < 0.0001;
 
@@ -1157,6 +1359,43 @@ public sealed class RigController : IRigController, IDisposable
     }
 
     private static long ToHz(double kHz) => (long)Math.Round(kHz * 1000.0);
+
+    private static bool RigIsConfigured(RigSettings settings) =>
+        settings.Enabled && (settings.DualRadioEnabled
+            ? settings.IsDualRadioConfigured
+            : settings.Type != RigType.None);
+
+    private static bool HasRequiredPorts(RigSettings settings)
+    {
+        if (settings.DualRadioEnabled)
+            return settings.Downlink.IsConfigured && settings.Uplink.IsConfigured;
+
+        return !string.IsNullOrWhiteSpace(settings.Port) || settings.Type == RigType.Dummy;
+    }
+
+    private bool IsRigConnected() =>
+        _cachedSettings.DualRadioEnabled
+            ? _downlinkDriver?.IsConnected == true && _uplinkDriver?.IsConnected == true
+            : _driver?.IsConnected == true;
+
+    private bool SupportsTracking() =>
+        _cachedSettings.DualRadioEnabled
+            ? _downlinkDriver?.SupportsTracking == true && _uplinkDriver?.SupportsTracking == true
+            : _driver?.SupportsTracking == true;
+
+    private IRigDriver? RxDriver() =>
+        _cachedSettings.DualRadioEnabled ? _downlinkDriver : _driver;
+
+    private IRigDriver? TxDriver() =>
+        _cachedSettings.DualRadioEnabled ? _uplinkDriver : _driver;
+
+    private static string DescribeConnectionFailure(RigSettings settings)
+    {
+        if (!settings.DualRadioEnabled)
+            return "Rig not connected";
+
+        return "Dual radio not connected";
+    }
 
     private enum RigCommandKind
     {

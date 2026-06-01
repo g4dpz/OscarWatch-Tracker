@@ -4,6 +4,13 @@ public sealed class RigSettings
 {
     public bool Enabled { get; set; }
 
+    /// <summary>When true, downlink and uplink use separate radios (<see cref="Downlink"/> / <see cref="Uplink"/>).</summary>
+    public bool DualRadioEnabled { get; set; }
+
+    public RigEndpointSettings Downlink { get; set; } = new();
+
+    public RigEndpointSettings Uplink { get; set; } = new();
+
     public RigType Type { get; set; } = RigType.None;
 
     public string Port { get; set; } = "";
@@ -29,6 +36,30 @@ public sealed class RigSettings
     /// instead of setting downlink to CW.
     /// </summary>
     public bool CwKeepSidebandDownlink { get; set; }
+
+    public bool IsDualRadio => DualRadioEnabled;
+
+    public bool IsDualRadioConfigured =>
+        DualRadioEnabled && Downlink.IsConfigured && Uplink.IsConfigured;
+
+    public static bool IsDualCapableEndpoint(RigType type) =>
+        type is RigType.YaesuFt817 or RigType.YaesuFt818;
+
+    /// <summary>Region for RX pass-init tone clear (dual downlink) or single-radio.</summary>
+    public RigRegion ReceiveRegion() =>
+        DualRadioEnabled ? Downlink.Region : Region;
+
+    /// <summary>Region for uplink CTCSS (dual uplink) or single-radio.</summary>
+    public RigRegion TransmitRegion() =>
+        DualRadioEnabled ? Uplink.Region : Region;
+
+    /// <summary>CAT delay for downlink / RX writes.</summary>
+    public int ReceiveCatDelayMs() =>
+        DualRadioEnabled ? Downlink.CatDelayMs : CatDelayMs;
+
+    /// <summary>CAT delay for uplink / TX writes.</summary>
+    public int TransmitCatDelayMs() =>
+        DualRadioEnabled ? Uplink.CatDelayMs : CatDelayMs;
 
     /// <summary>Factory CI-V address defaults (9700=A2, 9100/910=7C). User may still use 60.</summary>
     public static string DefaultCivAddressFor(RigType type) => type switch

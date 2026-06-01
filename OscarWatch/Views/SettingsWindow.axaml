@@ -235,65 +235,171 @@
                        IsVisible="{Binding ShowComPortConflict}" />
             <CheckBox Content="Enable radio control"
                       IsChecked="{Binding RigEnabled, Mode=TwoWay}" />
-            <TextBlock Text="Radio driver" />
-            <ComboBox ItemsSource="{Binding RigTypeChoices}"
-                      SelectedItem="{Binding SelectedRigTypeChoice, Mode=TwoWay}"
-                      HorizontalAlignment="Stretch">
-              <ComboBox.ItemTemplate>
-                <DataTemplate x:DataType="vm:RigTypeOption">
-                  <TextBlock Text="{Binding Label}" />
-                </DataTemplate>
-              </ComboBox.ItemTemplate>
-            </ComboBox>
-            <TextBlock Text="Serial port" />
-            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-              <ComboBox Grid.Column="0"
-                        ItemsSource="{Binding AvailableComPorts}"
-                        SelectedItem="{Binding SelectedRigComPort, Mode=TwoWay}"
-                        PlaceholderText="Select COM port"
+            <CheckBox Content="Dual radio (separate downlink and uplink)"
+                      IsChecked="{Binding DualRadioEnabled, Mode=TwoWay}"
+                      Margin="0,4,0,0" />
+            <StackPanel Spacing="10" IsVisible="{Binding ShowRigSingleConfig}">
+              <TextBlock Text="Radio driver" />
+              <ComboBox ItemsSource="{Binding RigTypeChoices}"
+                        SelectedItem="{Binding SelectedRigTypeChoice, Mode=TwoWay}"
+                        HorizontalAlignment="Stretch">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate x:DataType="vm:RigTypeOption">
+                    <TextBlock Text="{Binding Label}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <TextBlock Text="Serial port" />
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <ComboBox Grid.Column="0"
+                          ItemsSource="{Binding AvailableComPorts}"
+                          SelectedItem="{Binding SelectedRigComPort, Mode=TwoWay}"
+                          PlaceholderText="Select COM port"
+                          HorizontalAlignment="Stretch" />
+                <Button Grid.Column="1"
+                        Content="Refresh"
+                        Command="{Binding RefreshComPortsCommand}"
+                        MinWidth="72" />
+              </Grid>
+              <TextBlock Text="Baud rate" />
+              <ComboBox ItemsSource="{Binding RigBaudRateOptions}"
+                        SelectedItem="{Binding RigBaudRate, Mode=TwoWay}"
                         HorizontalAlignment="Stretch" />
-              <Button Grid.Column="1"
-                      Content="Refresh"
-                      Command="{Binding RefreshComPortsCommand}"
-                      MinWidth="72" />
-            </Grid>
-            <TextBlock Text="Baud rate" />
-            <ComboBox ItemsSource="{Binding RigBaudRateOptions}"
-                      SelectedItem="{Binding RigBaudRate, Mode=TwoWay}"
-                      HorizontalAlignment="Stretch" />
-            <StackPanel Spacing="4" IsVisible="{Binding ShowRigCivAddress}">
-              <TextBlock Text="CI-V address (hex)" />
-              <TextBox Text="{Binding RigCivAddress, Mode=TwoWay}"
-                       Watermark="60" />
+              <StackPanel Spacing="4" IsVisible="{Binding ShowRigCivAddress}">
+                <TextBlock Text="CI-V address (hex)" />
+                <TextBox Text="{Binding RigCivAddress, Mode=TwoWay}"
+                         Watermark="60" />
+                <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           FontSize="11"
+                           TextWrapping="Wrap"
+                           Text="IC-9700 default A2, IC-910 default 7C (hex). Use 60 if your radio is set that way in the CI-V menu." />
+              </StackPanel>
               <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                          FontSize="11"
                          TextWrapping="Wrap"
-                         Text="IC-9700 default A2, IC-910 default 7C (hex). Use 60 if your radio is set that way in the CI-V menu." />
+                         IsVisible="{Binding ShowRigFt847CatHint}"
+                         Text="FT-847: set CAT baud in radio menu #37 (typically 57600). Use the CAT/LINEAR jack with a level converter (e.g. CT-62)." />
+              <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                         FontSize="11"
+                         TextWrapping="Wrap"
+                         IsVisible="{Binding ShowRigTs2000CatHint}"
+                         Text="TS-2000: CAT 57600 8N1. SATL on for cross-band passes; VHF/UHF swapped automatically if Main is on the wrong band (TRACE off via CAT)." />
+              <TextBlock Text="Region" />
+              <ComboBox ItemsSource="{Binding RigRegionChoices}"
+                        SelectedItem="{Binding SelectedRigRegionChoice, Mode=TwoWay}"
+                        HorizontalAlignment="Stretch">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate x:DataType="vm:RigRegionOption">
+                    <TextBlock Text="{Binding Label}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                         FontSize="11"
+                         TextWrapping="Wrap"
+                         Text="EU uses tone; USA uses tone squelch (subtone)." />
+              <TextBlock Text="CAT delay (ms)" />
+              <NumericUpDown Value="{Binding RigCatDelayMs, Mode=TwoWay}"
+                             Minimum="0" Maximum="500"
+                             Increment="10" FormatString="F0" />
+              <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                         FontSize="11"
+                         TextWrapping="Wrap"
+                         Text="Minimum time between CAT commands to protect the serial link." />
+            </StackPanel>
+            <StackPanel Spacing="12" IsVisible="{Binding ShowRigDualConfig}">
+              <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                      BorderThickness="1"
+                      CornerRadius="4"
+                      Padding="10">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="Downlink radio" FontWeight="SemiBold" />
+                  <TextBlock Text="Radio" />
+                  <ComboBox ItemsSource="{Binding RigDualTypeChoices}"
+                            SelectedItem="{Binding SelectedDownlinkRigTypeChoice, Mode=TwoWay}"
+                            HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate x:DataType="vm:RigTypeOption">
+                        <TextBlock Text="{Binding Label}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                  <TextBlock Text="Serial port" />
+                  <ComboBox ItemsSource="{Binding AvailableComPorts}"
+                            SelectedItem="{Binding SelectedDownlinkComPort, Mode=TwoWay}"
+                            PlaceholderText="Select COM port"
+                            HorizontalAlignment="Stretch" />
+                  <TextBlock Text="Baud rate" />
+                  <ComboBox ItemsSource="{Binding RigBaudRateOptions}"
+                            SelectedItem="{Binding DownlinkBaudRate, Mode=TwoWay}"
+                            HorizontalAlignment="Stretch" />
+                  <TextBlock Text="Region" />
+                  <ComboBox ItemsSource="{Binding RigRegionChoices}"
+                            SelectedItem="{Binding SelectedDownlinkRegionChoice, Mode=TwoWay}"
+                            HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate x:DataType="vm:RigRegionOption">
+                        <TextBlock Text="{Binding Label}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                  <TextBlock Text="CAT delay (ms)" />
+                  <NumericUpDown Value="{Binding DownlinkCatDelayMs, Mode=TwoWay}"
+                                 Minimum="0" Maximum="500"
+                                 Increment="10" FormatString="F0" />
+                </StackPanel>
+              </Border>
+              <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                      BorderThickness="1"
+                      CornerRadius="4"
+                      Padding="10">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="Uplink radio" FontWeight="SemiBold" />
+                  <TextBlock Text="Radio" />
+                  <ComboBox ItemsSource="{Binding RigDualTypeChoices}"
+                            SelectedItem="{Binding SelectedUplinkRigTypeChoice, Mode=TwoWay}"
+                            HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate x:DataType="vm:RigTypeOption">
+                        <TextBlock Text="{Binding Label}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                  <TextBlock Text="Serial port" />
+                  <ComboBox ItemsSource="{Binding AvailableComPorts}"
+                            SelectedItem="{Binding SelectedUplinkComPort, Mode=TwoWay}"
+                            PlaceholderText="Select COM port"
+                            HorizontalAlignment="Stretch" />
+                  <TextBlock Text="Baud rate" />
+                  <ComboBox ItemsSource="{Binding RigBaudRateOptions}"
+                            SelectedItem="{Binding UplinkBaudRate, Mode=TwoWay}"
+                            HorizontalAlignment="Stretch" />
+                  <TextBlock Text="Region" />
+                  <ComboBox ItemsSource="{Binding RigRegionChoices}"
+                            SelectedItem="{Binding SelectedUplinkRegionChoice, Mode=TwoWay}"
+                            HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate x:DataType="vm:RigRegionOption">
+                        <TextBlock Text="{Binding Label}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                  <TextBlock Text="CAT delay (ms)" />
+                  <NumericUpDown Value="{Binding UplinkCatDelayMs, Mode=TwoWay}"
+                                 Minimum="0" Maximum="500"
+                                 Increment="10" FormatString="F0" />
+                </StackPanel>
+              </Border>
+              <Button Content="Refresh COM ports"
+                      Command="{Binding RefreshComPortsCommand}"
+                      HorizontalAlignment="Left"
+                      MinWidth="140" />
             </StackPanel>
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       IsVisible="{Binding ShowRigFt847CatHint}"
-                       Text="FT-847: set CAT baud in radio menu #37 (typically 57600). Use the CAT/LINEAR jack with a level converter (e.g. CT-62)." />
-            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                       FontSize="11"
-                       TextWrapping="Wrap"
-                       IsVisible="{Binding ShowRigTs2000CatHint}"
-                       Text="TS-2000: CAT 57600 8N1. SATL on for cross-band passes; VHF/UHF swapped automatically if Main is on the wrong band (TRACE off via CAT)." />
-            <TextBlock Text="Region" />
-            <ComboBox ItemsSource="{Binding RigRegionChoices}"
-                      SelectedItem="{Binding SelectedRigRegionChoice, Mode=TwoWay}"
-                      HorizontalAlignment="Stretch">
-              <ComboBox.ItemTemplate>
-                <DataTemplate x:DataType="vm:RigRegionOption">
-                  <TextBlock Text="{Binding Label}" />
-                </DataTemplate>
-              </ComboBox.ItemTemplate>
-            </ComboBox>
-            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                       FontSize="11"
-                       TextWrapping="Wrap"
-                       Text="EU uses tone; USA uses tone squelch (subtone)." />
+                       IsVisible="{Binding ShowRigFt817CatHint}"
+                       Text="FT-817 / FT-818: match CAT baud to menu #14 (typically 38400). Single-radio SAT uses split VFO A/B; dual mode uses one radio per leg." />
             <CheckBox Content="Linear CW: keep receive in USB/LSB (transmit CW only)"
                       IsChecked="{Binding RigCwKeepSidebandDownlink, Mode=TwoWay}"
                       Margin="0,8,0,0" />
@@ -318,14 +424,6 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="Frequencies are sent to the radio only when drift exceeds this interval (SatPC32-style)." />
-            <TextBlock Text="CAT delay (ms)" />
-            <NumericUpDown Value="{Binding RigCatDelayMs, Mode=TwoWay}"
-                           Minimum="0" Maximum="500"
-                           Increment="10" FormatString="F0" />
-            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                       FontSize="11"
-                       TextWrapping="Wrap"
-                       Text="Minimum time between CI-V commands to protect the serial link." />
           </StackPanel>
         </ScrollViewer>
       </TabItem>

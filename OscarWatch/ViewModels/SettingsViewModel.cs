@@ -231,7 +231,40 @@ public partial class SettingsViewModel : ViewModelBase
     private bool _rigCwKeepSidebandDownlink;
 
     [ObservableProperty]
+    private bool _dualRadioEnabled;
+
+    [ObservableProperty]
     private RigTypeOption? _selectedRigTypeChoice;
+
+    [ObservableProperty]
+    private RigTypeOption? _selectedDownlinkRigTypeChoice;
+
+    [ObservableProperty]
+    private RigTypeOption? _selectedUplinkRigTypeChoice;
+
+    [ObservableProperty]
+    private string? _selectedDownlinkComPort;
+
+    [ObservableProperty]
+    private string? _selectedUplinkComPort;
+
+    [ObservableProperty]
+    private int _downlinkBaudRate = 38400;
+
+    [ObservableProperty]
+    private int _uplinkBaudRate = 38400;
+
+    [ObservableProperty]
+    private RigRegionOption? _selectedDownlinkRegionChoice;
+
+    [ObservableProperty]
+    private RigRegionOption? _selectedUplinkRegionChoice;
+
+    [ObservableProperty]
+    private int _downlinkCatDelayMs = 50;
+
+    [ObservableProperty]
+    private int _uplinkCatDelayMs = 50;
 
     [ObservableProperty]
     private RigRegionOption? _selectedRigRegionChoice;
@@ -266,9 +299,21 @@ public partial class SettingsViewModel : ViewModelBase
         new(RigType.IcomIc9100, "ICOM IC-9100"),
         new(RigType.IcomIc9700, "ICOM IC-9700"),
         new(RigType.YaesuFt847, "Yaesu FT-847"),
+        new(RigType.YaesuFt817, "Yaesu FT-817"),
+        new(RigType.YaesuFt818, "Yaesu FT-818"),
         new(RigType.KenwoodTs2000, "Kenwood TS-2000"),
         new(RigType.Dummy, "Dummy Rig")
     ];
+
+    public IReadOnlyList<RigTypeOption> RigDualTypeChoices { get; } =
+    [
+        new(RigType.YaesuFt817, "Yaesu FT-817"),
+        new(RigType.YaesuFt818, "Yaesu FT-818")
+    ];
+
+    public bool ShowRigSingleConfig => !DualRadioEnabled;
+
+    public bool ShowRigDualConfig => DualRadioEnabled;
 
     public bool ShowRigCivAddress =>
         SelectedRigTypeChoice?.Value is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700;
@@ -278,6 +323,11 @@ public partial class SettingsViewModel : ViewModelBase
 
     public bool ShowRigTs2000CatHint =>
         SelectedRigTypeChoice?.Value == RigType.KenwoodTs2000;
+
+    public bool ShowRigFt817CatHint =>
+        SelectedRigTypeChoice?.Value is RigType.YaesuFt817 or RigType.YaesuFt818
+        || SelectedDownlinkRigTypeChoice?.Value is RigType.YaesuFt817 or RigType.YaesuFt818
+        || SelectedUplinkRigTypeChoice?.Value is RigType.YaesuFt817 or RigType.YaesuFt818;
 
     public IReadOnlyList<RigRegionOption> RigRegionChoices { get; } =
     [
@@ -394,6 +444,23 @@ public partial class SettingsViewModel : ViewModelBase
         _settings.Current.Rig = new RigSettings
         {
             Enabled = RigEnabled,
+            DualRadioEnabled = DualRadioEnabled,
+            Downlink = new RigEndpointSettings
+            {
+                Type = SelectedDownlinkRigTypeChoice?.Value ?? RigType.YaesuFt817,
+                Port = SelectedDownlinkComPort ?? "",
+                BaudRate = DownlinkBaudRate,
+                Region = SelectedDownlinkRegionChoice?.Value ?? RigRegion.EU,
+                CatDelayMs = DownlinkCatDelayMs
+            },
+            Uplink = new RigEndpointSettings
+            {
+                Type = SelectedUplinkRigTypeChoice?.Value ?? RigType.YaesuFt818,
+                Port = SelectedUplinkComPort ?? "",
+                BaudRate = UplinkBaudRate,
+                Region = SelectedUplinkRegionChoice?.Value ?? RigRegion.EU,
+                CatDelayMs = UplinkCatDelayMs
+            },
             Type = SelectedRigTypeChoice?.Value ?? RigType.None,
             Port = SelectedRigComPort ?? "",
             BaudRate = RigBaudRate,
@@ -493,6 +560,7 @@ public partial class SettingsViewModel : ViewModelBase
 
             var rig = _settings.Current.Rig ?? new RigSettings();
             RigEnabled = rig.Enabled;
+            DualRadioEnabled = rig.DualRadioEnabled;
             SelectedRigTypeChoice = RigTypeChoices.FirstOrDefault(o => o.Value == rig.Type)
                 ?? RigTypeChoices[0];
             SelectedRigComPort = string.IsNullOrWhiteSpace(rig.Port) ? null : rig.Port;
@@ -500,6 +568,22 @@ public partial class SettingsViewModel : ViewModelBase
             RigCivAddress = rig.CivAddress;
             SelectedRigRegionChoice = RigRegionChoices.FirstOrDefault(o => o.Value == rig.Region)
                 ?? RigRegionChoices[0];
+            var down = rig.Downlink ?? new RigEndpointSettings();
+            var up = rig.Uplink ?? new RigEndpointSettings();
+            SelectedDownlinkRigTypeChoice = RigDualTypeChoices.FirstOrDefault(o => o.Value == down.Type)
+                ?? RigDualTypeChoices[0];
+            SelectedUplinkRigTypeChoice = RigDualTypeChoices.FirstOrDefault(o => o.Value == up.Type)
+                ?? RigDualTypeChoices[1];
+            SelectedDownlinkComPort = string.IsNullOrWhiteSpace(down.Port) ? null : down.Port;
+            SelectedUplinkComPort = string.IsNullOrWhiteSpace(up.Port) ? null : up.Port;
+            DownlinkBaudRate = down.BaudRate > 0 ? down.BaudRate : 38400;
+            UplinkBaudRate = up.BaudRate > 0 ? up.BaudRate : 38400;
+            SelectedDownlinkRegionChoice = RigRegionChoices.FirstOrDefault(o => o.Value == down.Region)
+                ?? RigRegionChoices[0];
+            SelectedUplinkRegionChoice = RigRegionChoices.FirstOrDefault(o => o.Value == up.Region)
+                ?? RigRegionChoices[0];
+            DownlinkCatDelayMs = down.CatDelayMs;
+            UplinkCatDelayMs = up.CatDelayMs;
             RigDopplerThresholdFmHz = rig.DopplerThresholdFmHz;
             RigDopplerThresholdLinearHz = rig.DopplerThresholdLinearHz;
             RigCatDelayMs = rig.CatDelayMs;
@@ -648,12 +732,7 @@ public partial class SettingsViewModel : ViewModelBase
             Enabled = RotatorEnabled,
             Port = SelectedComPort ?? ""
         };
-        var rig = new RigSettings
-        {
-            Enabled = RigEnabled,
-            Type = SelectedRigTypeChoice?.Value ?? RigType.None,
-            Port = SelectedRigComPort ?? ""
-        };
+        var rig = BuildRigSettingsForConflictCheck();
         ShowComPortConflict = SerialPortConflictHelper.TryDescribeConflict(rotator, rig, out var message);
         ComPortConflictText = message;
     }
@@ -665,19 +744,34 @@ public partial class SettingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsRotatorSmartAzimuth450Enabled));
     }
     partial void OnRigEnabledChanged(bool value) => RefreshComPortConflictIfReady();
+    partial void OnDualRadioEnabledChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ShowRigSingleConfig));
+        OnPropertyChanged(nameof(ShowRigDualConfig));
+        OnPropertyChanged(nameof(ShowRigFt817CatHint));
+        RefreshComPortConflictIfReady();
+    }
+
     partial void OnSelectedComPortChanged(string? value) => RefreshComPortConflictIfReady();
     partial void OnSelectedRigComPortChanged(string? value) => RefreshComPortConflictIfReady();
+    partial void OnSelectedDownlinkComPortChanged(string? value) => RefreshComPortConflictIfReady();
+    partial void OnSelectedUplinkComPortChanged(string? value) => RefreshComPortConflictIfReady();
+
     partial void OnSelectedRigTypeChoiceChanged(RigTypeOption? value)
     {
         OnPropertyChanged(nameof(ShowRigCivAddress));
         OnPropertyChanged(nameof(ShowRigFt847CatHint));
         OnPropertyChanged(nameof(ShowRigTs2000CatHint));
+        OnPropertyChanged(nameof(ShowRigFt817CatHint));
         RefreshComPortConflictIfReady();
         if (_isSynchronizing || value is null)
             return;
 
         if (value.Value is RigType.YaesuFt847 or RigType.KenwoodTs2000)
             RigBaudRate = 57600;
+
+        if (value.Value is RigType.YaesuFt817 or RigType.YaesuFt818)
+            RigBaudRate = 38400;
 
         if (value.Value is not (RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700))
             return;
@@ -687,6 +781,24 @@ public partial class SettingsViewModel : ViewModelBase
             || RigCivAddress is "60" or "7C" or "A2")
             RigCivAddress = suggested;
     }
+
+    private RigSettings BuildRigSettingsForConflictCheck() => new()
+    {
+        Enabled = RigEnabled,
+        DualRadioEnabled = DualRadioEnabled,
+        Type = SelectedRigTypeChoice?.Value ?? RigType.None,
+        Port = SelectedRigComPort ?? "",
+        Downlink = new RigEndpointSettings
+        {
+            Type = SelectedDownlinkRigTypeChoice?.Value ?? RigType.YaesuFt817,
+            Port = SelectedDownlinkComPort ?? ""
+        },
+        Uplink = new RigEndpointSettings
+        {
+            Type = SelectedUplinkRigTypeChoice?.Value ?? RigType.YaesuFt818,
+            Port = SelectedUplinkComPort ?? ""
+        }
+    };
 
     private void RefreshComPortConflictIfReady()
     {

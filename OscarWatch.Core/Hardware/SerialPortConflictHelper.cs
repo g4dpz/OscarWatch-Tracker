@@ -13,13 +13,51 @@ public static class SerialPortConflictHelper
         out string message)
     {
         message = "";
-        if (!rotator.Enabled || !rig.Enabled)
+        if (!rig.Enabled)
+            return false;
+
+        var rotatorPort = rotator.Port?.Trim() ?? "";
+
+        if (rig.DualRadioEnabled)
+        {
+            var downPort = rig.Downlink.Port?.Trim() ?? "";
+            var upPort = rig.Uplink.Port?.Trim() ?? "";
+
+            if (downPort.Length > 0 && upPort.Length > 0
+                && string.Equals(downPort, upPort, StringComparison.OrdinalIgnoreCase))
+            {
+                message =
+                    $"Downlink and uplink radios both use {downPort}. Use different COM ports for each radio.";
+                return true;
+            }
+
+            if (!rotator.Enabled || rotatorPort.Length == 0)
+                return false;
+
+            if (downPort.Length > 0
+                && string.Equals(rotatorPort, downPort, StringComparison.OrdinalIgnoreCase))
+            {
+                message =
+                    $"Rotator and downlink radio both use {rotatorPort}. Use different COM ports or disable one device.";
+                return true;
+            }
+
+            if (upPort.Length > 0
+                && string.Equals(rotatorPort, upPort, StringComparison.OrdinalIgnoreCase))
+            {
+                message =
+                    $"Rotator and uplink radio both use {rotatorPort}. Use different COM ports or disable one device.";
+                return true;
+            }
+
+            return false;
+        }
+
+        if (!rotator.Enabled)
             return false;
 
         if (rig.Type == RigType.Dummy)
             return false;
-
-        var rotatorPort = rotator.Port?.Trim() ?? "";
         var rigPort = rig.Port?.Trim() ?? "";
         if (rotatorPort.Length == 0 || rigPort.Length == 0)
             return false;

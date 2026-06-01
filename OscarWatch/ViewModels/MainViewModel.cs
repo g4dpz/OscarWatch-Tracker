@@ -357,6 +357,9 @@ public partial class MainViewModel : ViewModelBase
         return new RigSettings
         {
             Enabled = rig.Enabled,
+            DualRadioEnabled = rig.DualRadioEnabled,
+            Downlink = CloneEndpoint(rig.Downlink),
+            Uplink = CloneEndpoint(rig.Uplink),
             Type = rig.Type,
             Port = rig.Port,
             BaudRate = rig.BaudRate,
@@ -366,8 +369,18 @@ public partial class MainViewModel : ViewModelBase
             DopplerThresholdLinearHz = rig.DopplerThresholdLinearHz,
             CatDelayMs = rig.CatDelayMs,
             CatUpdatesPaused = RigCatPaused,
+            CwKeepSidebandDownlink = rig.CwKeepSidebandDownlink
         };
     }
+
+    private static RigEndpointSettings CloneEndpoint(RigEndpointSettings endpoint) => new()
+    {
+        Type = endpoint.Type,
+        Port = endpoint.Port,
+        BaudRate = endpoint.BaudRate,
+        Region = endpoint.Region,
+        CatDelayMs = endpoint.CatDelayMs
+    };
 
     private void PushCloudlogRadio(SatelliteTrackState? focused)
     {
