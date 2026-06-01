@@ -848,7 +848,7 @@ public sealed class RigController : IRigController, IDisposable
         _interactive = setup.Interactive;
 
         // FT-847 can revert to narrow FM when SAT frequencies/CTCSS are programmed after mode.
-        var deferModeSetup = settings.Type is RigType.YaesuFt847 or RigType.YaesuFt817 or RigType.YaesuFt818;
+        var deferModeSetup = settings.Type == RigType.YaesuFt847;
         if (!deferModeSetup)
             ConfigureVfoModes(context);
 
@@ -1039,7 +1039,7 @@ public sealed class RigController : IRigController, IDisposable
     private static IEnumerable<RigVfo> VfosForSatelliteCtcssClear(RigType type)
     {
         if (type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700
-            or RigType.YaesuFt847 or RigType.YaesuFt817 or RigType.YaesuFt818 or RigType.KenwoodTs2000)
+            or RigType.YaesuFt847 or RigType.KenwoodTs2000)
         {
             yield return RigVfo.Main;
             yield return RigVfo.Sub;

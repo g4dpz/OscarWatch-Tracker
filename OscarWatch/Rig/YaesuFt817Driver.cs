@@ -5,7 +5,7 @@ using Serilog;
 namespace OscarWatch.Rig;
 
 /// <summary>
-/// Yaesu FT-817 / FT-818 CAT driver. Single-VFO or split VFO A/B for satellite doppler.
+/// Yaesu FT-817 / FT-818 CAT driver (dual-radio endpoints only — one VFO per physical radio).
 /// </summary>
 public class YaesuFt817Driver : IRigDriver
 {

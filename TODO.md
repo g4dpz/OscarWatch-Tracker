@@ -27,7 +27,7 @@ See [building radio drivers](documents/building-radio-drivers.md) for adding rig
 
 ### Additional rig drivers
 
-- [x] **Yaesu FT-817 / FT-818** — split A/B (single radio) and dual-radio endpoints
+- [x] **Yaesu FT-817 / FT-818** — dual-radio endpoints only (one VFO per radio)
 - [ ] Add ICOM IC-705 Support
 - [ ] Add ICOM IC-905 Support
 

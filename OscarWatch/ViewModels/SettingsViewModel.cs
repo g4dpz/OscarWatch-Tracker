@@ -299,8 +299,6 @@ public partial class SettingsViewModel : ViewModelBase
         new(RigType.IcomIc9100, "ICOM IC-9100"),
         new(RigType.IcomIc9700, "ICOM IC-9700"),
         new(RigType.YaesuFt847, "Yaesu FT-847"),
-        new(RigType.YaesuFt817, "Yaesu FT-817"),
-        new(RigType.YaesuFt818, "Yaesu FT-818"),
         new(RigType.KenwoodTs2000, "Kenwood TS-2000"),
         new(RigType.Dummy, "Dummy Rig")
     ];
@@ -325,9 +323,9 @@ public partial class SettingsViewModel : ViewModelBase
         SelectedRigTypeChoice?.Value == RigType.KenwoodTs2000;
 
     public bool ShowRigFt817CatHint =>
-        SelectedRigTypeChoice?.Value is RigType.YaesuFt817 or RigType.YaesuFt818
-        || SelectedDownlinkRigTypeChoice?.Value is RigType.YaesuFt817 or RigType.YaesuFt818
-        || SelectedUplinkRigTypeChoice?.Value is RigType.YaesuFt817 or RigType.YaesuFt818;
+        DualRadioEnabled
+        && (SelectedDownlinkRigTypeChoice?.Value is RigType.YaesuFt817 or RigType.YaesuFt818
+            || SelectedUplinkRigTypeChoice?.Value is RigType.YaesuFt817 or RigType.YaesuFt818);
 
     public IReadOnlyList<RigRegionOption> RigRegionChoices { get; } =
     [
@@ -559,6 +557,7 @@ public partial class SettingsViewModel : ViewModelBase
             RotatorSmartAzimuth450 = rotator.SmartAzimuth450;
 
             var rig = _settings.Current.Rig ?? new RigSettings();
+            rig.MigrateFt817818ToDualOnly();
             RigEnabled = rig.Enabled;
             DualRadioEnabled = rig.DualRadioEnabled;
             SelectedRigTypeChoice = RigTypeChoices.FirstOrDefault(o => o.Value == rig.Type)
@@ -769,9 +768,6 @@ public partial class SettingsViewModel : ViewModelBase
 
         if (value.Value is RigType.YaesuFt847 or RigType.KenwoodTs2000)
             RigBaudRate = 57600;
-
-        if (value.Value is RigType.YaesuFt817 or RigType.YaesuFt818)
-            RigBaudRate = 38400;
 
         if (value.Value is not (RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700))
             return;

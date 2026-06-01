@@ -65,43 +65,4 @@ public sealed class YaesuFt817DriverTests
         Assert.Contains(transport.SentFrames, f => f.SequenceEqual(YaesuFt817CatCodec.CatOff.ToArray()));
     }
 
-    [Fact]
-    public void Pass_init_split_sets_vfo_a_and_b_frequencies()
-    {
-        var transport = new RecordingYaesuCatTransport();
-        var controller = new RigController(_ => new YaesuFt817Driver(RigType.YaesuFt817, transport));
-        var settings = new RigSettings
-        {
-            Enabled = true,
-            Type = RigType.YaesuFt817,
-            Port = "COM1",
-            CatDelayMs = 0
-        };
-
-        var mode = new SatelliteTransponderMode
-        {
-            Type = "Voice U/V",
-            DownlinkKHz = 145_960,
-            UplinkKHz = 435_250,
-            DownlinkMode = "FM",
-            UplinkMode = "FM",
-            Doppler = "NOR"
-        };
-
-        controller.Update(settings, new RigTrackingContext
-        {
-            TrackState = new SatelliteTrackState
-            {
-                Name = "AO-91",
-                NoradId = "43017",
-                Subpoint = new GeoCoordinate(0, 0),
-                LookAngles = new LookAngles(180, 30, 800, 0)
-            },
-            Mode = mode,
-            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0)
-        });
-
-        Assert.Contains(transport.SentFrames, f => f.SequenceEqual(YaesuFt817CatCodec.SplitOn.ToArray()));
-        Assert.Contains(transport.SentFrames, f => f.Length == 5 && f[4] == 0x01);
-    }
 }

@@ -59,6 +59,7 @@ public sealed class SettingsService : ISettingsService
         }
         Current.Rotator ??= new RotatorSettings();
         Current.Rig ??= new RigSettings();
+        Current.Rig.MigrateFt817818ToDualOnly();
         Current.Cloudlog ??= new CloudlogSettings();
         Current.PassRecording ??= new PassRecordingSettings();
         Current.TleSource ??= new TleSourceSettings();

@@ -140,16 +140,14 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 | Serial transport | [`OscarWatch/Rig/YaesuCatTransport.cs`](../OscarWatch/Rig/YaesuCatTransport.cs) — **8N2**, five-byte frames |
 | Driver | [`OscarWatch/Rig/YaesuFt817Driver.cs`](../OscarWatch/Rig/YaesuFt817Driver.cs), [`YaesuFt818Driver.cs`](../OscarWatch/Rig/YaesuFt818Driver.cs) |
 
-- **Single radio:** cross-band passes use **split** + **VFO A** (RX) / **VFO B** (TX); no satellite CAT mode.
-- **Dual radio** (`RigSettings.DualRadioEnabled`): separate downlink and uplink endpoints (`RigEndpointSettings`), each with its own COM port, baud, region, and CAT delay. `RigController` opens two drivers — RX doppler on downlink, TX + CTCSS on uplink.
+- **Dual radio only** (`RigSettings.DualRadioEnabled`): FT-817/FT-818 are not offered in the single-radio driver list. Each endpoint is one physical radio and one VFO (RX on downlink, TX + CTCSS on uplink). No split CAT is used in this layout.
 - `SupportsVfoExchange` is **false** — VFO B is selected with CAT opcode `0x81` before TX commands.
 - Cross-check against [Hamlib `ft817.c`](https://github.com/Hamlib/Hamlib/blob/master/rigs/yaesu/ft817.c).
 
 ### Hardware checklist (FT-817 / FT-818)
 
-- Menu **#14** CAT rate matches Settings (typically **38400**).
-- **Single radio:** one USB serial adapter on the CAT jack; enable split for SAT.
-- **Dual radio (e.g. FT-818 pair):** three USB ports if you also run a rotator — downlink COM, uplink COM, rotator COM. Configure under **Settings → Radio → Dual radio**.
+- Menu **#14** CAT rate matches Settings on **each** radio (typically **38400**).
+- **Dual radio (e.g. FT-818 pair):** enable **Settings → Radio → Dual radio**; downlink COM + uplink COM (+ rotator COM if used).
 
 ## Reference: Kenwood TS-2000 (shipped, beta)
 

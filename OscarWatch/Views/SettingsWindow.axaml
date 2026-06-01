@@ -235,7 +235,7 @@
                        IsVisible="{Binding ShowComPortConflict}" />
             <CheckBox Content="Enable radio control"
                       IsChecked="{Binding RigEnabled, Mode=TwoWay}" />
-            <CheckBox Content="Dual radio (separate downlink and uplink)"
+            <CheckBox Content="Dual radio (required for FT-817 / FT-818 — separate downlink and uplink)"
                       IsChecked="{Binding DualRadioEnabled, Mode=TwoWay}"
                       Margin="0,4,0,0" />
             <StackPanel Spacing="10" IsVisible="{Binding ShowRigSingleConfig}">
@@ -399,7 +399,7 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        IsVisible="{Binding ShowRigFt817CatHint}"
-                       Text="FT-817 / FT-818: match CAT baud to menu #14 (typically 38400). Single-radio SAT uses split VFO A/B; dual mode uses one radio per leg." />
+                       Text="FT-817 / FT-818: enable Dual radio above. Match CAT baud to menu #14 (typically 38400) on each radio. One COM port per leg — downlink for RX, uplink for TX." />
             <CheckBox Content="Linear CW: keep receive in USB/LSB (transmit CW only)"
                       IsChecked="{Binding RigCwKeepSidebandDownlink, Mode=TwoWay}"
                       Margin="0,8,0,0" />

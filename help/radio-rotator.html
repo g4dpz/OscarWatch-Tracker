@@ -49,14 +49,14 @@
         <tbody>
           <tr><td>ICOM IC-910 / IC-9700 / IC-9100</td><td>CI-V, Main/Sub for cross-band; receive-only modes use <strong>Main</strong> on the downlink band (VHF or UHF) with SAT off</td></tr>
           <tr><td>Yaesu FT-847</td><td>Satellite CAT — SAT RX/TX VFOs, doppler, uplink CTCSS</td></tr>
-          <tr><td>Yaesu FT-817 / FT-818</td><td>Single radio: split VFO A/B for SAT. <strong>Dual radio</strong> (Settings): separate downlink and uplink rigs (e.g. two FT-818s), each on its own COM port</td></tr>
+          <tr><td>Yaesu FT-817 / FT-818</td><td><strong>Dual radio only</strong> (Settings → Dual radio): one rig for downlink, one for uplink — each on its own COM port (e.g. two FT-818s)</td></tr>
           <tr><td>Kenwood TS-2000</td><td>CAT enables SATL; auto band swap via <code>FA</code>/<code>FB</code> exchange; linear CW uplink in SATL; TRACE off via CAT (beta)</td></tr>
           <tr><td>Dummy rig</td><td>No hardware — test UI and Doppler only</td></tr>
         </tbody>
       </table>
       <p>
         Configure under <strong>Settings → Radio</strong>: rig type, COM port, CI-V address (ICOM),
-        or enable <strong>Dual radio</strong> for separate downlink/uplink FT-817 or FT-818 units (each with its own port, region, and CAT delay),
+        For <strong>FT-817 / FT-818</strong>, enable <strong>Dual radio</strong> (each leg: type, COM port, region, CAT delay),
         <a href="#doppler-cat-thresholds">Doppler thresholds</a>, and
         <strong>Pause CAT</strong> if you want to tune manually.
       </p>

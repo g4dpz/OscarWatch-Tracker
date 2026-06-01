@@ -45,6 +45,22 @@ public sealed class RigSettings
     public static bool IsDualCapableEndpoint(RigType type) =>
         type is RigType.YaesuFt817 or RigType.YaesuFt818;
 
+    /// <summary>FT-817/818 are dual-radio only; move legacy single-radio config to the downlink endpoint.</summary>
+    public void MigrateFt817818ToDualOnly()
+    {
+        if (DualRadioEnabled || Type is not (RigType.YaesuFt817 or RigType.YaesuFt818))
+            return;
+
+        DualRadioEnabled = true;
+        Downlink.Type = Type;
+        Downlink.Port = Port;
+        Downlink.BaudRate = BaudRate > 0 ? BaudRate : 38400;
+        Downlink.Region = Region;
+        Downlink.CatDelayMs = CatDelayMs;
+        Type = RigType.None;
+        Port = "";
+    }
+
     /// <summary>Region for RX pass-init tone clear (dual downlink) or single-radio.</summary>
     public RigRegion ReceiveRegion() =>
         DualRadioEnabled ? Downlink.Region : Region;

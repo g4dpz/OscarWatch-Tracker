@@ -29,8 +29,8 @@ public static class RigDriverFactory
             RigType.IcomIc9100 => new IcomIc9100Driver(port, baudRate, civAddress, catDelayMs),
             RigType.IcomIc9700 => new IcomIc9700Driver(port, baudRate, civAddress, catDelayMs),
             RigType.YaesuFt847 => new YaesuFt847Driver(port, baudRate, catDelayMs),
-            RigType.YaesuFt817 => new YaesuFt817Driver(RigType.YaesuFt817, port, baudRate, region, catDelayMs),
-            RigType.YaesuFt818 => new YaesuFt818Driver(port, baudRate, region, catDelayMs),
+            RigType.YaesuFt817 or RigType.YaesuFt818 =>
+                throw new InvalidOperationException("FT-817/FT-818 require Settings → Radio → Dual radio."),
             RigType.KenwoodTs2000 => new KenwoodTs2000Driver(port, baudRate, catDelayMs),
             RigType.Dummy => new DummyRigDriver(),
             _ => new DummyRigDriver()
