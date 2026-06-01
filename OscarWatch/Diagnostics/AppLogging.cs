@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Avalonia.Threading;
 using OscarWatch.Core.Services;
 using Serilog;
 using Serilog.Events;
@@ -52,18 +53,30 @@ public static class AppLogging
                 Log.Fatal(ex, "Unhandled AppDomain exception (terminating={IsTerminating})", e.IsTerminating);
             else
                 Log.Fatal("Unhandled AppDomain exception: {ExceptionObject}", e.ExceptionObject);
-            Log.CloseAndFlush();
+            FlushFatal();
         };
 
         TaskScheduler.UnobservedTaskException += (_, e) =>
         {
             Log.Error(e.Exception, "Unobserved task exception");
             e.SetObserved();
+            FlushFatal();
         };
 
         SettingsService.SaveFailed += ex =>
             Log.Warning(ex, "Settings save failed");
     }
+
+    public static void RegisterAvaloniaHandlers()
+    {
+        Dispatcher.UIThread.UnhandledException += (_, e) =>
+        {
+            Log.Fatal(e.Exception, "Unhandled UI thread exception");
+            FlushFatal();
+        };
+    }
+
+    public static void FlushFatal() => Log.CloseAndFlush();
 
     public static void Shutdown()
     {

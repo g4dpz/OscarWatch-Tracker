@@ -5,9 +5,13 @@ namespace OscarWatch.Core.Services;
 
 public sealed class PassRecordingCoordinator
 {
+    private readonly IRecordingTaskScheduler _tasks;
     private bool _hasSample;
     private double _previousElevationDeg = -90.0;
     private string? _trackedNoradId;
+
+    public PassRecordingCoordinator(IRecordingTaskScheduler? taskScheduler = null) =>
+        _tasks = taskScheduler ?? DefaultRecordingTaskScheduler.Instance;
 
     public void Process(
         string? focusedNoradId,
@@ -23,7 +27,7 @@ public sealed class PassRecordingCoordinator
             && !string.IsNullOrEmpty(recording.ActiveNoradId)
             && !string.Equals(recording.ActiveNoradId, focusedNoradId, StringComparison.Ordinal))
         {
-            _ = recording.StopAsync();
+            _tasks.Schedule(() => recording.StopAsync(), "stop recording (focus changed)");
             ResetTracking();
         }
 
@@ -51,7 +55,7 @@ public sealed class PassRecordingCoordinator
         {
             if (recording.IsRecording
                 && string.Equals(recording.ActiveNoradId, focusedNoradId, StringComparison.Ordinal))
-                _ = recording.StopAsync();
+                _tasks.Schedule(() => recording.StopAsync(), "stop recording (below stop elevation)");
         }
         else if (!recording.IsRecording)
         {
@@ -60,7 +64,7 @@ public sealed class PassRecordingCoordinator
                 && elevation >= startThreshold;
             var alreadyAboveOnFirstSample = !_hasSample && elevation >= startThreshold;
             if (crossedStart || alreadyAboveOnFirstSample)
-                TryStartRecording(focusedNoradId, focusedState, settings, recording, utcNow);
+                TryStartRecording(focusedNoradId, focusedState, settings, recording, utcNow, _tasks);
         }
 
         if (!_hasSample)
@@ -74,19 +78,22 @@ public sealed class PassRecordingCoordinator
         SatelliteTrackState focusedState,
         PassRecordingSettings settings,
         IAudioRecordingService recording,
-        DateTime utcNow)
+        DateTime utcNow,
+        IRecordingTaskScheduler tasks)
     {
         var outputFolder = RecordingFileNameFormat.ResolveOutputFolder(settings.OutputFolder);
         var outputPath = RecordingFileNameFormat.ResolveUniquePath(
             outputFolder,
             focusedState.Name,
             utcNow);
-        _ = recording.StartAsync(
-            focusedNoradId,
-            focusedState.Name,
-            settings.DeviceId,
-            settings.Format,
-            outputPath);
+        tasks.Schedule(
+            () => recording.StartAsync(
+                focusedNoradId,
+                focusedState.Name,
+                settings.DeviceId,
+                settings.Format,
+                outputPath),
+            "start pass recording");
     }
 
     public void ResetTracking()

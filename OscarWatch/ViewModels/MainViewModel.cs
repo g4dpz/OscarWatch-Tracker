@@ -28,6 +28,7 @@ public partial class MainViewModel : ViewModelBase
     private readonly RisingPassAnnouncer _passAnnouncer;
     private readonly PassRecordingCoordinator _passRecordingCoordinator;
     private readonly IAudioRecordingService _recording;
+    private readonly IRecordingTaskScheduler _recordingTasks;
     private readonly IRotatorController _rotator;
     private readonly IRigController _rig;
     private readonly ICloudlogRadioSyncService _cloudlog;
@@ -174,6 +175,7 @@ public partial class MainViewModel : ViewModelBase
         RisingPassAnnouncer passAnnouncer,
         PassRecordingCoordinator passRecordingCoordinator,
         IAudioRecordingService recording,
+        IRecordingTaskScheduler recordingTasks,
         IRotatorController rotator,
         IRigController rig,
         ICloudlogRadioSyncService cloudlog,
@@ -189,6 +191,7 @@ public partial class MainViewModel : ViewModelBase
         _passAnnouncer = passAnnouncer;
         _passRecordingCoordinator = passRecordingCoordinator;
         _recording = recording;
+        _recordingTasks = recordingTasks;
         _rotator = rotator;
         _rig = rig;
         _cloudlog = cloudlog;
@@ -656,7 +659,7 @@ public partial class MainViewModel : ViewModelBase
         if (!settings.Enabled)
         {
             if (_recording.IsRecording && !AudioRecordingSessions.IsManualTest(_recording))
-                _ = _recording.StopAsync();
+                _recordingTasks.Schedule(() => _recording.StopAsync(), "stop recording (disabled in settings UI)");
             _passRecordingCoordinator.ResetTracking();
             return;
         }

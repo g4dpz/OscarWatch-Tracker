@@ -8,14 +8,31 @@ namespace OscarWatch.Recording;
 
 public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposable
 {
+    private const int FramesPerBuffer = 1024;
+    private const int RingBufferBytes = 4 * 1024 * 1024;
+    /// <summary>Log only when backlog or peak exceeds this (25% of ring).</summary>
+    private const int BacklogPressureBytes = RingBufferBytes / 4;
+    private static readonly TimeSpan StatsInterval = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan WriterJoinTimeout = TimeSpan.FromSeconds(5);
+
     private static readonly ILogger Log = Serilog.Log.ForContext<PortAudioRecordingService>();
-    private readonly object _sync = new();
     private readonly SemaphoreSlim _operationLock = new(1, 1);
+    private readonly object _streamGate = new();
+
     private bool _initialized;
     private string? _initError;
     private PortAudioSharp.Stream? _stream;
     private WavWriter? _wavWriter;
-    private byte[]? _callbackBuffer;
+    private PcmRingBuffer? _ringBuffer;
+    private byte[]? _callbackScratch;
+    private Thread? _writerThread;
+    private volatile bool _writerRunning;
+    private volatile bool _captureActive;
+    private readonly AutoResetEvent _dataAvailable = new(false);
+    private DateTime _lastStatsUtc = DateTime.MinValue;
+    private long _lastWarnedDroppedBytes;
+    private int _activeChannels = 1;
+    private int _maxCallbackBytes;
 
     public bool IsAvailable => _initialized;
     public string? UnavailableReason => _initialized ? null : _initError ?? "PortAudio is not available.";
@@ -82,6 +99,17 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
                 throw new InvalidOperationException(
                     $"Device '{deviceInfo.name}' does not support {channels} input channel(s).");
 
+            _maxCallbackBytes = FramesPerBuffer * channels * 2;
+            _ringBuffer = new PcmRingBuffer(RingBufferBytes);
+            _ringBuffer.ResetStats();
+            _callbackScratch = new byte[_maxCallbackBytes];
+            _activeChannels = channels;
+            _lastStatsUtc = DateTime.UtcNow;
+            _lastWarnedDroppedBytes = 0;
+
+            _wavWriter = new WavWriter(outputPath, sampleRate, (short)channels);
+            StartWriterThread();
+
             var input = new StreamParameters
             {
                 device = deviceIndex,
@@ -91,33 +119,37 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
                 hostApiSpecificStreamInfo = IntPtr.Zero
             };
 
-            _wavWriter = new WavWriter(outputPath, sampleRate, (short)channels);
-            _callbackBuffer = new byte[8192];
-            _activeChannels = channels;
-
             PortAudioSharp.Stream.Callback callback = OnAudioCallback;
 
-            _stream = new PortAudioSharp.Stream(
-                inParams: input,
-                outParams: null,
-                sampleRate: sampleRate,
-                framesPerBuffer: 0,
-                streamFlags: StreamFlags.ClipOff,
-                callback: callback,
-                userData: IntPtr.Zero);
+            lock (_streamGate)
+            {
+                _stream = new PortAudioSharp.Stream(
+                    inParams: input,
+                    outParams: null,
+                    sampleRate: sampleRate,
+                    framesPerBuffer: FramesPerBuffer,
+                    streamFlags: StreamFlags.ClipOff,
+                    callback: callback,
+                    userData: IntPtr.Zero);
 
-            _stream.Start();
+                _captureActive = true;
+                _stream.Start();
+            }
+
             IsRecording = true;
             ActiveNoradId = noradId;
             ActiveOutputPath = outputPath;
             Log.Information(
-                "Recording started for {Satellite} ({NoradId}) -> {Path}",
+                "Recording started for {Satellite} ({NoradId}) -> {Path} (frames={Frames}, ring={RingKb} KB)",
                 satelliteName,
                 noradId,
-                outputPath);
+                outputPath,
+                FramesPerBuffer,
+                RingBufferBytes / 1024);
         }
-        catch
+        catch (Exception ex)
         {
+            Log.Error(ex, "Recording start failed for {NoradId} -> {Path}", noradId, outputPath);
             CleanupRecordingState();
             throw;
         }
@@ -145,23 +177,16 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
         if (!IsRecording)
             return Task.CompletedTask;
 
+        var path = ActiveOutputPath;
         try
         {
-            lock (_sync)
-            {
-                _stream?.Stop();
-                _stream?.Dispose();
-                _stream = null;
-                _wavWriter?.Dispose();
-                _wavWriter = null;
-                _callbackBuffer = null;
-            }
-
-            Log.Information("Recording stopped -> {Path}", ActiveOutputPath);
+            StopCaptureAndDrain();
+            LogRecordingStats(path, final: true);
+            Log.Information("Recording stopped -> {Path}", path);
         }
         catch (Exception ex)
         {
-            Log.Warning(ex, "Error while stopping recording");
+            Log.Warning(ex, "Error while stopping recording -> {Path}", path);
             CleanupRecordingState();
         }
         finally
@@ -174,7 +199,24 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
         return Task.CompletedTask;
     }
 
-    private int _activeChannels = 1;
+    private void StopCaptureAndDrain()
+    {
+        lock (_streamGate)
+        {
+            _captureActive = false;
+            try { _stream?.Stop(); } catch (Exception ex) { Log.Debug(ex, "PortAudio stream stop"); }
+            try { _stream?.Dispose(); } catch (Exception ex) { Log.Debug(ex, "PortAudio stream dispose"); }
+            _stream = null;
+        }
+
+        _dataAvailable.Set();
+        JoinWriterThread();
+
+        try { _wavWriter?.Dispose(); } catch (Exception ex) { Log.Debug(ex, "WAV writer dispose"); }
+        _wavWriter = null;
+        _ringBuffer = null;
+        _callbackScratch = null;
+    }
 
     private StreamCallbackResult OnAudioCallback(
         IntPtr inputPtr,
@@ -184,32 +226,186 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
         StreamCallbackFlags statusFlags,
         IntPtr userData)
     {
-        lock (_sync)
+        if (!_captureActive)
+            return StreamCallbackResult.Complete;
+
+        if ((statusFlags & StreamCallbackFlags.InputOverflow) != 0)
+            Log.Warning("PortAudio input overflow reported in recording callback");
+
+        var ring = _ringBuffer;
+        var scratch = _callbackScratch;
+        if (ring is null || scratch is null)
+            return StreamCallbackResult.Complete;
+
+        var sampleCount = (int)frameCount * _activeChannels;
+        var byteCount = sampleCount * 2;
+        if (byteCount > scratch.Length)
         {
-            if (_wavWriter is null)
-                return StreamCallbackResult.Complete;
-
-            var sampleCount = (int)frameCount * _activeChannels;
-            var byteCount = sampleCount * 2;
-            if (_callbackBuffer is null || _callbackBuffer.Length < byteCount)
-                _callbackBuffer = new byte[byteCount];
-
-            Marshal.Copy(inputPtr, _callbackBuffer, 0, byteCount);
-            _wavWriter.WritePcm16(_callbackBuffer.AsSpan(0, byteCount));
+            Log.Warning(
+                "Recording callback frame larger than scratch buffer ({ByteCount} > {Capacity}); dropping",
+                byteCount,
+                scratch.Length);
+            ring.RecordDropped(byteCount);
             return StreamCallbackResult.Continue;
         }
+
+        Marshal.Copy(inputPtr, scratch, 0, byteCount);
+        ring.TryWrite(scratch.AsSpan(0, byteCount));
+        _dataAvailable.Set();
+        return StreamCallbackResult.Continue;
+    }
+
+    private void StartWriterThread()
+    {
+        _writerRunning = true;
+        _writerThread = new Thread(WriterLoop)
+        {
+            IsBackground = true,
+            Name = "OscarWatch.RecordingWriter"
+        };
+        _writerThread.Start();
+    }
+
+    private void JoinWriterThread()
+    {
+        _writerRunning = false;
+        _dataAvailable.Set();
+
+        var thread = _writerThread;
+        _writerThread = null;
+        if (thread is null)
+            return;
+
+        if (!thread.Join(WriterJoinTimeout))
+            Log.Warning("Recording writer thread did not exit within {TimeoutSeconds}s", WriterJoinTimeout.TotalSeconds);
+    }
+
+    private void WriterLoop()
+    {
+        var drainBuffer = new byte[64 * 1024];
+        try
+        {
+            while (true)
+            {
+                _dataAvailable.WaitOne(250);
+
+                var writer = _wavWriter;
+                var ring = _ringBuffer;
+                if (writer is not null && ring is not null)
+                {
+                    int read;
+                    while ((read = ring.Read(drainBuffer)) > 0)
+                        writer.WritePcm16(drainBuffer.AsSpan(0, read));
+
+                    MaybeLogPeriodicStats();
+                }
+
+                if (!_writerRunning && !_captureActive && !HasBufferedAudio())
+                    break;
+            }
+
+            FlushRemainingAudio();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Recording writer thread failed");
+        }
+    }
+
+    private void FlushRemainingAudio()
+    {
+        var writer = _wavWriter;
+        var ring = _ringBuffer;
+        if (writer is null || ring is null)
+            return;
+
+        var drainBuffer = new byte[64 * 1024];
+        int read;
+        while ((read = ring.Read(drainBuffer)) > 0)
+            writer.WritePcm16(drainBuffer.AsSpan(0, read));
+    }
+
+    private bool HasBufferedAudio() => _ringBuffer?.Count > 0;
+
+    private void MaybeLogPeriodicStats()
+    {
+        if (!IsRecording)
+            return;
+
+        var now = DateTime.UtcNow;
+        if (now - _lastStatsUtc < StatsInterval)
+            return;
+
+        var ring = _ringBuffer;
+        if (ring is null)
+            return;
+
+        if (!ShouldLogRecordingPressure(ring, periodic: true, _lastWarnedDroppedBytes))
+            return;
+
+        _lastStatsUtc = now;
+        LogRecordingPressure(ActiveOutputPath, ring, final: false);
+    }
+
+    private static bool ShouldLogRecordingPressure(PcmRingBuffer ring, bool periodic, long lastWarnedDroppedBytes)
+    {
+        if (periodic)
+        {
+            if (ring.DroppedBytes > lastWarnedDroppedBytes)
+                return true;
+
+            return ring.Count >= BacklogPressureBytes;
+        }
+
+        return ring.DroppedBytes > 0 || ring.PeakCount >= BacklogPressureBytes;
+    }
+
+    private void LogRecordingStats(string? path, bool final)
+    {
+        var ring = _ringBuffer;
+        if (ring is null)
+            return;
+
+        if (!ShouldLogRecordingPressure(ring, periodic: false, _lastWarnedDroppedBytes))
+            return;
+
+        LogRecordingPressure(path, ring, final);
+    }
+
+    private void LogRecordingPressure(string? path, PcmRingBuffer ring, bool final)
+    {
+        var droppedKb = ring.DroppedBytes / 1024.0;
+        var backlogKb = ring.Count / 1024.0;
+        var peakKb = ring.PeakCount / 1024.0;
+        _lastWarnedDroppedBytes = ring.DroppedBytes;
+
+        if (final)
+        {
+            Log.Warning(
+                "Recording buffer pressure (final) {Path}: peak backlog {PeakKb:F1} KB, dropped {DroppedKb:F1} KB",
+                path,
+                peakKb,
+                droppedKb);
+            return;
+        }
+
+        Log.Warning(
+            "Recording buffer pressure {Path}: backlog {BacklogKb:F1} KB, peak {PeakKb:F1} KB, dropped {DroppedKb:F1} KB",
+            path,
+            backlogKb,
+            peakKb,
+            droppedKb);
     }
 
     private void CleanupRecordingState()
     {
-        lock (_sync)
+        try
         {
-            try { _stream?.Stop(); } catch { /* ignore */ }
-            try { _stream?.Dispose(); } catch { /* ignore */ }
-            _stream = null;
-            try { _wavWriter?.Dispose(); } catch { /* ignore */ }
-            _wavWriter = null;
-            _callbackBuffer = null;
+            StopCaptureAndDrain();
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Recording cleanup failed");
         }
 
         IsRecording = false;
@@ -223,9 +419,9 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
         {
             StopCoreAsync().GetAwaiter().GetResult();
         }
-        catch
+        catch (Exception ex)
         {
-            // ignore shutdown errors
+            Log.Warning(ex, "Recording dispose stop failed");
         }
 
         if (_initialized)
@@ -234,14 +430,16 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
             {
                 PortAudio.Terminate();
             }
-            catch
+            catch (Exception ex)
             {
-                // ignore
+                Log.Debug(ex, "PortAudio terminate failed");
             }
 
             _initialized = false;
+            Log.Information("PortAudio terminated");
         }
 
+        _dataAvailable.Dispose();
         _operationLock.Dispose();
     }
 }

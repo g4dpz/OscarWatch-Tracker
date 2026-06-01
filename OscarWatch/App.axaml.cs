@@ -36,7 +36,9 @@ public partial class App : Application
         services.AddSingleton<ITleService>(sp =>
             new TleService(sp.GetRequiredService<ISettingsService>()));
         services.AddSingleton<ISpeechService, PlatformSpeechService>();
-        services.AddSingleton<IAudioRecordingService, PortAudioRecordingService>();
+        services.AddSingleton<PortAudioRecordingService>();
+        services.AddSingleton<IAudioRecordingService>(sp => sp.GetRequiredService<PortAudioRecordingService>());
+        services.AddSingleton<IRecordingTaskScheduler, LoggingRecordingTaskScheduler>();
         services.AddSingleton<RisingPassAnnouncer>();
         services.AddSingleton<PassRecordingCoordinator>();
         services.AddSingleton<IRotatorController, RotatorController>();
@@ -71,6 +73,8 @@ public partial class App : Application
         settings.Load();
         AppThemeManager.Apply(settings.Current.Theme);
         AccessibilityThemeResources.Install();
+
+        AppLogging.RegisterAvaloniaHandlers();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
