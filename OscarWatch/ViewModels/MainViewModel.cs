@@ -644,13 +644,30 @@ public partial class MainViewModel : ViewModelBase
     private void UpdatePassHighlightState()
     {
         var now = DateTime.UtcNow;
-        var recordingNorad = _recording.IsRecording ? _recording.ActiveNoradId : null;
+        var recordingPass = ResolveRecordingPassRow(now);
         foreach (var pass in Passes.OfType<PassRowViewModel>())
         {
-            var isRecording = !string.IsNullOrEmpty(recordingNorad)
-                && string.Equals(pass.NoradId, recordingNorad, StringComparison.Ordinal);
+            var isRecording = recordingPass is not null && ReferenceEquals(pass, recordingPass);
             pass.UpdateDisplay(now, ImminentPassWindow, isRecording);
         }
+    }
+
+    /// <summary>Pass row for the in-progress recording, not every future pass with the same satellite.</summary>
+    private PassRowViewModel? ResolveRecordingPassRow(DateTime utcNow)
+    {
+        if (!_recording.IsRecording || AudioRecordingSessions.IsManualTest(_recording))
+            return null;
+
+        var noradId = _recording.ActiveNoradId;
+        if (string.IsNullOrEmpty(noradId))
+            return null;
+
+        return Passes.OfType<PassRowViewModel>()
+            .Where(p => string.Equals(p.NoradId, noradId, StringComparison.Ordinal)
+                && utcNow >= p.AosUtc
+                && utcNow <= p.LosUtc)
+            .OrderBy(p => p.AosUtc)
+            .FirstOrDefault();
     }
 
     private void ProcessPassRecording(IReadOnlyList<SatelliteTrackState> states)
