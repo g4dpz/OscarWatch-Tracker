@@ -35,6 +35,8 @@ public partial class MainViewModel : ViewModelBase
     private readonly ISatelliteDatabaseSyncService _transponderDatabaseSync;
     private readonly DispatcherTimer _timer;
     private string? _lastCloudlogErrorShown;
+    private string? _recordingPassNoradId;
+    private DateTime? _recordingPassAosUtc;
 
     public FrequencyOverlayViewModel Frequencies { get; }
     public DxStationOverlayViewModel DxStation { get; }
@@ -643,31 +645,64 @@ public partial class MainViewModel : ViewModelBase
 
     private void UpdatePassHighlightState()
     {
+        SyncRecordingPassIdentity();
         var now = DateTime.UtcNow;
-        var recordingPass = ResolveRecordingPassRow(now);
         foreach (var pass in Passes.OfType<PassRowViewModel>())
-        {
-            var isRecording = recordingPass is not null && ReferenceEquals(pass, recordingPass);
-            pass.UpdateDisplay(now, ImminentPassWindow, isRecording);
-        }
+            pass.UpdateDisplay(now, ImminentPassWindow, IsPassBeingRecorded(pass));
     }
 
-    /// <summary>Pass row for the in-progress recording, not every future pass with the same satellite.</summary>
-    private PassRowViewModel? ResolveRecordingPassRow(DateTime utcNow)
+    /// <summary>Remember which list row started recording so later passes with the same name stay unhighlighted.</summary>
+    private void SyncRecordingPassIdentity()
     {
         if (!_recording.IsRecording || AudioRecordingSessions.IsManualTest(_recording))
-            return null;
+        {
+            _recordingPassNoradId = null;
+            _recordingPassAosUtc = null;
+            return;
+        }
 
         var noradId = _recording.ActiveNoradId;
         if (string.IsNullOrEmpty(noradId))
+        {
+            _recordingPassNoradId = null;
+            _recordingPassAosUtc = null;
+            return;
+        }
+
+        if (string.Equals(_recordingPassNoradId, noradId, StringComparison.Ordinal)
+            && _recordingPassAosUtc is not null
+            && Passes.OfType<PassRowViewModel>().Any(p =>
+                string.Equals(p.NoradId, noradId, StringComparison.Ordinal) && p.AosUtc == _recordingPassAosUtc))
+            return;
+
+        var pass = FindPassForRecording(noradId, DateTime.UtcNow);
+        _recordingPassNoradId = noradId;
+        _recordingPassAosUtc = pass?.AosUtc;
+    }
+
+    private bool IsPassBeingRecorded(PassRowViewModel pass) =>
+        _recording.IsRecording
+        && !AudioRecordingSessions.IsManualTest(_recording)
+        && _recordingPassAosUtc is not null
+        && string.Equals(pass.NoradId, _recordingPassNoradId, StringComparison.Ordinal)
+        && pass.AosUtc == _recordingPassAosUtc;
+
+    private PassRowViewModel? FindPassForRecording(string noradId, DateTime utcNow)
+    {
+        var rows = Passes.OfType<PassRowViewModel>()
+            .Where(p => string.Equals(p.NoradId, noradId, StringComparison.Ordinal))
+            .OrderBy(p => p.AosUtc)
+            .ToList();
+
+        if (rows.Count == 0)
             return null;
 
-        return Passes.OfType<PassRowViewModel>()
-            .Where(p => string.Equals(p.NoradId, noradId, StringComparison.Ordinal)
-                && utcNow >= p.AosUtc
-                && utcNow <= p.LosUtc)
-            .OrderBy(p => p.AosUtc)
-            .FirstOrDefault();
+        var inProgress = rows.LastOrDefault(p => utcNow >= p.AosUtc && utcNow <= p.LosUtc);
+        if (inProgress is not null)
+            return inProgress;
+
+        // Recording can start above the elevation threshold before horizon AOS in the pass list.
+        return rows.FirstOrDefault(p => utcNow < p.LosUtc);
     }
 
     private void ProcessPassRecording(IReadOnlyList<SatelliteTrackState> states)
