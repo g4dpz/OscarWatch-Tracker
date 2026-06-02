@@ -71,6 +71,8 @@ public sealed class RigController : IRigController, IDisposable
     private DateTime _ignoreDialUntilUtc = DateTime.MinValue;
     private DateTime _lastDialChangeUtc = DateTime.MinValue;
     private DateTime _suspendDopplerUntilUtc = DateTime.MinValue;
+    private DateTime _suspendConnectUntilUtc = DateTime.MinValue;
+    private string? _lastConnectError;
     private bool? _lastPassDownlinkOnVhf;
 
     private RigSettings _cachedSettings = new();
@@ -311,7 +313,7 @@ public sealed class RigController : IRigController, IDisposable
 
         if (!EnsureConnected(settings))
         {
-            _statusMessage = DescribeConnectionFailure(settings);
+            _statusMessage = DescribeConnectionFailure(settings, _lastConnectError);
             return;
         }
 
@@ -779,6 +781,9 @@ public sealed class RigController : IRigController, IDisposable
 
     private bool EnsureSingleConnected(RigSettings settings)
     {
+        if (DateTime.UtcNow < _suspendConnectUntilUtc)
+            return _driver?.IsConnected == true;
+
         var key = $"{settings.Type}|{settings.Port}|{settings.BaudRate}|{settings.CivAddress}";
         if (_driver is not null && _connectedKey == key && _driver.IsConnected)
             return true;
@@ -789,13 +794,25 @@ public sealed class RigController : IRigController, IDisposable
             _driver = (_driverFactory ?? RigDriverFactory.Create)(settings);
             _driver.Open();
             _connectedKey = key;
-            return _driver.IsConnected;
+            if (_driver.IsConnected)
+            {
+                _lastConnectError = null;
+                return true;
+            }
+
+            _lastConnectError = $"Opened {settings.Port} but CI-V is not responding";
+            Log.Warning("Rig opened {Port} for {RigType} but link is not active", settings.Port, settings.Type);
+            TearDownRig();
+            _suspendConnectUntilUtc = DateTime.UtcNow.AddSeconds(3);
+            return false;
         }
         catch (Exception ex)
         {
+            _lastConnectError = ex.Message;
             Log.Warning(ex, "Rig connect failed for {RigType} on {Port}", settings.Type, settings.Port);
             _driver?.Dispose();
             _driver = null;
+            _suspendConnectUntilUtc = DateTime.UtcNow.AddSeconds(3);
             return false;
         }
     }
@@ -1443,12 +1460,20 @@ public sealed class RigController : IRigController, IDisposable
     private IRigDriver? TxDriver() =>
         _cachedSettings.DualRadioEnabled ? _uplinkDriver : _driver;
 
-    private static string DescribeConnectionFailure(RigSettings settings)
+    private static string DescribeConnectionFailure(RigSettings settings, string? detail = null)
     {
-        if (!settings.DualRadioEnabled)
-            return "Rig not connected";
+        var port = settings.DualRadioEnabled
+            ? $"{settings.Downlink.Port} / {settings.Uplink.Port}"
+            : settings.Port;
+        var baseMessage = settings.DualRadioEnabled
+            ? "Dual radio not connected"
+            : string.IsNullOrWhiteSpace(port)
+                ? "Rig not connected"
+                : $"Rig not connected ({port})";
 
-        return "Dual radio not connected";
+        return string.IsNullOrWhiteSpace(detail)
+            ? baseMessage
+            : $"{baseMessage}: {detail}";
     }
 
     private enum RigCommandKind

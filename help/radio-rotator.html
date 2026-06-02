@@ -37,7 +37,7 @@
         <li>Use a <strong>USB serial</strong> cable or proper interface to the radio and rotator.</li>
         <li>Radio and rotator need <strong>different COM ports</strong> (or device paths on Linux/macOS).</li>
         <li>Close other programs that might hold the port (HRD, WSJT-X rig control, etc.).</li>
-        <li>For <strong>normal cross-band</strong> passes, put the radio in <strong>satellite mode</strong> (or the mode your rig manual describes) if OscarWatch has not already done so when tracking starts.</li>
+        <li>For <strong>normal cross-band</strong> passes, put the radio in <strong>satellite mode</strong> (or the mode your rig manual describes) if OscarWatch has not already done so when tracking starts — except <strong>Kenwood TS-2000</strong>: you must select <strong>SAT</strong> on the front panel yourself (see below).</li>
         <li>For <strong>receive-only</strong> modes (uplink <strong>0</strong> in the database — ISS SSTV, beacons, telemetry), you do <strong>not</strong> need satellite mode: OscarWatch turns it off and tunes the downlink only.</li>
       </ul>
 
@@ -50,7 +50,7 @@
           <tr><td>ICOM IC-910 / IC-9700 / IC-9100</td><td>CI-V, Main/Sub for cross-band; receive-only modes use <strong>Main</strong> on the downlink band (VHF or UHF) with SAT off</td></tr>
           <tr><td>Yaesu FT-847</td><td>Satellite CAT — SAT RX/TX VFOs, doppler, uplink CTCSS</td></tr>
           <tr><td>Yaesu FT-817 / FT-818</td><td><strong>Dual radio only</strong> (Settings → Dual radio): one rig for downlink, one for uplink — each on its own COM port (e.g. two FT-818s)</td></tr>
-          <tr><td>Kenwood TS-2000</td><td>CAT enables SATL; auto band swap via <code>FA</code>/<code>FB</code> exchange; linear CW uplink in SATL; TRACE off via CAT (beta)</td></tr>
+          <tr><td>Kenwood TS-2000</td><td><strong>Before tracking:</strong> manually select <strong>SAT</strong> on the radio and turn <strong>memory mode off</strong> if it is on. OscarWatch then enables SATL via CAT, auto band swap via <code>FA</code>/<code>FB</code> exchange, linear CW uplink in SATL, TRACE off via CAT (beta)</td></tr>
           <tr><td>Dummy rig</td><td>No hardware — test UI and Doppler only</td></tr>
         </tbody>
       </table>
@@ -64,6 +64,33 @@
         <strong>Linear CW: keep receive in USB/LSB</strong> — when the frequency panel is set to <strong>CW</strong> on a linear SSB transponder,
         checked (usual) sets transmit to CW and leaves receive in USB/LSB from the database; unchecked sets both VFOs to CW.
         See <a href="frequencies.html">Frequencies</a> for the panel <strong>Voice</strong> / <strong>CW</strong> buttons; see <a href="keyboard-shortcuts.html">Keyboard shortcuts</a> for <strong>Ctrl+W</strong>.
+      </p>
+
+      <h3 id="ts-2000-setup">Kenwood TS-2000 setup</h3>
+      <p>
+        The TS-2000 needs a few manual steps on the radio <strong>before</strong> OscarWatch can track a satellite pass reliably:
+      </p>
+      <ul>
+        <li>
+          Select <strong>SAT</strong> (satellite mode) on the front panel. OscarWatch sends SATL commands over CAT when tracking starts,
+          but SAT must already be selected on the radio or CAT setup may not engage.
+        </li>
+        <li>
+          Turn <strong>memory mode off</strong> if it is enabled. With memory mode on, frequency and mode changes from CAT may not apply
+          as expected during a pass.
+        </li>
+        <li>
+          Close any radio menu before tracking. CAT is rejected or delayed while a menu is open.
+        </li>
+        <li>
+          In <strong>Settings → Radio</strong>, choose <strong>Kenwood TS-2000</strong>, the correct COM port, and
+          <strong>57600 8N1</strong> (default). OscarWatch then sets SATL layout (Main downlink / Sub uplink), swaps
+          <code>FA</code>/<code>FB</code> if Main is on the wrong band, and turns TRACE off via CAT.
+        </li>
+      </ul>
+      <p>
+        If SATL does not confirm after tracking starts, OscarWatch falls back to split VFO tracking and logs a warning —
+        check that SAT is selected and memory mode is off, then try again.
       </p>
 
       <h2>What CAT does during a pass</h2>

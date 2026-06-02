@@ -11,6 +11,7 @@ internal sealed class IcomSerialTransport : IIcomCivTransport
     private readonly int _civAddress;
     private readonly int _defaultPostDelayMs;
     private readonly SemaphoreSlim _gate = new(1, 1);
+    private int _writeTimeoutStreak;
 
     public IcomSerialTransport(string portName, int baudRate, int civAddress, int catDelayMs = 50)
     {
@@ -29,6 +30,7 @@ internal sealed class IcomSerialTransport : IIcomCivTransport
 
     public void Open()
     {
+        _writeTimeoutStreak = 0;
         if (!_port.IsOpen)
             _port.Open();
     }
@@ -44,19 +46,57 @@ internal sealed class IcomSerialTransport : IIcomCivTransport
         _gate.Wait();
         try
         {
+            if (!_port.IsOpen)
+                return [];
+
             _port.DiscardInBuffer();
             _port.Write(frame, 0, frame.Length);
+            _writeTimeoutStreak = 0;
             Thread.Sleep(delayMs);
             return ReadResponse(delayMs);
         }
+        catch (TimeoutException ex)
+        {
+            NoteWriteTimeout(ex);
+            return [];
+        }
         catch (Exception ex)
         {
-            Log.Debug(ex, "CI-V write failed on {PortName}", _port.PortName);
+            Log.Warning(ex, "CI-V write failed on {PortName}", _port.PortName);
             return [];
         }
         finally
         {
             _gate.Release();
+        }
+    }
+
+    private void NoteWriteTimeout(TimeoutException ex)
+    {
+        _writeTimeoutStreak++;
+        if (_writeTimeoutStreak < 3)
+        {
+            Log.Warning(ex, "CI-V write timed out on {PortName} ({Streak}/3)", _port.PortName, _writeTimeoutStreak);
+            return;
+        }
+
+        Log.Warning(
+            ex,
+            "CI-V write timed out on {PortName} — closing port so OscarWatch can reconnect (check CI-V cable, baud, and that no other app uses this COM port)",
+            _port.PortName);
+        ClosePort();
+    }
+
+    private void ClosePort()
+    {
+        try
+        {
+            if (_port.IsOpen)
+                _port.Close();
+        }
+        catch (Exception ex)
+        {
+            Log.Debug(ex, "CI-V port close failed on {PortName}", _port.PortName);
         }
     }
 

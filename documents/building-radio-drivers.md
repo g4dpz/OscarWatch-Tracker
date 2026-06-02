@@ -166,8 +166,9 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 
 ### Hardware checklist (TS-2000)
 
+- On the radio: select **SAT** mode and turn **memory mode off** before OscarWatch tracking (manual steps — CAT alone is not enough).
 - PC CAT port **57600 8N1** (matches Settings default).
-- PC CAT port **57600 8N1**; SATL and TRACE off are set on pass start via `SA`.
+- Close any front-panel menu before tracking; SATL and TRACE off are applied on pass start via `SA`.
 - On a real pass: RX/TX doppler on `FA`/`FB`, uplink CTCSS on Sub.
 
 ## Step-by-step: add a new rig type

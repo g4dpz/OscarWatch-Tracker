@@ -283,7 +283,7 @@
                          FontSize="11"
                          TextWrapping="Wrap"
                          IsVisible="{Binding ShowRigTs2000CatHint}"
-                         Text="TS-2000: CAT 57600 8N1. SATL on for cross-band passes; VHF/UHF swapped automatically if Main is on the wrong band (TRACE off via CAT)." />
+                         Text="TS-2000: CAT 57600 8N1. Select SAT on the radio and turn memory mode off before tracking; OscarWatch then enables SATL, auto VHF/UHF band swap (TRACE off via CAT)." />
               <TextBlock Text="Region" />
               <ComboBox ItemsSource="{Binding RigRegionChoices}"
                         SelectedItem="{Binding SelectedRigRegionChoice, Mode=TwoWay}"
