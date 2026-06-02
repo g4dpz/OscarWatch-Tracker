@@ -172,6 +172,26 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 - One COM port per leg — use the CI-V-labeled port when Windows shows two.
 - On a real pass: both legs get doppler; CTCSS on uplink only.
 
+## Reference: Yaesu FT-991 / FT-991A (shipped, dual radio only)
+
+| Piece | Path |
+|-------|------|
+| CAT codec | [`OscarWatch.Core/Radio/YaesuFt991CatCodec.cs`](../OscarWatch.Core/Radio/YaesuFt991CatCodec.cs) |
+| Serial transport | [`OscarWatch/Rig/YaesuNewCatTransport.cs`](../OscarWatch/Rig/YaesuNewCatTransport.cs) — **8N2**, hardware RTS, semicolon ASCII |
+| Driver | [`OscarWatch/Rig/YaesuFt991Driver.cs`](../OscarWatch/Rig/YaesuFt991Driver.cs), [`YaesuFt991aDriver.cs`](../OscarWatch/Rig/YaesuFt991aDriver.cs) |
+
+- **Dual radio only**: FT-991/991A are not in the single-radio driver list. Each endpoint uses **VFO-A** (`FA`, `MD0`, `LK0/1`, `CT0`/`CN0`).
+- ASCII newcat commands (Hamlib-compatible subset); default baud **38400** (menu 031).
+- FM tracking locks VFO-A dial via `LK1`; linear modes use `LK0` so passband trim works on the downlink leg.
+- Cross-check against [Hamlib `ft991.c`](https://github.com/Hamlib/Hamlib/blob/master/rigs/yaesu/ft991.c).
+
+### Hardware checklist (FT-991 / FT-991A dual)
+
+- Enable **Settings → Radio → Dual radio**; configure each leg (type, COM, baud).
+- Menu **031 CAT RATE** must match Settings on each radio.
+- Use the USB **CAT** virtual COM port; hardware RTS is required.
+- On a real pass: both legs get doppler; CTCSS on uplink only.
+
 ## Reference: Kenwood TS-2000 (shipped, beta)
 
 | Piece | Path |

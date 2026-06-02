@@ -235,7 +235,7 @@
                        IsVisible="{Binding ShowComPortConflict}" />
             <CheckBox Content="Enable radio control"
                       IsChecked="{Binding RigEnabled, Mode=TwoWay}" />
-            <CheckBox Content="Dual radio (separate downlink and uplink radios — FT-817/818, IC-705, or mixed)"
+            <CheckBox Content="Dual radio (separate downlink and uplink — FT-817/818, FT-991(A), IC-705, or mixed)"
                       IsChecked="{Binding DualRadioEnabled, Mode=TwoWay}"
                       Margin="0,4,0,0" />
             <StackPanel Spacing="10" IsVisible="{Binding ShowRigSingleConfig}">
@@ -423,6 +423,11 @@
                        TextWrapping="Wrap"
                        IsVisible="{Binding ShowRigIc705CatHint}"
                        Text="IC-705: Set Connectors → CI-V → CI-V USB Port to Link to [CI-V] (not REMOTE). Match CI-V baud in Settings (default 115200). One COM port per leg — use the port labeled CI-V when two appear." />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding ShowRigFt991CatHint}"
+                       Text="FT-991 / FT-991A: Match menu 031 CAT RATE to Settings (default 38400). 8N2 ASCII CAT with hardware RTS — use the USB CAT COM port. One COM per leg. FM locks the VFO-A dial while tracking." />
             <CheckBox Content="Linear CW: keep receive in USB/LSB (transmit CW only)"
                       IsChecked="{Binding RigCwKeepSidebandDownlink, Mode=TwoWay}"
                       Margin="0,8,0,0" />

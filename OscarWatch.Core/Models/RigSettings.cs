@@ -8,6 +8,9 @@ public sealed class RigSettings
     /// <summary>Factory CI-V USB default baud for IC-705 (must match radio menu).</summary>
     public const int Ic705DefaultBaudRate = 115200;
 
+    /// <summary>Typical menu 031 CAT RATE for FT-991 / FT-991A (4800–38400 supported).</summary>
+    public const int Ft991DefaultBaudRate = 38400;
+
     public bool Enabled { get; set; }
 
     /// <summary>When true, downlink and uplink use separate radios (<see cref="Downlink"/> / <see cref="Uplink"/>).</summary>
@@ -49,7 +52,8 @@ public sealed class RigSettings
         DualRadioEnabled && Downlink.IsConfigured && Uplink.IsConfigured;
 
     public static bool IsDualCapableEndpoint(RigType type) =>
-        type is RigType.YaesuFt817 or RigType.YaesuFt818 or RigType.IcomIc705;
+        type is RigType.YaesuFt817 or RigType.YaesuFt818 or RigType.YaesuFt991 or RigType.YaesuFt991a
+            or RigType.IcomIc705;
 
     /// <summary>FT-817/818 are dual-radio only; move legacy single-radio config to the downlink endpoint.</summary>
     public void MigrateFt817818ToDualOnly()

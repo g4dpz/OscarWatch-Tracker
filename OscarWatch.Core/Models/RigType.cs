@@ -10,6 +10,8 @@ public enum RigType
     YaesuFt847,
     YaesuFt817,
     YaesuFt818,
+    YaesuFt991,
+    YaesuFt991a,
     KenwoodTs2000,
     Dummy
 }

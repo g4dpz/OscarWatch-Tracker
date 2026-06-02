@@ -29,6 +29,7 @@ See [building radio drivers](documents/building-radio-drivers.md) for adding rig
 
 - [x] **Yaesu FT-817 / FT-818** — dual-radio endpoints only (one VFO per radio)
 - [x] **ICOM IC-705** — dual-radio endpoints only (CI-V; mix with FT-817/818)
+- [x] **Yaesu FT-991 / FT-991A** — dual-radio endpoints only (ASCII CAT; mix with other dual legs)
 - [ ] Add ICOM IC-905 Support
 
 **Per driver:** protocol client, `IRigDriver` + `RigType` + Settings list, pass init (SAT/split/VFO/mode/CTCSS), `RigController` hooks, tests + hardware smoke test.

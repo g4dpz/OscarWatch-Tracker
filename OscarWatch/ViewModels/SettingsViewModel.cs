@@ -313,6 +313,8 @@ public partial class SettingsViewModel : ViewModelBase
     [
         new(RigType.YaesuFt817, "Yaesu FT-817"),
         new(RigType.YaesuFt818, "Yaesu FT-818"),
+        new(RigType.YaesuFt991, "Yaesu FT-991"),
+        new(RigType.YaesuFt991a, "Yaesu FT-991A"),
         new(RigType.IcomIc705, "ICOM IC-705")
     ];
 
@@ -344,6 +346,11 @@ public partial class SettingsViewModel : ViewModelBase
         DualRadioEnabled
         && (SelectedDownlinkRigTypeChoice?.Value == RigType.IcomIc705
             || SelectedUplinkRigTypeChoice?.Value == RigType.IcomIc705);
+
+    public bool ShowRigFt991CatHint =>
+        DualRadioEnabled
+        && (SelectedDownlinkRigTypeChoice?.Value is RigType.YaesuFt991 or RigType.YaesuFt991a
+            || SelectedUplinkRigTypeChoice?.Value is RigType.YaesuFt991 or RigType.YaesuFt991a);
 
     public IReadOnlyList<RigRegionOption> RigRegionChoices { get; } =
     [
@@ -777,6 +784,7 @@ public partial class SettingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(ShowDownlinkCivAddress));
         OnPropertyChanged(nameof(ShowUplinkCivAddress));
         OnPropertyChanged(nameof(ShowRigIc705CatHint));
+        OnPropertyChanged(nameof(ShowRigFt991CatHint));
         RefreshComPortConflictIfReady();
     }
 
@@ -812,11 +820,15 @@ public partial class SettingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(ShowRigFt817CatHint));
         OnPropertyChanged(nameof(ShowDownlinkCivAddress));
         OnPropertyChanged(nameof(ShowRigIc705CatHint));
+        OnPropertyChanged(nameof(ShowRigFt991CatHint));
         if (_isSynchronizing || value is null)
             return;
 
         if (value.Value is RigType.YaesuFt817 or RigType.YaesuFt818)
             DownlinkBaudRate = RigSettings.Ft817818DefaultBaudRate;
+
+        if (value.Value is RigType.YaesuFt991 or RigType.YaesuFt991a)
+            DownlinkBaudRate = RigSettings.Ft991DefaultBaudRate;
 
         if (value.Value == RigType.IcomIc705)
         {
@@ -831,11 +843,15 @@ public partial class SettingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(ShowRigFt817CatHint));
         OnPropertyChanged(nameof(ShowUplinkCivAddress));
         OnPropertyChanged(nameof(ShowRigIc705CatHint));
+        OnPropertyChanged(nameof(ShowRigFt991CatHint));
         if (_isSynchronizing || value is null)
             return;
 
         if (value.Value is RigType.YaesuFt817 or RigType.YaesuFt818)
             UplinkBaudRate = RigSettings.Ft817818DefaultBaudRate;
+
+        if (value.Value is RigType.YaesuFt991 or RigType.YaesuFt991a)
+            UplinkBaudRate = RigSettings.Ft991DefaultBaudRate;
 
         if (value.Value == RigType.IcomIc705)
         {

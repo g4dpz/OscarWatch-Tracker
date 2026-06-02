@@ -101,6 +101,7 @@ OscarWatch talks to rigs and rotators over **serial CAT** (COM port on Windows, 
 | **Yaesu FT-847**    | Yaesu CAT         | Satellite mode, SAT RX/TX VFOs, doppler, uplink CTCSS                                                      |
 | **Yaesu FT-817 / FT-818** | Yaesu CAT (8N2) | **Dual radio only** — downlink radio on one COM port, uplink on another (e.g. two FT-818s); full doppler; linear passband tuning on the downlink VFO; FM locks the dial via CAT |
 | **ICOM IC-705**     | CI-V              | **Dual radio only** — one or two IC-705s, or mixed with FT-817/818; one VFO per radio; per-leg CI-V address (default `A4`) |
+| **Yaesu FT-991 / FT-991A** | Yaesu ASCII CAT (8N2) | **Dual radio only** — one or two FT-991(A)s, or mixed with other dual legs; VFO-A per radio; FM dial lock via `LK` |
 | **Kenwood TS-2000** | Kenwood ASCII CAT | **Beta** — before tracking: put the radio in **SAT** mode and turn **memory mode off** on the front panel; then OscarWatch uses SATL via CAT, auto `FA`/`FB` band swap, linear CW uplink in SATL, TRACE off via CAT |
 | **Dummy rig**       | —                 | No serial I/O; for UI and doppler testing without a radio                                                  |
 
@@ -135,7 +136,7 @@ Open **Settings** from the menu. Tabs:
 | **Voice**      | Enable announcements, trigger elevation (default −3°), voice selection, test button                                                                                                                                                            |
 | **Recording**  | Automatic pass WAV capture, input device, start/stop elevation, output folder, test clip                                                                                                                                                       |
 | **Rotator**    | Type (GS-232 / EasyComm), COM port, 360°/450° azimuth, smart 450°, park, track-start elevation, calibration offsets                                                                                                                            |
-| **Radio**      | Rig type, COM port, **Dual radio** (FT-817/818, IC-705, or mixed — separate downlink/uplink COM ports), region, per-leg CI-V address for IC-705, linear CW receive mode (USB/LSB vs CW on both VFOs), Doppler CAT thresholds (FM default 350 Hz, SSB/CW default 50 Hz — see [help](help/radio-rotator.html#doppler-cat-thresholds)), pause CAT |
+| **Radio**      | Rig type, COM port, **Dual radio** (FT-817/818, FT-991(A), IC-705, or mixed — separate downlink/uplink COM ports), region, per-leg CI-V address for IC-705, linear CW receive mode (USB/LSB vs CW on both VFOs), Doppler CAT thresholds (FM default 350 Hz, SSB/CW default 50 Hz — see [help](help/radio-rotator.html#doppler-cat-thresholds)), pause CAT |
 | **Cloudlog**   | Base URL, API key, radio name, test connection; posts SAT uplink/downlink when tracking                                                                                                                                                        |
 
 

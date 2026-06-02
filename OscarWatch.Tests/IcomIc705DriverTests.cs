@@ -79,4 +79,16 @@ public sealed class RigEndpointSettingsTests
 
         Assert.False(endpoint.IsConfigured);
     }
+
+    [Fact]
+    public void IsConfigured_ft991_with_port()
+    {
+        var endpoint = new RigEndpointSettings
+        {
+            Type = RigType.YaesuFt991,
+            Port = "COM991"
+        };
+
+        Assert.True(endpoint.IsConfigured);
+    }
 }
