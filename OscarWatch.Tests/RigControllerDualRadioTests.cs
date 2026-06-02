@@ -250,4 +250,65 @@ public sealed class RigControllerDualRadioTests
         Assert.InRange(status.ManualReceiveAdjustKHz, 1.9, 2.1);
         Assert.InRange(status.ManualTransmitAdjustKHz, -0.001, 0.001);
     }
+
+    [Fact]
+    public void Mixed_ic705_downlink_and_ft818_uplink_pass_init_writes_both_legs()
+    {
+        var downTransport = new RecordingIcomCivTransport();
+        var upTransport = new RecordingYaesuCatTransport();
+        var controller = new RigController(
+            endpointFactory: ep => ep.Port == "COM_DL"
+                ? new IcomIc705Driver(downTransport)
+                : new YaesuFt818Driver(upTransport));
+
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            DualRadioEnabled = true,
+            Downlink = new RigEndpointSettings
+            {
+                Type = RigType.IcomIc705,
+                Port = "COM_DL",
+                BaudRate = 115200,
+                CivAddress = "A4",
+                CatDelayMs = 0
+            },
+            Uplink = new RigEndpointSettings
+            {
+                Type = RigType.YaesuFt818,
+                Port = "COM_UL",
+                BaudRate = 4800,
+                CatDelayMs = 0,
+                Region = RigRegion.EU
+            }
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "Voice U/V",
+            DownlinkKHz = 145_960,
+            UplinkKHz = 435_250,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR",
+            CtcssHz = 67.0
+        };
+
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "AO-91",
+                NoradId = "43017",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 30, 800, 0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            SelectedCtcssHz = 67.0
+        });
+
+        Assert.Contains(downTransport.SentCommandBodies, b => b == "0700");
+        Assert.Contains(upTransport.SentFrames, f => f.Length == 5 && f[4] == 0x01);
+    }
 }

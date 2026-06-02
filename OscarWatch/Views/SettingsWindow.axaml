@@ -235,7 +235,7 @@
                        IsVisible="{Binding ShowComPortConflict}" />
             <CheckBox Content="Enable radio control"
                       IsChecked="{Binding RigEnabled, Mode=TwoWay}" />
-            <CheckBox Content="Dual radio (required for FT-817 / FT-818 — separate downlink and uplink)"
+            <CheckBox Content="Dual radio (separate downlink and uplink radios — FT-817/818, IC-705, or mixed)"
                       IsChecked="{Binding DualRadioEnabled, Mode=TwoWay}"
                       Margin="0,4,0,0" />
             <StackPanel Spacing="10" IsVisible="{Binding ShowRigSingleConfig}">
@@ -333,6 +333,15 @@
                   <ComboBox ItemsSource="{Binding RigBaudRateOptions}"
                             SelectedItem="{Binding DownlinkBaudRate, Mode=TwoWay}"
                             HorizontalAlignment="Stretch" />
+                  <StackPanel Spacing="4" IsVisible="{Binding ShowDownlinkCivAddress}">
+                    <TextBlock Text="CI-V address (hex)" />
+                    <TextBox Text="{Binding DownlinkCivAddress, Mode=TwoWay}"
+                             Watermark="A4" />
+                    <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                               FontSize="11"
+                               TextWrapping="Wrap"
+                               Text="IC-705 factory default A4. Must match the radio CI-V menu." />
+                  </StackPanel>
                   <TextBlock Text="Region" />
                   <ComboBox ItemsSource="{Binding RigRegionChoices}"
                             SelectedItem="{Binding SelectedDownlinkRegionChoice, Mode=TwoWay}"
@@ -374,6 +383,15 @@
                   <ComboBox ItemsSource="{Binding RigBaudRateOptions}"
                             SelectedItem="{Binding UplinkBaudRate, Mode=TwoWay}"
                             HorizontalAlignment="Stretch" />
+                  <StackPanel Spacing="4" IsVisible="{Binding ShowUplinkCivAddress}">
+                    <TextBlock Text="CI-V address (hex)" />
+                    <TextBox Text="{Binding UplinkCivAddress, Mode=TwoWay}"
+                             Watermark="A4" />
+                    <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                               FontSize="11"
+                               TextWrapping="Wrap"
+                               Text="IC-705 factory default A4. Must match the radio CI-V menu." />
+                  </StackPanel>
                   <TextBlock Text="Region" />
                   <ComboBox ItemsSource="{Binding RigRegionChoices}"
                             SelectedItem="{Binding SelectedUplinkRegionChoice, Mode=TwoWay}"
@@ -399,7 +417,12 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        IsVisible="{Binding ShowRigFt817CatHint}"
-                       Text="FT-817 / FT-818: enable Dual radio above. Set menu #14 to 4800 baud on each radio (38400 also works). 8N2 CAT — one COM per leg. Linear: spin downlink for passband; FM locks dial while tracking." />
+                       Text="FT-817 / FT-818: Set menu #14 to 4800 baud on each radio (38400 also works). 8N2 CAT — one COM per leg. Linear: spin downlink for passband; FM locks dial while tracking." />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding ShowRigIc705CatHint}"
+                       Text="IC-705: Set Connectors → CI-V → CI-V USB Port to Link to [CI-V] (not REMOTE). Match CI-V baud in Settings (default 115200). One COM port per leg — use the port labeled CI-V when two appear." />
             <CheckBox Content="Linear CW: keep receive in USB/LSB (transmit CW only)"
                       IsChecked="{Binding RigCwKeepSidebandDownlink, Mode=TwoWay}"
                       Margin="0,8,0,0" />

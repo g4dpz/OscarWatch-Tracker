@@ -6,6 +6,7 @@ public enum RigType
     IcomIc910,
     IcomIc9100,
     IcomIc9700,
+    IcomIc705,
     YaesuFt847,
     YaesuFt817,
     YaesuFt818,

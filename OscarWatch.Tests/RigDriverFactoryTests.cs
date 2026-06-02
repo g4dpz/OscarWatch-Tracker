@@ -19,6 +19,30 @@ public sealed class RigDriverFactoryTests
     }
 
     [Fact]
+    public void Create_endpoint_ic705_returns_driver_with_civ_address()
+    {
+        var driver = RigDriverFactory.Create(new RigEndpointSettings
+        {
+            Type = RigType.IcomIc705,
+            Port = "COM705",
+            BaudRate = 115200,
+            CivAddress = "A4"
+        });
+
+        Assert.Equal(RigType.IcomIc705, driver.RigType);
+    }
+
+    [Fact]
+    public void Create_settings_ic705_when_not_dual_throws()
+    {
+        Assert.Throws<InvalidOperationException>(() => RigDriverFactory.Create(new RigSettings
+        {
+            Type = RigType.IcomIc705,
+            Port = "COM705"
+        }));
+    }
+
+    [Fact]
     public void Create_settings_ft817_when_dual_enabled_throws()
     {
         Assert.Throws<InvalidOperationException>(() => RigDriverFactory.Create(new RigSettings

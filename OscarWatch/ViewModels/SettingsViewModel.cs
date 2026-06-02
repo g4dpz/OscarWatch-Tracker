@@ -171,7 +171,7 @@ public partial class SettingsViewModel : ViewModelBase
 
     public int[] RotatorBaudRateOptions { get; } = [1200, 2400, 4800, 9600, 19200];
 
-    public int[] RigBaudRateOptions { get; } = [1200, 2400, 4800, 9600, 19200, 38400, 57600];
+    public int[] RigBaudRateOptions { get; } = [1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200];
 
     public IReadOnlyList<RotatorTypeOption> RotatorTypeChoices { get; } =
     [
@@ -267,6 +267,12 @@ public partial class SettingsViewModel : ViewModelBase
     private int _uplinkCatDelayMs = 50;
 
     [ObservableProperty]
+    private string _downlinkCivAddress = "";
+
+    [ObservableProperty]
+    private string _uplinkCivAddress = "";
+
+    [ObservableProperty]
     private RigRegionOption? _selectedRigRegionChoice;
 
     [ObservableProperty]
@@ -306,7 +312,8 @@ public partial class SettingsViewModel : ViewModelBase
     public IReadOnlyList<RigTypeOption> RigDualTypeChoices { get; } =
     [
         new(RigType.YaesuFt817, "Yaesu FT-817"),
-        new(RigType.YaesuFt818, "Yaesu FT-818")
+        new(RigType.YaesuFt818, "Yaesu FT-818"),
+        new(RigType.IcomIc705, "ICOM IC-705")
     ];
 
     public bool ShowRigSingleConfig => !DualRadioEnabled;
@@ -326,6 +333,17 @@ public partial class SettingsViewModel : ViewModelBase
         DualRadioEnabled
         && (SelectedDownlinkRigTypeChoice?.Value is RigType.YaesuFt817 or RigType.YaesuFt818
             || SelectedUplinkRigTypeChoice?.Value is RigType.YaesuFt817 or RigType.YaesuFt818);
+
+    public bool ShowDownlinkCivAddress =>
+        DualRadioEnabled && SelectedDownlinkRigTypeChoice?.Value == RigType.IcomIc705;
+
+    public bool ShowUplinkCivAddress =>
+        DualRadioEnabled && SelectedUplinkRigTypeChoice?.Value == RigType.IcomIc705;
+
+    public bool ShowRigIc705CatHint =>
+        DualRadioEnabled
+        && (SelectedDownlinkRigTypeChoice?.Value == RigType.IcomIc705
+            || SelectedUplinkRigTypeChoice?.Value == RigType.IcomIc705);
 
     public IReadOnlyList<RigRegionOption> RigRegionChoices { get; } =
     [
@@ -449,7 +467,8 @@ public partial class SettingsViewModel : ViewModelBase
                 Port = SelectedDownlinkComPort ?? "",
                 BaudRate = DownlinkBaudRate,
                 Region = SelectedDownlinkRegionChoice?.Value ?? RigRegion.EU,
-                CatDelayMs = DownlinkCatDelayMs
+                CatDelayMs = DownlinkCatDelayMs,
+                CivAddress = DownlinkCivAddress.Trim()
             },
             Uplink = new RigEndpointSettings
             {
@@ -457,7 +476,8 @@ public partial class SettingsViewModel : ViewModelBase
                 Port = SelectedUplinkComPort ?? "",
                 BaudRate = UplinkBaudRate,
                 Region = SelectedUplinkRegionChoice?.Value ?? RigRegion.EU,
-                CatDelayMs = UplinkCatDelayMs
+                CatDelayMs = UplinkCatDelayMs,
+                CivAddress = UplinkCivAddress.Trim()
             },
             Type = SelectedRigTypeChoice?.Value ?? RigType.None,
             Port = SelectedRigComPort ?? "",
@@ -583,6 +603,12 @@ public partial class SettingsViewModel : ViewModelBase
                 ?? RigRegionChoices[0];
             DownlinkCatDelayMs = down.CatDelayMs;
             UplinkCatDelayMs = up.CatDelayMs;
+            DownlinkCivAddress = string.IsNullOrWhiteSpace(down.CivAddress)
+                ? RigSettings.DefaultCivAddressFor(down.Type)
+                : down.CivAddress;
+            UplinkCivAddress = string.IsNullOrWhiteSpace(up.CivAddress)
+                ? RigSettings.DefaultCivAddressFor(up.Type)
+                : up.CivAddress;
             RigDopplerThresholdFmHz = rig.DopplerThresholdFmHz;
             RigDopplerThresholdLinearHz = rig.DopplerThresholdLinearHz;
             RigCatDelayMs = rig.CatDelayMs;
@@ -748,6 +774,9 @@ public partial class SettingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(ShowRigSingleConfig));
         OnPropertyChanged(nameof(ShowRigDualConfig));
         OnPropertyChanged(nameof(ShowRigFt817CatHint));
+        OnPropertyChanged(nameof(ShowDownlinkCivAddress));
+        OnPropertyChanged(nameof(ShowUplinkCivAddress));
+        OnPropertyChanged(nameof(ShowRigIc705CatHint));
         RefreshComPortConflictIfReady();
     }
 
@@ -781,22 +810,44 @@ public partial class SettingsViewModel : ViewModelBase
     partial void OnSelectedDownlinkRigTypeChoiceChanged(RigTypeOption? value)
     {
         OnPropertyChanged(nameof(ShowRigFt817CatHint));
+        OnPropertyChanged(nameof(ShowDownlinkCivAddress));
+        OnPropertyChanged(nameof(ShowRigIc705CatHint));
         if (_isSynchronizing || value is null)
             return;
 
         if (value.Value is RigType.YaesuFt817 or RigType.YaesuFt818)
             DownlinkBaudRate = RigSettings.Ft817818DefaultBaudRate;
+
+        if (value.Value == RigType.IcomIc705)
+        {
+            DownlinkBaudRate = RigSettings.Ic705DefaultBaudRate;
+            if (ShouldSuggestCivAddress(DownlinkCivAddress))
+                DownlinkCivAddress = RigSettings.DefaultCivAddressFor(RigType.IcomIc705);
+        }
     }
 
     partial void OnSelectedUplinkRigTypeChoiceChanged(RigTypeOption? value)
     {
         OnPropertyChanged(nameof(ShowRigFt817CatHint));
+        OnPropertyChanged(nameof(ShowUplinkCivAddress));
+        OnPropertyChanged(nameof(ShowRigIc705CatHint));
         if (_isSynchronizing || value is null)
             return;
 
         if (value.Value is RigType.YaesuFt817 or RigType.YaesuFt818)
             UplinkBaudRate = RigSettings.Ft817818DefaultBaudRate;
+
+        if (value.Value == RigType.IcomIc705)
+        {
+            UplinkBaudRate = RigSettings.Ic705DefaultBaudRate;
+            if (ShouldSuggestCivAddress(UplinkCivAddress))
+                UplinkCivAddress = RigSettings.DefaultCivAddressFor(RigType.IcomIc705);
+        }
     }
+
+    private static bool ShouldSuggestCivAddress(string? address) =>
+        string.IsNullOrWhiteSpace(address)
+        || address is "60" or "7C" or "A2";
 
     private RigSettings BuildRigSettingsForConflictCheck() => new()
     {

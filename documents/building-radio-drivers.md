@@ -74,6 +74,7 @@ Per-radio subclasses only override what differs, usually **`SetSatelliteMode`**:
 | [`IcomIc910Driver`](../OscarWatch/Rig/IcomIc910Driver.cs) | `IcomIc910` | `1A 07 01` / `00` |
 | [`IcomIc9100Driver`](../OscarWatch/Rig/IcomIc9100Driver.cs) | `IcomIc9100` | `16 5A 01` / `00` (same as IC-9700) |
 | [`IcomIc9700Driver`](../OscarWatch/Rig/IcomIc9700Driver.cs) | `IcomIc9700` | `16 5A 01` / `00` |
+| [`IcomIc705Driver`](../OscarWatch/Rig/IcomIc705Driver.cs) | `IcomIc705` | no-op (dual-radio VFO A only) |
 
 **IC-9700 digital modes:** database `DATA-USB` / `DATA-LSB` send base SSB (`06 01` / `06 00`) then DATA on with FIL1 (`1A 06 01 01`) — USB-D / LSB-D. Command `26` is unavailable in SAT mode; IC-910/9100 keep voice SSB only for `DATA-*` strings.
 
@@ -152,6 +153,24 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 - OscarWatch uses **8N2** Yaesu CAT. One main VFO per radio — downlink for RX, uplink for TX + CTCSS.
 - **FM:** dial lock on via CAT while tracking. **USB/LSB/CW:** dial unlocked on downlink so you can scan the transponder; uplink doppler continues on the other radio.
 - On a real pass: both legs get doppler; CTCSS on uplink only (region selects tone vs TSQL).
+
+## Reference: ICOM IC-705 (shipped, dual radio only)
+
+| Piece | Path |
+|-------|------|
+| Driver | [`OscarWatch/Rig/IcomIc705Driver.cs`](../OscarWatch/Rig/IcomIc705Driver.cs) |
+
+- **Dual radio only** (`RigSettings.DualRadioEnabled`): IC-705 is not offered in the single-radio driver list. Each endpoint is one physical radio on VFO A (RigController uses `Main`, mapped to VFO A in the driver).
+- No dedicated satellite mode — `SetSatelliteMode` is a no-op; dual pass init sets mode and frequency directly.
+- Default CI-V address **A4**; default baud **115200** (must match radio menu).
+- Mixed pairs (e.g. IC-705 downlink + FT-818 uplink) need no special controller logic.
+
+### Hardware checklist (IC-705 dual)
+
+- Enable **Settings → Radio → Dual radio**; configure each leg (type, COM, baud, CI-V address for IC-705 legs).
+- **Connectors → CI-V → CI-V USB Port** = **Link to [CI-V]** on each radio (not REMOTE).
+- One COM port per leg — use the CI-V-labeled port when Windows shows two.
+- On a real pass: both legs get doppler; CTCSS on uplink only.
 
 ## Reference: Kenwood TS-2000 (shipped, beta)
 

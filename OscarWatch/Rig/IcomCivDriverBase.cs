@@ -127,6 +127,9 @@ public abstract class IcomCivDriverBase : IRigDriver
 
     public void SelectVfo(RigVfo vfo, bool force = false) => SelectVfoInternal(vfo, force);
 
+    /// <summary>Map RigController VFO names to CI-V selectors (e.g. IC-705 uses VFO A instead of Main).</summary>
+    protected virtual RigVfo MapOperationalVfo(RigVfo vfo) => vfo;
+
     private void SelectVfoInternal(RigVfo vfo, bool force)
     {
         if (!force && _currentVfo == vfo && _transport is { IsOpen: true })
@@ -138,7 +141,8 @@ public abstract class IcomCivDriverBase : IRigDriver
             return;
         }
 
-        var cmd = vfo switch
+        var operational = MapOperationalVfo(vfo);
+        var cmd = operational switch
         {
             RigVfo.VfoA => new byte[] { 0x07, 0x00 },
             RigVfo.VfoB => new byte[] { 0x07, 0x01 },

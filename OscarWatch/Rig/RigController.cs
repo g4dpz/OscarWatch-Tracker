@@ -859,7 +859,7 @@ public sealed class RigController : IRigController, IDisposable
         _endpointFactory?.Invoke(endpoint) ?? RigDriverFactory.Create(endpoint);
 
     private static string EndpointConnectionKey(RigEndpointSettings endpoint) =>
-        $"{endpoint.Type}|{endpoint.Port}|{endpoint.BaudRate}|{endpoint.CatDelayMs}";
+        $"{endpoint.Type}|{endpoint.Port}|{endpoint.BaudRate}|{endpoint.CatDelayMs}|{endpoint.CivAddress}";
 
     private void RunPassInit(RigSettings settings, RigTrackingContext context)
     {

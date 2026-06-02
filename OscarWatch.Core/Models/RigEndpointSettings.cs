@@ -13,7 +13,10 @@ public sealed class RigEndpointSettings
 
     public int CatDelayMs { get; set; } = 50;
 
+    /// <summary>CI-V address as hex string (IC-705 default A4).</summary>
+    public string CivAddress { get; set; } = "";
+
     public bool IsConfigured =>
-        Type is RigType.YaesuFt817 or RigType.YaesuFt818
+        RigSettings.IsDualCapableEndpoint(Type)
         && !string.IsNullOrWhiteSpace(Port);
 }
