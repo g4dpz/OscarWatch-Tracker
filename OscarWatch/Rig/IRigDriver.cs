@@ -19,6 +19,11 @@ public interface IRigDriver : IDisposable
     void SetToneSquelchOn(bool on);
     void SetToneHz(double hz, bool squelchTone);
     bool SupportsTracking { get; }
+    /// <summary>
+    /// True when rig-specific satellite mode is currently active.
+    /// Drivers that do not expose/require explicit satellite-mode state return true.
+    /// </summary>
+    bool IsSatelliteModeActive => true;
     /// <summary>False when the radio cannot swap VFOs remotely (e.g. FT-847).</summary>
     bool SupportsVfoExchange => true;
 }

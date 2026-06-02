@@ -7,6 +7,7 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
 {
     public long FaHz { get; set; } = 435_750_000;
     public long FbHz { get; set; } = 145_900_000;
+    public bool SatelliteStatusOn { get; set; } = true;
     public List<string> SentCommands { get; } = [];
     public bool IsOpen { get; private set; }
 
@@ -26,9 +27,9 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
         SentCommands.Add(normalized);
         return normalized switch
         {
-            "SA10100000;" => "SA1;",
+            "SA10100000;" => SatelliteStatusOn ? "SA1;" : "SA0;",
             "SA0;" => "SA0;",
-            "SA;" => "SA1;",
+            "SA;" => SatelliteStatusOn ? "SA1;" : "SA0;",
             "FA;" => KenwoodCatCodec.BuildSetFrequencyCommand('A', FaHz),
             "FB;" => KenwoodCatCodec.BuildSetFrequencyCommand('B', FbHz),
             _ => normalized

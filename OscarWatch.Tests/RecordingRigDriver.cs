@@ -20,6 +20,7 @@ internal sealed class RecordingRigDriver : IRigDriver
     public RigType RigType => RigType.Dummy;
     public bool IsConnected => true;
     public bool SupportsTracking => true;
+    public bool IsSatelliteModeActive { get; set; } = true;
 
     public void Open() { }
 

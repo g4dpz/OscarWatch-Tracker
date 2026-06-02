@@ -35,6 +35,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     public RigType RigType => RigType.KenwoodTs2000;
     public bool IsConnected => _transport.IsOpen;
     public bool SupportsTracking => true;
+    public bool IsSatelliteModeActive => _satelliteMode;
     public bool SupportsVfoExchange => true;
 
     public void Open()
@@ -120,15 +121,16 @@ public sealed class KenwoodTs2000Driver : IRigDriver
 
     public void SetSatelliteMode(bool on)
     {
-        _satelliteMode = on;
         if (!_transport.IsOpen)
+        {
+            _satelliteMode = on;
             return;
+        }
 
         if (on)
         {
-            _transport.SendCommand(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
-            var reply = _transport.Transact(KenwoodCatCodec.BuildSatelliteStatusQuery(), _catDelayMs);
-            if (reply is null || !KenwoodCatCodec.TryParseSatelliteOn(reply))
+            _satelliteMode = TryEnableSatelliteMode();
+            if (!_satelliteMode)
             {
                 Log.Warning(
                     "TS-2000 did not confirm SATL (satellite) mode after SA command — check CAT and close any radio menu.");
@@ -137,6 +139,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
             return;
         }
 
+        _satelliteMode = false;
         _transport.SendCommand(KenwoodCatCodec.BuildSetSatelliteModeOffCommand(), _catDelayMs);
     }
 
@@ -249,5 +252,18 @@ public sealed class KenwoodTs2000Driver : IRigDriver
                 _lastVfoBHz = hz;
                 break;
         }
+    }
+
+    private bool TryEnableSatelliteMode()
+    {
+        for (var attempt = 0; attempt < 2; attempt++)
+        {
+            _transport.SendCommand(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
+            var reply = _transport.Transact(KenwoodCatCodec.BuildSatelliteStatusQuery(), _catDelayMs);
+            if (reply is not null && KenwoodCatCodec.TryParseSatelliteOn(reply))
+                return true;
+        }
+
+        return false;
     }
 }

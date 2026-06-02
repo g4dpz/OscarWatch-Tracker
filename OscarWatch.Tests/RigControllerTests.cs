@@ -171,6 +171,50 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Kenwood_satellite_mode_failure_falls_back_to_split_vfo()
+    {
+        var rig = new RecordingRigDriver { IsSatelliteModeActive = false };
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.KenwoodTs2000,
+            Port = "COM1",
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "Linear",
+            DownlinkKHz = 435_650,
+            UplinkKHz = 145_950,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB"
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "RS-44",
+                NoradId = "44909",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, 0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0)
+        };
+
+        controller.Update(settings, ctx);
+        controller.DrainCommandQueueForTests();
+
+        Assert.True(rig.SetSatelliteModeCallCount >= 2);
+        Assert.False(rig.LastSatelliteModeOn);
+        Assert.True(rig.SetSplitOnCallCount >= 1);
+        Assert.Equal(RigVfo.VfoB, rig.LastModeVfo);
+    }
+
+    [Fact]
     public void Reselect_same_pass_reruns_pass_init()
     {
         var rig = new RecordingRigDriver();

@@ -831,8 +831,16 @@ public sealed class RigController : IRigController, IDisposable
         else
         {
             _driver.SetSatelliteMode(true);
+            if (settings.Type == RigType.KenwoodTs2000 && !_driver.IsSatelliteModeActive)
+            {
+                Log.Warning("TS-2000 SATL did not engage; falling back to split VFO tracking.");
+                _driver.SetSatelliteMode(false);
+                _driver.SetSplitOn(true);
+                _useMainSub = false;
+            }
+
             // IC-910/9100/9700 reject split CI-V in satellite (Main/Sub) mode with NAK.
-            if (!IsIcomSatelliteLayoutRig(settings.Type))
+            if (_useMainSub && !IsIcomSatelliteLayoutRig(settings.Type))
                 _driver.SetSplitOn(false);
             Thread.Sleep(150);
         }

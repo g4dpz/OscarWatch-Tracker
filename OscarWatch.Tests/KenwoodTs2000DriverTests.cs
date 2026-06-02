@@ -30,6 +30,22 @@ public sealed class KenwoodTs2000DriverTests
     }
 
     [Fact]
+    public void SetSatelliteMode_on_not_confirmed_keeps_non_satellite_state()
+    {
+        var transport = new RecordingKenwoodCatTransport { SatelliteStatusOn = false };
+        var driver = new KenwoodTs2000Driver(transport);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        transport.SentCommands.Clear();
+
+        driver.SelectVfo(RigVfo.Sub);
+        driver.SetFrequencyHz(145_900_000);
+
+        Assert.Contains("FR1;", transport.SentCommands);
+        Assert.DoesNotContain(transport.SentCommands, c => c == "SA;");
+    }
+
+    [Fact]
     public void SetSatelliteMode_off_sends_SA0()
     {
         var transport = new RecordingKenwoodCatTransport();
