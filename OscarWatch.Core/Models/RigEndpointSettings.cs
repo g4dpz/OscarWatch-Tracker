@@ -7,7 +7,7 @@ public sealed class RigEndpointSettings
 
     public string Port { get; set; } = "";
 
-    public int BaudRate { get; set; } = 38400;
+    public int BaudRate { get; set; } = RigSettings.Ft817818DefaultBaudRate;
 
     public RigRegion Region { get; set; } = RigRegion.EU;
 

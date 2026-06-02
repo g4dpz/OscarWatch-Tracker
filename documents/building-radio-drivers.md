@@ -147,8 +147,11 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 
 ### Hardware checklist (FT-817 / FT-818)
 
-- Menu **#14** CAT rate matches Settings on **each** radio (typically **38400**).
-- **Dual radio (e.g. FT-818 pair):** enable **Settings → Radio → Dual radio**; downlink COM + uplink COM (+ rotator COM if used).
+- Enable **Settings → Radio → Dual radio**; configure downlink COM + uplink COM (and rotator on a third port if used).
+- Menu **#14** CAT rate on **each** radio must match Settings for that leg (OscarWatch suggests **4800**; **38400** also works).
+- OscarWatch uses **8N2** Yaesu CAT. One main VFO per radio — downlink for RX, uplink for TX + CTCSS.
+- **FM:** dial lock on via CAT while tracking. **USB/LSB/CW:** dial unlocked on downlink so you can scan the transponder; uplink doppler continues on the other radio.
+- On a real pass: both legs get doppler; CTCSS on uplink only (region selects tone vs TSQL).
 
 ## Reference: Kenwood TS-2000 (shipped, beta)
 

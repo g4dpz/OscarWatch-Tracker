@@ -249,10 +249,10 @@ public partial class SettingsViewModel : ViewModelBase
     private string? _selectedUplinkComPort;
 
     [ObservableProperty]
-    private int _downlinkBaudRate = 38400;
+    private int _downlinkBaudRate = RigSettings.Ft817818DefaultBaudRate;
 
     [ObservableProperty]
-    private int _uplinkBaudRate = 38400;
+    private int _uplinkBaudRate = RigSettings.Ft817818DefaultBaudRate;
 
     [ObservableProperty]
     private RigRegionOption? _selectedDownlinkRegionChoice;
@@ -575,8 +575,8 @@ public partial class SettingsViewModel : ViewModelBase
                 ?? RigDualTypeChoices[1];
             SelectedDownlinkComPort = string.IsNullOrWhiteSpace(down.Port) ? null : down.Port;
             SelectedUplinkComPort = string.IsNullOrWhiteSpace(up.Port) ? null : up.Port;
-            DownlinkBaudRate = down.BaudRate > 0 ? down.BaudRate : 38400;
-            UplinkBaudRate = up.BaudRate > 0 ? up.BaudRate : 38400;
+            DownlinkBaudRate = down.BaudRate > 0 ? down.BaudRate : RigSettings.Ft817818DefaultBaudRate;
+            UplinkBaudRate = up.BaudRate > 0 ? up.BaudRate : RigSettings.Ft817818DefaultBaudRate;
             SelectedDownlinkRegionChoice = RigRegionChoices.FirstOrDefault(o => o.Value == down.Region)
                 ?? RigRegionChoices[0];
             SelectedUplinkRegionChoice = RigRegionChoices.FirstOrDefault(o => o.Value == up.Region)
@@ -776,6 +776,26 @@ public partial class SettingsViewModel : ViewModelBase
         if (string.IsNullOrWhiteSpace(RigCivAddress)
             || RigCivAddress is "60" or "7C" or "A2")
             RigCivAddress = suggested;
+    }
+
+    partial void OnSelectedDownlinkRigTypeChoiceChanged(RigTypeOption? value)
+    {
+        OnPropertyChanged(nameof(ShowRigFt817CatHint));
+        if (_isSynchronizing || value is null)
+            return;
+
+        if (value.Value is RigType.YaesuFt817 or RigType.YaesuFt818)
+            DownlinkBaudRate = RigSettings.Ft817818DefaultBaudRate;
+    }
+
+    partial void OnSelectedUplinkRigTypeChoiceChanged(RigTypeOption? value)
+    {
+        OnPropertyChanged(nameof(ShowRigFt817CatHint));
+        if (_isSynchronizing || value is null)
+            return;
+
+        if (value.Value is RigType.YaesuFt817 or RigType.YaesuFt818)
+            UplinkBaudRate = RigSettings.Ft817818DefaultBaudRate;
     }
 
     private RigSettings BuildRigSettingsForConflictCheck() => new()

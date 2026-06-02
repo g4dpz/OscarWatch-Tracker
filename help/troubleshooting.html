@@ -90,6 +90,22 @@
         <li>On linear SSB/CW, check <a href="radio-rotator.html#doppler-cat-thresholds">Doppler thresholds</a> — very large values can make tracking look sluggish near TCA.</li>
       </ul>
 
+      <h2>Dual FT-817 / FT-818 not connecting</h2>
+      <ul>
+        <li>Enable <strong>Settings → Radio → Dual radio</strong> and set a COM port for both downlink and uplink.</li>
+        <li>FT-817/818 appear only in the dual-radio lists — not as a single-rig type.</li>
+        <li>Match menu <strong>#14</strong> baud on each radio to Settings on that leg (suggested <strong>4800</strong>; <strong>38400</strong> also works).</li>
+        <li>Close Hamlib or other CAT programs using either COM port before starting OscarWatch.</li>
+        <li>After switching from another rig (e.g. IC-910), quit OscarWatch, replug USB, and restart if CI-V or CAT stops responding.</li>
+      </ul>
+
+      <h2>FT-817 / FT-818: downlink stuck, uplink tracks</h2>
+      <ul>
+        <li>Use <strong>Full</strong> doppler in the frequency panel (not TX-only or RX-only).</li>
+        <li>On linear SSB, spin the downlink to find the signal, then pause ~1 s so passband trim is captured before doppler resumes.</li>
+        <li>On FM, the dial is locked via CAT during tracking — use Pause CAT in Settings if you need to tune manually.</li>
+      </ul>
+
       <h2>ICOM: radio stays on Sub or uplink lags after tuning</h2>
       <p>
         On IC-910 / IC-9700 / IC-9100 in satellite mode, OscarWatch keeps you on <strong>Main</strong> for

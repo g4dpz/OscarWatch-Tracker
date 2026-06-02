@@ -399,7 +399,7 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        IsVisible="{Binding ShowRigFt817CatHint}"
-                       Text="FT-817 / FT-818: enable Dual radio above. Match CAT baud to menu #14 (typically 38400) on each radio. One COM port per leg — downlink for RX, uplink for TX." />
+                       Text="FT-817 / FT-818: enable Dual radio above. Set menu #14 to 4800 baud on each radio (38400 also works). 8N2 CAT — one COM per leg. Linear: spin downlink for passband; FM locks dial while tracking." />
             <CheckBox Content="Linear CW: keep receive in USB/LSB (transmit CW only)"
                       IsChecked="{Binding RigCwKeepSidebandDownlink, Mode=TwoWay}"
                       Margin="0,8,0,0" />

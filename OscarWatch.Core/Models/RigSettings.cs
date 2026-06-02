@@ -2,6 +2,9 @@ namespace OscarWatch.Core.Models;
 
 public sealed class RigSettings
 {
+    /// <summary>Factory / Hamlib-style default CAT rate for FT-817 and FT-818 (menu #14).</summary>
+    public const int Ft817818DefaultBaudRate = 4800;
+
     public bool Enabled { get; set; }
 
     /// <summary>When true, downlink and uplink use separate radios (<see cref="Downlink"/> / <see cref="Uplink"/>).</summary>
@@ -54,7 +57,7 @@ public sealed class RigSettings
         DualRadioEnabled = true;
         Downlink.Type = Type;
         Downlink.Port = Port;
-        Downlink.BaudRate = BaudRate > 0 ? BaudRate : 38400;
+        Downlink.BaudRate = BaudRate > 0 ? BaudRate : Ft817818DefaultBaudRate;
         Downlink.Region = Region;
         Downlink.CatDelayMs = CatDelayMs;
         Type = RigType.None;

@@ -49,7 +49,7 @@
         <tbody>
           <tr><td>ICOM IC-910 / IC-9700 / IC-9100</td><td>CI-V, Main/Sub for cross-band; receive-only modes use <strong>Main</strong> on the downlink band (VHF or UHF) with SAT off</td></tr>
           <tr><td>Yaesu FT-847</td><td>Satellite CAT — SAT RX/TX VFOs, doppler, uplink CTCSS</td></tr>
-          <tr><td>Yaesu FT-817 / FT-818</td><td><strong>Dual radio only</strong> (Settings → Dual radio): one rig for downlink, one for uplink — each on its own COM port (e.g. two FT-818s)</td></tr>
+          <tr><td>Yaesu FT-817 / FT-818</td><td><strong>Dual radio only</strong> (Settings → Dual radio): downlink rig on one COM port, uplink on another — full doppler on both; linear SSB/CW lets you spin the <strong>downlink</strong> VFO for passband trim while uplink keeps tracking</td></tr>
           <tr><td>Kenwood TS-2000</td><td><strong>Before tracking:</strong> manually select <strong>SAT</strong> on the radio and turn <strong>memory mode off</strong> if it is on. OscarWatch then enables SATL via CAT, auto band swap via <code>FA</code>/<code>FB</code> exchange, linear CW uplink in SATL, TRACE off via CAT (beta)</td></tr>
           <tr><td>Dummy rig</td><td>No hardware — test UI and Doppler only</td></tr>
         </tbody>
@@ -64,6 +64,43 @@
         <strong>Linear CW: keep receive in USB/LSB</strong> — when the frequency panel is set to <strong>CW</strong> on a linear SSB transponder,
         checked (usual) sets transmit to CW and leaves receive in USB/LSB from the database; unchecked sets both VFOs to CW.
         See <a href="frequencies.html">Frequencies</a> for the panel <strong>Voice</strong> / <strong>CW</strong> buttons; see <a href="keyboard-shortcuts.html">Keyboard shortcuts</a> for <strong>Ctrl+W</strong>.
+      </p>
+
+      <h3 id="ft-817-dual-setup">Yaesu FT-817 / FT-818 (dual radio)</h3>
+      <p>
+        FT-817 and FT-818 are supported as a <strong>pair of radios</strong>, not as a single-rig split-VFO setup.
+        Typical layout: one radio receives the satellite downlink, the other transmits the uplink (often two FT-818s on VHF and UHF).
+      </p>
+      <ul>
+        <li>
+          Enable <strong>Settings → Radio → Dual radio</strong>, then configure <strong>Downlink</strong> and
+          <strong>Uplink</strong> separately (rig type FT-817 or FT-818, COM port, region, CAT delay).
+        </li>
+        <li>
+          Use a <strong>different COM port</strong> for each radio (and a third port for the rotator if used).
+          OscarWatch shows a warning if downlink and uplink share the same port.
+        </li>
+        <li>
+          Match <strong>menu #14</strong> CAT baud on each radio to Settings — OscarWatch suggests <strong>4800</strong>
+          (Hamlib default; <strong>38400</strong> also works). OscarWatch uses <strong>8N2</strong> serial framing for Yaesu CAT.
+        </li>
+        <li>
+          Each radio uses its <strong>main VFO</strong> only — no split CAT. Downlink gets RX mode and frequency; uplink gets TX mode,
+          frequency, and CTCSS (EU tone or US TSQL per region).
+        </li>
+        <li>
+          <strong>FM</strong> satellites: OscarWatch locks the front-panel dial via CAT on each radio while tracking (reduces knob
+          fights with doppler). <strong>USB/LSB/CW</strong>: dial lock is off so you can spin the downlink VFO across the transponder;
+          pause briefly (~1 s) when you find the signal so passband trim is captured, then doppler continues around your offset.
+        </li>
+        <li>
+          Choose <strong>Full</strong> doppler in the frequency panel for normal satellite passes (both legs corrected).
+        </li>
+      </ul>
+      <p>
+        If the sidebar shows <strong>Dual radio not connected</strong>, check both COM ports, baud on each radio, and that no other
+        program (e.g. Hamlib) has either port open. Quit other CAT tools, restart OscarWatch, and replug USB if CI-V stops responding
+        after switching from another rig.
       </p>
 
       <h3 id="ts-2000-setup">Kenwood TS-2000 setup</h3>
@@ -174,10 +211,12 @@
         <strong>eight</strong> stable dial reads (~800&nbsp;ms) before resuming automatic RX/TX Doppler writes.
       </p>
       <p>
-        On rigs that use <strong>Main/Sub</strong> (ICOM IC-910 / IC-9700 / IC-9100, Kenwood TS-2000 in SATL),
+        On rigs that use <strong>Main/Sub</strong> on one radio (ICOM IC-910 / IC-9700 / IC-9100, Kenwood TS-2000 in SATL),
         receive updates on Main as soon as the dial is stable. <strong>Uplink (Sub) CAT is deferred for about
         2.5 seconds</strong> after the last dial movement so brief pauses while scanning the passband do not
         hop the radio to Sub or fight your tuning. OscarWatch then returns the selected VFO to Main for receive.
+        On <strong>dual FT-817 / FT-818</strong>, downlink and uplink are separate radios: spinning the downlink pauses RX CAT
+        only; uplink doppler continues on the other radio.
         FM modes do not use this interactive path — both legs update automatically from the Doppler thresholds.
         If you are <strong>not</strong> tuning the passband (hands off the dial), linear modes track Doppler
         continuously like FM so CAT is not throttled by the stability wait after each frequency write.
