@@ -49,6 +49,7 @@ Reference implementations:
 |--------|----------|------|
 | Yaesu GS-232 / clones | `Waaa eee`, queries `C2`/`C`/`B` | [`Gs232Rotator.cs`](../OscarWatch/Rotator/Gs232Rotator.cs) |
 | EasyComm II | `AZxxx.x ELxx.x` | [`EasyCommRotator.cs`](../OscarWatch/Rotator/EasyCommRotator.cs) |
+| SPID Rot1Prog / Rot2Prog | 13-byte binary packets (stop/status/set) | [`SpidRotator.cs`](../OscarWatch/Rotator/SpidRotator.cs) |
 
 ## Serial I/O patterns
 

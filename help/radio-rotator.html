@@ -279,12 +279,14 @@
         </thead>
         <tbody>
           <tr><td>GS-232</td><td>Yaesu G-5500 and many clones</td></tr>
-          <tr><td>EasyComm II</td><td>SPID, M2, and similar</td></tr>
+          <tr><td>SPID</td><td>SPID Rot1Prog / Rot2Prog / rot2proG in <strong>SP</strong> mode (600 baud default; 1200 for Rot1Prog)</td></tr>
+          <tr><td>EasyComm II</td><td>Controllers in <strong>EC</strong> mode — SPID, M2, and similar</td></tr>
         </tbody>
       </table>
       <p>Configure under <strong>Settings → Rotator</strong>:</p>
       <ul>
         <li>COM port and rotator type.</li>
+        <li>For <strong>SPID</strong> native mode: set the controller to <strong>SP</strong> protocol and <strong>Auto (A)</strong> mode on the front panel before connecting.</li>
         <li><strong>Azimuth range</strong> 360° or 450° (G-5500 style).</li>
         <li><strong>Smart azimuth (450°)</strong> — shortest path across north when useful.</li>
         <li><strong>Track-start elevation</strong> — do not track below this angle (e.g. 0° or a few degrees).</li>
@@ -307,7 +309,7 @@
       <ul>
         <li>Enter <strong>Azimuth</strong> and <strong>Elevation</strong> (degrees), within your configured az/el limits.</li>
         <li><strong>Rotate</strong> — slews to the entered position.</li>
-        <li><strong>Stop</strong> — stops a slew in progress (GS-232 <code>S</code> command; EasyComm has no standard stop).</li>
+        <li><strong>Stop</strong> — stops a slew in progress (GS-232 <code>S</code> and SPID stop command; EasyComm has no standard stop).</li>
         <li><strong>Park</strong> — returns to your configured park position from Settings → Rotator.</li>
         <li><strong>Close</strong> — dismisses the dialog; the beam stays where you left it until you Park or Resume.</li>
       </ul>

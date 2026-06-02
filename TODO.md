@@ -40,6 +40,7 @@ See [building radio drivers](documents/building-radio-drivers.md) for adding rig
 
 See [building rotator drivers](documents/building-rotator-drivers.md).
 
+- [ ] **SPID LAN/TCP** — MD-01 and similar over Ethernet (TCP port 23); serial SPID (Rot1Prog / Rot2Prog) is implemented
 - [ ] **Slew lead / mechanical lag** — command slightly ahead of look angle
 - [ ] **Stop on park** — GS-232 `S` before park moves (Stop on disconnect/exit via driver dispose today)
 - [ ] Optional: minimum move / max slew rate limits

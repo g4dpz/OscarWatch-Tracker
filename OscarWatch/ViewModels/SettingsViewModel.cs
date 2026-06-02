@@ -169,13 +169,14 @@ public partial class SettingsViewModel : ViewModelBase
         new(TleAutoUpdateMode.EverySixHours, "Every 6 hours while running")
     ];
 
-    public int[] RotatorBaudRateOptions { get; } = [1200, 2400, 4800, 9600, 19200];
+    public int[] RotatorBaudRateOptions { get; } = [600, 1200, 2400, 4800, 9600, 19200];
 
     public int[] RigBaudRateOptions { get; } = [1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200];
 
     public IReadOnlyList<RotatorTypeOption> RotatorTypeChoices { get; } =
     [
         new(RotatorType.YaesuGs232, "Yaesu GS-232"),
+        new(RotatorType.Spid, "SPID (Rot1Prog / Rot2Prog)"),
         new(RotatorType.EasyComm, "EasyComm")
     ];
 
@@ -770,6 +771,15 @@ public partial class SettingsViewModel : ViewModelBase
     }
 
     partial void OnRotatorEnabledChanged(bool value) => RefreshComPortConflictIfReady();
+
+    partial void OnSelectedRotatorTypeChoiceChanged(RotatorTypeOption? value)
+    {
+        if (_isSynchronizing || value is null)
+            return;
+
+        if (value.Value == RotatorType.Spid)
+            RotatorBaudRate = 600;
+    }
 
     partial void OnSelectedAzimuthRangeChoiceChanged(RotatorAzimuthOption? value)
     {

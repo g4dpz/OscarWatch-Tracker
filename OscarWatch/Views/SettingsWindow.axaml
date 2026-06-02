@@ -479,7 +479,7 @@
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="GS-232 for Yaesu and many clones. EasyComm for SPID, M2, and other EasyComm-compatible controllers." />
+                       Text="GS-232 for Yaesu and clones. SPID for controllers in SP mode (Rot1Prog / Rot2Prog). EasyComm for EC mode — SPID, M2, and other text-protocol controllers." />
             <TextBlock Text="Serial port" />
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
               <ComboBox Grid.Column="0"
