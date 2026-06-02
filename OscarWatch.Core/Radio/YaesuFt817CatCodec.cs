@@ -8,8 +8,11 @@ public static class YaesuFt817CatCodec
 {
     public const int CommandLength = 5;
 
-    public static ReadOnlySpan<byte> CatOn => [0x00, 0x00, 0x00, 0x00, 0x00];
-    public static ReadOnlySpan<byte> CatOff => [0x00, 0x00, 0x00, 0x00, 0x80];
+    /// <summary>Dial/panel lock on (CAT opcode 0x00) — not a generic CAT session enable.</summary>
+    public static ReadOnlySpan<byte> DialLockOn => [0x00, 0x00, 0x00, 0x00, 0x00];
+
+    /// <summary>Dial/panel lock off (CAT opcode 0x80).</summary>
+    public static ReadOnlySpan<byte> DialLockOff => [0x00, 0x00, 0x00, 0x00, 0x80];
     public static ReadOnlySpan<byte> SplitOn => [0x00, 0x00, 0x00, 0x00, 0x02];
     public static ReadOnlySpan<byte> SplitOff => [0x00, 0x00, 0x00, 0x00, 0x82];
     public static ReadOnlySpan<byte> PollFreqMode => [0x00, 0x00, 0x00, 0x00, 0x03];
@@ -83,6 +86,12 @@ public static class YaesuFt817CatCodec
     {
         var modeByte = ResolveModeByte(mode, narrow);
         return [modeByte, 0x00, 0x00, 0x00, 0x07];
+    }
+
+    public static bool IsFmMode(string mode)
+    {
+        var upper = mode.Trim().ToUpperInvariant();
+        return upper is "FM" or "FMN";
     }
 
     public static byte[] BuildCtcssFrequencyCommand(double toneHz)

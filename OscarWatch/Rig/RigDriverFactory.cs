@@ -12,8 +12,14 @@ public static class RigDriverFactory
         return CreateSingle(settings.Type, settings.Port, settings.BaudRate, settings.Region, settings.CatDelayMs, settings.CivAddress);
     }
 
-    public static IRigDriver Create(RigEndpointSettings endpoint) =>
-        CreateSingle(endpoint.Type, endpoint.Port, endpoint.BaudRate, endpoint.Region, endpoint.CatDelayMs, civAddress: "60");
+    public static IRigDriver Create(RigEndpointSettings endpoint) => endpoint.Type switch
+    {
+        RigType.YaesuFt817 => new YaesuFt817Driver(
+            RigType.YaesuFt817, endpoint.Port, endpoint.BaudRate, endpoint.Region, endpoint.CatDelayMs),
+        RigType.YaesuFt818 => new YaesuFt818Driver(
+            endpoint.Port, endpoint.BaudRate, endpoint.Region, endpoint.CatDelayMs),
+        _ => CreateSingle(endpoint.Type, endpoint.Port, endpoint.BaudRate, endpoint.Region, endpoint.CatDelayMs, civAddress: "60")
+    };
 
     private static IRigDriver CreateSingle(
         RigType type,

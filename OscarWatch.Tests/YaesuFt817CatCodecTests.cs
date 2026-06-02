@@ -39,4 +39,13 @@ public sealed class YaesuFt817CatCodecTests
         Assert.Equal(0x02, YaesuFt817CatCodec.SplitOn[4]);
         Assert.Equal(0x82, YaesuFt817CatCodec.SplitOff[4]);
     }
+
+    [Theory]
+    [InlineData("FM", true)]
+    [InlineData("FMN", true)]
+    [InlineData("USB", false)]
+    [InlineData("LSB", false)]
+    [InlineData("CW", false)]
+    public void IsFmMode(string mode, bool expected) =>
+        Assert.Equal(expected, YaesuFt817CatCodec.IsFmMode(mode));
 }

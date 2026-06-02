@@ -7,13 +7,29 @@ namespace OscarWatch.Tests;
 public sealed class YaesuFt817DriverTests
 {
     [Fact]
-    public void Open_sends_cat_on()
+    public void Open_sends_dial_lock_off()
     {
         var transport = new RecordingYaesuCatTransport();
         var driver = new YaesuFt817Driver(RigType.YaesuFt817, transport);
         driver.Open();
 
-        Assert.Equal(YaesuFt817CatCodec.CatOn.ToArray(), transport.SentFrames[0]);
+        Assert.Equal(YaesuFt817CatCodec.DialLockOff.ToArray(), transport.SentFrames[0]);
+    }
+
+    [Fact]
+    public void SetMode_USB_unlocks_dial_SetMode_FM_locks_dial()
+    {
+        var transport = new RecordingYaesuCatTransport();
+        var driver = new YaesuFt817Driver(RigType.YaesuFt817, transport);
+        driver.Open();
+        transport.SentFrames.Clear();
+
+        driver.SetMode("USB");
+        Assert.Contains(transport.SentFrames, f => f.SequenceEqual(YaesuFt817CatCodec.DialLockOff.ToArray()));
+
+        transport.SentFrames.Clear();
+        driver.SetMode("FM");
+        Assert.Contains(transport.SentFrames, f => f.SequenceEqual(YaesuFt817CatCodec.DialLockOn.ToArray()));
     }
 
     [Fact]
@@ -62,7 +78,7 @@ public sealed class YaesuFt817DriverTests
         var driver = new YaesuFt817Driver(RigType.YaesuFt817, transport);
         driver.Open();
         driver.Dispose();
-        Assert.Contains(transport.SentFrames, f => f.SequenceEqual(YaesuFt817CatCodec.CatOff.ToArray()));
+        Assert.Contains(transport.SentFrames, f => f.SequenceEqual(YaesuFt817CatCodec.DialLockOff.ToArray()));
     }
 
 }

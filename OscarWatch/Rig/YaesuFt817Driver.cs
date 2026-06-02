@@ -56,7 +56,7 @@ public class YaesuFt817Driver : IRigDriver
     public void Open()
     {
         _transport.Open();
-        _transport.SendFrame(YaesuFt817CatCodec.CatOn, _catDelayMs);
+        SetDialLock(false);
         _onVfoB = false;
     }
 
@@ -108,6 +108,18 @@ public class YaesuFt817Driver : IRigDriver
         EnsureRadioVfo(IsVfoB(_currentVfo));
         var cmd = YaesuFt817CatCodec.BuildSetModeCommand(mode);
         _transport.SendFrame(cmd, _catDelayMs);
+        SetDialLock(YaesuFt817CatCodec.IsFmMode(mode));
+    }
+
+    /// <summary>Front-panel/dial lock (CAT 0x00 on / 0x80 off). FM tracking may lock; linear needs the knob free.</summary>
+    public void SetDialLock(bool on)
+    {
+        if (!_transport.IsOpen)
+            return;
+
+        _transport.SendFrame(
+            on ? YaesuFt817CatCodec.DialLockOn : YaesuFt817CatCodec.DialLockOff,
+            _catDelayMs);
     }
 
     public void SetSplitOn(bool on)
@@ -154,7 +166,7 @@ public class YaesuFt817Driver : IRigDriver
         try
         {
             if (_transport.IsOpen)
-                _transport.SendFrame(YaesuFt817CatCodec.CatOff, _catDelayMs);
+                SetDialLock(false);
         }
         catch (Exception ex)
         {

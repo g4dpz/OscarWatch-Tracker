@@ -426,7 +426,12 @@ public sealed class RigController : IRigController, IDisposable
             return;
 
         if (_interactive && SetupVfosPolicy.IsLinearMode(_cachedContext.Mode.DownlinkMode))
-            ProcessInteractiveLinear(_cachedSettings, _cachedContext);
+        {
+            if (_cachedSettings.DualRadioEnabled)
+                ProcessInteractiveLinearDual(_cachedSettings, _cachedContext);
+            else
+                ProcessInteractiveLinear(_cachedSettings, _cachedContext);
+        }
         else
             ProcessAutomaticDoppler(_cachedSettings, _cachedContext);
     }
@@ -448,6 +453,37 @@ public sealed class RigController : IRigController, IDisposable
             // Offset / strategy changes must apply immediately; failed doppler retries wait for a stable dial.
             if (!_forceFrequencyApply || !_blockKnobCapture)
                 return;
+
+            WriteDopplerFrequencies(settings, context);
+            return;
+        }
+
+        WriteDopplerFrequencies(settings, context);
+        RestoreOperatorVfo();
+    }
+
+    /// <summary>
+    /// Dual linear: downlink dial sets passband trim on the RX radio only; uplink keeps doppler while RX dial moves.
+    /// </summary>
+    private void ProcessInteractiveLinearDual(RigSettings settings, RigTrackingContext context)
+    {
+        SampleReceiveDial();
+
+        if (ShouldTrackDopplerAutomatically(context))
+        {
+            ProcessAutomaticDoppler(settings, context);
+            return;
+        }
+
+        SyncManualFromMainDial(context);
+
+        if (!_vfoNotMoving)
+        {
+            if (!_forceFrequencyApply || !_blockKnobCapture)
+            {
+                WriteDopplerFrequencies(settings, context, holdDownlinkCatWrites: true);
+                return;
+            }
 
             WriteDopplerFrequencies(settings, context);
             return;
@@ -524,10 +560,12 @@ public sealed class RigController : IRigController, IDisposable
         var threshold = KnobTuneThresholdHz();
 
         if (Math.Abs(dialHz - pureBaselineHz) < threshold
-            && (Math.Abs(_passbandDownlinkAdjustKHz) > 0.0001 || Math.Abs(_passbandUplinkAdjustKHz) > 0.0001))
+            && (Math.Abs(_passbandDownlinkAdjustKHz) > 0.0001
+                || (!_cachedSettings.DualRadioEnabled && Math.Abs(_passbandUplinkAdjustKHz) > 0.0001)))
         {
             _passbandDownlinkAdjustKHz = 0;
-            _passbandUplinkAdjustKHz = 0;
+            if (!_cachedSettings.DualRadioEnabled)
+                _passbandUplinkAdjustKHz = 0;
             _forceFrequencyApply = true;
             return;
         }
@@ -542,7 +580,12 @@ public sealed class RigController : IRigController, IDisposable
         var deltaKhz = deltaFromBaselineHz / 1000.0;
         double newDown;
         double newUp;
-        if (context.Mode.DopplerCorrection == DopplerCorrection.Reverse)
+        if (_cachedSettings.DualRadioEnabled)
+        {
+            newDown = _passbandDownlinkAdjustKHz + deltaKhz;
+            newUp = _passbandUplinkAdjustKHz;
+        }
+        else if (context.Mode.DopplerCorrection == DopplerCorrection.Reverse)
         {
             // REV: Main dial up → downlink nominal up, uplink nominal down.
             newDown = _passbandDownlinkAdjustKHz + deltaKhz;
@@ -645,7 +688,7 @@ public sealed class RigController : IRigController, IDisposable
         Array.Clear(_rxDialHistory);
     }
 
-    private void WriteDopplerFrequencies(RigSettings settings, RigTrackingContext context)
+    private void WriteDopplerFrequencies(RigSettings settings, RigTrackingContext context, bool holdDownlinkCatWrites = false)
     {
         var corrected = ComputeDoppler(context);
 
@@ -668,11 +711,14 @@ public sealed class RigController : IRigController, IDisposable
         var writeRx = correctRx && (forceApply || rxDelta > thresholdHz || thresholdHz == 0);
         var writeTx = correctTx && (forceApply || txDelta > thresholdHz || thresholdHz == 0);
 
+        if (holdDownlinkCatWrites)
+            writeRx = false;
+
         // Cross-band: keep RX/TX CAT in sync when either leg triggers (FM automatic, or linear interactive).
-        if (!forceApply && strategy == DopplerStrategy.Full)
+        if (!holdDownlinkCatWrites && !forceApply && strategy == DopplerStrategy.Full)
         {
-            var crossBand = !settings.DualRadioEnabled
-                && RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz);
+            var crossBand = settings.DualRadioEnabled
+                || RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz);
             if (crossBand)
             {
                 var companionHz = _interactive ? 0 : FmCompanionLegHz;
@@ -685,7 +731,7 @@ public sealed class RigController : IRigController, IDisposable
 
         var okRx = true;
         var okTx = true;
-        if (writeTx && _interactive && !CanWriteInteractiveSub())
+        if (writeTx && _interactive && !settings.DualRadioEnabled && !CanWriteInteractiveSub())
         {
             _forceFrequencyApply = true;
             writeTx = false;

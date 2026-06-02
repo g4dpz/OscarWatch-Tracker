@@ -143,6 +143,7 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 - **Dual radio only** (`RigSettings.DualRadioEnabled`): FT-817/FT-818 are not offered in the single-radio driver list. Each endpoint is one physical radio and one VFO (RX on downlink, TX + CTCSS on uplink). No split CAT is used in this layout.
 - `SupportsVfoExchange` is **false** — VFO B is selected with CAT opcode `0x81` before TX commands.
 - Cross-check against [Hamlib `ft817.c`](https://github.com/Hamlib/Hamlib/blob/master/rigs/yaesu/ft817.c).
+- CAT opcode **0x00** is **dial lock on**, **0x80** is lock off (not “CAT session on/off”). `Open()` unlocks the panel; `SetMode` locks on **FM/FMN** only so linear USB/LSB/CW can still be spun for passband trim.
 
 ### Hardware checklist (FT-817 / FT-818)
 
