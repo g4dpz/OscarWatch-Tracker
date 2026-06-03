@@ -7,5 +7,6 @@ Thank you to everyone who has donated to support OscarWatch development.
 | Joe | KE9AJ |
 | Abdel | M0NPT |
 | Dave | M0GIW / 5B4AOB |
+| Aquilino Torres Morales | HK3Z |
 
 If you donate and would like to be listed here, let Peter know your name and callsign.
