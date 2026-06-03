@@ -1,19 +1,20 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:loc="using:OscarWatch.Localization"
         x:Class="OscarWatch.Views.SatellitePickerWindow"
         x:DataType="vm:SatellitePickerViewModel"
-        Title="Select Satellites"
+        Title="{loc:Localize Key=Picker.Title}"
         Width="520" Height="560"
         WindowStartupLocation="CenterOwner">
   <DockPanel Margin="12">
     <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,8">
-      <TextBox Watermark="Search satellites…" Text="{Binding SearchText}" />
+      <TextBox Watermark="{loc:Localize Key=Picker.SearchWatermark}" Text="{Binding SearchText}" />
       <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="8">
-        <Button Content="Select All" Command="{Binding SelectAllCommand}" />
-        <Button Grid.Column="1" Content="Select None" Command="{Binding SelectNoneCommand}" />
+        <Button Content="{loc:Localize Key=Picker.SelectAll}" Command="{Binding SelectAllCommand}" />
+        <Button Grid.Column="1" Content="{loc:Localize Key=Picker.SelectNone}" Command="{Binding SelectNoneCommand}" />
         <Grid Grid.Column="2" ColumnDefinitions="Auto,*" ColumnSpacing="8">
-          <TextBlock Text="Show" VerticalAlignment="Center" />
+          <TextBlock Text="{loc:Localize Key=Common.Show}" VerticalAlignment="Center" />
           <ComboBox Grid.Column="1"
                     MinWidth="120"
                     ItemsSource="{Binding SelectionFilterChoices}"
@@ -28,8 +29,8 @@
       </Grid>
     </StackPanel>
     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,8,0,0">
-      <Button Content="Cancel" Classes="dialog-footer" Click="OnCancelClick" />
-      <Button Content="OK" Click="OnOkClick" Classes="accent" />
+      <Button Content="{loc:Localize Key=Common.Cancel}" Classes="dialog-footer" Click="OnCancelClick" />
+      <Button Content="{loc:Localize Key=Common.Ok}" Click="OnOkClick" Classes="accent" />
     </StackPanel>
     <ListBox ItemsSource="{Binding Satellites}" MinHeight="360">
       <ListBox.ItemTemplate>
@@ -44,7 +45,7 @@
                        FontWeight="SemiBold"
                        FontSize="12"
                        Foreground="{DynamicResource StaleTleForegroundBrush}"
-                       Text="Stale TLE"
+                       Text="{loc:Localize Key=Picker.StaleTle}"
                        IsVisible="{Binding IsStale}" />
           </StackPanel>
         </DataTemplate>

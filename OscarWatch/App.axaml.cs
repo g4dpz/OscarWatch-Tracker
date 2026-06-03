@@ -14,6 +14,7 @@ using OscarWatch.Rotator;
 using OscarWatch.Speech;
 using OscarWatch.Theme;
 using OscarWatch.Diagnostics;
+using OscarWatch.Localization;
 using OscarWatch.ViewModels;
 using Serilog;
 
@@ -52,6 +53,7 @@ public partial class App : Application
                 sp.GetRequiredService<ISatelliteDatabaseService>(),
                 bundledDb));
         services.AddSingleton<ISatelliteDatabaseSyncService, SatelliteDatabaseSyncService>();
+        services.AddSingleton<ILocalizationService>(LocalizationService.Instance);
         services.AddSingleton<FrequencyOverlayViewModel>();
         services.AddSingleton<DxStationOverlayViewModel>();
         services.AddSingleton<TrackingOrchestrator>();
@@ -71,6 +73,7 @@ public partial class App : Application
 
         var settings = Services.GetRequiredService<ISettingsService>();
         settings.Load();
+        LocalizationCulture.ApplyFromSettings(settings);
         AppThemeManager.Apply(settings.Current.Theme);
         AccessibilityThemeResources.Install();
 

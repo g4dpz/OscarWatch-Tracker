@@ -13,7 +13,10 @@ public static class AddSatelliteFromTleDialog
         CancellationToken cancellationToken = default)
     {
         await tleService.EnsureLoadedAsync(cancellationToken).ConfigureAwait(true);
-        var vm = new AddSatelliteFromTleViewModel(tleService.Catalog, existingNames);
+        var vm = new AddSatelliteFromTleViewModel(
+            tleService.Catalog,
+            existingNames,
+            Localization.LocalizationService.Instance);
         var window = new AddSatelliteFromTleWindow { DataContext = vm };
         return await window.ShowDialog<string?>(owner).ConfigureAwait(true);
     }

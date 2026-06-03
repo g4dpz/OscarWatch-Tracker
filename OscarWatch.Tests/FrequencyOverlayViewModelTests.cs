@@ -1,6 +1,7 @@
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
+using OscarWatch.Localization;
 using OscarWatch.ViewModels;
 
 namespace OscarWatch.Tests;
@@ -49,7 +50,7 @@ public class FrequencyOverlayViewModelTests
             }
         ]);
 
-        var vm = new FrequencyOverlayViewModel(settings, database);
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
         vm.Update(new SatelliteTrackState
         {
             Name = "RS-44",
@@ -102,7 +103,7 @@ public class FrequencyOverlayViewModelTests
             }
         ]);
 
-        var vm = new FrequencyOverlayViewModel(settings, database);
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
         vm.Update(new SatelliteTrackState
         {
             Name = "RS-44",
@@ -135,7 +136,7 @@ public class FrequencyOverlayViewModelTests
         settings.Current.FrequencyOverlayX = 500;
         settings.Current.FrequencyOverlayY = 900;
         var database = new TestSatelliteDatabaseService([]);
-        var vm = new FrequencyOverlayViewModel(settings, database);
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
 
         vm.EnsureOverlayWithinHost(800, 600, 400, 300);
 
@@ -169,7 +170,7 @@ public class FrequencyOverlayViewModelTests
             }
         ]);
 
-        var vm = new FrequencyOverlayViewModel(settings, database);
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
         Assert.False(vm.IsCollapsed);
 
         vm.Update(new SatelliteTrackState
@@ -219,7 +220,7 @@ public class FrequencyOverlayViewModelTests
             }
         ]);
 
-        var vm = new FrequencyOverlayViewModel(settings, database);
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
         vm.Update(new SatelliteTrackState
         {
             Name = "JO-97",
@@ -284,7 +285,7 @@ public class FrequencyOverlayViewModelTests
             }
         ]);
 
-        var vm = new FrequencyOverlayViewModel(settings, database);
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
         vm.Update(new SatelliteTrackState
         {
             Name = "JO-97",
@@ -333,7 +334,7 @@ public class FrequencyOverlayViewModelTests
             }
         ]);
 
-        var vm = new FrequencyOverlayViewModel(settings, database);
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
         vm.Update(new SatelliteTrackState
         {
             Name = "JO-97",
@@ -383,7 +384,7 @@ public class FrequencyOverlayViewModelTests
             }
         ]);
 
-        var vm = new FrequencyOverlayViewModel(settings, database);
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
         vm.Update(new SatelliteTrackState
         {
             Name = "RS-44",

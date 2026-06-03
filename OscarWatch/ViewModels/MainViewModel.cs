@@ -12,6 +12,7 @@ using OscarWatch.Core.Services;
 using OscarWatch.Theme;
 using OscarWatch.Diagnostics;
 using OscarWatch.Help;
+using OscarWatch.Localization;
 using OscarWatch.Views;
 using Serilog;
 
@@ -33,6 +34,7 @@ public partial class MainViewModel : ViewModelBase
     private readonly IRigController _rig;
     private readonly ICloudlogRadioSyncService _cloudlog;
     private readonly ISatelliteDatabaseSyncService _transponderDatabaseSync;
+    private readonly ILocalizationService _l;
     private readonly DispatcherTimer _timer;
     private string? _lastCloudlogErrorShown;
     private string? _recordingPassNoradId;
@@ -53,7 +55,7 @@ public partial class MainViewModel : ViewModelBase
     /// <summary>Coalesce spinner clicks into one CAT write after the user pauses.</summary>
 
     [ObservableProperty]
-    private string _statusText = "Starting…";
+    private string _statusText = "";
 
     [ObservableProperty]
     private string _utcClock = "";
@@ -100,7 +102,9 @@ public partial class MainViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(RotatorParkButtonText))]
     private bool _isRotatorParked;
 
-    public string RotatorParkButtonText => IsRotatorParked ? "Parked" : "Park";
+    public string RotatorParkButtonText => IsRotatorParked
+        ? _l.Get("Main.Rotator.Parked")
+        : _l.Get("Main.Rotator.Park");
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ParkRotatorCommand))]
@@ -114,7 +118,9 @@ public partial class MainViewModel : ViewModelBase
     [NotifyCanExecuteChangedFor(nameof(OpenRotatorManualCommand))]
     private bool _isStandby;
 
-    public string StandbyButtonText => IsStandby ? "Resume" : "Standby";
+    public string StandbyButtonText => IsStandby
+        ? _l.Get("Main.Standby.Resume")
+        : _l.Get("Main.Standby.Pause");
 
     public bool ShowRotatorMenuItem => IsStandby && _settings.Current.Rotator.Enabled;
 
@@ -137,7 +143,9 @@ public partial class MainViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(RigCatPauseButtonText))]
     private bool _rigCatPaused;
 
-    public string RigCatPauseButtonText => RigCatPaused ? "Resume CAT" : "Pause CAT";
+    public string RigCatPauseButtonText => RigCatPaused
+        ? _l.Get("Main.Radio.CatResume")
+        : _l.Get("Main.Radio.CatPause");
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ToggleRigCatPauseCommand))]
@@ -184,14 +192,15 @@ public partial class MainViewModel : ViewModelBase
         get
         {
             if (!IsMapTimeScrubbing)
-                return "Live";
+                return _l.Get("Main.MapTimeStatus.Live");
 
             var offset = TimeSpan.FromMinutes(MapTimeOffsetMinutes);
             var sign = offset >= TimeSpan.Zero ? "+" : "−";
             var magnitude = offset.Duration();
-            return magnitude >= TimeSpan.FromHours(1)
-                ? $"{sign}{magnitude:h\\:mm\\:ss} from now"
-                : $"{sign}{magnitude:m\\:ss} from now";
+            var spanText = magnitude >= TimeSpan.FromHours(1)
+                ? $"{sign}{magnitude:h\\:mm\\:ss}"
+                : $"{sign}{magnitude:m\\:ss}";
+            return _l.Get("MapTime.FromNow", spanText);
         }
     }
 
@@ -209,9 +218,12 @@ public partial class MainViewModel : ViewModelBase
         IRigController rig,
         ICloudlogRadioSyncService cloudlog,
         ISatelliteDatabaseSyncService transponderDatabaseSync,
+        ILocalizationService localization,
         FrequencyOverlayViewModel frequencies,
         DxStationOverlayViewModel dxStation)
     {
+        _l = localization;
+        _statusText = _l.Get("Status.LoadingSettings");
         _settings = settings;
         _tleService = tleService;
         _tracking = tracking;
@@ -277,7 +289,7 @@ public partial class MainViewModel : ViewModelBase
 
     public async Task InitializeAsync()
     {
-        StatusText = "Loading settings…";
+        StatusText = _l.Get("Status.LoadingSettingsFull");
         await _settings.LoadAsync().ConfigureAwait(true);
         AppThemeManager.Apply(_settings.Current.Theme);
         RefreshGroundStationFromSettings();
@@ -285,7 +297,7 @@ public partial class MainViewModel : ViewModelBase
         IsSkyPlotExpanded = _settings.Current.SkyPlotExpanded;
         RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
 
-        StatusText = "Loading TLE catalog…";
+        StatusText = _l.Get("Status.LoadingTle");
         await _tleService.EnsureLoadedAsync().ConfigureAwait(true);
 
         if (TleSourceResolver.UsesNetwork(_settings.Current.TleSource)
@@ -293,13 +305,13 @@ public partial class MainViewModel : ViewModelBase
         {
             try
             {
-                StatusText = "Refreshing TLEs…";
+                StatusText = _l.Get("Status.RefreshingTle");
                 await _tleService.RefreshAsync().ConfigureAwait(true);
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "TLE refresh failed during startup");
-                StatusText = $"TLE refresh failed: {ex.Message}";
+                StatusText = _l.Get("Status.TleRefreshFailed", ex.Message);
             }
         }
 
@@ -310,7 +322,7 @@ public partial class MainViewModel : ViewModelBase
         ConfigurePassListRefreshTimer();
         _liveDisplayTimer?.Start();
 
-        StatusText = "Computing passes…";
+        StatusText = _l.Get("Status.ComputingPasses");
         await RefreshPassesAsync().ConfigureAwait(true);
         UpdateStatus();
         Tick();
@@ -477,7 +489,7 @@ public partial class MainViewModel : ViewModelBase
         if (!string.IsNullOrEmpty(error) && !string.Equals(_lastCloudlogErrorShown, error, StringComparison.Ordinal))
         {
             _lastCloudlogErrorShown = error;
-            StatusText = $"Cloudlog: {error}";
+            StatusText = _l.Get("Status.CloudlogError", error);
         }
         else if (string.IsNullOrEmpty(error))
             _lastCloudlogErrorShown = null;
@@ -489,7 +501,7 @@ public partial class MainViewModel : ViewModelBase
             _settings.Current.Rotator,
             _settings.Current.Rig,
             out var message);
-        ComPortConflictText = message;
+        ComPortConflictText = ComPortConflictLocalizer.Localize(message, _l);
     }
 
     partial void OnRigCatPausedChanged(bool value)
@@ -634,9 +646,62 @@ public partial class MainViewModel : ViewModelBase
         }
 
         status ??= _rig.GetStatus();
-        RigStatusText = status.StatusMessage ?? (status.IsConnected ? "Connected" : "Disconnected");
+        RigStatusText = LocalizeRigStatusText(status);
         RigReceiveText = FormatSidebarFrequency(status.LastReceiveHz, Frequencies.RadioReceiveText, status.IsConnected);
         RigTransmitText = FormatSidebarFrequency(status.LastTransmitHz, Frequencies.RadioTransmitText, status.IsConnected);
+    }
+
+    private string LocalizeRigStatusText(RigConnectionStatus status)
+    {
+        var message = status.StatusMessage;
+        if (string.IsNullOrWhiteSpace(message))
+            return status.IsConnected ? _l.Get("Rig.Connected") : _l.Get("Rig.Disconnected");
+
+        if (message == "Connected")
+            return _l.Get("Rig.Connected");
+
+        if (message == "CAT paused (manual tuning)")
+            return _l.Get("Rig.CatPaused");
+
+        if (message == "Tracking")
+            return _l.Get("Rig.Tracking");
+
+        if (message == "No COM port selected")
+            return _l.Get("Rig.NoComPort");
+
+        if (message == "Select COM ports for downlink and uplink radios")
+            return _l.Get("Rig.SelectDualComPorts");
+
+        if (message == "Dual radio not connected")
+            return _l.Get("Rig.DualNotConnected");
+
+        if (message == "Rig not connected")
+            return _l.Get("Rig.NotConnected");
+
+        if (message.StartsWith("Dual radio not connected: ", StringComparison.Ordinal))
+            return _l.Get("Rig.DualNotConnectedDetail", message["Dual radio not connected: ".Length..]);
+
+        if (message.StartsWith("Rig not connected: ", StringComparison.Ordinal))
+            return _l.Get("Rig.NotConnectedDetail", message["Rig not connected: ".Length..]);
+
+        const string portPrefix = "Rig not connected (";
+        if (message.StartsWith(portPrefix, StringComparison.Ordinal) && message.EndsWith(')'))
+        {
+            var inner = message[portPrefix.Length..^1];
+            if (!message.Contains(": ", StringComparison.Ordinal))
+                return _l.Get("Rig.NotConnectedPort", inner);
+        }
+
+        const string portDetailSep = "): ";
+        var portDetailIdx = message.IndexOf(portDetailSep, StringComparison.Ordinal);
+        if (portDetailIdx > 0 && message.StartsWith(portPrefix, StringComparison.Ordinal))
+        {
+            var port = message[portPrefix.Length..portDetailIdx];
+            var detail = message[(portDetailIdx + portDetailSep.Length)..];
+            return _l.Get("Rig.NotConnectedPortDetail", port, detail);
+        }
+
+        return message;
     }
 
     private static string FormatSidebarFrequency(long? rigHz, string overlayText, bool rigConnected)
@@ -857,7 +922,7 @@ public partial class MainViewModel : ViewModelBase
         if (target.LookAngles is not { } la)
         {
             AzimuthText = "—";
-            ElevationText = "below horizon";
+            ElevationText = _l.Get("Main.Elevation.BelowHorizon");
             RangeText = "—";
             return;
         }
@@ -929,16 +994,16 @@ public partial class MainViewModel : ViewModelBase
         var next = Passes.OfType<PassRowViewModel>().FirstOrDefault();
         if (next is null)
         {
-            NextPassText = "No upcoming passes";
+            NextPassText = _l.Get("Main.Pass.None");
             return;
         }
 
         var aos = next.AosUtc;
         var delta = aos - DateTime.UtcNow;
         if (delta.TotalSeconds < 0)
-            NextPassText = $"{next.SatelliteName} — in progress";
+            NextPassText = _l.Get("Main.Pass.InProgress", next.SatelliteName);
         else
-            NextPassText = $"{next.SatelliteName} AOS in {delta:hh\\:mm\\:ss}";
+            NextPassText = _l.Get("Main.Pass.AosIn", next.SatelliteName, delta.ToString(@"hh\:mm\:ss"));
     }
 
     private void UpdateStatus()
@@ -946,15 +1011,20 @@ public partial class MainViewModel : ViewModelBase
         var catalogCount = _tleService.Catalog.Count;
         var count = _tleService.GetEnabledSatellites(_settings.Current).Count;
         var source = _tleService.ActiveSourceLabel;
-        var tleAge = _tleService.LastFetchedUtc.HasValue
-            ? $"TLE {DateTime.UtcNow - _tleService.LastFetchedUtc.Value:hh\\:mm} ago ({source})"
-            : catalogCount > 0 ? $"TLE cached ({source})" : "TLE not loaded";
+        var ageSpan = _tleService.LastFetchedUtc.HasValue
+            ? (DateTime.UtcNow - _tleService.LastFetchedUtc.Value).ToString(@"hh\:mm")
+            : null;
+        var tleAge = ageSpan is not null
+            ? _l.Get("Status.TleAge", ageSpan, source)
+            : catalogCount > 0
+                ? _l.Get("Status.TleCached", source)
+                : _l.Get("Status.TleNotLoadedShort");
 
         StatusText = catalogCount == 0
-            ? "No TLE data — check Settings → TLE or use Satellites → Refresh TLEs"
+            ? _l.Get("Status.NoTle")
             : count == 0
-                ? $"{tleAge} | 0 enabled — Satellites menu → enable some"
-                : $"{tleAge} | {count} satellite(s) enabled";
+                ? _l.Get("Status.LineNoSatellites", tleAge)
+                : _l.Get("Status.SatellitesEnabled", tleAge, count);
     }
 
     [RelayCommand]
@@ -1069,21 +1139,21 @@ public partial class MainViewModel : ViewModelBase
         _tleService.InvalidateCatalog();
         try
         {
-            StatusText = "Loading TLE catalog…";
+            StatusText = _l.Get("Status.LoadingTle");
             await _tleService.EnsureLoadedAsync().ConfigureAwait(true);
 
             var source = _settings.Current.TleSource;
             if (TleSourceResolver.UsesNetwork(source)
                 || !string.IsNullOrWhiteSpace(TleSourceResolver.TryGetLocalFilePath(source)))
             {
-                StatusText = "Refreshing TLEs…";
+                StatusText = _l.Get("Status.RefreshingTle");
                 await _tleService.RefreshAsync().ConfigureAwait(true);
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "TLE reload after settings failed");
-            StatusText = $"TLE reload failed: {ex.Message}";
+            StatusText = _l.Get("Status.TleReloadFailed", ex.Message);
         }
     }
 
@@ -1104,14 +1174,14 @@ public partial class MainViewModel : ViewModelBase
 
         try
         {
-            StatusText = "Refreshing TLEs…";
+            StatusText = _l.Get("Status.RefreshingTle");
             await _tleService.RefreshAsync().ConfigureAwait(true);
             _liveTracking.RequestReload();
         }
         catch (Exception ex)
         {
             Log.Error(ex, "TLE auto-refresh failed");
-            StatusText = $"TLE refresh failed: {ex.Message}";
+            StatusText = _l.Get("Status.TleRefreshFailed", ex.Message);
         }
     }
 
@@ -1156,7 +1226,7 @@ public partial class MainViewModel : ViewModelBase
         catch (Exception ex)
         {
             Log.Warning(ex, "Could not open recordings directory");
-            StatusText = "Could not open recordings folder";
+            StatusText = _l.Get("Status.RecordingsFolderFailed");
         }
     }
 
@@ -1170,7 +1240,7 @@ public partial class MainViewModel : ViewModelBase
         catch (Exception ex)
         {
             Log.Warning(ex, "Could not open log directory");
-            StatusText = "Could not open log folder";
+            StatusText = _l.Get("Status.LogsFolderFailed");
         }
     }
 
@@ -1181,14 +1251,14 @@ public partial class MainViewModel : ViewModelBase
             return;
 
         Log.Warning("Help folder not found next to the application");
-        StatusText = "Help files not found — reinstall or run from a published build";
+        StatusText = _l.Get("Status.HelpMissing");
     }
 
     [RelayCommand]
     private async Task OpenSatellitesAsync()
     {
         await _tleService.EnsureLoadedAsync();
-        var vm = new SatellitePickerViewModel(_settings, _tleService);
+        var vm = App.Services.GetRequiredService<SatellitePickerViewModel>();
         var window = new SatellitePickerWindow { DataContext = vm };
         var saved = App.MainWindow is not null
             && await window.ShowDialog<bool>(App.MainWindow);
@@ -1227,12 +1297,12 @@ public partial class MainViewModel : ViewModelBase
 
         try
         {
-            StatusText = "Checking transponder database…";
+            StatusText = _l.Get("Status.TransponderChecking");
             var plan = await _transponderDatabaseSync.FetchMergePlanAsync().ConfigureAwait(true);
             if (!plan.HasChanges)
             {
                 if (showWhenUpToDate)
-                    StatusText = "Transponder database is up to date.";
+                    StatusText = _l.Get("Status.TransponderUpToDate");
                 else
                     UpdateStatus();
 
@@ -1243,7 +1313,7 @@ public partial class MainViewModel : ViewModelBase
             {
                 Frequencies.ReloadFromDatabase();
                 Tick();
-                StatusText = "Transponder database updated.";
+                StatusText = _l.Get("Status.TransponderUpdated");
             }
             else
             {
@@ -1254,7 +1324,7 @@ public partial class MainViewModel : ViewModelBase
         {
             Log.Warning(ex, "Transponder database update check failed");
             if (showWhenUpToDate)
-                StatusText = $"Transponder update failed: {ex.Message}";
+                StatusText = _l.Get("Status.TransponderUpdateFailed", ex.Message);
             else
                 UpdateStatus();
         }
@@ -1314,6 +1384,7 @@ public sealed class PassDayHeaderViewModel : IPassListItem
 
 public partial class PassRowViewModel : ObservableObject, IPassListItem
 {
+    private static ILocalizationService L => LocalizationService.Instance;
     [ObservableProperty]
     private PassRowHighlight _highlight;
 
@@ -1339,8 +1410,9 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
         {
             if (Highlight != PassRowHighlight.Recording)
                 Highlight = PassRowHighlight.Recording;
-            if (BadgeText != "REC")
-                BadgeText = "REC";
+            var recLabel = L.Get("Pass.Rec");
+            if (BadgeText != recLabel)
+                BadgeText = recLabel;
             if (!ShowBadge)
                 ShowBadge = true;
             return;
@@ -1375,7 +1447,7 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
             }
             case PassRowHighlight.InProgress:
             {
-                const string passingLabel = "Passing";
+                var passingLabel = L.Get("Pass.Passing");
                 if (BadgeText != passingLabel)
                     BadgeText = passingLabel;
                 if (!ShowBadge)
@@ -1404,8 +1476,25 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
             AosLocal = aos,
             LosLocal = los,
             TcaLocal = PassDisplayFormat.FormatLocal(p.MaxElevationUtc),
-            TimeRangeLine = PassDisplayFormat.FormatTimeRangeLine(p.AosUtc, p.LosUtc),
-            DetailsLine = PassDisplayFormat.FormatDetailsLine(p.MaxElevationDeg, p.Duration)
+            TimeRangeLine = FormatPassTimeRangeLine(p.AosUtc, p.LosUtc),
+            DetailsLine = FormatPassDetailsLine(p.MaxElevationDeg, p.Duration)
         };
+    }
+
+    private static string FormatPassTimeRangeLine(DateTime aosUtc, DateTime losUtc)
+    {
+        var (aos, los) = PassDisplayFormat.FormatLocalTimes(aosUtc, losUtc);
+        return L.Get("Pass.TimeRange", aos, los);
+    }
+
+    private static string FormatPassDetailsLine(double maxElevationDeg, TimeSpan duration)
+    {
+        var minutes = duration.TotalSeconds < 30
+            ? 0
+            : (int)Math.Round(duration.TotalMinutes, MidpointRounding.AwayFromZero);
+        var durationText = minutes == 1
+            ? L.Get("Pass.DurationOneMinute")
+            : L.Get("Pass.DurationMinutes", minutes);
+        return L.Get("Pass.Details", durationText, $"{maxElevationDeg:F0}°");
     }
 }

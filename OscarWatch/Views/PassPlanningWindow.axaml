@@ -1,10 +1,11 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:loc="using:OscarWatch.Localization"
         xmlns:models="using:OscarWatch.Core.Models"
         x:Class="OscarWatch.Views.PassPlanningWindow"
         x:DataType="vm:PassPlanningViewModel"
-        Title="Pass planner"
+        Title="{loc:Localize Key=Window.PassPlanner.Title}"
         Width="820" Height="560"
         MinWidth="640" MinHeight="420"
         WindowStartupLocation="CenterOwner">
@@ -26,8 +27,8 @@
                    VerticalAlignment="Center"
                    Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-          <Button Content="Use as active station" Click="OnUseActiveClick" Classes="accent" />
-          <Button Content="Close" Click="OnCloseClick" MinWidth="80" />
+          <Button Content="{loc:Localize Key=Planner.UseActiveStation}" Click="OnUseActiveClick" Classes="accent" />
+          <Button Content="{loc:Localize Key=Common.Close}" Click="OnCloseClick" MinWidth="80" />
         </StackPanel>
       </Grid>
     </Border>
@@ -35,7 +36,7 @@
     <Grid RowDefinitions="Auto,*"
           HorizontalAlignment="Stretch">
       <Expander Grid.Row="0"
-                Header="Station &amp; filters"
+                Header="{loc:Localize Key=Planner.Section.StationFilters}"
                 IsExpanded="True"
                 Padding="0,0,0,8"
                 HorizontalAlignment="Stretch"
@@ -59,15 +60,15 @@
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
-            <Button Grid.Column="1" Content="Add" Command="{Binding AddStationCommand}" />
+            <Button Grid.Column="1" Content="{loc:Localize Key=Common.Add}" Command="{Binding AddStationCommand}" />
             <Button Grid.Column="2"
-                    Content="Delete"
+                    Content="{loc:Localize Key=Common.Delete}"
                     Command="{Binding DeleteStationCommand}"
                     IsEnabled="{Binding CanDeleteStation}" />
             <TextBox Grid.Column="3"
                      HorizontalAlignment="Stretch"
                      MinWidth="0"
-                     Watermark="Display name"
+                     Watermark="{loc:Localize Key=Planner.DisplayNameWatermark}"
                      Text="{Binding StationDisplayName, Mode=TwoWay}" />
           </Grid>
 
@@ -76,33 +77,33 @@
                 HorizontalAlignment="Stretch"
                 MinWidth="0">
             <StackPanel Grid.Column="0" Spacing="2" MinWidth="0">
-              <TextBlock Text="Latitude (°)" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+              <TextBlock Text="{loc:Localize Key=Settings.Station.Latitude}" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
               <NumericUpDown HorizontalAlignment="Stretch"
                              Value="{Binding StationLatitudeDeg, Mode=TwoWay}"
                              Minimum="-90" Maximum="90"
                              FormatString="F4" />
             </StackPanel>
             <StackPanel Grid.Column="1" Spacing="2" MinWidth="0">
-              <TextBlock Text="Longitude (°)" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+              <TextBlock Text="{loc:Localize Key=Settings.Station.Longitude}" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
               <NumericUpDown HorizontalAlignment="Stretch"
                              Value="{Binding StationLongitudeDeg, Mode=TwoWay}"
                              Minimum="-180" Maximum="180"
                              FormatString="F4" />
             </StackPanel>
             <StackPanel Grid.Column="2" Spacing="2" MinWidth="0">
-              <TextBlock Text="Maidenhead" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+              <TextBlock Text="{loc:Localize Key=Planner.Maidenhead}" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
               <TextBox HorizontalAlignment="Stretch"
                        Text="{Binding StationGridSquare, Mode=TwoWay}" MaxLength="8" />
             </StackPanel>
             <StackPanel Grid.Column="3" Spacing="2" MinWidth="0">
-              <TextBlock Text="Alt ASL (m)" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+              <TextBlock Text="{loc:Localize Key=Planner.AltAsl}" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
               <NumericUpDown HorizontalAlignment="Stretch"
                              Value="{Binding StationAltitudeMeters, Mode=TwoWay}"
                              Minimum="0" Maximum="9000"
                              Increment="0.1" FormatString="F1" />
             </StackPanel>
             <Button Grid.Column="4"
-                    Content="Refresh passes"
+                    Content="{loc:Localize Key=Planner.RefreshPasses}"
                     Command="{Binding RefreshPassesCommand}"
                     VerticalAlignment="Bottom"
                     MinWidth="110" />
@@ -113,36 +114,40 @@
                 HorizontalAlignment="Stretch"
                 MinWidth="0">
             <StackPanel Grid.Column="0" Spacing="2" MinWidth="0">
-              <TextBlock Text="Min elevation (°)" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+              <TextBlock Text="{loc:Localize Key=Pass.MinElevation}" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
               <NumericUpDown HorizontalAlignment="Stretch"
                              Value="{Binding FilterMinElevationDeg, Mode=TwoWay}"
                              Minimum="0" Maximum="90" FormatString="F1" />
             </StackPanel>
             <StackPanel Grid.Column="1" Spacing="2" MinWidth="0">
-              <TextBlock Text="Min duration (min)" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+              <TextBlock Text="{loc:Localize Key=Pass.MinDuration}" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
               <NumericUpDown HorizontalAlignment="Stretch"
                              Value="{Binding FilterMinDurationMinutes, Mode=TwoWay}"
                              Minimum="0" Maximum="60" FormatString="0" />
             </StackPanel>
             <StackPanel Grid.Column="2" Spacing="2" MinWidth="0">
-              <TextBlock Text="Hours ahead" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+              <TextBlock Text="{loc:Localize Key=Pass.HoursAhead}" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
               <NumericUpDown HorizontalAlignment="Stretch"
                              Value="{Binding FilterPredictionHours, Mode=TwoWay}"
                              Minimum="6" Maximum="168" FormatString="0" />
             </StackPanel>
             <StackPanel Grid.Column="3" Spacing="2" MinWidth="0">
-              <TextBlock Text="Times shown in" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+              <TextBlock Text="{loc:Localize Key=Pass.TimesShownIn}" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
               <ComboBox HorizontalAlignment="Stretch"
+                        ItemsSource="{Binding TimeDisplayLabels}"
                         SelectedIndex="{Binding TimeDisplayIndex, Mode=TwoWay}">
-                <ComboBoxItem Content="Local time" />
-                <ComboBoxItem Content="UTC" />
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
               </ComboBox>
             </StackPanel>
           </Grid>
           <TextBlock FontSize="10"
                      Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                      TextWrapping="Wrap"
-                     Text="Filters apply to this list and the main window when you close." />
+                     Text="{loc:Localize Key=Planner.FiltersNote}" />
         </StackPanel>
       </Expander>
 
@@ -151,7 +156,7 @@
                  LastChildFill="True"
                  MinWidth="0">
         <TextBlock DockPanel.Dock="Top"
-                   Text="Passes"
+                   Text="{loc:Localize Key=Planner.PassesHeader}"
                    FontWeight="SemiBold"
                    Margin="0,0,0,4" />
 
@@ -178,48 +183,48 @@
             </Style>
           </DataGrid.Styles>
           <DataGrid.Columns>
-            <DataGridTextColumn Header="Satellite"
+            <DataGridTextColumn Header="{loc:Localize Key=Planner.Col.Satellite}"
                                 Binding="{Binding SatelliteName, DataType={x:Type vm:PassPlanningPassRow}}"
                                 Width="90"
                                 MinWidth="80" />
-            <DataGridTextColumn Header="AOS – LOS"
+            <DataGridTextColumn Header="{loc:Localize Key=Planner.Col.AosLos}"
                                 Binding="{Binding AosLosLine, DataType={x:Type vm:PassPlanningPassRow}}"
                                 Width="178"
                                 MinWidth="160"
                                 FontFamily="Consolas,Courier New,monospace" />
-            <DataGridTextColumn Header="TCA"
+            <DataGridTextColumn Header="{loc:Localize Key=Planner.Col.Tca}"
                                 Binding="{Binding TcaLocal, DataType={x:Type vm:PassPlanningPassRow}}"
                                 Width="88"
                                 MinWidth="72"
                                 FontFamily="Consolas,Courier New,monospace" />
-            <DataGridTextColumn Header="Azimuth"
+            <DataGridTextColumn Header="{loc:Localize Key=Planner.Col.Azimuth}"
                                 Binding="{Binding AzimuthSummary, DataType={x:Type vm:PassPlanningPassRow}}"
                                 Width="132"
                                 MinWidth="120"
                                 FontFamily="Consolas,Courier New,monospace" />
-            <DataGridTextColumn Header="Max el"
+            <DataGridTextColumn Header="{loc:Localize Key=Planner.Col.MaxEl}"
                                 Binding="{Binding MaxEl, DataType={x:Type vm:PassPlanningPassRow}}"
                                 Width="92"
                                 MinWidth="84"
                                 FontFamily="Consolas,Courier New,monospace" />
-            <DataGridTextColumn Header="Duration"
+            <DataGridTextColumn Header="{loc:Localize Key=Planner.Col.Duration}"
                                 Binding="{Binding Duration, DataType={x:Type vm:PassPlanningPassRow}}"
                                 Width="96"
                                 MinWidth="88"
                                 FontFamily="Consolas,Courier New,monospace" />
-            <DataGridTemplateColumn Header="Calendar"
+            <DataGridTemplateColumn Header="{loc:Localize Key=Planner.Col.Calendar}"
                                     Width="128"
                                     MinWidth="120">
               <DataGridTemplateColumn.CellTemplate>
                 <DataTemplate x:DataType="vm:PassPlanningPassRow">
-                  <Button Content="Add to Calendar"
+                  <Button Content="{loc:Localize Key=Planner.AddToCalendar}"
                           FontSize="10"
                           Padding="6,3"
                           HorizontalAlignment="Center"
                           VerticalAlignment="Center"
                           Tag="{Binding}"
                           Click="OnExportSatelliteClick"
-                          ToolTip.Tip="Export all passes for this satellite to an iCalendar (.ics) file" />
+                          ToolTip.Tip="{loc:Localize Key=Planner.Export.CalendarTip}" />
                 </DataTemplate>
               </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>

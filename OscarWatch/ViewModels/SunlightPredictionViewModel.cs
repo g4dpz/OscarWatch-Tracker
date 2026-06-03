@@ -5,6 +5,7 @@ using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Services;
+using OscarWatch.Localization;
 
 namespace OscarWatch.ViewModels;
 
@@ -13,6 +14,7 @@ public partial class SunlightPredictionViewModel : ViewModelBase
     private readonly ISettingsService _settings;
     private readonly ITleService _tleService;
     private readonly IIlluminationPredictor _predictor;
+    private readonly ILocalizationService _l;
     private CancellationTokenSource? _computeCts;
     private IReadOnlyList<IlluminationSegment> _lastSegments = [];
 
@@ -33,7 +35,7 @@ public partial class SunlightPredictionViewModel : ViewModelBase
     private int _minSunlightMinutes;
 
     [ObservableProperty]
-    private string _statusText = "Select a satellite and click Predict.";
+    private string _statusText = "";
 
     [ObservableProperty]
     private string _summaryText = "";
@@ -47,11 +49,14 @@ public partial class SunlightPredictionViewModel : ViewModelBase
     public SunlightPredictionViewModel(
         ISettingsService settings,
         ITleService tleService,
-        IIlluminationPredictor predictor)
+        IIlluminationPredictor predictor,
+        ILocalizationService localization)
     {
         _settings = settings;
         _tleService = tleService;
         _predictor = predictor;
+        _l = localization;
+        _statusText = _l.Get("Sunlight.Status.SelectPredict");
     }
 
     public async Task InitializeAsync()
@@ -63,7 +68,7 @@ public partial class SunlightPredictionViewModel : ViewModelBase
 
         SelectedSatellite ??= Satellites.FirstOrDefault();
         if (Satellites.Count == 0)
-            StatusText = "No enabled satellites — use Satellites → Select Satellites first.";
+            StatusText = _l.Get("Sunlight.Status.NoSatellites");
     }
 
     [RelayCommand(CanExecute = nameof(CanPredict))]
@@ -81,7 +86,7 @@ public partial class SunlightPredictionViewModel : ViewModelBase
         MonthTimelines.Clear();
         SunlightPeriods.Clear();
         SummaryText = "";
-        StatusText = $"Computing illumination for {satellite.Name}…";
+        StatusText = _l.Get("Sunlight.Status.Computing", satellite.Name);
 
         try
         {
@@ -99,15 +104,15 @@ public partial class SunlightPredictionViewModel : ViewModelBase
             BuildSummary(segments, utcStart, utcEnd);
 
             HasResults = true;
-            StatusText = $"{segments.Count} illumination segments over {PredictionDays} day(s).";
+            StatusText = _l.Get("Sunlight.Status.Segments", segments.Count, PredictionDays);
         }
         catch (OperationCanceledException)
         {
-            StatusText = "Prediction cancelled.";
+            StatusText = _l.Get("Sunlight.Status.Cancelled");
         }
         catch (Exception ex)
         {
-            StatusText = $"Prediction failed: {ex.Message}";
+            StatusText = _l.Get("Sunlight.Status.Failed", ex.Message);
         }
         finally
         {
@@ -195,20 +200,23 @@ public partial class SunlightPredictionViewModel : ViewModelBase
 
         var parts = new List<string>
         {
-            $"{sunlitPercent:F0}% in sunlight overall"
+            _l.Get("Sunlight.Summary.SunlitPercent", $"{sunlitPercent:F0}")
         };
 
         if (longestSun is not null)
         {
-            parts.Add(
-                $"longest continuous sunlight {PassDisplayFormat.FormatDurationLong(longestSun.Duration)} "
-                + $"({PassDisplayFormat.FormatLocal(longestSun.StartUtc)} – {PassDisplayFormat.FormatLocal(longestSun.EndUtc)})");
+            parts.Add(_l.Get(
+                "Sunlight.Summary.LongestSun",
+                PassDisplayFormat.FormatDurationLong(longestSun.Duration),
+                PassDisplayFormat.FormatLocal(longestSun.StartUtc),
+                PassDisplayFormat.FormatLocal(longestSun.EndUtc)));
         }
 
         if (longestEclipse is not null)
         {
-            parts.Add(
-                $"longest eclipse {PassDisplayFormat.FormatDurationLong(longestEclipse.Duration)}");
+            parts.Add(_l.Get(
+                "Sunlight.Summary.LongestEclipse",
+                PassDisplayFormat.FormatDurationLong(longestEclipse.Duration)));
         }
 
         SummaryText = string.Join(" · ", parts);

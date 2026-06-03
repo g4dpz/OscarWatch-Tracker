@@ -2,6 +2,7 @@ using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Services;
+using OscarWatch.Localization;
 using OscarWatch.Orbit;
 using OscarWatch.ViewModels;
 
@@ -24,7 +25,7 @@ public class DxStationOverlayViewModelTests
         var propagator = new PublicOrbitToolsPropagator();
         propagator.LoadSatellite(IssEntry);
 
-        var vm = new DxStationOverlayViewModel(settings, propagator);
+        var vm = new DxStationOverlayViewModel(settings, propagator, LocalizationService.Instance);
         vm.GridSquare = "JO22";
 
         Assert.True(vm.IsActive);
@@ -48,7 +49,7 @@ public class DxStationOverlayViewModelTests
     public void Clear_target_hides_overlay()
     {
         var settings = new TestSettingsService();
-        var vm = new DxStationOverlayViewModel(settings, new PublicOrbitToolsPropagator());
+        var vm = new DxStationOverlayViewModel(settings, new PublicOrbitToolsPropagator(), LocalizationService.Instance);
         vm.GridSquare = "FN20";
         Assert.True(vm.IsActive);
 
@@ -63,7 +64,7 @@ public class DxStationOverlayViewModelTests
     public void OpenFromMapIcon_shows_entry_form_when_no_grid()
     {
         var settings = new TestSettingsService();
-        var vm = new DxStationOverlayViewModel(settings, new PublicOrbitToolsPropagator());
+        var vm = new DxStationOverlayViewModel(settings, new PublicOrbitToolsPropagator(), LocalizationService.Instance);
 
         Assert.False(vm.IsPanelOpen);
         vm.OpenFromMapIconCommand.Execute(null);
@@ -76,7 +77,7 @@ public class DxStationOverlayViewModelTests
     public void OpenFromMapIcon_shows_collapsed_monitor_when_grid_saved()
     {
         var settings = new TestSettingsService { Current = { RemoteStationGridSquare = "FN20" } };
-        var vm = new DxStationOverlayViewModel(settings, new PublicOrbitToolsPropagator());
+        var vm = new DxStationOverlayViewModel(settings, new PublicOrbitToolsPropagator(), LocalizationService.Instance);
 
         Assert.True(vm.IsActive);
         Assert.False(vm.IsPanelOpen);
@@ -90,7 +91,7 @@ public class DxStationOverlayViewModelTests
     public void ToggleCollapse_persists_dx_overlay_state()
     {
         var settings = new TestSettingsService();
-        var vm = new DxStationOverlayViewModel(settings, new PublicOrbitToolsPropagator())
+        var vm = new DxStationOverlayViewModel(settings, new PublicOrbitToolsPropagator(), LocalizationService.Instance)
         {
             GridSquare = "IO91"
         };

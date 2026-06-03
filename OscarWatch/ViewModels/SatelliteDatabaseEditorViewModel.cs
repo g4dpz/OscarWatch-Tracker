@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
+using OscarWatch.Localization;
 using OscarWatch.Views;
 
 namespace OscarWatch.ViewModels;
@@ -14,6 +15,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
     private readonly ISatelliteDatabaseEditor _editor;
     private readonly ISatelliteDatabaseSyncService _syncService;
     private readonly ITleService _tleService;
+    private readonly ILocalizationService _l;
     private bool _syncingModeFields;
 
     [ObservableProperty]
@@ -72,11 +74,13 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
     public SatelliteDatabaseEditorViewModel(
         ISatelliteDatabaseEditor editor,
         ISatelliteDatabaseSyncService syncService,
-        ITleService tleService)
+        ITleService tleService,
+        ILocalizationService localization)
     {
         _editor = editor;
         _syncService = syncService;
         _tleService = tleService;
+        _l = localization;
         Load();
     }
 
@@ -87,11 +91,11 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
             Satellites.Add(entry);
 
         DatabasePathText = _editor.IsUsingUserDatabase
-            ? $"User database: {_editor.UserPath}"
-            : $"Shipped defaults: {_editor.BundledPath}";
+            ? _l.Get("DbEditor.Path.User", _editor.UserPath)
+            : _l.Get("DbEditor.Path.Shipped", _editor.BundledPath);
 
         SelectedSatellite = Satellites.FirstOrDefault();
-        StatusMessage = $"{Satellites.Count} satellites loaded.";
+        StatusMessage = _l.Get("DbEditor.Status.Loaded", Satellites.Count);
     }
 
     partial void OnSearchTextChanged(string value) => NotifyFilteredSatellites();
@@ -190,14 +194,14 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
 
         if (string.IsNullOrWhiteSpace(name))
         {
-            StatusMessage = "Add satellite cancelled.";
+            StatusMessage = _l.Get("DbEditor.Status.AddCancelled");
             return;
         }
 
         var trimmed = name.Trim();
         if (Satellites.Any(s => s.Name.Equals(trimmed, StringComparison.OrdinalIgnoreCase)))
         {
-            StatusMessage = $"Satellite “{trimmed}” is already in the database.";
+            StatusMessage = _l.Get("DbEditor.Status.AlreadyExists", trimmed);
             return;
         }
 
@@ -220,7 +224,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
         Satellites.Add(entry);
         SelectedSatellite = entry;
         NotifyFilteredSatellites();
-        StatusMessage = $"Added {trimmed}.";
+        StatusMessage = _l.Get("DbEditor.Status.Added", trimmed);
     }
 
     [RelayCommand]
@@ -235,7 +239,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
             ? null
             : Satellites[Math.Min(index, Satellites.Count - 1)];
         NotifyFilteredSatellites();
-        StatusMessage = "Removed satellite.";
+        StatusMessage = _l.Get("DbEditor.Status.RemovedSatellite");
     }
 
     [RelayCommand]
@@ -246,7 +250,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
 
         var mode = new SatelliteTransponderMode
         {
-            Type = "New mode",
+            Type = _l.Get("DbEditor.Mode.NewMode"),
             DownlinkKHz = 435_000,
             UplinkKHz = 145_000,
             DownlinkMode = "USB",
@@ -255,7 +259,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
         };
         SelectedSatellite.Modes.Add(mode);
         SelectedMode = mode;
-        StatusMessage = "Added transponder mode.";
+        StatusMessage = _l.Get("DbEditor.Status.AddedMode");
     }
 
     [RelayCommand]
@@ -269,7 +273,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
         SelectedMode = SelectedSatellite.Modes.Count == 0
             ? null
             : SelectedSatellite.Modes[Math.Min(index, SelectedSatellite.Modes.Count - 1)];
-        StatusMessage = "Removed transponder mode.";
+        StatusMessage = _l.Get("DbEditor.Status.RemovedMode");
     }
 
     [RelayCommand]
@@ -280,7 +284,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
 
         var clone = new SatelliteTransponderMode
         {
-            Type = SelectedMode.Type + " copy",
+            Type = SelectedMode.Type + _l.Get("DbEditor.Mode.CopySuffix"),
             DownlinkKHz = SelectedMode.DownlinkKHz,
             UplinkKHz = SelectedMode.UplinkKHz,
             DownlinkMode = SelectedMode.DownlinkMode,
@@ -291,7 +295,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
         };
         SelectedSatellite.Modes.Add(clone);
         SelectedMode = clone;
-        StatusMessage = "Duplicated mode.";
+        StatusMessage = _l.Get("DbEditor.Status.DuplicatedMode");
     }
 
     public bool TrySave(out string? errorMessage)
@@ -299,8 +303,8 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
         try
         {
             _editor.Save(Satellites.ToList());
-            DatabasePathText = $"User database: {_editor.UserPath}";
-            StatusMessage = "Saved.";
+            DatabasePathText = _l.Get("DbEditor.Path.User", _editor.UserPath);
+            StatusMessage = _l.Get("DbEditor.Status.Saved");
             errorMessage = null;
             return true;
         }
@@ -317,10 +321,10 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
     {
         _editor.ResetToBundled();
         Load();
-        StatusMessage = "Restored shipped database.";
+        StatusMessage = _l.Get("DbEditor.Status.Restored");
     }
 
-    private static readonly FilePickerFileType JsonFileType = new("JSON")
+    private FilePickerFileType JsonFileType => new(_l.Get("DbEditor.FileType.Json"))
     {
         Patterns = ["*.json"],
         MimeTypes = ["application/json"]
@@ -345,7 +349,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
 
         var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Export transponder database",
+            Title = _l.Get("DbEditor.Export.Title"),
             SuggestedFileName = "satellite_database.json",
             DefaultExtension = "json",
             FileTypeChoices = [JsonFileType]
@@ -360,11 +364,11 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
             await using var stream = await file.OpenWriteAsync().ConfigureAwait(true);
             await using var writer = new StreamWriter(stream);
             await writer.WriteAsync(json).ConfigureAwait(true);
-            StatusMessage = $"Exported {Satellites.Count} satellites to JSON.";
+            StatusMessage = _l.Get("DbEditor.Status.Exported", Satellites.Count);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Export failed: {ex.Message}";
+            StatusMessage = _l.Get("DbEditor.Status.ExportFailed", ex.Message);
         }
     }
 
@@ -380,7 +384,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
 
         var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Import transponder database",
+            Title = _l.Get("DbEditor.Import.Title"),
             AllowMultiple = false,
             FileTypeFilter = [JsonFileType]
         }).ConfigureAwait(true);
@@ -391,7 +395,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
 
         try
         {
-            StatusMessage = "Reading import file…";
+            StatusMessage = _l.Get("DbEditor.Status.ReadingImport");
             await using var stream = await file.OpenReadAsync().ConfigureAwait(true);
             using var reader = new StreamReader(stream);
             var json = await reader.ReadToEndAsync().ConfigureAwait(true);
@@ -399,7 +403,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
             var validationError = SatelliteDatabaseFile.ValidateEntries(imported);
             if (validationError is not null)
             {
-                StatusMessage = $"Invalid database: {validationError}";
+                StatusMessage = _l.Get("DbEditor.Status.InvalidDatabase", validationError);
                 return;
             }
 
@@ -407,7 +411,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
             var plan = SatelliteDatabaseMerger.BuildPlan(local, imported);
             if (!plan.HasChanges)
             {
-                StatusMessage = "Import file matches the editor (no new or changed entries).";
+                StatusMessage = _l.Get("DbEditor.Status.ImportNoChanges");
                 return;
             }
 
@@ -419,16 +423,16 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
 
             if (merged is null)
             {
-                StatusMessage = "Import cancelled.";
+                StatusMessage = _l.Get("DbEditor.Status.ImportCancelled");
                 return;
             }
 
             ReloadFromList(merged);
-            StatusMessage = "Import applied to editor — press Save to write to your user database.";
+            StatusMessage = _l.Get("DbEditor.Status.ImportApplied");
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Import failed: {ex.Message}";
+            StatusMessage = _l.Get("DbEditor.Status.ImportFailed", ex.Message);
         }
     }
 
@@ -440,27 +444,27 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
 
         try
         {
-            StatusMessage = "Checking for transponder database updates…";
+            StatusMessage = _l.Get("DbEditor.Status.CheckingUpdates");
             var plan = await _syncService.FetchMergePlanAsync().ConfigureAwait(true);
             if (!plan.HasChanges)
             {
-                StatusMessage = "Transponder database is up to date.";
+                StatusMessage = _l.Get("DbEditor.Status.UpToDate");
                 return;
             }
 
             if (await TransponderDatabaseMergeDialog.TryShowAsync(App.MainWindow, plan, _syncService))
             {
                 Load();
-                StatusMessage = "Updates applied.";
+                StatusMessage = _l.Get("DbEditor.Status.UpdatesApplied");
             }
             else
             {
-                StatusMessage = "No changes applied.";
+                StatusMessage = _l.Get("DbEditor.Status.NoChangesApplied");
             }
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Update check failed: {ex.Message}";
+            StatusMessage = _l.Get("DbEditor.Status.UpdateCheckFailed", ex.Message);
         }
     }
 
@@ -475,7 +479,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
 
         NotifyFilteredSatellites();
         SelectedSatellite = Satellites.FirstOrDefault();
-        StatusMessage = $"{Satellites.Count} satellites in editor.";
+        StatusMessage = _l.Get("DbEditor.Status.InEditor", Satellites.Count);
     }
 
     private static SatelliteRadioEntry CloneEntry(SatelliteRadioEntry source) =>

@@ -9,6 +9,7 @@ using OscarWatch.Core.Geo;
 using OscarWatch.Core.Hardware;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
+using OscarWatch.Localization;
 using OscarWatch.Rotator;
 using OscarWatch.Theme;
 
@@ -17,6 +18,7 @@ namespace OscarWatch.ViewModels;
 public partial class SettingsViewModel : ViewModelBase
 {
     private readonly ISettingsService _settings;
+    private readonly ILocalizationService _l;
     private readonly ISpeechService _speech;
     private readonly IAudioRecordingService _recording;
     private readonly ICloudlogRadioSyncService _cloudlog;
@@ -51,6 +53,11 @@ public partial class SettingsViewModel : ViewModelBase
     private bool _showFootprintMotionArrows = true;
 
     [ObservableProperty]
+    private LanguageOption? _selectedLanguage;
+
+    public IReadOnlyList<LanguageOption> LanguageOptions { get; }
+
+    [ObservableProperty]
     private TleSourceOption? _tleSourceOption;
 
     [ObservableProperty]
@@ -65,13 +72,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty]
     private bool _transponderDatabaseCheckOnStartup = true;
 
-    public IReadOnlyList<TleSourceOption> TleSourceOptions { get; } =
-    [
-        new(TleSourceMode.OscarWatch, "OscarWatch (tle.oscarwatch.org)"),
-        new(TleSourceMode.AmsatOrg, "AMSAT.org (nasabare.txt)"),
-        new(TleSourceMode.CustomUrl, "Custom URL"),
-        new(TleSourceMode.LocalFile, "Local file")
-    ];
+    public IReadOnlyList<TleSourceOption> TleSourceOptions { get; }
 
     public string TleCustomUrlWatermark { get; } = TleSourceResolver.CelestrakAmsatExampleUrl;
 
@@ -116,14 +117,9 @@ public partial class SettingsViewModel : ViewModelBase
     public bool RecordingUnavailable => !RecordingAvailable;
 
     public string RecordingUnavailableText =>
-        _recording.UnavailableReason ?? "Audio recording is not available on this system.";
+        _recording.UnavailableReason ?? _l.Get("Settings.Recording.Unavailable");
 
-    public IReadOnlyList<RecordingFormatOption> RecordingFormatOptions { get; } =
-    [
-        new(RecordingFormatPreset.Mono44100, RecordingFormatPreset.Mono44100.GetLabel()),
-        new(RecordingFormatPreset.Mono48000, RecordingFormatPreset.Mono48000.GetLabel()),
-        new(RecordingFormatPreset.Stereo44100, RecordingFormatPreset.Stereo44100.GetLabel())
-    ];
+    public IReadOnlyList<RecordingFormatOption> RecordingFormatOptions { get; }
 
     [ObservableProperty]
     private bool _rotatorEnabled;
@@ -159,41 +155,25 @@ public partial class SettingsViewModel : ViewModelBase
 
     public IReadOnlyList<SpeechVoiceOption> SpeechVoiceOptions { get; }
 
-    public AppThemePreference[] ThemeOptions { get; } =
-        Enum.GetValues<AppThemePreference>();
+    public IReadOnlyList<ThemeOption> ThemeOptions { get; }
 
-    public IReadOnlyList<TleAutoUpdateOption> TleAutoUpdateOptions { get; } =
-    [
-        new(TleAutoUpdateMode.Manual, "Manual only"),
-        new(TleAutoUpdateMode.OnStartup, "On startup (if older than 6 hours)"),
-        new(TleAutoUpdateMode.EverySixHours, "Every 6 hours while running")
-    ];
+    [ObservableProperty]
+    private ThemeOption? _selectedThemeOption;
+
+    public IReadOnlyList<TleAutoUpdateOption> TleAutoUpdateOptions { get; }
 
     public int[] RotatorBaudRateOptions { get; } = [600, 1200, 2400, 4800, 9600, 19200];
 
     public int[] RigBaudRateOptions { get; } = [1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200];
 
-    public IReadOnlyList<RotatorTypeOption> RotatorTypeChoices { get; } =
-    [
-        new(RotatorType.YaesuGs232, "Yaesu GS-232"),
-        new(RotatorType.Spid, "SPID (Rot1Prog / Rot2Prog)"),
-        new(RotatorType.EasyComm, "EasyComm")
-    ];
+    public IReadOnlyList<RotatorTypeOption> RotatorTypeChoices { get; }
 
     [ObservableProperty]
     private RotatorTypeOption? _selectedRotatorTypeChoice;
 
-    public IReadOnlyList<RotatorAzimuthOption> AzimuthRangeChoices { get; } =
-    [
-        new(RotatorAzimuthRange.Deg360, "0–360°"),
-        new(RotatorAzimuthRange.Deg450, "0–450°")
-    ];
+    public IReadOnlyList<RotatorAzimuthOption> AzimuthRangeChoices { get; }
 
-    public IReadOnlyList<RotatorElevationOption> ElevationRangeChoices { get; } =
-    [
-        new(RotatorElevationRange.Deg90, "0–90°"),
-        new(RotatorElevationRange.Deg180, "0–180°")
-    ];
+    public IReadOnlyList<RotatorElevationOption> ElevationRangeChoices { get; }
 
     [ObservableProperty]
     private RotatorAzimuthOption? _selectedAzimuthRangeChoice;
@@ -300,24 +280,9 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty]
     private string _cloudlogTestStatus = "";
 
-    public IReadOnlyList<RigTypeOption> RigTypeChoices { get; } =
-    [
-        new(RigType.IcomIc910, "ICOM IC-910"),
-        new(RigType.IcomIc9100, "ICOM IC-9100"),
-        new(RigType.IcomIc9700, "ICOM IC-9700"),
-        new(RigType.YaesuFt847, "Yaesu FT-847"),
-        new(RigType.KenwoodTs2000, "Kenwood TS-2000"),
-        new(RigType.Dummy, "Dummy Rig")
-    ];
+    public IReadOnlyList<RigTypeOption> RigTypeChoices { get; }
 
-    public IReadOnlyList<RigTypeOption> RigDualTypeChoices { get; } =
-    [
-        new(RigType.YaesuFt817, "Yaesu FT-817"),
-        new(RigType.YaesuFt818, "Yaesu FT-818"),
-        new(RigType.YaesuFt991, "Yaesu FT-991"),
-        new(RigType.YaesuFt991a, "Yaesu FT-991A"),
-        new(RigType.IcomIc705, "ICOM IC-705")
-    ];
+    public IReadOnlyList<RigTypeOption> RigDualTypeChoices { get; }
 
     public bool ShowRigSingleConfig => !DualRadioEnabled;
 
@@ -353,18 +318,84 @@ public partial class SettingsViewModel : ViewModelBase
         && (SelectedDownlinkRigTypeChoice?.Value is RigType.YaesuFt991 or RigType.YaesuFt991a
             || SelectedUplinkRigTypeChoice?.Value is RigType.YaesuFt991 or RigType.YaesuFt991a);
 
-    public IReadOnlyList<RigRegionOption> RigRegionChoices { get; } =
-    [
-        new(RigRegion.EU, "EU"),
-        new(RigRegion.USA, "USA")
-    ];
+    public IReadOnlyList<RigRegionOption> RigRegionChoices { get; }
 
     public SettingsViewModel(
         ISettingsService settings,
+        ILocalizationService localization,
         ISpeechService speech,
         IAudioRecordingService recording,
         ICloudlogRadioSyncService cloudlog)
     {
+        _l = localization;
+        LanguageOptions =
+        [
+            new LanguageOption(LocalizationCulture.DefaultLanguage, _l.Get("Settings.Language.English")),
+            new LanguageOption(LocalizationCulture.JapaneseLanguage, _l.Get("Settings.Language.Japanese"))
+        ];
+        TleSourceOptions =
+        [
+            new(TleSourceMode.OscarWatch, _l.Get("Settings.Tle.Source.OscarWatch")),
+            new(TleSourceMode.AmsatOrg, _l.Get("Settings.Tle.Source.Amsat")),
+            new(TleSourceMode.CustomUrl, _l.Get("Settings.Tle.Source.CustomUrl")),
+            new(TleSourceMode.LocalFile, _l.Get("Settings.Tle.Source.LocalFile"))
+        ];
+        TleAutoUpdateOptions =
+        [
+            new(TleAutoUpdateMode.Manual, _l.Get("Settings.Tle.Update.Manual")),
+            new(TleAutoUpdateMode.OnStartup, _l.Get("Settings.Tle.Update.OnStartup")),
+            new(TleAutoUpdateMode.EverySixHours, _l.Get("Settings.Tle.Update.EverySixHours"))
+        ];
+        ThemeOptions =
+        [
+            new(AppThemePreference.System, _l.Get("Settings.Theme.System")),
+            new(AppThemePreference.Light, _l.Get("Settings.Theme.Light")),
+            new(AppThemePreference.Dark, _l.Get("Settings.Theme.Dark"))
+        ];
+        RotatorTypeChoices =
+        [
+            new(RotatorType.YaesuGs232, "Yaesu GS-232"),
+            new(RotatorType.Spid, "SPID (Rot1Prog / Rot2Prog)"),
+            new(RotatorType.EasyComm, "EasyComm")
+        ];
+        AzimuthRangeChoices =
+        [
+            new(RotatorAzimuthRange.Deg360, _l.Get("Settings.Rotator.AzimuthRange360")),
+            new(RotatorAzimuthRange.Deg450, _l.Get("Settings.Rotator.AzimuthRange450"))
+        ];
+        ElevationRangeChoices =
+        [
+            new(RotatorElevationRange.Deg90, _l.Get("Settings.Rotator.ElevationRange90")),
+            new(RotatorElevationRange.Deg180, _l.Get("Settings.Rotator.ElevationRange180"))
+        ];
+        RigTypeChoices =
+        [
+            new(RigType.IcomIc910, "ICOM IC-910"),
+            new(RigType.IcomIc9100, "ICOM IC-9100"),
+            new(RigType.IcomIc9700, "ICOM IC-9700"),
+            new(RigType.YaesuFt847, "Yaesu FT-847"),
+            new(RigType.KenwoodTs2000, "Kenwood TS-2000"),
+            new(RigType.Dummy, "Dummy Rig")
+        ];
+        RigDualTypeChoices =
+        [
+            new(RigType.YaesuFt817, "Yaesu FT-817"),
+            new(RigType.YaesuFt818, "Yaesu FT-818"),
+            new(RigType.YaesuFt991, "Yaesu FT-991"),
+            new(RigType.YaesuFt991a, "Yaesu FT-991A"),
+            new(RigType.IcomIc705, "ICOM IC-705")
+        ];
+        RigRegionChoices =
+        [
+            new(RigRegion.EU, "EU"),
+            new(RigRegion.USA, "USA")
+        ];
+        RecordingFormatOptions =
+        [
+            new(RecordingFormatPreset.Mono44100, _l.Get("Settings.Recording.Format.Mono44100")),
+            new(RecordingFormatPreset.Mono48000, _l.Get("Settings.Recording.Format.Mono48000")),
+            new(RecordingFormatPreset.Stereo44100, _l.Get("Settings.Recording.Format.Stereo44100"))
+        ];
         _settings = settings;
         _speech = speech;
         _recording = recording;
@@ -423,6 +454,7 @@ public partial class SettingsViewModel : ViewModelBase
         _settings.Current.MinimumElevationDeg = MinimumElevationDeg;
         _settings.Current.PassPredictionHours = PassPredictionHours;
         _settings.Current.Theme = ThemePreference;
+        _settings.Current.UiLanguage = SelectedLanguage?.Code ?? LocalizationCulture.DefaultLanguage;
         _settings.Current.ShowFootprintMotionArrows = ShowFootprintMotionArrows;
         _settings.Current.TleSource = new TleSourceSettings
         {
@@ -536,7 +568,15 @@ public partial class SettingsViewModel : ViewModelBase
             MinimumElevationDeg = _settings.Current.MinimumElevationDeg;
             PassPredictionHours = _settings.Current.PassPredictionHours;
             ThemePreference = _settings.Current.Theme;
+            SelectedThemeOption = ThemeOptions.FirstOrDefault(o => o.Value == ThemePreference)
+                ?? ThemeOptions[0];
             ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
+            var langCode = string.IsNullOrWhiteSpace(_settings.Current.UiLanguage)
+                ? LocalizationCulture.DefaultLanguage
+                : _settings.Current.UiLanguage.Trim();
+            SelectedLanguage = LanguageOptions.FirstOrDefault(o =>
+                string.Equals(o.Code, langCode, StringComparison.OrdinalIgnoreCase))
+                ?? LanguageOptions[0];
             var tleSource = _settings.Current.TleSource ?? new TleSourceSettings();
             TleSourceOption = TleSourceOptions.FirstOrDefault(o => o.Mode == tleSource.Mode)
                 ?? TleSourceOptions[0];
@@ -641,7 +681,7 @@ public partial class SettingsViewModel : ViewModelBase
     {
         if (SelectedRecordingDevice is null)
         {
-            RecordingTestStatus = "Select an input device first.";
+            RecordingTestStatus = _l.Get("Settings.Recording.SelectDeviceFirst");
             return;
         }
 
@@ -653,7 +693,7 @@ public partial class SettingsViewModel : ViewModelBase
         try
         {
             TestRecordingCommand.NotifyCanExecuteChanged();
-            RecordingTestStatus = "Recording 5 s test clip…";
+            RecordingTestStatus = _l.Get("Settings.Recording.TestInProgress");
             await _recording.StartAsync(
                 AudioRecordingSessions.ManualTestNoradId,
                 "Test",
@@ -662,7 +702,7 @@ public partial class SettingsViewModel : ViewModelBase
                 outputPath).ConfigureAwait(true);
             await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(true);
             await _recording.StopAsync().ConfigureAwait(true);
-            RecordingTestStatus = $"Saved test clip to {outputPath}";
+            RecordingTestStatus = _l.Get("Settings.Recording.TestSaved", outputPath);
         }
         catch (Exception ex)
         {
@@ -696,7 +736,7 @@ public partial class SettingsViewModel : ViewModelBase
 
         var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Choose TLE file",
+            Title = _l.Get("Settings.Browse.TleFile"),
             AllowMultiple = false,
             FileTypeFilter =
             [
@@ -719,7 +759,7 @@ public partial class SettingsViewModel : ViewModelBase
 
         var folders = await storage.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = "Choose recording output folder",
+            Title = _l.Get("Settings.Browse.RecordingFolder"),
             AllowMultiple = false
         }).ConfigureAwait(true);
 
@@ -731,7 +771,7 @@ public partial class SettingsViewModel : ViewModelBase
     {
         try
         {
-            CloudlogTestStatus = "Testing…";
+            CloudlogTestStatus = _l.Get("Settings.Cloudlog.Testing");
             var settings = new CloudlogSettings
             {
                 Enabled = true,
@@ -742,15 +782,15 @@ public partial class SettingsViewModel : ViewModelBase
 
             if (string.IsNullOrWhiteSpace(settings.BaseUrl) || string.IsNullOrWhiteSpace(settings.ApiKey))
             {
-                CloudlogTestStatus = "Enter URL and API key (tab out of each field or click Test again).";
+                CloudlogTestStatus = _l.Get("Settings.Cloudlog.EnterCredentials");
                 return;
             }
 
             var endpoint = $"{settings.BaseUrl}/index.php/api/radio";
             var ok = await _cloudlog.TestConnectionAsync(settings).ConfigureAwait(true);
             CloudlogTestStatus = ok
-                ? $"Connection OK — posted test CAT to {endpoint}"
-                : _cloudlog.LastError ?? "Connection failed.";
+                ? _l.Get("Settings.Cloudlog.ConnectionOk", endpoint)
+                : _cloudlog.LastError ?? _l.Get("Settings.Cloudlog.ConnectionFailed");
         }
         catch (Exception ex)
         {
@@ -767,7 +807,7 @@ public partial class SettingsViewModel : ViewModelBase
         };
         var rig = BuildRigSettingsForConflictCheck();
         ShowComPortConflict = SerialPortConflictHelper.TryDescribeConflict(rotator, rig, out var message);
-        ComPortConflictText = message;
+        ComPortConflictText = ComPortConflictLocalizer.Localize(message, _l);
     }
 
     partial void OnRotatorEnabledChanged(bool value) => RefreshComPortConflictIfReady();
@@ -954,12 +994,24 @@ public partial class SettingsViewModel : ViewModelBase
         }
     }
 
+    partial void OnSelectedThemeOptionChanged(ThemeOption? value)
+    {
+        if (_isSynchronizing || value is null)
+            return;
+
+        if (ThemePreference != value.Value)
+            ThemePreference = value.Value;
+    }
+
     partial void OnThemePreferenceChanged(AppThemePreference value)
     {
         if (_isSynchronizing)
             return;
 
         AppThemeManager.Apply(value);
+        var option = ThemeOptions.FirstOrDefault(o => o.Value == value);
+        if (option is not null && !ReferenceEquals(SelectedThemeOption, option))
+            SelectedThemeOption = option;
     }
 
     partial void OnShowFootprintMotionArrowsChanged(bool value)
@@ -1017,6 +1069,8 @@ public partial class SettingsViewModel : ViewModelBase
         }
     }
 }
+
+public sealed record ThemeOption(AppThemePreference Value, string Label);
 
 public sealed record TleSourceOption(TleSourceMode Mode, string Label);
 

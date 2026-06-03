@@ -2,6 +2,7 @@ using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Radio;
 using OscarWatch.Core.Services;
+using OscarWatch.Localization;
 using OscarWatch.ViewModels;
 
 namespace OscarWatch.Tests;
@@ -48,7 +49,7 @@ public class FrequencyOverlayRigContextTests
             }
         ]);
 
-        var vm = new FrequencyOverlayViewModel(settings, database);
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
         vm.Update(new SatelliteTrackState
         {
             Name = "FO-29",
@@ -95,7 +96,7 @@ public class FrequencyOverlayRigContextTests
             }
         ]);
 
-        var vm = new FrequencyOverlayViewModel(settings, database);
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
         vm.Update(new SatelliteTrackState
         {
             Name = "RS-44",

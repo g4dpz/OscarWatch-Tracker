@@ -2,11 +2,13 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
+using OscarWatch.Localization;
 
 namespace OscarWatch.ViewModels;
 
 public partial class AddSatelliteFromTleViewModel : ViewModelBase
 {
+    private readonly ILocalizationService _l;
     private readonly List<TleSatellitePickItem> _allCandidates = [];
 
     [ObservableProperty]
@@ -26,15 +28,17 @@ public partial class AddSatelliteFromTleViewModel : ViewModelBase
     public bool HasCatalogCandidates => _allCandidates.Count > 0;
 
     public string IntroText => HasCatalogCandidates
-        ? "Choose a satellite from your TLE catalog, or enter a custom name below."
-        : "Every TLE satellite is already in this database. Enter a custom name below.";
+        ? _l.Get("DbAdd.Intro.WithCatalog")
+        : _l.Get("DbAdd.Intro.NoCatalog");
 
     public bool HasStatusMessage => !string.IsNullOrWhiteSpace(StatusMessage);
 
     public AddSatelliteFromTleViewModel(
         IReadOnlyList<SatelliteCatalogEntry> catalog,
-        IEnumerable<string> existingNames)
+        IEnumerable<string> existingNames,
+        ILocalizationService localization)
     {
+        _l = localization;
         foreach (var entry in TransponderDatabaseTlePicker.ListAvailable(catalog, existingNames))
         {
             _allCandidates.Add(new TleSatellitePickItem(entry.Name, entry.NoradId));
@@ -66,7 +70,7 @@ public partial class AddSatelliteFromTleViewModel : ViewModelBase
         name = TransponderDatabaseTlePicker.ResolveChosenName(SelectedCandidate?.Name, CustomName);
         if (name is null)
         {
-            error = "Select a TLE satellite or enter a custom name.";
+            error = _l.Get("DbAdd.Error.PickOne");
             StatusMessage = error;
             return false;
         }

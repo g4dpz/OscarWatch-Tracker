@@ -1,11 +1,12 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:loc="using:OscarWatch.Localization"
         xmlns:models="using:OscarWatch.Core.Models"
         xmlns:ctrl="using:OscarWatch.Controls"
         x:Class="OscarWatch.Views.SunlightPredictionWindow"
         x:DataType="vm:SunlightPredictionViewModel"
-        Title="Sunlight prediction"
+        Title="{loc:Localize Key=Window.Sunlight.Title}"
         Width="860" Height="620"
         MinWidth="640" MinHeight="480"
         WindowStartupLocation="CenterOwner">
@@ -34,7 +35,7 @@
                      Foreground="{DynamicResource ThemeForegroundBrush}" />
         </StackPanel>
         <Button Grid.Column="1"
-                Content="Close"
+                Content="{loc:Localize Key=Common.Close}"
                 Click="OnCloseClick"
                 MinWidth="80"
                 VerticalAlignment="Center" />
@@ -44,14 +45,14 @@
     <Grid RowDefinitions="Auto,Auto,*,Auto"
           HorizontalAlignment="Stretch">
       <Expander Grid.Row="0"
-                Header="Satellite &amp; range"
+                Header="{loc:Localize Key=Sunlight.Section.SatelliteRange}"
                 IsExpanded="True"
                 Padding="0,0,0,8">
         <Grid ColumnDefinitions="2*,*,*,Auto"
               ColumnSpacing="8"
               HorizontalAlignment="Stretch">
           <StackPanel Grid.Column="0" Spacing="2" MinWidth="0">
-            <TextBlock Text="Satellite"
+            <TextBlock Text="{loc:Localize Key=Sunlight.Satellite}"
                        FontSize="12"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
             <ComboBox HorizontalAlignment="Stretch"
@@ -66,14 +67,14 @@
             </ComboBox>
           </StackPanel>
           <StackPanel Grid.Column="1" Spacing="2" MinWidth="0">
-            <TextBlock Text="Start date (UTC)"
+            <TextBlock Text="{loc:Localize Key=Sunlight.StartDateUtc}"
                        FontSize="12"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
             <DatePicker HorizontalAlignment="Stretch"
                         SelectedDate="{Binding StartDate, Mode=TwoWay}" />
           </StackPanel>
           <StackPanel Grid.Column="2" Spacing="2" MinWidth="0">
-            <TextBlock Text="Days ahead"
+            <TextBlock Text="{loc:Localize Key=Sunlight.DaysAhead}"
                        FontSize="12"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
             <NumericUpDown HorizontalAlignment="Stretch"
@@ -83,7 +84,7 @@
                            FormatString="0" />
           </StackPanel>
           <Button Grid.Column="3"
-                  Content="Predict"
+                  Content="{loc:Localize Key=Sunlight.Predict}"
                   Command="{Binding PredictCommand}"
                   VerticalAlignment="Bottom"
                   MinWidth="90"
@@ -98,11 +99,11 @@
                   IsVisible="{Binding HasResults}">
         <StackPanel Orientation="Horizontal" Spacing="6">
           <Border Width="18" Height="12" CornerRadius="2" Background="{DynamicResource SunlightStatusBrush}" />
-          <TextBlock Text="Sunlight" FontSize="11" VerticalAlignment="Center" />
+          <TextBlock Text="{loc:Localize Key=Sunlight.Legend.Sunlight}" FontSize="11" VerticalAlignment="Center" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="6">
           <Border Width="18" Height="12" CornerRadius="2" Background="{DynamicResource EclipseStatusBrush}" />
-          <TextBlock Text="Eclipse" FontSize="11" VerticalAlignment="Center" />
+          <TextBlock Text="{loc:Localize Key=Sunlight.Legend.Eclipse}" FontSize="11" VerticalAlignment="Center" />
         </StackPanel>
       </StackPanel>
 
@@ -139,14 +140,14 @@
               ColumnDefinitions="*,Auto"
               Margin="0,0,0,4">
           <TextBlock Grid.Column="0"
-                     Text="Continuous sunlight periods"
+                     Text="{loc:Localize Key=Sunlight.ContinuousPeriods}"
                      FontWeight="SemiBold"
                      VerticalAlignment="Center" />
           <StackPanel Grid.Column="1"
                       Orientation="Horizontal"
                       Spacing="6"
                       VerticalAlignment="Center">
-            <TextBlock Text="Min duration (min)"
+            <TextBlock Text="{loc:Localize Key=Sunlight.MinDuration}"
                        FontSize="11"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
             <NumericUpDown Width="72"
@@ -164,13 +165,13 @@
                   HeadersVisibility="Column"
                   BorderThickness="0">
           <DataGrid.Columns>
-            <DataGridTextColumn Header="Start (local)"
+            <DataGridTextColumn Header="{loc:Localize Key=Sunlight.Col.StartLocal}"
                                 Binding="{Binding StartLocal, DataType={x:Type vm:SunlightPeriodRow}}"
                                 Width="*" MinWidth="160" />
-            <DataGridTextColumn Header="End (local)"
+            <DataGridTextColumn Header="{loc:Localize Key=Sunlight.Col.EndLocal}"
                                 Binding="{Binding EndLocal, DataType={x:Type vm:SunlightPeriodRow}}"
                                 Width="*" MinWidth="160" />
-            <DataGridTextColumn Header="Duration"
+            <DataGridTextColumn Header="{loc:Localize Key=Sunlight.Col.Duration}"
                                 Binding="{Binding Duration, DataType={x:Type vm:SunlightPeriodRow}}"
                                 Width="120"
                                 FontFamily="Consolas,Courier New,monospace" />

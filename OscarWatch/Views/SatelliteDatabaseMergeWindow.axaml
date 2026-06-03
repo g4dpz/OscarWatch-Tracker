@@ -1,9 +1,10 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:loc="using:OscarWatch.Localization"
         x:Class="OscarWatch.Views.SatelliteDatabaseMergeWindow"
         x:DataType="vm:SatelliteDatabaseMergeViewModel"
-        Title="Transponder database updates"
+        Title="{Binding WindowTitle}"
         Width="720" Height="560"
         MinWidth="560" MinHeight="420"
         WindowStartupLocation="CenterOwner">
@@ -22,14 +23,14 @@
                 HorizontalAlignment="Right"
                 Spacing="8"
                 Margin="0,8,0,0">
-      <Button Content="Cancel" Classes="dialog-footer" Click="OnCancelClick" />
-      <Button Content="Apply selected" Classes="dialog-footer accent" Click="OnApplyClick" />
+      <Button Content="{loc:Localize Key=Common.Cancel}" Classes="dialog-footer" Click="OnCancelClick" />
+      <Button Content="{loc:Localize Key=DbMerge.ApplySelected}" Classes="dialog-footer accent" Click="OnApplyClick" />
     </StackPanel>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
       <StackPanel Spacing="16">
         <StackPanel Spacing="6" IsVisible="{Binding HasNewSatellites}">
-          <TextBlock Text="New satellites" FontWeight="SemiBold" />
+          <TextBlock Text="{loc:Localize Key=DbMerge.NewSatellites}" FontWeight="SemiBold" />
           <ItemsControl ItemsSource="{Binding NewSatellites}">
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:MergeAdditionItem">
@@ -42,7 +43,7 @@
         </StackPanel>
 
         <StackPanel Spacing="6" IsVisible="{Binding HasNewModes}">
-          <TextBlock Text="New transponder modes" FontWeight="SemiBold" />
+          <TextBlock Text="{loc:Localize Key=DbMerge.NewModes}" FontWeight="SemiBold" />
           <ItemsControl ItemsSource="{Binding NewModes}">
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:MergeAdditionItem">
@@ -55,7 +56,7 @@
         </StackPanel>
 
         <StackPanel Spacing="8" IsVisible="{Binding HasConflicts}">
-          <TextBlock Text="Conflicts" FontWeight="SemiBold" />
+          <TextBlock Text="{loc:Localize Key=DbMerge.Conflicts}" FontWeight="SemiBold" />
           <ItemsControl ItemsSource="{Binding Conflicts}">
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:MergeConflictItem">
@@ -67,7 +68,7 @@
                   <StackPanel Spacing="4">
                     <TextBlock Text="{Binding Title}"
                                FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding LocalSummary, StringFormat='Yours: {0}'}"
+                    <TextBlock Text="{Binding YoursSummaryLine}"
                                FontSize="11"
                                TextWrapping="Wrap" />
                     <TextBlock Text="{Binding RemoteSummaryLine}"

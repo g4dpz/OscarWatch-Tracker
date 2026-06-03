@@ -1,9 +1,10 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:loc="using:OscarWatch.Localization"
         x:Class="OscarWatch.Views.MutualPassWindow"
         x:DataType="vm:MutualPassViewModel"
-        Title="Mutual pass finder"
+        Title="{loc:Localize Key=Window.MutualPass.Title}"
         Width="920" Height="560"
         MinWidth="720" MinHeight="420"
         WindowStartupLocation="CenterOwner">
@@ -25,14 +26,14 @@
                    VerticalAlignment="Center"
                    TextWrapping="Wrap"
                    Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-        <Button Grid.Column="1" Content="Close" Click="OnCloseClick" MinWidth="80" />
+        <Button Grid.Column="1" Content="{loc:Localize Key=Common.Close}" Click="OnCloseClick" MinWidth="80" />
       </Grid>
     </Border>
 
     <Grid RowDefinitions="Auto,*"
           HorizontalAlignment="Stretch">
       <Expander Grid.Row="0"
-                Header="Stations &amp; filters"
+                Header="{loc:Localize Key=Mutual.Section.StationsFilters}"
                 IsExpanded="True"
                 Padding="0,0,0,8"
                 HorizontalAlignment="Stretch"
@@ -46,7 +47,7 @@
                 HorizontalAlignment="Stretch"
                 MinWidth="0">
             <StackPanel Grid.Column="0" Spacing="2" MinWidth="0">
-              <TextBlock Text="Your station"
+              <TextBlock Text="{loc:Localize Key=Mutual.YourStation}"
                          FontSize="12"
                          Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
               <TextBlock Text="{Binding LocalStationSummary}"
@@ -54,10 +55,10 @@
                          TextWrapping="Wrap" />
             </StackPanel>
             <StackPanel Grid.Column="1" Spacing="2" MinWidth="0">
-              <TextBlock Text="Remote operator"
+              <TextBlock Text="{loc:Localize Key=Mutual.RemoteOperator}"
                          FontSize="12"
                          Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-              <TextBox Watermark="Callsign or name (optional)"
+              <TextBox Watermark="{loc:Localize Key=Mutual.RemoteOperatorWatermark}"
                        Text="{Binding RemoteOperatorLabel, Mode=TwoWay}" />
             </StackPanel>
           </Grid>
@@ -67,7 +68,7 @@
                 HorizontalAlignment="Stretch"
                 MinWidth="0">
             <StackPanel Grid.Column="0" Spacing="2" MinWidth="0">
-              <TextBlock Text="Remote Maidenhead grid"
+              <TextBlock Text="{loc:Localize Key=Mutual.RemoteGrid}"
                          FontSize="12"
                          Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
               <TextBox HorizontalAlignment="Stretch"
@@ -80,9 +81,9 @@
                        FontSize="10"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        TextWrapping="Wrap"
-                       Text="Find passes when the satellite is above minimum elevation at both your station and the remote grid square at the same time." />
+                       Text="{loc:Localize Key=Mutual.Description}" />
             <Button Grid.Column="2"
-                    Content="Find mutual passes"
+                    Content="{loc:Localize Key=Mutual.FindPasses}"
                     Command="{Binding RefreshPassesCommand}"
                     VerticalAlignment="Bottom"
                     MinWidth="130" />
@@ -93,7 +94,7 @@
                 HorizontalAlignment="Stretch"
                 MinWidth="0">
             <StackPanel Grid.Column="0" Spacing="2" MinWidth="0">
-              <TextBlock Text="Min elevation (°)"
+              <TextBlock Text="{loc:Localize Key=Pass.MinElevation}"
                          FontSize="12"
                          Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
               <NumericUpDown HorizontalAlignment="Stretch"
@@ -101,7 +102,7 @@
                              Minimum="0" Maximum="90" FormatString="F1" />
             </StackPanel>
             <StackPanel Grid.Column="1" Spacing="2" MinWidth="0">
-              <TextBlock Text="Min pass duration (min)"
+              <TextBlock Text="{loc:Localize Key=Mutual.MinPassDuration}"
                          FontSize="12"
                          Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
               <NumericUpDown HorizontalAlignment="Stretch"
@@ -109,7 +110,7 @@
                              Minimum="0" Maximum="60" FormatString="0" />
             </StackPanel>
             <StackPanel Grid.Column="2" Spacing="2" MinWidth="0">
-              <TextBlock Text="Min overlap (min)"
+              <TextBlock Text="{loc:Localize Key=Mutual.MinOverlap}"
                          FontSize="12"
                          Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
               <NumericUpDown HorizontalAlignment="Stretch"
@@ -117,7 +118,7 @@
                              Minimum="0" Maximum="60" FormatString="0" />
             </StackPanel>
             <StackPanel Grid.Column="3" Spacing="2" MinWidth="0">
-              <TextBlock Text="Hours ahead"
+              <TextBlock Text="{loc:Localize Key=Pass.HoursAhead}"
                          FontSize="12"
                          Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
               <NumericUpDown HorizontalAlignment="Stretch"
@@ -131,16 +132,20 @@
                 HorizontalAlignment="Stretch"
                 MinWidth="0">
             <TextBlock Grid.Column="0"
-                       Text="Times shown in"
+                       Text="{loc:Localize Key=Pass.TimesShownIn}"
                        FontSize="12"
                        VerticalAlignment="Center"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
             <ComboBox Grid.Column="1"
                       HorizontalAlignment="Left"
                       MinWidth="140"
+                      ItemsSource="{Binding TimeDisplayLabels}"
                       SelectedIndex="{Binding TimeDisplayIndex, Mode=TwoWay}">
-              <ComboBoxItem Content="Local time" />
-              <ComboBoxItem Content="UTC" />
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
             </ComboBox>
           </Grid>
         </StackPanel>
@@ -151,7 +156,7 @@
                  LastChildFill="True"
                  MinWidth="0">
         <TextBlock DockPanel.Dock="Top"
-                   Text="Mutual passes"
+                   Text="{loc:Localize Key=Mutual.PassesHeader}"
                    FontWeight="SemiBold"
                    Margin="0,0,0,4" />
 
@@ -179,36 +184,36 @@
             </Style>
           </DataGrid.Styles>
           <DataGrid.Columns>
-            <DataGridTextColumn Header="Satellite"
+            <DataGridTextColumn Header="{loc:Localize Key=Mutual.Col.Satellite}"
                                 Binding="{Binding SatelliteName, DataType={x:Type vm:MutualPassRow}}"
                                 Width="90"
                                 MinWidth="80" />
-            <DataGridTextColumn Header="Mutual window"
+            <DataGridTextColumn Header="{loc:Localize Key=Mutual.Col.MutualWindow}"
                                 Binding="{Binding MutualWindowLine, DataType={x:Type vm:MutualPassRow}}"
                                 Width="130"
                                 MinWidth="110"
                                 FontFamily="Consolas,Courier New,monospace" />
-            <DataGridTextColumn Header="Overlap"
+            <DataGridTextColumn Header="{loc:Localize Key=Mutual.Col.Overlap}"
                                 Binding="{Binding OverlapDuration, DataType={x:Type vm:MutualPassRow}}"
                                 Width="88"
                                 MinWidth="72"
                                 FontFamily="Consolas,Courier New,monospace" />
-            <DataGridTextColumn Header="Your max el"
+            <DataGridTextColumn Header="{loc:Localize Key=Mutual.Col.YourMaxEl}"
                                 Binding="{Binding LocalMaxEl, DataType={x:Type vm:MutualPassRow}}"
                                 Width="92"
                                 MinWidth="84"
                                 FontFamily="Consolas,Courier New,monospace" />
-            <DataGridTextColumn Header="Remote max el"
+            <DataGridTextColumn Header="{loc:Localize Key=Mutual.Col.RemoteMaxEl}"
                                 Binding="{Binding RemoteMaxEl, DataType={x:Type vm:MutualPassRow}}"
                                 Width="104"
                                 MinWidth="96"
                                 FontFamily="Consolas,Courier New,monospace" />
-            <DataGridTextColumn Header="Your pass"
+            <DataGridTextColumn Header="{loc:Localize Key=Mutual.Col.YourPass}"
                                 Binding="{Binding LocalPassLine, DataType={x:Type vm:MutualPassRow}}"
                                 Width="220"
                                 MinWidth="160"
                                 FontFamily="Consolas,Courier New,monospace" />
-            <DataGridTextColumn Header="Remote pass"
+            <DataGridTextColumn Header="{loc:Localize Key=Mutual.Col.RemotePass}"
                                 Binding="{Binding RemotePassLine, DataType={x:Type vm:MutualPassRow}}"
                                 Width="220"
                                 MinWidth="160"

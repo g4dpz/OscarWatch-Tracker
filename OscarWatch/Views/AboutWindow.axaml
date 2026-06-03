@@ -1,7 +1,8 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:OscarWatch.Localization"
         x:Class="OscarWatch.Views.AboutWindow"
-        Title="About OscarWatch"
+        Title="{loc:Localize Key=About.Title}"
         Width="440" Height="480"
         MinWidth="360" MinHeight="420"
         CanResize="False"
@@ -12,7 +13,7 @@
             BorderThickness="0,1,0,0"
             Padding="0,12,0,0"
             Margin="0,16,0,0">
-      <Button Content="OK"
+      <Button Content="{loc:Localize Key=Common.Ok}"
               Classes="dialog-footer"
               HorizontalAlignment="Right"
               Click="OnOkClick"
@@ -23,7 +24,7 @@
                   HorizontalScrollBarVisibility="Disabled">
       <StackPanel Spacing="12" Margin="0,0,14,0">
       <TextBlock x:Name="TitleText"
-                 Text="OscarWatch"
+                 Text="{loc:Localize Key=App.Title}"
                  FontSize="22"
                  FontWeight="SemiBold" />
       <TextBlock x:Name="VersionText"
@@ -32,12 +33,12 @@
       <TextBlock TextWrapping="Wrap"
                  FontSize="13"
                  LineHeight="20"
-                 Text="Desktop satellite tracking for amateur radio operators. Track passes, Doppler-corrected CAT control, rotator tracking, and transponder modes from the OscarWatch satellite database." />
+                 Text="{loc:Localize Key=About.Description}" />
       <TextBlock TextWrapping="Wrap"
                  FontSize="12"
                  Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                 Text="TLE catalog: tle.oscarwatch.org" />
-      <TextBlock Text="github.com/magicbug/OscarWatch-Tracker"
+                 Text="{loc:Localize Key=About.TleSource}" />
+      <TextBlock Text="{loc:Localize Key=About.Github}"
                  FontSize="12"
                  Foreground="{DynamicResource SystemAccentColorBrush}"
                  TextDecorations="Underline"
@@ -46,25 +47,25 @@
       <TextBlock TextWrapping="Wrap"
                  FontSize="12"
                  Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                 Text="Copyright © 2025–2026 Peter Goodhall (MM9SQL)" />
+                 Text="{loc:Localize Key=About.Copyright}" />
       <TextBlock TextWrapping="Wrap"
                  FontSize="12"
                  Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                 Text="Licensed under the GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later). See LICENSE.md in the source repository." />
+                 Text="{loc:Localize Key=About.License}" />
       <TextBlock TextWrapping="Wrap"
                  FontSize="13"
                  LineHeight="20"
                  Margin="0,4,0,0"
-                 Text="OscarWatch is free and open source. If you find it useful, you can support ongoing development:" />
+                 Text="{loc:Localize Key=About.SupportIntro}" />
       <StackPanel Orientation="Horizontal" Spacing="8">
-        <Button Content="Sponsor on GitHub"
+        <Button Content="{loc:Localize Key=About.SponsorGithub}"
                 Classes="dialog-footer"
                 Click="OnGitHubSponsorsClick"
                 MinWidth="140" />
-        <Button Content="PayPal"
+        <Button Content="{loc:Localize Key=About.PayPal}"
                 Classes="dialog-footer"
                 Click="OnPayPalClick" />
-        <Button Content="Supporters"
+        <Button Content="{loc:Localize Key=About.Supporters}"
                 Classes="dialog-footer"
                 Click="OnGitHubContributorsClick"
                 MinWidth="120" />
@@ -72,7 +73,7 @@
       <TextBlock TextWrapping="Wrap"
                  FontSize="12"
                  Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                 Text="If you donate, please let Peter know your callsign so you can be thanked." />
+                 Text="{loc:Localize Key=About.DonateNote}" />
       </StackPanel>
     </ScrollViewer>
   </DockPanel>

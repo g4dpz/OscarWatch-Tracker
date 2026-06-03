@@ -7,16 +7,15 @@ using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Radio;
 using OscarWatch.Core.Services;
+using OscarWatch.Localization;
 
 namespace OscarWatch.ViewModels;
 
 public partial class FrequencyOverlayViewModel : ViewModelBase
 {
-    private const string SelectSatelliteMessage = "Select a satellite on the map or from upcoming passes.";
-    private const string NoTransponderDataMessage = "No transponder data for this satellite";
-
     private readonly ISettingsService _settings;
     private readonly ISatelliteDatabaseService _database;
+    private readonly ILocalizationService _l;
     private string? _currentSatelliteName;
     private string? _currentStorageKey;
     private string? _currentNoradId;
@@ -107,10 +106,10 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private bool _isCollapsed;
 
     [ObservableProperty]
-    private string _collapsedSummaryText = "Select a satellite";
+    private string _collapsedSummaryText = "";
 
     [ObservableProperty]
-    private string _emptyStateMessage = SelectSatelliteMessage;
+    private string _emptyStateMessage = "";
 
     public double OverlayMinWidth => IsCollapsed ? 220 : 380;
 
@@ -118,7 +117,9 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
     public string CollapseToggleGlyph => IsCollapsed ? "▶" : "▼";
 
-    public string CollapseToggleToolTip => IsCollapsed ? "Expand frequency panel" : "Collapse to compact view";
+    public string CollapseToggleToolTip => IsCollapsed
+        ? _l.Get("Freq.CollapseExpand")
+        : _l.Get("Freq.CollapseCompact");
 
     public bool ShowHeaderOperatingStyle => ShowOperatingStyleRow && !IsCollapsed;
 
@@ -139,13 +140,19 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
     public ObservableCollection<SatelliteTransponderMode> AvailableModes { get; } = [];
 
-    public FrequencyOverlayViewModel(ISettingsService settings, ISatelliteDatabaseService database)
+    public FrequencyOverlayViewModel(
+        ISettingsService settings,
+        ISatelliteDatabaseService database,
+        ILocalizationService localization)
     {
         _settings = settings;
         _database = database;
+        _l = localization;
         OverlayX = settings.Current.FrequencyOverlayX;
         OverlayY = settings.Current.FrequencyOverlayY;
         IsCollapsed = settings.Current.FrequencyOverlayCollapsed;
+        EmptyStateMessage = _l.Get("Freq.SelectSatelliteHint");
+        CollapsedSummaryText = _l.Get("Freq.SelectSatellite");
     }
 
     [RelayCommand]
@@ -237,7 +244,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             _currentSatelliteName = null;
             _currentStorageKey = null;
             HasTransponderData = false;
-            EmptyStateMessage = SelectSatelliteMessage;
+            EmptyStateMessage = _l.Get("Freq.SelectSatelliteHint");
             ClearFrequencyDisplay();
             return;
         }
@@ -259,7 +266,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         if (SelectedMode is null)
         {
             HasTransponderData = false;
-            EmptyStateMessage = NoTransponderDataMessage;
+            EmptyStateMessage = _l.Get("Freq.NoTransponder");
             ClearFrequencyDisplay();
             return;
         }
@@ -428,10 +435,10 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         _settings.RequestSave();
 
         var hz = (int)Math.Round(ReceiveOffsetKHz * 1000.0);
-        var style = UseCwReceiveOffsetStorage() ? "CW " : "";
+        var cw = UseCwReceiveOffsetStorage();
         OffsetAppliedHint = hz == 0
-            ? $"Stored {style}offset cleared."
-            : $"Stored {style}{hz} Hz offset.";
+            ? _l.Get(cw ? "Freq.StoredOffsetClearedCw" : "Freq.StoredOffsetCleared")
+            : _l.Get(cw ? "Freq.StoredOffsetCw" : "Freq.StoredOffset", hz);
     }
 
     private bool CanStoreOffset() => HasTransponderData && SelectedMode is not null;
@@ -491,14 +498,14 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         if (!HasTransponderData || SelectedMode is null)
         {
             CollapsedSummaryText = _currentNoradId is null
-                ? "Select a satellite"
-                : $"{SatelliteName} · no transponder data";
+                ? _l.Get("Freq.SelectSatellite")
+                : _l.Get("Freq.CollapsedNoTransponder", SatelliteName);
             return;
         }
 
         var mode = SelectedMode.DisplayLabel;
         if (IsCwUplink && ShowOperatingStyleRow)
-            mode += " · CW";
+            mode += _l.Get("Freq.CwSuffix");
 
         if (corrected is null)
         {
@@ -530,21 +537,19 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         {
             var offset = $"{ReceiveOffsetKHz:+0.000;-0.000;0} kHz";
             OffsetAppliedHint = isRev
-                ? $"{offset} on downlink. Tune Main for uplink."
-                : $"{offset} on downlink.";
+                ? _l.Get("Freq.OffsetOnDownlinkTuneUplink", offset)
+                : _l.Get("Freq.OffsetOnDownlink", offset);
             return;
         }
 
         var offsetHint = isRev
-            ? "Downlink only. Tune Main for uplink."
-            : "Offsets downlink only.";
+            ? _l.Get("Freq.DownlinkOnlyTuneUplink")
+            : _l.Get("Freq.OffsetsDownlinkOnly");
 
         OffsetAppliedHint = DopplerStrategy switch
         {
-            DopplerStrategy.DownlinkOnly =>
-                $"TX fixed (downlink Doppler only). {offsetHint}",
-            DopplerStrategy.UplinkOnly =>
-                $"RX fixed (uplink Doppler only). {offsetHint}",
+            DopplerStrategy.DownlinkOnly => _l.Get("Freq.TxFixedOffsetHint", offsetHint),
+            DopplerStrategy.UplinkOnly => _l.Get("Freq.RxFixedOffsetHint", offsetHint),
             _ => offsetHint
         };
     }
@@ -789,21 +794,19 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private void UpdateDopplerStrategyHint() =>
         DopplerStrategyHint = DopplerStrategy switch
         {
-            DopplerStrategy.DownlinkOnly =>
-                "TX fixed — uplink stays put; downlink tracks Doppler (roving CQ).",
-            DopplerStrategy.UplinkOnly =>
-                "RX fixed — downlink stays put; uplink tracks Doppler.",
-            _ => "Full — uplink and downlink both track Doppler."
+            DopplerStrategy.DownlinkOnly => _l.Get("Freq.DopplerTxFixedHint"),
+            DopplerStrategy.UplinkOnly => _l.Get("Freq.DopplerRxFixedHint"),
+            _ => _l.Get("Freq.DopplerFullHint")
         };
 
     private void UpdateOperatingStyleHint()
     {
         OperatingStyleHint = IsCwUplink && ShowOperatingStyleRow
             ? CwKeepSidebandDownlink
-                ? "CW on uplink; receive stays USB/LSB. Ctrl+W to toggle."
-                : "CW on uplink and downlink. Ctrl+W to toggle."
+                ? _l.Get("Freq.OperatingCwSideband")
+                : _l.Get("Freq.OperatingCwBoth")
             : ShowOperatingStyleRow
-                ? "Voice uses database modes. Ctrl+W toggles CW."
+                ? _l.Get("Freq.OperatingVoice")
                 : "";
     }
 
@@ -829,8 +832,8 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
         if (SelectedMode.HasCtcss && SelectedMode.HasCtcssArm)
         {
-            var access = new CtcssToneOption("access", "Access", SelectedMode.CtcssHz!.Value);
-            var arm = new CtcssToneOption("arm", "Arm", SelectedMode.CtcssArmHz!.Value);
+            var access = new CtcssToneOption("access", _l.Get("Freq.CtcssAccess"), SelectedMode.CtcssHz!.Value);
+            var arm = new CtcssToneOption("arm", _l.Get("Freq.CtcssArm"), SelectedMode.CtcssArmHz!.Value);
             CtcssToneOptions.Add(access);
             CtcssToneOptions.Add(arm);
 

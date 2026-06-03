@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OscarWatch.Core.Services;
+using OscarWatch.Localization;
 
 namespace OscarWatch.ViewModels;
 
@@ -16,6 +17,7 @@ public partial class SatellitePickerViewModel : ViewModelBase
 {
     private readonly ISettingsService _settings;
     private readonly ITleService _tleService;
+    private readonly ILocalizationService _l;
 
     [ObservableProperty]
     private string _searchText = "";
@@ -23,19 +25,24 @@ public partial class SatellitePickerViewModel : ViewModelBase
     [ObservableProperty]
     private SatellitePickerFilterOption? _selectedSelectionFilterChoice;
 
-    public IReadOnlyList<SatellitePickerFilterOption> SelectionFilterChoices { get; } =
-    [
-        new(SatellitePickerSelectionFilter.All, "All"),
-        new(SatellitePickerSelectionFilter.Selected, "Selected"),
-        new(SatellitePickerSelectionFilter.NotSelected, "Not Selected")
-    ];
+    public IReadOnlyList<SatellitePickerFilterOption> SelectionFilterChoices { get; }
 
     public ObservableCollection<SatelliteItemViewModel> Satellites { get; } = [];
 
-    public SatellitePickerViewModel(ISettingsService settings, ITleService tleService)
+    public SatellitePickerViewModel(
+        ISettingsService settings,
+        ITleService tleService,
+        ILocalizationService localization)
     {
         _settings = settings;
         _tleService = tleService;
+        _l = localization;
+        SelectionFilterChoices =
+        [
+            new(SatellitePickerSelectionFilter.All, _l.Get("Picker.Filter.All")),
+            new(SatellitePickerSelectionFilter.Selected, _l.Get("Picker.Filter.Selected")),
+            new(SatellitePickerSelectionFilter.NotSelected, _l.Get("Picker.Filter.NotSelected"))
+        ];
         SelectedSelectionFilterChoice = SelectionFilterChoices[0];
         Load();
     }

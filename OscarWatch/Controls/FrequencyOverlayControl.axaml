@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:OscarWatch.ViewModels"
              xmlns:models="using:OscarWatch.Core.Models"
+             xmlns:loc="using:OscarWatch.Localization"
              x:Class="OscarWatch.Controls.FrequencyOverlayControl"
              x:DataType="vm:FrequencyOverlayViewModel"
              MinWidth="{Binding OverlayMinWidth}"
@@ -226,7 +227,7 @@
                        IsVisible="{Binding ShowHeaderOperatingStyle}">
             <Button Classes="operating-style-header"
                     Classes.operating-style-active="{Binding IsVoiceOperatingStyleSelected}"
-                    Content="Voice"
+                    Content="{loc:Localize Key=Freq.Voice}"
                     ToolTip.Tip="{Binding OperatingStyleHint}"
                     Command="{Binding SelectVoiceOperatingStyleCommand}"
                     Margin="0,0,3,0" />
@@ -256,7 +257,7 @@
                    Foreground="#FFE0E0E0" />
 
         <StackPanel IsVisible="{Binding HasTransponderData}" Spacing="6">
-          <TextBlock Text="Transponder mode"
+          <TextBlock Text="{loc:Localize Key=Freq.TransponderMode}"
                      FontSize="12"
                      FontWeight="SemiBold"
                      Foreground="#FFE0E0E0" />
@@ -300,12 +301,12 @@
               RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
               ColumnSpacing="14"
               RowSpacing="8">
-          <TextBlock Grid.Row="0" Grid.Column="1" Text="Uplink (TX)" FontSize="12" FontWeight="SemiBold"
+          <TextBlock Grid.Row="0" Grid.Column="1" Text="{loc:Localize Key=Freq.UplinkTx}" FontSize="12" FontWeight="SemiBold"
                      Foreground="#FFB0B0B0" HorizontalAlignment="Right" />
-          <TextBlock Grid.Row="0" Grid.Column="2" Text="Downlink (RX)" FontSize="12" FontWeight="SemiBold"
+          <TextBlock Grid.Row="0" Grid.Column="2" Text="{loc:Localize Key=Freq.DownlinkRx}" FontSize="12" FontWeight="SemiBold"
                      Foreground="#FFB0B0B0" HorizontalAlignment="Right" />
 
-          <TextBlock Grid.Row="1" Grid.Column="0" Text="Sat" FontSize="14" FontWeight="SemiBold"
+          <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Localize Key=Freq.Sat}" FontSize="14" FontWeight="SemiBold"
                      Foreground="#FFE0E0E0" VerticalAlignment="Center" />
           <TextBlock Grid.Row="1" Grid.Column="1" Classes="freq-mono"
                      Text="{Binding SatelliteTransmitText}"
@@ -317,7 +318,7 @@
                      FontSize="18" FontWeight="SemiBold"
                      Foreground="#FFFFFFFF" />
 
-          <TextBlock Grid.Row="2" Grid.Column="0" Text="Radio" FontSize="14"
+          <TextBlock Grid.Row="2" Grid.Column="0" Text="{loc:Localize Key=Freq.Radio}" FontSize="14"
                      Foreground="#FFE0E0E0" VerticalAlignment="Center" />
           <TextBlock Grid.Row="2" Grid.Column="1" Classes="freq-mono"
                      Text="{Binding RadioTransmitText}"
@@ -340,20 +341,20 @@
                          Width="156">
               <Button Classes="doppler-strategy-header"
                       Classes.operating-style-active="{Binding IsFullDopplerSelected}"
-                      Content="Full"
+                      Content="{loc:Localize Key=Freq.DopplerFull}"
                       ToolTip.Tip="{Binding DopplerStrategyHint}"
                       Command="{Binding SelectFullDopplerCommand}"
                       Margin="0,0,3,0" />
               <Button Classes="doppler-strategy-header"
                       Classes.operating-style-active="{Binding IsTxFixedDopplerSelected}"
-                      Content="TX"
-                      ToolTip.Tip="TX fixed — downlink Doppler only (SatPC32 TX-Fixed). Uplink stays on your CQ spot."
+                      Content="{loc:Localize Key=Freq.DopplerTx}"
+                      ToolTip.Tip="{loc:Localize Key=Freq.DopplerTxFixedToolTip}"
                       Command="{Binding SelectTxFixedDopplerCommand}"
                       Margin="3,0,3,0" />
               <Button Classes="doppler-strategy-header"
                       Classes.operating-style-active="{Binding IsRxFixedDopplerSelected}"
-                      Content="RX"
-                      ToolTip.Tip="RX fixed — uplink Doppler only (SatPC32 RX-Fixed). Downlink stays put."
+                      Content="{loc:Localize Key=Freq.DopplerRx}"
+                      ToolTip.Tip="{loc:Localize Key=Freq.DopplerRxFixedToolTip}"
                       Command="{Binding SelectRxFixedDopplerCommand}"
                       Margin="3,0,0,0" />
             </UniformGrid>
@@ -366,7 +367,7 @@
                        VerticalAlignment="Center" />
           </Grid>
 
-          <TextBlock Grid.Row="4" Grid.Column="0" Text="CTCSS" FontSize="14"
+          <TextBlock Grid.Row="4" Grid.Column="0" Text="{loc:Localize Key=Freq.Ctcss}" FontSize="14"
                      IsVisible="{Binding ShowCtcssRow}"
                      Foreground="#FFE0E0E0" VerticalAlignment="Center" />
 
@@ -418,7 +419,7 @@
 
         <StackPanel IsVisible="{Binding HasTransponderData}" Spacing="10">
           <StackPanel Spacing="6">
-            <TextBlock Text="RX offset (kHz)" FontSize="12" FontWeight="SemiBold"
+            <TextBlock Text="{loc:Localize Key=Freq.RxOffsetKHz}" FontSize="12" FontWeight="SemiBold"
                        Foreground="#FFE0E0E0" />
             <NumericUpDown x:Name="RxOffsetUpDown"
                            Classes="offset-spin"
@@ -439,7 +440,7 @@
               <Button Classes="offset-step" Content="-1000" Tag="-1000" Click="OnOffsetStepClick" />
             </UniformGrid>
             <Button Classes="store-offset"
-                    Content="Store Offset"
+                    Content="{loc:Localize Key=Freq.StoreOffset}"
                     Command="{Binding StoreOffsetCommand}" />
           </StackPanel>
           <TextBlock Text="{Binding OffsetAppliedHint}"

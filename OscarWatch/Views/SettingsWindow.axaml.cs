@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using OscarWatch.Localization;
 using OscarWatch.ViewModels;
 
 namespace OscarWatch.Views;
@@ -34,7 +35,7 @@ public partial class SettingsWindow : Window
 
             await new Window
             {
-                Title = "Could not save settings",
+                Title = LocalizationService.Instance.Get("Settings.SaveFailed.Title"),
                 Width = 400,
                 Height = 160,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,

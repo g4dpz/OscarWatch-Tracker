@@ -8,6 +8,7 @@ using OscarWatch.Core.Geo;
 using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
+using OscarWatch.Localization;
 
 namespace OscarWatch.ViewModels;
 
@@ -16,7 +17,10 @@ public partial class PassPlanningViewModel : ViewModelBase
     private readonly ISettingsService _settings;
     private readonly ITleService _tleService;
     private readonly TrackingOrchestrator _tracking;
+    private readonly ILocalizationService _l;
     private bool _isSynchronizing;
+
+    public IReadOnlyList<string> TimeDisplayLabels { get; }
 
     public ObservableCollection<StationProfile> Stations { get; } = [];
     public ObservableCollection<PassPlanningPassRow> Passes { get; } = [];
@@ -60,11 +64,18 @@ public partial class PassPlanningViewModel : ViewModelBase
     public PassPlanningViewModel(
         ISettingsService settings,
         ITleService tleService,
-        TrackingOrchestrator tracking)
+        TrackingOrchestrator tracking,
+        ILocalizationService localization)
     {
         _settings = settings;
         _tleService = tleService;
         _tracking = tracking;
+        _l = localization;
+        TimeDisplayLabels =
+        [
+            _l.Get("Pass.Time.Local"),
+            _l.Get("Pass.Time.Utc")
+        ];
     }
 
     public void Initialize()
@@ -197,7 +208,7 @@ public partial class PassPlanningViewModel : ViewModelBase
         var home = Stations.FirstOrDefault();
         var profile = new StationProfile
         {
-            DisplayName = $"Portable {Stations.Count + 1}",
+            DisplayName = _l.Get("Planner.PortableName", Stations.Count + 1),
             LatitudeDeg = home?.LatitudeDeg ?? 51.5,
             LongitudeDeg = home?.LongitudeDeg ?? -0.1,
             AltitudeMetersAsl = home?.AltitudeMetersAsl ?? 50,
@@ -262,7 +273,7 @@ public partial class PassPlanningViewModel : ViewModelBase
     private async Task RefreshPassesAsync()
     {
         ApplyEditableFieldsToSelectedStation();
-        StatusText = "Computing passes…";
+        StatusText = _l.Get("Pass.Computing");
 
         try
         {
@@ -278,11 +289,11 @@ public partial class PassPlanningViewModel : ViewModelBase
             foreach (var pass in passes)
                 Passes.Add(PassPlanningPassRow.From(pass, UseUtcTime));
 
-            StatusText = $"{Passes.Count} pass(es) in the next {FilterPredictionHours} h";
+            StatusText = _l.Get("Pass.CountPasses", Passes.Count, FilterPredictionHours);
         }
         catch (Exception ex)
         {
-            StatusText = $"Pass prediction failed: {ex.Message}";
+            StatusText = _l.Get("Pass.Failed", ex.Message);
         }
     }
 
@@ -295,7 +306,7 @@ public partial class PassPlanningViewModel : ViewModelBase
 
         if (passInfos.Count == 0)
         {
-            StatusText = "Refresh passes before exporting.";
+            StatusText = _l.Get("Planner.Export.RefreshFirst");
             return false;
         }
 
@@ -303,15 +314,15 @@ public partial class PassPlanningViewModel : ViewModelBase
         if (storage is null)
             return false;
 
-        var safeName = SanitizeFileName(row.SatelliteName);
+        var safeName = SanitizeFileName(row.SatelliteName, _l);
         var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = $"Export {row.SatelliteName} passes",
+            Title = _l.Get("Planner.Export.Title", row.SatelliteName),
             SuggestedFileName = $"oscarwatch-{safeName}.ics",
             DefaultExtension = "ics",
             FileTypeChoices =
             [
-                new FilePickerFileType("iCalendar") { Patterns = ["*.ics"] }
+                new FilePickerFileType(_l.Get("Planner.Export.FileType")) { Patterns = ["*.ics"] }
             ]
         });
 
@@ -323,22 +334,22 @@ public partial class PassPlanningViewModel : ViewModelBase
         var ics = IcsPassExporter.BuildCalendar(
             passInfos,
             site,
-            $"OscarWatch — {row.SatelliteName} @ {site.DisplayName}");
+            _l.Get("Planner.Export.CalendarTitle", row.SatelliteName, site.DisplayName));
 
         await using var stream = await file.OpenWriteAsync();
         await using var writer = new StreamWriter(stream);
         await writer.WriteAsync(ics);
 
-        StatusText = $"Exported {passInfos.Count} {row.SatelliteName} pass(es)";
+        StatusText = _l.Get("Planner.Export.Done", passInfos.Count, row.SatelliteName);
         return true;
     }
 
-    private static string SanitizeFileName(string name)
+    private static string SanitizeFileName(string name, ILocalizationService l)
     {
         var invalid = Path.GetInvalidFileNameChars();
         var chars = name.Select(c => invalid.Contains(c) ? '_' : c).ToArray();
         var sanitized = new string(chars).Trim();
-        return string.IsNullOrEmpty(sanitized) ? "satellite" : sanitized;
+        return string.IsNullOrEmpty(sanitized) ? l.Get("Planner.Export.SatelliteFile") : sanitized;
     }
 
     public async Task SaveFiltersAndStationsAsync()

@@ -2,38 +2,50 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OscarWatch.Core.Services;
+using OscarWatch.Localization;
 
 namespace OscarWatch.ViewModels;
 
 public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
 {
+    private readonly ILocalizationService _l;
     private readonly SatelliteDatabaseMergePresentation _presentation;
 
     public SatelliteDatabaseMergeViewModel(
         SatelliteDatabaseMergePlan plan,
+        ILocalizationService localization,
         SatelliteDatabaseMergePresentation presentation = SatelliteDatabaseMergePresentation.RemoteUpdate)
     {
         Plan = plan;
+        _l = localization;
         _presentation = presentation;
+        WindowTitle = presentation == SatelliteDatabaseMergePresentation.FileImport
+            ? _l.Get("DbMerge.Title.Import")
+            : _l.Get("DbMerge.Title.Remote");
         SummaryText = BuildSummary(plan, presentation);
-        IntroHintText = presentation.IntroHint();
-        ConflictRemoteLabel = presentation.ConflictRemoteLabel();
+        IntroHintText = presentation == SatelliteDatabaseMergePresentation.FileImport
+            ? _l.Get("DbMerge.Intro.Import")
+            : _l.Get("DbMerge.Intro.Remote");
+        ConflictRemoteLabel = presentation == SatelliteDatabaseMergePresentation.FileImport
+            ? _l.Get("DbMerge.UseImported")
+            : _l.Get("DbMerge.UsePublished");
         ConflictRemoteSummaryPrefix = presentation == SatelliteDatabaseMergePresentation.FileImport
-            ? "Imported"
-            : "Published";
+            ? _l.Get("DbMerge.Prefix.Imported")
+            : _l.Get("DbMerge.Prefix.Published");
 
         foreach (var item in plan.NewSatellites)
         {
-            NewSatellites.Add(new MergeAdditionItem(
-                item.Key,
-                $"{item.Entry.Name} ({item.Entry.Modes.Count} mode{(item.Entry.Modes.Count == 1 ? "" : "s")})"));
+            var label = item.Entry.Modes.Count == 1
+                ? _l.Get("DbMerge.Item.SatelliteOneMode", item.Entry.Name)
+                : _l.Get("DbMerge.Item.SatelliteManyModes", item.Entry.Name, item.Entry.Modes.Count);
+            NewSatellites.Add(new MergeAdditionItem(item.Key, label));
         }
 
         foreach (var item in plan.NewModes)
         {
             NewModes.Add(new MergeAdditionItem(
                 item.Key,
-                $"{item.SatelliteName} · {item.Mode.Type}"));
+                _l.Get("DbMerge.Item.ModeLine", item.SatelliteName, item.Mode.Type)));
         }
 
         foreach (var item in plan.Conflicts)
@@ -45,11 +57,14 @@ public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
                 SatelliteDatabaseMerger.DescribeMode(item.LocalMode),
                 SatelliteDatabaseMerger.DescribeMode(item.RemoteMode),
                 ConflictRemoteSummaryPrefix,
-                ConflictRemoteLabel));
+                ConflictRemoteLabel,
+                _l.Get("DbMerge.YoursFormat", SatelliteDatabaseMerger.DescribeMode(item.LocalMode))));
         }
     }
 
     public SatelliteDatabaseMergePlan Plan { get; }
+
+    public string WindowTitle { get; }
 
     public string SummaryText { get; }
 
@@ -90,20 +105,36 @@ public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
         return Conflicts.Any(i => i.UseRemote);
     }
 
-    private static string BuildSummary(SatelliteDatabaseMergePlan plan, SatelliteDatabaseMergePresentation presentation)
+    private string BuildSummary(SatelliteDatabaseMergePlan plan, SatelliteDatabaseMergePresentation presentation)
     {
         var parts = new List<string>();
         if (plan.NewSatellites.Count > 0)
-            parts.Add($"{plan.NewSatellites.Count} new satellite{(plan.NewSatellites.Count == 1 ? "" : "s")}");
-        if (plan.NewModes.Count > 0)
-            parts.Add($"{plan.NewModes.Count} new mode{(plan.NewModes.Count == 1 ? "" : "s")}");
-        if (plan.Conflicts.Count > 0)
-            parts.Add($"{plan.Conflicts.Count} conflict{(plan.Conflicts.Count == 1 ? "" : "s")}");
+        {
+            parts.Add(plan.NewSatellites.Count == 1
+                ? _l.Get("DbMerge.Summary.OneNewSatellite", plan.NewSatellites.Count)
+                : _l.Get("DbMerge.Summary.ManyNewSatellites", plan.NewSatellites.Count));
+        }
 
-        var source = presentation.SourceDescription();
+        if (plan.NewModes.Count > 0)
+        {
+            parts.Add(plan.NewModes.Count == 1
+                ? _l.Get("DbMerge.Summary.OneNewMode", plan.NewModes.Count)
+                : _l.Get("DbMerge.Summary.ManyNewModes", plan.NewModes.Count));
+        }
+
+        if (plan.Conflicts.Count > 0)
+        {
+            parts.Add(plan.Conflicts.Count == 1
+                ? _l.Get("DbMerge.Summary.OneConflict", plan.Conflicts.Count)
+                : _l.Get("DbMerge.Summary.ManyConflicts", plan.Conflicts.Count));
+        }
+
+        var source = presentation == SatelliteDatabaseMergePresentation.FileImport
+            ? _l.Get("DbMerge.Source.Import")
+            : _l.Get("DbMerge.Source.Remote");
         return parts.Count == 0
-            ? $"Your transponder database matches {source}."
-            : string.Join(", ", parts) + $" from {source}.";
+            ? _l.Get("DbMerge.Summary.Matches", source)
+            : string.Join(", ", parts) + _l.Get("DbMerge.Summary.FromSuffix", source);
     }
 }
 
@@ -131,13 +162,15 @@ public partial class MergeConflictItem : ObservableObject
         string localSummary,
         string remoteSummary,
         string remoteSummaryPrefix,
-        string useRemoteLabel)
+        string useRemoteLabel,
+        string yoursSummaryLine)
     {
         Key = key;
         SatelliteName = satelliteName;
         ModeType = modeType;
         LocalSummary = localSummary;
         RemoteSummary = remoteSummary;
+        YoursSummaryLine = yoursSummaryLine;
         RemoteSummaryLine = $"{remoteSummaryPrefix}: {remoteSummary}";
         UseRemoteLabel = useRemoteLabel;
     }
@@ -147,6 +180,7 @@ public partial class MergeConflictItem : ObservableObject
     public string ModeType { get; }
     public string LocalSummary { get; }
     public string RemoteSummary { get; }
+    public string YoursSummaryLine { get; }
     public string RemoteSummaryLine { get; }
     public string UseRemoteLabel { get; }
     public string Title => $"{SatelliteName} · {ModeType}";

@@ -1,11 +1,12 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:loc="using:OscarWatch.Localization"
         xmlns:models="using:OscarWatch.Core.Models"
         xmlns:services="using:OscarWatch.Core.Services"
         x:Class="OscarWatch.Views.SettingsWindow"
         x:DataType="vm:SettingsViewModel"
-        Title="Settings"
+        Title="{loc:Localize Key=Settings.Title}"
         Width="800" Height="520"
         MinWidth="760" MinHeight="360"
         WindowStartupLocation="CenterOwner">
@@ -15,10 +16,10 @@
             BorderThickness="0,1,0,0"
             Padding="12,10">
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-        <Button Content="Cancel"
+        <Button Content="{loc:Localize Key=Common.Cancel}"
                 Classes="dialog-footer"
                 Click="OnCancelClick" />
-        <Button Content="Save"
+        <Button Content="{loc:Localize Key=Common.Save}"
                 Classes="dialog-footer accent"
                 Click="OnSaveClick"
                 IsDefault="True" />
@@ -48,26 +49,26 @@
           <Setter Property="Margin" Value="0,0,0,56" />
         </Style>
       </TabControl.Styles>
-      <TabItem Header="Station">
+      <TabItem Header="{loc:Localize Key=Settings.Tab.Station}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
-            <TextBlock Text="Display name" />
+            <TextBlock Text="{loc:Localize Key=Settings.Station.DisplayName}" />
             <TextBox Text="{Binding DisplayName, Mode=TwoWay}" />
             <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
               <StackPanel Grid.Column="0" Spacing="4">
-                <TextBlock Text="Latitude (°)" />
+                <TextBlock Text="{loc:Localize Key=Settings.Station.Latitude}" />
                 <NumericUpDown Value="{Binding LatitudeDeg, Mode=TwoWay}"
                                Minimum="-90" Maximum="90" FormatString="F4" />
               </StackPanel>
               <StackPanel Grid.Column="1" Spacing="4">
-                <TextBlock Text="Longitude (°)" />
+                <TextBlock Text="{loc:Localize Key=Settings.Station.Longitude}" />
                 <NumericUpDown Value="{Binding LongitudeDeg, Mode=TwoWay}"
                                Minimum="-180" Maximum="180" FormatString="F4" />
               </StackPanel>
             </Grid>
-            <TextBlock Text="Maidenhead grid square" />
+            <TextBlock Text="{loc:Localize Key=Settings.Station.GridSquare}" />
             <TextBox Text="{Binding GridSquare, Mode=TwoWay}" MaxLength="8" />
-            <TextBlock Text="Altitude ASL (m)" />
+            <TextBlock Text="{loc:Localize Key=Settings.Station.Altitude}" />
             <NumericUpDown Value="{Binding AltitudeMeters, Mode=TwoWay}"
                            Minimum="0" Maximum="9000"
                            Increment="0.1" FormatString="F1" />
@@ -75,10 +76,10 @@
         </ScrollViewer>
       </TabItem>
 
-      <TabItem Header="TLE">
+      <TabItem Header="{loc:Localize Key=Settings.Tab.Tle}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
-            <TextBlock Text="TLE catalog source" />
+            <TextBlock Text="{loc:Localize Key=Settings.Tle.Source}" />
             <ComboBox ItemsSource="{Binding TleSourceOptions}"
                       SelectedItem="{Binding TleSourceOption, Mode=TwoWay}"
                       HorizontalAlignment="Stretch">
@@ -91,25 +92,25 @@
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="OscarWatch is the default AMSAT-oriented catalog. AMSAT.org uses the published nasabare.txt set. Use a custom URL or local file if you maintain your own TLE set." />
-            <TextBlock Text="Download URL"
+                       Text="{loc:Localize Key=Settings.Tle.SourceNote}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Tle.DownloadUrl}"
                        IsVisible="{Binding ShowTleCustomUrl}" />
             <TextBox Text="{Binding TleCustomUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      Watermark="{Binding TleCustomUrlWatermark}"
                      IsVisible="{Binding ShowTleCustomUrl}" />
-            <TextBlock Text="Local TLE file"
+            <TextBlock Text="{loc:Localize Key=Settings.Tle.LocalFile}"
                        IsVisible="{Binding ShowTleLocalFile}" />
             <Grid ColumnDefinitions="*,Auto"
                   ColumnSpacing="8"
                   IsVisible="{Binding ShowTleLocalFile}">
               <TextBox Grid.Column="0"
                        Text="{Binding TleLocalFilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                       Watermark="Path to .txt or .tle file" />
+                       Watermark="{loc:Localize Key=Settings.Tle.LocalFileWatermark}" />
               <Button Grid.Column="1"
-                      Content="Browse…"
+                      Content="{loc:Localize Key=Common.Browse}"
                       Click="OnBrowseTleFileClick" />
             </Grid>
-            <TextBlock Text="TLE updates" Margin="0,8,0,0" />
+            <TextBlock Text="{loc:Localize Key=Settings.Tle.Updates}" Margin="0,8,0,0" />
             <ComboBox ItemsSource="{Binding TleAutoUpdateOptions}"
                       SelectedItem="{Binding TleAutoUpdateOption, Mode=TwoWay}"
                       HorizontalAlignment="Stretch">
@@ -122,81 +123,95 @@
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Automatic download applies to OscarWatch and custom URLs only. Local files are re-read when you save settings or choose Satellites → Refresh TLEs." />
+                       Text="{loc:Localize Key=Settings.Tle.UpdatesNote}" />
           </StackPanel>
         </ScrollViewer>
       </TabItem>
 
-      <TabItem Header="Tracking">
+      <TabItem Header="{loc:Localize Key=Settings.Tab.Tracking}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
-            <TextBlock Text="Minimum elevation (°)" />
+            <TextBlock Text="{loc:Localize Key=Settings.Tracking.MinElevation}" />
             <NumericUpDown Value="{Binding MinimumElevationDeg, Mode=TwoWay}"
                            Minimum="0" Maximum="90" FormatString="F1" />
-            <TextBlock Text="Pass prediction window (hours)" />
+            <TextBlock Text="{loc:Localize Key=Settings.Tracking.PassWindow}" />
             <NumericUpDown Value="{Binding PassPredictionHours, Mode=TwoWay}"
                            Minimum="6" Maximum="168" FormatString="F0" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Used for the upcoming pass list and as defaults in the pass planner." />
-            <CheckBox Content="Check for transponder database updates on startup"
+                       Text="{loc:Localize Key=Settings.Tracking.PassWindowNote}" />
+            <CheckBox Content="{loc:Localize Key=Settings.Tracking.TransponderCheck}"
                       IsChecked="{Binding TransponderDatabaseCheckOnStartup, Mode=TwoWay}"
                       Margin="0,8,0,0" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Downloads tle.oscarwatch.org/satellite_database.json when updates are available. New satellites and modes are offered for merge; your local edits are kept unless you accept published changes." />
+                       Text="{loc:Localize Key=Settings.Tracking.TransponderCheckNote}" />
           </StackPanel>
         </ScrollViewer>
       </TabItem>
 
-      <TabItem Header="Appearance">
+      <TabItem Header="{loc:Localize Key=Settings.Tab.Appearance}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
-            <TextBlock Text="Theme" />
-            <ComboBox ItemsSource="{Binding ThemeOptions}"
-                      SelectedItem="{Binding ThemePreference, Mode=TwoWay}"
+            <TextBlock Text="{loc:Localize Key=Settings.Language}" />
+            <ComboBox ItemsSource="{Binding LanguageOptions}"
+                      SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}"
                       HorizontalAlignment="Stretch">
               <ComboBox.ItemTemplate>
-                <DataTemplate x:DataType="models:AppThemePreference">
-                  <TextBlock Text="{Binding}" />
+                <DataTemplate x:DataType="vm:LanguageOption">
+                  <TextBlock Text="{Binding Label}" />
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="System follows your OS light/dark setting. The world map image stays light in all modes for now." />
-            <CheckBox Content="Show footprint motion arrows"
+                       Text="{loc:Localize Key=Settings.Language.RestartNote}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Theme}" Margin="0,8,0,0" />
+            <ComboBox ItemsSource="{Binding ThemeOptions}"
+                      SelectedItem="{Binding SelectedThemeOption, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:ThemeOption">
+                  <TextBlock Text="{Binding Label}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="{loc:Localize Key=Settings.Theme.Note}" />
+            <CheckBox Content="{loc:Localize Key=Settings.FootprintArrows}"
                       IsChecked="{Binding ShowFootprintMotionArrows, Mode=TwoWay}"
                       Margin="0,8,0,0" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Draws a small arrow inside each satellite footprint on the world map showing ground-track direction." />
+                       Text="{loc:Localize Key=Settings.FootprintArrows.Note}" />
           </StackPanel>
         </ScrollViewer>
       </TabItem>
 
-      <TabItem Header="Voice">
+      <TabItem Header="{loc:Localize Key=Settings.Tab.Voice}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
-            <CheckBox Content="Enable voice announcements"
+            <CheckBox Content="{loc:Localize Key=Settings.Voice.Enable}"
                       IsChecked="{Binding VoiceAnnouncementsEnabled, Mode=TwoWay}" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Announces each enabled satellite once per pass when it crosses the elevation threshold while rising, for example: Alpha Oscar Zero Seven is rising." />
-            <TextBlock Text="Announce at elevation (°)" Margin="0,8,0,0" />
+                       Text="{loc:Localize Key=Settings.Voice.EnableNote}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Voice.AnnounceElevation}" Margin="0,8,0,0" />
             <NumericUpDown Value="{Binding AnnounceElevationDeg, Mode=TwoWay}"
                            Minimum="-10" Maximum="30"
                            Increment="0.5" FormatString="F1" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Default is -3°. The announcement fires when elevation rises through this value (negative values catch the satellite before it clears the horizon)." />
-            <TextBlock Text="Voice" Margin="0,8,0,0" />
+                       Text="{loc:Localize Key=Settings.Voice.AnnounceElevationNote}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Voice.VoiceLabel}" Margin="0,8,0,0" />
             <ComboBox ItemsSource="{Binding SpeechVoiceOptions}"
                       SelectedItem="{Binding SelectedSpeechVoice, Mode=TwoWay}"
                       IsEnabled="{Binding SpeechAvailable}"
@@ -211,12 +226,12 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        IsVisible="{Binding SpeechUnavailable}"
-                       Text="Text-to-speech is not available on this system." />
-            <TextBlock Text="Preview" Margin="0,8,0,0" />
+                       Text="{loc:Localize Key=Settings.Voice.SpeechUnavailable}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Voice.Preview}" Margin="0,8,0,0" />
             <TextBlock Text="{Binding VoicePreviewText}"
                        TextWrapping="Wrap"
                        FontStyle="Italic" />
-            <Button Content="Test announcement"
+            <Button Content="{loc:Localize Key=Settings.Voice.TestAnnouncement}"
                     Command="{Binding TestVoiceAnnouncementCommand}"
                     IsEnabled="{Binding SpeechAvailable}"
                     HorizontalAlignment="Left"
@@ -225,7 +240,7 @@
         </ScrollViewer>
       </TabItem>
 
-      <TabItem Header="Radio">
+      <TabItem Header="{loc:Localize Key=Settings.Tab.Radio}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
             <TextBlock Text="{Binding ComPortConflictText}"
@@ -233,13 +248,13 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        IsVisible="{Binding ShowComPortConflict}" />
-            <CheckBox Content="Enable radio control"
+            <CheckBox Content="{loc:Localize Key=Settings.Radio.Enable}"
                       IsChecked="{Binding RigEnabled, Mode=TwoWay}" />
-            <CheckBox Content="Dual radio (separate downlink and uplink — FT-817/818, FT-991(A), IC-705, or mixed)"
+            <CheckBox Content="{loc:Localize Key=Settings.Radio.DualEnable}"
                       IsChecked="{Binding DualRadioEnabled, Mode=TwoWay}"
                       Margin="0,4,0,0" />
             <StackPanel Spacing="10" IsVisible="{Binding ShowRigSingleConfig}">
-              <TextBlock Text="Radio driver" />
+              <TextBlock Text="{loc:Localize Key=Settings.Radio.Driver}" />
               <ComboBox ItemsSource="{Binding RigTypeChoices}"
                         SelectedItem="{Binding SelectedRigTypeChoice, Mode=TwoWay}"
                         HorizontalAlignment="Stretch">
@@ -249,42 +264,42 @@
                   </DataTemplate>
                 </ComboBox.ItemTemplate>
               </ComboBox>
-              <TextBlock Text="Serial port" />
+              <TextBlock Text="{loc:Localize Key=Settings.Radio.SerialPort}" />
               <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                 <ComboBox Grid.Column="0"
                           ItemsSource="{Binding AvailableComPorts}"
                           SelectedItem="{Binding SelectedRigComPort, Mode=TwoWay}"
-                          PlaceholderText="Select COM port"
+                          PlaceholderText="{loc:Localize Key=Settings.Radio.SelectComPort}"
                           HorizontalAlignment="Stretch" />
                 <Button Grid.Column="1"
-                        Content="Refresh"
+                        Content="{loc:Localize Key=Common.Refresh}"
                         Command="{Binding RefreshComPortsCommand}"
                         MinWidth="72" />
               </Grid>
-              <TextBlock Text="Baud rate" />
+              <TextBlock Text="{loc:Localize Key=Settings.Radio.BaudRate}" />
               <ComboBox ItemsSource="{Binding RigBaudRateOptions}"
                         SelectedItem="{Binding RigBaudRate, Mode=TwoWay}"
                         HorizontalAlignment="Stretch" />
               <StackPanel Spacing="4" IsVisible="{Binding ShowRigCivAddress}">
-                <TextBlock Text="CI-V address (hex)" />
+                <TextBlock Text="{loc:Localize Key=Settings.Radio.CivAddress}" />
                 <TextBox Text="{Binding RigCivAddress, Mode=TwoWay}"
                          Watermark="60" />
                 <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                            FontSize="11"
                            TextWrapping="Wrap"
-                           Text="IC-9700 default A2, IC-910 default 7C (hex). Use 60 if your radio is set that way in the CI-V menu." />
+                           Text="{loc:Localize Key=Settings.Radio.CivHint}" />
               </StackPanel>
               <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                          FontSize="11"
                          TextWrapping="Wrap"
                          IsVisible="{Binding ShowRigFt847CatHint}"
-                         Text="FT-847: set CAT baud in radio menu #37 (typically 57600). Use the CAT/LINEAR jack with a level converter (e.g. CT-62)." />
+                         Text="{loc:Localize Key=Settings.Radio.Ft847Hint}" />
               <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                          FontSize="11"
                          TextWrapping="Wrap"
                          IsVisible="{Binding ShowRigTs2000CatHint}"
-                         Text="TS-2000: CAT 57600 8N1. Select SAT on the radio and turn memory mode off before tracking; OscarWatch then enables SATL, auto VHF/UHF band swap (TRACE off via CAT)." />
-              <TextBlock Text="Region" />
+                         Text="{loc:Localize Key=Settings.Radio.Ts2000Hint}" />
+              <TextBlock Text="{loc:Localize Key=Settings.Radio.Region}" />
               <ComboBox ItemsSource="{Binding RigRegionChoices}"
                         SelectedItem="{Binding SelectedRigRegionChoice, Mode=TwoWay}"
                         HorizontalAlignment="Stretch">
@@ -297,15 +312,15 @@
               <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                          FontSize="11"
                          TextWrapping="Wrap"
-                         Text="EU uses tone; USA uses tone squelch (subtone)." />
-              <TextBlock Text="CAT delay (ms)" />
+                         Text="{loc:Localize Key=Settings.Radio.RegionNote}" />
+              <TextBlock Text="{loc:Localize Key=Settings.Radio.CatDelay}" />
               <NumericUpDown Value="{Binding RigCatDelayMs, Mode=TwoWay}"
                              Minimum="0" Maximum="500"
                              Increment="10" FormatString="F0" />
               <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                          FontSize="11"
                          TextWrapping="Wrap"
-                         Text="Minimum time between CAT commands to protect the serial link." />
+                         Text="{loc:Localize Key=Settings.Radio.CatDelayNote}" />
             </StackPanel>
             <StackPanel Spacing="12" IsVisible="{Binding ShowRigDualConfig}">
               <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
@@ -313,8 +328,8 @@
                       CornerRadius="4"
                       Padding="10">
                 <StackPanel Spacing="8">
-                  <TextBlock Text="Downlink radio" FontWeight="SemiBold" />
-                  <TextBlock Text="Radio" />
+                  <TextBlock Text="{loc:Localize Key=Settings.Radio.Downlink}" FontWeight="SemiBold" />
+                  <TextBlock Text="{loc:Localize Key=Settings.Radio.Label}" />
                   <ComboBox ItemsSource="{Binding RigDualTypeChoices}"
                             SelectedItem="{Binding SelectedDownlinkRigTypeChoice, Mode=TwoWay}"
                             HorizontalAlignment="Stretch">
@@ -324,25 +339,25 @@
                       </DataTemplate>
                     </ComboBox.ItemTemplate>
                   </ComboBox>
-                  <TextBlock Text="Serial port" />
+                  <TextBlock Text="{loc:Localize Key=Settings.Radio.SerialPort}" />
                   <ComboBox ItemsSource="{Binding AvailableComPorts}"
                             SelectedItem="{Binding SelectedDownlinkComPort, Mode=TwoWay}"
-                            PlaceholderText="Select COM port"
+                            PlaceholderText="{loc:Localize Key=Settings.Radio.SelectComPort}"
                             HorizontalAlignment="Stretch" />
-                  <TextBlock Text="Baud rate" />
+                  <TextBlock Text="{loc:Localize Key=Settings.Radio.BaudRate}" />
                   <ComboBox ItemsSource="{Binding RigBaudRateOptions}"
                             SelectedItem="{Binding DownlinkBaudRate, Mode=TwoWay}"
                             HorizontalAlignment="Stretch" />
                   <StackPanel Spacing="4" IsVisible="{Binding ShowDownlinkCivAddress}">
-                    <TextBlock Text="CI-V address (hex)" />
+                    <TextBlock Text="{loc:Localize Key=Settings.Radio.CivAddress}" />
                     <TextBox Text="{Binding DownlinkCivAddress, Mode=TwoWay}"
                              Watermark="A4" />
                     <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                                FontSize="11"
                                TextWrapping="Wrap"
-                               Text="IC-705 factory default A4. Must match the radio CI-V menu." />
+                               Text="{loc:Localize Key=Settings.Radio.Ic705CivHint}" />
                   </StackPanel>
-                  <TextBlock Text="Region" />
+                  <TextBlock Text="{loc:Localize Key=Settings.Radio.Region}" />
                   <ComboBox ItemsSource="{Binding RigRegionChoices}"
                             SelectedItem="{Binding SelectedDownlinkRegionChoice, Mode=TwoWay}"
                             HorizontalAlignment="Stretch">
@@ -352,7 +367,7 @@
                       </DataTemplate>
                     </ComboBox.ItemTemplate>
                   </ComboBox>
-                  <TextBlock Text="CAT delay (ms)" />
+                  <TextBlock Text="{loc:Localize Key=Settings.Radio.CatDelay}" />
                   <NumericUpDown Value="{Binding DownlinkCatDelayMs, Mode=TwoWay}"
                                  Minimum="0" Maximum="500"
                                  Increment="10" FormatString="F0" />
@@ -363,8 +378,8 @@
                       CornerRadius="4"
                       Padding="10">
                 <StackPanel Spacing="8">
-                  <TextBlock Text="Uplink radio" FontWeight="SemiBold" />
-                  <TextBlock Text="Radio" />
+                  <TextBlock Text="{loc:Localize Key=Settings.Radio.Uplink}" FontWeight="SemiBold" />
+                  <TextBlock Text="{loc:Localize Key=Settings.Radio.Label}" />
                   <ComboBox ItemsSource="{Binding RigDualTypeChoices}"
                             SelectedItem="{Binding SelectedUplinkRigTypeChoice, Mode=TwoWay}"
                             HorizontalAlignment="Stretch">
@@ -374,25 +389,25 @@
                       </DataTemplate>
                     </ComboBox.ItemTemplate>
                   </ComboBox>
-                  <TextBlock Text="Serial port" />
+                  <TextBlock Text="{loc:Localize Key=Settings.Radio.SerialPort}" />
                   <ComboBox ItemsSource="{Binding AvailableComPorts}"
                             SelectedItem="{Binding SelectedUplinkComPort, Mode=TwoWay}"
-                            PlaceholderText="Select COM port"
+                            PlaceholderText="{loc:Localize Key=Settings.Radio.SelectComPort}"
                             HorizontalAlignment="Stretch" />
-                  <TextBlock Text="Baud rate" />
+                  <TextBlock Text="{loc:Localize Key=Settings.Radio.BaudRate}" />
                   <ComboBox ItemsSource="{Binding RigBaudRateOptions}"
                             SelectedItem="{Binding UplinkBaudRate, Mode=TwoWay}"
                             HorizontalAlignment="Stretch" />
                   <StackPanel Spacing="4" IsVisible="{Binding ShowUplinkCivAddress}">
-                    <TextBlock Text="CI-V address (hex)" />
+                    <TextBlock Text="{loc:Localize Key=Settings.Radio.CivAddress}" />
                     <TextBox Text="{Binding UplinkCivAddress, Mode=TwoWay}"
                              Watermark="A4" />
                     <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                                FontSize="11"
                                TextWrapping="Wrap"
-                               Text="IC-705 factory default A4. Must match the radio CI-V menu." />
+                               Text="{loc:Localize Key=Settings.Radio.Ic705CivHint}" />
                   </StackPanel>
-                  <TextBlock Text="Region" />
+                  <TextBlock Text="{loc:Localize Key=Settings.Radio.Region}" />
                   <ComboBox ItemsSource="{Binding RigRegionChoices}"
                             SelectedItem="{Binding SelectedUplinkRegionChoice, Mode=TwoWay}"
                             HorizontalAlignment="Stretch">
@@ -402,13 +417,13 @@
                       </DataTemplate>
                     </ComboBox.ItemTemplate>
                   </ComboBox>
-                  <TextBlock Text="CAT delay (ms)" />
+                  <TextBlock Text="{loc:Localize Key=Settings.Radio.CatDelay}" />
                   <NumericUpDown Value="{Binding UplinkCatDelayMs, Mode=TwoWay}"
                                  Minimum="0" Maximum="500"
                                  Increment="10" FormatString="F0" />
                 </StackPanel>
               </Border>
-              <Button Content="Refresh COM ports"
+              <Button Content="{loc:Localize Key=Settings.Radio.RefreshComPorts}"
                       Command="{Binding RefreshComPortsCommand}"
                       HorizontalAlignment="Left"
                       MinWidth="140" />
@@ -417,25 +432,25 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        IsVisible="{Binding ShowRigFt817CatHint}"
-                       Text="FT-817 / FT-818: Set menu #14 to 4800 baud on each radio (38400 also works). 8N2 CAT — one COM per leg. Linear: spin downlink for passband; FM locks dial while tracking." />
+                       Text="{loc:Localize Key=Settings.Radio.Ft817Hint}" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
                        IsVisible="{Binding ShowRigIc705CatHint}"
-                       Text="IC-705: Set Connectors → CI-V → CI-V USB Port to Link to [CI-V] (not REMOTE). Match CI-V baud in Settings (default 115200). One COM port per leg — use the port labeled CI-V when two appear." />
+                       Text="{loc:Localize Key=Settings.Radio.Ic705Hint}" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
                        IsVisible="{Binding ShowRigFt991CatHint}"
-                       Text="FT-991 / FT-991A: Match menu 031 CAT RATE to Settings (default 38400). 8N2 ASCII CAT with hardware RTS — use the USB CAT COM port. One COM per leg. FM locks the VFO-A dial while tracking." />
-            <CheckBox Content="Linear CW: keep receive in USB/LSB (transmit CW only)"
+                       Text="{loc:Localize Key=Settings.Radio.Ft991Hint}" />
+            <CheckBox Content="{loc:Localize Key=Settings.Radio.CwSideband}"
                       IsChecked="{Binding RigCwKeepSidebandDownlink, Mode=TwoWay}"
                       Margin="0,8,0,0" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Applies when the frequency panel is set to CW on linear SSB satellites. Checked is the usual split (CW TX, USB/LSB RX). Unchecked sets both VFOs to CW." />
-            <TextBlock Text="Doppler threshold FM (Hz)" Margin="0,8,0,0" />
+                       Text="{loc:Localize Key=Settings.Radio.CwSidebandNote}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Radio.DopplerFm}" Margin="0,8,0,0" />
             <NumericUpDown Value="{Binding RigDopplerThresholdFmHz, Mode=TwoWay}"
                            Minimum="0" Maximum="2000"
                            Increment="10" FormatString="F0" />
@@ -443,20 +458,20 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Margin="0,-6,0,0"
-                       Text="FM / ISS cross-band: lower = more CAT updates (default 350 Hz)." />
-            <TextBlock Text="Doppler threshold SSB/CW (Hz)" Margin="0,8,0,0" />
+                       Text="{loc:Localize Key=Settings.Radio.DopplerFmNote}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Radio.DopplerSsb}" Margin="0,8,0,0" />
             <NumericUpDown Value="{Binding RigDopplerThresholdLinearHz, Mode=TwoWay}"
                            Minimum="0" Maximum="500"
                            Increment="5" FormatString="F0" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Frequencies are sent to the radio only when drift exceeds this interval (SatPC32-style)." />
+                       Text="{loc:Localize Key=Settings.Radio.DopplerSsbNote}" />
           </StackPanel>
         </ScrollViewer>
       </TabItem>
 
-      <TabItem Header="Rotator">
+      <TabItem Header="{loc:Localize Key=Settings.Tab.Rotator}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
             <TextBlock Text="{Binding ComPortConflictText}"
@@ -464,9 +479,9 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        IsVisible="{Binding ShowComPortConflict}" />
-            <CheckBox Content="Enable rotator"
+            <CheckBox Content="{loc:Localize Key=Settings.Rotator.Enable}"
                       IsChecked="{Binding RotatorEnabled, Mode=TwoWay}" />
-            <TextBlock Text="Rotator type" />
+            <TextBlock Text="{loc:Localize Key=Settings.Rotator.Type}" />
             <ComboBox ItemsSource="{Binding RotatorTypeChoices}"
                       SelectedItem="{Binding SelectedRotatorTypeChoice, Mode=TwoWay}"
                       HorizontalAlignment="Stretch">
@@ -479,24 +494,24 @@
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="GS-232 for Yaesu and clones. SPID for controllers in SP mode (Rot1Prog / Rot2Prog). EasyComm for EC mode — SPID, M2, and other text-protocol controllers." />
-            <TextBlock Text="Serial port" />
+                       Text="{loc:Localize Key=Settings.Rotator.TypeNote}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Radio.SerialPort}" />
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
               <ComboBox Grid.Column="0"
                         ItemsSource="{Binding AvailableComPorts}"
                         SelectedItem="{Binding SelectedComPort, Mode=TwoWay}"
-                        PlaceholderText="Select COM port"
+                        PlaceholderText="{loc:Localize Key=Settings.Radio.SelectComPort}"
                         HorizontalAlignment="Stretch" />
               <Button Grid.Column="1"
-                      Content="Refresh"
+                      Content="{loc:Localize Key=Common.Refresh}"
                       Command="{Binding RefreshComPortsCommand}"
                       MinWidth="72" />
             </Grid>
-            <TextBlock Text="Baud rate" />
+            <TextBlock Text="{loc:Localize Key=Settings.Radio.BaudRate}" />
             <ComboBox ItemsSource="{Binding RotatorBaudRateOptions}"
                       SelectedItem="{Binding RotatorBaudRate, Mode=TwoWay}"
                       HorizontalAlignment="Stretch" />
-            <TextBlock Text="Azimuth range" />
+            <TextBlock Text="{loc:Localize Key=Settings.Rotator.AzimuthRange}" />
             <ComboBox ItemsSource="{Binding AzimuthRangeChoices}"
                       SelectedItem="{Binding SelectedAzimuthRangeChoice, Mode=TwoWay}"
                       HorizontalAlignment="Stretch">
@@ -506,14 +521,14 @@
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
-            <CheckBox Content="Smart 450° azimuth (shortest path over north)"
+            <CheckBox Content="{loc:Localize Key=Settings.Rotator.SmartAzimuth}"
                       IsChecked="{Binding RotatorSmartAzimuth450, Mode=TwoWay}"
                       IsEnabled="{Binding IsRotatorSmartAzimuth450Enabled}" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="On 450° rotators (e.g. Yaesu G-5500), commands 361–450° avoid a long slew back through 0° when tracking passes over north." />
-            <TextBlock Text="Elevation range" />
+                       Text="{loc:Localize Key=Settings.Rotator.SmartAzimuthNote}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Rotator.ElevationRange}" />
             <ComboBox ItemsSource="{Binding ElevationRangeChoices}"
                       SelectedItem="{Binding SelectedElevationRangeChoice, Mode=TwoWay}"
                       HorizontalAlignment="Stretch">
@@ -523,23 +538,23 @@
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
-            <TextBlock Text="Start tracking at elevation (°)" Margin="0,8,0,0" />
+            <TextBlock Text="{loc:Localize Key=Settings.Rotator.TrackStart}" Margin="0,8,0,0" />
             <NumericUpDown Value="{Binding RotatorTrackStartElevationDeg, Mode=TwoWay}"
                            Minimum="-90" Maximum="90"
                            Increment="0.5" FormatString="F1" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Default is -3° (below horizon). Range -90° to 90°. The rotator begins slewing when the tracked satellite rises above this elevation, and parks once it drops below." />
+                       Text="{loc:Localize Key=Settings.Rotator.TrackStartNote}" />
             <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,8,0,0">
               <StackPanel Grid.Column="0" Spacing="4">
-                <TextBlock Text="Park azimuth (°)" />
+                <TextBlock Text="{loc:Localize Key=Settings.Rotator.ParkAzimuth}" />
                 <NumericUpDown Value="{Binding RotatorParkAzimuthDeg, Mode=TwoWay}"
                                Minimum="0" Maximum="450"
                                Increment="1" FormatString="F0" />
               </StackPanel>
               <StackPanel Grid.Column="1" Spacing="4">
-                <TextBlock Text="Park elevation (°)" />
+                <TextBlock Text="{loc:Localize Key=Settings.Rotator.ParkElevation}" />
                 <NumericUpDown Value="{Binding RotatorParkElevationDeg, Mode=TwoWay}"
                                Minimum="0" Maximum="180"
                                Increment="1" FormatString="F0" />
@@ -548,17 +563,17 @@
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Park position is used when no satellite is above the tracking threshold. The focused pass or live satellite is tracked automatically." />
-            <TextBlock Text="Calibration offsets (°)" Margin="0,8,0,0" FontWeight="SemiBold" />
+                       Text="{loc:Localize Key=Settings.Rotator.ParkNote}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Rotator.CalibrationOffsets}" Margin="0,8,0,0" FontWeight="SemiBold" />
             <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
               <StackPanel Grid.Column="0" Spacing="4">
-                <TextBlock Text="Azimuth offset" />
+                <TextBlock Text="{loc:Localize Key=Settings.Rotator.AzimuthOffset}" />
                 <NumericUpDown Value="{Binding RotatorAzimuthOffsetDeg, Mode=TwoWay}"
                                Minimum="-180" Maximum="180"
                                Increment="0.1" FormatString="F1" />
               </StackPanel>
               <StackPanel Grid.Column="1" Spacing="4">
-                <TextBlock Text="Elevation offset" />
+                <TextBlock Text="{loc:Localize Key=Settings.Rotator.ElevationOffset}" />
                 <NumericUpDown Value="{Binding RotatorElevationOffsetDeg, Mode=TwoWay}"
                                Minimum="-45" Maximum="45"
                                Increment="0.1" FormatString="F1" />
@@ -567,21 +582,21 @@
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Added to pass tracking and manual rotate commands (not park). Use positive values if the beam stops short of the target; negative if it overshoots." />
+                       Text="{loc:Localize Key=Settings.Rotator.OffsetNote}" />
           </StackPanel>
         </ScrollViewer>
       </TabItem>
 
-      <TabItem Header="Recording">
+      <TabItem Header="{loc:Localize Key=Settings.Tab.Recording}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
-            <CheckBox Content="Enable automatic pass recording"
+            <CheckBox Content="{loc:Localize Key=Settings.Recording.Enable}"
                       IsChecked="{Binding PassRecordingEnabled, Mode=TwoWay}" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Records WAV audio from the selected input device while the focused satellite is above the start elevation. Files are saved with UTC timestamps." />
-            <TextBlock Text="Input device" Margin="0,8,0,0" />
+                       Text="{loc:Localize Key=Settings.Recording.EnableNote}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Recording.InputDevice}" Margin="0,8,0,0" />
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
               <ComboBox Grid.Column="0"
                         ItemsSource="{Binding RecordingDeviceOptions}"
@@ -595,10 +610,10 @@
                 </ComboBox.ItemTemplate>
               </ComboBox>
               <Button Grid.Column="1"
-                      Content="Refresh"
+                      Content="{loc:Localize Key=Common.Refresh}"
                       Command="{Binding RefreshRecordingDevicesCommand}" />
             </Grid>
-            <TextBlock Text="Format" Margin="0,8,0,0" />
+            <TextBlock Text="{loc:Localize Key=Settings.Recording.Format}" Margin="0,8,0,0" />
             <ComboBox ItemsSource="{Binding RecordingFormatOptions}"
                       SelectedItem="{Binding SelectedRecordingFormat, Mode=TwoWay}"
                       IsEnabled="{Binding RecordingAvailable}"
@@ -609,25 +624,25 @@
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
-            <TextBlock Text="Start recording at elevation (°)" Margin="0,8,0,0" />
+            <TextBlock Text="{loc:Localize Key=Settings.Recording.StartElevation}" Margin="0,8,0,0" />
             <NumericUpDown Value="{Binding RecordingStartElevationDeg, Mode=TwoWay}"
                            Minimum="-10" Maximum="90"
                            Increment="0.5" FormatString="F1" />
-            <TextBlock Text="Stop recording below elevation (°)" />
+            <TextBlock Text="{loc:Localize Key=Settings.Recording.StopElevation}" />
             <NumericUpDown Value="{Binding RecordingStopElevationDeg, Mode=TwoWay}"
                            Minimum="-10" Maximum="90"
                            Increment="0.5" FormatString="F1" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Stop elevation should be at or below the start elevation to avoid flapping near the threshold." />
-            <TextBlock Text="Output folder" Margin="0,8,0,0" />
+                       Text="{loc:Localize Key=Settings.Recording.StopNote}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Recording.OutputFolder}" Margin="0,8,0,0" />
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
               <TextBox Grid.Column="0"
                        Text="{Binding RecordingOutputFolder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                       Watermark="Default: %AppData%/OscarWatch/recordings" />
+                       Watermark="{loc:Localize Key=Settings.Recording.OutputWatermark}" />
               <Button Grid.Column="1"
-                      Content="Browse…"
+                      Content="{loc:Localize Key=Common.Browse}"
                       Click="OnBrowseRecordingFolderClick" />
             </Grid>
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
@@ -635,7 +650,7 @@
                        TextWrapping="Wrap"
                        IsVisible="{Binding RecordingUnavailable}"
                        Text="{Binding RecordingUnavailableText}" />
-            <Button Content="Test recording (5 s)"
+            <Button Content="{loc:Localize Key=Settings.Recording.TestButton}"
                     Command="{Binding TestRecordingCommand}"
                     HorizontalAlignment="Left"
                     MinWidth="160" />
@@ -647,33 +662,33 @@
         </ScrollViewer>
       </TabItem>
 
-      <TabItem Header="Cloudlog">
+      <TabItem Header="{loc:Localize Key=Settings.Tab.Cloudlog}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
             <TextBlock TextWrapping="Wrap"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
-                       Text="Posts satellite TX/RX to Cloudlog CAT (API v2 /index.php/api/radio) when you select a satellite or frequencies update." />
-            <CheckBox Content="Enable Cloudlog radio API (required for live updates)"
+                       Text="{loc:Localize Key=Settings.Cloudlog.Intro}" />
+            <CheckBox Content="{loc:Localize Key=Settings.Cloudlog.Enable}"
                       IsChecked="{Binding CloudlogEnabled, Mode=TwoWay}" />
-            <TextBlock Text="Cloudlog base URL" />
+            <TextBlock Text="{loc:Localize Key=Settings.Cloudlog.BaseUrl}" />
             <TextBox Text="{Binding CloudlogBaseUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     Watermark="https://your.cloudlog.site" />
-            <TextBlock Text="API key" />
+                     Watermark="{loc:Localize Key=Settings.Cloudlog.BaseUrlWatermark}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Cloudlog.ApiKey}" />
             <TextBox Text="{Binding CloudlogApiKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     Watermark="read/write API key" />
-            <TextBlock Text="Radio name in Cloudlog" />
+                     Watermark="{loc:Localize Key=Settings.Cloudlog.ApiKeyWatermark}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Cloudlog.RadioName}" />
             <TextBox Text="{Binding CloudlogRadioName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     Watermark="OscarWatch" />
+                     Watermark="{loc:Localize Key=Settings.Cloudlog.RadioNameWatermark}" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Default is OscarWatch. Must match a radio entry Cloudlog can assign QSOs to." />
-            <TextBlock Text="Minimum update interval (ms)" />
+                       Text="{loc:Localize Key=Settings.Cloudlog.RadioNameNote}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Cloudlog.MinInterval}" />
             <NumericUpDown Value="{Binding CloudlogMinUpdateIntervalMs, Mode=TwoWay}"
                            Minimum="250" Maximum="60000"
                            Increment="250" FormatString="F0" />
-            <Button Content="Test connection"
+            <Button Content="{loc:Localize Key=Settings.Cloudlog.TestConnection}"
                     Click="OnTestCloudlogClick"
                     HorizontalAlignment="Left" />
             <TextBlock Text="{Binding CloudlogTestStatus}"

@@ -1,42 +1,43 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:loc="using:OscarWatch.Localization"
         xmlns:ctrl="using:OscarWatch.Controls"
         xmlns:theme="using:OscarWatch.Theme"
         x:Class="OscarWatch.MainWindow"
         x:DataType="vm:MainViewModel"
-        Title="OscarWatch"
+        Title="{loc:Localize Key=App.Title}"
         Width="1280" Height="556"
         MinWidth="720" MinHeight="320">
   <DockPanel>
     <Menu DockPanel.Dock="Top">
-      <MenuItem Header="_File">
-        <MenuItem Header="_Close" Command="{Binding CloseApplicationCommand}" />
+      <MenuItem Header="{loc:Localize Key=Menu.File}">
+        <MenuItem Header="{loc:Localize Key=Menu.File.Close}" Command="{Binding CloseApplicationCommand}" />
       </MenuItem>
-      <MenuItem Header="_Satellites">
-        <MenuItem Header="_Select Satellites" Command="{Binding OpenSatellitesCommand}" />
+      <MenuItem Header="{loc:Localize Key=Menu.Satellites}">
+        <MenuItem Header="{loc:Localize Key=Menu.Satellites.Select}" Command="{Binding OpenSatellitesCommand}" />
         <Separator />
-        <MenuItem Header="_Manage Transponder Database" Command="{Binding OpenSatelliteDatabaseCommand}" />
+        <MenuItem Header="{loc:Localize Key=Menu.Satellites.ManageDatabase}" Command="{Binding OpenSatelliteDatabaseCommand}" />
         <Separator />
-        <MenuItem Header="_Refresh TLEs" Command="{Binding RefreshTlesCommand}" />
-        <MenuItem Header="Update transponder _database…" Command="{Binding UpdateTransponderDatabaseCommand}" />
+        <MenuItem Header="{loc:Localize Key=Menu.Satellites.RefreshTles}" Command="{Binding RefreshTlesCommand}" />
+        <MenuItem Header="{loc:Localize Key=Menu.Satellites.UpdateDatabase}" Command="{Binding UpdateTransponderDatabaseCommand}" />
       </MenuItem>
-      <MenuItem Header="_Passes">
-        <MenuItem Header="_Pass Planner" Command="{Binding OpenPassPlanningCommand}" />
-        <MenuItem Header="_Mutual Pass Planner" Command="{Binding OpenMutualPassFinderCommand}" />
+      <MenuItem Header="{loc:Localize Key=Menu.Passes}">
+        <MenuItem Header="{loc:Localize Key=Menu.Passes.Planner}" Command="{Binding OpenPassPlanningCommand}" />
+        <MenuItem Header="{loc:Localize Key=Menu.Passes.Mutual}" Command="{Binding OpenMutualPassFinderCommand}" />
         <Separator />
-        <MenuItem Header="_Sunlight Prediction" Command="{Binding OpenSunlightPredictionCommand}" />
+        <MenuItem Header="{loc:Localize Key=Menu.Passes.Sunlight}" Command="{Binding OpenSunlightPredictionCommand}" />
       </MenuItem>
-      <MenuItem Header="_Rotator"
+      <MenuItem Header="{loc:Localize Key=Menu.Rotator}"
                 Command="{Binding OpenRotatorManualCommand}"
                 IsVisible="{Binding ShowRotatorMenuItem}" />
-      <MenuItem Header="_Settings" Command="{Binding OpenSettingsCommand}" />
-      <MenuItem Header="_Help">
-        <MenuItem Header="Operator Guide" Command="{Binding OpenHelpCommand}" />
+      <MenuItem Header="{loc:Localize Key=Menu.Settings}" Command="{Binding OpenSettingsCommand}" />
+      <MenuItem Header="{loc:Localize Key=Menu.Help}">
+        <MenuItem Header="{loc:Localize Key=Menu.Help.OperatorGuide}" Command="{Binding OpenHelpCommand}" />
         <Separator />
-        <MenuItem Header="_About OscarWatch" Command="{Binding OpenAboutCommand}" />
-        <MenuItem Header="Open _recordings folder" Command="{Binding OpenRecordingsFolderCommand}" />
-        <MenuItem Header="Open _logs folder" Command="{Binding OpenLogsFolderCommand}" />
+        <MenuItem Header="{loc:Localize Key=Menu.Help.About}" Command="{Binding OpenAboutCommand}" />
+        <MenuItem Header="{loc:Localize Key=Menu.Help.Recordings}" Command="{Binding OpenRecordingsFolderCommand}" />
+        <MenuItem Header="{loc:Localize Key=Menu.Help.Logs}" Command="{Binding OpenLogsFolderCommand}" />
       </MenuItem>
     </Menu>
 
@@ -58,33 +59,33 @@
           <Button Padding="6,2"
                   MinHeight="22"
                   FontSize="11"
-                  Content="−15m"
+                  Content="{loc:Localize Key=MapTime.Back15}"
                   Command="{Binding StepMapTimeBackwardLargeCommand}"
-                  ToolTip.Tip="Show map 15 minutes earlier" />
+                  ToolTip.Tip="{loc:Localize Key=MapTime.Tip.Back15}" />
           <Button Padding="6,2"
                   MinHeight="22"
                   FontSize="11"
-                  Content="−5m"
+                  Content="{loc:Localize Key=MapTime.Back5}"
                   Command="{Binding StepMapTimeBackwardCommand}"
-                  ToolTip.Tip="Show map 5 minutes earlier" />
+                  ToolTip.Tip="{loc:Localize Key=MapTime.Tip.Back5}" />
           <Button Padding="6,2"
                   MinHeight="22"
                   FontSize="11"
-                  Content="Now"
+                  Content="{loc:Localize Key=Common.Now}"
                   Command="{Binding ResetMapTimeToNowCommand}"
-                  ToolTip.Tip="Return map to live time" />
+                  ToolTip.Tip="{loc:Localize Key=MapTime.Tip.Now}" />
           <Button Padding="6,2"
                   MinHeight="22"
                   FontSize="11"
-                  Content="+5m"
+                  Content="{loc:Localize Key=MapTime.Forward5}"
                   Command="{Binding StepMapTimeForwardCommand}"
-                  ToolTip.Tip="Show map 5 minutes later" />
+                  ToolTip.Tip="{loc:Localize Key=MapTime.Tip.Forward5}" />
           <Button Padding="6,2"
                   MinHeight="22"
                   FontSize="11"
-                  Content="+15m"
+                  Content="{loc:Localize Key=MapTime.Forward15}"
                   Command="{Binding StepMapTimeForwardLargeCommand}"
-                  ToolTip.Tip="Show map 15 minutes later" />
+                  ToolTip.Tip="{loc:Localize Key=MapTime.Tip.Forward15}" />
         </StackPanel>
         <TextBlock Text="{Binding StatusText}"
                    VerticalAlignment="Center"
@@ -169,7 +170,7 @@
             <StackPanel MinWidth="0">
               <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,8">
             <TextBlock Grid.Column="0"
-                       Text="Live"
+                       Text="{loc:Localize Key=Main.Live}"
                        FontWeight="SemiBold"
                        FontSize="14"
                        VerticalAlignment="Center" />
@@ -180,7 +181,7 @@
                     VerticalAlignment="Center" />
           </Grid>
           <StackPanel Spacing="8" Margin="0,0,0,8">
-            <TextBlock Text="Browsing only — rotator parked, CAT paused"
+            <TextBlock Text="{loc:Localize Key=Main.Standby.Hint}"
                        FontSize="11"
                        TextWrapping="Wrap"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
@@ -188,7 +189,7 @@
 
             <Border Classes="live-panel">
               <StackPanel Spacing="6">
-                <TextBlock Classes="live-panel-label" Text="Satellite" />
+                <TextBlock Classes="live-panel-label" Text="{loc:Localize Key=Main.Satellite}" />
                 <Grid ColumnDefinitions="*,Auto">
                   <TextBlock Grid.Column="0"
                              Text="{Binding SelectedSatelliteName}"
@@ -199,27 +200,27 @@
                               VerticalAlignment="Center"
                               Margin="8,0,0,0"
                               IsVisible="{Binding ShowSunlightStatus}">
-                    <TextBlock Text="Sunlight"
+                    <TextBlock Text="{loc:Localize Key=Main.Sunlight}"
                                FontSize="11"
                                FontWeight="SemiBold"
                                IsVisible="{Binding IsSatelliteSunlit}"
                                Foreground="{DynamicResource SunlightStatusBrush}"
-                               AutomationProperties.Name="Satellite in sunlight" />
-                    <TextBlock Text="Eclipse"
+                               AutomationProperties.Name="{loc:Localize Key=A11y.SatelliteSunlight}" />
+                    <TextBlock Text="{loc:Localize Key=Main.Eclipse}"
                                FontSize="11"
                                FontWeight="SemiBold"
                                IsVisible="{Binding IsSatelliteInEclipse}"
                                Foreground="{DynamicResource EclipseStatusBrush}"
-                               AutomationProperties.Name="Satellite in eclipse" />
+                               AutomationProperties.Name="{loc:Localize Key=A11y.SatelliteEclipse}" />
                   </StackPanel>
                 </Grid>
                 <TextBlock FontSize="12" TextWrapping="Wrap">
-                  <Run Text="Az " /><Run Text="{Binding AzimuthText}" FontWeight="SemiBold" />
-                  <Run Text="  ·  El " /><Run Text="{Binding ElevationText}" FontWeight="SemiBold" />
+                  <Run Text="{loc:Localize Key=Main.Az}" /><Run Text="{Binding AzimuthText}" FontWeight="SemiBold" />
+                  <Run Text="{loc:Localize Key=Main.El}" /><Run Text="{Binding ElevationText}" FontWeight="SemiBold" />
                 </TextBlock>
                 <TextBlock FontSize="12" TextWrapping="Wrap">
-                  <Run Text="Range " /><Run Text="{Binding RangeText}" />
-                  <Run Text="  ·  Alt " /><Run Text="{Binding AltitudeText}" />
+                  <Run Text="{loc:Localize Key=Main.Range}" /><Run Text="{Binding RangeText}" />
+                  <Run Text="{loc:Localize Key=Main.Alt}" /><Run Text="{Binding AltitudeText}" />
                 </TextBlock>
                 <TextBlock Text="{Binding NextPassText}"
                            FontSize="12"
@@ -232,7 +233,7 @@
                     IsVisible="{Binding ShowRotatorStatus}">
               <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Spacing="6">
-                  <TextBlock Classes="live-panel-label" Text="Rotator" />
+                  <TextBlock Classes="live-panel-label" Text="{loc:Localize Key=Main.Rotator}" />
                   <Grid ColumnDefinitions="*,*">
                     <StackPanel Grid.Column="0" Spacing="2" HorizontalAlignment="Center">
                       <TextBlock Text="{Binding RotatorAzimuthText}"
@@ -242,7 +243,7 @@
                                  TextWrapping="Wrap"
                                  TextAlignment="Center"
                                  FontFamily="Consolas,Courier New,monospace" />
-                      <TextBlock Text="Az"
+                      <TextBlock Text="{loc:Localize Key=Main.Rotator.Az}"
                                  FontSize="10"
                                  HorizontalAlignment="Center"
                                  Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
@@ -253,7 +254,7 @@
                                  FontWeight="SemiBold"
                                  HorizontalAlignment="Center"
                                  FontFamily="Consolas,Courier New,monospace" />
-                      <TextBlock Text="El"
+                      <TextBlock Text="{loc:Localize Key=Main.Rotator.El}"
                                  FontSize="10"
                                  HorizontalAlignment="Center"
                                  Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
@@ -281,7 +282,7 @@
                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
                   <TextBlock Classes="live-panel-label"
                              Grid.Column="0"
-                             Text="Radio"
+                             Text="{loc:Localize Key=Main.Radio}"
                              VerticalAlignment="Center" />
                   <TextBlock Grid.Column="1"
                              Text="{Binding RigStatusText}"
@@ -301,11 +302,11 @@
                           Padding="8,0"
                           HorizontalAlignment="Right"
                           VerticalAlignment="Center"
-                          ToolTip.Tip="Stop sending frequency updates to the radio so you can tune manually." />
+                          ToolTip.Tip="{loc:Localize Key=Main.Radio.CatPauseTip}" />
                 </Grid>
                 <Grid ColumnDefinitions="*,*">
                   <StackPanel Grid.Column="0" Spacing="2" Margin="0,0,4,0">
-                    <TextBlock Text="RX"
+                    <TextBlock Text="{loc:Localize Key=Main.Radio.Rx}"
                                FontSize="10"
                                Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
                     <TextBlock Text="{Binding RigReceiveText}"
@@ -315,7 +316,7 @@
                                FontFamily="Consolas,Courier New,monospace" />
                   </StackPanel>
                   <StackPanel Grid.Column="1" Spacing="2" Margin="4,0,0,0">
-                    <TextBlock Text="TX"
+                    <TextBlock Text="{loc:Localize Key=Main.Radio.Tx}"
                                FontSize="10"
                                Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
                     <TextBlock Text="{Binding RigTransmitText}"
@@ -329,7 +330,7 @@
             </Border>
           </StackPanel>
 
-          <Expander Header="Sky plot"
+          <Expander Header="{loc:Localize Key=Main.SkyPlot}"
                     IsExpanded="{Binding IsSkyPlotExpanded, Mode=TwoWay}"
                     Margin="0,0,0,10"
                     Padding="0">
@@ -338,7 +339,7 @@
                         MinWidth="0">
               <TextBlock FontSize="11"
                          Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                         Text="Click a satellite on the map or sky plot, or use arrow keys when focused." />
+                         Text="{loc:Localize Key=Main.SkyPlot.Hint}" />
               <ctrl:SkyPlotControl Height="220"
                                    TabIndex="2"
                                    MinWidth="0"
@@ -356,7 +357,7 @@
                      MinHeight="0"
                      LastChildFill="True">
             <TextBlock DockPanel.Dock="Top"
-                       Text="Upcoming passes"
+                       Text="{loc:Localize Key=Main.Passes}"
                        FontWeight="SemiBold"
                        FontSize="16"
                        Margin="0,0,0,8" />

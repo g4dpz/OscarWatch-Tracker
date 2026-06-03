@@ -5,6 +5,7 @@ using OscarWatch.Core.Display;
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
+using OscarWatch.Localization;
 
 namespace OscarWatch.ViewModels;
 
@@ -13,6 +14,9 @@ public partial class MutualPassViewModel : ViewModelBase
     private readonly ISettingsService _settings;
     private readonly ITleService _tleService;
     private readonly TrackingOrchestrator _tracking;
+    private readonly ILocalizationService _l;
+
+    public IReadOnlyList<string> TimeDisplayLabels { get; }
 
     public ObservableCollection<MutualPassRow> Passes { get; } = [];
 
@@ -49,11 +53,18 @@ public partial class MutualPassViewModel : ViewModelBase
     public MutualPassViewModel(
         ISettingsService settings,
         ITleService tleService,
-        TrackingOrchestrator tracking)
+        TrackingOrchestrator tracking,
+        ILocalizationService localization)
     {
         _settings = settings;
         _tleService = tleService;
         _tracking = tracking;
+        _l = localization;
+        TimeDisplayLabels =
+        [
+            _l.Get("Pass.Time.Local"),
+            _l.Get("Pass.Time.Utc")
+        ];
     }
 
     public void Initialize()
@@ -105,11 +116,11 @@ public partial class MutualPassViewModel : ViewModelBase
         var grid = RemoteGridSquare.Trim();
         if (grid.Length < 4)
         {
-            StatusText = "Enter the remote operator's Maidenhead grid square (at least 4 characters).";
+            StatusText = _l.Get("Mutual.Status.EnterGrid");
             return;
         }
 
-        StatusText = "Computing mutual passes…";
+        StatusText = _l.Get("Pass.ComputingMutual");
 
         try
         {
@@ -144,16 +155,16 @@ public partial class MutualPassViewModel : ViewModelBase
                 Passes.Add(MutualPassRow.From(pass, _lastLocalLabel, _lastRemoteLabel, UseUtcTime));
 
             StatusText = passes.Count == 0
-                ? $"No mutual passes in the next {FilterPredictionHours} h for {localSite.GridSquare} and {remoteSite.GridSquare}."
-                : $"{passes.Count} mutual pass(es) in the next {FilterPredictionHours} h";
+                ? _l.Get("Mutual.Status.NoPasses", FilterPredictionHours, localSite.GridSquare, remoteSite.GridSquare)
+                : _l.Get("Pass.CountMutual", passes.Count, FilterPredictionHours);
         }
         catch (ArgumentException)
         {
-            StatusText = "Invalid Maidenhead grid square.";
+            StatusText = _l.Get("Mutual.Status.InvalidGrid");
         }
         catch (Exception ex)
         {
-            StatusText = $"Mutual pass prediction failed: {ex.Message}";
+            StatusText = _l.Get("Pass.FailedMutual", ex.Message);
         }
     }
 }

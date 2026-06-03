@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using OscarWatch.Diagnostics;
+using OscarWatch.Localization;
 using Serilog;
 
 namespace OscarWatch;
@@ -44,8 +45,13 @@ internal class Program
 
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
-            .UsePlatformDetect()
-            .WithInterFont()
+    {
+        var uiLanguage = LocalizationCulture.ReadUiLanguageFromDisk();
+        return AppFontConfiguration.Configure(
+                AppBuilder.Configure<App>()
+                    .UsePlatformDetect()
+                    .WithInterFont(),
+                uiLanguage)
             .LogToTrace();
+    }
 }

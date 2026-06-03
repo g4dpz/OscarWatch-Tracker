@@ -26,11 +26,10 @@ public static class TransponderDatabaseMergeDialog
         IReadOnlyList<SatelliteRadioEntry> localEntries,
         SatelliteDatabaseMergePresentation presentation = SatelliteDatabaseMergePresentation.RemoteUpdate)
     {
-        var vm = new SatelliteDatabaseMergeViewModel(plan, presentation);
+        var vm = new SatelliteDatabaseMergeViewModel(plan, Localization.LocalizationService.Instance, presentation);
         var window = new SatelliteDatabaseMergeWindow
         {
-            DataContext = vm,
-            Title = presentation.WindowTitle()
+            DataContext = vm
         };
 
         if (await window.ShowDialog<bool?>(owner) != true)

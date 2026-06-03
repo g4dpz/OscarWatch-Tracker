@@ -5,6 +5,7 @@ using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Services;
+using OscarWatch.Localization;
 
 namespace OscarWatch.ViewModels;
 
@@ -12,6 +13,7 @@ public partial class DxStationOverlayViewModel : ViewModelBase
 {
     private readonly ISettingsService _settings;
     private readonly IOrbitPropagator _propagator;
+    private readonly ILocalizationService _l;
     private GroundStation? _remoteSite;
 
     [ObservableProperty]
@@ -53,11 +55,13 @@ public partial class DxStationOverlayViewModel : ViewModelBase
 
     public string CollapseToggleGlyph => IsCollapsed ? "▶" : "▼";
 
-    public string CollapseToggleToolTip => IsCollapsed ? "Expand DX station panel" : "Collapse to compact view";
+    public string CollapseToggleToolTip => IsCollapsed
+        ? _l.Get("Dx.CollapseExpand")
+        : _l.Get("Dx.CollapseCompact");
 
     public string MapLauncherToolTip => IsActive
-        ? "Show DX station monitor"
-        : "Enter remote station grid square";
+        ? _l.Get("Dx.MapLauncher.Active")
+        : _l.Get("Dx.MapLauncher.Inactive");
 
     public Thickness OverlayMargin => new(OverlayX, OverlayY, 0, 0);
 
@@ -65,10 +69,16 @@ public partial class DxStationOverlayViewModel : ViewModelBase
 
     public bool ShowValidationHint => !string.IsNullOrEmpty(ValidationHint);
 
-    public DxStationOverlayViewModel(ISettingsService settings, IOrbitPropagator propagator)
+    private string BelowHorizonText => _l.Get("Main.Elevation.BelowHorizon");
+
+    public DxStationOverlayViewModel(
+        ISettingsService settings,
+        IOrbitPropagator propagator,
+        ILocalizationService localization)
     {
         _settings = settings;
         _propagator = propagator;
+        _l = localization;
         GridSquare = settings.Current.RemoteStationGridSquare;
         OverlayX = settings.Current.DxOverlayX;
         OverlayY = settings.Current.DxOverlayY;
@@ -117,7 +127,7 @@ public partial class DxStationOverlayViewModel : ViewModelBase
         if (look.ElevationDeg <= 0)
         {
             AzimuthText = "—";
-            ElevationText = "below horizon";
+            ElevationText = BelowHorizonText;
         }
         else
         {
@@ -191,7 +201,7 @@ public partial class DxStationOverlayViewModel : ViewModelBase
             IsActive = false;
             _remoteSite = null;
             RemoteCoordinate = null;
-            ValidationHint = trimmed.Length == 0 ? "" : "Enter at least 4 characters (e.g. JO22 or JO22lk).";
+            ValidationHint = trimmed.Length == 0 ? "" : _l.Get("Dx.Validation.MinChars");
             AzimuthText = "—";
             ElevationText = "—";
             if (persist)
@@ -228,7 +238,7 @@ public partial class DxStationOverlayViewModel : ViewModelBase
             IsActive = false;
             _remoteSite = null;
             RemoteCoordinate = null;
-            ValidationHint = "Invalid Maidenhead grid square.";
+            ValidationHint = _l.Get("Dx.Validation.InvalidGrid");
             AzimuthText = "—";
             ElevationText = "—";
         }
@@ -263,19 +273,19 @@ public partial class DxStationOverlayViewModel : ViewModelBase
         }
 
         var grid = GridSquare.Trim().ToUpperInvariant();
-        if (ElevationText == "below horizon")
+        if (ElevationText == BelowHorizonText)
         {
-            CollapsedSummaryText = $"{grid} · below horizon";
+            CollapsedSummaryText = _l.Get("Dx.Collapsed.BelowHorizon", grid);
             return;
         }
 
         if (AzimuthText == "—")
         {
-            CollapsedSummaryText = $"{grid} · Az — · El —";
+            CollapsedSummaryText = _l.Get("Dx.Collapsed.AzElPending", grid);
             return;
         }
 
-        CollapsedSummaryText = $"{grid} · Az {AzimuthText} · El {ElevationText}";
+        CollapsedSummaryText = _l.Get("Dx.Collapsed.AzEl", grid, AzimuthText, ElevationText);
     }
 
     private void RequestOverlayReclamp() => OverlayLayoutChanged?.Invoke(this, EventArgs.Empty);

@@ -17,6 +17,8 @@ public sealed class AppSettings
     /// <summary>On startup, check tle.oscarwatch.org for new transponder database entries.</summary>
     public bool TransponderDatabaseCheckOnStartup { get; set; } = true;
     public AppThemePreference Theme { get; set; } = AppThemePreference.System;
+    /// <summary>UI language code: <c>en</c> or <c>ja</c>. Applied on next startup.</summary>
+    public string UiLanguage { get; set; } = "en";
     /// <summary>Show ground-track direction arrows inside satellite footprints on the world map.</summary>
     public bool ShowFootprintMotionArrows { get; set; } = true;
     public VoiceAnnouncementSettings VoiceAnnouncements { get; set; } = new();

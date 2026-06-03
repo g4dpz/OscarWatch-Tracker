@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:OscarWatch.ViewModels"
+             xmlns:loc="using:OscarWatch.Localization"
              x:Class="OscarWatch.Controls.DxStationOverlayControl"
              x:DataType="vm:DxStationOverlayViewModel"
              MinWidth="{Binding OverlayMinWidth}"
@@ -44,7 +45,7 @@
                      VerticalAlignment="Center"
                      TextTrimming="CharacterEllipsis" />
           <TextBlock Grid.Column="1"
-                     Text="DX station"
+                     Text="{loc:Localize Key=Dx.Title}"
                      IsVisible="{Binding !IsCollapsed}"
                      FontWeight="SemiBold"
                      FontSize="14"
@@ -64,7 +65,7 @@
                   Spacing="8"
                   Margin="10,8,10,10">
         <TextBox Text="{Binding GridSquare, Mode=TwoWay}"
-                 Watermark="Maidenhead grid (e.g. JO22 or JO22lk)"
+                 Watermark="{loc:Localize Key=Dx.GridWatermark}"
                  FontFamily="Consolas,Courier New,monospace"
                  MaxLength="6" />
         <TextBlock Text="{Binding ValidationHint}"
@@ -75,7 +76,7 @@
         <Grid ColumnDefinitions="*,*"
               ColumnSpacing="12">
           <StackPanel Grid.Column="0" Spacing="2">
-            <TextBlock Text="Az (their sky)"
+            <TextBlock Text="{loc:Localize Key=Dx.AzTheirSky}"
                        FontSize="10"
                        Foreground="#FF909090" />
             <TextBlock Text="{Binding AzimuthText}"
@@ -85,7 +86,7 @@
                        Foreground="#FFFFFFFF" />
           </StackPanel>
           <StackPanel Grid.Column="1" Spacing="2">
-            <TextBlock Text="El (their sky)"
+            <TextBlock Text="{loc:Localize Key=Dx.ElTheirSky}"
                        FontSize="10"
                        Foreground="#FF909090" />
             <TextBlock Text="{Binding ElevationText}"
@@ -95,7 +96,7 @@
                        Foreground="#FFFFFFFF" />
           </StackPanel>
         </Grid>
-        <Button Content="Clear"
+        <Button Content="{loc:Localize Key=Dx.Clear}"
                 Command="{Binding ClearTargetCommand}"
                 HorizontalAlignment="Stretch"
                 MinHeight="32" />
