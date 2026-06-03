@@ -220,6 +220,9 @@
   <data name="Settings.Language.Japanese">
     <value>日本語</value>
   </data>
+  <data name="Settings.Language.PortugueseBrazil">
+    <value>ポルトガル語 (ブラジル)</value>
+  </data>
   <data name="Settings.Language.RestartNote">
     <value>言語の変更はOscarWatchの再起動後に反映されます。</value>
   </data>

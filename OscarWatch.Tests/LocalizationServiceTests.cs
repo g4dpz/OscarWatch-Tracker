@@ -22,6 +22,22 @@ public sealed class LocalizationServiceTests
     }
 
     [Fact]
+    public void Get_returns_portuguese_brazil_when_culture_is_pt_BR()
+    {
+        var previous = CultureInfo.CurrentUICulture;
+        try
+        {
+            LocalizationCulture.Apply(LocalizationCulture.PortugueseBrazilLanguage);
+            var text = LocalizationService.Instance.Get("Menu.File");
+            Assert.Equal("_Arquivo", text);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = previous;
+        }
+    }
+
+    [Fact]
     public void Get_returns_japanese_when_culture_is_ja()
     {
         var previous = CultureInfo.CurrentUICulture;

@@ -8,67 +8,67 @@
     <value>Copyright © 2025–2026 Peter Goodhall (MM9SQL)</value>
   </data>
   <data name="About.Description">
-    <value>Desktop satellite tracking for amateur radio operators. Track passes, Doppler-corrected CAT control, rotator tracking, and transponder modes from the OscarWatch satellite database.</value>
+    <value>Rastreamento de satélites. Monitore passagens, controle seu rádio via CAT com correção Doppler, controle de rotor e modos de transponder do banco de dados de satélites OscarWatch.</value>
   </data>
   <data name="About.DonateNote">
-    <value>If you donate, please let Peter know your callsign so you can be thanked.</value>
+    <value>Se você fizer uma doação, por favor informe seu indicativo ao Peter para que ele possa agradecê-lo.</value>
   </data>
   <data name="About.Github">
     <value>github.com/magicbug/OscarWatch-Tracker</value>
   </data>
   <data name="About.License">
-    <value>Licensed under the GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later). See LICENSE.md in the source repository.</value>
+    <value>Licenciado sob a GNU Affero General Public License v3.0 ou posterior (AGPL-3.0-or-later). Consulte LICENSE.md no repositório de código-fonte.</value>
   </data>
   <data name="About.PayPal">
     <value>PayPal</value>
   </data>
   <data name="About.SponsorGithub">
-    <value>Sponsor on GitHub</value>
+    <value>Patrocinar no GitHub</value>
   </data>
   <data name="About.SupportIntro">
-    <value>OscarWatch is free and open source. If you find it useful, you can support ongoing development:</value>
+    <value>O OscarWatch é gratuito e de código aberto. Se você o achar útil, pode apoiar o desenvolvimento contínuo:</value>
   </data>
   <data name="About.Supporters">
-    <value>Supporters</value>
+    <value>Apoiadores</value>
   </data>
   <data name="About.Title">
-    <value>About OscarWatch</value>
+    <value>Sobre o OscarWatch</value>
   </data>
   <data name="About.TleSource">
-    <value>TLE catalog: tle.oscarwatch.org</value>
+    <value>Banco de TLE: tle.oscarwatch.org</value>
   </data>
   <data name="App.Title">
     <value>OscarWatch</value>
   </data>
   <data name="Common.Add">
-    <value>Add</value>
+    <value>Adicionar</value>
   </data>
   <data name="Common.Browse">
-    <value>Browse…</value>
+    <value>Procurar…</value>
   </data>
   <data name="Common.Cancel">
-    <value>Cancel</value>
+    <value>Cancelar</value>
   </data>
   <data name="Common.Close">
-    <value>Close</value>
+    <value>Fechar</value>
   </data>
   <data name="Common.Delete">
-    <value>Delete</value>
+    <value>Excluir</value>
   </data>
   <data name="Common.Now">
-    <value>Now</value>
+    <value>Agora</value>
   </data>
   <data name="Common.Ok">
     <value>OK</value>
   </data>
   <data name="Common.Refresh">
-    <value>Refresh</value>
+    <value>Atualizar</value>
   </data>
   <data name="Common.Save">
-    <value>Save</value>
+    <value>Salvar</value>
   </data>
   <data name="Common.Show">
-    <value>Show</value>
+    <value>Mostrar</value>
   </data>
   <data name="Main.Alt">
     <value>  ·  Alt </value>
@@ -83,37 +83,37 @@
     <value>  ·  El </value>
   </data>
   <data name="Main.Elevation.BelowHorizon">
-    <value>below horizon</value>
+    <value>abaixo do horizonte</value>
   </data>
   <data name="Main.Live">
-    <value>Live</value>
+    <value>Ao vivo</value>
   </data>
   <data name="Main.MapTimeStatus.Live">
-    <value>Live</value>
+    <value>Ao vivo</value>
   </data>
   <data name="Main.Pass.AosIn">
-    <value>{0} AOS in {1}</value>
+    <value>{0} AOS em {1}</value>
   </data>
   <data name="Main.Pass.InProgress">
-    <value>{0} — in progress</value>
+    <value>{0} — em andamento</value>
   </data>
   <data name="Main.Pass.None">
-    <value>No upcoming passes</value>
+    <value>Nenhuma passagem próxima</value>
   </data>
   <data name="Main.Passes">
-    <value>Upcoming passes</value>
+    <value>Próximas passagens</value>
   </data>
   <data name="Pass.Rec">
     <value>REC</value>
   </data>
   <data name="Pass.Passing">
-    <value>Passing</value>
+    <value>Passando</value>
   </data>
   <data name="Pass.TimeRange">
-    <value>{0} to {1}</value>
+    <value>{0} a {1}</value>
   </data>
   <data name="Pass.Details">
-    <value>Duration: {0} | Max Elevation: {1}</value>
+    <value>Duração: {0} | Elevação máx.: {1}</value>
   </data>
   <data name="Pass.DurationMinutes">
     <value>{0} min</value>
@@ -122,34 +122,34 @@
     <value>1 min</value>
   </data>
   <data name="ComPort.DualRadioSamePort">
-    <value>Downlink and uplink radios both use {0}. Use different COM ports for each radio.</value>
+    <value>Os rádios de downlink e uplink usam a mesma porta {0}. Use portas COM diferentes para cada rádio.</value>
   </data>
   <data name="ComPort.RotatorAndDownlink">
-    <value>Rotator and downlink radio both use {0}. Use different COM ports or disable one device.</value>
+    <value>O rotor e o rádio de downlink usam a mesma porta {0}. Use portas COM diferentes ou desabilite um dispositivo.</value>
   </data>
   <data name="ComPort.RotatorAndUplink">
-    <value>Rotator and uplink radio both use {0}. Use different COM ports or disable one device.</value>
+    <value>O rotor e o rádio de uplink usam a mesma porta {0}. Use portas COM diferentes ou desabilite um dispositivo.</value>
   </data>
   <data name="ComPort.RotatorAndRadio">
-    <value>Rotator and radio both use {0}. Use different COM ports or disable one device.</value>
+    <value>O rotor e o rádio usam a mesma porta {0}. Use portas COM diferentes ou desabilite um dispositivo.</value>
   </data>
   <data name="A11y.SatelliteSunlight">
-    <value>Satellite in sunlight</value>
+    <value>Satélite iluminado pelo sol</value>
   </data>
   <data name="A11y.SatelliteEclipse">
-    <value>Satellite in eclipse</value>
+    <value>Satélite em eclipse</value>
   </data>
   <data name="Main.Radio">
-    <value>Radio</value>
+    <value>Rádio</value>
   </data>
   <data name="Main.Radio.CatPause">
-    <value>Pause CAT</value>
+    <value>Pausar CAT</value>
   </data>
   <data name="Main.Radio.CatPauseTip">
-    <value>Stop sending frequency updates to the radio so you can tune manually.</value>
+    <value>Interromper o envio de atualizações de frequência ao rádio para permitir o ajuste manual.</value>
   </data>
   <data name="Main.Radio.CatResume">
-    <value>Resume CAT</value>
+    <value>Retomar CAT</value>
   </data>
   <data name="Main.Radio.Rx">
     <value>RX</value>
@@ -158,10 +158,10 @@
     <value>TX</value>
   </data>
   <data name="Main.Range">
-    <value>Range </value>
+    <value>Distância </value>
   </data>
   <data name="Main.Rotator">
-    <value>Rotator</value>
+    <value>Rotor</value>
   </data>
   <data name="Main.Rotator.Az">
     <value>Az</value>
@@ -170,31 +170,31 @@
     <value>El</value>
   </data>
   <data name="Main.Rotator.Park">
-    <value>Park</value>
+    <value>Estacionar</value>
   </data>
   <data name="Main.Rotator.Parked">
-    <value>Parked</value>
+    <value>Estacionado</value>
   </data>
   <data name="Main.Satellite">
-    <value>Satellite</value>
+    <value>Satélite</value>
   </data>
   <data name="Main.SkyPlot">
-    <value>Sky plot</value>
+    <value>Rosa dos ventos</value>
   </data>
   <data name="Main.SkyPlot.Hint">
-    <value>Click a satellite on the map or sky plot, or use arrow keys when focused.</value>
+    <value>Clique em um satélite no mapa ou na rosa dos ventos, ou use as teclas seta.</value>
   </data>
   <data name="Main.Standby.Hint">
-    <value>Browsing only — rotator parked, CAT paused</value>
+    <value>Apenas navegando — rotor estacionado, CAT pausado</value>
   </data>
   <data name="Main.Standby.Pause">
-    <value>Standby</value>
+    <value>Em espera</value>
   </data>
   <data name="Main.Standby.Resume">
-    <value>Resume</value>
+    <value>Retomar</value>
   </data>
   <data name="Main.Sunlight">
-    <value>Sunlight</value>
+    <value>Luz solar</value>
   </data>
   <data name="MapTime.Back15">
     <value>−15m</value>
@@ -209,100 +209,100 @@
     <value>+5m</value>
   </data>
   <data name="MapTime.FromNow">
-    <value>{0} from now</value>
+    <value>{0} a partir de agora</value>
   </data>
   <data name="MapTime.Live">
-    <value>Live</value>
+    <value>Ao vivo</value>
   </data>
   <data name="MapTime.Tip.Back15">
-    <value>Show map 15 minutes earlier</value>
+    <value>Mostrar mapa 15 minutos antes</value>
   </data>
   <data name="MapTime.Tip.Back5">
-    <value>Show map 5 minutes earlier</value>
+    <value>Mostrar mapa 5 minutos antes</value>
   </data>
   <data name="MapTime.Tip.Forward15">
-    <value>Show map 15 minutes later</value>
+    <value>Mostrar mapa 15 minutos depois</value>
   </data>
   <data name="MapTime.Tip.Forward5">
-    <value>Show map 5 minutes later</value>
+    <value>Mostrar mapa 5 minutos depois</value>
   </data>
   <data name="MapTime.Tip.Now">
-    <value>Return map to live time</value>
+    <value>Retornar o mapa ao tempo atual</value>
   </data>
   <data name="Menu.File">
-    <value>_File</value>
+    <value>_Arquivo</value>
   </data>
   <data name="Menu.File.Close">
-    <value>_Close</value>
+    <value>_Fechar</value>
   </data>
   <data name="Menu.Help">
-    <value>_Help</value>
+    <value>_Ajuda</value>
   </data>
   <data name="Menu.Help.About">
-    <value>_About OscarWatch</value>
+    <value>_Sobre o OscarWatch</value>
   </data>
   <data name="Menu.Help.Logs">
-    <value>Open _logs folder</value>
+    <value>Abrir pasta de _registros</value>
   </data>
   <data name="Menu.Help.OperatorGuide">
-    <value>Operator Guide</value>
+    <value>Guia do Usuário</value>
   </data>
   <data name="Menu.Help.Recordings">
-    <value>Open _recordings folder</value>
+    <value>Abrir pasta de _gravações</value>
   </data>
   <data name="Menu.Passes">
-    <value>_Passes</value>
+    <value>_Passagens</value>
   </data>
   <data name="Menu.Passes.Mutual">
-    <value>_Mutual Pass Planner</value>
+    <value>_Pesquisa de Passagens Mútuas</value>
   </data>
   <data name="Menu.Passes.Planner">
-    <value>_Pass Planner</value>
+    <value>_Previsão de Passagens</value>
   </data>
   <data name="Menu.Passes.Sunlight">
-    <value>_Sunlight Prediction</value>
+    <value>_Previsão de Luz Solar</value>
   </data>
   <data name="Menu.Rotator">
-    <value>_Rotator</value>
+    <value>_Rotor</value>
   </data>
   <data name="Menu.Satellites">
-    <value>_Satellites</value>
+    <value>_Satélites</value>
   </data>
   <data name="Menu.Satellites.ManageDatabase">
-    <value>_Manage Transponder Database</value>
+    <value>_Gerenciar Banco de Dados de transmissores/transponders</value>
   </data>
   <data name="Menu.Satellites.RefreshTles">
-    <value>_Refresh TLEs</value>
+    <value>_Atualizar TLEs</value>
   </data>
   <data name="Menu.Satellites.Select">
-    <value>_Select Satellites</value>
+    <value>_Selecionar Satélites</value>
   </data>
   <data name="Menu.Satellites.UpdateDatabase">
-    <value>Update transponder _database…</value>
+    <value>Atualizar o banco de dados de _transponders…</value>
   </data>
   <data name="Menu.Settings">
-    <value>_Settings</value>
+    <value>_Configurações</value>
   </data>
   <data name="Picker.SelectAll">
-    <value>Select All</value>
+    <value>Selecionar Todos</value>
   </data>
   <data name="Picker.SelectNone">
-    <value>Select None</value>
+    <value>Desmarcar Todos</value>
   </data>
   <data name="Picker.StaleTle">
-    <value>Stale TLE</value>
+    <value>TLE desatualizado</value>
   </data>
   <data name="Picker.Title">
-    <value>Select satellites</value>
+    <value>Selecionar satélites</value>
   </data>
   <data name="Settings.FootprintArrows">
-    <value>Show footprint motion arrows</value>
+    <value>Mostrar setas de indicação de movimento do(s) satélite(s)</value>
   </data>
   <data name="Settings.FootprintArrows.Note">
-    <value>Draws a small arrow inside each satellite footprint on the world map showing ground-track direction.</value>
+    <value>Desenha uma pequena seta dentro de cada footprint dos satélite(s) selecionados no mapa-múndi indicando a direção do satélite.</value>
   </data>
   <data name="Settings.Language">
-    <value>Language</value>
+    <value>Idioma</value>
   </data>
   <data name="Settings.Language.English">
     <value>English</value>
@@ -314,199 +314,199 @@
     <value>Português (Brasil)</value>
   </data>
   <data name="Settings.Language.RestartNote">
-    <value>Language applies after you restart OscarWatch.</value>
+    <value>O idioma é aplicado após reiniciar o app OscarWatch.</value>
   </data>
   <data name="Settings.Tab.Appearance">
-    <value>Appearance</value>
+    <value>Aparência</value>
   </data>
   <data name="Settings.Tab.Cloudlog">
     <value>Cloudlog</value>
   </data>
   <data name="Settings.Tab.Radio">
-    <value>Radio</value>
+    <value>Rádio</value>
   </data>
   <data name="Settings.Tab.Recording">
-    <value>Recording</value>
+    <value>Gravação</value>
   </data>
   <data name="Settings.Tab.Rotator">
-    <value>Rotator</value>
+    <value>Rotor</value>
   </data>
   <data name="Settings.Tab.Station">
-    <value>Station</value>
+    <value>Estação</value>
   </data>
   <data name="Settings.Tab.Tle">
     <value>TLE</value>
   </data>
   <data name="Settings.Tab.Tracking">
-    <value>Tracking</value>
+    <value>Rastreamento</value>
   </data>
   <data name="Settings.Tab.Voice">
-    <value>Voice</value>
+    <value>Voz</value>
   </data>
   <data name="Settings.Theme">
-    <value>Theme</value>
+    <value>Tema</value>
   </data>
   <data name="Settings.Theme.Note">
-    <value>System follows your OS light/dark setting. The world map image stays light in all modes for now.</value>
+    <value>O app segue a configuração de claro/escuro do seu sistema operacional. A imagem do mapa-múndi permanece clara em todos os modos por enquanto.</value>
   </data>
   <data name="Settings.Title">
-    <value>Settings</value>
+    <value>Configurações</value>
   </data>
   <data name="Status.ComputingPasses">
-    <value>Computing passes…</value>
+    <value>Calculando passagens…</value>
   </data>
   <data name="Status.HelpMissing">
-    <value>Help files not found — reinstall or run from a published build</value>
+    <value>Arquivos de ajuda não encontrados — reinstale ou execute a partir de uma versão publicada</value>
   </data>
   <data name="Status.LoadingSettings">
-    <value>Starting…</value>
+    <value>Iniciando…</value>
   </data>
   <data name="Status.LoadingSettingsFull">
-    <value>Loading settings…</value>
+    <value>Carregando configurações…</value>
   </data>
   <data name="Status.LoadingTle">
-    <value>Loading TLE catalog…</value>
+    <value>Carregando banco de dados TLE…</value>
   </data>
   <data name="Status.LogsFolderFailed">
-    <value>Could not open log folder</value>
+    <value>Não foi possível abrir a pasta de registros</value>
   </data>
   <data name="Status.NoSatellites">
-    <value>{0} | 0 enabled — Satellites menu → enable some</value>
+    <value>{0} | 0 selecionados — Menu Satélites → selecionar alguns</value>
   </data>
   <data name="Status.NoTle">
-    <value>No TLE data — check Settings → TLE or use Satellites → Refresh TLEs</value>
+    <value>Sem dados TLE — verifique Configurações → TLE ou use a opção Satélites → Atualizar TLEs</value>
   </data>
   <data name="Status.RecordingsFolderFailed">
-    <value>Could not open recordings folder</value>
+    <value>Não foi possível abrir a pasta de gravações</value>
   </data>
   <data name="Status.RefreshingTle">
-    <value>Refreshing TLEs…</value>
+    <value>Atualizando TLEs…</value>
   </data>
   <data name="Status.SatellitesEnabled">
-    <value>{0} | {1} satellite(s) enabled</value>
+    <value>{0} | {1} satélite(s) selecionado(s)</value>
   </data>
   <data name="Status.TleAge">
-    <value>TLE {0} ago ({1})</value>
+    <value>TLE {0} atrás ({1})</value>
   </data>
   <data name="Status.TleCached">
-    <value>TLE cached ({0})</value>
+    <value>TLE em cache ({0})</value>
   </data>
   <data name="Status.TleNotLoaded">
-    <value>TLE not loaded</value>
+    <value>TLE não carregado</value>
   </data>
   <data name="Status.TleRefreshFailed">
-    <value>TLE refresh failed: {0}</value>
+    <value>Falha na atualização do TLE: {0}</value>
   </data>
   <data name="Status.TleReloadFailed">
-    <value>TLE reload failed: {0}</value>
+    <value>Falha ao recarregar TLE: {0}</value>
   </data>
   <data name="Status.TransponderChecking">
-    <value>Checking transponder database…</value>
+    <value>Verificando o banco de dados de transmissores/transponders…</value>
   </data>
   <data name="Status.TransponderUpToDate">
-    <value>Transponder database is up to date.</value>
+    <value>Banco de dados de transmissores/transponders está atualizado.</value>
   </data>
   <data name="Status.TransponderUpdated">
-    <value>Transponder database updated.</value>
+    <value>Banco de dados de transmissores/transponders atualizado.</value>
   </data>
   <data name="Status.TleNotLoadedShort">
-    <value>TLE not loaded</value>
+    <value>TLE não carregado</value>
   </data>
   <data name="Status.LineNoSatellites">
-    <value>{0} | 0 enabled — Satellites menu → enable some</value>
+    <value>{0} | 0 selecionados — Menu Satélites → selecionar alguns</value>
   </data>
   <data name="Status.CloudlogError">
     <value>Cloudlog: {0}</value>
   </data>
   <data name="Status.TransponderUpdateFailed">
-    <value>Transponder update failed: {0}</value>
+    <value>Falha na atualização do transmissores/transponders: {0}</value>
   </data>
   <data name="Rig.Connected">
-    <value>Connected</value>
+    <value>Conectado</value>
   </data>
   <data name="Rig.Disconnected">
-    <value>Disconnected</value>
+    <value>Desconectado</value>
   </data>
   <data name="Rig.CatPaused">
-    <value>CAT paused (manual tuning)</value>
+    <value>CAT pausado (ajuste manual)</value>
   </data>
   <data name="Rig.Tracking">
-    <value>Tracking</value>
+    <value>Rastreando</value>
   </data>
   <data name="Rig.NoComPort">
-    <value>No COM port selected</value>
+    <value>Nenhuma porta COM selecionada</value>
   </data>
   <data name="Rig.SelectDualComPorts">
-    <value>Select COM ports for downlink and uplink radios</value>
+    <value>Selecione portas COM para os rádios de downlink e uplink</value>
   </data>
   <data name="Rig.NotConnected">
-    <value>Rig not connected</value>
+    <value>Rádio não conectado</value>
   </data>
   <data name="Rig.NotConnectedPort">
-    <value>Rig not connected ({0})</value>
+    <value>Rádio não conectado ({0})</value>
   </data>
   <data name="Rig.DualNotConnected">
-    <value>Dual radio not connected</value>
+    <value>Rádio duplo não conectado</value>
   </data>
   <data name="Rig.DualNotConnectedDetail">
-    <value>Dual radio not connected: {0}</value>
+    <value>Rádio duplo não conectado: {0}</value>
   </data>
   <data name="Rig.NotConnectedDetail">
-    <value>Rig not connected: {0}</value>
+    <value>Rádio não conectado: {0}</value>
   </data>
   <data name="Rig.NotConnectedPortDetail">
-    <value>Rig not connected ({0}): {1}</value>
+    <value>Rádio não conectado ({0}): {1}</value>
   </data>
   <data name="Window.PassPlanner.Title">
-    <value>Pass planner</value>
+    <value>Previsão de passagens</value>
   </data>
   <data name="Window.MutualPass.Title">
-    <value>Mutual pass finder</value>
+    <value>Pesquisa de Passagens Mútuas</value>
   </data>
   <data name="Window.Sunlight.Title">
-    <value>Sunlight prediction</value>
+    <value>Previsão de luz solar</value>
   </data>
   <data name="Window.RotatorManual.Title">
-    <value>Manual rotator control</value>
+    <value>Controle manual do rotor</value>
   </data>
   <data name="Window.SatelliteDatabase.Title">
-    <value>Transponder database</value>
+    <value>Banco de dados de transmissores/transponders</value>
   </data>
   <data name="Dx.Title">
-    <value>DX station</value>
+    <value>Estação alvo</value>
   </data>
   <data name="Dx.GridWatermark">
-    <value>Maidenhead grid (e.g. JO22 or JO22lk)</value>
+    <value>Grid Locator (ex.: JO22 ou JO22lk)</value>
   </data>
   <data name="Dx.AzTheirSky">
-    <value>Az (their sky)</value>
+    <value>Az</value>
   </data>
   <data name="Dx.ElTheirSky">
-    <value>El (their sky)</value>
+    <value>El</value>
   </data>
   <data name="Dx.Clear">
-    <value>Clear</value>
+    <value>Limpar</value>
   </data>
   <data name="Dx.CollapseExpand">
-    <value>Expand DX station panel</value>
+    <value>Expandir painel da estação DX</value>
   </data>
   <data name="Dx.CollapseCompact">
-    <value>Collapse to compact view</value>
+    <value>Recolher para visualização compacta</value>
   </data>
   <data name="Dx.MapLauncher.Active">
-    <value>Show DX station monitor</value>
+    <value>Mostrar monitor da estação DX</value>
   </data>
   <data name="Dx.MapLauncher.Inactive">
-    <value>Enter remote station grid square</value>
+    <value>Inserir grid da estação alvo</value>
   </data>
   <data name="Dx.Validation.MinChars">
-    <value>Enter at least 4 characters (e.g. JO22 or JO22lk).</value>
+    <value>Insira pelo menos 4 caracteres (ex.: JO22 ou JO22lk).</value>
   </data>
   <data name="Dx.Validation.InvalidGrid">
-    <value>Invalid Maidenhead grid square.</value>
+    <value>Grid inválido.</value>
   </data>
   <data name="Dx.Collapsed.BelowHorizon">
-    <value>{0} · below horizon</value>
+    <value>{0} · abaixo do horizonte</value>
   </data>
   <data name="Dx.Collapsed.AzElPending">
     <value>{0} · Az — · El —</value>
@@ -515,28 +515,28 @@
     <value>{0} · Az {1} · El {2}</value>
   </data>
   <data name="Freq.SelectSatellite">
-    <value>Select a satellite</value>
+    <value>Selecione um satélite</value>
   </data>
   <data name="Freq.SelectSatelliteHint">
-    <value>Select a satellite on the map or from upcoming passes.</value>
+    <value>Selecione um satélite no mapa ou nas próximas passagens.</value>
   </data>
   <data name="Freq.NoTransponder">
-    <value>No transponder data for this satellite</value>
+    <value>Sem dados de transmissor/transponder para este satélite</value>
   </data>
   <data name="Freq.CollapsedNoTransponder">
-    <value>{0} · no transponder data</value>
+    <value>{0} · sem dados de transmissor/transponder</value>
   </data>
   <data name="Freq.CwSuffix">
     <value> · CW</value>
   </data>
   <data name="Freq.CollapseExpand">
-    <value>Expand frequency panel</value>
+    <value>Expandir painel de frequências</value>
   </data>
   <data name="Freq.CollapseCompact">
-    <value>Collapse to compact view</value>
+    <value>Recolher para visualização compacta</value>
   </data>
   <data name="Freq.TransponderMode">
-    <value>Transponder mode</value>
+    <value>Modo do transmissor/transponder</value>
   </data>
   <data name="Freq.UplinkTx">
     <value>Uplink (TX)</value>
@@ -548,10 +548,10 @@
     <value>Sat</value>
   </data>
   <data name="Freq.Radio">
-    <value>Radio</value>
+    <value>Rádio</value>
   </data>
   <data name="Freq.DopplerFull">
-    <value>Full</value>
+    <value>Completo</value>
   </data>
   <data name="Freq.DopplerTx">
     <value>TX</value>
@@ -560,79 +560,79 @@
     <value>RX</value>
   </data>
   <data name="Freq.DopplerTxFixedToolTip">
-    <value>TX fixed — downlink Doppler only (SatPC32 TX-Fixed). Uplink stays on your CQ spot.</value>
+    <value>TX fixo — somente Doppler no downlink (SatPC32 TX-Fixed). Uplink permanece no seu ponto CQ.</value>
   </data>
   <data name="Freq.DopplerRxFixedToolTip">
-    <value>RX fixed — uplink Doppler only (SatPC32 RX-Fixed). Downlink stays put.</value>
+    <value>RX fixo — somente Doppler no uplink (SatPC32 RX-Fixed). Downlink permanece fixo.</value>
   </data>
   <data name="Freq.Ctcss">
     <value>CTCSS</value>
   </data>
   <data name="Freq.CtcssAccess">
-    <value>Access</value>
+    <value>Acesso</value>
   </data>
   <data name="Freq.CtcssArm">
     <value>Arm</value>
   </data>
   <data name="Freq.RxOffsetKHz">
-    <value>RX offset (kHz)</value>
+    <value>Offset RX (kHz)</value>
   </data>
   <data name="Freq.StoreOffset">
-    <value>Store Offset</value>
+    <value>Salvar Offset</value>
   </data>
   <data name="Freq.Voice">
-    <value>Voice</value>
+    <value>Voz</value>
   </data>
   <data name="Freq.StoredOffsetCleared">
-    <value>Stored offset cleared.</value>
+    <value>Offset armazenado apagado.</value>
   </data>
   <data name="Freq.StoredOffsetClearedCw">
-    <value>Stored CW offset cleared.</value>
+    <value>Offset CW armazenado apagado.</value>
   </data>
   <data name="Freq.StoredOffset">
-    <value>Stored {0} Hz offset.</value>
+    <value>Offset de {0} Hz armazenado.</value>
   </data>
   <data name="Freq.StoredOffsetCw">
-    <value>Stored CW {0} Hz offset.</value>
+    <value>Offset CW de {0} Hz armazenado.</value>
   </data>
   <data name="Freq.OffsetOnDownlinkTuneUplink">
-    <value>{0} on downlink. Tune Main for uplink.</value>
+    <value>{0} no downlink. Ajuste Main para uplink.</value>
   </data>
   <data name="Freq.OffsetOnDownlink">
-    <value>{0} on downlink.</value>
+    <value>{0} no downlink.</value>
   </data>
   <data name="Freq.DownlinkOnlyTuneUplink">
-    <value>Downlink only. Tune Main for uplink.</value>
+    <value>Somente downlink. Ajuste Main para uplink.</value>
   </data>
   <data name="Freq.OffsetsDownlinkOnly">
-    <value>Offsets downlink only.</value>
+    <value>Offsets somente no downlink.</value>
   </data>
   <data name="Freq.TxFixedOffsetHint">
-    <value>TX fixed (downlink Doppler only). {0}</value>
+    <value>TX fixo (somente Doppler no downlink). {0}</value>
   </data>
   <data name="Freq.RxFixedOffsetHint">
-    <value>RX fixed (uplink Doppler only). {0}</value>
+    <value>RX fixo (somente Doppler no uplink). {0}</value>
   </data>
   <data name="Freq.DopplerFullHint">
-    <value>Full — uplink and downlink both track Doppler.</value>
+    <value>Completo — uplink e downlink rastreiam Doppler.</value>
   </data>
   <data name="Freq.DopplerTxFixedHint">
-    <value>TX fixed — uplink stays put; downlink tracks Doppler (roving CQ).</value>
+    <value>TX fixo — uplink permanece fixo; downlink rastreia Doppler (CQ itinerante).</value>
   </data>
   <data name="Freq.DopplerRxFixedHint">
-    <value>RX fixed — downlink stays put; uplink tracks Doppler.</value>
+    <value>RX fixo — downlink permanece fixo; uplink rastreia Doppler.</value>
   </data>
   <data name="Freq.OperatingCwSideband">
-    <value>CW on uplink; receive stays USB/LSB. Ctrl+W to toggle.</value>
+    <value>CW no uplink; recepção permanece em USB/LSB. Ctrl+W para alternar.</value>
   </data>
   <data name="Freq.OperatingCwBoth">
-    <value>CW on uplink and downlink. Ctrl+W to toggle.</value>
+    <value>CW no uplink e downlink. Ctrl+W para alternar.</value>
   </data>
   <data name="Freq.OperatingVoice">
-    <value>Voice uses database modes. Ctrl+W toggles CW.</value>
+    <value>Voz usa modos do banco de dados. Ctrl+W alterna para CW.</value>
   </data>
   <data name="Settings.Station.DisplayName">
-    <value>Display name</value>
+    <value>Nome de exibição</value>
   </data>
   <data name="Settings.Station.Latitude">
     <value>Latitude (°)</value>
@@ -641,31 +641,31 @@
     <value>Longitude (°)</value>
   </data>
   <data name="Settings.Station.GridSquare">
-    <value>Maidenhead grid square</value>
+    <value>Grid Locator</value>
   </data>
   <data name="Settings.Station.Altitude">
-    <value>Altitude ASL (m)</value>
+    <value>Altitude "ASL" (m)</value>
   </data>
   <data name="Settings.Tle.Source">
-    <value>TLE catalog source</value>
+    <value>Banco de dados TLE</value>
   </data>
   <data name="Settings.Tle.SourceNote">
-    <value>OscarWatch is the default AMSAT-oriented catalog. AMSAT.org uses the published nasabare.txt set. Use a custom URL or local file if you maintain your own TLE set.</value>
+    <value>OscarWatch é o banco de dados orientado para AMSAT. AMSAT.org usa o conjunto nasabare.txt publicado. Use uma URL personalizada ou arquivo local se você mantiver seu próprio conjunto TLE.</value>
   </data>
   <data name="Settings.Tle.DownloadUrl">
-    <value>Download URL</value>
+    <value>URL de download</value>
   </data>
   <data name="Settings.Tle.LocalFile">
-    <value>Local TLE file</value>
+    <value>Arquivo TLE local</value>
   </data>
   <data name="Settings.Tle.LocalFileWatermark">
-    <value>Path to .txt or .tle file</value>
+    <value>Caminho para arquivo .txt ou .tle</value>
   </data>
   <data name="Settings.Tle.Updates">
-    <value>TLE updates</value>
+    <value>Atualizações de TLE</value>
   </data>
   <data name="Settings.Tle.UpdatesNote">
-    <value>Automatic download applies to OscarWatch and custom URLs only. Local files are re-read when you save settings or choose Satellites → Refresh TLEs.</value>
+    <value>O download automático se aplica apenas ao banco de dados OscarWatch e URLs personalizadas. Arquivos locais são relidos quando você salva as configurações ou executa o comando Satélites → Atualizar TLEs.</value>
   </data>
   <data name="Settings.Tle.Source.OscarWatch">
     <value>OscarWatch (tle.oscarwatch.org)</value>
@@ -674,196 +674,196 @@
     <value>AMSAT.org (nasabare.txt)</value>
   </data>
   <data name="Settings.Tle.Source.CustomUrl">
-    <value>Custom URL</value>
+    <value>URL personalizada</value>
   </data>
   <data name="Settings.Tle.Source.LocalFile">
-    <value>Local file</value>
+    <value>Arquivo local</value>
   </data>
   <data name="Settings.Tle.Update.Manual">
-    <value>Manual only</value>
+    <value>Manualmente</value>
   </data>
   <data name="Settings.Tle.Update.OnStartup">
-    <value>On startup (if older than 6 hours)</value>
+    <value>Na inicialização (se mais antigo que 6 horas)</value>
   </data>
   <data name="Settings.Tle.Update.EverySixHours">
-    <value>Every 6 hours while running</value>
+    <value>A cada 6 horas enquanto em execução</value>
   </data>
   <data name="Settings.Tracking.MinElevation">
-    <value>Minimum elevation (°)</value>
+    <value>Elevação mínima (°)</value>
   </data>
   <data name="Settings.Tracking.PassWindow">
-    <value>Pass prediction window (hours)</value>
+    <value>Janela de previsão de passagens (horas)</value>
   </data>
   <data name="Settings.Tracking.PassWindowNote">
-    <value>Used for the upcoming pass list and as defaults in the pass planner.</value>
+    <value>Usado para a lista de próximas passagens e como padrão na previsão de passagens.</value>
   </data>
   <data name="Settings.Tracking.TransponderCheck">
-    <value>Check for transponder database updates on startup</value>
+    <value>Verificar atualizações do banco de dados de transmissores/transponders na inicialização</value>
   </data>
   <data name="Settings.Tracking.TransponderCheckNote">
-    <value>Downloads tle.oscarwatch.org/satellite_database.json when updates are available. New satellites and modes are offered for merge; your local edits are kept unless you accept published changes.</value>
+    <value>Baixa tle.oscarwatch.org/satellite_database.json quando há atualizações disponíveis. Novos satélites e modos são oferecidos para mesclagem; suas edições locais são mantidas a menos que você aceite as alterações publicadas.</value>
   </data>
   <data name="Settings.Theme.System">
-    <value>System</value>
+    <value>Sistema</value>
   </data>
   <data name="Settings.Theme.Light">
-    <value>Light</value>
+    <value>Claro</value>
   </data>
   <data name="Settings.Theme.Dark">
-    <value>Dark</value>
+    <value>Escuro</value>
   </data>
   <data name="Settings.Voice.Enable">
-    <value>Enable voice announcements</value>
+    <value>Habilitar anúncios de voz</value>
   </data>
   <data name="Settings.Voice.EnableNote">
-    <value>Announces each enabled satellite once per pass when it crosses the elevation threshold while rising, for example: Alpha Oscar Zero Seven is rising.</value>
+    <value>Anuncia cada satélite selecionado uma vez que ele cruzar a elevação mínima configurada. Exemplo: Alpha Oscar Zero Sete está subindo.</value>
   </data>
   <data name="Settings.Voice.AnnounceElevation">
-    <value>Announce at elevation (°)</value>
+    <value>Anunciar na elevação (°)</value>
   </data>
   <data name="Settings.Voice.AnnounceElevationNote">
-    <value>Default is -3°. The announcement fires when elevation rises through this value (negative values catch the satellite before it clears the horizon).</value>
+    <value>O padrão é -3°. O anúncio é ativado quando a elevação sobe acima deste valor (valores negativos capturam o satélite antes de ele ultrapassar o horizonte).</value>
   </data>
   <data name="Settings.Voice.VoiceLabel">
-    <value>Voice</value>
+    <value>Voz</value>
   </data>
   <data name="Settings.Voice.SpeechUnavailable">
-    <value>Text-to-speech is not available on this system.</value>
+    <value>A síntese de fala não está disponível neste sistema.</value>
   </data>
   <data name="Settings.Voice.Preview">
-    <value>Preview</value>
+    <value>Visualizar</value>
   </data>
   <data name="Settings.Voice.TestAnnouncement">
-    <value>Test announcement</value>
+    <value>Testar anúncio</value>
   </data>
   <data name="Settings.Radio.Enable">
-    <value>Enable radio control</value>
+    <value>Habilitar controle de rádio</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>Dual radio (separate downlink and uplink — FT-817/818, FT-991(A), IC-705, or mixed)</value>
+    <value>Dois rádios (downlink e uplink separados — FT-817/818, FT-991(A), IC-705 ou misto)</value>
   </data>
   <data name="Settings.Radio.Driver">
-    <value>Radio driver</value>
+    <value>Driver do rádio</value>
   </data>
   <data name="Settings.Radio.Label">
-    <value>Radio</value>
+    <value>Rádio</value>
   </data>
   <data name="Settings.Radio.SerialPort">
-    <value>Serial port</value>
+    <value>Porta serial</value>
   </data>
   <data name="Settings.Radio.SelectComPort">
-    <value>Select COM port</value>
+    <value>Selecionar porta COM</value>
   </data>
   <data name="Settings.Radio.BaudRate">
-    <value>Baud rate</value>
+    <value>baud rate</value>
   </data>
   <data name="Settings.Radio.CivAddress">
-    <value>CI-V address (hex)</value>
+    <value>Endereço CI-V (hex)</value>
   </data>
   <data name="Settings.Radio.CivHint">
-    <value>IC-9700 default A2, IC-910 default 7C (hex). Use 60 if your radio is set that way in the CI-V menu.</value>
+    <value>IC-9700 padrão A2, IC-910 padrão 7C (hex). Use 60 se o seu rádio estiver configurado assim no menu CI-V.</value>
   </data>
   <data name="Settings.Radio.Ft847Hint">
-    <value>FT-847: set CAT baud in radio menu #37 (typically 57600). Use the CAT/LINEAR jack with a level converter (e.g. CT-62).</value>
+    <value>FT-847: defina o baud CAT no menu do rádio #37 (normalmente 57600). Use o conector CAT/LINEAR com um conversor de nível (ex.: CT-62).</value>
   </data>
   <data name="Settings.Radio.Ts2000Hint">
-    <value>TS-2000: CAT 57600 8N1. Select SAT on the radio and turn memory mode off before tracking; OscarWatch then enables SATL via CAT (same SA command as SatPC32), auto VHF/UHF band swap.</value>
+    <value>TS-2000: CAT 57600 8N1. Selecione SAT no rádio e desative o modo de memória antes do rastreamento; o OscarWatch então habilita SATL e a troca automática de banda VHF/UHF (TRACE desativado via CAT).</value>
   </data>
   <data name="Settings.Radio.Region">
-    <value>Region</value>
+    <value>Região</value>
   </data>
   <data name="Settings.Radio.RegionNote">
-    <value>EU uses tone; USA uses tone squelch (subtone).</value>
+    <value>EU utiliza "tone"; EUA utiliza "tone squelch" (subtom).</value>
   </data>
   <data name="Settings.Radio.CatDelay">
-    <value>CAT delay (ms)</value>
+    <value>Delay CAT (ms)</value>
   </data>
   <data name="Settings.Radio.CatDelayNote">
-    <value>Minimum time between CAT commands to protect the serial link.</value>
+    <value>Tempo mínimo entre comandos CAT para proteger o link serial.</value>
   </data>
   <data name="Settings.Radio.Downlink">
-    <value>Downlink radio</value>
+    <value>Rádio de downlink</value>
   </data>
   <data name="Settings.Radio.Uplink">
-    <value>Uplink radio</value>
+    <value>Rádio de uplink</value>
   </data>
   <data name="Settings.Radio.Ic705CivHint">
-    <value>IC-705 factory default A4. Must match the radio CI-V menu.</value>
+    <value>IC-705 padrão de fábrica A4. Deve corresponder ao menu CI-V do rádio.</value>
   </data>
   <data name="Settings.Radio.RefreshComPorts">
-    <value>Refresh COM ports</value>
+    <value>Atualizar portas COM</value>
   </data>
   <data name="Settings.Radio.Ft817Hint">
-    <value>FT-817 / FT-818: Set menu #14 to 4800 baud on each radio (38400 also works). 8N2 CAT — one COM per leg. Linear: spin downlink for passband; FM locks dial while tracking.</value>
+    <value>FT-817 / FT-818: Defina o menu #14 para 4800 baud em cada rádio (38400 também funciona). CAT 8N2 — uma COM por perna. Linear: gire o downlink para a passband; FM trava o dial durante o rastreamento.</value>
   </data>
   <data name="Settings.Radio.Ic705Hint">
-    <value>IC-705: Set Connectors → CI-V → CI-V USB Port to Link to [CI-V] (not REMOTE). Match CI-V baud in Settings (default 115200). One COM port per leg — use the port labeled CI-V when two appear.</value>
+    <value>IC-705: Defina Conectores → CI-V → Porta USB CI-V para Vincular a [CI-V] (não REMOTE). Combine o baud CI-V nas Configurações (padrão 115200). Uma porta COM por perna — use a porta marcada como CI-V quando duas aparecerem.</value>
   </data>
   <data name="Settings.Radio.Ft991Hint">
-    <value>FT-991 / FT-991A: Match menu 031 CAT RATE to Settings (default 38400). 8N2 ASCII CAT with hardware RTS — use the USB CAT COM port. One COM per leg. FM locks the VFO-A dial while tracking.</value>
+    <value>FT-991 / FT-991A: Combine o menu 031 CAT RATE com as Configurações (padrão 38400). CAT ASCII 8N2 com RTS de hardware — use a porta COM USB CAT. Uma COM por perna. FM trava o dial VFO-A durante o rastreamento.</value>
   </data>
   <data name="Settings.Radio.CwSideband">
-    <value>Linear CW: keep receive in USB/LSB (transmit CW only)</value>
+    <value>CW linear: manter recepção em USB/LSB (somente transmissão em CW)</value>
   </data>
   <data name="Settings.Radio.CwSidebandNote">
-    <value>Applies when the frequency panel is set to CW on linear SSB satellites. Checked is the usual split (CW TX, USB/LSB RX). Unchecked sets both VFOs to CW.</value>
+    <value>Aplica-se quando o painel de frequências está definido para CW em satélites SSB lineares. Marcado é o split usual (TX CW, RX USB/LSB). Desmarcado define ambos os VFOs para CW.</value>
   </data>
   <data name="Settings.Radio.DopplerFm">
-    <value>Doppler threshold FM (Hz)</value>
+    <value>Limiar Doppler FM (Hz)</value>
   </data>
   <data name="Settings.Radio.DopplerFmNote">
-    <value>FM / ISS cross-band: lower = more CAT updates (default 350 Hz).</value>
+    <value>FM / ISS cross-band: menor = mais atualizações CAT (padrão 350 Hz).</value>
   </data>
   <data name="Settings.Radio.DopplerSsb">
-    <value>Doppler threshold SSB/CW (Hz)</value>
+    <value>Limiar Doppler SSB/CW (Hz)</value>
   </data>
   <data name="Settings.Radio.DopplerSsbNote">
-    <value>Frequencies are sent to the radio only when drift exceeds this interval (SatPC32-style).</value>
+    <value>As frequências são enviadas ao rádio somente quando a deriva excede este intervalo (estilo SatPC32).</value>
   </data>
   <data name="Settings.Rotator.Enable">
-    <value>Enable rotator</value>
+    <value>Habilitar rotor</value>
   </data>
   <data name="Settings.Rotator.Type">
-    <value>Rotator type</value>
+    <value>Tipo de rotor</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232 for Yaesu and clones. SPID for controllers in SP mode (Rot1Prog / Rot2Prog). EasyComm for EC mode — SPID, M2, and other text-protocol controllers.</value>
+    <value>GS-232 para Yaesu e clones. SPID para controladores em modo SP (Rot1Prog / Rot2Prog). EasyComm para modo EC — SPID, M2 e outros controladores de protocolo texto.</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuth">
-    <value>Smart 450° azimuth (shortest path over north)</value>
+    <value>Azimute inteligente 450° (caminho mais curto sobre o norte)</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuthNote">
-    <value>On 450° rotators (e.g. Yaesu G-5500), commands 361–450° avoid a long slew back through 0° when tracking passes over north.</value>
+    <value>Em rotores de 450° (ex.: Yaesu G-5500), comandos de 361°–450° evitam uma longa rotação de volta por 0° ao rastrear passagens sobre o norte.</value>
   </data>
   <data name="Settings.Rotator.ElevationRange">
-    <value>Elevation range</value>
+    <value>Faixa de elevação</value>
   </data>
   <data name="Settings.Rotator.TrackStart">
-    <value>Start tracking at elevation (°)</value>
+    <value>Iniciar rastreamento na elevação (°)</value>
   </data>
   <data name="Settings.Rotator.TrackStartNote">
-    <value>Default is -3° (below horizon). Range -90° to 90°. The rotator begins slewing when the tracked satellite rises above this elevation, and parks once it drops below.</value>
+    <value>O padrão é -3° (abaixo do horizonte). Faixa de -90° a 90°. O rotor começa a girar quando o satélite rastreado sobe acima desta elevação e estaciona quando cai abaixo.</value>
   </data>
   <data name="Settings.Rotator.ParkAzimuth">
-    <value>Park azimuth (°)</value>
+    <value>Azimute de estacionamento (°)</value>
   </data>
   <data name="Settings.Rotator.ParkElevation">
-    <value>Park elevation (°)</value>
+    <value>Elevação de estacionamento (°)</value>
   </data>
   <data name="Settings.Rotator.ParkNote">
-    <value>Park position is used when no satellite is above the tracking threshold. The focused pass or live satellite is tracked automatically.</value>
+    <value>A posição de estacionamento é usada quando nenhum satélite está acima do limiar de rastreamento. A passagem focada ou o satélite ao vivo é rastreado automaticamente.</value>
   </data>
   <data name="Settings.Rotator.CalibrationOffsets">
-    <value>Calibration offsets (°)</value>
+    <value>Offsets de calibração (°)</value>
   </data>
   <data name="Settings.Rotator.AzimuthOffset">
-    <value>Azimuth offset</value>
+    <value>Offset de azimute</value>
   </data>
   <data name="Settings.Rotator.ElevationOffset">
-    <value>Elevation offset</value>
+    <value>Offset de elevação</value>
   </data>
   <data name="Settings.Rotator.OffsetNote">
-    <value>Added to pass tracking and manual rotate commands (not park). Use positive values if the beam stops short of the target; negative if it overshoots.</value>
+    <value>Adicionado ao rastreamento de passagens e comandos manuais de rotação (não ao estacionamento). Use valores positivos se a antena para antes do alvo; negativos se ultrapassar.</value>
   </data>
   <data name="Settings.Rotator.AzimuthRange360">
     <value>0–360°</value>
@@ -878,172 +878,172 @@
     <value>0–180°</value>
   </data>
   <data name="Settings.Recording.Enable">
-    <value>Enable automatic pass recording</value>
+    <value>Habilitar gravação automática de passagens</value>
   </data>
   <data name="Settings.Recording.EnableNote">
-    <value>Records WAV audio from the selected input device while the focused satellite is above the start elevation. Files are saved with UTC timestamps.</value>
+    <value>Grava áudio WAV do dispositivo de entrada selecionado enquanto o satélite selecionado está acima da elevação inicial mínima configurada. Os arquivos são salvos com carimbos de tempo UTC.</value>
   </data>
   <data name="Settings.Recording.InputDevice">
-    <value>Input device</value>
+    <value>Dispositivo de entrada</value>
   </data>
   <data name="Settings.Recording.Format">
-    <value>Format</value>
+    <value>Formato</value>
   </data>
   <data name="Settings.Recording.StartElevation">
-    <value>Start recording at elevation (°)</value>
+    <value>Iniciar gravação na elevação (°)</value>
   </data>
   <data name="Settings.Recording.StopElevation">
-    <value>Stop recording below elevation (°)</value>
+    <value>Parar gravação abaixo da elevação (°)</value>
   </data>
   <data name="Settings.Recording.StopNote">
-    <value>Stop elevation should be at or below the start elevation to avoid flapping near the threshold.</value>
+    <value>A elevação de parada deve ser igual ou menor que a elevação de início para evitar oscilações próximas ao limiar.</value>
   </data>
   <data name="Settings.Recording.OutputFolder">
-    <value>Output folder</value>
+    <value>Pasta de saída</value>
   </data>
   <data name="Settings.Recording.OutputWatermark">
-    <value>Default: %AppData%/OscarWatch/recordings</value>
+    <value>Padrão: %AppData%/OscarWatch/recordings</value>
   </data>
   <data name="Settings.Recording.TestButton">
-    <value>Test recording (5 s)</value>
+    <value>Testar gravação (5 s)</value>
   </data>
   <data name="Settings.Recording.Unavailable">
-    <value>Audio recording is not available on this system.</value>
+    <value>A gravação de áudio não está disponível neste sistema.</value>
   </data>
   <data name="Settings.Recording.SelectDeviceFirst">
-    <value>Select an input device first.</value>
+    <value>Selecione um dispositivo de entrada primeiro.</value>
   </data>
   <data name="Settings.Recording.TestInProgress">
-    <value>Recording 5 s test clip…</value>
+    <value>Gravando clipe de teste de 5 s…</value>
   </data>
   <data name="Settings.Recording.TestSaved">
-    <value>Saved test clip to {0}</value>
+    <value>Clipe de teste salvo em {0}</value>
   </data>
   <data name="Settings.Recording.Format.Mono44100">
-    <value>Mono 44.1 kHz</value>
+    <value>Mono 44,1 kHz</value>
   </data>
   <data name="Settings.Recording.Format.Mono48000">
     <value>Mono 48 kHz</value>
   </data>
   <data name="Settings.Recording.Format.Stereo44100">
-    <value>Stereo 44.1 kHz</value>
+    <value>Estéreo 44,1 kHz</value>
   </data>
   <data name="Settings.Cloudlog.Intro">
-    <value>Posts satellite TX/RX to Cloudlog CAT (API v2 /index.php/api/radio) when you select a satellite or frequencies update.</value>
+    <value>Envia TX/RX do satélite para o Cloudlog CAT (API v2 /index.php/api/radio) quando você seleciona um satélite ou as frequências são atualizadas.</value>
   </data>
   <data name="Settings.Cloudlog.Enable">
-    <value>Enable Cloudlog radio API (required for live updates)</value>
+    <value>Habilitar API de rádio do Cloudlog (necessário para atualizações ao vivo)</value>
   </data>
   <data name="Settings.Cloudlog.BaseUrl">
-    <value>Cloudlog base URL</value>
+    <value>URL base do Cloudlog</value>
   </data>
   <data name="Settings.Cloudlog.BaseUrlWatermark">
-    <value>https://your.cloudlog.site</value>
+    <value>https://seu.cloudlog.site</value>
   </data>
   <data name="Settings.Cloudlog.ApiKey">
-    <value>API key</value>
+    <value>Chave de API</value>
   </data>
   <data name="Settings.Cloudlog.ApiKeyWatermark">
-    <value>read/write API key</value>
+    <value>chave de API de leitura/escrita</value>
   </data>
   <data name="Settings.Cloudlog.RadioName">
-    <value>Radio name in Cloudlog</value>
+    <value>Nome do rádio no Cloudlog</value>
   </data>
   <data name="Settings.Cloudlog.RadioNameWatermark">
     <value>OscarWatch</value>
   </data>
   <data name="Settings.Cloudlog.RadioNameNote">
-    <value>Default is OscarWatch. Must match a radio entry Cloudlog can assign QSOs to.</value>
+    <value>O padrão é OscarWatch. Deve corresponder a uma entrada de rádio à qual o Cloudlog pode atribuir QSOs.</value>
   </data>
   <data name="Settings.Cloudlog.MinInterval">
-    <value>Minimum update interval (ms)</value>
+    <value>Intervalo mínimo de atualização (ms)</value>
   </data>
   <data name="Settings.Cloudlog.TestConnection">
-    <value>Test connection</value>
+    <value>Testar conexão</value>
   </data>
   <data name="Settings.Cloudlog.Testing">
-    <value>Testing…</value>
+    <value>Testando…</value>
   </data>
   <data name="Settings.Cloudlog.EnterCredentials">
-    <value>Enter URL and API key (tab out of each field or click Test again).</value>
+    <value>Insira a URL e a chave de API (saia de cada campo com Tab ou clique em Testar novamente).</value>
   </data>
   <data name="Settings.Cloudlog.ConnectionOk">
-    <value>Connection OK — posted test CAT to {0}</value>
+    <value>Conexão OK — CAT de teste enviado para {0}</value>
   </data>
   <data name="Settings.Cloudlog.ConnectionFailed">
-    <value>Connection failed.</value>
+    <value>Falha na conexão.</value>
   </data>
   <data name="Settings.Browse.RecordingFolder">
-    <value>Choose recording output folder</value>
+    <value>Escolher pasta de saída de gravação</value>
   </data>
   <data name="Settings.Browse.TleFile">
-    <value>Choose TLE file</value>
+    <value>Escolher arquivo TLE</value>
   </data>
   <data name="Settings.SaveFailed.Title">
-    <value>Could not save settings</value>
+    <value>Não foi possível salvar as configurações</value>
   </data>
   <data name="Pass.Time.Local">
-    <value>Local time</value>
+    <value>Hora local</value>
   </data>
   <data name="Pass.Time.Utc">
     <value>UTC</value>
   </data>
   <data name="Pass.TimesShownIn">
-    <value>Times shown in</value>
+    <value>Horários exibidos em</value>
   </data>
   <data name="Pass.MinElevation">
-    <value>Min elevation (°)</value>
+    <value>Elevação mín. (°)</value>
   </data>
   <data name="Pass.MinDuration">
-    <value>Min duration (min)</value>
+    <value>Duração mín. (min)</value>
   </data>
   <data name="Pass.HoursAhead">
-    <value>Hours ahead</value>
+    <value>Horas à frente</value>
   </data>
   <data name="Pass.Computing">
-    <value>Computing passes…</value>
+    <value>Calculando passagens…</value>
   </data>
   <data name="Pass.ComputingMutual">
-    <value>Computing mutual passes…</value>
+    <value>Calculando passagens mútuas…</value>
   </data>
   <data name="Pass.CountPasses">
-    <value>{0} pass(es) in the next {1} h</value>
+    <value>{0} passagem(ns) nas próximas {1} h</value>
   </data>
   <data name="Pass.CountMutual">
-    <value>{0} mutual pass(es) in the next {1} h</value>
+    <value>{0} passagem(ns) mútua(s) nas próximas {1} h</value>
   </data>
   <data name="Pass.Failed">
-    <value>Pass prediction failed: {0}</value>
+    <value>Falha na previsão de passagens: {0}</value>
   </data>
   <data name="Pass.FailedMutual">
-    <value>Mutual pass prediction failed: {0}</value>
+    <value>Falha na previsão de passagens mútuas: {0}</value>
   </data>
   <data name="Planner.Section.StationFilters">
-    <value>Station &amp; filters</value>
+    <value>Estação &amp; filtros</value>
   </data>
   <data name="Planner.UseActiveStation">
-    <value>Use as active station</value>
+    <value>Usar como estação ativa</value>
   </data>
   <data name="Planner.DisplayNameWatermark">
-    <value>Display name</value>
+    <value>Nome de exibição</value>
   </data>
   <data name="Planner.Maidenhead">
     <value>Maidenhead</value>
   </data>
   <data name="Planner.AltAsl">
-    <value>Alt ASL (m)</value>
+    <value>Altitude "ASL" (m)</value>
   </data>
   <data name="Planner.RefreshPasses">
-    <value>Refresh passes</value>
+    <value>Atualizar passagens</value>
   </data>
   <data name="Planner.FiltersNote">
-    <value>Filters apply to this list and the main window when you close.</value>
+    <value>Os filtros se aplicam a esta lista e à janela principal ao fechar.</value>
   </data>
   <data name="Planner.PassesHeader">
-    <value>Passes</value>
+    <value>Passagens</value>
   </data>
   <data name="Planner.Col.Satellite">
-    <value>Satellite</value>
+    <value>Satélite</value>
   </data>
   <data name="Planner.Col.AosLos">
     <value>AOS – LOS</value>
@@ -1052,31 +1052,31 @@
     <value>TCA</value>
   </data>
   <data name="Planner.Col.Azimuth">
-    <value>Azimuth</value>
+    <value>Azimute</value>
   </data>
   <data name="Planner.Col.MaxEl">
-    <value>Max el</value>
+    <value>El máx.</value>
   </data>
   <data name="Planner.Col.Duration">
-    <value>Duration</value>
+    <value>Duração</value>
   </data>
   <data name="Planner.Col.Calendar">
-    <value>Calendar</value>
+    <value>Calendário</value>
   </data>
   <data name="Planner.AddToCalendar">
-    <value>Add to Calendar</value>
+    <value>Adicionar ao Calendário</value>
   </data>
   <data name="Planner.Export.CalendarTip">
-    <value>Export all passes for this satellite to an iCalendar (.ics) file</value>
+    <value>Exportar todas as passagens deste satélite para um arquivo iCalendar (.ics)</value>
   </data>
   <data name="Planner.PortableName">
-    <value>Portable {0}</value>
+    <value>Portátil {0}</value>
   </data>
   <data name="Planner.Export.RefreshFirst">
-    <value>Refresh passes before exporting.</value>
+    <value>Atualize as passagens antes de exportar.</value>
   </data>
   <data name="Planner.Export.Title">
-    <value>Export {0} passes</value>
+    <value>Exportar passagens de {0}</value>
   </data>
   <data name="Planner.Export.FileType">
     <value>iCalendar</value>
@@ -1085,199 +1085,199 @@
     <value>OscarWatch — {0} @ {1}</value>
   </data>
   <data name="Planner.Export.Done">
-    <value>Exported {0} {1} pass(es)</value>
+    <value>Exportadas {0} passagem(ns) de {1}</value>
   </data>
   <data name="Planner.Export.SatelliteFile">
-    <value>satellite</value>
+    <value>satélite</value>
   </data>
   <data name="Mutual.Section.StationsFilters">
-    <value>Stations &amp; filters</value>
+    <value>Estações &amp; filtros</value>
   </data>
   <data name="Mutual.YourStation">
-    <value>Your station</value>
+    <value>Sua estação</value>
   </data>
   <data name="Mutual.RemoteOperator">
-    <value>Remote operator</value>
+    <value>Operador alvo</value>
   </data>
   <data name="Mutual.RemoteOperatorWatermark">
-    <value>Callsign or name (optional)</value>
+    <value>Indicativo ou nome (opcional)</value>
   </data>
   <data name="Mutual.RemoteGrid">
-    <value>Remote Maidenhead grid</value>
+    <value>Grid da estação alvo</value>
   </data>
   <data name="Mutual.Description">
-    <value>Find passes when the satellite is above minimum elevation at both your station and the remote grid square at the same time.</value>
+    <value>Encontrar passagens quando o satélite está acima da elevação mínima na sua estação e no grid alvo.</value>
   </data>
   <data name="Mutual.FindPasses">
-    <value>Find mutual passes</value>
+    <value>Encontrar passagens mútuas</value>
   </data>
   <data name="Mutual.MinPassDuration">
-    <value>Min pass duration (min)</value>
+    <value>Duração mín. da passagem (min)</value>
   </data>
   <data name="Mutual.MinOverlap">
-    <value>Min overlap (min)</value>
+    <value>Sobreposição mín. (min)</value>
   </data>
   <data name="Mutual.PassesHeader">
-    <value>Mutual passes</value>
+    <value>Passagens mútuas</value>
   </data>
   <data name="Mutual.Col.Satellite">
-    <value>Satellite</value>
+    <value>Satélite</value>
   </data>
   <data name="Mutual.Col.MutualWindow">
-    <value>Mutual window</value>
+    <value>Janela mútua</value>
   </data>
   <data name="Mutual.Col.Overlap">
-    <value>Overlap</value>
+    <value>Sobreposição</value>
   </data>
   <data name="Mutual.Col.YourMaxEl">
-    <value>Your max el</value>
+    <value>El máx. sua</value>
   </data>
   <data name="Mutual.Col.RemoteMaxEl">
-    <value>Remote max el</value>
+    <value>El máx. remota</value>
   </data>
   <data name="Mutual.Col.YourPass">
-    <value>Your pass</value>
+    <value>Sua passagem</value>
   </data>
   <data name="Mutual.Col.RemotePass">
-    <value>Remote pass</value>
+    <value>Passagem remota</value>
   </data>
   <data name="Mutual.Status.EnterGrid">
-    <value>Enter the remote operator's Maidenhead grid square (at least 4 characters).</value>
+    <value>Insira o grid do operador alvo (pelo menos 4 caracteres).</value>
   </data>
   <data name="Mutual.Status.NoPasses">
-    <value>No mutual passes in the next {0} h for {1} and {2}.</value>
+    <value>Nenhuma passagem mútua nas próximas {0} h para {1} e {2}.</value>
   </data>
   <data name="Mutual.Status.InvalidGrid">
-    <value>Invalid Maidenhead grid square.</value>
+    <value>Grid inválido.</value>
   </data>
   <data name="Sunlight.Section.SatelliteRange">
-    <value>Satellite &amp; range</value>
+    <value>Satélite &amp; intervalo</value>
   </data>
   <data name="Sunlight.Satellite">
-    <value>Satellite</value>
+    <value>Satélite</value>
   </data>
   <data name="Sunlight.StartDateUtc">
-    <value>Start date (UTC)</value>
+    <value>Data inicial (UTC)</value>
   </data>
   <data name="Sunlight.DaysAhead">
-    <value>Days ahead</value>
+    <value>Dias à frente</value>
   </data>
   <data name="Sunlight.Predict">
-    <value>Predict</value>
+    <value>Prever</value>
   </data>
   <data name="Sunlight.Legend.Sunlight">
-    <value>Sunlight</value>
+    <value>Luz solar</value>
   </data>
   <data name="Sunlight.Legend.Eclipse">
     <value>Eclipse</value>
   </data>
   <data name="Sunlight.ContinuousPeriods">
-    <value>Continuous sunlight periods</value>
+    <value>Períodos contínuos de luz solar</value>
   </data>
   <data name="Sunlight.MinDuration">
-    <value>Min duration (min)</value>
+    <value>Duração mín. (min)</value>
   </data>
   <data name="Sunlight.Col.StartLocal">
-    <value>Start (local)</value>
+    <value>Início (local)</value>
   </data>
   <data name="Sunlight.Col.EndLocal">
-    <value>End (local)</value>
+    <value>Fim (local)</value>
   </data>
   <data name="Sunlight.Col.Duration">
-    <value>Duration</value>
+    <value>Duração</value>
   </data>
   <data name="Sunlight.Status.SelectPredict">
-    <value>Select a satellite and click Predict.</value>
+    <value>Selecione um satélite e clique em Prever.</value>
   </data>
   <data name="Sunlight.Status.NoSatellites">
-    <value>No enabled satellites — use Satellites → Select Satellites first.</value>
+    <value>Nenhum satélite selecionado — use Satélites → Selecionar Satélites primeiro.</value>
   </data>
   <data name="Sunlight.Status.Computing">
-    <value>Computing illumination for {0}…</value>
+    <value>Calculando iluminação para {0}…</value>
   </data>
   <data name="Sunlight.Status.Segments">
-    <value>{0} illumination segments over {1} day(s).</value>
+    <value>{0} segmentos de iluminação em {1} dia(s).</value>
   </data>
   <data name="Sunlight.Status.Cancelled">
-    <value>Prediction cancelled.</value>
+    <value>Previsão cancelada.</value>
   </data>
   <data name="Sunlight.Status.Failed">
-    <value>Prediction failed: {0}</value>
+    <value>Falha na previsão: {0}</value>
   </data>
   <data name="Sunlight.Summary.SunlitPercent">
-    <value>{0}% in sunlight overall</value>
+    <value>{0}% em luz solar no geral</value>
   </data>
   <data name="Sunlight.Summary.LongestSun">
-    <value>longest continuous sunlight {0} ({1} – {2})</value>
+    <value>maior período contínuo de luz solar {0} ({1} – {2})</value>
   </data>
   <data name="Sunlight.Summary.LongestEclipse">
-    <value>longest eclipse {0}</value>
+    <value>maior eclipse {0}</value>
   </data>
   <data name="Picker.SearchWatermark">
-    <value>Search satellites…</value>
+    <value>Pesquisar satélites…</value>
   </data>
   <data name="Picker.Filter.All">
-    <value>All</value>
+    <value>Todos</value>
   </data>
   <data name="Picker.Filter.Selected">
-    <value>Selected</value>
+    <value>Selecionados</value>
   </data>
   <data name="Picker.Filter.NotSelected">
-    <value>Not Selected</value>
+    <value>Não Selecionados</value>
   </data>
   <data name="DbEditor.Intro">
-    <value>Manage satellite transponder modes (frequencies in kHz). Saved to your user AppData folder.</value>
+    <value>Gerencia as frequências e os modos de transmissão dos satélites (frequências em kHz). Salvo na pasta AppData do usuário.</value>
   </data>
   <data name="DbEditor.Path.User">
-    <value>User database: {0}</value>
+    <value>Banco de dados do usuário: {0}</value>
   </data>
   <data name="DbEditor.Path.Shipped">
-    <value>Shipped defaults: {0}</value>
+    <value>Padrões fornecidos: {0}</value>
   </data>
   <data name="DbEditor.SearchWatermark">
-    <value>Search satellites…</value>
+    <value>Pesquisar satélites…</value>
   </data>
   <data name="DbEditor.ImportJson">
-    <value>Import JSON…</value>
+    <value>Importar JSON…</value>
   </data>
   <data name="DbEditor.ExportJson">
-    <value>Export JSON…</value>
+    <value>Exportar JSON…</value>
   </data>
   <data name="DbEditor.CheckUpdates">
-    <value>Check for updates</value>
+    <value>Verificar atualizações</value>
   </data>
   <data name="DbEditor.AddSatellite">
-    <value>Add satellite</value>
+    <value>Adicionar satélite</value>
   </data>
   <data name="DbEditor.RestoreDefaults">
-    <value>Restore defaults</value>
+    <value>Restaurar padrões</value>
   </data>
   <data name="DbEditor.RemoveSatellite">
-    <value>Remove satellite</value>
+    <value>Remover satélite</value>
   </data>
   <data name="DbEditor.Satellite">
-    <value>Satellite</value>
+    <value>Satélite</value>
   </data>
   <data name="DbEditor.NameWatermark">
-    <value>Name (match TLE name when possible)</value>
+    <value>Nome (use o nome TLE quando possível)</value>
   </data>
   <data name="DbEditor.ModesHeader">
-    <value>Transponder modes</value>
+    <value>Modos de transmissores/transponder</value>
   </data>
   <data name="DbEditor.AddMode">
-    <value>Add mode</value>
+    <value>Adicionar modo</value>
   </data>
   <data name="DbEditor.Duplicate">
-    <value>Duplicate</value>
+    <value>Duplicar</value>
   </data>
   <data name="DbEditor.Remove">
-    <value>Remove</value>
+    <value>Remover</value>
   </data>
   <data name="DbEditor.ModeDetails">
-    <value>Mode details</value>
+    <value>Detalhes do modo</value>
   </data>
   <data name="DbEditor.TypeLabel">
-    <value>Type / label</value>
+    <value>Tipo / rótulo</value>
   </data>
   <data name="DbEditor.DownlinkKhz">
     <value>Downlink (kHz)</value>
@@ -1286,207 +1286,207 @@
     <value>Uplink (kHz)</value>
   </data>
   <data name="DbEditor.DownlinkMode">
-    <value>Downlink mode</value>
+    <value>Modo de downlink</value>
   </data>
   <data name="DbEditor.UplinkMode">
-    <value>Uplink mode</value>
+    <value>Modo de uplink</value>
   </data>
   <data name="DbEditor.Doppler">
     <value>Doppler</value>
   </data>
   <data name="DbEditor.CtcssAccess">
-    <value>CTCSS access (Hz)</value>
+    <value>Acesso CTCSS (Hz)</value>
   </data>
   <data name="DbEditor.CtcssArm">
-    <value>CTCSS arm (Hz)</value>
+    <value>Arm CTCSS (Hz)</value>
   </data>
   <data name="DbEditor.ModeHint">
-    <value>Set uplink to 0 for beacon-only. Leave CTCSS at 0 for none. FM modes use Hz (e.g. 67.0).</value>
+    <value>Defina uplink como 0 para somente beacon. Deixe CTCSS em 0 para nenhum. Modos FM usam Hz (ex.: 67.0).</value>
   </data>
   <data name="DbEditor.FileType.Json">
     <value>JSON</value>
   </data>
   <data name="DbEditor.Mode.NewMode">
-    <value>New mode</value>
+    <value>Novo modo</value>
   </data>
   <data name="DbEditor.Mode.CopySuffix">
-    <value> copy</value>
+    <value> cópia</value>
   </data>
   <data name="DbEditor.Status.Loaded">
-    <value>{0} satellites loaded.</value>
+    <value>{0} satélites carregados.</value>
   </data>
   <data name="DbEditor.Status.AddCancelled">
-    <value>Add satellite cancelled.</value>
+    <value>Adição de satélite cancelada.</value>
   </data>
   <data name="DbEditor.Status.AlreadyExists">
-    <value>Satellite “{0}” is already in the database.</value>
+    <value>O satélite "{0}" já está no banco de dados.</value>
   </data>
   <data name="DbEditor.Status.Added">
-    <value>Added {0}.</value>
+    <value>{0} adicionado.</value>
   </data>
   <data name="DbEditor.Status.RemovedSatellite">
-    <value>Removed satellite.</value>
+    <value>Satélite removido.</value>
   </data>
   <data name="DbEditor.Status.AddedMode">
-    <value>Added transponder mode.</value>
+    <value>Modo de transmissor/transponder adicionado.</value>
   </data>
   <data name="DbEditor.Status.RemovedMode">
-    <value>Removed transponder mode.</value>
+    <value>Modo de transmissor/transponder removido.</value>
   </data>
   <data name="DbEditor.Status.DuplicatedMode">
-    <value>Duplicated mode.</value>
+    <value>Modo duplicado.</value>
   </data>
   <data name="DbEditor.Status.Saved">
-    <value>Saved.</value>
+    <value>Salvo.</value>
   </data>
   <data name="DbEditor.Status.Restored">
-    <value>Restored shipped database.</value>
+    <value>Banco de dados padrão restaurado.</value>
   </data>
   <data name="DbEditor.Export.Title">
-    <value>Export transponder database</value>
+    <value>Exportar banco de dados de transmissores/transponders</value>
   </data>
   <data name="DbEditor.Status.Exported">
-    <value>Exported {0} satellites to JSON.</value>
+    <value>{0} satélites exportados para JSON.</value>
   </data>
   <data name="DbEditor.Status.ExportFailed">
-    <value>Export failed: {0}</value>
+    <value>Falha na exportação: {0}</value>
   </data>
   <data name="DbEditor.Import.Title">
-    <value>Import transponder database</value>
+    <value>Importar banco de dados de transmissores/transponders</value>
   </data>
   <data name="DbEditor.Status.ReadingImport">
-    <value>Reading import file…</value>
+    <value>Lendo arquivo de importação…</value>
   </data>
   <data name="DbEditor.Status.InvalidDatabase">
-    <value>Invalid database: {0}</value>
+    <value>Banco de dados inválido: {0}</value>
   </data>
   <data name="DbEditor.Status.ImportNoChanges">
-    <value>Import file matches the editor (no new or changed entries).</value>
+    <value>O arquivo de importação corresponde ao editor (sem entradas novas ou alteradas).</value>
   </data>
   <data name="DbEditor.Status.ImportCancelled">
-    <value>Import cancelled.</value>
+    <value>Importação cancelada.</value>
   </data>
   <data name="DbEditor.Status.ImportApplied">
-    <value>Import applied to editor — press Save to write to your user database.</value>
+    <value>Importação aplicada ao editor — pressione Salvar para gravar no banco de dados do usuário.</value>
   </data>
   <data name="DbEditor.Status.ImportFailed">
-    <value>Import failed: {0}</value>
+    <value>Falha na importação: {0}</value>
   </data>
   <data name="DbEditor.Status.CheckingUpdates">
-    <value>Checking for transponder database updates…</value>
+    <value>Verificando atualizações do banco de dados de transmissores/transponders…</value>
   </data>
   <data name="DbEditor.Status.UpToDate">
-    <value>Transponder database is up to date.</value>
+    <value>Banco de dados de transmissores/transponders está atualizado.</value>
   </data>
   <data name="DbEditor.Status.UpdatesApplied">
-    <value>Updates applied.</value>
+    <value>Atualizações aplicadas.</value>
   </data>
   <data name="DbEditor.Status.NoChangesApplied">
-    <value>No changes applied.</value>
+    <value>Nenhuma alteração aplicada.</value>
   </data>
   <data name="DbEditor.Status.UpdateCheckFailed">
-    <value>Update check failed: {0}</value>
+    <value>Falha na verificação de atualização: {0}</value>
   </data>
   <data name="DbEditor.Status.InEditor">
-    <value>{0} satellites in editor.</value>
+    <value>{0} satélites no editor.</value>
   </data>
   <data name="DbMerge.Title.Remote">
-    <value>Transponder database updates</value>
+    <value>Atualizações do banco de dados de transmissores/transponders</value>
   </data>
   <data name="DbMerge.Title.Import">
-    <value>Merge imported transponder database</value>
+    <value>Mesclar banco de dados de transmissores/transponders importado</value>
   </data>
   <data name="DbMerge.ApplySelected">
-    <value>Apply selected</value>
+    <value>Aplicar selecionados</value>
   </data>
   <data name="DbMerge.NewSatellites">
-    <value>New satellites</value>
+    <value>Novos satélites</value>
   </data>
   <data name="DbMerge.NewModes">
-    <value>New transponder modes</value>
+    <value>Novos modos de transmissores/transponders</value>
   </data>
   <data name="DbMerge.Conflicts">
-    <value>Conflicts</value>
+    <value>Conflitos</value>
   </data>
   <data name="DbMerge.YoursFormat">
-    <value>Yours: {0}</value>
+    <value>O seu: {0}</value>
   </data>
   <data name="DbMerge.Source.Import">
-    <value>the imported file</value>
+    <value>o arquivo importado</value>
   </data>
   <data name="DbMerge.Source.Remote">
     <value>tle.oscarwatch.org</value>
   </data>
   <data name="DbMerge.UseImported">
-    <value>Use imported version</value>
+    <value>Usar versão importada</value>
   </data>
   <data name="DbMerge.UsePublished">
-    <value>Use published version</value>
+    <value>Usar versão publicada</value>
   </data>
   <data name="DbMerge.Prefix.Imported">
-    <value>Imported</value>
+    <value>Importado</value>
   </data>
   <data name="DbMerge.Prefix.Published">
-    <value>Published</value>
+    <value>Publicado</value>
   </data>
   <data name="DbMerge.Intro.Import">
-    <value>New entries are selected by default. Conflicts keep your editor copy unless you choose the imported version.</value>
+    <value>Novas entradas são selecionadas por padrão. Conflitos mantêm sua cópia do editor a menos que você escolha a versão importada.</value>
   </data>
   <data name="DbMerge.Intro.Remote">
-    <value>New entries are selected by default. Conflicts keep your local copy unless you choose the published version.</value>
+    <value>Novas entradas são selecionadas por padrão. Conflitos mantêm sua cópia local a menos que você escolha a versão publicada.</value>
   </data>
   <data name="DbMerge.Summary.Matches">
-    <value>Your transponder database matches {0}.</value>
+    <value>Seu banco de dados de transmissores/transponders corresponde a {0}.</value>
   </data>
   <data name="DbMerge.Summary.OneNewSatellite">
-    <value>{0} new satellite</value>
+    <value>{0} novo satélite</value>
   </data>
   <data name="DbMerge.Summary.ManyNewSatellites">
-    <value>{0} new satellites</value>
+    <value>{0} novos satélites</value>
   </data>
   <data name="DbMerge.Summary.OneNewMode">
-    <value>{0} new mode</value>
+    <value>{0} novo modo</value>
   </data>
   <data name="DbMerge.Summary.ManyNewModes">
-    <value>{0} new modes</value>
+    <value>{0} novos modos</value>
   </data>
   <data name="DbMerge.Summary.OneConflict">
-    <value>{0} conflict</value>
+    <value>{0} conflito</value>
   </data>
   <data name="DbMerge.Summary.ManyConflicts">
-    <value>{0} conflicts</value>
+    <value>{0} conflitos</value>
   </data>
   <data name="DbMerge.Summary.FromSuffix">
-    <value> from {0}.</value>
+    <value> de {0}.</value>
   </data>
   <data name="DbMerge.Item.SatelliteOneMode">
-    <value>{0} (1 mode)</value>
+    <value>{0} (1 modo)</value>
   </data>
   <data name="DbMerge.Item.SatelliteManyModes">
-    <value>{0} ({1} modes)</value>
+    <value>{0} ({1} modos)</value>
   </data>
   <data name="DbMerge.Item.ModeLine">
     <value>{0} · {1}</value>
   </data>
   <data name="DbAdd.Title">
-    <value>Add satellite</value>
+    <value>Adicionar satélite</value>
   </data>
   <data name="DbAdd.Intro.WithCatalog">
-    <value>Choose a satellite from your TLE catalog, or enter a custom name below.</value>
+    <value>Escolha um satélite do seu banco de TLEs ou insira um nome personalizado abaixo.</value>
   </data>
   <data name="DbAdd.Intro.NoCatalog">
-    <value>Every TLE satellite is already in this database. Enter a custom name below.</value>
+    <value>Todos os satélites TLE já estão neste banco de dados. Insira um nome personalizado abaixo.</value>
   </data>
   <data name="DbAdd.SearchWatermark">
-    <value>Search TLE catalog…</value>
+    <value>Pesquisar banco de TLEs…</value>
   </data>
   <data name="DbAdd.CustomNameLabel">
-    <value>Custom name (optional if you selected above)</value>
+    <value>Nome personalizado (opcional se você selecionou acima)</value>
   </data>
   <data name="DbAdd.CustomNameWatermark">
-    <value>Type name if not in list…</value>
+    <value>Digite o nome se não estiver na lista…</value>
   </data>
   <data name="DbAdd.Error.PickOne">
-    <value>Select a TLE satellite or enter a custom name.</value>
+    <value>Selecione um satélite TLE ou insira um nome personalizado.</value>
   </data>
 </root>

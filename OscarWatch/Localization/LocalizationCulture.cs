@@ -10,6 +10,7 @@ public static class LocalizationCulture
 {
     public const string DefaultLanguage = "en";
     public const string JapaneseLanguage = "ja";
+    public const string PortugueseBrazilLanguage = "pt-BR";
 
     public static void ApplyFromSettings(ISettingsService settings) =>
         Apply(settings.Current.UiLanguage);
@@ -27,6 +28,9 @@ public static class LocalizationCulture
     {
         if (string.Equals(uiLanguage, JapaneseLanguage, StringComparison.OrdinalIgnoreCase))
             return CultureInfo.GetCultureInfo("ja");
+
+        if (string.Equals(uiLanguage, PortugueseBrazilLanguage, StringComparison.OrdinalIgnoreCase))
+            return CultureInfo.GetCultureInfo(PortugueseBrazilLanguage);
 
         return CultureInfo.GetCultureInfo(DefaultLanguage);
     }
