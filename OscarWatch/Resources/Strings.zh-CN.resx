@@ -770,7 +770,7 @@
     <value>FT-847：在无线电菜单#37 中设置 CAT 波特率（通常为 57600）。使用带有电平转换器的 CAT/LINEAR 插孔（例如 CT-62）。</value>
   </data>
   <data name="Settings.Radio.Ts2000Hint">
-    <value>TS-2000：CAT 57600 8N1。跟踪前在收音机上选择 SAT 并关闭存储模式； OscarWatch 然后通过 CAT 启用 SATL（与 SatPC32 相同的 SA 命令），自动 VHF/UHF 频段交换。</value>
+    <value>TS-2000：CAT 57600 8N1。跟踪前在收音机上选择 SAT 并关闭存储模式；OscarWatch 然后通过 CAT 启用 SATL（SA/FA/FB 布局），自动 VHF/UHF 频段交换。</value>
   </data>
   <data name="Settings.Radio.Region">
     <value>地区</value>

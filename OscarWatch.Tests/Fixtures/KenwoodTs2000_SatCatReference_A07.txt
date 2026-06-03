@@ -1,3 +1,4 @@
+# Kenwood TS-2000 SATL CAT reference capture (AO-07 pass). For tests/docs only — not executed by OscarWatch.
 
 Before I enable CAt control	thi swas sent
 SA1010110;TO0;TO0;

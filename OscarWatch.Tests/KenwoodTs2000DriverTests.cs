@@ -45,7 +45,7 @@ public sealed class KenwoodTs2000DriverTests
     }
 
     [Fact]
-    public void ApplySatellitePassFrequencies_sends_SatPC32_tail_and_hold_polls()
+    public void ApplySatellitePassFrequencies_sends_pass_programming_and_hold_polls()
     {
         var transport = new RecordingKenwoodCatTransport();
         var driver = new KenwoodTs2000Driver(transport);
@@ -62,7 +62,7 @@ public sealed class KenwoodTs2000DriverTests
     }
 
     [Fact]
-    public void ApplySatelliteDopplerStep_sends_SatPC32_cluster_and_hold_polls()
+    public void ApplySatelliteDopplerStep_sends_frequency_cluster_and_hold_polls()
     {
         var transport = new RecordingKenwoodCatTransport();
         var driver = new KenwoodTs2000Driver(transport);
@@ -99,7 +99,7 @@ public sealed class KenwoodTs2000DriverTests
     }
 
     [Fact]
-    public void SetSatelliteMode_off_sends_SatPC32_exit_sequence()
+    public void SetSatelliteMode_off_sends_satellite_exit_sequence()
     {
         var transport = new RecordingKenwoodCatTransport();
         var driver = new KenwoodTs2000Driver(transport);

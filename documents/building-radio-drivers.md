@@ -200,10 +200,10 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 | Serial transport | [`OscarWatch/Rig/KenwoodCatTransport.cs`](../OscarWatch/Rig/KenwoodCatTransport.cs) — **8N1**, semicolon-terminated ASCII |
 | Driver | [`OscarWatch/Rig/KenwoodTs2000Driver.cs`](../OscarWatch/Rig/KenwoodTs2000Driver.cs) |
 
-- Cross-band **SATL** follows SatPC32 ([`OscarWatch.Tests/Fixtures/SatPC32_A07.txt`](../OscarWatch.Tests/Fixtures/SatPC32_A07.txt)): `SA1010110;` / `SA1011110;` for CTRL (no `DC` in SAT), 2× `TO0;`, `FA;` read, `TS1;`, `AI2;`, then `AI0;` after init; pass programming and SatPC32 doppler steps (`FA`/`FB`/`SM` cluster + 7× `FA;` with reply). Exit: `RX;` `TN39;` `TO0;` `TN39;` `SA0010000;`. Silent set commands do not require a CAT echo; `FA;` reads wait up to ~450 ms.
+- Cross-band **SATL** for the TS-2000 ([`KenwoodTs2000_SatCatReference_A07.txt`](../OscarWatch.Tests/Fixtures/KenwoodTs2000_SatCatReference_A07.txt) field CAT capture): `SA1010110;` / `SA1011110;` for CTRL (no `DC` in SAT), 2× `TO0;`, `FA;` read, `TS1;`, `AI2;`, then `AI0;` after init; pass programming and SATL doppler steps (`FA`/`FB`/`SM` cluster + 7× `FA;` with reply). Exit: `RX;` `TN39;` `TO0;` `TN39;` `SA0010000;`. Silent set commands do not require a CAT echo; `FA;` reads wait up to ~450 ms.
 - `Main`/`Sub` → **`FA`/`FB`**; **no `FR`/`FT` or `DC`** in SATL (Hamlib/Gpredict disable `FR` in SAT for the same reason).
 - `SupportsVfoExchange` is **true** — swaps `FA`/`FB` frequencies in SATL when Main is on the wrong band (same logic as ICOM `TryBandSwap`).
-- CTCSS encode: `TN` + `TO`; TSQL squelch: `CN` + `CT` (Hamlib `ts2000_ctcss_list`, 1-based index). In SATL, **`SA1011110;`** selects Sub CTRL before uplink `MD`/tone (SatPC32 does not use `DC01;`).
+- CTCSS encode: `TN` + `TO`; TSQL squelch: `CN` + `CT` (Hamlib `ts2000_ctcss_list`, 1-based index). In SATL, **`SA1011110;`** selects Sub CTRL before uplink `MD`/tone (not `DC01;`).
 - If `SA;` does not confirm SATL, OscarWatch **still tracks on `FA`/`FB`** (no split/FR fallback).
 - Cross-check against [Hamlib `kenwood.c`](https://github.com/Hamlib/Hamlib/blob/master/rigs/kenwood/kenwood.c) and [`ts2000.txt`](https://github.com/Hamlib/Hamlib/blob/master/rigs/kenwood/ts2000.txt).
 
@@ -211,7 +211,7 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 
 - On the radio: select **SAT** mode and turn **memory mode off** before OscarWatch tracking (manual steps — CAT alone is not enough).
 - PC CAT port **57600 8N1** (matches Settings default).
-- Close any front-panel menu before tracking; press **SAT** on the front panel and turn memory mode off (CAT `SA` alone is not enough). SatPC32-style CAT delay ~20–30 ms helps on some rigs.
+- Close any front-panel menu before tracking; press **SAT** on the front panel and turn memory mode off (CAT `SA` alone is not enough). CAT delay ~20–30 ms helps on the TS-2000.
 - On a real pass: RX/TX doppler on `FA`/`FB`, uplink CTCSS on Sub.
 
 ## Step-by-step: add a new rig type

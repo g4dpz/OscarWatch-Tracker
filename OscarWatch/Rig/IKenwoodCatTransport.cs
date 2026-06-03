@@ -5,7 +5,7 @@ internal interface IKenwoodCatTransport : IDisposable
     bool IsOpen { get; }
     void Open();
 
-    /// <summary>Sets and similar commands that often return no CAT echo (SatPC32-style).</summary>
+    /// <summary>Sets and similar commands that often return no CAT echo on the TS-2000.</summary>
     bool SendFireAndForget(string command, int postDelayMs = 50);
 
     /// <summary>Alias for <see cref="SendFireAndForget"/>.</summary>

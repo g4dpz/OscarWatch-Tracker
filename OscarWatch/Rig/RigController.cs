@@ -925,7 +925,7 @@ public sealed class RigController : IRigController, IDisposable
             }
 
             // IC-910/9100/9700 reject split CI-V in satellite (Main/Sub) mode with NAK.
-            // Kenwood SAT uses FA/FB only — never FR/FT (SatPC32; driver also no-ops split in SAT).
+            // Kenwood SATL uses FA/FB only — never FR/FT (driver no-ops split while in SAT).
             if (_useMainSub && !IsIcomSatelliteLayoutRig(settings.Type) && settings.Type != RigType.KenwoodTs2000)
                 _driver.SetSplitOn(false);
             Thread.Sleep(150);

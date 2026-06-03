@@ -6,7 +6,7 @@ namespace OscarWatch.Rig;
 
 /// <summary>
 /// Kenwood TS-2000 CAT driver for cross-band satellite (SATL) doppler tracking.
-/// SATL follows SatPC32 AO-07: FA/FB frequencies, SA for CTRL (no DC/FR in SAT).
+/// FA/FB for RX/TX frequencies; SA for main/sub CTRL (no DC/FR in SATL).
 /// </summary>
 public sealed class KenwoodTs2000Driver : IRigDriver
 {
@@ -79,7 +79,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     }
 
     /// <summary>
-    /// SatPC32 doppler step (FA/FB/SM cluster + FA; hold polls). Call once per RX/TX batch in SATL.
+    /// SATL doppler update: FA/FB/SM cluster plus FA; link-hold polls. Call once per RX/TX batch.
     /// </summary>
     public bool ApplySatelliteDopplerStep(long downlinkHz, long uplinkHz)
     {
@@ -107,7 +107,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     }
 
     /// <summary>
-    /// SatPC32 pass init after SAT entry: double FA/FB, SM, main/sub finalize (modes, PC050, tones).
+    /// Programs pass frequencies after SAT entry: double FA/FB, SM, main/sub finalize (modes, PC050, tones).
     /// </summary>
     public void ApplySatellitePassFrequencies(
         long downlinkHz,
@@ -124,8 +124,8 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         _lastVfoBHz = uplinkHz;
 
         ProgramSatelliteFrequencies(downlinkHz, uplinkHz);
-        RunSatPc32MainPathFinalize(downlinkModeCode, downlinkHz);
-        RunSatPc32SubPathFinalize(uplinkModeCode, downlinkHz, uplinkHz);
+        FinalizeSatelliteMainPath(downlinkModeCode, downlinkHz);
+        FinalizeSatelliteSubPath(uplinkModeCode, downlinkHz, uplinkHz);
         _transport.SendFireAndForget(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
         _transport.SendFireAndForget(KenwoodCatCodec.BuildAutoinfoOffCommand(), _catDelayMs);
 
@@ -364,7 +364,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         foreach (var toneOff in KenwoodCatCodec.SatelliteModeEntryToneOffSequence)
             _transport.SendFireAndForget(toneOff, _catDelayMs);
 
-        SendSatPc32SatelliteEntryPreamble();
+        SendSatelliteEntryHandshake();
 
         var reply = _transport.Transact(KenwoodCatCodec.BuildSatelliteStatusQuery(), _catDelayMs);
         if (reply is not null && KenwoodCatCodec.TryParseSatelliteOn(reply))
@@ -376,7 +376,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         return false;
     }
 
-    private void SendSatPc32SatelliteEntryPreamble()
+    private void SendSatelliteEntryHandshake()
     {
         _transport.Transact(KenwoodCatCodec.BuildReadFrequencyCommand('A'), _catDelayMs);
         _transport.SendFireAndForget(KenwoodCatCodec.BuildSatelliteEntryTsCommand(), _catDelayMs);
@@ -403,7 +403,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         _transport.SendFireAndForget(KenwoodCatCodec.BuildToneEnableCommand(false), _catDelayMs);
     }
 
-    private void RunSatPc32MainPathFinalize(char downlinkModeCode, long downlinkHz)
+    private void FinalizeSatelliteMainPath(char downlinkModeCode, long downlinkHz)
     {
         _transport.SendFireAndForget(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
         _transport.SendFireAndForget(KenwoodCatCodec.BuildToneEnableCommand(false), _catDelayMs);
@@ -416,7 +416,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         _transport.SendFireAndForget(KenwoodCatCodec.BuildSatelliteBandSelectMainCommand(), _catDelayMs);
     }
 
-    private void RunSatPc32SubPathFinalize(char uplinkModeCode, long downlinkHz, long uplinkHz)
+    private void FinalizeSatelliteSubPath(char uplinkModeCode, long downlinkHz, long uplinkHz)
     {
         _transport.SendFireAndForget(KenwoodCatCodec.BuildSetSatelliteModeOnSubControlCommand(), _catDelayMs);
         _transport.SendFireAndForget(KenwoodCatCodec.BuildSetModeCommand(uplinkModeCode), _catDelayMs);

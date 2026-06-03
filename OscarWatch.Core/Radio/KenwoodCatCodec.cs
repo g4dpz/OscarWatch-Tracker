@@ -38,26 +38,26 @@ public static class KenwoodCatCodec
     public static string BuildSatelliteStatusQuery() => "SA;";
 
     /// <summary>
-    /// Enter SATL (SatPC32-compatible): P1 on, mem 0, Main=downlink/Sub=uplink, CTRL main, TRACE/TRACE REV on, VFO mode.
+    /// Enter SATL: P1 on, mem 0, Main=downlink/Sub=uplink, CTRL main, TRACE/TRACE REV on, VFO mode.
     /// </summary>
     public static string BuildSetSatelliteModeOnCommand() => "SA1010110;";
 
-    /// <summary>Encode-tone off commands SatPC32 sends when enabling CAT (pre-tracking).</summary>
+    /// <summary>Encode-tone off commands sent when entering SATL (pre-tracking).</summary>
     public static readonly string[] SatelliteModeEntryToneOffSequence = ["TO0;", "TO0;"];
 
-    /// <summary>SatPC32: extended Auto Information on (reduces need for explicit reads during tracking).</summary>
+    /// <summary>Extended Auto Information on during SAT entry (reduces explicit reads during tracking).</summary>
     public static string BuildAutoinfoExtendedCommand() => "AI2;";
 
-    /// <summary>SatPC32 SAT entry: sent after initial <c>FA;</c> read (TS-2000 satellite CAT handshake).</summary>
+    /// <summary>SATL entry: sent after initial <c>FA;</c> read (TS-2000 satellite CAT handshake).</summary>
     public static string BuildSatelliteEntryTsCommand() => "TS1;";
 
-    /// <summary>SatPC32: RF power level 50 (PC P1=050).</summary>
+    /// <summary>SATL pass programming: RF power level 50 (PC P1=050).</summary>
     public static string BuildSatellitePowerLevelCommand() => "PC050;";
 
-    /// <summary>FA; polls SatPC32 sends to hold the CAT link after frequency updates.</summary>
+    /// <summary>FA; polls to hold the CAT link after frequency updates.</summary>
     public const int SatelliteLinkHoldPollCount = 7;
 
-    /// <summary>Wait for FA;/FB; reply (SatPC32 holds link until response).</summary>
+    /// <summary>Read timeout for FA;/FB; (link hold waits for response).</summary>
     public const int FrequencyReadTimeoutMs = 450;
 
     public static int GetReplyTimeoutMs(string command, int postDelayMs)
@@ -84,10 +84,10 @@ public static class KenwoodCatCodec
             || body.Equals("ID", StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>SatPC32 SAT on with CTRL on sub (before uplink <c>MD</c> / tone on Sub).</summary>
+    /// <summary>SATL on with CTRL on sub (before uplink <c>MD</c> / tone on Sub).</summary>
     public static string BuildSetSatelliteModeOnSubControlCommand() => "SA1011110;";
 
-    /// <summary>SatPC32 band select after <c>FA</c>/<c>FB</c> in SATL (main then sub band index).</summary>
+    /// <summary>Band select after <c>FA</c>/<c>FB</c> in SATL (main then sub band index).</summary>
     public static string BuildSatelliteBandSelectMainCommand() => "SM10000;";
 
     public static string BuildSatelliteBandSelectSubCommand(long hz) =>
@@ -97,7 +97,7 @@ public static class KenwoodCatCodec
     public static string BuildSetSatelliteModeOffCommand() => "SA0;";
 
     /// <summary>
-    /// SatPC32 exit: read RX status, clear encode tone, reset TN table entries, then SAT off with layout preserved.
+    /// SATL exit: read RX status, clear encode tone, reset TN table entries, then SAT off with layout preserved.
     /// </summary>
     public static readonly string[] SatelliteModeExitSequence =
     [
