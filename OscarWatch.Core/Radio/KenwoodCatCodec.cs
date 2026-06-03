@@ -38,11 +38,31 @@ public static class KenwoodCatCodec
     public static string BuildSatelliteStatusQuery() => "SA;";
 
     /// <summary>
-    /// Enter SATL: P1 on, mem 0, Main=downlink/Sub=uplink, CTRL main, TRACE off, VFO mode (Kenwood PC manual SA).
+    /// Enter SATL (SatPC32-compatible): P1 on, mem 0, Main=downlink/Sub=uplink, CTRL main, TRACE/TRACE REV on, VFO mode.
     /// </summary>
-    public static string BuildSetSatelliteModeOnCommand() => "SA10100000;";
+    public static string BuildSetSatelliteModeOnCommand() => "SA1010110;";
 
+    /// <summary>Encode-tone off commands SatPC32 sends after <c>SA1010110;</c> on CAT connect.</summary>
+    public static readonly string[] SatelliteModeEntryToneOffSequence =
+        ["TO0;", "TO0;", "TO0;", "TO0;", "TO0;", "TO0;"];
+
+    /// <summary>Short SAT off (manual P1=0 only).</summary>
     public static string BuildSetSatelliteModeOffCommand() => "SA0;";
+
+    /// <summary>
+    /// SatPC32 exit: read RX status, clear encode tone, reset TN table entries, then SAT off with layout preserved.
+    /// </summary>
+    public static readonly string[] SatelliteModeExitSequence =
+    [
+        "RX;",
+        "TO0;",
+        "TN39;",
+        "TN39;",
+        "SA0010000;"
+    ];
+
+    public static bool IsSatelliteModeExitReadCommand(string command) =>
+        string.Equals(command, "RX;", StringComparison.OrdinalIgnoreCase);
 
     public static string BuildAutoinfoOffCommand() => "AI0;";
 

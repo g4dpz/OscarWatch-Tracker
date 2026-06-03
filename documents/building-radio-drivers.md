@@ -200,7 +200,7 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 | Serial transport | [`OscarWatch/Rig/KenwoodCatTransport.cs`](../OscarWatch/Rig/KenwoodCatTransport.cs) — **8N1**, semicolon-terminated ASCII |
 | Driver | [`OscarWatch/Rig/KenwoodTs2000Driver.cs`](../OscarWatch/Rig/KenwoodTs2000Driver.cs) |
 
-- Cross-band **SATL** via CAT `SA10100000;` (Main downlink / Sub uplink, TRACE off); `SA0;` when leaving satellite layout; warns if `SA;` read does not confirm SATL.
+- Cross-band **SATL** via CAT `SA1010110;` (SatPC32-compatible: Main downlink / Sub uplink, TRACE on), then six× `TO0;` to clear encode tones; exit uses `RX;` `TO0;` `TN39;`×2 `SA0010000;` (SatPC32 disconnect); warns if `SA;` read does not confirm SATL.
 - `Main`/`Sub` → **`FA`/`FB`**; no `FR` while satellite layout is active.
 - `SupportsVfoExchange` is **true** — swaps `FA`/`FB` frequencies in SATL when Main is on the wrong band (same logic as ICOM `TryBandSwap`).
 - CTCSS encode: `TN` + `TO`; TSQL squelch: `CN` + `CT` (Hamlib `ts2000_ctcss_list`, 1-based index). In SATL, `DC01`/`DC00` select Sub/Main **CTRL** (DC P2) before `MD`, tone, and CTCSS commands — uplink mode needs `DC01;` before `MD`, not `DC10;` (DC P1 is PTT/TX only).
@@ -210,7 +210,7 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 
 - On the radio: select **SAT** mode and turn **memory mode off** before OscarWatch tracking (manual steps — CAT alone is not enough).
 - PC CAT port **57600 8N1** (matches Settings default).
-- Close any front-panel menu before tracking; SATL and TRACE off are applied on pass start via `SA`.
+- Close any front-panel menu before tracking; SATL is applied on pass start via `SA1010110;` (then `TO0;` clears encode tones).
 - On a real pass: RX/TX doppler on `FA`/`FB`, uplink CTCSS on Sub.
 
 ## Step-by-step: add a new rig type

@@ -24,9 +24,10 @@ public sealed class KenwoodTs2000DriverTests
         driver.Open();
         driver.SetSatelliteMode(true);
 
-        Assert.Contains("SA10100000;", transport.SentCommands);
+        Assert.Contains("SA1010110;", transport.SentCommands);
         Assert.Contains("SA;", transport.SentCommands);
-        Assert.True(transport.SentCommands.IndexOf("SA10100000;") < transport.SentCommands.IndexOf("SA;"));
+        Assert.True(transport.SentCommands.IndexOf("SA1010110;") < transport.SentCommands.IndexOf("SA;"));
+        Assert.Equal(6, transport.SentCommands.Count(c => c == "TO0;"));
     }
 
     [Fact]
@@ -46,7 +47,7 @@ public sealed class KenwoodTs2000DriverTests
     }
 
     [Fact]
-    public void SetSatelliteMode_off_sends_SA0()
+    public void SetSatelliteMode_off_sends_SatPC32_exit_sequence()
     {
         var transport = new RecordingKenwoodCatTransport();
         var driver = new KenwoodTs2000Driver(transport);
@@ -55,7 +56,7 @@ public sealed class KenwoodTs2000DriverTests
         transport.SentCommands.Clear();
         driver.SetSatelliteMode(false);
 
-        Assert.Contains("SA0;", transport.SentCommands);
+        Assert.Equal(KenwoodCatCodec.SatelliteModeExitSequence, transport.SentCommands);
         Assert.DoesNotContain(transport.SentCommands, c => c == "SA;");
     }
 

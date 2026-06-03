@@ -659,7 +659,7 @@
     <value>FT-847: 無線機メニュー#37でCATボーレートを設定（通常57600）。レベルコンバータ（例: CT-62）でCAT/LINEARジャックを使用。</value>
   </data>
   <data name="Settings.Radio.Ts2000Hint">
-    <value>TS-2000: CAT 57600 8N1。追跡前に無線機でSATを選択しメモリモードをオフに。OscarWatchがSATLとVHF/UHF自動バンド切替を有効化（TRACEはCATでオフ）。</value>
+    <value>TS-2000: CAT 57600 8N1。追跡前に無線機でSATを選択しメモリモードをオフに。OscarWatchがCATでSATLを有効化（SatPC32と同じSAコマンド）、VHF/UHF自動バンド切替。</value>
   </data>
   <data name="Settings.Radio.Region">
     <value>地域</value>

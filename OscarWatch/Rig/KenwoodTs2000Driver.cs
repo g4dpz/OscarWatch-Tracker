@@ -6,7 +6,7 @@ namespace OscarWatch.Rig;
 
 /// <summary>
 /// Kenwood TS-2000 CAT driver for cross-band satellite (SATL) doppler tracking.
-/// SATL is enabled via <c>SA</c> on pass start; TRACE is turned off in that command.
+/// SATL is enabled via <c>SA1010110;</c> on pass start (SatPC32-compatible), then encode tones cleared with <c>TO0;</c>.
 /// </summary>
 public sealed class KenwoodTs2000Driver : IRigDriver
 {
@@ -140,7 +140,18 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         }
 
         _satelliteMode = false;
-        _transport.SendCommand(KenwoodCatCodec.BuildSetSatelliteModeOffCommand(), _catDelayMs);
+        SendSatelliteModeExitSequence();
+    }
+
+    private void SendSatelliteModeExitSequence()
+    {
+        foreach (var cmd in KenwoodCatCodec.SatelliteModeExitSequence)
+        {
+            if (KenwoodCatCodec.IsSatelliteModeExitReadCommand(cmd))
+                _transport.Transact(cmd, _catDelayMs);
+            else
+                _transport.SendCommand(cmd, _catDelayMs);
+        }
     }
 
     public void ExchangeVfos()
@@ -259,6 +270,9 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         for (var attempt = 0; attempt < 2; attempt++)
         {
             _transport.SendCommand(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
+            foreach (var toneOff in KenwoodCatCodec.SatelliteModeEntryToneOffSequence)
+                _transport.SendCommand(toneOff, _catDelayMs);
+
             var reply = _transport.Transact(KenwoodCatCodec.BuildSatelliteStatusQuery(), _catDelayMs);
             if (reply is not null && KenwoodCatCodec.TryParseSatelliteOn(reply))
                 return true;

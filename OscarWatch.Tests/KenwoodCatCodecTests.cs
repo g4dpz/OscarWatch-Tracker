@@ -14,8 +14,13 @@ public sealed class KenwoodCatCodecTests
     [Fact]
     public void BuildSetSatelliteMode_commands_match_manual_layout()
     {
-        Assert.Equal("SA10100000;", KenwoodCatCodec.BuildSetSatelliteModeOnCommand());
+        Assert.Equal("SA1010110;", KenwoodCatCodec.BuildSetSatelliteModeOnCommand());
         Assert.Equal("SA0;", KenwoodCatCodec.BuildSetSatelliteModeOffCommand());
+        Assert.Equal(6, KenwoodCatCodec.SatelliteModeEntryToneOffSequence.Length);
+        Assert.All(KenwoodCatCodec.SatelliteModeEntryToneOffSequence, c => Assert.Equal("TO0;", c));
+        Assert.Equal(["RX;", "TO0;", "TN39;", "TN39;", "SA0010000;"], KenwoodCatCodec.SatelliteModeExitSequence);
+        Assert.True(KenwoodCatCodec.IsSatelliteModeExitReadCommand("RX;"));
+        Assert.False(KenwoodCatCodec.IsSatelliteModeExitReadCommand("TO0;"));
     }
 
     [Fact]

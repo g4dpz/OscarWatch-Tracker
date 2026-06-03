@@ -764,7 +764,7 @@
     <value>FT-847: set CAT baud in radio menu #37 (typically 57600). Use the CAT/LINEAR jack with a level converter (e.g. CT-62).</value>
   </data>
   <data name="Settings.Radio.Ts2000Hint">
-    <value>TS-2000: CAT 57600 8N1. Select SAT on the radio and turn memory mode off before tracking; OscarWatch then enables SATL, auto VHF/UHF band swap (TRACE off via CAT).</value>
+    <value>TS-2000: CAT 57600 8N1. Select SAT on the radio and turn memory mode off before tracking; OscarWatch then enables SATL via CAT (same SA command as SatPC32), auto VHF/UHF band swap.</value>
   </data>
   <data name="Settings.Radio.Region">
     <value>Region</value>
