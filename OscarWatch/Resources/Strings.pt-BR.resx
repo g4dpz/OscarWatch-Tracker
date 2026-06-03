@@ -313,6 +313,9 @@
   <data name="Settings.Language.PortugueseBrazil">
     <value>Português (Brasil)</value>
   </data>
+  <data name="Settings.Language.SimplifiedChinese">
+    <value>Chinês simplificado</value>
+  </data>
   <data name="Settings.Language.RestartNote">
     <value>O idioma é aplicado após reiniciar o app OscarWatch.</value>
   </data>

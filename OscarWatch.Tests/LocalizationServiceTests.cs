@@ -38,6 +38,22 @@ public sealed class LocalizationServiceTests
     }
 
     [Fact]
+    public void Get_returns_chinese_when_culture_is_zh_CN()
+    {
+        var previous = CultureInfo.CurrentUICulture;
+        try
+        {
+            LocalizationCulture.Apply(LocalizationCulture.SimplifiedChineseLanguage);
+            var text = LocalizationService.Instance.Get("Menu.File");
+            Assert.Equal("_文件", text);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = previous;
+        }
+    }
+
+    [Fact]
     public void Get_returns_japanese_when_culture_is_ja()
     {
         var previous = CultureInfo.CurrentUICulture;

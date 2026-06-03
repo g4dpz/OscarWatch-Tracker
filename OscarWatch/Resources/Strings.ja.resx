@@ -223,6 +223,9 @@
   <data name="Settings.Language.PortugueseBrazil">
     <value>ポルトガル語 (ブラジル)</value>
   </data>
+  <data name="Settings.Language.SimplifiedChinese">
+    <value>简体中文</value>
+  </data>
   <data name="Settings.Language.RestartNote">
     <value>言語の変更はOscarWatchの再起動後に反映されます。</value>
   </data>

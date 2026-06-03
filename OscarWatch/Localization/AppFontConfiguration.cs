@@ -25,6 +25,16 @@ public static class AppFontConfiguration
         "Noto Sans JP"
     ];
 
+    private static readonly string[] ChineseSystemFamilies =
+    [
+        "Microsoft YaHei UI",
+        "Microsoft YaHei",
+        "SimHei",
+        "PingFang SC",
+        "Noto Sans CJK SC",
+        "Noto Sans SC"
+    ];
+
     public static AppBuilder Configure(AppBuilder builder, string uiLanguage)
     {
         if (HasEmbeddedJapaneseFont())
@@ -37,12 +47,11 @@ public static class AppFontConfiguration
 
         var isJapanese = string.Equals(
             uiLanguage, LocalizationCulture.JapaneseLanguage, StringComparison.OrdinalIgnoreCase);
+        var isChinese = IsSimplifiedChinese(uiLanguage);
 
-        if (isJapanese)
+        if (isJapanese || isChinese)
         {
-            var cjkPrimary = HasEmbeddedJapaneseFont()
-                ? EmbeddedJapaneseFontFamily
-                : string.Join(", ", JapaneseSystemFamilies);
+            var cjkPrimary = ResolveCjkPrimaryFamily(isJapanese);
 
             builder = builder.With(new FontManagerOptions
             {
@@ -64,6 +73,25 @@ public static class AppFontConfiguration
         }
 
         return builder;
+    }
+
+    private static bool IsSimplifiedChinese(string? uiLanguage) =>
+        string.Equals(uiLanguage, LocalizationCulture.SimplifiedChineseLanguage, StringComparison.OrdinalIgnoreCase)
+        || string.Equals(uiLanguage, "zh-Hans", StringComparison.OrdinalIgnoreCase);
+
+    private static string ResolveCjkPrimaryFamily(bool japanese)
+    {
+        if (japanese)
+        {
+            return HasEmbeddedJapaneseFont()
+                ? EmbeddedJapaneseFontFamily
+                : string.Join(", ", JapaneseSystemFamilies);
+        }
+
+        var chinese = string.Join(", ", ChineseSystemFamilies);
+        return HasEmbeddedJapaneseFont()
+            ? $"{chinese}, {EmbeddedJapaneseFontFamily}"
+            : chinese;
     }
 
     private static FontFallback[] BuildCjkFallbacks()
