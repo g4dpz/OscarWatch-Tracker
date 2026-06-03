@@ -10,6 +10,9 @@ public interface ILiveTrackingService : IDisposable
     /// <summary>UTC time of the last completed snapshot (or <see cref="DateTime.MinValue"/> if none yet).</summary>
     DateTime SnapshotUtc { get; }
 
+    /// <summary>Offset applied to <see cref="DateTime.UtcNow"/> for map/sky propagation. Zero is live.</summary>
+    TimeSpan MapTimeOffset { get; set; }
+
     /// <summary>Latest propagated states. Do not mutate the returned list or its elements.</summary>
     IReadOnlyList<SatelliteTrackState> GetSnapshot();
 

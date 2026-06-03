@@ -43,6 +43,27 @@ public sealed class LiveTrackingServiceTests
     }
 
     [Fact]
+    public void MapTimeOffset_shifts_snapshot_utc()
+    {
+        DateTime? capturedUtc = null;
+        var orchestrator = CreateMinimalOrchestrator();
+        using var service = new LiveTrackingService(orchestrator, utc =>
+        {
+            capturedUtc = utc;
+            return [];
+        });
+
+        service.Start();
+        var before = DateTime.UtcNow;
+        service.MapTimeOffset = TimeSpan.FromMinutes(30);
+        service.RefreshSnapshotSynchronously();
+        var after = DateTime.UtcNow;
+
+        Assert.NotNull(capturedUtc);
+        Assert.InRange(capturedUtc.Value, before.AddMinutes(30), after.AddMinutes(30).AddSeconds(1));
+    }
+
+    [Fact]
     public void GetSnapshot_is_safe_while_worker_updates()
     {
         var orchestrator = CreateMinimalOrchestrator();

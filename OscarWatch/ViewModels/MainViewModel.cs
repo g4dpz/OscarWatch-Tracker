@@ -46,6 +46,10 @@ public partial class MainViewModel : ViewModelBase
     private static readonly TimeSpan PassListRefreshInterval = TimeSpan.FromMinutes(15);
     private static readonly TimeSpan LiveDisplayInterval = TimeSpan.FromMilliseconds(250);
     private static readonly TimeSpan ImminentPassWindow = TimeSpan.FromMinutes(15);
+    public const double MapTimeOffsetMinMinutes = -120;
+    public const double MapTimeOffsetMaxMinutes = 120;
+    private const double MapTimeOffsetStepMinutes = 5;
+    private const double MapTimeOffsetLargeStepMinutes = 15;
     /// <summary>Coalesce spinner clicks into one CAT write after the user pauses.</summary>
 
     [ObservableProperty]
@@ -167,6 +171,29 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private bool _isSkyPlotExpanded = true;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsMapTimeScrubbing))]
+    [NotifyPropertyChangedFor(nameof(MapTimeStatusText))]
+    private double _mapTimeOffsetMinutes;
+
+    public bool IsMapTimeScrubbing => Math.Abs(MapTimeOffsetMinutes) >= 0.01;
+
+    public string MapTimeStatusText
+    {
+        get
+        {
+            if (!IsMapTimeScrubbing)
+                return "Live";
+
+            var offset = TimeSpan.FromMinutes(MapTimeOffsetMinutes);
+            var sign = offset >= TimeSpan.Zero ? "+" : "−";
+            var magnitude = offset.Duration();
+            return magnitude >= TimeSpan.FromHours(1)
+                ? $"{sign}{magnitude:h\\:mm\\:ss} from now"
+                : $"{sign}{magnitude:m\\:ss} from now";
+        }
+    }
 
     public MainViewModel(
         ISettingsService settings,
@@ -294,44 +321,103 @@ public partial class MainViewModel : ViewModelBase
 
     private void Tick()
     {
-        UtcClock = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + " UTC";
+        UpdateUtcClockDisplay();
         MinimumElevationDeg = _settings.Current.MinimumElevationDeg;
-        var states = _liveTracking.GetSnapshot();
-        SyncLiveStates(states);
+        var mapStates = _liveTracking.GetSnapshot();
+        SyncLiveStates(mapStates);
+
+        var operationalStates = IsMapTimeScrubbing
+            ? _tracking.GetLiveStates(DateTime.UtcNow)
+            : mapStates;
 
         UpdateNextPassCountdown();
         PruneExpiredPasses();
-        ProcessPassRecording(states);
+        ProcessPassRecording(operationalStates);
         UpdatePassHighlightState();
-        var focused = GetFocusedTrackState(states, FocusedNoradId);
+        var focusedForOps = GetFocusedTrackState(operationalStates, FocusedNoradId);
         UpdateComPortConflictState();
-        _rotator.Update(_settings.Current.Rotator, EnrichRotatorTarget(focused));
+        _rotator.Update(_settings.Current.Rotator, EnrichRotatorTarget(focusedForOps));
         UpdateRotatorDisplay();
-        Frequencies.Update(focused);
-        DxStation.Update(focused);
+        var focusedForDisplay = GetFocusedTrackState(mapStates, FocusedNoradId);
+        Frequencies.Update(focusedForDisplay);
+        DxStation.Update(focusedForDisplay);
 
         if (ShowComPortConflict)
             _rig.Disconnect();
 
-        RefreshRigUi(focused);
+        RefreshRigUi(focusedForOps);
     }
 
     /// <summary>4 Hz: az/el/range readout and rig doppler context from the live tracking snapshot.</summary>
     private void OnLiveDisplayTick()
     {
-        var states = _liveTracking.GetSnapshot();
-        UpdateLiveTelemetry(states);
-        ProcessVoiceAnnouncements(states);
+        var mapStates = _liveTracking.GetSnapshot();
+        UpdateLiveTelemetry(mapStates);
 
-        var focused = GetFocusedTrackState(states, FocusedNoradId);
-        DxStation.Update(focused);
+        if (!IsMapTimeScrubbing)
+            ProcessVoiceAnnouncements(mapStates);
+
+        var focusedForDisplay = GetFocusedTrackState(mapStates, FocusedNoradId);
+        DxStation.Update(focusedForDisplay);
 
         if (ShowComPortConflict || !_settings.Current.Rig.Enabled)
             return;
 
         SyncOverlayPassbandFromRig();
-        PublishRigTrackingContext(focused);
+        if (IsMapTimeScrubbing)
+        {
+            var liveFocused = GetFocusedTrackState(_tracking.GetLiveStates(DateTime.UtcNow), FocusedNoradId);
+            PublishRigTrackingContext(liveFocused);
+        }
+        else
+        {
+            PublishRigTrackingContext(focusedForDisplay);
+        }
     }
+
+    private void UpdateUtcClockDisplay()
+    {
+        var now = DateTime.UtcNow;
+        if (!IsMapTimeScrubbing)
+        {
+            UtcClock = now.ToString("yyyy-MM-dd HH:mm:ss") + " UTC";
+            return;
+        }
+
+        var mapUtc = now + TimeSpan.FromMinutes(MapTimeOffsetMinutes);
+        UtcClock = $"{mapUtc:yyyy-MM-dd HH:mm:ss} UTC  ({MapTimeStatusText})";
+    }
+
+    partial void OnMapTimeOffsetMinutesChanged(double value)
+    {
+        var clamped = Math.Clamp(value, MapTimeOffsetMinMinutes, MapTimeOffsetMaxMinutes);
+        if (Math.Abs(clamped - value) > 0.001)
+            MapTimeOffsetMinutes = clamped;
+
+        _liveTracking.MapTimeOffset = TimeSpan.FromMinutes(MapTimeOffsetMinutes);
+        _tracking.InvalidateVisualCache();
+        OnPropertyChanged(nameof(MapTimeStatusText));
+        UpdateUtcClockDisplay();
+    }
+
+    [RelayCommand]
+    private void ResetMapTimeToNow() => MapTimeOffsetMinutes = 0;
+
+    [RelayCommand]
+    private void StepMapTimeBackward() =>
+        MapTimeOffsetMinutes = Math.Max(MapTimeOffsetMinMinutes, MapTimeOffsetMinutes - MapTimeOffsetStepMinutes);
+
+    [RelayCommand]
+    private void StepMapTimeForward() =>
+        MapTimeOffsetMinutes = Math.Min(MapTimeOffsetMaxMinutes, MapTimeOffsetMinutes + MapTimeOffsetStepMinutes);
+
+    [RelayCommand]
+    private void StepMapTimeBackwardLarge() =>
+        MapTimeOffsetMinutes = Math.Max(MapTimeOffsetMinMinutes, MapTimeOffsetMinutes - MapTimeOffsetLargeStepMinutes);
+
+    [RelayCommand]
+    private void StepMapTimeForwardLarge() =>
+        MapTimeOffsetMinutes = Math.Min(MapTimeOffsetMaxMinutes, MapTimeOffsetMinutes + MapTimeOffsetLargeStepMinutes);
 
     private void SyncOverlayPassbandFromRig()
     {

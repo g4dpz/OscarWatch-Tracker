@@ -27,7 +27,7 @@ internal sealed class SatelliteVisualCache
         if (!_entries.TryGetValue(noradId, out var entry))
             return false;
 
-        if (utc - entry.GroundTrackUtc > GroundTrackRefreshInterval)
+        if (IsStale(utc, entry.GroundTrackUtc, GroundTrackRefreshInterval))
             return false;
 
         track = entry.GroundTrack;
@@ -40,12 +40,19 @@ internal sealed class SatelliteVisualCache
         if (!_entries.TryGetValue(noradId, out var entry))
             return false;
 
-        if (utc - entry.FootprintUtc > FootprintRefreshInterval)
+        if (IsStale(utc, entry.FootprintUtc, FootprintRefreshInterval))
             return false;
 
         footprint = entry.Footprint;
         return footprint.Count >= 3;
     }
+
+    /// <summary>
+    /// Map-time scrubbing can jump backward; only checking (utc - cached) &gt; interval
+    /// incorrectly treated older cached rings as fresh and drew them at a new subpoint.
+    /// </summary>
+    internal static bool IsStale(DateTime utc, DateTime cachedUtc, TimeSpan maxAge) =>
+        Math.Abs((utc - cachedUtc).TotalSeconds) > maxAge.TotalSeconds;
 
     internal sealed class Entry
     {

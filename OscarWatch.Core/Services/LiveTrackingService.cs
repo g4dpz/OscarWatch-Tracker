@@ -23,6 +23,13 @@ public sealed class LiveTrackingService : ILiveTrackingService
 
     private IReadOnlyList<SatelliteTrackState> _snapshot = Array.Empty<SatelliteTrackState>();
     private DateTime _snapshotUtc = DateTime.MinValue;
+    private long _mapTimeOffsetTicks;
+
+    public TimeSpan MapTimeOffset
+    {
+        get => new(Interlocked.Read(ref _mapTimeOffsetTicks));
+        set => Interlocked.Exchange(ref _mapTimeOffsetTicks, value.Ticks);
+    }
 
     public LiveTrackingService(TrackingOrchestrator orchestrator)
         : this(orchestrator, computeOverride: null)
@@ -202,7 +209,7 @@ public sealed class LiveTrackingService : ILiveTrackingService
 
     private void RefreshSnapshot()
     {
-        var utc = DateTime.UtcNow;
+        var utc = DateTime.UtcNow + MapTimeOffset;
         var states = _computeOverride?.Invoke(utc) ?? _orchestrator.GetLiveStates(utc);
         lock (_snapshotLock)
         {

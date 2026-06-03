@@ -16,7 +16,7 @@ You do **not** need to be a programmer to use published builds.
 
 ## What OscarWatch does
 
-- **Map and sky plot** — subpoint, ground track, footprint, and a polar view from your QTH; optional **DX station** marker and live Az/El at a remote grid for the focused satellite
+- **Map and sky plot** — subpoint, ground track, footprint, and a polar view from your QTH; optional **DX station** marker and live Az/El at a remote grid for the focused satellite; status-bar **map time** buttons (−15m / −5m / Now / +5m / +15m) to preview footprints (rotator and CAT stay on live time)
 - **Pass list** — upcoming passes with max elevation and time-to-AOS; sidebar scrolls on smaller windows
 - **Frequency panel** — transponder modes from a built-in database, live uplink/downlink with Doppler, RX offsets (separate for Voice and CW on linear SSB), and CTCSS (access/arm tones). Keyboard shortcuts: [help/keyboard-shortcuts.html](help/keyboard-shortcuts.html) (**Ctrl+W**, numpad **+** / **−** for RX offset, **S** for solo map view, map arrows, etc.)
 - **Optional automation** — serial **rotator** tracking and **radio CAT** (Doppler, satellite/split layout, tones) during a pass
@@ -67,7 +67,7 @@ Plain-language help ships with the app: **Help → Operator guide** (also in the
 
 ## Features
 
-- **World map** — equirectangular Earth texture with satellite subpoint, ground track, footprint overlays (optional motion arrows), your QTH, and an optional remote **DX station** grid marker
+- **World map** — equirectangular Earth texture with satellite subpoint, ground track, footprint overlays (optional motion arrows), your QTH, and an optional remote **DX station** grid marker; **map time** scrubbing from the status bar (hardware tracking stays live)
 - **Sky plot** — polar view of satellite azimuth/elevation relative to your station; click to focus; expand/collapse state is remembered
 - **TLE catalog** — fetched from `https://tle.oscarwatch.org/`, cached under `%AppData%/OscarWatch/`
 - **TLE auto-update** — manual refresh, on startup (if stale), or every 6 hours while running (Settings → Tracking)

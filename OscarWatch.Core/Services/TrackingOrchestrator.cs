@@ -36,6 +36,9 @@ public sealed class TrackingOrchestrator
             _propagator.LoadSatellite(sat);
     }
 
+    /// <summary>Clears cached ground tracks and footprints (e.g. after map-time scrub).</summary>
+    public void InvalidateVisualCache() => _visualCache.Clear();
+
     /// <summary>Propagates all enabled satellites at <paramref name="utc"/>. UI should use <see cref="ILiveTrackingService"/>.</summary>
     public IReadOnlyList<SatelliteTrackState> GetLiveStates(DateTime utc)
     {
@@ -80,10 +83,12 @@ public sealed class TrackingOrchestrator
                     footprint = _groundGeometry.GetFootprint(sat, utc, minimumElevationDeg: 0);
                     cache.Footprint = footprint;
                     cache.FootprintUtc = utc;
-                }
-
-                if (cache.FootprintRadiusDeg <= 0)
                     cache.FootprintRadiusDeg = FootprintGeometry.HorizonRadiusDeg(altKm, minimumElevationDeg: 0);
+                }
+                else if (cache.FootprintRadiusDeg <= 0)
+                {
+                    cache.FootprintRadiusDeg = FootprintGeometry.HorizonRadiusDeg(altKm, minimumElevationDeg: 0);
+                }
 
                 var footprintRadiusDeg = cache.FootprintRadiusDeg > 0
                     ? cache.FootprintRadiusDeg
