@@ -26,6 +26,9 @@ public sealed class KenwoodCatCodecTests
         Assert.Equal("TS1;", KenwoodCatCodec.BuildSatelliteEntryTsCommand());
         Assert.Equal("PC050;", KenwoodCatCodec.BuildSatellitePowerLevelCommand());
         Assert.Equal(7, KenwoodCatCodec.SatelliteLinkHoldPollCount);
+        Assert.Equal(450, KenwoodCatCodec.FrequencyReadTimeoutMs);
+        Assert.True(KenwoodCatCodec.IsReadCommand("FA;"));
+        Assert.False(KenwoodCatCodec.IsReadCommand("FA00145900000;"));
         Assert.True(KenwoodCatCodec.IsSatelliteModeExitReadCommand("RX;"));
         Assert.False(KenwoodCatCodec.IsSatelliteModeExitReadCommand("TO0;"));
     }

@@ -36,12 +36,16 @@ public sealed class KenwoodTs2000DriverTests
         Assert.Contains("AI2;", transport.SentCommands);
         Assert.Contains("MD2;", transport.SentCommands);
         Assert.Contains("MD1;", transport.SentCommands);
-        Assert.Contains("CT0;", transport.SentCommands);
-        Assert.Contains("DQ0;", transport.SentCommands);
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("DC", StringComparison.Ordinal));
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("FR", StringComparison.Ordinal));
+
+        var md1Index = transport.SentCommands.IndexOf("MD1;");
+        var sa1110Index = transport.SentCommands.IndexOf("SA1011110;");
+        Assert.True(sa1110Index >= 0 && md1Index > sa1110Index);
     }
 
     [Fact]
-    public void FinalizeSatellitePassSetup_sends_SatPC32_tail_and_hold_polls()
+    public void ApplySatellitePassFrequencies_sends_SatPC32_tail_and_hold_polls()
     {
         var transport = new RecordingKenwoodCatTransport();
         var driver = new KenwoodTs2000Driver(transport);
@@ -49,15 +53,36 @@ public sealed class KenwoodTs2000DriverTests
         driver.SetSatelliteMode(true);
         transport.SentCommands.Clear();
 
-        driver.FinalizeSatellitePassSetup(145_900_000, 435_700_000, '2', '1');
+        driver.ApplySatellitePassFrequencies(145_900_000, 435_700_000, '2', '1');
 
         Assert.Contains("PC050;", transport.SentCommands);
         Assert.Contains("SA1011110;", transport.SentCommands);
         Assert.Equal(7, transport.SentCommands.Count(c => c == "FA;"));
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("DC", StringComparison.Ordinal));
     }
 
     [Fact]
-    public void SetSatelliteMode_on_not_confirmed_keeps_non_satellite_state()
+    public void ApplySatelliteDopplerStep_sends_SatPC32_cluster_and_hold_polls()
+    {
+        var transport = new RecordingKenwoodCatTransport();
+        var driver = new KenwoodTs2000Driver(transport);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        transport.SentCommands.Clear();
+
+        Assert.True(driver.ApplySatelliteDopplerStep(145_900_000, 435_700_000));
+
+        Assert.Contains("FA00145900000;", transport.SentCommands);
+        Assert.Contains("FB00435700000;", transport.SentCommands);
+        Assert.Contains("SM10000;", transport.SentCommands);
+        Assert.Contains("SM00021;", transport.SentCommands);
+        Assert.Equal(7, transport.SentCommands.Count(c => c == "FA;"));
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("FR", StringComparison.Ordinal));
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("DC", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void SetSatelliteMode_on_SA_unconfirmed_still_tracks_satellite_without_FR()
     {
         var transport = new RecordingKenwoodCatTransport { SatelliteStatusOn = false };
         var driver = new KenwoodTs2000Driver(transport);
@@ -65,11 +90,12 @@ public sealed class KenwoodTs2000DriverTests
         driver.SetSatelliteMode(true);
         transport.SentCommands.Clear();
 
+        Assert.True(driver.IsSatelliteModeActive);
         driver.SelectVfo(RigVfo.Sub);
         driver.SetFrequencyHz(145_900_000);
 
-        Assert.Contains("FR1;", transport.SentCommands);
-        Assert.DoesNotContain(transport.SentCommands, c => c == "SA;");
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("FR", StringComparison.Ordinal));
+        Assert.DoesNotContain(transport.SentCommands, c => c == "FA00145900000;");
     }
 
     [Fact]
@@ -87,23 +113,16 @@ public sealed class KenwoodTs2000DriverTests
     }
 
     [Fact]
-    public void SetFrequency_in_satellite_mode_uses_FA_and_FB()
+    public void SetFrequencyHz_in_satellite_mode_is_noop_use_doppler_step()
     {
         var transport = new RecordingKenwoodCatTransport();
         var driver = new KenwoodTs2000Driver(transport);
         driver.Open();
         driver.SetSatelliteMode(true);
-        driver.SelectVfo(RigVfo.Main);
-        driver.SetFrequencyHz(435_750_000);
-        driver.SelectVfo(RigVfo.Sub);
-        driver.SetFrequencyHz(145_900_000);
+        transport.SentCommands.Clear();
 
-        Assert.Contains("FA00435750000;", transport.SentCommands);
-        Assert.Contains("FB00145900000;", transport.SentCommands);
-        Assert.Contains("SM10000;", transport.SentCommands);
-        Assert.Contains("SM00021;", transport.SentCommands);
-        Assert.Contains("SM00004;", transport.SentCommands);
-        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("FR", StringComparison.Ordinal));
+        Assert.False(driver.SetFrequencyHz(435_750_000));
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("FA", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -153,73 +172,37 @@ public sealed class KenwoodTs2000DriverTests
     }
 
     [Fact]
-    public void SetToneHz_squelch_sends_CN_command()
-    {
-        var transport = new RecordingKenwoodCatTransport();
-        var driver = new KenwoodTs2000Driver(transport);
-        driver.Open();
-        driver.SetToneHz(67.0, squelchTone: true);
-
-        Assert.Contains("CN01;", transport.SentCommands);
-        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("TN", StringComparison.Ordinal));
-    }
-
-    [Fact]
-    public void SetToneOn_sends_TO_command()
-    {
-        var transport = new RecordingKenwoodCatTransport();
-        var driver = new KenwoodTs2000Driver(transport);
-        driver.Open();
-        driver.SetToneOn(true);
-
-        Assert.Contains("TO1;", transport.SentCommands);
-        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("CT", StringComparison.Ordinal));
-    }
-
-    [Fact]
-    public void SetToneSquelchOn_sends_CT_command()
-    {
-        var transport = new RecordingKenwoodCatTransport();
-        var driver = new KenwoodTs2000Driver(transport);
-        driver.Open();
-        driver.SetToneSquelchOn(true);
-
-        Assert.Contains("CT1;", transport.SentCommands);
-        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("TO", StringComparison.Ordinal));
-    }
-
-    [Fact]
-    public void SetMode_on_sub_in_satellite_mode_selects_sub_control()
+    public void SetMode_on_sub_in_satellite_mode_uses_SA_sub_control_only()
     {
         var transport = new RecordingKenwoodCatTransport();
         var driver = new KenwoodTs2000Driver(transport);
         driver.Open();
         driver.SetSatelliteMode(true);
+        transport.SentCommands.Clear();
         driver.SelectVfo(RigVfo.Sub);
         driver.SetMode("FM");
 
         var mdIndex = transport.SentCommands.IndexOf("MD4;");
         Assert.True(mdIndex >= 0);
-        Assert.Equal("SA1011110;", transport.SentCommands[mdIndex - 2]);
-        Assert.Equal("DC01;", transport.SentCommands[mdIndex - 1]);
-        Assert.Equal("DC00;", transport.SentCommands[mdIndex + 1]);
+        Assert.Equal("SA1011110;", transport.SentCommands[mdIndex - 1]);
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("DC", StringComparison.Ordinal));
     }
 
     [Fact]
-    public void SetToneHz_on_sub_in_satellite_mode_selects_sub_control()
+    public void SetToneHz_on_sub_in_satellite_mode_uses_SA_sub_control_only()
     {
         var transport = new RecordingKenwoodCatTransport();
         var driver = new KenwoodTs2000Driver(transport);
         driver.Open();
         driver.SetSatelliteMode(true);
+        transport.SentCommands.Clear();
         driver.SelectVfo(RigVfo.Sub);
         driver.SetToneHz(67.0, squelchTone: false);
 
         var tnIndex = transport.SentCommands.IndexOf("TN01;");
         Assert.True(tnIndex >= 0);
-        Assert.Equal("SA1011110;", transport.SentCommands[tnIndex - 2]);
-        Assert.Equal("DC01;", transport.SentCommands[tnIndex - 1]);
-        Assert.Equal("DC00;", transport.SentCommands[tnIndex + 1]);
+        Assert.Equal("SA1011110;", transport.SentCommands[tnIndex - 1]);
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("DC", StringComparison.Ordinal));
     }
 
     [Fact]

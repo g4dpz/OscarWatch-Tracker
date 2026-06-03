@@ -171,7 +171,7 @@ public class RigControllerTests
     }
 
     [Fact]
-    public void Kenwood_satellite_mode_failure_falls_back_to_split_vfo()
+    public void Kenwood_satellite_mode_unconfirmed_does_not_fall_back_to_split_vfo()
     {
         var rig = new RecordingRigDriver { IsSatelliteModeActive = false };
         var controller = new RigController(_ => rig);
@@ -208,10 +208,9 @@ public class RigControllerTests
         controller.Update(settings, ctx);
         controller.DrainCommandQueueForTests();
 
-        Assert.True(rig.SetSatelliteModeCallCount >= 2);
-        Assert.False(rig.LastSatelliteModeOn);
-        Assert.True(rig.SetSplitOnCallCount >= 1);
-        Assert.Equal(RigVfo.VfoB, rig.LastModeVfo);
+        Assert.True(rig.SetSatelliteModeCallCount >= 1);
+        Assert.True(rig.LastSatelliteModeOn);
+        Assert.Equal(0, rig.SetSplitOnCallCount);
     }
 
     [Fact]

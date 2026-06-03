@@ -174,8 +174,8 @@
         </li>
       </ul>
       <p>
-        If SATL does not confirm after tracking starts, OscarWatch falls back to split VFO tracking and logs a warning —
-        check that SAT is selected and memory mode is off, then try again.
+        If SATL does not confirm after tracking starts, OscarWatch still tracks on <code>FA</code>/<code>FB</code> and logs a warning —
+        it does <strong>not</strong> send <code>FR</code>/split commands (those fail in SAT on the TS-2000). Check that SAT is selected and memory mode is off, then try again.
       </p>
 
       <h2>What CAT does during a pass</h2>

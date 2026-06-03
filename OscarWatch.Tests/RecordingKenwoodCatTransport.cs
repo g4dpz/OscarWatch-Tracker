@@ -13,6 +13,9 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
 
     public void Open() => IsOpen = true;
 
+    public bool SendFireAndForget(string command, int postDelayMs = 50) =>
+        SendCommand(command, postDelayMs);
+
     public bool SendCommand(string command, int postDelayMs = 50)
     {
         var normalized = Normalize(command);
@@ -37,7 +40,7 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
             "SA;" => SatelliteStatusOn ? "SA1;" : "SA0;",
             "FA;" => KenwoodCatCodec.BuildSetFrequencyCommand('A', FaHz),
             "FB;" => KenwoodCatCodec.BuildSetFrequencyCommand('B', FbHz),
-            _ => normalized
+            _ => KenwoodCatCodec.IsReadCommand(normalized) ? null : normalized
         };
     }
 
@@ -47,6 +50,8 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
     {
         if (normalized is "SA0010000;" or "SA0;")
             SatelliteStatusOn = false;
+        else if (normalized is "SA1010110;")
+            SatelliteStatusOn = true;
     }
 
     private void ApplySetFrequency(string normalized)

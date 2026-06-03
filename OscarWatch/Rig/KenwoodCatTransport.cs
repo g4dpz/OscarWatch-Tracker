@@ -1,5 +1,6 @@
 using System.IO.Ports;
 using System.Text;
+using OscarWatch.Core.Radio;
 using Serilog;
 
 namespace OscarWatch.Rig;
@@ -8,6 +9,7 @@ namespace OscarWatch.Rig;
 internal sealed class KenwoodCatTransport : IKenwoodCatTransport
 {
     private static readonly ILogger Log = Serilog.Log.ForContext<KenwoodCatTransport>();
+
     private readonly SerialPort _port;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly StringBuilder _rxBuffer = new();
@@ -34,16 +36,42 @@ internal sealed class KenwoodCatTransport : IKenwoodCatTransport
     }
 
     public bool SendCommand(string command, int postDelayMs = 50) =>
-        Transact(command, postDelayMs) is not null;
+        SendFireAndForget(command, postDelayMs);
+
+    public bool SendFireAndForget(string command, int postDelayMs = 50)
+    {
+        if (string.IsNullOrWhiteSpace(command))
+            return false;
+
+        var cmd = NormalizeCommand(command);
+        _gate.Wait();
+        try
+        {
+            if (!_port.IsOpen)
+                return false;
+
+            _port.Write(cmd);
+            Thread.Sleep(Math.Max(postDelayMs, 0));
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Debug(ex, "Kenwood CAT send failed on {Port} for {Cmd}", _port.PortName, command);
+            return false;
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
 
     public string? Transact(string command, int postDelayMs = 50)
     {
         if (string.IsNullOrWhiteSpace(command))
             return null;
 
-        var cmd = command.TrimEnd();
-        if (!cmd.EndsWith(';'))
-            cmd += ';';
+        var cmd = NormalizeCommand(command);
+        var readTimeoutMs = KenwoodCatCodec.GetReplyTimeoutMs(cmd, postDelayMs);
 
         _gate.Wait();
         try
@@ -53,11 +81,11 @@ internal sealed class KenwoodCatTransport : IKenwoodCatTransport
 
             for (var attempt = 0; attempt < 2; attempt++)
             {
-                _port.DiscardInBuffer();
+                DrainInputBuffer();
                 _rxBuffer.Clear();
                 _port.Write(cmd);
 
-                var reply = ReadUntilSemicolon(postDelayMs);
+                var reply = ReadUntilSemicolon(readTimeoutMs);
                 if (reply is null)
                     return null;
 
@@ -98,9 +126,22 @@ internal sealed class KenwoodCatTransport : IKenwoodCatTransport
         }
     }
 
-    private string? ReadUntilSemicolon(int postDelayMs)
+    private void DrainInputBuffer()
     {
-        var deadline = Environment.TickCount64 + Math.Max(postDelayMs, 50) + 800;
+        try
+        {
+            _port.DiscardInBuffer();
+            _rxBuffer.Clear();
+        }
+        catch
+        {
+            // ignore
+        }
+    }
+
+    private string? ReadUntilSemicolon(int readTimeoutMs)
+    {
+        var deadline = Environment.TickCount64 + readTimeoutMs;
         while (Environment.TickCount64 < deadline)
         {
             try
@@ -128,6 +169,12 @@ internal sealed class KenwoodCatTransport : IKenwoodCatTransport
 
         var partial = _rxBuffer.ToString().Trim();
         return partial.Length > 0 ? partial : null;
+    }
+
+    private static string NormalizeCommand(string command)
+    {
+        var cmd = command.TrimEnd();
+        return cmd.EndsWith(';') ? cmd : cmd + ";";
     }
 
     private static bool IsSyntaxError(string reply) =>

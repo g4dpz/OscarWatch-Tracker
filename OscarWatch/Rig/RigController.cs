@@ -742,13 +742,37 @@ public sealed class RigController : IRigController, IDisposable
         if (!CanWriteDoppler(settings, writeRx, writeTx))
             return;
 
-        if (writeRx)
-            okRx = WriteRx(settings, rxHz);
-        if (writeTx)
+        if (settings.Type == RigType.KenwoodTs2000 && _useMainSub && _driver is KenwoodTs2000Driver kenwoodDoppler
+            && kenwoodDoppler.IsSatelliteModeActive && (writeRx || writeTx))
         {
-            okTx = WriteTx(settings, txHz);
+            if (kenwoodDoppler.ApplySatelliteDopplerStep(rxHz, txHz))
+            {
+                if (writeRx)
+                {
+                    _lastRigRxHz = rxHz;
+                    okRx = true;
+                }
+
+                if (writeTx)
+                {
+                    _lastRigTxHz = txHz;
+                    okTx = true;
+                }
+            }
+
             if (_interactive && okTx)
                 RestoreOperatorVfo();
+        }
+        else
+        {
+            if (writeRx)
+                okRx = WriteRx(settings, rxHz);
+            if (writeTx)
+            {
+                okTx = WriteTx(settings, txHz);
+                if (_interactive && okTx)
+                    RestoreOperatorVfo();
+            }
         }
 
         if (okRx || okTx)
@@ -764,12 +788,6 @@ public sealed class RigController : IRigController, IDisposable
 
         if ((writeRx && !okRx) || (writeTx && !okTx))
             _forceFrequencyApply = true;
-
-        if ((okRx || okTx) && settings.Type == RigType.KenwoodTs2000 && _useMainSub && _driver is KenwoodTs2000Driver kenwood
-            && kenwood.IsSatelliteModeActive)
-        {
-            kenwood.SendSatelliteLinkHoldPolls();
-        }
     }
 
     private void FinishOffsetKnobCaptureBlock()
@@ -902,14 +920,13 @@ public sealed class RigController : IRigController, IDisposable
             _driver.SetSatelliteMode(true);
             if (settings.Type == RigType.KenwoodTs2000 && !_driver.IsSatelliteModeActive)
             {
-                Log.Warning("TS-2000 SATL did not engage; falling back to split VFO tracking.");
-                _driver.SetSatelliteMode(false);
-                _driver.SetSplitOn(true);
-                _useMainSub = false;
+                Log.Warning(
+                    "TS-2000 SATL not confirmed via SA; — continuing FA/FB tracking (no FR/split in SAT).");
             }
 
             // IC-910/9100/9700 reject split CI-V in satellite (Main/Sub) mode with NAK.
-            if (_useMainSub && !IsIcomSatelliteLayoutRig(settings.Type))
+            // Kenwood SAT uses FA/FB only — never FR/FT (SatPC32; driver also no-ops split in SAT).
+            if (_useMainSub && !IsIcomSatelliteLayoutRig(settings.Type) && settings.Type != RigType.KenwoodTs2000)
                 _driver.SetSplitOn(false);
             Thread.Sleep(150);
         }
@@ -926,7 +943,8 @@ public sealed class RigController : IRigController, IDisposable
 
         // FT-847 can revert to narrow FM when SAT frequencies/CTCSS are programmed after mode.
         var deferModeSetup = settings.Type == RigType.YaesuFt847;
-        if (!deferModeSetup)
+        var isKenwoodSat = settings.Type == RigType.KenwoodTs2000 && _useMainSub;
+        if (!deferModeSetup && !isKenwoodSat)
             ConfigureVfoModes(context);
 
         var corrected = ComputeDoppler(context);
@@ -934,8 +952,9 @@ public sealed class RigController : IRigController, IDisposable
         var txHz = ToHz(corrected.RadioTransmitKHz);
         _lastRigRxHz = 0;
         _lastRigTxHz = 0;
-        var initResult = WriteInitialFrequencies(settings, rxHz, txHz);
-        FinalizeKenwoodSatellitePassSetup(settings, context, rxHz, txHz);
+        var initResult = isKenwoodSat && _driver is KenwoodTs2000Driver kenwoodInit
+            ? InitializeKenwoodSatellitePass(settings, kenwoodInit, context, rxHz, txHz)
+            : WriteInitialFrequencies(settings, rxHz, txHz);
         ApplyCtcss(settings, context, force: true);
 
         if (deferModeSetup)
@@ -1138,25 +1157,27 @@ public sealed class RigController : IRigController, IDisposable
         _driver.SetToneSquelchOn(false);
     }
 
-    private void FinalizeKenwoodSatellitePassSetup(
+    private InitialFrequencyWriteResult InitializeKenwoodSatellitePass(
         RigSettings settings,
+        KenwoodTs2000Driver kenwood,
         RigTrackingContext context,
         long downlinkHz,
         long uplinkHz)
     {
-        if (!_useMainSub || settings.Type != RigType.KenwoodTs2000 || _driver is not KenwoodTs2000Driver kenwood
-            || !kenwood.IsSatelliteModeActive)
-        {
-            return;
-        }
+        _driver!.SelectVfo(RigVfo.Main);
+        if (settings.ReceiveRegion() == RigRegion.USA)
+            _driver.SetToneSquelchOn(false);
+        else
+            _driver.SetToneOn(false);
 
         if (!KenwoodCatCodec.TryGetModeCode(context.EffectiveDownlinkMode, out var downlinkMode)
             || !KenwoodCatCodec.TryGetModeCode(context.EffectiveUplinkMode, out var uplinkMode))
         {
-            return;
+            return new InitialFrequencyWriteResult(false, false);
         }
 
-        kenwood.FinalizeSatellitePassSetup(downlinkHz, uplinkHz, downlinkMode, uplinkMode);
+        kenwood.ApplySatellitePassFrequencies(downlinkHz, uplinkHz, downlinkMode, uplinkMode);
+        return new InitialFrequencyWriteResult(true, !_isBeaconOnly);
     }
 
     private void ConfigureVfoModes(RigTrackingContext context)

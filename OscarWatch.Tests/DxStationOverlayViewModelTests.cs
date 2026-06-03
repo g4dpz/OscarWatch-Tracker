@@ -5,6 +5,7 @@ using OscarWatch.Core.Services;
 using OscarWatch.Localization;
 using OscarWatch.Orbit;
 using OscarWatch.ViewModels;
+using static OscarWatch.Localization.LocalizationCulture;
 
 namespace OscarWatch.Tests;
 
@@ -21,9 +22,15 @@ public class DxStationOverlayViewModelTests
     [Fact]
     public void Valid_grid_shows_active_overlay_and_collapsed_summary()
     {
+        using var _ = TestUiCulture.Apply(DefaultLanguage);
+
         var settings = new TestSettingsService();
-        var propagator = new PublicOrbitToolsPropagator();
-        propagator.LoadSatellite(IssEntry);
+        var inner = new PublicOrbitToolsPropagator();
+        inner.LoadSatellite(IssEntry);
+        var propagator = new DelegatingOrbitPropagator(inner)
+        {
+            GetLookAnglesHandler = (_, _, _) => new LookAngles(180, 45, 800, 0)
+        };
 
         var vm = new DxStationOverlayViewModel(settings, propagator, LocalizationService.Instance);
         vm.GridSquare = "JO22";
@@ -39,10 +46,10 @@ public class DxStationOverlayViewModelTests
             LookAngles = new LookAngles(180, 45, 800, 0)
         });
 
-        Assert.Contains("JO22", vm.CollapsedSummaryText, StringComparison.Ordinal);
-        Assert.True(
-            vm.CollapsedSummaryText.Contains("Az", StringComparison.Ordinal)
-            || vm.CollapsedSummaryText.Contains("below horizon", StringComparison.Ordinal));
+        Assert.Equal("180.0°", vm.AzimuthText);
+        Assert.Equal("45.0°", vm.ElevationText);
+        var expectedSummary = LocalizationService.Instance.Get("Dx.Collapsed.AzEl", "JO22", vm.AzimuthText, vm.ElevationText);
+        Assert.Equal(expectedSummary, vm.CollapsedSummaryText);
     }
 
     [Fact]

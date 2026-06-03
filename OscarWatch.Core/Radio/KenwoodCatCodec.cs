@@ -57,6 +57,33 @@ public static class KenwoodCatCodec
     /// <summary>FA; polls SatPC32 sends to hold the CAT link after frequency updates.</summary>
     public const int SatelliteLinkHoldPollCount = 7;
 
+    /// <summary>Wait for FA;/FB; reply (SatPC32 holds link until response).</summary>
+    public const int FrequencyReadTimeoutMs = 450;
+
+    public static int GetReplyTimeoutMs(string command, int postDelayMs)
+    {
+        var body = command.Trim().TrimEnd(';');
+        if (body.Length == 2 && body[0] is 'F' or 'f')
+            return FrequencyReadTimeoutMs;
+
+        return body.ToUpperInvariant() switch
+        {
+            "SA" or "RX" or "ID" => Math.Max(postDelayMs + 400, 600),
+            _ => Math.Max(postDelayMs + 200, 400)
+        };
+    }
+
+    public static bool IsReadCommand(string command)
+    {
+        var body = command.Trim().TrimEnd(';');
+        if (body.Length == 2 && body[0] is 'F' or 'f')
+            return body[1] is 'A' or 'a' or 'B' or 'b' or 'C' or 'c';
+
+        return body.Equals("SA", StringComparison.OrdinalIgnoreCase)
+            || body.Equals("RX", StringComparison.OrdinalIgnoreCase)
+            || body.Equals("ID", StringComparison.OrdinalIgnoreCase);
+    }
+
     /// <summary>SatPC32 SAT on with CTRL on sub (before uplink <c>MD</c> / tone on Sub).</summary>
     public static string BuildSetSatelliteModeOnSubControlCommand() => "SA1011110;";
 

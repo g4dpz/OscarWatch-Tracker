@@ -200,10 +200,11 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 | Serial transport | [`OscarWatch/Rig/KenwoodCatTransport.cs`](../OscarWatch/Rig/KenwoodCatTransport.cs) — **8N1**, semicolon-terminated ASCII |
 | Driver | [`OscarWatch/Rig/KenwoodTs2000Driver.cs`](../OscarWatch/Rig/KenwoodTs2000Driver.cs) |
 
-- Cross-band **SATL** follows SatPC32: `SA1010110;`, 2× `TO0;`, `FA;`, `TS1;`, `AI2;`, main `MD2`/`MD1`, tone clear on both CTRL paths; pass tail `PC050;` and `SM*`; doppler uses `FA`/`FB` plus band `SM`, then 7× `FA;` hold polls. Exit: `RX;` `TN39;` `TO0;` `TN39;` `SA0010000;`. Warns if `SA;` does not confirm SATL.
-- `Main`/`Sub` → **`FA`/`FB`**; no `FR` while satellite layout is active.
+- Cross-band **SATL** follows SatPC32 ([`OscarWatch.Tests/Fixtures/SatPC32_A07.txt`](../OscarWatch.Tests/Fixtures/SatPC32_A07.txt)): `SA1010110;` / `SA1011110;` for CTRL (no `DC` in SAT), 2× `TO0;`, `FA;` read, `TS1;`, `AI2;`, then `AI0;` after init; pass programming and SatPC32 doppler steps (`FA`/`FB`/`SM` cluster + 7× `FA;` with reply). Exit: `RX;` `TN39;` `TO0;` `TN39;` `SA0010000;`. Silent set commands do not require a CAT echo; `FA;` reads wait up to ~450 ms.
+- `Main`/`Sub` → **`FA`/`FB`**; **no `FR`/`FT` or `DC`** in SATL (Hamlib/Gpredict disable `FR` in SAT for the same reason).
 - `SupportsVfoExchange` is **true** — swaps `FA`/`FB` frequencies in SATL when Main is on the wrong band (same logic as ICOM `TryBandSwap`).
-- CTCSS encode: `TN` + `TO`; TSQL squelch: `CN` + `CT` (Hamlib `ts2000_ctcss_list`, 1-based index). In SATL, `DC01`/`DC00` select Sub/Main **CTRL** (DC P2) before `MD`, tone, and CTCSS commands — uplink mode needs `DC01;` before `MD`, not `DC10;` (DC P1 is PTT/TX only).
+- CTCSS encode: `TN` + `TO`; TSQL squelch: `CN` + `CT` (Hamlib `ts2000_ctcss_list`, 1-based index). In SATL, **`SA1011110;`** selects Sub CTRL before uplink `MD`/tone (SatPC32 does not use `DC01;`).
+- If `SA;` does not confirm SATL, OscarWatch **still tracks on `FA`/`FB`** (no split/FR fallback).
 - Cross-check against [Hamlib `kenwood.c`](https://github.com/Hamlib/Hamlib/blob/master/rigs/kenwood/kenwood.c) and [`ts2000.txt`](https://github.com/Hamlib/Hamlib/blob/master/rigs/kenwood/ts2000.txt).
 
 ### Hardware checklist (TS-2000)
