@@ -19,9 +19,9 @@ The default `OscarWatch/Assets/Maps/world_map.jpg` is an equirectangular Blue Ma
 
 - [Avalonia UI](https://avaloniaui.net/)
 
-## Localization
+## Localisation
 
-- **Igor Monteiro (PU4ELT)** — Brazilian Portuguese (`pt-BR`) UI translation
+- **Igor Monteiro (PU4ELT)** — Brazilian Portuguese (`pt-BR`) user interface localisation
 
 ## Hardware testing
 
