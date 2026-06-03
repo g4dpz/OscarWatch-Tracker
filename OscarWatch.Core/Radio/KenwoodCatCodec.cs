@@ -42,9 +42,29 @@ public static class KenwoodCatCodec
     /// </summary>
     public static string BuildSetSatelliteModeOnCommand() => "SA1010110;";
 
-    /// <summary>Encode-tone off commands SatPC32 sends after <c>SA1010110;</c> on CAT connect.</summary>
-    public static readonly string[] SatelliteModeEntryToneOffSequence =
-        ["TO0;", "TO0;", "TO0;", "TO0;", "TO0;", "TO0;"];
+    /// <summary>Encode-tone off commands SatPC32 sends when enabling CAT (pre-tracking).</summary>
+    public static readonly string[] SatelliteModeEntryToneOffSequence = ["TO0;", "TO0;"];
+
+    /// <summary>SatPC32: extended Auto Information on (reduces need for explicit reads during tracking).</summary>
+    public static string BuildAutoinfoExtendedCommand() => "AI2;";
+
+    /// <summary>SatPC32 SAT entry: sent after initial <c>FA;</c> read (TS-2000 satellite CAT handshake).</summary>
+    public static string BuildSatelliteEntryTsCommand() => "TS1;";
+
+    /// <summary>SatPC32: RF power level 50 (PC P1=050).</summary>
+    public static string BuildSatellitePowerLevelCommand() => "PC050;";
+
+    /// <summary>FA; polls SatPC32 sends to hold the CAT link after frequency updates.</summary>
+    public const int SatelliteLinkHoldPollCount = 7;
+
+    /// <summary>SatPC32 SAT on with CTRL on sub (before uplink <c>MD</c> / tone on Sub).</summary>
+    public static string BuildSetSatelliteModeOnSubControlCommand() => "SA1011110;";
+
+    /// <summary>SatPC32 band select after <c>FA</c>/<c>FB</c> in SATL (main then sub band index).</summary>
+    public static string BuildSatelliteBandSelectMainCommand() => "SM10000;";
+
+    public static string BuildSatelliteBandSelectSubCommand(long hz) =>
+        hz >= 200_000_000 ? "SM00004;" : "SM00021;";
 
     /// <summary>Short SAT off (manual P1=0 only).</summary>
     public static string BuildSetSatelliteModeOffCommand() => "SA0;";
@@ -55,8 +75,8 @@ public static class KenwoodCatCodec
     public static readonly string[] SatelliteModeExitSequence =
     [
         "RX;",
-        "TO0;",
         "TN39;",
+        "TO0;",
         "TN39;",
         "SA0010000;"
     ];

@@ -764,6 +764,12 @@ public sealed class RigController : IRigController, IDisposable
 
         if ((writeRx && !okRx) || (writeTx && !okTx))
             _forceFrequencyApply = true;
+
+        if ((okRx || okTx) && settings.Type == RigType.KenwoodTs2000 && _useMainSub && _driver is KenwoodTs2000Driver kenwood
+            && kenwood.IsSatelliteModeActive)
+        {
+            kenwood.SendSatelliteLinkHoldPolls();
+        }
     }
 
     private void FinishOffsetKnobCaptureBlock()
@@ -929,6 +935,7 @@ public sealed class RigController : IRigController, IDisposable
         _lastRigRxHz = 0;
         _lastRigTxHz = 0;
         var initResult = WriteInitialFrequencies(settings, rxHz, txHz);
+        FinalizeKenwoodSatellitePassSetup(settings, context, rxHz, txHz);
         ApplyCtcss(settings, context, force: true);
 
         if (deferModeSetup)
@@ -1129,6 +1136,27 @@ public sealed class RigController : IRigController, IDisposable
         _driver.SelectVfo(vfo, force: true);
         _driver.SetToneOn(false);
         _driver.SetToneSquelchOn(false);
+    }
+
+    private void FinalizeKenwoodSatellitePassSetup(
+        RigSettings settings,
+        RigTrackingContext context,
+        long downlinkHz,
+        long uplinkHz)
+    {
+        if (!_useMainSub || settings.Type != RigType.KenwoodTs2000 || _driver is not KenwoodTs2000Driver kenwood
+            || !kenwood.IsSatelliteModeActive)
+        {
+            return;
+        }
+
+        if (!KenwoodCatCodec.TryGetModeCode(context.EffectiveDownlinkMode, out var downlinkMode)
+            || !KenwoodCatCodec.TryGetModeCode(context.EffectiveUplinkMode, out var uplinkMode))
+        {
+            return;
+        }
+
+        kenwood.FinalizeSatellitePassSetup(downlinkHz, uplinkHz, downlinkMode, uplinkMode);
     }
 
     private void ConfigureVfoModes(RigTrackingContext context)

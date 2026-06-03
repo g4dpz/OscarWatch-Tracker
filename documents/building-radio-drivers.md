@@ -200,7 +200,7 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 | Serial transport | [`OscarWatch/Rig/KenwoodCatTransport.cs`](../OscarWatch/Rig/KenwoodCatTransport.cs) — **8N1**, semicolon-terminated ASCII |
 | Driver | [`OscarWatch/Rig/KenwoodTs2000Driver.cs`](../OscarWatch/Rig/KenwoodTs2000Driver.cs) |
 
-- Cross-band **SATL** via CAT `SA1010110;` (SatPC32-compatible: Main downlink / Sub uplink, TRACE on), then six× `TO0;` to clear encode tones; exit uses `RX;` `TO0;` `TN39;`×2 `SA0010000;` (SatPC32 disconnect); warns if `SA;` read does not confirm SATL.
+- Cross-band **SATL** follows SatPC32: `SA1010110;`, 2× `TO0;`, `FA;`, `TS1;`, `AI2;`, main `MD2`/`MD1`, tone clear on both CTRL paths; pass tail `PC050;` and `SM*`; doppler uses `FA`/`FB` plus band `SM`, then 7× `FA;` hold polls. Exit: `RX;` `TN39;` `TO0;` `TN39;` `SA0010000;`. Warns if `SA;` does not confirm SATL.
 - `Main`/`Sub` → **`FA`/`FB`**; no `FR` while satellite layout is active.
 - `SupportsVfoExchange` is **true** — swaps `FA`/`FB` frequencies in SATL when Main is on the wrong band (same logic as ICOM `TryBandSwap`).
 - CTCSS encode: `TN` + `TO`; TSQL squelch: `CN` + `CT` (Hamlib `ts2000_ctcss_list`, 1-based index). In SATL, `DC01`/`DC00` select Sub/Main **CTRL** (DC P2) before `MD`, tone, and CTCSS commands — uplink mode needs `DC01;` before `MD`, not `DC10;` (DC P1 is PTT/TX only).
@@ -210,7 +210,7 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 
 - On the radio: select **SAT** mode and turn **memory mode off** before OscarWatch tracking (manual steps — CAT alone is not enough).
 - PC CAT port **57600 8N1** (matches Settings default).
-- Close any front-panel menu before tracking; SATL is applied on pass start via `SA1010110;` (then `TO0;` clears encode tones).
+- Close any front-panel menu before tracking; press **SAT** on the front panel and turn memory mode off (CAT `SA` alone is not enough). SatPC32-style CAT delay ~20–30 ms helps on some rigs.
 - On a real pass: RX/TX doppler on `FA`/`FB`, uplink CTCSS on Sub.
 
 ## Step-by-step: add a new rig type

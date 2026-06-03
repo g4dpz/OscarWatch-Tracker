@@ -41,7 +41,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     public void Open()
     {
         _transport.Open();
-        _transport.SendCommand(KenwoodCatCodec.BuildAutoinfoOffCommand(), _catDelayMs);
+        // SatPC32 enables AI2 during SAT entry, not AI0 on connect.
     }
 
     public long? ReadFrequencyHz(RigVfo vfo)
@@ -73,7 +73,13 @@ public sealed class KenwoodTs2000Driver : IRigDriver
 
         var letter = VfoLetterFor(_currentVfo);
         var cmd = KenwoodCatCodec.BuildSetFrequencyCommand(letter, hz);
-        return _transport.SendCommand(cmd, _catDelayMs);
+        if (!_transport.SendCommand(cmd, _catDelayMs))
+            return false;
+
+        if (_satelliteMode)
+            SendSatelliteBandSelect(letter, hz);
+
+        return true;
     }
 
     public void SelectVfo(RigVfo vfo, bool force = false)
@@ -117,6 +123,30 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         {
             _transport.SendCommand("FR0;FT0;", _catDelayMs);
         }
+    }
+
+    /// <summary>
+    /// SatPC32 pass tail after downlink/uplink frequencies and modes are programmed (PC050, band SM, tone off).
+    /// </summary>
+    public void FinalizeSatellitePassSetup(long downlinkHz, long uplinkHz, char downlinkModeCode, char uplinkModeCode)
+    {
+        if (!_satelliteMode || !_transport.IsOpen)
+            return;
+
+        RunSatPc32MainPathFinalize(downlinkModeCode, downlinkHz);
+        RunSatPc32SubPathFinalize(uplinkModeCode, downlinkHz, uplinkHz);
+        RestoreSatelliteDcLayout();
+        SendSatelliteLinkHoldPolls();
+    }
+
+    /// <summary>SatPC32-style <c>FA;</c> read polls after a doppler frequency batch.</summary>
+    public void SendSatelliteLinkHoldPolls()
+    {
+        if (!_satelliteMode || !_transport.IsOpen)
+            return;
+
+        for (var i = 0; i < KenwoodCatCodec.SatelliteLinkHoldPollCount; i++)
+            _transport.Transact(KenwoodCatCodec.BuildReadFrequencyCommand('A'), _catDelayMs);
     }
 
     public void SetSatelliteMode(bool on)
@@ -227,8 +257,20 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     {
         var sub = _currentVfo is RigVfo.Sub or RigVfo.VfoB;
         _transport.SendCommand(
+            sub
+                ? KenwoodCatCodec.BuildSetSatelliteModeOnSubControlCommand()
+                : KenwoodCatCodec.BuildSetSatelliteModeOnCommand(),
+            _catDelayMs);
+        _transport.SendCommand(
             sub ? KenwoodCatCodec.BuildControlSubCommand() : KenwoodCatCodec.BuildControlMainCommand(),
             _catDelayMs);
+    }
+
+    private void SendSatelliteBandSelect(char vfoLetter, long hz)
+    {
+        _ = vfoLetter;
+        _transport.SendCommand(KenwoodCatCodec.BuildSatelliteBandSelectMainCommand(), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildSatelliteBandSelectSubCommand(hz), _catDelayMs);
     }
 
     private long CachedFrequencyHz(RigVfo vfo) => vfo switch
@@ -269,15 +311,91 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     {
         for (var attempt = 0; attempt < 2; attempt++)
         {
-            _transport.SendCommand(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
-            foreach (var toneOff in KenwoodCatCodec.SatelliteModeEntryToneOffSequence)
-                _transport.SendCommand(toneOff, _catDelayMs);
+            SendSatPc32SatelliteEntryPreamble();
 
             var reply = _transport.Transact(KenwoodCatCodec.BuildSatelliteStatusQuery(), _catDelayMs);
             if (reply is not null && KenwoodCatCodec.TryParseSatelliteOn(reply))
+            {
+                SendSatelliteToneAndSquelchOff();
                 return true;
+            }
         }
 
         return false;
+    }
+
+    private void SendSatPc32SatelliteEntryPreamble()
+    {
+        _transport.SendCommand(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
+        foreach (var toneOff in KenwoodCatCodec.SatelliteModeEntryToneOffSequence)
+            _transport.SendCommand(toneOff, _catDelayMs);
+
+        _transport.Transact(KenwoodCatCodec.BuildReadFrequencyCommand('A'), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildSatelliteEntryTsCommand(), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildAutoinfoExtendedCommand(), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
+
+        // SatPC32 programs USB then LSB on main CTRL before pass frequencies.
+        SendModeOnMainControl('2');
+        _transport.SendCommand(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
+        SendModeOnMainControl('1');
+        _transport.SendCommand(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildToneEnableCommand(false), _catDelayMs);
+    }
+
+    private void RunSatPc32MainPathFinalize(char downlinkModeCode, long downlinkHz)
+    {
+        _transport.SendCommand(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildToneEnableCommand(false), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildCtcssEnableCommand(false), _catDelayMs);
+        _transport.SendCommand("DQ0;", _catDelayMs);
+        SendModeOnMainControl(downlinkModeCode);
+        _transport.SendCommand(KenwoodCatCodec.BuildSatellitePowerLevelCommand(), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildSatelliteBandSelectSubCommand(downlinkHz), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildSatelliteBandSelectMainCommand(), _catDelayMs);
+    }
+
+    private void RunSatPc32SubPathFinalize(char uplinkModeCode, long downlinkHz, long uplinkHz)
+    {
+        _transport.SendCommand(KenwoodCatCodec.BuildSetSatelliteModeOnSubControlCommand(), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildControlSubCommand(), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildSetModeCommand(uplinkModeCode), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildSatelliteBandSelectSubCommand(downlinkHz), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildToneEnableCommand(false), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildCtcssEnableCommand(false), _catDelayMs);
+        _transport.SendCommand("DQ0;", _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildSatellitePowerLevelCommand(), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildSatelliteBandSelectMainCommand(), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildSatelliteBandSelectSubCommand(uplinkHz), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
+    }
+
+    private void SendModeOnMainControl(char modeCode)
+    {
+        _transport.SendCommand(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildControlMainCommand(), _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildSetModeCommand(modeCode), _catDelayMs);
+    }
+
+    private void SendSatelliteToneAndSquelchOff()
+    {
+        ClearSatelliteTonePath(subControl: false);
+        ClearSatelliteTonePath(subControl: true);
+        RestoreSatelliteDcLayout();
+    }
+
+    private void ClearSatelliteTonePath(bool subControl)
+    {
+        _transport.SendCommand(
+            subControl
+                ? KenwoodCatCodec.BuildSetSatelliteModeOnSubControlCommand()
+                : KenwoodCatCodec.BuildSetSatelliteModeOnCommand(),
+            _catDelayMs);
+        _transport.SendCommand(
+            subControl ? KenwoodCatCodec.BuildControlSubCommand() : KenwoodCatCodec.BuildControlMainCommand(),
+            _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildToneEnableCommand(false), _catDelayMs);
+        _transport.SendCommand("DQ0;", _catDelayMs);
+        _transport.SendCommand(KenwoodCatCodec.BuildCtcssEnableCommand(false), _catDelayMs);
     }
 }

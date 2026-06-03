@@ -7,13 +7,13 @@ namespace OscarWatch.Tests;
 public sealed class KenwoodTs2000DriverTests
 {
     [Fact]
-    public void Open_sends_autoinfo_off()
+    public void Open_does_not_send_autoinfo_before_satellite_entry()
     {
         var transport = new RecordingKenwoodCatTransport();
         var driver = new KenwoodTs2000Driver(transport);
         driver.Open();
 
-        Assert.Contains("AI0;", transport.SentCommands);
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("AI", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -27,7 +27,33 @@ public sealed class KenwoodTs2000DriverTests
         Assert.Contains("SA1010110;", transport.SentCommands);
         Assert.Contains("SA;", transport.SentCommands);
         Assert.True(transport.SentCommands.IndexOf("SA1010110;") < transport.SentCommands.IndexOf("SA;"));
-        Assert.Equal(6, transport.SentCommands.Count(c => c == "TO0;"));
+        var firstSa = transport.SentCommands.IndexOf("SA1010110;");
+        Assert.True(firstSa >= 0);
+        Assert.Equal("TO0;", transport.SentCommands[firstSa + 1]);
+        Assert.Equal("TO0;", transport.SentCommands[firstSa + 2]);
+        Assert.Contains("FA;", transport.SentCommands);
+        Assert.Contains("TS1;", transport.SentCommands);
+        Assert.Contains("AI2;", transport.SentCommands);
+        Assert.Contains("MD2;", transport.SentCommands);
+        Assert.Contains("MD1;", transport.SentCommands);
+        Assert.Contains("CT0;", transport.SentCommands);
+        Assert.Contains("DQ0;", transport.SentCommands);
+    }
+
+    [Fact]
+    public void FinalizeSatellitePassSetup_sends_SatPC32_tail_and_hold_polls()
+    {
+        var transport = new RecordingKenwoodCatTransport();
+        var driver = new KenwoodTs2000Driver(transport);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        transport.SentCommands.Clear();
+
+        driver.FinalizeSatellitePassSetup(145_900_000, 435_700_000, '2', '1');
+
+        Assert.Contains("PC050;", transport.SentCommands);
+        Assert.Contains("SA1011110;", transport.SentCommands);
+        Assert.Equal(7, transport.SentCommands.Count(c => c == "FA;"));
     }
 
     [Fact]
@@ -74,6 +100,9 @@ public sealed class KenwoodTs2000DriverTests
 
         Assert.Contains("FA00435750000;", transport.SentCommands);
         Assert.Contains("FB00145900000;", transport.SentCommands);
+        Assert.Contains("SM10000;", transport.SentCommands);
+        Assert.Contains("SM00021;", transport.SentCommands);
+        Assert.Contains("SM00004;", transport.SentCommands);
         Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("FR", StringComparison.Ordinal));
     }
 
@@ -171,6 +200,7 @@ public sealed class KenwoodTs2000DriverTests
 
         var mdIndex = transport.SentCommands.IndexOf("MD4;");
         Assert.True(mdIndex >= 0);
+        Assert.Equal("SA1011110;", transport.SentCommands[mdIndex - 2]);
         Assert.Equal("DC01;", transport.SentCommands[mdIndex - 1]);
         Assert.Equal("DC00;", transport.SentCommands[mdIndex + 1]);
     }
@@ -187,6 +217,7 @@ public sealed class KenwoodTs2000DriverTests
 
         var tnIndex = transport.SentCommands.IndexOf("TN01;");
         Assert.True(tnIndex >= 0);
+        Assert.Equal("SA1011110;", transport.SentCommands[tnIndex - 2]);
         Assert.Equal("DC01;", transport.SentCommands[tnIndex - 1]);
         Assert.Equal("DC00;", transport.SentCommands[tnIndex + 1]);
     }
