@@ -472,6 +472,9 @@
   <data name="Window.MutualPass.Title">
     <value>Mutual pass finder</value>
   </data>
+  <data name="Window.MutualPassVisualizer.Title">
+    <value>Mutual pass visualizer</value>
+  </data>
   <data name="Window.Sunlight.Title">
     <value>Sunlight prediction</value>
   </data>
@@ -1158,6 +1161,39 @@
   </data>
   <data name="Mutual.Status.InvalidGrid">
     <value>Invalid Maidenhead grid square.</value>
+  </data>
+  <data name="Mutual.Visualizer.DoubleClickHint">
+    <value>Double-click a pass to open the mutual pass visualizer.</value>
+  </data>
+  <data name="Mutual.Visualizer.Heading">
+    <value>Overlapping pass between {0} and {1} via {2}</value>
+  </data>
+  <data name="Mutual.Visualizer.Subtitle">
+    <value>Overlap lasts {0} starting {1} ({2})</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassLocal">
+    <value>Full pass from {0}</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassRemote">
+    <value>Full pass from {0}</value>
+  </data>
+  <data name="Mutual.Visualizer.StationStats">
+    <value>{0} · AOS Az: {1:F1}° · Max El: {2:F1}° · LOS Az: {3:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Aos">
+    <value>AOS (mutual window start)</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Los">
+    <value>LOS (mutual window end)</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Sunlit">
+    <value>Sunlit</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Eclipse">
+    <value>Eclipse</value>
+  </data>
+  <data name="Mutual.Visualizer.Screenshot">
+    <value>Screenshot</value>
   </data>
   <data name="Sunlight.Section.SatelliteRange">
     <value>Satellite &amp; range</value>

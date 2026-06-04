@@ -472,6 +472,9 @@
   <data name="Window.MutualPass.Title">
     <value>Pesquisa de Passagens Mútuas</value>
   </data>
+  <data name="Window.MutualPassVisualizer.Title">
+    <value>Visualizador de passagem mútua</value>
+  </data>
   <data name="Window.Sunlight.Title">
     <value>Previsão de luz solar</value>
   </data>
@@ -1158,6 +1161,39 @@
   </data>
   <data name="Mutual.Status.InvalidGrid">
     <value>Grid inválido.</value>
+  </data>
+  <data name="Mutual.Visualizer.DoubleClickHint">
+    <value>Clique duas vezes em uma passagem para abrir o visualizador.</value>
+  </data>
+  <data name="Mutual.Visualizer.Heading">
+    <value>Passagem sobreposta entre {0} e {1} via {2}</value>
+  </data>
+  <data name="Mutual.Visualizer.Subtitle">
+    <value>Sobreposição de {0} a partir de {1} ({2})</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassLocal">
+    <value>Passagem completa de {0}</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassRemote">
+    <value>Passagem completa de {0}</value>
+  </data>
+  <data name="Mutual.Visualizer.StationStats">
+    <value>{0} · AOS Az: {1:F1}° · El máx: {2:F1}° · LOS Az: {3:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Aos">
+    <value>AOS (início da janela mútua)</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Los">
+    <value>LOS (fim da janela mútua)</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Sunlit">
+    <value>Iluminado</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Eclipse">
+    <value>Eclipse</value>
+  </data>
+  <data name="Mutual.Visualizer.Screenshot">
+    <value>Captura de tela</value>
   </data>
   <data name="Sunlight.Section.SatelliteRange">
     <value>Satélite &amp; intervalo</value>

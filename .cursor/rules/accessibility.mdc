@@ -20,8 +20,8 @@ Target **WCAG 2.1 Level AA** for text and essential UI. Custom map/sky plots mus
 - **Body text:** ≥ **4.5:1** against background (light and dark theme). **Large text (≥18pt or 14pt bold):** ≥ **3:1**.
 - **Chart chrome** (rings, spokes, grid lines): ≥ **3:1** against plot background in `UiPalette` for both themes.
 - **Plot overlays** (tracks, footprints): stroke ≥ **3:1** vs average map/plot background under that region; increase width or alpha before picking a louder hue.
-- Prefer `{DynamicResource SystemControlForeground*}` / `UiPalette` over hardcoded hex in XAML. New brushes go in `App.axaml` or `UiPalette.cs` with **both** light and dark values checked.
-- **Do not use opacity below 0.85** for text required to understand passes or telemetry; secondary hints may use `BaseMedium` brush, not faded `Opacity="0.72"` on body copy.
+- Prefer `{DynamicResource ThemeForegroundBrush}` for body text and `{DynamicResource ThemeSecondaryForegroundBrush}` for labels/hints (set in `AccessibilityThemeResources`). Use `UiPalette` for custom plots/maps.
+- **Do not use opacity below 0.85** for text required to understand passes or telemetry; secondary hints use `ThemeSecondaryForegroundBrush`, not faded `Opacity="0.72"` on body copy.
 
 ## Typography and layout
 

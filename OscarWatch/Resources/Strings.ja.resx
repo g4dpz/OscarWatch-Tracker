@@ -892,6 +892,9 @@
   <data name="Window.MutualPass.Title">
     <value>相互パス検索</value>
   </data>
+  <data name="Window.MutualPassVisualizer.Title">
+    <value>相互パスビジュアライザ</value>
+  </data>
   <data name="Window.Sunlight.Title">
     <value>日照予測</value>
   </data>
@@ -1062,6 +1065,39 @@
   </data>
   <data name="Mutual.Status.InvalidGrid">
     <value>メイデンヘッドグリッドが無効です。</value>
+  </data>
+  <data name="Mutual.Visualizer.DoubleClickHint">
+    <value>パスをダブルクリックして相互パスビジュアライザを開きます。</value>
+  </data>
+  <data name="Mutual.Visualizer.Heading">
+    <value>{0} と {1} の重複パス（{2} 経由）</value>
+  </data>
+  <data name="Mutual.Visualizer.Subtitle">
+    <value>重複 {0}、開始 {1}（{2}）</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassLocal">
+    <value>{0} からのフルパス</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassRemote">
+    <value>{0} からのフルパス</value>
+  </data>
+  <data name="Mutual.Visualizer.StationStats">
+    <value>{0} · AOS方位 {1:F1}° · 最大仰角 {2:F1}° · LOS方位 {3:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Aos">
+    <value>AOS（相互ウィンドウ開始）</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Los">
+    <value>LOS（相互ウィンドウ終了）</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Sunlit">
+    <value>日照</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Eclipse">
+    <value>食</value>
+  </data>
+  <data name="Mutual.Visualizer.Screenshot">
+    <value>スクリーンショット</value>
   </data>
   <data name="Sunlight.Section.SatelliteRange">
     <value>衛星と期間</value>

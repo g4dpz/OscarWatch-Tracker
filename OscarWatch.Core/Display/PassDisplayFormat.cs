@@ -148,6 +148,51 @@ public static class PassDisplayFormat
         return $"Duration: {FormatDurationMinutes(duration)} | Max Elevation: {maxEl}";
     }
 
+    public static string FormatOverlapDurationPrecise(TimeSpan duration)
+    {
+        var totalSeconds = (int)Math.Round(duration.TotalSeconds, MidpointRounding.AwayFromZero);
+        if (totalSeconds < 60)
+            return totalSeconds == 1 ? "1 second" : $"{totalSeconds} seconds";
+
+        var minutes = totalSeconds / 60;
+        var seconds = totalSeconds % 60;
+        if (seconds == 0)
+            return minutes == 1 ? "1 minute" : $"{minutes} minutes";
+
+        var minutePart = minutes == 1 ? "1 minute" : $"{minutes} minutes";
+        var secondPart = seconds == 1 ? "1 second" : $"{seconds} seconds";
+        return $"{minutePart} and {secondPart}";
+    }
+
+    public static string FormatMutualOverlapStart(DateTime startUtc, bool useUtc, CultureInfo? culture = null)
+    {
+        culture ??= CultureInfo.CurrentCulture;
+        var start = ToDisplayTime(startUtc, useUtc);
+        var date = start.ToString(culture.DateTimeFormat.ShortDatePattern, culture);
+        var time = start.ToString("HH:mm:ss", culture);
+        return $"{date} from {time}";
+    }
+
+    public static string FormatTimeZoneLabel(bool useUtc)
+    {
+        if (useUtc)
+            return "UTC";
+
+        var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+        if (offset == TimeSpan.Zero)
+            return "UTC";
+
+        var totalHours = offset.TotalHours;
+        if (Math.Abs(totalHours - Math.Round(totalHours)) < 0.01)
+        {
+            var hours = (int)Math.Round(totalHours);
+            return hours >= 0 ? $"UTC+{hours}" : $"UTC{hours}";
+        }
+
+        var sign = offset >= TimeSpan.Zero ? "+" : "-";
+        return $"UTC{sign}{offset:hh\\:mm}";
+    }
+
     public static string FormatMutualWindowLine(
         DateTime startUtc,
         DateTime endUtc,

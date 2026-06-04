@@ -472,6 +472,9 @@
   <data name="Window.MutualPass.Title">
     <value>双向过境查找</value>
   </data>
+  <data name="Window.MutualPassVisualizer.Title">
+    <value>双向过境可视化</value>
+  </data>
   <data name="Window.Sunlight.Title">
     <value>光照预测</value>
   </data>
@@ -1158,6 +1161,39 @@
   </data>
   <data name="Mutual.Status.InvalidGrid">
     <value>无效的梅登黑德网格。</value>
+  </data>
+  <data name="Mutual.Visualizer.DoubleClickHint">
+    <value>双击一条过境记录以打开双向过境可视化。</value>
+  </data>
+  <data name="Mutual.Visualizer.Heading">
+    <value>{0} 与 {1} 的重叠过境（经 {2}）</value>
+  </data>
+  <data name="Mutual.Visualizer.Subtitle">
+    <value>重叠 {0}，自 {1} 起（{2}）</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassLocal">
+    <value>{0} 的完整过境</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassRemote">
+    <value>{0} 的完整过境</value>
+  </data>
+  <data name="Mutual.Visualizer.StationStats">
+    <value>{0} · AOS 方位 {1:F1}° · 最大仰角 {2:F1}° · LOS 方位 {3:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Aos">
+    <value>AOS（双向窗口开始）</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Los">
+    <value>LOS（双向窗口结束）</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Sunlit">
+    <value>日照</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Eclipse">
+    <value>地影</value>
+  </data>
+  <data name="Mutual.Visualizer.Screenshot">
+    <value>截图</value>
   </data>
   <data name="Sunlight.Section.SatelliteRange">
     <value>卫星与范围</value>
