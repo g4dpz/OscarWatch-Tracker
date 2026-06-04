@@ -4,7 +4,7 @@
 
 ![OscarWatch main screen](screenshots/oscarwatch-mainscreen.png)
 
-Desktop satellite tracking for amateur radio operators. OscarWatch shows where AMSAT spacecraft are, predicts passes over your station, works out Doppler-corrected uplink and downlink frequencies, and can drive your rotator and radio during a pass — all from one map-centred window.
+Desktop satellite tracking for amateur radio operators. OscarWatch shows where AMSAT spacecraft are, predicts passes over your station, works out Doppler-corrected uplink and downlink frequencies, and can drive your rotator and radio during a pass, all from one map-centred window.
 
 TLEs and the transponder frequency database are published from [tle.oscarwatch.org](https://tle.oscarwatch.org/) ([TLEs](https://tle.oscarwatch.org/), [transponder database](https://tle.oscarwatch.org/satellite_database.json)).
 
@@ -16,11 +16,11 @@ You do **not** need to be a programmer to use published builds.
 
 ## What OscarWatch does
 
-- **Map and sky plot** — subpoint, ground track, footprint, and a polar view from your QTH; optional **DX station** marker and live Az/El at a remote grid for the focused satellite; status-bar **map time** buttons (−15m / −5m / Now / +5m / +15m) to preview footprints (rotator and CAT stay on live time)
-- **Pass list** — upcoming passes with max elevation and time-to-AOS; sidebar scrolls on smaller windows
-- **Frequency panel** — transponder modes from a built-in database, live uplink/downlink with Doppler, RX offsets (separate for Voice and CW on linear SSB), and CTCSS (access/arm tones). Keyboard shortcuts: [help/keyboard-shortcuts.html](help/keyboard-shortcuts.html) (**Ctrl+W**, numpad **+** / **−** for RX offset, **S** for solo map view, map arrows, etc.)
-- **Optional automation** — serial **rotator** tracking and **radio CAT** (Doppler, satellite/split layout, tones) during a pass
-- **Optional extras** — voice “satellite rising” alerts, pass **WAV recording**, **Cloudlog** frequency sync
+- **Map and sky plot**: subpoint, ground track, footprint, and a polar view from your QTH; optional **DX station** marker and live Az/El at a remote grid for the focused satellite; status-bar **map time** buttons (−15m / −5m / Now / +5m / +15m) to preview footprints (rotator and CAT stay on live time)
+- **Pass list**: upcoming passes with max elevation and time-to-AOS; sidebar scrolls on smaller windows
+- **Frequency panel**: transponder modes from a built-in database, live uplink/downlink with Doppler, RX offsets (separate for Voice and CW on linear SSB), and CTCSS (access/arm tones). Keyboard shortcuts: [help/keyboard-shortcuts.html](help/keyboard-shortcuts.html) (**Ctrl+W**, numpad **+** / **−** for RX offset, **S** for solo map view, map arrows, etc.)
+- **Optional automation**: serial **rotator** tracking and **radio CAT** (Doppler, satellite/split layout, tones) during a pass
+- **Optional extras**: voice “satellite rising” alerts, pass **WAV recording**, **Cloudlog** frequency sync
 
 OscarWatch does **not** decode telemetry or replace your logging software; it is a pass-tracking and station-assist tool for the shack or field.
 
@@ -32,9 +32,9 @@ Pre-built packages for Windows, macOS, and Linux are on the **[Releases](https:/
 
 **macOS (first install):** release builds are not code-signed or notarized. macOS may block the app or bundled native libraries on first use:
 
-1. **OscarWatch** — if Finder says the app “cannot be opened”, right-click `OscarWatch` → **Open** once, or use **System Settings → Privacy & Security → Open Anyway**.
-2. **Pass recording** — if you use automatic WAV capture, macOS may also ask you to allow `**libportaudio.dylib`** (in `runtimes/osx-*/native/` inside the app folder). Approve it the same way when prompted.
-3. **Microphone** — allow microphone access when you first enable recording in Settings.
+1. **OscarWatch**: if Finder says the app “cannot be opened”, right-click `OscarWatch` → **Open** once, or use **System Settings → Privacy & Security → Open Anyway**.
+2. **Pass recording**: if you use automatic WAV capture, macOS may also ask you to allow `**libportaudio.dylib`** (in `runtimes/osx-*/native/` inside the app folder). Approve it the same way when prompted.
+3. **Microphone**: allow microphone access when you first enable recording in Settings.
 
 These prompts are usually one-time per install. Tracking, passes, and radio/rotator control work without pass recording if you skip step 2.
 
@@ -43,15 +43,15 @@ To build from source instead, see [Build and run](#build-and-run) below.
 ### First-time setup
 
 1. Open **Settings → Station** and enter your latitude, longitude, and grid square.
-2. **Satellites → Select satellites** — enable the spacecraft you plan to work.
-3. **Satellites → Refresh TLEs** — refresh at least once per operating day (or enable auto-update under **Settings → Tracking**).
-4. If you use a rig or rotator: **Settings → Radio** and **Settings → Rotator** — set COM ports (rig and rotator must use **different** ports).
-5. Click a satellite on the map or in the pass list to **focus** it — live az/el and frequencies apply to the focused pass.
+2. **Satellites → Select satellites**: enable the spacecraft you plan to work.
+3. **Satellites → Refresh TLEs**: refresh at least once per operating day (or enable auto-update under **Settings → Tracking**).
+4. If you use a rig or rotator: **Settings → Radio** and **Settings → Rotator**: set COM ports (rig and rotator must use **different** ports).
+5. Click a satellite on the map or in the pass list to **focus** it. Live az/el and frequencies apply to the focused pass.
 
 ### During a pass
 
-1. Confirm the correct **transponder mode** in the frequency panel on the map (e.g. FM voice, Mode B USB/LSB). On linear SSB modes, use **Voice** / **CW** in the panel title bar (or **Ctrl+W**) — see [frequencies help](help/frequencies.html).
-2. Watch **azimuth** and **elevation** in the sidebar — point your antenna there (or let the rotator track if enabled).
+1. Confirm the correct **transponder mode** in the frequency panel on the map (e.g. FM voice, Mode B USB/LSB). On linear SSB modes, use **Voice** / **CW** in the panel title bar (or **Ctrl+W**). See [frequencies help](help/frequencies.html).
+2. Watch **azimuth** and **elevation** in the sidebar. Point your antenna there (or let the rotator track if enabled).
 3. Set your radio from the **Radio** / **Sat** columns in the overlay, or enable CAT so OscarWatch updates frequencies for Doppler.
 4. On FM satellites, pick the correct **CTCSS** tone when access and arm are both listed.
 
@@ -67,24 +67,24 @@ Plain-language help ships with the app: **Help → Operator guide** (also in the
 
 ## Features
 
-- **World map** — equirectangular Earth texture with satellite subpoint, ground track, footprint overlays (optional motion arrows), your QTH, and an optional remote **DX station** grid marker; **map time** scrubbing from the status bar (hardware tracking stays live)
-- **Sky plot** — polar view of satellite azimuth/elevation relative to your station; click to focus; expand/collapse state is remembered
-- **TLE catalog** — fetched from `https://tle.oscarwatch.org/`, cached under `%AppData%/OscarWatch/`
-- **TLE auto-update** — manual refresh, on startup (if stale), or every 6 hours while running (Settings → Tracking)
-- **Satellite picker** — choose which spacecraft to track
-- **Pass predictions** — upcoming passes with TCA (time of closest approach / max elevation), min-elevation and min-duration filters
-- **Pass planner** — multi-station profiles (home / portable), pass quality filters, and `.ics` calendar export for contest or field-day planning
-- **Mutual pass finder** — find passes visible from two stations at once (Passes → Mutual pass finder)
-- **DX station monitor** — enter a remote Maidenhead grid on the map; see where that station is and live azimuth/elevation for the focused satellite from their QTH (compact draggable overlay)
-- **Live telemetry** — azimuth, elevation, range, and altitude updated every second (UTC)
-- **Voice announcements** — optional spoken “rising” alerts when a satellite crosses a configurable elevation while ascending (e.g. “Alpha Oscar Zero Seven is rising”); Settings → Voice
-- **Pass recording** — optional automatic WAV capture from a line-in or USB audio device while the **focused** satellite is above configurable elevation thresholds; Settings → Recording. Files save to `%AppData%/OscarWatch/recordings/` by default as `{sat-name}-{yy}-{MM}-{dd}-{HH}-{mm}.wav` (UTC). A red **REC** badge appears on the pass row while recording.
-- **Doppler frequencies** — draggable overlay on the world map with transponder modes from the satellite database, live radio/sat uplink & downlink, RX offsets (separate stored values for Voice and CW on linear SSB), CTCSS (access/arm), and **Voice/CW** toggle for linear SSB (header buttons + **Ctrl+W**; CAT/Cloudlog follow **Settings → Radio → Linear CW: keep receive in USB/LSB**)
-- **Transponder database editor** — Satellites → Manage transponder database… (add satellites from your **TLE catalog** or a custom name, **Import/Export JSON**, edit modes); **Satellites → Update transponder database…** merges published modes from [tle.oscarwatch.org/satellite_database.json](https://tle.oscarwatch.org/satellite_database.json) (new entries added with your consent; local edits kept on conflicts unless you accept remote). See [documents/satellite-database.md](documents/satellite-database.md)
-- **Radio CAT** — doppler tracking, satellite/split setup, Main/Sub VFOs, uplink CTCSS where supported; Settings → Radio (see [Supported hardware](#supported-hardware))
-- **Rotator control** — serial pass tracking, manual park, and **manual rotator** (az/el dialog in Standby for quick contacts between passes); Settings → Rotator (see [Supported hardware](#supported-hardware))
-- **Cloudlog** — optional Radio API v2 uplink/downlink when tracking (Settings → Cloudlog)
-- **Appearance** — light, dark, or system theme (sky plot adapts; world map image stays light); optional footprint motion arrows on the map
+- **World map**: equirectangular Earth texture with satellite subpoint, ground track, footprint overlays (optional motion arrows), your QTH, and an optional remote **DX station** grid marker; **map time** scrubbing from the status bar (hardware tracking stays live)
+- **Sky plot**: polar view of satellite azimuth/elevation relative to your station; click to focus; expand/collapse state is remembered
+- **TLE catalog**: fetched from `https://tle.oscarwatch.org/`, cached under `%AppData%/OscarWatch/`
+- **TLE auto-update**: manual refresh, on startup (if stale), or every 6 hours while running (Settings → Tracking)
+- **Satellite picker**: choose which spacecraft to track
+- **Pass predictions**: upcoming passes with TCA (time of closest approach / max elevation), min-elevation and min-duration filters
+- **Pass planner**: multi-station profiles (home / portable), pass quality filters, and `.ics` calendar export for contest or field-day planning
+- **Mutual pass finder**: find passes visible from two stations at once (Passes → Mutual pass finder)
+- **DX station monitor**: enter a remote Maidenhead grid on the map; see where that station is and live azimuth/elevation for the focused satellite from their QTH (compact draggable overlay)
+- **Live telemetry**: azimuth, elevation, range, and altitude updated every second (UTC)
+- **Voice announcements**: optional spoken “rising” alerts when a satellite crosses a configurable elevation while ascending (e.g. “Alpha Oscar Zero Seven is rising”); Settings → Voice
+- **Pass recording**: optional automatic WAV capture from a line-in or USB audio device while the **focused** satellite is above configurable elevation thresholds; Settings → Recording. Files save to `%AppData%/OscarWatch/recordings/` by default as `{sat-name}-{yy}-{MM}-{dd}-{HH}-{mm}.wav` (UTC). A red **REC** badge appears on the pass row while recording.
+- **Doppler frequencies**: draggable overlay on the world map with transponder modes from the satellite database, live radio/sat uplink & downlink, RX offsets (separate stored values for Voice and CW on linear SSB), CTCSS (access/arm), and **Voice/CW** toggle for linear SSB (header buttons + **Ctrl+W**; CAT/Cloudlog follow **Settings → Radio → Linear CW: keep receive in USB/LSB**)
+- **Transponder database editor**: Satellites → Manage transponder database… (add satellites from your **TLE catalog** or a custom name, **Import/Export JSON**, edit modes); **Satellites → Update transponder database…** merges published modes from [tle.oscarwatch.org/satellite_database.json](https://tle.oscarwatch.org/satellite_database.json) (new entries added with your consent; local edits kept on conflicts unless you accept remote). See [documents/satellite-database.md](documents/satellite-database.md)
+- **Radio CAT**: doppler tracking, satellite/split setup, Main/Sub VFOs, uplink CTCSS where supported; Settings → Radio (see [Supported hardware](#supported-hardware))
+- **Rotator control**: serial pass tracking, manual park, and **manual rotator** (az/el dialog in Standby for quick contacts between passes); Settings → Rotator (see [Supported hardware](#supported-hardware))
+- **Cloudlog**: optional Radio API v2 uplink/downlink when tracking (Settings → Cloudlog)
+- **Appearance**: light, dark, or system theme (sky plot adapts; world map image stays light); 12- or 24-hour clock; optional greyline and footprint motion arrows on the map
 
 ## Supported hardware
 
@@ -99,16 +99,24 @@ OscarWatch talks to rigs and rotators over **serial CAT** (COM port on Windows, 
 | **ICOM IC-9100**    | CI-V              | Same as IC-9700; default CI-V address `7C`                                                                 |
 | **ICOM IC-9700**    | CI-V              | Same layout as IC-910                                                                                      |
 | **Yaesu FT-847**    | Yaesu CAT         | Satellite mode, SAT RX/TX VFOs, doppler, uplink CTCSS                                                      |
-| **Yaesu FT-817 / FT-818** | Yaesu CAT (8N2) | **Dual radio only** — downlink radio on one COM port, uplink on another (e.g. two FT-818s); full doppler; linear passband tuning on the downlink VFO; FM locks the dial via CAT |
-| **ICOM IC-705**     | CI-V              | **Dual radio only** — one or two IC-705s, or mixed with FT-817/818; one VFO per radio; per-leg CI-V address (default `A4`) |
-| **Yaesu FT-991 / FT-991A** | Yaesu ASCII CAT (8N2) | **Dual radio only** — one or two FT-991(A)s, or mixed with other dual legs; VFO-A per radio; FM dial lock via `LK` |
-| **Kenwood TS-2000** | Kenwood ASCII CAT | **Beta** — before tracking: put the radio in **SAT** mode and turn **memory mode off** on the front panel; then OscarWatch uses SATL via CAT, auto `FA`/`FB` band swap, linear CW uplink in SATL, TRACE off via CAT |
-| **Dummy rig**       | —                 | No serial I/O; for UI and doppler testing without a radio                                                  |
+| **Yaesu FT-817 / FT-818** | Yaesu CAT (8N2) | **Dual radio only**: downlink radio on one COM port, uplink on another (e.g. two FT-818s); full doppler; linear passband tuning on the downlink VFO; FM locks the dial via CAT |
+| **ICOM IC-705**     | CI-V              | **Dual radio only**: one or two IC-705s, or mixed with FT-817/818; one VFO per radio; per-leg CI-V address (default `A4`) |
+| **Yaesu FT-991 / FT-991A** | Yaesu ASCII CAT (8N2) | **Dual radio only**: one or two FT-991(A)s, or mixed with other dual legs; VFO-A per radio; FM dial lock via `LK` |
+| **Kenwood TS-2000** | Kenwood ASCII CAT | **Beta**: before tracking: put the radio in **SAT** mode and turn **memory mode off** on the front panel; then OscarWatch uses SATL via CAT, auto `FA`/`FB` band swap, linear CW uplink in SATL, TRACE off via CAT |
+| **Dummy rig**       | n/a               | No serial I/O; for UI and doppler testing without a radio                                                  |
 
 
 All tracked rigs: linear NOR/REV doppler, interactive receive-VFO passband tuning on USB/LSB/CW (on single-radio Main/Sub rigs, uplink CAT is deferred briefly after dial moves; on **dual radio** setups, spin the **downlink** radio while uplink doppler continues), TX/RX offset spinners, configurable CAT thresholds and pause.
 
 More rigs: see [TODO.md](TODO.md) and [building radio drivers](documents/building-radio-drivers.md).
+
+### Why not HamLib?
+
+HamLib is a good fit for plenty of general rig control. Satellite passes are not one of them. You are not only setting a frequency on VFO A. You need satellite mode, sensible RX/TX routing, split or VFO exchange, uplink tone when the mode needs it, and doppler with a TX-fixed or RX-fixed plan, often with rig-specific CAT quirks on top.
+
+Trackers that hand satellite work to HamLib have, in my experience, often lacked the right commands, mishandled VFO layout, or let doppler slip during a real pass. OscarWatch uses native drivers per protocol (`IRigDriver`) and shared pass logic in `RigController`. See [building radio drivers](documents/building-radio-drivers.md) for how that is structured.
+
+Pull requests for more native rig support are welcome. A HamLib backend is not on the roadmap.
 
 ### Rotators
 
@@ -119,7 +127,7 @@ More rigs: see [TODO.md](TODO.md) and [building radio drivers](documents/buildin
 | **EasyComm**     | EasyComm II | SPID, M2, and other EasyComm-compatible controllers |
 
 
-Pass tracking when elevation is above the track-start threshold; manual **Park** in the sidebar; **manual rotator** in Standby (menu **Rotator…** — set az/el, Rotate, Stop, Park for a quick contact without resuming pass tracking). Azimuth range **360°** or **450°** (e.g. G-5500). On **450°** rotators, optional **smart azimuth** chooses 361–450° commands for the shortest path across north (Settings → Rotator). Optional **calibration offsets** correct pass tracking and manual moves; park uses your configured park az/el exactly.
+Pass tracking when elevation is above the track-start threshold; manual **Park** in the sidebar; **manual rotator** in Standby (menu **Rotator…**: set az/el, Rotate, Stop, Park for a quick contact without resuming pass tracking). Azimuth range **360°** or **450°** (e.g. G-5500). On **450°** rotators, optional **smart azimuth** chooses 361–450° commands for the shortest path across north (Settings → Rotator). Optional **calibration offsets** correct pass tracking and manual moves; park uses your configured park az/el exactly.
 
 More controllers: [building rotator drivers](documents/building-rotator-drivers.md).
 
@@ -132,11 +140,11 @@ Open **Settings** from the menu. Tabs:
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Station**    | Display name, latitude/longitude, Maidenhead grid square, altitude ASL                                                                                                                                                                         |
 | **Tracking**   | Minimum pass elevation, prediction window, TLE auto-update, transponder database check on startup                                                                                                                                              |
-| **Appearance** | Light / dark / system theme; footprint motion arrows on/off                                                                                                                                                                                    |
+| **Appearance** | Light / dark / system theme; 12- or 24-hour clock; footprint motion arrows and optional greyline on/off                                                                                                                                       |
 | **Voice**      | Enable announcements, trigger elevation (default −3°), voice selection, test button                                                                                                                                                            |
 | **Recording**  | Automatic pass WAV capture, input device, start/stop elevation, output folder, test clip                                                                                                                                                       |
 | **Rotator**    | Type (GS-232 / EasyComm), COM port, 360°/450° azimuth, smart 450°, park, track-start elevation, calibration offsets                                                                                                                            |
-| **Radio**      | Rig type, COM port, **Dual radio** (FT-817/818, FT-991(A), IC-705, or mixed — separate downlink/uplink COM ports), region, per-leg CI-V address for IC-705, linear CW receive mode (USB/LSB vs CW on both VFOs), Doppler CAT thresholds (FM default 350 Hz, SSB/CW default 50 Hz — see [help](help/radio-rotator.html#doppler-cat-thresholds)), pause CAT |
+| **Radio**      | Rig type, COM port, **Dual radio** (FT-817/818, FT-991(A), IC-705, or mixed; separate downlink/uplink COM ports), region, per-leg CI-V address for IC-705, linear CW receive mode (USB/LSB vs CW on both VFOs), Doppler CAT thresholds (FM default 350 Hz, SSB/CW default 50 Hz; see [help](help/radio-rotator.html#doppler-cat-thresholds)), pause CAT |
 | **Cloudlog**   | Base URL, API key, radio name, test connection; posts SAT uplink/downlink when tracking                                                                                                                                                        |
 
 
@@ -187,7 +195,7 @@ Open the recordings or log folder from **Help → Open recordings folder** or **
 
 ## Contributing
 
-Pull requests are welcome when they add something valuable to the **core** of OscarWatch — bug fixes, rig or rotator drivers, tracking behaviour, operator-facing features, and **transponder database** entries (new satellites/modes or corrections with a credible source). For larger changes, open an issue first so direction can be agreed before you invest time in a big diff.
+Pull requests are welcome for bug fixes, rig or rotator drivers, tracking behaviour, operator-facing features, and **transponder database** entries (new satellites/modes or corrections with a credible source). For larger changes, open an issue first so we can agree direction before you spend time on a big diff.
 
 Transponder data is also published at [tle.oscarwatch.org/satellite_database.json](https://tle.oscarwatch.org/satellite_database.json); see [documents/satellite-database.md](documents/satellite-database.md).
 
@@ -270,9 +278,9 @@ Publish profiles are under `OscarWatch/Properties/PublishProfiles/` (e.g. `dotne
 
 ### Developer documentation
 
-- [documents/](documents/) — how to add **radio** and **rotator** drivers (`IRigDriver`, `IRotatorDriver`); [satellite transponder database](documents/satellite-database.md) (remote updates, merge policy, schema)
-- [help/](help/) — operator HTML help (bundled with the app)
-- [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) — UI contrast, colour-blind-safe tracking colours, keyboard
+- [documents/](documents/): how to add **radio** and **rotator** drivers (`IRigDriver`, `IRotatorDriver`); [satellite transponder database](documents/satellite-database.md) (remote updates, merge policy, schema)
+- [help/](help/): operator HTML help (bundled with the app)
+- [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md): UI contrast, colour-blind-safe tracking colours, keyboard
 
 ### Orbit propagation
 
@@ -288,7 +296,7 @@ OscarWatch is free software: you can redistribute it and/or modify it under the 
 
 If you run a modified version as a network service, AGPL requires making the corresponding source available to users who interact with it over the network.
 
-Third-party components (OrbitTools, Avalonia, TLE sources, map imagery, etc.) have their own licenses — see [CREDITS.md](CREDITS.md) and the Orbit propagation section above.
+Third-party components (OrbitTools, Avalonia, TLE sources, map imagery, etc.) have their own licences. See [CREDITS.md](CREDITS.md) and the Orbit propagation section above.
 
 ## Credits
 
