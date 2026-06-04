@@ -83,7 +83,7 @@
     <value>  ·  仰角 </value>
   </data>
   <data name="Main.Elevation.BelowHorizon">
-    <value>地平线下</value>
+    <value>地平线以下</value>
   </data>
   <data name="Main.Live">
     <value>实时</value>
@@ -125,13 +125,13 @@
     <value>下行和上行电台均使用 {0} 。为每个电台使用不同的 COM 端口。</value>
   </data>
   <data name="ComPort.RotatorAndDownlink">
-    <value>天线云台和下行电台都使用 {0}。请使用不同的 COM 端口或禁用其中一个设备。</value>
+    <value>天线旋转器和下行电台都使用 {0}。请使用不同的 COM 端口或禁用其中一个设备。</value>
   </data>
   <data name="ComPort.RotatorAndUplink">
-    <value>天线云台和上行电台都使用 {0}。请使用不同的 COM 端口或禁用其中一个设备。</value>
+    <value>天线旋转器和上行电台都使用 {0}。请使用不同的 COM 端口或禁用其中一个设备。</value>
   </data>
   <data name="ComPort.RotatorAndRadio">
-    <value>天线云台和电台都使用 {0}。请使用不同的 COM 端口或禁用其中一个设备。</value>
+    <value>天线旋转器和电台都使用 {0}。请使用不同的 COM 端口或禁用其中一个设备。</value>
   </data>
   <data name="A11y.SatelliteSunlight">
     <value>卫星处于日照中</value>
@@ -161,7 +161,7 @@
     <value>距离</value>
   </data>
   <data name="Main.Rotator">
-    <value>天线云台</value>
+    <value>天线旋转器</value>
   </data>
   <data name="Main.Rotator.Az">
     <value>方位角</value>
@@ -209,7 +209,7 @@
     <value>+5m</value>
   </data>
   <data name="MapTime.FromNow">
-    <value>{0}后</value>
+    <value>{0} 后</value>
   </data>
   <data name="MapTime.Live">
     <value>实时</value>
@@ -248,7 +248,7 @@
     <value>操作指南</value>
   </data>
   <data name="Menu.Help.Recordings">
-    <value>打开_recordings 文件夹</value>
+    <value>打开 _recordings 文件夹</value>
   </data>
   <data name="Menu.Passes">
     <value>_过境</value>
@@ -257,13 +257,13 @@
     <value>_双向过境规划</value>
   </data>
   <data name="Menu.Passes.Planner">
-    <value>_过境规划</value>
+    <value>_过境规划器</value>
   </data>
   <data name="Menu.Passes.Sunlight">
-    <value>_光照预测</value>
+    <value>_日照预测</value>
   </data>
   <data name="Menu.Rotator">
-    <value>_天线云台</value>
+    <value>_天线旋转器</value>
   </data>
   <data name="Menu.Satellites">
     <value>_卫星</value>
@@ -302,10 +302,10 @@
     <value>在世界地图上的每个卫星足迹内绘制一个小箭头，显示地面轨道方向。</value>
   </data>
   <data name="Settings.GreylineOverlay">
-    <value>在地图上显示昼夜晨昏线</value>
+    <value>在地图上显示晨昏线</value>
   </data>
   <data name="Settings.GreylineOverlay.Note">
-    <value>为地球夜侧着色并绘制晨昏线。卫星足迹显示在其上方，并随地图时间拖动而更新。</value>
+    <value>夜区着色并绘制晨昏线。卫星轨迹显示在其上方，并随时间而更新。</value>
   </data>
   <data name="Settings.Language">
     <value>语言</value>
@@ -338,7 +338,7 @@
     <value>录音</value>
   </data>
   <data name="Settings.Tab.Rotator">
-    <value>天线云台</value>
+    <value>旋转器</value>
   </data>
   <data name="Settings.Tab.Station">
     <value>台站</value>
@@ -350,7 +350,7 @@
     <value>跟踪</value>
   </data>
   <data name="Settings.Tab.Voice">
-    <value>语音</value>
+    <value>语音播报</value>
   </data>
   <data name="Settings.ClockFormat">
     <value>时钟格式</value>
@@ -365,7 +365,7 @@
     <value>适用于过境列表、计划器、地图时钟等。UTC 与本地时间仍可在各对话框中单独选择。</value>
   </data>
   <data name="Settings.Theme">
-    <value>主题</value>
+    <value>颜色主题</value>
   </data>
   <data name="Settings.Theme.Note">
     <value>系统遵循您的操作系统 深色/浅色 设置。目前，世界地图在所有模式下都保持浅色状态。</value>
@@ -389,7 +389,7 @@
     <value>正在加载 TLE 目录…</value>
   </data>
   <data name="Status.LogsFolderFailed">
-    <value>无法打开日志文件夹</value>
+    <value>无法打开 _logs 文件夹</value>
   </data>
   <data name="Status.NoSatellites">
     <value>{0} | 0 已启用 — 卫星菜单 → 选择卫星</value>
@@ -398,7 +398,7 @@
     <value>无 TLE 数据 - 请检查 设置 -> TLE，或使用 卫星 -> 刷新 TLE</value>
   </data>
   <data name="Status.RecordingsFolderFailed">
-    <value>无法打开录音文件夹</value>
+    <value>无法打开 _recordings 文件夹</value>
   </data>
   <data name="Status.RefreshingTle">
     <value>正在刷新 TLE…</value>
@@ -482,13 +482,13 @@
     <value>过境规划器</value>
   </data>
   <data name="Window.MutualPass.Title">
-    <value>双向过境查找</value>
+    <value>双向过境规划</value>
   </data>
   <data name="Window.MutualPassVisualizer.Title">
     <value>双向过境可视化</value>
   </data>
   <data name="Window.Sunlight.Title">
-    <value>光照预测</value>
+    <value>日照预测</value>
   </data>
   <data name="Window.RotatorManual.Title">
     <value>手动旋转器控制</value>
@@ -593,7 +593,7 @@
     <value>CTCSS</value>
   </data>
   <data name="Freq.CtcssAccess">
-    <value>打开</value>
+    <value>转发</value>
   </data>
   <data name="Freq.CtcssArm">
     <value>激活</value>
@@ -644,10 +644,10 @@
     <value>TX 固定 — 上行频率锁定；下行链路跟踪多普勒（漫游 CQ）。</value>
   </data>
   <data name="Freq.DopplerRxFixedHint">
-    <value>RX 固定 — 下行频率锁定；上行链路跟踪多普勒。</value>
+    <value>RX 固定 — 下行频率锁定：上行链路跟踪多普勒。</value>
   </data>
   <data name="Freq.OperatingCwSideband">
-    <value>上行 CW；接收保持 USB/LSB。Ctrl+W 切换。</value>
+    <value>上行 CW：接收保持 USB/LSB。Ctrl+W 切换。</value>
   </data>
   <data name="Freq.OperatingCwBoth">
     <value>上下行均为 CW。Ctrl+W 切换。</value>
@@ -737,7 +737,7 @@
     <value>深色</value>
   </data>
   <data name="Settings.Voice.Enable">
-    <value>启用语音播报</value>
+    <value>启用 TTS 语音播报</value>
   </data>
   <data name="Settings.Voice.EnableNote">
     <value>当每颗启用的卫星，在上升过程中越过仰角阈值时，每次过境播报一次，例如：Alpha Oscar Zero Seven is rising。</value>
@@ -749,7 +749,7 @@
     <value>默认为 -3°。当仰角上升超过该值时触发播报（负值会在卫星升出地平线之前捕获）。</value>
   </data>
   <data name="Settings.Voice.VoiceLabel">
-    <value>语音</value>
+    <value>TTS 引擎</value>
   </data>
   <data name="Settings.Voice.SpeechUnavailable">
     <value>此系统不支持 TTS。</value>
@@ -797,7 +797,7 @@
     <value>区域</value>
   </data>
   <data name="Settings.Radio.RegionNote">
-    <value>欧盟使用音调（Tone）；美国使用音调静噪（Tone Squelch/亚音）。</value>
+    <value>欧洲使用音调（Tone）：美国使用音调静噪（Tone Squelch/亚音）。</value>
   </data>
   <data name="Settings.Radio.CatDelay">
     <value>CAT 延迟（毫秒）</value>
@@ -842,7 +842,7 @@
     <value>多普勒阈值 SSB/CW (Hz)</value>
   </data>
   <data name="Settings.Radio.DopplerSsbNote">
-    <value>仅当漂移超过此间隔时，才会将频率发送到电台（SatPC32 风格）。</value>
+    <value>仅当频率漂移超过此阈值时，才会将频率发送到电台（SatPC32 风格）。</value>
   </data>
   <data name="Settings.Rotator.Enable">
     <value>启用天线旋转器</value>
@@ -866,7 +866,7 @@
     <value>开始跟踪仰角（°）</value>
   </data>
   <data name="Settings.Rotator.TrackStartNote">
-    <value>默认为 -3°（地平线以下）。范围 -90° 至 90°。当跟踪的卫星上升到该仰角以上时，云台开始转动，一旦下降到该仰角以下就停止。</value>
+    <value>默认为 -3°（地平线以下）。范围 -90° 至 90°。当跟踪的卫星上升到该仰角以上时，旋转器开始转动，一旦下降到该仰角以下就停止。</value>
   </data>
   <data name="Settings.Rotator.ParkAzimuth">
     <value>停靠方位角（°）</value>
@@ -1174,6 +1174,39 @@
   <data name="Mutual.Status.InvalidGrid">
     <value>无效的梅登黑德网格。</value>
   </data>
+    <data name="Mutual.Visualizer.DoubleClickHint">
+    <value>双击一条过境记录以打开双向过境可视化。</value>
+  </data>
+  <data name="Mutual.Visualizer.Heading">
+    <value>{0} 与 {1} 的重叠过境（经 {2}）</value>
+  </data>
+  <data name="Mutual.Visualizer.Subtitle">
+    <value>重叠 {0}，自 {1} 起（{2}）</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassLocal">
+    <value>{0} 的完整过境</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassRemote">
+    <value>{0} 的完整过境</value>
+  </data>
+  <data name="Mutual.Visualizer.StationStats">
+    <value>{0} · AOS 方位 {1:F1}° · 最大仰角 {2:F1}° · LOS 方位 {3:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Aos">
+    <value>AOS（双向窗口开始）</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Los">
+    <value>LOS（双向窗口结束）</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Sunlit">
+    <value>日照</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Eclipse">
+    <value>地影</value>
+  </data>
+  <data name="Mutual.Visualizer.Screenshot">
+    <value>截图</value>
+  </data>
   <data name="Sunlight.Section.SatelliteRange">
     <value>卫星与范围</value>
   </data>
@@ -1220,7 +1253,7 @@
     <value>正在计算 {0} 的日照情况…</value>
   </data>
   <data name="Sunlight.Status.Segments">
-    <value>{1} 天内有 {0} 个光照时段。</value>
+    <value>{1} 天内有 {0} 个日照时段。</value>
   </data>
   <data name="Sunlight.Status.Cancelled">
     <value>预测已取消。</value>
@@ -1319,7 +1352,7 @@
     <value>多普勒</value>
   </data>
   <data name="DbEditor.CtcssAccess">
-    <value>CTCSS 接入（Hz）</value>
+    <value>CTCSS 转发（Hz）</value>
   </data>
   <data name="DbEditor.CtcssArm">
     <value>CTCSS 激活 (Hz)</value>
@@ -1334,7 +1367,7 @@
     <value>新模式</value>
   </data>
   <data name="DbEditor.Mode.CopySuffix">
-    <value> 副本</value>
+    <value>副本</value>
   </data>
   <data name="DbEditor.Status.Loaded">
     <value>已加载 {0} 颗卫星。</value>
@@ -1343,7 +1376,7 @@
     <value>已取消添加卫星。</value>
   </data>
   <data name="DbEditor.Status.AlreadyExists">
-    <value>卫星“{0}”已在数据库中。</value>
+    <value>卫星 {0} 已在数据库中。</value>
   </data>
   <data name="DbEditor.Status.Added">
     <value>已添加 {0}。</value>
@@ -1460,7 +1493,7 @@
     <value>默认会选中新条目。除非您选择已发布的版本，否则冲突项将保留您的本地副本。</value>
   </data>
   <data name="DbMerge.Summary.Matches">
-    <value>您的转发器数据库与{0}匹配。</value>
+    <value>您的转发器数据库与 {0} 匹配。</value>
   </data>
   <data name="DbMerge.Summary.OneNewSatellite">
     <value>{0} 颗新卫星</value>
