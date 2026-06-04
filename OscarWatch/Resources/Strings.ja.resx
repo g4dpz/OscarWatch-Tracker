@@ -238,6 +238,18 @@
   <data name="Settings.Tab.Appearance">
     <value>外観</value>
   </data>
+  <data name="Settings.ClockFormat">
+    <value>時刻表示</value>
+  </data>
+  <data name="Settings.ClockFormat.12Hour">
+    <value>12時間（午前/午後）</value>
+  </data>
+  <data name="Settings.ClockFormat.24Hour">
+    <value>24時間</value>
+  </data>
+  <data name="Settings.ClockFormat.Note">
+    <value>パス一覧、プランナー、地図時計などに適用されます。UTC/現地時刻は各ダイアログで選択します。</value>
+  </data>
   <data name="Settings.Theme">
     <value>テーマ</value>
   </data>

@@ -397,15 +397,22 @@ public partial class MainViewModel : ViewModelBase
 
     private void UpdateUtcClockDisplay()
     {
+        var clockFormat = PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock);
         var now = DateTime.UtcNow;
         if (!IsMapTimeScrubbing)
         {
-            UtcClock = now.ToString("yyyy-MM-dd HH:mm:ss") + " UTC";
+            UtcClock = PassDisplayFormat.FormatUtcClock(now, clockFormat) + " UTC";
             return;
         }
 
         var mapUtc = now + TimeSpan.FromMinutes(MapTimeOffsetMinutes);
-        UtcClock = $"{mapUtc:yyyy-MM-dd HH:mm:ss} UTC  ({MapTimeStatusText})";
+        UtcClock = $"{PassDisplayFormat.FormatUtcClock(mapUtc, clockFormat)} UTC  ({MapTimeStatusText})";
+    }
+
+    public void ApplyClockFormatFromSettings()
+    {
+        UpdateUtcClockDisplay();
+        _ = RefreshPassesAsync();
     }
 
     partial void OnMapTimeOffsetMinutesChanged(double value)
@@ -1369,7 +1376,9 @@ public partial class MainViewModel : ViewModelBase
                     });
                 }
 
-                Passes.Add(PassRowViewModel.From(p));
+                Passes.Add(PassRowViewModel.From(
+                    p,
+                    PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock)));
             }
 
             if (selectedNorad is not null)
@@ -1473,9 +1482,9 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
         }
     }
 
-    public static PassRowViewModel From(PassInfo p)
+    public static PassRowViewModel From(PassInfo p, ClockDisplayFormat clockFormat)
     {
-        var (aos, los) = PassDisplayFormat.FormatLocalTimes(p.AosUtc, p.LosUtc);
+        var (aos, los) = PassDisplayFormat.FormatLocalTimes(p.AosUtc, p.LosUtc, clockFormat: clockFormat);
 
         return new()
         {
@@ -1485,15 +1494,18 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
             LosUtc = p.LosUtc,
             AosLocal = aos,
             LosLocal = los,
-            TcaLocal = PassDisplayFormat.FormatLocal(p.MaxElevationUtc),
-            TimeRangeLine = FormatPassTimeRangeLine(p.AosUtc, p.LosUtc),
+            TcaLocal = PassDisplayFormat.FormatLocal(p.MaxElevationUtc, clockFormat),
+            TimeRangeLine = FormatPassTimeRangeLine(p.AosUtc, p.LosUtc, clockFormat),
             DetailsLine = FormatPassDetailsLine(p.MaxElevationDeg, p.Duration)
         };
     }
 
-    private static string FormatPassTimeRangeLine(DateTime aosUtc, DateTime losUtc)
+    private static string FormatPassTimeRangeLine(
+        DateTime aosUtc,
+        DateTime losUtc,
+        ClockDisplayFormat clockFormat)
     {
-        var (aos, los) = PassDisplayFormat.FormatLocalTimes(aosUtc, losUtc);
+        var (aos, los) = PassDisplayFormat.FormatLocalTimes(aosUtc, losUtc, clockFormat: clockFormat);
         return L.Get("Pass.TimeRange", aos, los);
     }
 

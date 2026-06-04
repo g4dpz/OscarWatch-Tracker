@@ -11,6 +11,8 @@ public sealed class AppSettings
     public int PassFilterMinDurationMinutes { get; set; } = 2;
     /// <summary>Show pass planner and mutual pass times in UTC instead of local time.</summary>
     public bool PassPlannerUseUtcTime { get; set; }
+    /// <summary>When true, UI times use 24-hour clock; otherwise 12-hour with AM/PM per culture.</summary>
+    public bool Use24HourClock { get; set; }
     public int TleStaleHours { get; set; } = 6;
     public TleSourceSettings TleSource { get; set; } = new();
     public TleAutoUpdateMode TleAutoUpdate { get; set; } = TleAutoUpdateMode.OnStartup;

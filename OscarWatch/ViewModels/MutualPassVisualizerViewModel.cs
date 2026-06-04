@@ -70,10 +70,12 @@ public partial class MutualPassVisualizerViewModel : ViewModelBase
         GroundStation localSite,
         GroundStation remoteSite,
         bool useUtcTime,
+        bool use24HourClock,
         double minimumElevationDeg)
     {
         _pass = pass;
         _useUtcTime = useUtcTime;
+        var clockFormat = PassDisplayFormat.FromSettings(use24HourClock);
         MinimumElevationDeg = minimumElevationDeg;
         (_westSite, _eastSite, _westPass, _eastPass) = OrderWestEast(localSite, remoteSite, pass);
 
@@ -93,7 +95,7 @@ public partial class MutualPassVisualizerViewModel : ViewModelBase
         SubtitleText = _l.Get(
             "Mutual.Visualizer.Subtitle",
             PassDisplayFormat.FormatOverlapDurationPrecise(pass.Duration),
-            PassDisplayFormat.FormatMutualOverlapStart(pass.MutualStartUtc, useUtcTime),
+            PassDisplayFormat.FormatMutualOverlapStart(pass.MutualStartUtc, useUtcTime, clockFormat),
             PassDisplayFormat.FormatTimeZoneLabel(useUtcTime));
 
         WestFullPassLabel = _l.Get("Mutual.Visualizer.FullPassLocal", westLabel);

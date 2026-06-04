@@ -352,6 +352,18 @@
   <data name="Settings.Tab.Voice">
     <value>语音</value>
   </data>
+  <data name="Settings.ClockFormat">
+    <value>时钟格式</value>
+  </data>
+  <data name="Settings.ClockFormat.12Hour">
+    <value>12 小时（上午/下午）</value>
+  </data>
+  <data name="Settings.ClockFormat.24Hour">
+    <value>24 小时</value>
+  </data>
+  <data name="Settings.ClockFormat.Note">
+    <value>适用于过境列表、计划器、地图时钟等。UTC 与本地时间仍可在各对话框中单独选择。</value>
+  </data>
   <data name="Settings.Theme">
     <value>主题</value>
   </data>

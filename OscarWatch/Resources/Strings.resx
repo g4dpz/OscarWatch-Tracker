@@ -352,6 +352,18 @@
   <data name="Settings.Tab.Voice">
     <value>Voice</value>
   </data>
+  <data name="Settings.ClockFormat">
+    <value>Clock format</value>
+  </data>
+  <data name="Settings.ClockFormat.12Hour">
+    <value>12-hour (AM/PM)</value>
+  </data>
+  <data name="Settings.ClockFormat.24Hour">
+    <value>24-hour</value>
+  </data>
+  <data name="Settings.ClockFormat.Note">
+    <value>Applies to pass lists, planners, map clock, and other times in the app. UTC vs local is still chosen per dialog.</value>
+  </data>
   <data name="Settings.Theme">
     <value>Theme</value>
   </data>

@@ -352,6 +352,18 @@
   <data name="Settings.Tab.Voice">
     <value>Voz</value>
   </data>
+  <data name="Settings.ClockFormat">
+    <value>Formato do relógio</value>
+  </data>
+  <data name="Settings.ClockFormat.12Hour">
+    <value>12 horas (AM/PM)</value>
+  </data>
+  <data name="Settings.ClockFormat.24Hour">
+    <value>24 horas</value>
+  </data>
+  <data name="Settings.ClockFormat.Note">
+    <value>Aplica-se a listas de passagens, planejadores, relógio do mapa e outros horários. UTC vs local continua em cada diálogo.</value>
+  </data>
   <data name="Settings.Theme">
     <value>Tema</value>
   </data>

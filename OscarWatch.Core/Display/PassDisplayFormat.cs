@@ -4,14 +4,32 @@ namespace OscarWatch.Core.Display;
 
 public static class PassDisplayFormat
 {
+    public static bool Use24Hour(ClockDisplayFormat format) =>
+        format == ClockDisplayFormat.TwentyFourHour;
+
+    public static string GetTimePattern(
+        ClockDisplayFormat format,
+        bool includeSeconds = false,
+        CultureInfo? culture = null)
+    {
+        culture ??= CultureInfo.CurrentCulture;
+        if (Use24Hour(format))
+            return includeSeconds ? "HH:mm:ss" : "HH:mm";
+
+        return includeSeconds
+            ? culture.DateTimeFormat.LongTimePattern
+            : culture.DateTimeFormat.ShortTimePattern;
+    }
+
     public static (string Aos, string Los) FormatAosLos(
         DateTime aosUtc,
         DateTime losUtc,
+        ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour,
         CultureInfo? culture = null)
     {
         culture ??= CultureInfo.CurrentCulture;
         var datePattern = culture.DateTimeFormat.ShortDatePattern;
-        var timePattern = culture.DateTimeFormat.ShortTimePattern;
+        var timePattern = GetTimePattern(clockFormat, culture: culture);
 
         var aos = ToLocal(aosUtc);
         var los = ToLocal(losUtc);
@@ -23,11 +41,14 @@ public static class PassDisplayFormat
         return (aosText, losText);
     }
 
-    public static string FormatLocal(DateTime utc, CultureInfo? culture = null)
+    public static string FormatLocal(
+        DateTime utc,
+        ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour,
+        CultureInfo? culture = null)
     {
         culture ??= CultureInfo.CurrentCulture;
         var datePattern = culture.DateTimeFormat.ShortDatePattern;
-        var timePattern = culture.DateTimeFormat.ShortTimePattern;
+        var timePattern = GetTimePattern(clockFormat, culture: culture);
         return ToLocal(utc).ToString($"{datePattern} {timePattern}", culture);
     }
 
@@ -36,9 +57,10 @@ public static class PassDisplayFormat
         DateTime losUtc,
         double maxElevationDeg,
         TimeSpan duration,
+        ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour,
         CultureInfo? culture = null)
     {
-        var (aos, los) = FormatAosLos(aosUtc, losUtc, culture);
+        var (aos, los) = FormatAosLos(aosUtc, losUtc, clockFormat, culture);
         return $"{aos}–{los} {maxElevationDeg:F1}° {duration:mm\\:ss}";
     }
 
@@ -60,10 +82,11 @@ public static class PassDisplayFormat
         DateTime aosUtc,
         DateTime losUtc,
         CultureInfo? culture = null,
-        bool useUtc = false)
+        bool useUtc = false,
+        ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour)
     {
         culture ??= CultureInfo.CurrentCulture;
-        var timePattern = useUtc ? "HH:mm" : culture.DateTimeFormat.ShortTimePattern;
+        var timePattern = GetTimePattern(clockFormat, culture: culture);
         var aos = ToDisplayTime(aosUtc, useUtc).ToString(timePattern, culture);
         var los = ToDisplayTime(losUtc, useUtc).ToString(timePattern, culture);
         return (aos, los);
@@ -74,18 +97,21 @@ public static class PassDisplayFormat
         DateTime losUtc,
         double maxElevationDeg,
         TimeSpan duration,
+        ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour,
         CultureInfo? culture = null)
     {
-        var (aos, los) = FormatLocalTimes(aosUtc, losUtc, culture);
+        var (aos, los) = FormatLocalTimes(aosUtc, losUtc, culture, clockFormat: clockFormat);
         return $"{aos}–{los} {maxElevationDeg:F1}° {duration:mm\\:ss}";
     }
 
     public static string FormatTimeRangeLine(
         DateTime aosUtc,
         DateTime losUtc,
-        CultureInfo? culture = null)
+        CultureInfo? culture = null,
+        bool useUtc = false,
+        ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour)
     {
-        var (aos, los) = FormatLocalTimes(aosUtc, losUtc, culture);
+        var (aos, los) = FormatLocalTimes(aosUtc, losUtc, culture, useUtc, clockFormat);
         return $"{aos} to {los}";
     }
 
@@ -94,10 +120,11 @@ public static class PassDisplayFormat
         DateTime aosUtc,
         DateTime losUtc,
         CultureInfo? culture = null,
-        bool useUtc = false)
+        bool useUtc = false,
+        ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour)
     {
         culture ??= CultureInfo.CurrentCulture;
-        var timePattern = useUtc ? "HH:mm" : culture.DateTimeFormat.ShortTimePattern;
+        var timePattern = GetTimePattern(clockFormat, culture: culture);
         var aos = ToDisplayTime(aosUtc, useUtc);
         var los = ToDisplayTime(losUtc, useUtc);
         var aosPart = aos.ToString($"dd/MM {timePattern}", culture);
@@ -112,10 +139,11 @@ public static class PassDisplayFormat
         DateTime tcaUtc,
         DateTime aosUtc,
         CultureInfo? culture = null,
-        bool useUtc = false)
+        bool useUtc = false,
+        ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour)
     {
         culture ??= CultureInfo.CurrentCulture;
-        var timePattern = useUtc ? "HH:mm" : culture.DateTimeFormat.ShortTimePattern;
+        var timePattern = GetTimePattern(clockFormat, culture: culture);
         var tca = ToDisplayTime(tcaUtc, useUtc);
         if (tca.Date == ToDisplayTime(aosUtc, useUtc).Date)
             return tca.ToString(timePattern, culture);
@@ -164,12 +192,16 @@ public static class PassDisplayFormat
         return $"{minutePart} and {secondPart}";
     }
 
-    public static string FormatMutualOverlapStart(DateTime startUtc, bool useUtc, CultureInfo? culture = null)
+    public static string FormatMutualOverlapStart(
+        DateTime startUtc,
+        bool useUtc,
+        ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour,
+        CultureInfo? culture = null)
     {
         culture ??= CultureInfo.CurrentCulture;
         var start = ToDisplayTime(startUtc, useUtc);
         var date = start.ToString(culture.DateTimeFormat.ShortDatePattern, culture);
-        var time = start.ToString("HH:mm:ss", culture);
+        var time = start.ToString(GetTimePattern(clockFormat, includeSeconds: true, culture), culture);
         return $"{date} from {time}";
     }
 
@@ -197,10 +229,11 @@ public static class PassDisplayFormat
         DateTime startUtc,
         DateTime endUtc,
         CultureInfo? culture = null,
-        bool useUtc = false)
+        bool useUtc = false,
+        ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour)
     {
         culture ??= CultureInfo.CurrentCulture;
-        var timePattern = useUtc ? "HH:mm" : culture.DateTimeFormat.ShortTimePattern;
+        var timePattern = GetTimePattern(clockFormat, culture: culture);
         var start = ToDisplayTime(startUtc, useUtc);
         var end = ToDisplayTime(endUtc, useUtc);
         var startPart = start.ToString(timePattern, culture);
@@ -208,6 +241,13 @@ public static class PassDisplayFormat
             ? end.ToString(timePattern, culture)
             : end.ToString($"dd/MM {timePattern}", culture);
         return $"{startPart}–{endPart}";
+    }
+
+    public static string FormatUtcClock(DateTime utc, ClockDisplayFormat clockFormat, CultureInfo? culture = null)
+    {
+        culture ??= CultureInfo.CurrentCulture;
+        var timePattern = GetTimePattern(clockFormat, includeSeconds: true, culture: culture);
+        return utc.ToString($"yyyy-MM-dd {timePattern}", culture);
     }
 
     /// <summary>Minutes and seconds until AOS, e.g. <c>14:05</c>.</summary>
@@ -219,6 +259,9 @@ public static class PassDisplayFormat
 
         return $"{(int)delta.TotalMinutes}:{delta.Seconds:D2}";
     }
+
+    public static ClockDisplayFormat FromSettings(bool use24HourClock) =>
+        use24HourClock ? ClockDisplayFormat.TwentyFourHour : ClockDisplayFormat.TwelveHour;
 
     private static DateTime ToDisplayTime(DateTime utc, bool useUtc) =>
         useUtc ? EnsureUtc(utc) : ToLocal(utc);
