@@ -256,6 +256,7 @@ public class WorldMapControl : ThemeAwareControl
             context.DrawText(noMap, new Point(12, 12));
         }
 
+        // Layer order: base map → greyline → tracks/footprints/markers → labels (footprints must stay above greyline).
         if (ShowGreylineOverlay)
             DrawGreylineOverlay(context, MapDisplayUtc, w, h, palette);
 
