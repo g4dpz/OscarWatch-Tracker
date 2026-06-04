@@ -247,6 +247,12 @@
   <data name="Menu.Help.OperatorGuide">
     <value>操作指南</value>
   </data>
+  <data name="Menu.Help.CheckForUpdates">
+    <value>检查更新(_U)…</value>
+  </data>
+  <data name="Menu.Help.ReleaseNotes">
+    <value>发行说明(_R)…</value>
+  </data>
   <data name="Menu.Help.Recordings">
     <value>打开_录音文件夹</value>
   </data>
@@ -426,6 +432,15 @@
   </data>
   <data name="Status.TransponderUpToDate">
     <value>转发器数据库已是最新。</value>
+  </data>
+  <data name="Status.AppUpdateChecking">
+    <value>正在检查应用程序更新…</value>
+  </data>
+  <data name="Status.AppUpdateUpToDate">
+    <value>OscarWatch 已是最新版本 ({0})。</value>
+  </data>
+  <data name="Status.AppUpdateFailed">
+    <value>无法检查更新：{0}</value>
   </data>
   <data name="Status.TransponderUpdated">
     <value>转发器数据库已更新。</value>
@@ -726,6 +741,12 @@
   </data>
   <data name="Settings.Tracking.TransponderCheckNote">
     <value>当有更新可用时，从 tle.oscarwatch.org/satellite_database.json 下载。提供新的卫星和模式进行合并；除非您接受已发布的更改，否则将保留您的本地编辑。</value>
+  </data>
+  <data name="Settings.AppUpdate.Enabled">
+    <value>启动时以及运行期间每天检查应用程序更新</value>
+  </data>
+  <data name="Settings.AppUpdate.EnabledNote">
+    <value>将您的版本与 GitHub 上的最新发行版进行比较。也可从“帮助”菜单手动检查。</value>
   </data>
   <data name="Settings.Theme.System">
     <value>系统</value>
@@ -1545,5 +1566,35 @@
   </data>
   <data name="DbAdd.Error.PickOne">
     <value>选择 TLE 卫星或输入自定义名称。</value>
+  </data>
+  <data name="Update.Available.Title">
+    <value>有可用更新</value>
+  </data>
+  <data name="Update.Available.Message">
+    <value>有更新版本的 OscarWatch 可用。
+
+您当前版本：{0}
+最新版本：{1} ({2})</value>
+  </data>
+  <data name="Update.ViewRelease">
+    <value>查看发行版</value>
+  </data>
+  <data name="Update.RemindLater">
+    <value>稍后提醒</value>
+  </data>
+  <data name="Update.SkipVersion">
+    <value>跳过此版本</value>
+  </data>
+  <data name="ReleaseNotes.Title">
+    <value>发行说明</value>
+  </data>
+  <data name="ReleaseNotes.Loading">
+    <value>正在加载发行说明…</value>
+  </data>
+  <data name="ReleaseNotes.LoadFailed">
+    <value>无法加载发行说明：{0}</value>
+  </data>
+  <data name="ReleaseNotes.ViewOnGitHub">
+    <value>在 GitHub 上查看</value>
   </data>
 </root>

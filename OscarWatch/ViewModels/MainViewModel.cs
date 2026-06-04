@@ -34,8 +34,11 @@ public partial class MainViewModel : ViewModelBase
     private readonly IRigController _rig;
     private readonly ICloudlogRadioSyncService _cloudlog;
     private readonly ISatelliteDatabaseSyncService _transponderDatabaseSync;
+    private readonly IGitHubReleaseService _githubRelease;
     private readonly ILocalizationService _l;
     private readonly DispatcherTimer _timer;
+    private DispatcherTimer? _appUpdateCheckTimer;
+    private static readonly TimeSpan AppUpdateCheckInterval = TimeSpan.FromHours(24);
     private string? _lastCloudlogErrorShown;
     private string? _recordingPassNoradId;
     private DateTime? _recordingPassAosUtc;
@@ -224,6 +227,7 @@ public partial class MainViewModel : ViewModelBase
         IRigController rig,
         ICloudlogRadioSyncService cloudlog,
         ISatelliteDatabaseSyncService transponderDatabaseSync,
+        IGitHubReleaseService githubRelease,
         ILocalizationService localization,
         FrequencyOverlayViewModel frequencies,
         DxStationOverlayViewModel dxStation)
@@ -243,6 +247,7 @@ public partial class MainViewModel : ViewModelBase
         _rig = rig;
         _cloudlog = cloudlog;
         _transponderDatabaseSync = transponderDatabaseSync;
+        _githubRelease = githubRelease;
         Frequencies = frequencies;
         DxStation = dxStation;
         Frequencies.OffsetsChanged += (_, reinitializePass) => RefreshRigFromOverlay(reinitializePass);
@@ -336,6 +341,11 @@ public partial class MainViewModel : ViewModelBase
 
         if (_settings.Current.TransponderDatabaseCheckOnStartup)
             await CheckTransponderDatabaseUpdatesAsync(showWhenUpToDate: false).ConfigureAwait(true);
+
+        if (_settings.Current.AppUpdateCheckEnabled)
+            await CheckForAppUpdateAsync(manual: false).ConfigureAwait(true);
+
+        ConfigureAppUpdateCheckTimer();
     }
 
     private void Tick()
@@ -1116,6 +1126,7 @@ public partial class MainViewModel : ViewModelBase
         if (saved)
         {
             ConfigureTleAutoUpdateTimer();
+            ConfigureAppUpdateCheckTimer();
             await ReloadTleCatalogAfterSettingsAsync().ConfigureAwait(true);
             _liveTracking.RequestReload();
             _rotator.Disconnect();
@@ -1269,6 +1280,126 @@ public partial class MainViewModel : ViewModelBase
 
         Log.Warning("Help folder not found next to the application");
         StatusText = _l.Get("Status.HelpMissing");
+    }
+
+    [RelayCommand]
+    private async Task CheckForUpdatesAsync()
+    {
+        await CheckForAppUpdateAsync(manual: true).ConfigureAwait(true);
+    }
+
+    [RelayCommand]
+    private async Task OpenReleaseNotesAsync()
+    {
+        if (App.MainWindow is null)
+            return;
+
+        try
+        {
+            StatusText = _l.Get("ReleaseNotes.Loading");
+            var release = await _githubRelease.FetchLatestAsync().ConfigureAwait(true);
+            await ReleaseNotesDialog.ShowAsync(App.MainWindow, release).ConfigureAwait(true);
+            UpdateStatus();
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Failed to load release notes");
+            StatusText = _l.Get("ReleaseNotes.LoadFailed", ex.Message);
+        }
+    }
+
+    private void ConfigureAppUpdateCheckTimer()
+    {
+        _appUpdateCheckTimer?.Stop();
+        _appUpdateCheckTimer = null;
+
+        if (!_settings.Current.AppUpdateCheckEnabled)
+            return;
+
+        _appUpdateCheckTimer = new DispatcherTimer { Interval = AppUpdateCheckInterval };
+        _appUpdateCheckTimer.Tick += async (_, _) =>
+            await CheckForAppUpdateAsync(manual: false).ConfigureAwait(true);
+        _appUpdateCheckTimer.Start();
+    }
+
+    private async Task CheckForAppUpdateAsync(bool manual)
+    {
+        if (App.MainWindow is null)
+            return;
+
+        if (!manual && !_settings.Current.AppUpdateCheckEnabled)
+            return;
+
+        var currentVersion = AppVersionHelper.GetCurrentVersion();
+        if (currentVersion is null)
+        {
+            if (manual)
+                StatusText = _l.Get("Status.AppUpdateFailed", "Unknown application version.");
+            return;
+        }
+
+        try
+        {
+            if (manual)
+                StatusText = _l.Get("Status.AppUpdateChecking");
+
+            var result = await _githubRelease
+                .CheckForUpdateAsync(currentVersion)
+                .ConfigureAwait(true);
+
+            switch (result.Kind)
+            {
+                case AppUpdateCheckResultKind.UpToDate:
+                    if (manual)
+                        StatusText = _l.Get("Status.AppUpdateUpToDate", AppVersionHelper.GetDisplayVersionText());
+                    else
+                        UpdateStatus();
+                    return;
+
+                case AppUpdateCheckResultKind.CheckFailed:
+                    Log.Warning(result.Error, "Application update check failed");
+                    if (manual)
+                        StatusText = _l.Get("Status.AppUpdateFailed", result.Error?.Message ?? "Unknown error");
+                    else
+                        UpdateStatus();
+                    return;
+
+                case AppUpdateCheckResultKind.UpdateAvailable:
+                    var release = result.Release!;
+                    if (!manual
+                        && string.Equals(
+                            _settings.Current.DismissedAppUpdateTag,
+                            release.TagName,
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        UpdateStatus();
+                        return;
+                    }
+
+                    var dialogResult = await AppUpdateAvailableDialog.TryShowAsync(
+                        App.MainWindow,
+                        release,
+                        AppVersionHelper.GetDisplayVersionText(),
+                        _l).ConfigureAwait(true);
+
+                    if (dialogResult == AppUpdateDialogResult.SkipVersion)
+                    {
+                        _settings.Current.DismissedAppUpdateTag = release.TagName;
+                        _settings.RequestSave();
+                    }
+
+                    UpdateStatus();
+                    return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Application update check failed");
+            if (manual)
+                StatusText = _l.Get("Status.AppUpdateFailed", ex.Message);
+            else
+                UpdateStatus();
+        }
     }
 
     [RelayCommand]

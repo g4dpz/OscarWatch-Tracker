@@ -53,6 +53,7 @@ public partial class App : Application
                 sp.GetRequiredService<ISatelliteDatabaseService>(),
                 bundledDb));
         services.AddSingleton<ISatelliteDatabaseSyncService, SatelliteDatabaseSyncService>();
+        services.AddSingleton<IGitHubReleaseService, GitHubReleaseService>();
         services.AddSingleton<ILocalizationService>(LocalizationService.Instance);
         services.AddSingleton<FrequencyOverlayViewModel>();
         services.AddSingleton<DxStationOverlayViewModel>();

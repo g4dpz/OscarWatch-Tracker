@@ -34,6 +34,8 @@
       <MenuItem Header="{loc:Localize Key=Menu.Settings}" Command="{Binding OpenSettingsCommand}" />
       <MenuItem Header="{loc:Localize Key=Menu.Help}">
         <MenuItem Header="{loc:Localize Key=Menu.Help.OperatorGuide}" Command="{Binding OpenHelpCommand}" />
+        <MenuItem Header="{loc:Localize Key=Menu.Help.CheckForUpdates}" Command="{Binding CheckForUpdatesCommand}" />
+        <MenuItem Header="{loc:Localize Key=Menu.Help.ReleaseNotes}" Command="{Binding OpenReleaseNotesCommand}" />
         <Separator />
         <MenuItem Header="{loc:Localize Key=Menu.Help.About}" Command="{Binding OpenAboutCommand}" />
         <MenuItem Header="{loc:Localize Key=Menu.Help.Recordings}" Command="{Binding OpenRecordingsFolderCommand}" />

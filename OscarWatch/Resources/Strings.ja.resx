@@ -169,6 +169,12 @@
   <data name="Menu.Help.OperatorGuide">
     <value>オペレーターガイド</value>
   </data>
+  <data name="Menu.Help.CheckForUpdates">
+    <value>更新を確認(_U)…</value>
+  </data>
+  <data name="Menu.Help.ReleaseNotes">
+    <value>リリースノート(_R)…</value>
+  </data>
   <data name="Menu.Help.Recordings">
     <value>録音フォルダを開く(_R)</value>
   </data>
@@ -300,6 +306,15 @@
   </data>
   <data name="Status.TransponderUpToDate">
     <value>トランスポンダーDBは最新です。</value>
+  </data>
+  <data name="Status.AppUpdateChecking">
+    <value>アプリの更新を確認しています…</value>
+  </data>
+  <data name="Status.AppUpdateUpToDate">
+    <value>OscarWatch は最新です ({0})。</value>
+  </data>
+  <data name="Status.AppUpdateFailed">
+    <value>更新の確認に失敗しました: {0}</value>
   </data>
   <data name="Status.TransponderUpdated">
     <value>トランスポンダーDBを更新しました。</value>
@@ -615,6 +630,12 @@
   </data>
   <data name="Settings.Tracking.TransponderCheckNote">
     <value>更新がある場合 tle.oscarwatch.org/satellite_database.json をダウンロードします。新しい衛星とモードはマージ候補として提示され、公開変更を承認しない限りローカル編集は保持されます。</value>
+  </data>
+  <data name="Settings.AppUpdate.Enabled">
+    <value>起動時および稼働中は1日1回、アプリの更新を確認する</value>
+  </data>
+  <data name="Settings.AppUpdate.EnabledNote">
+    <value>GitHub の最新リリースとバージョンを比較します。ヘルプから手動確認もできます。</value>
   </data>
   <data name="Settings.Theme.System">
     <value>システム</value>
@@ -1467,6 +1488,36 @@
   </data>
   <data name="DbAdd.Error.PickOne">
     <value>TLE の衛星を選択するか、カスタム名を入力してください。</value>
+  </data>
+  <data name="Update.Available.Title">
+    <value>更新があります</value>
+  </data>
+  <data name="Update.Available.Message">
+    <value>OscarWatch の新しいバージョンがあります。
+
+現在: {0}
+最新: {1} ({2})</value>
+  </data>
+  <data name="Update.ViewRelease">
+    <value>リリースを表示</value>
+  </data>
+  <data name="Update.RemindLater">
+    <value>後で通知</value>
+  </data>
+  <data name="Update.SkipVersion">
+    <value>このバージョンをスキップ</value>
+  </data>
+  <data name="ReleaseNotes.Title">
+    <value>リリースノート</value>
+  </data>
+  <data name="ReleaseNotes.Loading">
+    <value>リリースノートを読み込み中…</value>
+  </data>
+  <data name="ReleaseNotes.LoadFailed">
+    <value>リリースノートを読み込めませんでした: {0}</value>
+  </data>
+  <data name="ReleaseNotes.ViewOnGitHub">
+    <value>GitHub で表示</value>
   </data>
   <data name="Window.SatelliteDatabase.Title">
     <value>トランスポンダデータベース</value>

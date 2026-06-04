@@ -247,6 +247,12 @@
   <data name="Menu.Help.OperatorGuide">
     <value>Guia do Usuário</value>
   </data>
+  <data name="Menu.Help.CheckForUpdates">
+    <value>Verificar _atualizações…</value>
+  </data>
+  <data name="Menu.Help.ReleaseNotes">
+    <value>_Notas da versão…</value>
+  </data>
   <data name="Menu.Help.Recordings">
     <value>Abrir pasta de _gravações</value>
   </data>
@@ -426,6 +432,15 @@
   </data>
   <data name="Status.TransponderUpToDate">
     <value>Banco de dados de transmissores/transponders está atualizado.</value>
+  </data>
+  <data name="Status.AppUpdateChecking">
+    <value>Verificando atualizações do aplicativo…</value>
+  </data>
+  <data name="Status.AppUpdateUpToDate">
+    <value>O OscarWatch está atualizado ({0}).</value>
+  </data>
+  <data name="Status.AppUpdateFailed">
+    <value>Não foi possível verificar atualizações: {0}</value>
   </data>
   <data name="Status.TransponderUpdated">
     <value>Banco de dados de transmissores/transponders atualizado.</value>
@@ -726,6 +741,12 @@
   </data>
   <data name="Settings.Tracking.TransponderCheckNote">
     <value>Baixa tle.oscarwatch.org/satellite_database.json quando há atualizações disponíveis. Novos satélites e modos são oferecidos para mesclagem; suas edições locais são mantidas a menos que você aceite as alterações publicadas.</value>
+  </data>
+  <data name="Settings.AppUpdate.Enabled">
+    <value>Verificar atualizações do aplicativo na inicialização e diariamente enquanto estiver em execução</value>
+  </data>
+  <data name="Settings.AppUpdate.EnabledNote">
+    <value>Compara sua versão com o último lançamento no GitHub. Você também pode verificar manualmente em Ajuda.</value>
   </data>
   <data name="Settings.Theme.System">
     <value>Sistema</value>
@@ -1545,5 +1566,35 @@
   </data>
   <data name="DbAdd.Error.PickOne">
     <value>Selecione um satélite TLE ou insira um nome personalizado.</value>
+  </data>
+  <data name="Update.Available.Title">
+    <value>Atualização disponível</value>
+  </data>
+  <data name="Update.Available.Message">
+    <value>Há uma versão mais recente do OscarWatch.
+
+Você está usando {0}.
+Mais recente: {1} ({2})</value>
+  </data>
+  <data name="Update.ViewRelease">
+    <value>Ver lançamento</value>
+  </data>
+  <data name="Update.RemindLater">
+    <value>Lembrar depois</value>
+  </data>
+  <data name="Update.SkipVersion">
+    <value>Ignorar esta versão</value>
+  </data>
+  <data name="ReleaseNotes.Title">
+    <value>Notas da versão</value>
+  </data>
+  <data name="ReleaseNotes.Loading">
+    <value>Carregando notas da versão…</value>
+  </data>
+  <data name="ReleaseNotes.LoadFailed">
+    <value>Não foi possível carregar as notas da versão: {0}</value>
+  </data>
+  <data name="ReleaseNotes.ViewOnGitHub">
+    <value>Ver no GitHub</value>
   </data>
 </root>

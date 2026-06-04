@@ -18,6 +18,10 @@ public sealed class AppSettings
     public TleAutoUpdateMode TleAutoUpdate { get; set; } = TleAutoUpdateMode.OnStartup;
     /// <summary>On startup, check tle.oscarwatch.org for new transponder database entries.</summary>
     public bool TransponderDatabaseCheckOnStartup { get; set; } = true;
+    /// <summary>On startup and every 24 hours while running, check GitHub for a newer release.</summary>
+    public bool AppUpdateCheckEnabled { get; set; } = true;
+    /// <summary>Release tag the user skipped; suppresses automatic update prompts only.</summary>
+    public string DismissedAppUpdateTag { get; set; } = "";
     public AppThemePreference Theme { get; set; } = AppThemePreference.System;
     /// <summary>UI language code: <c>en</c> or <c>ja</c>. Applied on next startup.</summary>
     public string UiLanguage { get; set; } = "en";

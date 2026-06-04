@@ -247,6 +247,12 @@
   <data name="Menu.Help.OperatorGuide">
     <value>Operator Guide</value>
   </data>
+  <data name="Menu.Help.CheckForUpdates">
+    <value>Check for _updates…</value>
+  </data>
+  <data name="Menu.Help.ReleaseNotes">
+    <value>_Release notes…</value>
+  </data>
   <data name="Menu.Help.Recordings">
     <value>Open _recordings folder</value>
   </data>
@@ -426,6 +432,15 @@
   </data>
   <data name="Status.TransponderUpToDate">
     <value>Transponder database is up to date.</value>
+  </data>
+  <data name="Status.AppUpdateChecking">
+    <value>Checking for application updates…</value>
+  </data>
+  <data name="Status.AppUpdateUpToDate">
+    <value>OscarWatch is up to date ({0}).</value>
+  </data>
+  <data name="Status.AppUpdateFailed">
+    <value>Could not check for updates: {0}</value>
   </data>
   <data name="Status.TransponderUpdated">
     <value>Transponder database updated.</value>
@@ -726,6 +741,12 @@
   </data>
   <data name="Settings.Tracking.TransponderCheckNote">
     <value>Downloads tle.oscarwatch.org/satellite_database.json when updates are available. New satellites and modes are offered for merge; your local edits are kept unless you accept published changes.</value>
+  </data>
+  <data name="Settings.AppUpdate.Enabled">
+    <value>Check for application updates on startup and daily while running</value>
+  </data>
+  <data name="Settings.AppUpdate.EnabledNote">
+    <value>Compares your version with the latest release on GitHub. You can also check manually from Help.</value>
   </data>
   <data name="Settings.Theme.System">
     <value>System</value>
@@ -1545,5 +1566,35 @@
   </data>
   <data name="DbAdd.Error.PickOne">
     <value>Select a TLE satellite or enter a custom name.</value>
+  </data>
+  <data name="Update.Available.Title">
+    <value>Update available</value>
+  </data>
+  <data name="Update.Available.Message">
+    <value>A newer version of OscarWatch is available.
+
+You are running {0}.
+Latest: {1} ({2})</value>
+  </data>
+  <data name="Update.ViewRelease">
+    <value>View release</value>
+  </data>
+  <data name="Update.RemindLater">
+    <value>Remind me later</value>
+  </data>
+  <data name="Update.SkipVersion">
+    <value>Skip this version</value>
+  </data>
+  <data name="ReleaseNotes.Title">
+    <value>Release notes</value>
+  </data>
+  <data name="ReleaseNotes.Loading">
+    <value>Loading release notes…</value>
+  </data>
+  <data name="ReleaseNotes.LoadFailed">
+    <value>Could not load release notes: {0}</value>
+  </data>
+  <data name="ReleaseNotes.ViewOnGitHub">
+    <value>View on GitHub</value>
   </data>
 </root>

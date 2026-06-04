@@ -80,6 +80,9 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty]
     private bool _transponderDatabaseCheckOnStartup = true;
 
+    [ObservableProperty]
+    private bool _appUpdateCheckEnabled = true;
+
     public IReadOnlyList<TleSourceOption> TleSourceOptions { get; }
 
     public string TleCustomUrlWatermark { get; } = TleSourceResolver.CelestrakAmsatExampleUrl;
@@ -482,6 +485,7 @@ public partial class SettingsViewModel : ViewModelBase
         if (TleAutoUpdateOption is not null)
             _settings.Current.TleAutoUpdate = TleAutoUpdateOption.Mode;
         _settings.Current.TransponderDatabaseCheckOnStartup = TransponderDatabaseCheckOnStartup;
+        _settings.Current.AppUpdateCheckEnabled = AppUpdateCheckEnabled;
         _settings.Current.VoiceAnnouncements = new VoiceAnnouncementSettings
         {
             Enabled = VoiceAnnouncementsEnabled,
@@ -604,6 +608,7 @@ public partial class SettingsViewModel : ViewModelBase
             TleAutoUpdateOption = TleAutoUpdateOptions.FirstOrDefault(o => o.Mode == _settings.Current.TleAutoUpdate)
                 ?? TleAutoUpdateOptions[1];
             TransponderDatabaseCheckOnStartup = _settings.Current.TransponderDatabaseCheckOnStartup;
+            AppUpdateCheckEnabled = _settings.Current.AppUpdateCheckEnabled;
 
             var voice = _settings.Current.VoiceAnnouncements ?? new VoiceAnnouncementSettings();
             VoiceAnnouncementsEnabled = voice.Enabled;
