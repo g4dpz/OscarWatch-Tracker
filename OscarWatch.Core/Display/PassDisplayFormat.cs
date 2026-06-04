@@ -16,10 +16,15 @@ public static class PassDisplayFormat
         if (Use24Hour(format))
             return includeSeconds ? "HH:mm:ss" : "HH:mm";
 
-        return includeSeconds
+        var pattern = includeSeconds
             ? culture.DateTimeFormat.LongTimePattern
             : culture.DateTimeFormat.ShortTimePattern;
+        return NormalizeTimePattern(pattern);
     }
+
+    /// <summary>ICU/Linux cultures may use narrow no-break space (U+202F) before AM/PM; normalise for stable display and tests.</summary>
+    private static string NormalizeTimePattern(string pattern) =>
+        pattern.Replace('\u202F', ' ').Replace('\u00A0', ' ');
 
     public static (string Aos, string Los) FormatAosLos(
         DateTime aosUtc,
