@@ -266,7 +266,7 @@ public partial class PassPlanningViewModel : ViewModelBase
         var rows = Passes.ToList();
         Passes.Clear();
         foreach (var row in rows)
-            Passes.Add(PassPlanningPassRow.From(row.Source, UseUtcTime));
+            Passes.Add(PassPlanningPassRow.From(row.Source, UseUtcTime, _settings.Current.Use24HourClock));
     }
 
     [RelayCommand]
@@ -287,7 +287,7 @@ public partial class PassPlanningViewModel : ViewModelBase
 
             Passes.Clear();
             foreach (var pass in passes)
-                Passes.Add(PassPlanningPassRow.From(pass, UseUtcTime));
+                Passes.Add(PassPlanningPassRow.From(pass, UseUtcTime, _settings.Current.Use24HourClock));
 
             StatusText = _l.Get("Pass.CountPasses", Passes.Count, FilterPredictionHours);
         }
@@ -390,11 +390,12 @@ public sealed class PassPlanningPassRow
     public string AzimuthSummary { get; init; } = "";
     public string AosLosLine { get; init; } = "";
 
-    public static PassPlanningPassRow From(PassInfo p, bool useUtc = false)
+    public static PassPlanningPassRow From(PassInfo p, bool useUtc, bool use24HourClock)
     {
-        var aosLosLine = PassDisplayFormat.FormatPlannerAosLosLine(p.AosUtc, p.LosUtc, useUtc: useUtc);
-        var (aos, los) = PassDisplayFormat.FormatLocalTimes(p.AosUtc, p.LosUtc, useUtc: useUtc);
-        var tca = PassDisplayFormat.FormatPlannerTca(p.MaxElevationUtc, p.AosUtc, useUtc: useUtc);
+        var clockFormat = PassDisplayFormat.FromSettings(use24HourClock);
+        var aosLosLine = PassDisplayFormat.FormatPlannerAosLosLine(p.AosUtc, p.LosUtc, useUtc: useUtc, clockFormat: clockFormat);
+        var (aos, los) = PassDisplayFormat.FormatLocalTimes(p.AosUtc, p.LosUtc, useUtc: useUtc, clockFormat: clockFormat);
+        var tca = PassDisplayFormat.FormatPlannerTca(p.MaxElevationUtc, p.AosUtc, useUtc: useUtc, clockFormat: clockFormat);
         var az = $"{p.AosAzimuthDeg:F0}°→{p.LosAzimuthDeg:F0}°";
 
         return new()

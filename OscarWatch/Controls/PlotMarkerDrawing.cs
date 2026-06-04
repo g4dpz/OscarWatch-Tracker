@@ -142,4 +142,37 @@ internal static class PlotMarkerDrawing
             new Pen(new SolidColorBrush(Color.FromArgb(240, 26, 32, 40)), isFocused ? 2 : 1.5),
             geometry);
     }
+
+    public static void DrawMutualWindowStartMarker(DrawingContext context, double x, double y)
+    {
+        const double size = 7;
+        var fill = Color.Parse("#3DBB6D");
+        var outline = Color.Parse("#1a2028");
+        var geometry = new StreamGeometry();
+        using (var g = geometry.Open())
+        {
+            g.BeginFigure(new Point(x, y - size), true);
+            g.LineTo(new Point(x + size, y));
+            g.LineTo(new Point(x, y + size));
+            g.LineTo(new Point(x - size, y));
+            g.EndFigure(true);
+        }
+
+        context.DrawGeometry(new SolidColorBrush(fill), new Pen(new SolidColorBrush(outline), 2), geometry);
+        context.DrawGeometry(null, new Pen(Brushes.White, 1.5), geometry);
+    }
+
+    public static void DrawMutualWindowEndMarker(DrawingContext context, double x, double y)
+    {
+        const double radius = 7;
+        var fill = Color.Parse("#E69F00");
+        var outline = Color.Parse("#1a2028");
+        var rect = new Rect(x - radius, y - radius, radius * 2, radius * 2);
+        context.DrawEllipse(new SolidColorBrush(fill), new Pen(new SolidColorBrush(outline), 2), rect);
+        context.DrawEllipse(null, new Pen(Brushes.White, 1.5), rect);
+
+        var pen = new Pen(new SolidColorBrush(outline), 2.2);
+        context.DrawLine(pen, new Point(x - 4, y - 4), new Point(x + 4, y + 4));
+        context.DrawLine(pen, new Point(x + 4, y - 4), new Point(x - 4, y + 4));
+    }
 }

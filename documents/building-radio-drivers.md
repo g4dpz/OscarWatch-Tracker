@@ -2,6 +2,12 @@
 
 OscarWatch controls radios for **satellite doppler tracking** via CAT. Each radio protocol implements `IRigDriver`. Doppler policy, VFO layout, and pass setup live in **`RigController`**; the driver is a thin serial/protocol layer.
 
+## Why not HamLib?
+
+HamLib works well for many HF rigs. Satellite tracking needs more than generic frequency and VFO calls: satellite mode, Main/Sub or SAT RX/TX layout, split or exchange, uplink CTCSS, and doppler policy (TX-fixed vs RX-fixed) with per-rig behaviour. HamLib’s model does not map cleanly to that, and satellite features in the field are often thin or wrong.
+
+OscarWatch keeps protocol details in **`IRigDriver`** implementations and pass behaviour in **`RigController`**, so each supported radio can follow how operators actually run a pass (including quirks such as Kenwood SATL or dual-radio FT-817 setups). A HamLib layer is not planned; new rigs should add a native driver. See also the README section *Why not HamLib?*
+
 ## Architecture
 
 ```mermaid

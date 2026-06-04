@@ -169,6 +169,14 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="{loc:Localize Key=Settings.Language.RestartNote}" />
+            <TextBlock Text="{loc:Localize Key=Settings.ClockFormat}" Margin="0,8,0,0" />
+            <ComboBox ItemsSource="{Binding ClockFormatLabels}"
+                      SelectedIndex="{Binding ClockFormatIndex, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch" />
+            <TextBlock Foreground="{DynamicResource ThemeSecondaryForegroundBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="{loc:Localize Key=Settings.ClockFormat.Note}" />
             <TextBlock Text="{loc:Localize Key=Settings.Theme}" Margin="0,8,0,0" />
             <ComboBox ItemsSource="{Binding ThemeOptions}"
                       SelectedItem="{Binding SelectedThemeOption, Mode=TwoWay}"
@@ -190,6 +198,13 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="{loc:Localize Key=Settings.FootprintArrows.Note}" />
+            <CheckBox Content="{loc:Localize Key=Settings.GreylineOverlay}"
+                      IsChecked="{Binding ShowGreylineOverlay, Mode=TwoWay}"
+                      Margin="0,8,0,0" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="{loc:Localize Key=Settings.GreylineOverlay.Note}" />
           </StackPanel>
         </ScrollViewer>
       </TabItem>

@@ -36,6 +36,14 @@ public class WorldMapControl : ThemeAwareControl
     public static readonly StyledProperty<bool> SoloFocusedSatelliteProperty =
         AvaloniaProperty.Register<WorldMapControl, bool>(nameof(SoloFocusedSatellite));
 
+    public static readonly StyledProperty<bool> ShowGreylineOverlayProperty =
+        AvaloniaProperty.Register<WorldMapControl, bool>(nameof(ShowGreylineOverlay));
+
+    public static readonly StyledProperty<DateTime> MapDisplayUtcProperty =
+        AvaloniaProperty.Register<WorldMapControl, DateTime>(
+            nameof(MapDisplayUtc),
+            defaultValue: DateTime.UtcNow);
+
     private Bitmap? _mapBitmap;
     private INotifyCollectionChanged? _trackStatesSource;
     private Size _lastLayoutInvalidationSize;
@@ -55,7 +63,9 @@ public class WorldMapControl : ThemeAwareControl
             FocusedNoradIdProperty,
             ShowFootprintMotionArrowsProperty,
             RemoteStationProperty,
-            SoloFocusedSatelliteProperty);
+            SoloFocusedSatelliteProperty,
+            ShowGreylineOverlayProperty,
+            MapDisplayUtcProperty);
     }
 
     public bool ShowFootprintMotionArrows
@@ -94,6 +104,18 @@ public class WorldMapControl : ThemeAwareControl
     {
         get => GetValue(SoloFocusedSatelliteProperty);
         set => SetValue(SoloFocusedSatelliteProperty, value);
+    }
+
+    public bool ShowGreylineOverlay
+    {
+        get => GetValue(ShowGreylineOverlayProperty);
+        set => SetValue(ShowGreylineOverlayProperty, value);
+    }
+
+    public DateTime MapDisplayUtc
+    {
+        get => GetValue(MapDisplayUtcProperty);
+        set => SetValue(MapDisplayUtcProperty, value);
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -233,6 +255,10 @@ public class WorldMapControl : ThemeAwareControl
                 new SolidColorBrush(palette.MapLabelForeground));
             context.DrawText(noMap, new Point(12, 12));
         }
+
+        // Layer order: base map → greyline → tracks/footprints/markers → labels (footprints must stay above greyline).
+        if (ShowGreylineOverlay)
+            DrawGreylineOverlay(context, MapDisplayUtc, w, h, palette);
 
         if (GroundStation is { } gs)
         {
@@ -563,6 +589,186 @@ public class WorldMapControl : ThemeAwareControl
         }
 
         return geometry;
+    }
+
+    private static void DrawGreylineOverlay(
+        DrawingContext context,
+        DateTime mapUtc,
+        double w,
+        double h,
+        UiPalette palette)
+    {
+        if (w <= 0 || h <= 0)
+            return;
+
+        var geometry = DayNightTerminator.GetGeometry(
+            DateTime.SpecifyKind(mapUtc, DateTimeKind.Utc));
+
+        var fillBrush = new SolidColorBrush(palette.GreylineNightFill);
+        DrawNightFillScanlines(context, geometry, w, h, fillBrush);
+
+        if (geometry.DrawTerminatorLine && geometry.Terminator.Count >= 2)
+        {
+            DrawPolylineSegments(
+                context,
+                geometry.Terminator,
+                w,
+                h,
+                palette.GreylineTerminatorStroke,
+                1.0);
+        }
+    }
+
+    /// <summary>
+    /// Shade the night hemisphere column-by-column. Avoids polygon fill on the full-world
+    /// equirectangular map, which breaks apart under antimeridian splitting.
+    /// </summary>
+    private static void DrawNightFillScanlines(
+        DrawingContext context,
+        DayNightGeometry geometry,
+        double w,
+        double h,
+        IBrush fillBrush)
+    {
+        if (geometry.FullNightHalf)
+        {
+            var y0 = geometry.NightTowardSouth ? h * 0.5 : 0;
+            var y1 = geometry.NightTowardSouth ? h : h * 0.5;
+            context.FillRectangle(fillBrush, new Rect(0, y0, w, y1 - y0));
+            return;
+        }
+
+        if (geometry.Terminator.Count < 2)
+            return;
+
+        var lonStep = DayNightTerminator.LongitudeStepDeg;
+        var columnCount = (int)Math.Ceiling(360.0 / lonStep);
+        var stripWidth = w / Math.Max(1, columnCount - 1) + 1.5;
+        const double twilightFadePx = 28;
+        const int twilightBands = 5;
+
+        for (var i = 0; i < columnCount; i++)
+        {
+            var lon = -180.0 + i * (360.0 / (columnCount - 1));
+            var termLat = InterpolateTerminatorLatitude(geometry.Terminator, lon);
+            var (x, yTerm) = EquirectangularProjection.GeoToPixel(termLat, lon, w, h);
+
+            if (geometry.NightTowardSouth)
+                DrawNightColumnSouth(context, fillBrush, x, yTerm, h, w, stripWidth, twilightFadePx, twilightBands);
+            else
+                DrawNightColumnNorth(context, fillBrush, x, yTerm, h, w, stripWidth, twilightFadePx, twilightBands);
+        }
+    }
+
+    private static void DrawNightColumnSouth(
+        DrawingContext context,
+        IBrush baseBrush,
+        double x,
+        double yTerm,
+        double h,
+        double w,
+        double stripWidth,
+        double twilightFadePx,
+        int twilightBands)
+    {
+        var bodyStart = Math.Min(h, yTerm + twilightFadePx);
+        if (h - bodyStart >= 0.5)
+            DrawNightStrip(context, baseBrush, x, bodyStart, h, w, stripWidth);
+
+        if (baseBrush is not SolidColorBrush solid)
+            return;
+
+        var bandHeight = twilightFadePx / twilightBands;
+        for (var band = 0; band < twilightBands; band++)
+        {
+            var t = (band + 0.5) / twilightBands;
+            var alpha = (byte)(solid.Color.A * (0.15 + 0.35 * t));
+            var fadeBrush = new SolidColorBrush(Color.FromArgb(alpha, solid.Color.R, solid.Color.G, solid.Color.B));
+            var y0 = yTerm + band * bandHeight;
+            var y1 = yTerm + (band + 1) * bandHeight;
+            DrawNightStrip(context, fadeBrush, x, y0, y1, w, stripWidth);
+        }
+    }
+
+    private static void DrawNightColumnNorth(
+        DrawingContext context,
+        IBrush baseBrush,
+        double x,
+        double yTerm,
+        double h,
+        double w,
+        double stripWidth,
+        double twilightFadePx,
+        int twilightBands)
+    {
+        var bodyEnd = Math.Max(0, yTerm - twilightFadePx);
+        if (bodyEnd >= 0.5)
+            DrawNightStrip(context, baseBrush, x, 0, bodyEnd, w, stripWidth);
+
+        if (baseBrush is not SolidColorBrush solid)
+            return;
+
+        var bandHeight = twilightFadePx / twilightBands;
+        for (var band = 0; band < twilightBands; band++)
+        {
+            var t = (band + 0.5) / twilightBands;
+            var alpha = (byte)(solid.Color.A * (0.15 + 0.35 * t));
+            var fadeBrush = new SolidColorBrush(Color.FromArgb(alpha, solid.Color.R, solid.Color.G, solid.Color.B));
+            var y1 = yTerm - band * bandHeight;
+            var y0 = yTerm - (band + 1) * bandHeight;
+            DrawNightStrip(context, fadeBrush, x, y0, y1, w, stripWidth);
+        }
+    }
+
+    private static void DrawNightStrip(
+        DrawingContext context,
+        IBrush brush,
+        double x,
+        double yStart,
+        double yEnd,
+        double w,
+        double stripWidth)
+    {
+        if (yEnd - yStart < 0.5)
+            return;
+
+        var rect = new Rect(x - stripWidth * 0.5, yStart, stripWidth, yEnd - yStart);
+        context.FillRectangle(brush, rect);
+
+        if (x < WrapEdgeMarginPx)
+            context.FillRectangle(brush, new Rect(rect.X + w, rect.Y, rect.Width, rect.Height));
+        if (x > w - WrapEdgeMarginPx)
+            context.FillRectangle(brush, new Rect(rect.X - w, rect.Y, rect.Width, rect.Height));
+    }
+
+    private static double InterpolateTerminatorLatitude(
+        IReadOnlyList<GeoCoordinate> terminator,
+        double longitudeDeg)
+    {
+        var lon = longitudeDeg;
+        GeoCoordinate? before = null;
+        GeoCoordinate? after = null;
+
+        foreach (var p in terminator)
+        {
+            if (p.LongitudeDeg <= lon)
+                before = p;
+            if (p.LongitudeDeg >= lon)
+            {
+                after = p;
+                break;
+            }
+        }
+
+        if (before is null)
+            return terminator[0].LatitudeDeg;
+        if (after is null)
+            return terminator[^1].LatitudeDeg;
+        if (Math.Abs(after.LongitudeDeg - before.LongitudeDeg) < 0.01)
+            return before.LatitudeDeg;
+
+        var t = (lon - before.LongitudeDeg) / (after.LongitudeDeg - before.LongitudeDeg);
+        return before.LatitudeDeg + t * (after.LatitudeDeg - before.LatitudeDeg);
     }
 
     private static void DrawPolylineSegments(

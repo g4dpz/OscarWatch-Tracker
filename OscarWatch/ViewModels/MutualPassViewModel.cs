@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using OscarWatch.Core.Display;
 using OscarWatch.Core.Geo;
@@ -49,6 +50,8 @@ public partial class MutualPassViewModel : ViewModelBase
 
     private string _lastLocalLabel = "";
     private string _lastRemoteLabel = "";
+    private GroundStation? _lastLocalSite;
+    private GroundStation? _lastRemoteSite;
 
     public MutualPassViewModel(
         ISettingsService settings,
@@ -107,7 +110,12 @@ public partial class MutualPassViewModel : ViewModelBase
         var rows = Passes.ToList();
         Passes.Clear();
         foreach (var row in rows)
-            Passes.Add(MutualPassRow.From(row.Source, _lastLocalLabel, _lastRemoteLabel, UseUtcTime));
+            Passes.Add(MutualPassRow.From(
+                row.Source,
+                _lastLocalLabel,
+                _lastRemoteLabel,
+                UseUtcTime,
+                _settings.Current.Use24HourClock));
     }
 
     [RelayCommand]
@@ -149,10 +157,17 @@ public partial class MutualPassViewModel : ViewModelBase
 
             _lastLocalLabel = localSite.DisplayName;
             _lastRemoteLabel = remoteSite.DisplayName;
+            _lastLocalSite = localSite;
+            _lastRemoteSite = remoteSite;
 
             Passes.Clear();
             foreach (var pass in passes)
-                Passes.Add(MutualPassRow.From(pass, _lastLocalLabel, _lastRemoteLabel, UseUtcTime));
+                Passes.Add(MutualPassRow.From(
+                    pass,
+                    _lastLocalLabel,
+                    _lastRemoteLabel,
+                    UseUtcTime,
+                    _settings.Current.Use24HourClock));
 
             StatusText = passes.Count == 0
                 ? _l.Get("Mutual.Status.NoPasses", FilterPredictionHours, localSite.GridSquare, remoteSite.GridSquare)
@@ -166,6 +181,25 @@ public partial class MutualPassViewModel : ViewModelBase
         {
             StatusText = _l.Get("Pass.FailedMutual", ex.Message);
         }
+    }
+
+    public bool CanOpenVisualizer(MutualPassRow? row) =>
+        row is not null && _lastLocalSite is not null && _lastRemoteSite is not null;
+
+    public MutualPassVisualizerViewModel? CreateVisualizerViewModel(MutualPassRow row)
+    {
+        if (!CanOpenVisualizer(row))
+            return null;
+
+        var vm = App.Services.GetRequiredService<MutualPassVisualizerViewModel>();
+        vm.Initialize(
+            row.Source,
+            _lastLocalSite!,
+            _lastRemoteSite!,
+            UseUtcTime,
+            _settings.Current.Use24HourClock,
+            FilterMinElevationDeg);
+        return vm;
     }
 }
 
@@ -184,19 +218,21 @@ public sealed class MutualPassRow
         MutualPassInfo pass,
         string localLabel,
         string remoteLabel,
-        bool useUtc = false)
+        bool useUtc,
+        bool use24HourClock)
     {
+        var clockFormat = PassDisplayFormat.FromSettings(use24HourClock);
         return new()
         {
             Source = pass,
             SatelliteName = pass.SatelliteName,
             MutualWindowLine = PassDisplayFormat.FormatMutualWindowLine(
-                pass.MutualStartUtc, pass.MutualEndUtc, useUtc: useUtc),
+                pass.MutualStartUtc, pass.MutualEndUtc, useUtc: useUtc, clockFormat: clockFormat),
             OverlapDuration = PassDisplayFormat.FormatDurationMinutes(pass.Duration),
             LocalMaxEl = $"{pass.LocalPass.MaxElevationDeg:F1}°",
             RemoteMaxEl = $"{pass.RemotePass.MaxElevationDeg:F1}°",
-            LocalPassLine = $"{localLabel}: {PassDisplayFormat.FormatPlannerAosLosLine(pass.LocalPass.AosUtc, pass.LocalPass.LosUtc, useUtc: useUtc)}",
-            RemotePassLine = $"{remoteLabel}: {PassDisplayFormat.FormatPlannerAosLosLine(pass.RemotePass.AosUtc, pass.RemotePass.LosUtc, useUtc: useUtc)}"
+            LocalPassLine = $"{localLabel}: {PassDisplayFormat.FormatPlannerAosLosLine(pass.LocalPass.AosUtc, pass.LocalPass.LosUtc, useUtc: useUtc, clockFormat: clockFormat)}",
+            RemotePassLine = $"{remoteLabel}: {PassDisplayFormat.FormatPlannerAosLosLine(pass.RemotePass.AosUtc, pass.RemotePass.LosUtc, useUtc: useUtc, clockFormat: clockFormat)}"
         };
     }
 }

@@ -178,6 +178,12 @@ public partial class MainViewModel : ViewModelBase
     private bool _showFootprintMotionArrows = true;
 
     [ObservableProperty]
+    private bool _showGreylineOverlay;
+
+    [ObservableProperty]
+    private DateTime _mapDisplayUtc = DateTime.UtcNow;
+
+    [ObservableProperty]
     private bool _isSkyPlotExpanded = true;
 
     [ObservableProperty]
@@ -294,6 +300,7 @@ public partial class MainViewModel : ViewModelBase
         AppThemeManager.Apply(_settings.Current.Theme);
         RefreshGroundStationFromSettings();
         ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
+        ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
         IsSkyPlotExpanded = _settings.Current.SkyPlotExpanded;
         RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
 
@@ -334,6 +341,7 @@ public partial class MainViewModel : ViewModelBase
     private void Tick()
     {
         UpdateUtcClockDisplay();
+        MapDisplayUtc = DateTime.UtcNow + TimeSpan.FromMinutes(MapTimeOffsetMinutes);
         MinimumElevationDeg = _settings.Current.MinimumElevationDeg;
         var mapStates = _liveTracking.GetSnapshot();
         SyncLiveStates(mapStates);
@@ -389,15 +397,22 @@ public partial class MainViewModel : ViewModelBase
 
     private void UpdateUtcClockDisplay()
     {
+        var clockFormat = PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock);
         var now = DateTime.UtcNow;
         if (!IsMapTimeScrubbing)
         {
-            UtcClock = now.ToString("yyyy-MM-dd HH:mm:ss") + " UTC";
+            UtcClock = PassDisplayFormat.FormatUtcClock(now, clockFormat) + " UTC";
             return;
         }
 
         var mapUtc = now + TimeSpan.FromMinutes(MapTimeOffsetMinutes);
-        UtcClock = $"{mapUtc:yyyy-MM-dd HH:mm:ss} UTC  ({MapTimeStatusText})";
+        UtcClock = $"{PassDisplayFormat.FormatUtcClock(mapUtc, clockFormat)} UTC  ({MapTimeStatusText})";
+    }
+
+    public void ApplyClockFormatFromSettings()
+    {
+        UpdateUtcClockDisplay();
+        _ = RefreshPassesAsync();
     }
 
     partial void OnMapTimeOffsetMinutesChanged(double value)
@@ -408,6 +423,7 @@ public partial class MainViewModel : ViewModelBase
 
         _liveTracking.MapTimeOffset = TimeSpan.FromMinutes(MapTimeOffsetMinutes);
         _tracking.InvalidateVisualCache();
+        MapDisplayUtc = DateTime.UtcNow + TimeSpan.FromMinutes(MapTimeOffsetMinutes);
         OnPropertyChanged(nameof(MapTimeStatusText));
         UpdateUtcClockDisplay();
     }
@@ -1112,6 +1128,7 @@ public partial class MainViewModel : ViewModelBase
             UpdateStatus();
             RefreshGroundStationFromSettings();
             ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
+            ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
             RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
             _liveDisplayTimer?.Start();
             Tick();
@@ -1359,7 +1376,9 @@ public partial class MainViewModel : ViewModelBase
                     });
                 }
 
-                Passes.Add(PassRowViewModel.From(p));
+                Passes.Add(PassRowViewModel.From(
+                    p,
+                    PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock)));
             }
 
             if (selectedNorad is not null)
@@ -1463,9 +1482,9 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
         }
     }
 
-    public static PassRowViewModel From(PassInfo p)
+    public static PassRowViewModel From(PassInfo p, ClockDisplayFormat clockFormat)
     {
-        var (aos, los) = PassDisplayFormat.FormatLocalTimes(p.AosUtc, p.LosUtc);
+        var (aos, los) = PassDisplayFormat.FormatLocalTimes(p.AosUtc, p.LosUtc, clockFormat: clockFormat);
 
         return new()
         {
@@ -1475,15 +1494,18 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
             LosUtc = p.LosUtc,
             AosLocal = aos,
             LosLocal = los,
-            TcaLocal = PassDisplayFormat.FormatLocal(p.MaxElevationUtc),
-            TimeRangeLine = FormatPassTimeRangeLine(p.AosUtc, p.LosUtc),
+            TcaLocal = PassDisplayFormat.FormatLocal(p.MaxElevationUtc, clockFormat),
+            TimeRangeLine = FormatPassTimeRangeLine(p.AosUtc, p.LosUtc, clockFormat),
             DetailsLine = FormatPassDetailsLine(p.MaxElevationDeg, p.Duration)
         };
     }
 
-    private static string FormatPassTimeRangeLine(DateTime aosUtc, DateTime losUtc)
+    private static string FormatPassTimeRangeLine(
+        DateTime aosUtc,
+        DateTime losUtc,
+        ClockDisplayFormat clockFormat)
     {
-        var (aos, los) = PassDisplayFormat.FormatLocalTimes(aosUtc, losUtc);
+        var (aos, los) = PassDisplayFormat.FormatLocalTimes(aosUtc, losUtc, clockFormat: clockFormat);
         return L.Get("Pass.TimeRange", aos, los);
     }
 

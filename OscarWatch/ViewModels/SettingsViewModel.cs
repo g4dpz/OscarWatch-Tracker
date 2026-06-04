@@ -53,6 +53,14 @@ public partial class SettingsViewModel : ViewModelBase
     private bool _showFootprintMotionArrows = true;
 
     [ObservableProperty]
+    private bool _showGreylineOverlay;
+
+    [ObservableProperty]
+    private bool _use24HourClock;
+
+    public IReadOnlyList<string> ClockFormatLabels { get; }
+
+    [ObservableProperty]
     private LanguageOption? _selectedLanguage;
 
     public IReadOnlyList<LanguageOption> LanguageOptions { get; }
@@ -354,6 +362,11 @@ public partial class SettingsViewModel : ViewModelBase
             new(AppThemePreference.Light, _l.Get("Settings.Theme.Light")),
             new(AppThemePreference.Dark, _l.Get("Settings.Theme.Dark"))
         ];
+        ClockFormatLabels =
+        [
+            _l.Get("Settings.ClockFormat.12Hour"),
+            _l.Get("Settings.ClockFormat.24Hour")
+        ];
         RotatorTypeChoices =
         [
             new(RotatorType.YaesuGs232, "Yaesu GS-232"),
@@ -458,6 +471,8 @@ public partial class SettingsViewModel : ViewModelBase
         _settings.Current.Theme = ThemePreference;
         _settings.Current.UiLanguage = SelectedLanguage?.Code ?? LocalizationCulture.DefaultLanguage;
         _settings.Current.ShowFootprintMotionArrows = ShowFootprintMotionArrows;
+        _settings.Current.ShowGreylineOverlay = ShowGreylineOverlay;
+        _settings.Current.Use24HourClock = Use24HourClock;
         _settings.Current.TleSource = new TleSourceSettings
         {
             Mode = TleSourceOption?.Mode ?? TleSourceMode.OscarWatch,
@@ -573,6 +588,8 @@ public partial class SettingsViewModel : ViewModelBase
             SelectedThemeOption = ThemeOptions.FirstOrDefault(o => o.Value == ThemePreference)
                 ?? ThemeOptions[0];
             ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
+            ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
+            Use24HourClock = _settings.Current.Use24HourClock;
             var langCode = string.IsNullOrWhiteSpace(_settings.Current.UiLanguage)
                 ? LocalizationCulture.DefaultLanguage
                 : _settings.Current.UiLanguage.Trim();
@@ -1023,6 +1040,37 @@ public partial class SettingsViewModel : ViewModelBase
 
         if (App.MainWindow?.DataContext is MainViewModel main)
             main.ShowFootprintMotionArrows = value;
+    }
+
+    partial void OnShowGreylineOverlayChanged(bool value)
+    {
+        if (_isSynchronizing)
+            return;
+
+        if (App.MainWindow?.DataContext is MainViewModel main)
+            main.ShowGreylineOverlay = value;
+    }
+
+    public int ClockFormatIndex
+    {
+        get => Use24HourClock ? 1 : 0;
+        set
+        {
+            if (value is not (0 or 1) || Use24HourClock == (value == 1))
+                return;
+
+            Use24HourClock = value == 1;
+        }
+    }
+
+    partial void OnUse24HourClockChanged(bool value)
+    {
+        if (_isSynchronizing)
+            return;
+
+        _settings.Current.Use24HourClock = value;
+        if (App.MainWindow?.DataContext is MainViewModel main)
+            main.ApplyClockFormatFromSettings();
     }
 
     partial void OnGridSquareChanged(string value)

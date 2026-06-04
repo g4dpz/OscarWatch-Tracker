@@ -11,6 +11,8 @@ public sealed class AppSettings
     public int PassFilterMinDurationMinutes { get; set; } = 2;
     /// <summary>Show pass planner and mutual pass times in UTC instead of local time.</summary>
     public bool PassPlannerUseUtcTime { get; set; }
+    /// <summary>When true, UI times use 24-hour clock; otherwise 12-hour with AM/PM per culture.</summary>
+    public bool Use24HourClock { get; set; }
     public int TleStaleHours { get; set; } = 6;
     public TleSourceSettings TleSource { get; set; } = new();
     public TleAutoUpdateMode TleAutoUpdate { get; set; } = TleAutoUpdateMode.OnStartup;
@@ -21,6 +23,8 @@ public sealed class AppSettings
     public string UiLanguage { get; set; } = "en";
     /// <summary>Show ground-track direction arrows inside satellite footprints on the world map.</summary>
     public bool ShowFootprintMotionArrows { get; set; } = true;
+    /// <summary>Show day/night greyline shading on the world map.</summary>
+    public bool ShowGreylineOverlay { get; set; }
     public VoiceAnnouncementSettings VoiceAnnouncements { get; set; } = new();
     public Dictionary<string, SatelliteFrequencySelection> FrequencySelections { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public double FrequencyOverlayX { get; set; } = 12;
