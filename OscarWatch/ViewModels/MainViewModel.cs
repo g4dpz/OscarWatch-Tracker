@@ -342,10 +342,22 @@ public partial class MainViewModel : ViewModelBase
         if (_settings.Current.TransponderDatabaseCheckOnStartup)
             await CheckTransponderDatabaseUpdatesAsync(showWhenUpToDate: false).ConfigureAwait(true);
 
-        if (_settings.Current.AppUpdateCheckEnabled)
-            await CheckForAppUpdateAsync(manual: false).ConfigureAwait(true);
-
         ConfigureAppUpdateCheckTimer();
+
+        if (_settings.Current.AppUpdateCheckEnabled)
+            _ = RunStartupAppUpdateCheckAsync();
+    }
+
+    private async Task RunStartupAppUpdateCheckAsync()
+    {
+        try
+        {
+            await CheckForAppUpdateAsync(manual: false).ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Startup application update check failed");
+        }
     }
 
     private void Tick()
