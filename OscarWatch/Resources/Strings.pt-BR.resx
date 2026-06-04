@@ -301,6 +301,12 @@
   <data name="Settings.FootprintArrows.Note">
     <value>Desenha uma pequena seta dentro de cada footprint dos satélite(s) selecionados no mapa-múndi indicando a direção do satélite.</value>
   </data>
+  <data name="Settings.GreylineOverlay">
+    <value>Mostrar linha cinzenta dia/noite no mapa</value>
+  </data>
+  <data name="Settings.GreylineOverlay.Note">
+    <value>Sombreia o lado noturno da Terra e desenha o terminador. As footprints dos satélites ficam por cima e seguem o tempo do mapa ao avançar/retroceder.</value>
+  </data>
   <data name="Settings.Language">
     <value>Idioma</value>
   </data>

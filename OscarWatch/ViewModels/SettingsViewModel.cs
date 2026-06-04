@@ -53,6 +53,9 @@ public partial class SettingsViewModel : ViewModelBase
     private bool _showFootprintMotionArrows = true;
 
     [ObservableProperty]
+    private bool _showGreylineOverlay;
+
+    [ObservableProperty]
     private LanguageOption? _selectedLanguage;
 
     public IReadOnlyList<LanguageOption> LanguageOptions { get; }
@@ -458,6 +461,7 @@ public partial class SettingsViewModel : ViewModelBase
         _settings.Current.Theme = ThemePreference;
         _settings.Current.UiLanguage = SelectedLanguage?.Code ?? LocalizationCulture.DefaultLanguage;
         _settings.Current.ShowFootprintMotionArrows = ShowFootprintMotionArrows;
+        _settings.Current.ShowGreylineOverlay = ShowGreylineOverlay;
         _settings.Current.TleSource = new TleSourceSettings
         {
             Mode = TleSourceOption?.Mode ?? TleSourceMode.OscarWatch,
@@ -573,6 +577,7 @@ public partial class SettingsViewModel : ViewModelBase
             SelectedThemeOption = ThemeOptions.FirstOrDefault(o => o.Value == ThemePreference)
                 ?? ThemeOptions[0];
             ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
+            ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
             var langCode = string.IsNullOrWhiteSpace(_settings.Current.UiLanguage)
                 ? LocalizationCulture.DefaultLanguage
                 : _settings.Current.UiLanguage.Trim();
@@ -1023,6 +1028,15 @@ public partial class SettingsViewModel : ViewModelBase
 
         if (App.MainWindow?.DataContext is MainViewModel main)
             main.ShowFootprintMotionArrows = value;
+    }
+
+    partial void OnShowGreylineOverlayChanged(bool value)
+    {
+        if (_isSynchronizing)
+            return;
+
+        if (App.MainWindow?.DataContext is MainViewModel main)
+            main.ShowGreylineOverlay = value;
     }
 
     partial void OnGridSquareChanged(string value)

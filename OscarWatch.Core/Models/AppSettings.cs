@@ -21,6 +21,8 @@ public sealed class AppSettings
     public string UiLanguage { get; set; } = "en";
     /// <summary>Show ground-track direction arrows inside satellite footprints on the world map.</summary>
     public bool ShowFootprintMotionArrows { get; set; } = true;
+    /// <summary>Show day/night greyline shading on the world map.</summary>
+    public bool ShowGreylineOverlay { get; set; }
     public VoiceAnnouncementSettings VoiceAnnouncements { get; set; } = new();
     public Dictionary<string, SatelliteFrequencySelection> FrequencySelections { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public double FrequencyOverlayX { get; set; } = 12;

@@ -178,6 +178,12 @@ public partial class MainViewModel : ViewModelBase
     private bool _showFootprintMotionArrows = true;
 
     [ObservableProperty]
+    private bool _showGreylineOverlay;
+
+    [ObservableProperty]
+    private DateTime _mapDisplayUtc = DateTime.UtcNow;
+
+    [ObservableProperty]
     private bool _isSkyPlotExpanded = true;
 
     [ObservableProperty]
@@ -294,6 +300,7 @@ public partial class MainViewModel : ViewModelBase
         AppThemeManager.Apply(_settings.Current.Theme);
         RefreshGroundStationFromSettings();
         ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
+        ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
         IsSkyPlotExpanded = _settings.Current.SkyPlotExpanded;
         RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
 
@@ -334,6 +341,7 @@ public partial class MainViewModel : ViewModelBase
     private void Tick()
     {
         UpdateUtcClockDisplay();
+        MapDisplayUtc = DateTime.UtcNow + TimeSpan.FromMinutes(MapTimeOffsetMinutes);
         MinimumElevationDeg = _settings.Current.MinimumElevationDeg;
         var mapStates = _liveTracking.GetSnapshot();
         SyncLiveStates(mapStates);
@@ -408,6 +416,7 @@ public partial class MainViewModel : ViewModelBase
 
         _liveTracking.MapTimeOffset = TimeSpan.FromMinutes(MapTimeOffsetMinutes);
         _tracking.InvalidateVisualCache();
+        MapDisplayUtc = DateTime.UtcNow + TimeSpan.FromMinutes(MapTimeOffsetMinutes);
         OnPropertyChanged(nameof(MapTimeStatusText));
         UpdateUtcClockDisplay();
     }
@@ -1112,6 +1121,7 @@ public partial class MainViewModel : ViewModelBase
             UpdateStatus();
             RefreshGroundStationFromSettings();
             ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
+            ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
             RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
             _liveDisplayTimer?.Start();
             Tick();

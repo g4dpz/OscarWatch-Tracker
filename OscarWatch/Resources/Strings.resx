@@ -301,6 +301,12 @@
   <data name="Settings.FootprintArrows.Note">
     <value>Draws a small arrow inside each satellite footprint on the world map showing ground-track direction.</value>
   </data>
+  <data name="Settings.GreylineOverlay">
+    <value>Show day/night greyline on map</value>
+  </data>
+  <data name="Settings.GreylineOverlay.Note">
+    <value>Shades the night side of Earth and draws the terminator. Satellite footprints stay on top. Follows map time when you scrub.</value>
+  </data>
   <data name="Settings.Language">
     <value>Language</value>
   </data>

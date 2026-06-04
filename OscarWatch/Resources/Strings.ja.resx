@@ -211,6 +211,12 @@
   <data name="Settings.FootprintArrows.Note">
     <value>世界地図の各衛星フットプリント内に、地上軌道の進行方向を示す小さな矢印を描画します。</value>
   </data>
+  <data name="Settings.GreylineOverlay">
+    <value>地図に昼夜のグレーラインを表示</value>
+  </data>
+  <data name="Settings.GreylineOverlay.Note">
+    <value>地球の夜側をシェードし、ターミネーター線を描画します。衛星フットプリントはその上に表示され、マップ時間のスクラブに追従します。</value>
+  </data>
   <data name="Settings.Language">
     <value>言語</value>
   </data>
