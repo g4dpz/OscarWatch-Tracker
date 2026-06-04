@@ -170,10 +170,10 @@
     <value>オペレーターガイド</value>
   </data>
   <data name="Menu.Help.CheckForUpdates">
-    <value>更新を確認(_U)…</value>
+    <value>更新を確認(_U)</value>
   </data>
   <data name="Menu.Help.ReleaseNotes">
-    <value>リリースノート(_R)…</value>
+    <value>リリースノート(_R)</value>
   </data>
   <data name="Menu.Help.Recordings">
     <value>録音フォルダを開く(_R)</value>

@@ -248,10 +248,10 @@
     <value>Operator Guide</value>
   </data>
   <data name="Menu.Help.CheckForUpdates">
-    <value>Check for _updates…</value>
+    <value>Check for _updates</value>
   </data>
   <data name="Menu.Help.ReleaseNotes">
-    <value>_Release notes…</value>
+    <value>_Release notes</value>
   </data>
   <data name="Menu.Help.Recordings">
     <value>Open _recordings folder</value>

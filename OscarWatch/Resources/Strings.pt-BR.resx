@@ -248,10 +248,10 @@
     <value>Guia do Usuário</value>
   </data>
   <data name="Menu.Help.CheckForUpdates">
-    <value>Verificar _atualizações…</value>
+    <value>Verificar _atualizações</value>
   </data>
   <data name="Menu.Help.ReleaseNotes">
-    <value>_Notas da versão…</value>
+    <value>_Notas da versão</value>
   </data>
   <data name="Menu.Help.Recordings">
     <value>Abrir pasta de _gravações</value>
