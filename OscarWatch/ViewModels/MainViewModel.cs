@@ -645,6 +645,8 @@ public partial class MainViewModel : ViewModelBase
             if (!RigCatPaused)
                 SetRigCatPausedWithoutPersist(true);
             _rotator.SetStandby(true, _settings.Current.Rotator);
+            StopPassRecordingForStandby();
+            UpdatePassHighlightState();
         }
         else
         {
@@ -899,8 +901,16 @@ public partial class MainViewModel : ViewModelBase
         _recordingPassAosUtc = pass?.AosUtc;
     }
 
+    private void StopPassRecordingForStandby()
+    {
+        if (_recording.IsRecording && !AudioRecordingSessions.IsManualTest(_recording))
+            _recordingTasks.Schedule(() => _recording.StopAsync(), "stop recording (standby)");
+        _passRecordingCoordinator.ResetTracking();
+    }
+
     private bool IsPassBeingRecorded(PassRowViewModel pass) =>
-        _recording.IsRecording
+        !IsStandby
+        && _recording.IsRecording
         && !AudioRecordingSessions.IsManualTest(_recording)
         && _recordingPassAosUtc is not null
         && string.Equals(pass.NoradId, _recordingPassNoradId, StringComparison.Ordinal)
@@ -932,6 +942,12 @@ public partial class MainViewModel : ViewModelBase
             if (_recording.IsRecording && !AudioRecordingSessions.IsManualTest(_recording))
                 _recordingTasks.Schedule(() => _recording.StopAsync(), "stop recording (disabled in settings UI)");
             _passRecordingCoordinator.ResetTracking();
+            return;
+        }
+
+        if (IsStandby)
+        {
+            StopPassRecordingForStandby();
             return;
         }
 
