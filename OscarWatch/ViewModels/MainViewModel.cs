@@ -246,6 +246,7 @@ public partial class MainViewModel : ViewModelBase
         _rotator = rotator;
         _rig = rig;
         _cloudlog = cloudlog;
+        _cloudlog.StateChanged += OnCloudlogStateChanged;
         _transponderDatabaseSync = transponderDatabaseSync;
         _githubRelease = githubRelease;
         Frequencies = frequencies;
@@ -522,15 +523,31 @@ public partial class MainViewModel : ViewModelBase
     {
         var update = Frequencies.TryBuildCloudlogUpdate(focused);
         _cloudlog.Publish(_settings.Current.Cloudlog, update);
+    }
 
+    private void OnCloudlogStateChanged()
+    {
+        Dispatcher.UIThread.Post(ApplyCloudlogStatus, DispatcherPriority.Normal);
+    }
+
+    private void ApplyCloudlogStatus()
+    {
         var error = _cloudlog.LastError;
-        if (!string.IsNullOrEmpty(error) && !string.Equals(_lastCloudlogErrorShown, error, StringComparison.Ordinal))
+        if (!string.IsNullOrEmpty(error))
         {
+            if (string.Equals(_lastCloudlogErrorShown, error, StringComparison.Ordinal))
+                return;
+
             _lastCloudlogErrorShown = error;
             StatusText = _l.Get("Status.CloudlogError", error);
+            return;
         }
-        else if (string.IsNullOrEmpty(error))
-            _lastCloudlogErrorShown = null;
+
+        if (_lastCloudlogErrorShown is null)
+            return;
+
+        _lastCloudlogErrorShown = null;
+        UpdateStatus();
     }
 
     private void UpdateComPortConflictState()

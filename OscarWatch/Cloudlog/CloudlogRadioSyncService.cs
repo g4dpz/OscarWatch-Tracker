@@ -16,6 +16,8 @@ public sealed class CloudlogRadioSyncService : ICloudlogRadioSyncService
     private DateTimeOffset? _lastSuccessUtc;
     private int _inFlight;
 
+    public event Action? StateChanged;
+
     public string? LastError
     {
         get { lock (_gate) return _lastError; }
@@ -68,6 +70,7 @@ public sealed class CloudlogRadioSyncService : ICloudlogRadioSyncService
         lock (_gate)
             _lastError = ok ? null : error;
 
+        NotifyStateChanged();
         return ok;
     }
 
@@ -87,6 +90,8 @@ public sealed class CloudlogRadioSyncService : ICloudlogRadioSyncService
                 else
                     _lastError = error;
             }
+
+            NotifyStateChanged();
         }
         catch (Exception ex)
         {
@@ -96,6 +101,20 @@ public sealed class CloudlogRadioSyncService : ICloudlogRadioSyncService
                 _inFlight--;
                 _lastError = ex.Message;
             }
+
+            NotifyStateChanged();
+        }
+    }
+
+    private void NotifyStateChanged()
+    {
+        try
+        {
+            StateChanged?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Cloudlog state changed handler failed");
         }
     }
 }

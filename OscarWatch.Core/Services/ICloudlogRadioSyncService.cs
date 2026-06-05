@@ -5,6 +5,8 @@ namespace OscarWatch.Core.Services;
 
 public interface ICloudlogRadioSyncService
 {
+    event Action? StateChanged;
+
     string? LastError { get; }
 
     DateTimeOffset? LastSuccessUtc { get; }
