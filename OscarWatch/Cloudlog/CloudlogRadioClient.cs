@@ -64,12 +64,6 @@ public sealed class CloudlogRadioClient
         }
     }
 
-    public static string? BuildRadioEndpoint(string? baseUrl)
-    {
-        var normalized = CloudlogUrlHelper.NormalizeBaseUrl(baseUrl);
-        if (string.IsNullOrEmpty(normalized))
-            return null;
-
-        return $"{normalized}/index.php/api/radio";
-    }
+    public static string? BuildRadioEndpoint(string? baseUrl) =>
+        CloudlogApiEndpoints.BuildRadioEndpoint(baseUrl);
 }

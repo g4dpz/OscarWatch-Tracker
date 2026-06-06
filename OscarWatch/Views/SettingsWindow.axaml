@@ -732,6 +732,29 @@
             <TextBlock Text="{loc:Localize Key=Settings.Cloudlog.ApiKey}" />
             <TextBox Text="{Binding CloudlogApiKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      Watermark="{loc:Localize Key=Settings.Cloudlog.ApiKeyWatermark}" />
+            <Button Content="{loc:Localize Key=Settings.Cloudlog.TestConnection}"
+                    Click="OnTestCloudlogClick"
+                    HorizontalAlignment="Left" />
+            <TextBlock Text="{Binding CloudlogTestStatus}"
+                       TextWrapping="Wrap"
+                       FontSize="12"
+                       MinHeight="20"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Cloudlog.Logbook}"
+                       IsVisible="{Binding ShowCloudlogLogbookPicker}" />
+            <ComboBox ItemsSource="{Binding CloudlogLogbooks}"
+                      SelectedItem="{Binding SelectedCloudlogLogbook, Mode=TwoWay}"
+                      IsVisible="{Binding ShowCloudlogLogbookPicker}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate DataType="vm:CloudlogLogbookOption">
+                  <TextBlock Text="{Binding DisplayName}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <CheckBox Content="{loc:Localize Key=Settings.Cloudlog.CheckRoveGrids}"
+                      IsChecked="{Binding CloudlogCheckRoveGrids, Mode=TwoWay}"
+                      IsVisible="{Binding ShowCloudlogLogbookPicker}" />
             <TextBlock Text="{loc:Localize Key=Settings.Cloudlog.RadioName}" />
             <TextBox Text="{Binding CloudlogRadioName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      Watermark="{loc:Localize Key=Settings.Cloudlog.RadioNameWatermark}" />
@@ -743,14 +766,6 @@
             <NumericUpDown Value="{Binding CloudlogMinUpdateIntervalMs, Mode=TwoWay}"
                            Minimum="250" Maximum="60000"
                            Increment="250" FormatString="F0" />
-            <Button Content="{loc:Localize Key=Settings.Cloudlog.TestConnection}"
-                    Click="OnTestCloudlogClick"
-                    HorizontalAlignment="Left" />
-            <TextBlock Text="{Binding CloudlogTestStatus}"
-                       TextWrapping="Wrap"
-                       FontSize="12"
-                       MinHeight="20"
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
           </StackPanel>
         </ScrollViewer>
       </TabItem>

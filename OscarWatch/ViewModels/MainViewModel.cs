@@ -34,6 +34,7 @@ public partial class MainViewModel : ViewModelBase
     private readonly IRotatorController _rotator;
     private readonly IRigController _rig;
     private readonly ICloudlogRadioSyncService _cloudlog;
+    private readonly ICloudlogLookupService _cloudlogLookup;
     private readonly ISatelliteDatabaseSyncService _transponderDatabaseSync;
     private readonly IGitHubReleaseService _githubRelease;
     private readonly IHamsAtRovesService _hamsAtRoves;
@@ -252,6 +253,7 @@ public partial class MainViewModel : ViewModelBase
         IRotatorController rotator,
         IRigController rig,
         ICloudlogRadioSyncService cloudlog,
+        ICloudlogLookupService cloudlogLookup,
         ISatelliteDatabaseSyncService transponderDatabaseSync,
         IGitHubReleaseService githubRelease,
         IHamsAtRovesService hamsAtRoves,
@@ -273,6 +275,7 @@ public partial class MainViewModel : ViewModelBase
         _rotator = rotator;
         _rig = rig;
         _cloudlog = cloudlog;
+        _cloudlogLookup = cloudlogLookup;
         _cloudlog.StateChanged += OnCloudlogStateChanged;
         _transponderDatabaseSync = transponderDatabaseSync;
         _githubRelease = githubRelease;
@@ -891,18 +894,47 @@ public partial class MainViewModel : ViewModelBase
         }
 
         var result = await _hamsAtRoves.FetchUpcomingAsync(_settings.Current.HamsAt).ConfigureAwait(false);
+        if (!result.Ok)
+        {
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                HamsAtRoves.Clear();
+                HamsAtRovesStatusText = result.ErrorMessage ?? _l.Get("Main.HamsAtRoves.LoadFailed");
+            });
+            return;
+        }
+
+        var workable = result.Alerts.Where(a => a.IsWorkable).ToArray();
+        var clockFormat = PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock);
+        var cloudlog = _settings.Current.Cloudlog;
+        var checkGrids = _cloudlogLookup.CanCheckGrids(cloudlog);
+        var rows = new List<HamsAtRoveRowViewModel>(workable.Length);
+
+        foreach (var alert in workable)
+        {
+            IReadOnlyList<CloudlogGridCheckResult>? gridChecks = null;
+            if (checkGrids && alert.Grids.Count > 0)
+            {
+                var checks = new List<CloudlogGridCheckResult>();
+                foreach (var grid in alert.Grids)
+                {
+                    var check = await _cloudlogLookup.CheckGridWorkedAsync(cloudlog, grid).ConfigureAwait(false);
+                    if (check is not null)
+                        checks.Add(check);
+                }
+
+                if (checks.Count > 0)
+                    gridChecks = checks;
+            }
+
+            rows.Add(HamsAtRoveRowViewModel.From(alert, useUtc: false, clockFormat, gridChecks));
+        }
+
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
             HamsAtRoves.Clear();
-            if (!result.Ok)
-            {
-                HamsAtRovesStatusText = result.ErrorMessage ?? _l.Get("Main.HamsAtRoves.LoadFailed");
-                return;
-            }
-
-            var clockFormat = PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock);
-            foreach (var alert in result.Alerts.Where(a => a.IsWorkable))
-                HamsAtRoves.Add(HamsAtRoveRowViewModel.From(alert, useUtc: false, clockFormat));
+            foreach (var row in rows)
+                HamsAtRoves.Add(row);
 
             HamsAtRovesStatusText = HamsAtRoves.Count == 0
                 ? _l.Get("Main.HamsAtRoves.Empty")
@@ -1834,21 +1866,29 @@ public sealed class HamsAtRoveRowViewModel
 {
     public string Callsign { get; init; } = "";
     public string GridsText { get; init; } = "";
+    public string NeededGridsText { get; init; } = "";
+    public string WorkedGridsText { get; init; } = "";
     public string TimeWindowText { get; init; } = "";
     public string SatelliteName { get; init; } = "";
     public string Comment { get; init; } = "";
     public bool ShowComment => !string.IsNullOrWhiteSpace(Comment);
-    public bool ShowGrids => !string.IsNullOrWhiteSpace(GridsText);
+    public bool HasGridLookup => !string.IsNullOrWhiteSpace(NeededGridsText) || !string.IsNullOrWhiteSpace(WorkedGridsText);
+    public bool ShowGrids => !HasGridLookup && !string.IsNullOrWhiteSpace(GridsText);
+    public bool ShowNeededGrids => !string.IsNullOrWhiteSpace(NeededGridsText);
+    public bool ShowWorkedGrids => !string.IsNullOrWhiteSpace(WorkedGridsText);
     public bool ShowSatellite => !string.IsNullOrWhiteSpace(SatelliteName);
     public string Url { get; init; } = "";
 
     public static HamsAtRoveRowViewModel From(
         HamsAtUpcomingAlert alert,
         bool useUtc,
-        ClockDisplayFormat clockFormat) => new()
+        ClockDisplayFormat clockFormat,
+        IReadOnlyList<CloudlogGridCheckResult>? gridChecks = null) => new()
     {
         Callsign = alert.Callsign,
         GridsText = HamsAtDisplayFormat.FormatGrids(alert.Grids),
+        NeededGridsText = FormatGridSubset(alert.Grids, gridChecks, worked: false),
+        WorkedGridsText = FormatGridSubset(alert.Grids, gridChecks, worked: true),
         TimeWindowText = HamsAtDisplayFormat.FormatAlertWindow(
             alert.AosUtc,
             alert.LosUtc,
@@ -1858,4 +1898,20 @@ public sealed class HamsAtRoveRowViewModel
         Comment = alert.Comment,
         Url = alert.Url
     };
+
+    private static string FormatGridSubset(
+        IReadOnlyList<string> alertGrids,
+        IReadOnlyList<CloudlogGridCheckResult>? gridChecks,
+        bool worked)
+    {
+        if (gridChecks is null || gridChecks.Count == 0)
+            return "";
+
+        var lookup = gridChecks.ToDictionary(c => c.Grid, c => c.IsWorked, StringComparer.OrdinalIgnoreCase);
+        var selected = alertGrids
+            .Where(g => lookup.TryGetValue(g.Trim().ToUpperInvariant(), out var isWorked) && isWorked == worked)
+            .ToArray();
+
+        return selected.Length == 0 ? "" : HamsAtDisplayFormat.FormatGrids(selected);
+    }
 }

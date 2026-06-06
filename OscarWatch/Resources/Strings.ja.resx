@@ -961,8 +961,26 @@
   <data name="Settings.Cloudlog.EnterCredentials">
     <value>URLとAPIキーを入力（各フィールドからフォーカスを外すか、再度テストをクリック）。</value>
   </data>
+  <data name="Settings.Cloudlog.Logbook">
+    <value>ログブック</value>
+  </data>
+  <data name="Settings.Cloudlog.CheckRoveGrids">
+    <value>hams.at ローブで未ワークのグリッドを強調</value>
+  </data>
+  <data name="Settings.Cloudlog.LogbooksLoaded">
+    <value>{0} 件のログブックが見つかりました</value>
+  </data>
   <data name="Settings.Cloudlog.ConnectionOk">
     <value>接続OK — テストCATを投稿: {0}</value>
+  </data>
+  <data name="Settings.Cloudlog.ConnectionOkWithLogbooks">
+    <value>{0}。CATテストOK。</value>
+  </data>
+  <data name="Settings.Cloudlog.LogbooksOnly">
+    <value>{0}。CATテスト失敗: {1}</value>
+  </data>
+  <data name="Settings.Cloudlog.LoadFailed">
+    <value>ログブックを読み込めませんでした — {0}</value>
   </data>
   <data name="Settings.Cloudlog.ConnectionFailed">
     <value>接続に失敗しました。</value>

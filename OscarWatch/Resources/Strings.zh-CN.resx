@@ -1069,8 +1069,26 @@
   <data name="Settings.Cloudlog.EnterCredentials">
     <value>请输入 URL 和 API 密钥（从每个字段切出后再次单击“测试”）。</value>
   </data>
+  <data name="Settings.Cloudlog.Logbook">
+    <value>日志本</value>
+  </data>
+  <data name="Settings.Cloudlog.CheckRoveGrids">
+    <value>在 hams.at rove 上高亮我仍需要的网格</value>
+  </data>
+  <data name="Settings.Cloudlog.LogbooksLoaded">
+    <value>找到 {0} 个日志本</value>
+  </data>
   <data name="Settings.Cloudlog.ConnectionOk">
     <value>连接正常 - 已将测试 CAT 发布到 {0}</value>
+  </data>
+  <data name="Settings.Cloudlog.ConnectionOkWithLogbooks">
+    <value>{0}。CAT 测试正常。</value>
+  </data>
+  <data name="Settings.Cloudlog.LogbooksOnly">
+    <value>{0}。CAT 测试失败：{1}</value>
+  </data>
+  <data name="Settings.Cloudlog.LoadFailed">
+    <value>无法加载日志本 — {0}</value>
   </data>
   <data name="Settings.Cloudlog.ConnectionFailed">
     <value>连接失败。</value>

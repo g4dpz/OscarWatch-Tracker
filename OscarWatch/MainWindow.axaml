@@ -500,19 +500,43 @@
                             BorderThickness="1">
                         <StackPanel Spacing="3">
                           <DockPanel LastChildFill="True">
-                            <Border DockPanel.Dock="Right"
-                                    Padding="10,4"
-                                    CornerRadius="10"
-                                    Margin="6,0,0,0"
-                                    VerticalAlignment="Center"
-                                    Background="{DynamicResource HamsAtGridBadgeBackgroundBrush}"
-                                    IsVisible="{Binding ShowGrids}">
-                              <TextBlock Text="{Binding GridsText}"
-                                         FontSize="14"
-                                         FontWeight="SemiBold"
-                                         FontFamily="Consolas,Courier New,monospace"
-                                         Foreground="{DynamicResource PassInProgressBadgeForegroundBrush}" />
-                            </Border>
+                            <StackPanel DockPanel.Dock="Right"
+                                        Orientation="Horizontal"
+                                        Spacing="4"
+                                        Margin="6,0,0,0"
+                                        VerticalAlignment="Center">
+                              <Border Padding="10,4"
+                                      CornerRadius="10"
+                                      Background="{DynamicResource PassRecordingBadgeBackgroundBrush}"
+                                      IsVisible="{Binding ShowNeededGrids}">
+                                <TextBlock Text="{Binding NeededGridsText}"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           FontFamily="Consolas,Courier New,monospace"
+                                           Foreground="{DynamicResource PassRecordingBadgeForegroundBrush}" />
+                              </Border>
+                              <Border Padding="10,4"
+                                      CornerRadius="10"
+                                      BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                                      BorderThickness="1"
+                                      IsVisible="{Binding ShowWorkedGrids}">
+                                <TextBlock Text="{Binding WorkedGridsText}"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           FontFamily="Consolas,Courier New,monospace"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                              </Border>
+                              <Border Padding="10,4"
+                                      CornerRadius="10"
+                                      Background="{DynamicResource HamsAtGridBadgeBackgroundBrush}"
+                                      IsVisible="{Binding ShowGrids}">
+                                <TextBlock Text="{Binding GridsText}"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           FontFamily="Consolas,Courier New,monospace"
+                                           Foreground="{DynamicResource PassInProgressBadgeForegroundBrush}" />
+                              </Border>
+                            </StackPanel>
                             <TextBlock Text="{Binding Callsign}"
                                        FontWeight="SemiBold"
                                        FontSize="16"

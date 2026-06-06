@@ -1069,8 +1069,26 @@
   <data name="Settings.Cloudlog.EnterCredentials">
     <value>Insira a URL e a chave de API (saia de cada campo com Tab ou clique em Testar novamente).</value>
   </data>
+  <data name="Settings.Cloudlog.Logbook">
+    <value>Logbook</value>
+  </data>
+  <data name="Settings.Cloudlog.CheckRoveGrids">
+    <value>Destacar grids que ainda preciso nas roves do hams.at</value>
+  </data>
+  <data name="Settings.Cloudlog.LogbooksLoaded">
+    <value>{0} logbook(s) encontrado(s)</value>
+  </data>
   <data name="Settings.Cloudlog.ConnectionOk">
     <value>Conexão OK — CAT de teste enviado para {0}</value>
+  </data>
+  <data name="Settings.Cloudlog.ConnectionOkWithLogbooks">
+    <value>{0}. Teste CAT OK.</value>
+  </data>
+  <data name="Settings.Cloudlog.LogbooksOnly">
+    <value>{0}. Teste CAT falhou: {1}</value>
+  </data>
+  <data name="Settings.Cloudlog.LoadFailed">
+    <value>Não foi possível carregar logbooks — {0}</value>
   </data>
   <data name="Settings.Cloudlog.ConnectionFailed">
     <value>Falha na conexão.</value>

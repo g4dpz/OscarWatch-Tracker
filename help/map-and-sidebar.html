@@ -118,7 +118,7 @@
       </table>
       <p>Rows may also be highlighted in amber (soon) or green (in progress) behind the text.</p>
 
-      <h2>Upcoming roves (hams.at)</h2>
+      <h2 id="upcoming-roves">Upcoming roves (hams.at)</h2>
       <p>
         When enabled in <strong>Settings → Integrations</strong>, a collapsible
         <strong>Upcoming roves</strong> panel appears at the bottom of the sidebar. It lists
@@ -126,7 +126,27 @@
         that are <strong>workable for your hams.at location</strong> (<code>is_workable</code> in the API) —
         callsign, grids, time window, satellite, and any comment. Set your observer location on hams.at
         if the panel is empty.
-        Click a row to open that alert on hams.at in your browser.
+        Click a row to open that alert on hams.at in your browser. If Cloudlog is enabled in
+        <strong>Settings → Integrations</strong>, use <strong>Test connection</strong> to load your
+        logbooks and pick one — rove grid badges then show <strong>red</strong> grids you still need
+        and muted badges for grids already in that logbook (satellite contacts only).
+      </p>
+      <h3 id="rove-grid-badges">Rove grid badges</h3>
+      <p>When Cloudlog grid check is enabled and a logbook is selected:</p>
+      <table>
+        <thead>
+          <tr><th>Badge</th><th>Meaning</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Red pill</td><td>Grid(s) you still need — not found in the chosen logbook on <strong>SAT</strong></td></tr>
+          <tr><td>Muted outline pill</td><td>Grid(s) already worked on satellite in that logbook</td></tr>
+          <tr><td>Green pill</td><td>All grids shown together when Cloudlog lookup is off (no logbook selected or checkbox off)</td></tr>
+        </tbody>
+      </table>
+      <p>
+        A rove with multiple grids may show <strong>two</strong> badges side by side — for example red
+        <code>NM48</code> and muted <code>NM49</code> when you need one grid but have already worked the other.
+        Several grids in the same category are combined in one badge (e.g. red <code>NM48, NM49</code>).
       </p>
       <p>
         Enter your hams.at API key and refresh interval on the Integrations tab (stored locally like

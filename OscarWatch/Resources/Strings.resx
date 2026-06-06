@@ -1031,7 +1031,7 @@
     <value>Cloudlog</value>
   </data>
   <data name="Settings.Cloudlog.Intro">
-    <value>Posts satellite TX/RX to Cloudlog CAT (API v2 /index.php/api/radio) when you select a satellite or frequencies update.</value>
+    <value>Posts satellite TX/RX to Cloudlog CAT when you select a satellite or frequencies update. Test connection loads your logbooks for grid lookups on hams.at roves.</value>
   </data>
   <data name="Settings.Cloudlog.Enable">
     <value>Enable Cloudlog radio API (required for live updates)</value>
@@ -1069,8 +1069,26 @@
   <data name="Settings.Cloudlog.EnterCredentials">
     <value>Enter URL and API key (tab out of each field or click Test again).</value>
   </data>
+  <data name="Settings.Cloudlog.Logbook">
+    <value>Logbook</value>
+  </data>
+  <data name="Settings.Cloudlog.CheckRoveGrids">
+    <value>Highlight grids I still need on hams.at roves</value>
+  </data>
+  <data name="Settings.Cloudlog.LogbooksLoaded">
+    <value>{0} logbook(s) found</value>
+  </data>
   <data name="Settings.Cloudlog.ConnectionOk">
     <value>Connection OK — posted test CAT to {0}</value>
+  </data>
+  <data name="Settings.Cloudlog.ConnectionOkWithLogbooks">
+    <value>{0}. Radio CAT test OK.</value>
+  </data>
+  <data name="Settings.Cloudlog.LogbooksOnly">
+    <value>{0}. Radio CAT test failed: {1}</value>
+  </data>
+  <data name="Settings.Cloudlog.LoadFailed">
+    <value>Could not load logbooks — {0}</value>
   </data>
   <data name="Settings.Cloudlog.ConnectionFailed">
     <value>Connection failed.</value>

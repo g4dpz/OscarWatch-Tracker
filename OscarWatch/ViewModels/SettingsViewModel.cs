@@ -22,6 +22,7 @@ public partial class SettingsViewModel : ViewModelBase
     private readonly ISpeechService _speech;
     private readonly IAudioRecordingService _recording;
     private readonly ICloudlogRadioSyncService _cloudlog;
+    private readonly ICloudlogLookupService _cloudlogLookup;
     private readonly IHamsAtRovesService _hamsAtRoves;
     private readonly GroundStation _draft = new();
     private bool _isSynchronizing;
@@ -293,6 +294,17 @@ public partial class SettingsViewModel : ViewModelBase
     private string _cloudlogTestStatus = "";
 
     [ObservableProperty]
+    private bool _cloudlogCheckRoveGrids = true;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowCloudlogLogbookPicker))]
+    private CloudlogLogbookOption? _selectedCloudlogLogbook;
+
+    public ObservableCollection<CloudlogLogbookOption> CloudlogLogbooks { get; } = [];
+
+    public bool ShowCloudlogLogbookPicker => CloudlogLogbooks.Count > 0;
+
+    [ObservableProperty]
     private bool _hamsAtEnabled;
 
     [ObservableProperty]
@@ -350,9 +362,11 @@ public partial class SettingsViewModel : ViewModelBase
         ISpeechService speech,
         IAudioRecordingService recording,
         ICloudlogRadioSyncService cloudlog,
+        ICloudlogLookupService cloudlogLookup,
         IHamsAtRovesService hamsAtRoves)
     {
         _l = localization;
+        _cloudlogLookup = cloudlogLookup;
         _hamsAtRoves = hamsAtRoves;
         LanguageOptions =
         [
@@ -572,7 +586,9 @@ public partial class SettingsViewModel : ViewModelBase
             BaseUrl = CloudlogUrlHelper.NormalizeBaseUrl(CloudlogBaseUrl),
             ApiKey = CloudlogApiKey.Trim(),
             RadioName = string.IsNullOrWhiteSpace(CloudlogRadioName) ? "OscarWatch" : CloudlogRadioName.Trim(),
-            MinUpdateIntervalMs = Math.Clamp(CloudlogMinUpdateIntervalMs, 250, 60_000)
+            MinUpdateIntervalMs = Math.Clamp(CloudlogMinUpdateIntervalMs, 250, 60_000),
+            LogbookPublicSlug = SelectedCloudlogLogbook?.PublicSlug?.Trim() ?? "",
+            CheckRoveGrids = CloudlogCheckRoveGrids
         };
         _settings.Current.HamsAt = new HamsAtSettings
         {
@@ -712,7 +728,19 @@ public partial class SettingsViewModel : ViewModelBase
             CloudlogApiKey = cloudlog.ApiKey;
             CloudlogRadioName = string.IsNullOrWhiteSpace(cloudlog.RadioName) ? "OscarWatch" : cloudlog.RadioName;
             CloudlogMinUpdateIntervalMs = cloudlog.MinUpdateIntervalMs <= 0 ? 1000 : cloudlog.MinUpdateIntervalMs;
+            CloudlogCheckRoveGrids = cloudlog.CheckRoveGrids;
             CloudlogTestStatus = "";
+            CloudlogLogbooks.Clear();
+            if (!string.IsNullOrWhiteSpace(cloudlog.LogbookPublicSlug))
+            {
+                var saved = new CloudlogLogbookOption(cloudlog.LogbookPublicSlug, cloudlog.LogbookPublicSlug, null);
+                CloudlogLogbooks.Add(saved);
+                SelectedCloudlogLogbook = saved;
+            }
+            else
+            {
+                SelectedCloudlogLogbook = null;
+            }
 
             var hamsAt = _settings.Current.HamsAt ?? new HamsAtSettings();
             HamsAtEnabled = hamsAt.Enabled;
@@ -856,7 +884,8 @@ public partial class SettingsViewModel : ViewModelBase
                 Enabled = true,
                 BaseUrl = CloudlogUrlHelper.NormalizeBaseUrl(CloudlogBaseUrl),
                 ApiKey = CloudlogApiKey.Trim(),
-                RadioName = string.IsNullOrWhiteSpace(CloudlogRadioName) ? "OscarWatch" : CloudlogRadioName.Trim()
+                RadioName = string.IsNullOrWhiteSpace(CloudlogRadioName) ? "OscarWatch" : CloudlogRadioName.Trim(),
+                LogbookPublicSlug = SelectedCloudlogLogbook?.PublicSlug ?? ""
             };
 
             if (string.IsNullOrWhiteSpace(settings.BaseUrl) || string.IsNullOrWhiteSpace(settings.ApiKey))
@@ -865,11 +894,30 @@ public partial class SettingsViewModel : ViewModelBase
                 return;
             }
 
-            var endpoint = $"{settings.BaseUrl}/index.php/api/radio";
-            var ok = await _cloudlog.TestConnectionAsync(settings).ConfigureAwait(true);
-            CloudlogTestStatus = ok
-                ? _l.Get("Settings.Cloudlog.ConnectionOk", endpoint)
-                : _cloudlog.LastError ?? _l.Get("Settings.Cloudlog.ConnectionFailed");
+            var savedSlug = SelectedCloudlogLogbook?.PublicSlug;
+            var logbooksResult = await _cloudlogLookup.FetchLogbooksAsync(settings).ConfigureAwait(true);
+            if (!logbooksResult.Ok)
+            {
+                CloudlogTestStatus = _l.Get("Settings.Cloudlog.LoadFailed", logbooksResult.ErrorMessage ?? "");
+                return;
+            }
+
+            CloudlogLogbooks.Clear();
+            foreach (var logbook in logbooksResult.Logbooks)
+                CloudlogLogbooks.Add(CloudlogLogbookOption.From(logbook));
+
+            SelectedCloudlogLogbook = CloudlogLogbooks.FirstOrDefault(l =>
+                !string.IsNullOrWhiteSpace(savedSlug)
+                && string.Equals(l.PublicSlug, savedSlug, StringComparison.OrdinalIgnoreCase))
+                ?? CloudlogLogbooks.FirstOrDefault();
+
+            OnPropertyChanged(nameof(ShowCloudlogLogbookPicker));
+
+            var radioOk = await _cloudlog.TestConnectionAsync(settings).ConfigureAwait(true);
+            var logbookMessage = _l.Get("Settings.Cloudlog.LogbooksLoaded", logbooksResult.Logbooks.Count);
+            CloudlogTestStatus = radioOk
+                ? _l.Get("Settings.Cloudlog.ConnectionOkWithLogbooks", logbookMessage)
+                : _l.Get("Settings.Cloudlog.LogbooksOnly", logbookMessage, _cloudlog.LastError ?? _l.Get("Settings.Cloudlog.ConnectionFailed"));
         }
         catch (Exception ex)
         {
@@ -1199,3 +1247,13 @@ public sealed record RigRegionOption(RigRegion Value, string Label);
 public sealed record RecordingDeviceOption(string Id, string DisplayName);
 
 public sealed record RecordingFormatOption(RecordingFormatPreset Value, string Label);
+
+public sealed record CloudlogLogbookOption(string PublicSlug, string LogbookName, string? AccessLevel)
+{
+    public string DisplayName => string.IsNullOrWhiteSpace(AccessLevel)
+        ? LogbookName
+        : $"{LogbookName} ({AccessLevel})";
+
+    public static CloudlogLogbookOption From(CloudlogLogbookInfo info) =>
+        new(info.PublicSlug, info.LogbookName, info.AccessLevel);
+}

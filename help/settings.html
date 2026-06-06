@@ -13,7 +13,7 @@
         <a href="index.html" class="brand-home" title="Home"><img src="oscarwatch-icon.png" alt="" class="brand-icon" width="56" height="56" /></a>
         <div class="brand-text">
           <h1>Settings</h1>
-          <p class="tagline">Station, TLE source, tracking, voice, recording, hardware, and Cloudlog</p>
+          <p class="tagline">Station, TLE source, tracking, voice, recording, hardware, and integrations</p>
         </div>
       </div>
       <nav aria-label="Help topics">
@@ -101,11 +101,39 @@
         set modes when the frequency panel is on <strong>CW</strong> for linear SSB satellites (see <a href="frequencies.html">Frequencies</a>).
       </p>
 
-      <h2>Cloudlog</h2>
+      <h2>Integrations</h2>
       <p>
-        If you use <a href="https://github.com/magicbug/Cloudlog">Cloudlog</a>, enter your server URL, API key, and radio name.
-        While tracking, OscarWatch can post current satellite uplink/downlink frequencies to the Radio API.
-        Use <strong>Test connection</strong> before relying on it in the field.
+        The <strong>Integrations</strong> tab groups external services: <strong>hams.at</strong> upcoming roves
+        and <strong>Cloudlog</strong>. See <a href="map-and-sidebar.html#upcoming-roves">Upcoming roves</a>
+        for how the sidebar panel works.
+      </p>
+
+      <h3>hams.at</h3>
+      <p>
+        Enable the integration, paste your hams.at API key (Bearer token), and set how often roves refresh.
+        Your key is stored locally in <code>settings.json</code> like other credentials. Use
+        <strong>Test connection</strong> to verify the key. Set your observer location on
+        <a href="https://hams.at/location" target="_blank" rel="noopener">hams.at</a> so
+        <code>is_workable</code> alerts match your station.
+      </p>
+
+      <h3>Cloudlog</h3>
+      <p>
+        If you use <a href="https://github.com/magicbug/Cloudlog">Cloudlog</a>, enter your server URL and API key.
+        Click <strong>Test connection</strong> after both fields are filled — OscarWatch loads your available
+        logbooks (logbooks must have a <strong>public slug</strong> in Cloudlog) and shows a
+        <strong>Logbook</strong> dropdown. Pick the logbook to use for grid lookups on hams.at roves.
+      </p>
+      <p>
+        While tracking, OscarWatch can still post current satellite uplink/downlink frequencies to the
+        Radio API (configure <strong>Radio name</strong> and minimum update interval below the logbook).
+        Use <strong>Test connection</strong> before relying on CAT updates in the field.
+      </p>
+      <p>
+        <strong>Highlight grids I still need on hams.at roves</strong> (shown when a logbook is selected)
+        checks each rove grid against that logbook using Cloudlog’s <code>logbook_check_grid</code> API with
+        <code>band: SAT</code>, so only satellite QSOs count. Grid badges on rove rows are described in
+        <a href="map-and-sidebar.html#rove-grid-badges">Map &amp; sidebar → Rove grid badges</a>.
       </p>
     </main>
 
