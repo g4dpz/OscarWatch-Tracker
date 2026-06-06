@@ -28,4 +28,23 @@ public sealed class ReleaseNotesMarkdownTests
     {
         Assert.Equal("", ReleaseNotesMarkdown.StripImages(null));
     }
+
+    [Fact]
+    public void StripLeadingTitle_removes_first_h1()
+    {
+        const string input = "# OscarWatch Tracker — Version 0.8.4\n\n## New features\n* item";
+        var result = ReleaseNotesMarkdown.StripLeadingTitle(input);
+        Assert.DoesNotContain("OscarWatch Tracker", result);
+        Assert.StartsWith("## New features", result);
+    }
+
+    [Fact]
+    public void PrepareForDisplay_strips_title_and_images()
+    {
+        const string input = "# Release\n\n![shot](https://example.com/a.png)\n\n## Section";
+        var result = ReleaseNotesMarkdown.PrepareForDisplay(input);
+        Assert.DoesNotContain("# Release", result);
+        Assert.DoesNotContain("![shot]", result);
+        Assert.StartsWith("## Section", result);
+    }
 }

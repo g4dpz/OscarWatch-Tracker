@@ -26,7 +26,7 @@ public partial class ReleaseNotesWindow : Window
             : release.Name;
         var body = string.IsNullOrWhiteSpace(release.Body)
             ? release.TagName
-            : ReleaseNotesMarkdown.StripImages(release.Body);
+            : ReleaseNotesMarkdown.PrepareForDisplay(release.Body);
         BodyMarkdown.Markdown = body;
         Title = HeadingText.Text ?? Title;
     }
