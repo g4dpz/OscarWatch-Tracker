@@ -83,6 +83,19 @@ public partial class SettingsWindow : Window
         }
     }
 
+    private void OnIntegrationsSectionNavSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (IntegrationsSectionNav is null)
+            return;
+
+        var showHamsAt = IntegrationsSectionNav.SelectedIndex <= 0;
+        HamsAtIntegrationSection.IsVisible = showHamsAt;
+        CloudlogIntegrationSection.IsVisible = !showHamsAt;
+
+        if (IntegrationsContentScrollViewer is not null)
+            IntegrationsContentScrollViewer.Offset = new Vector(0, 0);
+    }
+
     private async void OnTestCloudlogClick(object? sender, RoutedEventArgs e)
     {
         var testButton = sender as Button;
