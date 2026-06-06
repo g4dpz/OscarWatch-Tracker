@@ -20,7 +20,6 @@ public partial class MutualPassVisualizerViewModel : ViewModelBase
     private PassInfo? _westPass;
     private PassInfo? _eastPass;
     private SatelliteCatalogEntry? _satellite;
-    private bool _useUtcTime;
 
     public MutualPassVisualizerViewModel(
         ITleService tleService,
@@ -65,6 +64,12 @@ public partial class MutualPassVisualizerViewModel : ViewModelBase
     [ObservableProperty]
     private double _minimumElevationDeg;
 
+    [ObservableProperty]
+    private bool _useUtcTime;
+
+    [ObservableProperty]
+    private bool _use24HourClock;
+
     public void Initialize(
         MutualPassInfo pass,
         GroundStation localSite,
@@ -74,7 +79,8 @@ public partial class MutualPassVisualizerViewModel : ViewModelBase
         double minimumElevationDeg)
     {
         _pass = pass;
-        _useUtcTime = useUtcTime;
+        UseUtcTime = useUtcTime;
+        Use24HourClock = use24HourClock;
         var clockFormat = PassDisplayFormat.FromSettings(use24HourClock);
         MinimumElevationDeg = minimumElevationDeg;
         (_westSite, _eastSite, _westPass, _eastPass) = OrderWestEast(localSite, remoteSite, pass);

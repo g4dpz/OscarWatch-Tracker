@@ -54,12 +54,39 @@
         <li><strong>Export calendar (.ics)</strong> — add passes to Outlook, Google Calendar, or your contest plan.</li>
       </ul>
 
-      <h2>Mutual pass finder</h2>
+      <h2 id="mutual-pass">Mutual pass finder</h2>
       <p>
         <strong>Passes → Mutual pass finder</strong> finds times when a satellite is visible from
         <em>two</em> stations at once — useful for QSOs between two grids or for rovers.
+        Enter the remote operator’s Maidenhead grid (and an optional callsign or name), set your
+        filters, then press <strong>Find mutual passes</strong>. The table lists each satellite
+        with the mutual window, overlap duration, and pass times at both stations.
+      </p>
+      <p>
         For live azimuth and elevation at a remote grid while you operate, use the
         <strong>DX station monitor</strong> on the map (<a href="map-and-sidebar.html#dx-station">Map &amp; sidebar</a>).
+      </p>
+
+      <h3>Opening the visualizer</h3>
+      <ul>
+        <li><strong>Double-click</strong> a pass row to open the <strong>mutual pass visualizer</strong>.</li>
+        <li>Or <strong>right-click</strong> a row and choose <strong>Open visualizer</strong>.</li>
+      </ul>
+      <p>
+        The visualizer shows side-by-side polar plots (west station on the left, east on the right)
+        with the pass path drawn in sunlit and eclipse segments. Green diamond markers show mutual
+        window start; orange circle markers show mutual window end. Hover along a pass track to see
+        a tooltip with time, azimuth, and elevation, and a blue dot on the path showing where you
+        are on the plot. Use the checkboxes to overlay each station’s full pass instead of only the
+        mutual window. <strong>Screenshot</strong> saves the whole visualizer window as a PNG.
+      </p>
+
+      <h3>Copying pass details</h3>
+      <p>
+        <strong>Right-click</strong> a pass row and choose <strong>Copy</strong> to put a formatted
+        text summary on the clipboard — satellite, both stations, mutual window, pass times, max
+        elevation, and AOS/LOS azimuths. Paste it into an email or message to coordinate a sked.
+        Times follow the local/UTC setting in the mutual pass window.
       </p>
 
       <h2>Sunlight prediction</h2>

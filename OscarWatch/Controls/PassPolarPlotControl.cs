@@ -1,7 +1,10 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Media;
+using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
+using OscarWatch.Localization;
 
 namespace OscarWatch.Controls;
 
@@ -11,13 +14,24 @@ namespace OscarWatch.Controls;
 public class PassPolarPlotControl : ThemeAwareControl
 {
     private const double LabelMarginPx = 16;
+    private const double HoverMarkerRadiusPx = 5.5;
     private static readonly Color EclipsePathColor = Color.Parse("#E05252");
+    private static readonly Color HoverMarkerFill = Color.Parse("#4DA3FF");
+    private static readonly Color HoverMarkerOutline = Color.Parse("#1a2028");
+
+    private PassPolarPlotHitTest.HoverPoint? _hoverPoint;
 
     public static readonly StyledProperty<PassPolarPlotData?> PlotDataProperty =
         AvaloniaProperty.Register<PassPolarPlotControl, PassPolarPlotData?>(nameof(PlotData));
 
     public static readonly StyledProperty<double> MinimumElevationDegProperty =
         AvaloniaProperty.Register<PassPolarPlotControl, double>(nameof(MinimumElevationDeg), 0.0);
+
+    public static readonly StyledProperty<bool> UseUtcTimeProperty =
+        AvaloniaProperty.Register<PassPolarPlotControl, bool>(nameof(UseUtcTime));
+
+    public static readonly StyledProperty<bool> Use24HourClockProperty =
+        AvaloniaProperty.Register<PassPolarPlotControl, bool>(nameof(Use24HourClock));
 
     static PassPolarPlotControl()
     {
@@ -28,6 +42,8 @@ public class PassPolarPlotControl : ThemeAwareControl
     {
         ClipToBounds = true;
         MinHeight = 220;
+        PointerMoved += OnPointerMoved;
+        PointerExited += OnPointerExited;
     }
 
     public PassPolarPlotData? PlotData
@@ -40,6 +56,18 @@ public class PassPolarPlotControl : ThemeAwareControl
     {
         get => GetValue(MinimumElevationDegProperty);
         set => SetValue(MinimumElevationDegProperty, value);
+    }
+
+    public bool UseUtcTime
+    {
+        get => GetValue(UseUtcTimeProperty);
+        set => SetValue(UseUtcTimeProperty, value);
+    }
+
+    public bool Use24HourClock
+    {
+        get => GetValue(Use24HourClockProperty);
+        set => SetValue(Use24HourClockProperty, value);
     }
 
     public override void Render(DrawingContext context)
@@ -97,6 +125,7 @@ public class PassPolarPlotControl : ThemeAwareControl
 
         DrawMarker(context, cx, cy, plotRadius, data.MutualStart);
         DrawMarker(context, cx, cy, plotRadius, data.MutualEnd);
+        DrawHoverMarker(context, cx, cy, plotRadius);
     }
 
     private static void DrawMarker(
@@ -179,6 +208,26 @@ public class PassPolarPlotControl : ThemeAwareControl
         DrawLabel(context, "W", cx - plotRadius - 18, cy - 5, palette);
     }
 
+    private void DrawHoverMarker(DrawingContext context, double cx, double cy, double plotRadius)
+    {
+        if (_hoverPoint is not { } hover)
+            return;
+
+        if (!SkyPlotControl.TryAzElToPoint(cx, cy, plotRadius, hover.AzimuthDeg, hover.ElevationDeg, out var point))
+            return;
+
+        var rect = new Rect(
+            point.X - HoverMarkerRadiusPx,
+            point.Y - HoverMarkerRadiusPx,
+            HoverMarkerRadiusPx * 2,
+            HoverMarkerRadiusPx * 2);
+        context.DrawEllipse(
+            new SolidColorBrush(HoverMarkerFill),
+            new Pen(new SolidColorBrush(HoverMarkerOutline), 2),
+            rect);
+        context.DrawEllipse(null, new Pen(Brushes.White, 1.5), rect);
+    }
+
     private static void DrawLabel(DrawingContext context, string text, double x, double y, UiPalette palette)
     {
         var ft = new FormattedText(
@@ -189,5 +238,74 @@ public class PassPolarPlotControl : ThemeAwareControl
             12,
             new SolidColorBrush(palette.SkyPlotLabel));
         context.DrawText(ft, new Point(x, y));
+    }
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+        if (change.Property == PlotDataProperty)
+            ClearHover();
+    }
+
+    private void OnPointerMoved(object? sender, PointerEventArgs e)
+    {
+        var data = PlotData;
+        if (data is null || data.Samples.Count == 0)
+        {
+            ClearHover();
+            return;
+        }
+
+        var w = Bounds.Width;
+        var h = Bounds.Height;
+        if (w <= 0 || h <= 0)
+        {
+            ClearHover();
+            return;
+        }
+
+        var pos = e.GetPosition(this);
+        var (cx, cy, plotRadius) = GetPlotGeometry(w, h);
+        var hit = PassPolarPlotHitTest.TryHit(data, cx, cy, plotRadius, pos);
+        if (hit is null)
+        {
+            ClearHover();
+            return;
+        }
+
+        SetHover(hit.Value);
+
+        var timeText = PassDisplayFormat.FormatHoverTime(
+            hit.Value.Utc,
+            UseUtcTime,
+            PassDisplayFormat.FromSettings(Use24HourClock));
+        ToolTip.SetTip(
+            this,
+            LocalizationService.Instance.Get(
+                "Mutual.Visualizer.PlotTooltip",
+                timeText,
+                hit.Value.AzimuthDeg,
+                hit.Value.ElevationDeg));
+    }
+
+    private void OnPointerExited(object? sender, PointerEventArgs e) => ClearHover();
+
+    private void SetHover(PassPolarPlotHitTest.HoverPoint hover)
+    {
+        if (_hoverPoint == hover)
+            return;
+
+        _hoverPoint = hover;
+        InvalidateVisual();
+    }
+
+    private void ClearHover()
+    {
+        ToolTip.SetTip(this, null);
+        if (_hoverPoint is null)
+            return;
+
+        _hoverPoint = null;
+        InvalidateVisual();
     }
 }

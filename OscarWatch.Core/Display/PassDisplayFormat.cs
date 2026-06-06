@@ -255,6 +255,16 @@ public static class PassDisplayFormat
         return utc.ToString($"yyyy-MM-dd {timePattern}", culture);
     }
 
+    public static string FormatHoverTime(
+        DateTime utc,
+        bool useUtc,
+        ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour,
+        CultureInfo? culture = null)
+    {
+        culture ??= CultureInfo.CurrentCulture;
+        return ToDisplayTime(utc, useUtc).ToString(GetTimePattern(clockFormat, includeSeconds: true, culture), culture);
+    }
+
     /// <summary>Minutes and seconds until AOS, e.g. <c>14:05</c>.</summary>
     public static string FormatCountdownToAos(DateTime utcNow, DateTime aosUtc)
     {

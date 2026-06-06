@@ -19,6 +19,13 @@ public sealed class PassPolarPlotSegment
     public required IReadOnlyList<(double AzimuthDeg, double ElevationDeg)> Points { get; init; }
 }
 
+public sealed class PassPolarPlotSample
+{
+    public DateTime Utc { get; init; }
+    public double AzimuthDeg { get; init; }
+    public double ElevationDeg { get; init; }
+}
+
 public sealed class PassPolarPlotData
 {
     public required string StationLabel { get; init; }
@@ -26,6 +33,7 @@ public sealed class PassPolarPlotData
     public double LosAzimuthDeg { get; init; }
     public double MaxElevationDeg { get; init; }
     public required IReadOnlyList<PassPolarPlotSegment> Segments { get; init; }
+    public required IReadOnlyList<PassPolarPlotSample> Samples { get; init; }
     public PassPolarPlotMarker? MutualStart { get; init; }
     public PassPolarPlotMarker? MutualEnd { get; init; }
 }

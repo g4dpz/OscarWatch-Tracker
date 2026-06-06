@@ -46,6 +46,12 @@ public static class PassPolarPlotBuilder
             LosAzimuthDeg = losAz,
             MaxElevationDeg = maxEl,
             Segments = segments,
+            Samples = samples.Select(s => new PassPolarPlotSample
+            {
+                Utc = s.Utc,
+                AzimuthDeg = s.AzimuthDeg,
+                ElevationDeg = s.ElevationDeg
+            }).ToArray(),
             MutualStart = TryMarkerAt(satellite, propagator, site, mutualStartUtc, PassPolarPlotMarkerKind.MutualWindowStart, minimumElevationDeg),
             MutualEnd = TryMarkerAt(satellite, propagator, site, mutualEndUtc, PassPolarPlotMarkerKind.MutualWindowEnd, minimumElevationDeg)
         };

@@ -53,6 +53,7 @@ public class PassPolarPlotBuilderTests
 
         Assert.Equal("IO91", plot.StationLabel);
         Assert.NotEmpty(plot.Segments);
+        Assert.NotEmpty(plot.Samples);
         Assert.All(plot.Segments, s => Assert.NotEmpty(s.Points));
         Assert.NotNull(plot.MutualStart);
         Assert.NotNull(plot.MutualEnd);

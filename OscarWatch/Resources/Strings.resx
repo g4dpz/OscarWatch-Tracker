@@ -52,6 +52,9 @@
   <data name="Common.Close">
     <value>Close</value>
   </data>
+  <data name="Common.Copy">
+    <value>Copy</value>
+  </data>
   <data name="Common.Delete">
     <value>Delete</value>
   </data>
@@ -1195,8 +1198,41 @@
   <data name="Mutual.Status.InvalidGrid">
     <value>Invalid Maidenhead grid square.</value>
   </data>
+  <data name="Mutual.OpenVisualizer">
+    <value>Open visualizer</value>
+  </data>
   <data name="Mutual.Visualizer.DoubleClickHint">
-    <value>Double-click a pass to open the mutual pass visualizer.</value>
+    <value>Double-click a pass to open the mutual pass visualizer. Right-click for more options.</value>
+  </data>
+  <data name="Mutual.Copy.Title">
+    <value>Mutual pass — {0}</value>
+  </data>
+  <data name="Mutual.Copy.Between">
+    <value>Between {0} and {1}</value>
+  </data>
+  <data name="Mutual.Copy.TimesIn">
+    <value>Times shown in {0}</value>
+  </data>
+  <data name="Mutual.Copy.MutualWindow">
+    <value>Mutual window</value>
+  </data>
+  <data name="Mutual.Copy.MutualWindowLine">
+    <value>  {0} ({1})</value>
+  </data>
+  <data name="Mutual.Copy.YourPass">
+    <value>Your pass — {0}</value>
+  </data>
+  <data name="Mutual.Copy.RemotePass">
+    <value>Remote pass — {0}</value>
+  </data>
+  <data name="Mutual.Copy.PassTimes">
+    <value>  {0}</value>
+  </data>
+  <data name="Mutual.Copy.MaxElevation">
+    <value>  Max elevation {0:F1}°</value>
+  </data>
+  <data name="Mutual.Copy.Azimuth">
+    <value>  AOS azimuth {0:F1}° · LOS azimuth {1:F1}°</value>
   </data>
   <data name="Mutual.Visualizer.Heading">
     <value>Overlapping pass between {0} and {1} via {2}</value>
@@ -1212,6 +1248,9 @@
   </data>
   <data name="Mutual.Visualizer.StationStats">
     <value>{0} · AOS Az: {1:F1}° · Max El: {2:F1}° · LOS Az: {3:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.PlotTooltip">
+    <value>{0} · Az: {1:F1}° · El: {2:F1}°</value>
   </data>
   <data name="Mutual.Visualizer.Legend.Aos">
     <value>AOS (mutual window start)</value>

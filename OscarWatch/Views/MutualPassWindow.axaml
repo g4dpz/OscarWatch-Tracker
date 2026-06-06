@@ -166,6 +166,7 @@
         <DataGrid x:Name="PassesGrid"
                   ItemsSource="{Binding Passes}"
                   DoubleTapped="OnPassesDoubleTapped"
+                  PointerPressed="OnPassesPointerPressed"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
                   HorizontalScrollBarVisibility="Auto"
@@ -176,6 +177,14 @@
                   HeadersVisibility="Column"
                   MinHeight="120"
                   BorderThickness="0">
+          <DataGrid.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="{loc:Localize Key=Mutual.OpenVisualizer}"
+                        Click="OnOpenVisualizerClick" />
+              <MenuItem Header="{loc:Localize Key=Common.Copy}"
+                        Click="OnCopyPassClick" />
+            </ContextMenu>
+          </DataGrid.ContextMenu>
           <DataGrid.Styles>
             <Style Selector="DataGridColumnHeader">
               <Setter Property="FontWeight" Value="SemiBold" />

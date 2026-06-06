@@ -52,6 +52,9 @@
   <data name="Common.Close">
     <value>Fechar</value>
   </data>
+  <data name="Common.Copy">
+    <value>Copiar</value>
+  </data>
   <data name="Common.Delete">
     <value>Excluir</value>
   </data>
@@ -1195,8 +1198,41 @@
   <data name="Mutual.Status.InvalidGrid">
     <value>Grid inválido.</value>
   </data>
+  <data name="Mutual.OpenVisualizer">
+    <value>Abrir visualizador</value>
+  </data>
   <data name="Mutual.Visualizer.DoubleClickHint">
-    <value>Clique duas vezes em uma passagem para abrir o visualizador.</value>
+    <value>Clique duas vezes em uma passagem para abrir o visualizador. Clique com o botão direito para mais opções.</value>
+  </data>
+  <data name="Mutual.Copy.Title">
+    <value>Passagem mútua — {0}</value>
+  </data>
+  <data name="Mutual.Copy.Between">
+    <value>Entre {0} e {1}</value>
+  </data>
+  <data name="Mutual.Copy.TimesIn">
+    <value>Horários em {0}</value>
+  </data>
+  <data name="Mutual.Copy.MutualWindow">
+    <value>Janela mútua</value>
+  </data>
+  <data name="Mutual.Copy.MutualWindowLine">
+    <value>  {0} ({1})</value>
+  </data>
+  <data name="Mutual.Copy.YourPass">
+    <value>Sua passagem — {0}</value>
+  </data>
+  <data name="Mutual.Copy.RemotePass">
+    <value>Passagem remota — {0}</value>
+  </data>
+  <data name="Mutual.Copy.PassTimes">
+    <value>  {0}</value>
+  </data>
+  <data name="Mutual.Copy.MaxElevation">
+    <value>  Elevação máxima {0:F1}°</value>
+  </data>
+  <data name="Mutual.Copy.Azimuth">
+    <value>  Azimute AOS {0:F1}° · Azimute LOS {1:F1}°</value>
   </data>
   <data name="Mutual.Visualizer.Heading">
     <value>Passagem sobreposta entre {0} e {1} via {2}</value>
@@ -1212,6 +1248,9 @@
   </data>
   <data name="Mutual.Visualizer.StationStats">
     <value>{0} · AOS Az: {1:F1}° · El máx: {2:F1}° · LOS Az: {3:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.PlotTooltip">
+    <value>{0} · Az: {1:F1}° · El: {2:F1}°</value>
   </data>
   <data name="Mutual.Visualizer.Legend.Aos">
     <value>AOS (início da janela mútua)</value>

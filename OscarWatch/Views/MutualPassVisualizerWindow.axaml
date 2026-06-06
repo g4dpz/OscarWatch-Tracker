@@ -40,6 +40,8 @@
                    TextWrapping="Wrap" />
         <ctrl:PassPolarPlotControl PlotData="{Binding WestPlotData}"
                                    MinimumElevationDeg="{Binding MinimumElevationDeg}"
+                                   UseUtcTime="{Binding UseUtcTime}"
+                                   Use24HourClock="{Binding Use24HourClock}"
                                    Height="300"
                                    HorizontalAlignment="Stretch"
                                    VerticalAlignment="Top" />
@@ -51,6 +53,8 @@
                    TextWrapping="Wrap" />
         <ctrl:PassPolarPlotControl PlotData="{Binding EastPlotData}"
                                    MinimumElevationDeg="{Binding MinimumElevationDeg}"
+                                   UseUtcTime="{Binding UseUtcTime}"
+                                   Use24HourClock="{Binding Use24HourClock}"
                                    Height="300"
                                    HorizontalAlignment="Stretch"
                                    VerticalAlignment="Top" />

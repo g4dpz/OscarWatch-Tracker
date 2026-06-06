@@ -201,6 +201,37 @@ public partial class MutualPassViewModel : ViewModelBase
             FilterMinElevationDeg);
         return vm;
     }
+
+    public bool CanCopyPass(MutualPassRow? row) =>
+        row is not null && _lastLocalSite is not null && _lastRemoteSite is not null;
+
+    public string? FormatCopyText(MutualPassRow? row)
+    {
+        if (!CanCopyPass(row))
+            return null;
+
+        return MutualPassCopyFormatter.Format(
+            row!.Source,
+            _lastLocalSite!,
+            _lastRemoteSite!,
+            BuildCopyLabels(),
+            UseUtcTime,
+            PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock));
+    }
+
+    private MutualPassCopyFormatter.Labels BuildCopyLabels() => new()
+    {
+        Title = _l.Get("Mutual.Copy.Title"),
+        Between = _l.Get("Mutual.Copy.Between"),
+        TimesIn = _l.Get("Mutual.Copy.TimesIn"),
+        MutualWindowHeader = _l.Get("Mutual.Copy.MutualWindow"),
+        MutualWindowLine = _l.Get("Mutual.Copy.MutualWindowLine"),
+        YourPassHeader = _l.Get("Mutual.Copy.YourPass"),
+        RemotePassHeader = _l.Get("Mutual.Copy.RemotePass"),
+        PassTimes = _l.Get("Mutual.Copy.PassTimes"),
+        MaxElevation = _l.Get("Mutual.Copy.MaxElevation"),
+        Azimuth = _l.Get("Mutual.Copy.Azimuth")
+    };
 }
 
 public sealed class MutualPassRow

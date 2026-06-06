@@ -52,6 +52,9 @@
   <data name="Common.Close">
     <value>关闭</value>
   </data>
+  <data name="Common.Copy">
+    <value>复制</value>
+  </data>
   <data name="Common.Delete">
     <value>删除</value>
   </data>
@@ -1195,8 +1198,41 @@
   <data name="Mutual.Status.InvalidGrid">
     <value>无效的梅登黑德网格。</value>
   </data>
+  <data name="Mutual.OpenVisualizer">
+    <value>打开可视化</value>
+  </data>
     <data name="Mutual.Visualizer.DoubleClickHint">
-    <value>双击一条过境记录以打开双向过境可视化。</value>
+    <value>双击一条过境记录以打开双向过境可视化。右键可查看更多选项。</value>
+  </data>
+  <data name="Mutual.Copy.Title">
+    <value>双向过境 — {0}</value>
+  </data>
+  <data name="Mutual.Copy.Between">
+    <value>{0} 与 {1} 之间</value>
+  </data>
+  <data name="Mutual.Copy.TimesIn">
+    <value>时间显示为 {0}</value>
+  </data>
+  <data name="Mutual.Copy.MutualWindow">
+    <value>双向窗口</value>
+  </data>
+  <data name="Mutual.Copy.MutualWindowLine">
+    <value>  {0}（{1}）</value>
+  </data>
+  <data name="Mutual.Copy.YourPass">
+    <value>本站过境 — {0}</value>
+  </data>
+  <data name="Mutual.Copy.RemotePass">
+    <value>远端过境 — {0}</value>
+  </data>
+  <data name="Mutual.Copy.PassTimes">
+    <value>  {0}</value>
+  </data>
+  <data name="Mutual.Copy.MaxElevation">
+    <value>  最大仰角 {0:F1}°</value>
+  </data>
+  <data name="Mutual.Copy.Azimuth">
+    <value>  AOS 方位 {0:F1}° · LOS 方位 {1:F1}°</value>
   </data>
   <data name="Mutual.Visualizer.Heading">
     <value>{0} 与 {1} 的重叠过境（经 {2}）</value>
@@ -1212,6 +1248,9 @@
   </data>
   <data name="Mutual.Visualizer.StationStats">
     <value>{0} · AOS 方位 {1:F1}° · 最大仰角 {2:F1}° · LOS 方位 {3:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.PlotTooltip">
+    <value>{0} · 方位: {1:F1}° · 仰角: {2:F1}°</value>
   </data>
   <data name="Mutual.Visualizer.Legend.Aos">
     <value>AOS（双向窗口开始）</value>

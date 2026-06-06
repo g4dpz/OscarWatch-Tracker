@@ -10,6 +10,9 @@
   <data name="Common.Close">
     <value>閉じる</value>
   </data>
+  <data name="Common.Copy">
+    <value>コピー</value>
+  </data>
   <data name="Common.Ok">
     <value>OK</value>
   </data>
@@ -1099,8 +1102,41 @@
   <data name="Mutual.Status.InvalidGrid">
     <value>メイデンヘッドグリッドが無効です。</value>
   </data>
+  <data name="Mutual.OpenVisualizer">
+    <value>ビジュアライザを開く</value>
+  </data>
   <data name="Mutual.Visualizer.DoubleClickHint">
-    <value>パスをダブルクリックして相互パスビジュアライザを開きます。</value>
+    <value>パスをダブルクリックして相互パスビジュアライザを開きます。右クリックでその他の操作ができます。</value>
+  </data>
+  <data name="Mutual.Copy.Title">
+    <value>相互パス — {0}</value>
+  </data>
+  <data name="Mutual.Copy.Between">
+    <value>{0} と {1} の間</value>
+  </data>
+  <data name="Mutual.Copy.TimesIn">
+    <value>時刻表示: {0}</value>
+  </data>
+  <data name="Mutual.Copy.MutualWindow">
+    <value>相互ウィンドウ</value>
+  </data>
+  <data name="Mutual.Copy.MutualWindowLine">
+    <value>  {0}（{1}）</value>
+  </data>
+  <data name="Mutual.Copy.YourPass">
+    <value>自局パス — {0}</value>
+  </data>
+  <data name="Mutual.Copy.RemotePass">
+    <value>相手局パス — {0}</value>
+  </data>
+  <data name="Mutual.Copy.PassTimes">
+    <value>  {0}</value>
+  </data>
+  <data name="Mutual.Copy.MaxElevation">
+    <value>  最大仰角 {0:F1}°</value>
+  </data>
+  <data name="Mutual.Copy.Azimuth">
+    <value>  AOS方位 {0:F1}° · LOS方位 {1:F1}°</value>
   </data>
   <data name="Mutual.Visualizer.Heading">
     <value>{0} と {1} の重複パス（{2} 経由）</value>
@@ -1116,6 +1152,9 @@
   </data>
   <data name="Mutual.Visualizer.StationStats">
     <value>{0} · AOS方位 {1:F1}° · 最大仰角 {2:F1}° · LOS方位 {3:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.PlotTooltip">
+    <value>{0} · 方位: {1:F1}° · 仰角: {2:F1}°</value>
   </data>
   <data name="Mutual.Visualizer.Legend.Aos">
     <value>AOS（相互ウィンドウ開始）</value>
