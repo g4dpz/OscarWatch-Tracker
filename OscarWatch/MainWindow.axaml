@@ -308,27 +308,25 @@
                           VerticalAlignment="Center"
                           ToolTip.Tip="{loc:Localize Key=Main.Radio.CatPauseTip}" />
                 </Grid>
-                <Grid ColumnDefinitions="*,*">
-                  <StackPanel Grid.Column="0" Spacing="2" Margin="0,0,4,0">
-                    <TextBlock Text="{loc:Localize Key=Main.Radio.Rx}"
-                               FontSize="10"
-                               Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-                    <TextBlock Text="{Binding RigReceiveText}"
-                               FontSize="12"
-                               FontWeight="SemiBold"
-                               TextWrapping="Wrap"
-                               FontFamily="Consolas,Courier New,monospace" />
-                  </StackPanel>
-                  <StackPanel Grid.Column="1" Spacing="2" Margin="4,0,0,0">
-                    <TextBlock Text="{loc:Localize Key=Main.Radio.Tx}"
-                               FontSize="10"
-                               Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-                    <TextBlock Text="{Binding RigTransmitText}"
-                               FontSize="12"
-                               FontWeight="SemiBold"
-                               TextWrapping="Wrap"
-                               FontFamily="Consolas,Courier New,monospace" />
-                  </StackPanel>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                  <TextBlock Grid.Column="0"
+                             FontSize="12"
+                             TextWrapping="Wrap">
+                    <Run Text="{loc:Localize Key=Main.Radio.Rx}"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                    <Run Text="{Binding RigReceiveText}"
+                         FontWeight="SemiBold"
+                         FontFamily="Consolas,Courier New,monospace" />
+                  </TextBlock>
+                  <TextBlock Grid.Column="1"
+                             FontSize="12"
+                             TextWrapping="Wrap">
+                    <Run Text="{loc:Localize Key=Main.Radio.Tx}"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                    <Run Text="{Binding RigTransmitText}"
+                         FontWeight="SemiBold"
+                         FontFamily="Consolas,Courier New,monospace" />
+                  </TextBlock>
                 </Grid>
               </StackPanel>
             </Border>

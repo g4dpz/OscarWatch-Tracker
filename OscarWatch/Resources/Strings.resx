@@ -155,10 +155,10 @@
     <value>Resume CAT</value>
   </data>
   <data name="Main.Radio.Rx">
-    <value>RX</value>
+    <value>RX </value>
   </data>
   <data name="Main.Radio.Tx">
-    <value>TX</value>
+    <value>TX </value>
   </data>
   <data name="Main.Range">
     <value>Range </value>
