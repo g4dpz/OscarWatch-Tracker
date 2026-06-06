@@ -46,6 +46,18 @@
   <data name="Main.Passes">
     <value>今後のパス</value>
   </data>
+  <data name="Main.HamsAtRoves">
+    <value>今後のローブ</value>
+  </data>
+  <data name="Main.HamsAtRoves.Empty">
+    <value>hams.at の位置で実行可能なローブはありません。</value>
+  </data>
+  <data name="Main.HamsAtRoves.LoadFailed">
+    <value>hams.at からローブを読み込めませんでした。</value>
+  </data>
+  <data name="Main.HamsAtRoves.ResizeGrip">
+    <value>ドラッグしてローブ一覧の高さを変更</value>
+  </data>
   <data name="Pass.Rec">
     <value>録音</value>
   </data>
@@ -562,6 +574,9 @@
   <data name="Settings.Tab.Cloudlog">
     <value>Cloudlog</value>
   </data>
+  <data name="Settings.Tab.Integrations">
+    <value>連携</value>
+  </data>
   <data name="Settings.Station.DisplayName">
     <value>表示名</value>
   </data>
@@ -867,6 +882,45 @@
   </data>
   <data name="Settings.Recording.Format.Stereo44100">
     <value>ステレオ 44.1 kHz</value>
+  </data>
+  <data name="Settings.HamsAt.Section">
+    <value>hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.Intro">
+    <value>サイドバーに hams.at の今後のローブを表示します。hams.at の位置で実行可能なアラートのみ表示されます。表示がない場合は hams.at で観測位置を設定してください。APIキーは settings.json にローカル保存されます。</value>
+  </data>
+  <data name="Settings.HamsAt.Enable">
+    <value>hams.at の今後のローブを有効</value>
+  </data>
+  <data name="Settings.HamsAt.ApiKey">
+    <value>hams.at APIキー</value>
+  </data>
+  <data name="Settings.HamsAt.ApiKeyWatermark">
+    <value>hams.at の Bearer トークン</value>
+  </data>
+  <data name="Settings.HamsAt.PanelHeight">
+    <value>サイドバーパネルの高さ（px）</value>
+  </data>
+  <data name="Settings.HamsAt.RefreshInterval">
+    <value>更新間隔（分）</value>
+  </data>
+  <data name="Settings.HamsAt.TestConnection">
+    <value>接続テスト</value>
+  </data>
+  <data name="Settings.HamsAt.Testing">
+    <value>hams.at 接続をテスト中…</value>
+  </data>
+  <data name="Settings.HamsAt.EnterApiKey">
+    <value>先に hams.at APIキーを入力してください。</value>
+  </data>
+  <data name="Settings.HamsAt.ConnectionOk">
+    <value>接続成功 — {0}</value>
+  </data>
+  <data name="Settings.HamsAt.ConnectionFailed">
+    <value>接続失敗 — {0}</value>
+  </data>
+  <data name="Settings.Cloudlog.Section">
+    <value>Cloudlog</value>
   </data>
   <data name="Settings.Cloudlog.Intro">
     <value>衛星選択または周波数更新時にCloudlog CAT（API v2 /index.php/api/radio）へ衛星TX/RXを投稿。</value>

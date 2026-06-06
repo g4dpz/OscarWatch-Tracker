@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -35,6 +36,7 @@ public partial class MainViewModel : ViewModelBase
     private readonly ICloudlogRadioSyncService _cloudlog;
     private readonly ISatelliteDatabaseSyncService _transponderDatabaseSync;
     private readonly IGitHubReleaseService _githubRelease;
+    private readonly IHamsAtRovesService _hamsAtRoves;
     private readonly ILocalizationService _l;
     private readonly DispatcherTimer _timer;
     private DispatcherTimer? _appUpdateCheckTimer;
@@ -47,6 +49,7 @@ public partial class MainViewModel : ViewModelBase
     public DxStationOverlayViewModel DxStation { get; }
     private DispatcherTimer? _tleRefreshTimer;
     private DispatcherTimer? _passListRefreshTimer;
+    private DispatcherTimer? _hamsAtRefreshTimer;
     private DispatcherTimer? _liveDisplayTimer;
     private static readonly TimeSpan PassListRefreshInterval = TimeSpan.FromMinutes(15);
     private static readonly TimeSpan LiveDisplayInterval = TimeSpan.FromMilliseconds(250);
@@ -190,6 +193,29 @@ public partial class MainViewModel : ViewModelBase
     private bool _isSkyPlotExpanded = true;
 
     [ObservableProperty]
+    private bool _isPassesExpanded = true;
+
+    [ObservableProperty]
+    private bool _isHamsAtRovesExpanded = true;
+
+    [ObservableProperty]
+    private double _hamsAtRovesPanelHeight = 180;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowHamsAtRovesStatus))]
+    private string _hamsAtRovesStatusText = "";
+
+    public bool ShowHamsAtRovesStatus => !string.IsNullOrWhiteSpace(HamsAtRovesStatusText);
+
+    public ObservableCollection<HamsAtRoveRowViewModel> HamsAtRoves { get; } = [];
+
+    public event Action? SidebarLayoutInvalidated;
+
+    public bool ShowHamsAtRovesPanel =>
+        _settings.Current.HamsAt.Enabled
+        && !string.IsNullOrWhiteSpace(_settings.Current.HamsAt.ApiKey);
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsMapTimeScrubbing))]
     [NotifyPropertyChangedFor(nameof(MapTimeStatusText))]
     private double _mapTimeOffsetMinutes;
@@ -228,6 +254,7 @@ public partial class MainViewModel : ViewModelBase
         ICloudlogRadioSyncService cloudlog,
         ISatelliteDatabaseSyncService transponderDatabaseSync,
         IGitHubReleaseService githubRelease,
+        IHamsAtRovesService hamsAtRoves,
         ILocalizationService localization,
         FrequencyOverlayViewModel frequencies,
         DxStationOverlayViewModel dxStation)
@@ -249,6 +276,7 @@ public partial class MainViewModel : ViewModelBase
         _cloudlog.StateChanged += OnCloudlogStateChanged;
         _transponderDatabaseSync = transponderDatabaseSync;
         _githubRelease = githubRelease;
+        _hamsAtRoves = hamsAtRoves;
         Frequencies = frequencies;
         DxStation = dxStation;
         Frequencies.OffsetsChanged += (_, reinitializePass) => RefreshRigFromOverlay(reinitializePass);
@@ -291,6 +319,61 @@ public partial class MainViewModel : ViewModelBase
         _settings.RequestSave();
     }
 
+    partial void OnIsPassesExpandedChanged(bool value)
+    {
+        _settings.Current.PassesExpanded = value;
+        _settings.RequestSave();
+        SidebarLayoutInvalidated?.Invoke();
+    }
+
+    partial void OnIsHamsAtRovesExpandedChanged(bool value)
+    {
+        _settings.Current.HamsAtRovesExpanded = value;
+        _settings.RequestSave();
+        SidebarLayoutInvalidated?.Invoke();
+    }
+
+    public const double HamsAtRovesMinPanelHeight = 80;
+    public const double HamsAtRovesMaxPanelHeight = 400;
+
+    private void ApplyHamsAtSidebarSettings()
+    {
+        IsHamsAtRovesExpanded = _settings.Current.HamsAtRovesExpanded;
+        HamsAtRovesPanelHeight = Math.Clamp(
+            _settings.Current.HamsAtRovesPanelHeightPx,
+            HamsAtRovesMinPanelHeight,
+            HamsAtRovesMaxPanelHeight);
+        OnPropertyChanged(nameof(ShowHamsAtRovesPanel));
+        SidebarLayoutInvalidated?.Invoke();
+    }
+
+    public void SetHamsAtRovesPanelHeight(double height, double? maxHeight = null)
+    {
+        var max = maxHeight ?? HamsAtRovesMaxPanelHeight;
+        HamsAtRovesPanelHeight = Math.Clamp(height, HamsAtRovesMinPanelHeight, max);
+    }
+
+    public void PersistHamsAtRovesPanelHeight()
+    {
+        _settings.Current.HamsAtRovesPanelHeightPx = (int)Math.Round(HamsAtRovesPanelHeight);
+        _settings.RequestSave();
+    }
+
+    partial void OnHamsAtRovesPanelHeightChanged(double value) =>
+        SidebarLayoutInvalidated?.Invoke();
+
+    public void OpenHamsAtRove(HamsAtRoveRowViewModel? row)
+    {
+        if (row is null || string.IsNullOrWhiteSpace(row.Url))
+            return;
+
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = row.Url,
+            UseShellExecute = true
+        });
+    }
+
     private void RefreshRigUi(SatelliteTrackState? focused)
     {
         var rigStatus = _rig.GetStatus();
@@ -308,6 +391,8 @@ public partial class MainViewModel : ViewModelBase
         ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
         ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
         IsSkyPlotExpanded = _settings.Current.SkyPlotExpanded;
+        IsPassesExpanded = _settings.Current.PassesExpanded;
+        ApplyHamsAtSidebarSettings();
         RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
 
         StatusText = _l.Get("Status.LoadingTle");
@@ -333,10 +418,12 @@ public partial class MainViewModel : ViewModelBase
         Tick();
         _timer.Start();
         ConfigurePassListRefreshTimer();
+        ConfigureHamsAtRefreshTimer();
         _liveDisplayTimer?.Start();
 
         StatusText = _l.Get("Status.ComputingPasses");
         await RefreshPassesAsync().ConfigureAwait(true);
+        await RefreshHamsAtRovesAsync().ConfigureAwait(true);
         UpdateStatus();
         Tick();
 
@@ -780,6 +867,49 @@ public partial class MainViewModel : ViewModelBase
         _passListRefreshTimer.Start();
     }
 
+    private void ConfigureHamsAtRefreshTimer()
+    {
+        _hamsAtRefreshTimer?.Stop();
+        _hamsAtRefreshTimer = null;
+
+        if (!ShowHamsAtRovesPanel)
+            return;
+
+        var minutes = Math.Clamp(_settings.Current.HamsAt.RefreshIntervalMinutes, 1, 120);
+        _hamsAtRefreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(minutes) };
+        _hamsAtRefreshTimer.Tick += async (_, _) => await RefreshHamsAtRovesAsync();
+        _hamsAtRefreshTimer.Start();
+    }
+
+    private async Task RefreshHamsAtRovesAsync()
+    {
+        if (!ShowHamsAtRovesPanel)
+        {
+            HamsAtRoves.Clear();
+            HamsAtRovesStatusText = "";
+            return;
+        }
+
+        var result = await _hamsAtRoves.FetchUpcomingAsync(_settings.Current.HamsAt).ConfigureAwait(false);
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            HamsAtRoves.Clear();
+            if (!result.Ok)
+            {
+                HamsAtRovesStatusText = result.ErrorMessage ?? _l.Get("Main.HamsAtRoves.LoadFailed");
+                return;
+            }
+
+            var clockFormat = PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock);
+            foreach (var alert in result.Alerts.Where(a => a.IsWorkable))
+                HamsAtRoves.Add(HamsAtRoveRowViewModel.From(alert, useUtc: false, clockFormat));
+
+            HamsAtRovesStatusText = HamsAtRoves.Count == 0
+                ? _l.Get("Main.HamsAtRoves.Empty")
+                : "";
+        });
+    }
+
     private void PruneExpiredPasses()
     {
         var now = DateTime.UtcNow;
@@ -1172,6 +1302,9 @@ public partial class MainViewModel : ViewModelBase
         {
             ConfigureTleAutoUpdateTimer();
             ConfigureAppUpdateCheckTimer();
+            ApplyHamsAtSidebarSettings();
+            ConfigureHamsAtRefreshTimer();
+            await RefreshHamsAtRovesAsync().ConfigureAwait(true);
             await ReloadTleCatalogAfterSettingsAsync().ConfigureAwait(true);
             _liveTracking.RequestReload();
             _rotator.Disconnect();
@@ -1695,4 +1828,34 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
             : L.Get("Pass.DurationMinutes", minutes);
         return L.Get("Pass.Details", durationText, $"{maxElevationDeg:F0}°");
     }
+}
+
+public sealed class HamsAtRoveRowViewModel
+{
+    public string Callsign { get; init; } = "";
+    public string GridsText { get; init; } = "";
+    public string TimeWindowText { get; init; } = "";
+    public string SatelliteName { get; init; } = "";
+    public string Comment { get; init; } = "";
+    public bool ShowComment => !string.IsNullOrWhiteSpace(Comment);
+    public bool ShowGrids => !string.IsNullOrWhiteSpace(GridsText);
+    public bool ShowSatellite => !string.IsNullOrWhiteSpace(SatelliteName);
+    public string Url { get; init; } = "";
+
+    public static HamsAtRoveRowViewModel From(
+        HamsAtUpcomingAlert alert,
+        bool useUtc,
+        ClockDisplayFormat clockFormat) => new()
+    {
+        Callsign = alert.Callsign,
+        GridsText = HamsAtDisplayFormat.FormatGrids(alert.Grids),
+        TimeWindowText = HamsAtDisplayFormat.FormatAlertWindow(
+            alert.AosUtc,
+            alert.LosUtc,
+            useUtc,
+            clockFormat),
+        SatelliteName = alert.Satellite?.Name ?? "",
+        Comment = alert.Comment,
+        Url = alert.Url
+    };
 }

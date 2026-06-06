@@ -15,15 +15,26 @@ public partial class MainWindow : Window
     private static readonly TimeSpan PassListScrollResetCheckInterval = TimeSpan.FromSeconds(30);
     private const double PassListTopEpsilon = 1.0;
 
+    private const double HamsAtRovesMinPanelHeight = 80;
+    private const double HamsAtRovesMaxPanelHeight = 400;
+    private const double HamsAtRovesResizeGripHeight = 10;
+
     private ScrollViewer? _passListScrollViewer;
     private DispatcherTimer? _passListScrollResetTimer;
     private DateTime _passListLastUserScrollUtc = DateTime.MinValue;
     private bool _passListIsScrolledDown;
+    private bool _isResizingHamsAtRoves;
+    private double _hamsAtRovesResizeStartY;
+    private double _hamsAtRovesResizeStartHeight;
+    private IPointer? _hamsAtRovesResizePointer;
 
     public MainWindow()
     {
         InitializeComponent();
         AddHandler(KeyDownEvent, OnGlobalKeyDown, RoutingStrategies.Tunnel);
+        AddHandler(PointerMovedEvent, OnHamsAtRovesResizePointerMoved, RoutingStrategies.Tunnel);
+        AddHandler(PointerReleasedEvent, OnHamsAtRovesResizePointerReleased, RoutingStrategies.Tunnel);
+        AddHandler(PointerCaptureLostEvent, OnHamsAtRovesResizeCaptureLost, RoutingStrategies.Tunnel);
         PassesListBox.ContainerPrepared += OnPassListContainerPrepared;
         PassesListBox.ContainerClearing += OnPassListContainerClearing;
         PassesListBox.AttachedToVisualTree += (_, _) => TryAttachPassListScrollViewer();
@@ -121,21 +132,134 @@ public partial class MainWindow : Window
             item.Classes.Remove("pass-day-header");
     }
 
-    private void OnSidebarLayoutSizeChanged(object? sender, SizeChangedEventArgs e)
+    private void OnSidebarLayoutSizeChanged(object? sender, SizeChangedEventArgs e) =>
+        UpdateSidebarTopMaxHeight(e.NewSize.Height);
+
+    private void UpdateSidebarTopMaxHeight(double sidebarHeight)
     {
         if (SidebarTopScrollViewer is null)
             return;
 
         const double minPassesHeight = 140;
-        var maxTopHeight = e.NewSize.Height - minPassesHeight;
+        const double expanderHeaderHeight = 32;
+        var rovesReserve = 0.0;
+        if (DataContext is MainViewModel vm && vm.ShowHamsAtRovesPanel)
+        {
+            rovesReserve = expanderHeaderHeight + 8;
+            if (vm.IsHamsAtRovesExpanded)
+                rovesReserve += vm.HamsAtRovesPanelHeight + HamsAtRovesResizeGripHeight + 16;
+        }
+
+        var maxTopHeight = sidebarHeight - minPassesHeight - rovesReserve;
         SidebarTopScrollViewer.MaxHeight = maxTopHeight > 0 ? maxTopHeight : double.PositiveInfinity;
+    }
+
+    private void OnHamsAtRovesResizePointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm || !vm.IsHamsAtRovesExpanded)
+            return;
+
+        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+            return;
+
+        _isResizingHamsAtRoves = true;
+        _hamsAtRovesResizePointer = e.Pointer;
+        _hamsAtRovesResizeStartY = e.GetPosition(this).Y;
+        _hamsAtRovesResizeStartHeight = vm.HamsAtRovesPanelHeight;
+        e.Pointer.Capture((IInputElement)sender!);
+        e.Handled = true;
+    }
+
+    private void OnHamsAtRovesResizePointerMoved(object? sender, PointerEventArgs e)
+    {
+        if (!_isResizingHamsAtRoves || DataContext is not MainViewModel vm)
+            return;
+
+        if (_hamsAtRovesResizePointer is not null && !ReferenceEquals(e.Pointer, _hamsAtRovesResizePointer))
+            return;
+
+        var deltaY = e.GetPosition(this).Y - _hamsAtRovesResizeStartY;
+        var nextHeight = _hamsAtRovesResizeStartHeight - deltaY;
+        vm.SetHamsAtRovesPanelHeight(nextHeight, GetMaxHamsAtRovesPanelHeight());
+        e.Handled = true;
+    }
+
+    private void OnHamsAtRovesResizePointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        if (!_isResizingHamsAtRoves)
+            return;
+
+        if (_hamsAtRovesResizePointer is not null && !ReferenceEquals(e.Pointer, _hamsAtRovesResizePointer))
+            return;
+
+        EndHamsAtRovesResize(persist: true);
+        e.Handled = true;
+    }
+
+    private void OnHamsAtRovesResizeCaptureLost(object? sender, PointerCaptureLostEventArgs e)
+    {
+        if (!_isResizingHamsAtRoves)
+            return;
+
+        if (_hamsAtRovesResizePointer is not null && !ReferenceEquals(e.Pointer, _hamsAtRovesResizePointer))
+            return;
+
+        EndHamsAtRovesResize(persist: true);
+    }
+
+    private void EndHamsAtRovesResize(bool persist)
+    {
+        _isResizingHamsAtRoves = false;
+        _hamsAtRovesResizePointer = null;
+
+        if (persist && DataContext is MainViewModel vm)
+            vm.PersistHamsAtRovesPanelHeight();
+    }
+
+    private double GetMaxHamsAtRovesPanelHeight()
+    {
+        if (SidebarLayoutGrid is null)
+            return HamsAtRovesMaxPanelHeight;
+
+        const double minPassesHeight = 140;
+        const double expanderHeaderHeight = 32;
+        const double topSectionFloor = 120;
+        var sidebarHeight = SidebarLayoutGrid.Bounds.Height;
+        var computed = sidebarHeight - minPassesHeight - expanderHeaderHeight - HamsAtRovesResizeGripHeight - topSectionFloor - 16;
+        return Math.Clamp(computed, HamsAtRovesMinPanelHeight, HamsAtRovesMaxPanelHeight);
+    }
+
+    private void OnHamsAtRovesListTapped(object? sender, TappedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm)
+            return;
+
+        for (var node = e.Source as Visual; node is not null; node = node.GetVisualParent() as Visual)
+        {
+            if (node is ListBoxItem { DataContext: HamsAtRoveRowViewModel row })
+            {
+                vm.OpenHamsAtRove(row);
+                break;
+            }
+        }
     }
 
     protected override async void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
         if (DataContext is MainViewModel vm)
+        {
+            vm.SidebarLayoutInvalidated += OnSidebarLayoutInvalidated;
             await vm.InitializeAsync();
+            if (SidebarLayoutGrid is not null)
+                UpdateSidebarTopMaxHeight(SidebarLayoutGrid.Bounds.Height);
+        }
+    }
+
+    private void OnSidebarLayoutInvalidated()
+    {
+        if (SidebarLayoutGrid is not null)
+            UpdateSidebarTopMaxHeight(SidebarLayoutGrid.Bounds.Height);
     }
 
     private void OnGlobalKeyDown(object? sender, KeyEventArgs e)

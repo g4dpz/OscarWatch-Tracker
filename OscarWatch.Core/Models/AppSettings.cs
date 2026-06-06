@@ -40,6 +40,13 @@ public sealed class AppSettings
     public bool DxOverlayCollapsed { get; set; } = true;
     /// <summary>Whether the sidebar sky plot expander is open.</summary>
     public bool SkyPlotExpanded { get; set; } = true;
+    /// <summary>Whether the sidebar upcoming passes expander is open.</summary>
+    public bool PassesExpanded { get; set; } = true;
+    /// <summary>Whether the sidebar hams.at roves expander is open.</summary>
+    public bool HamsAtRovesExpanded { get; set; } = true;
+    /// <summary>Height in pixels of the hams.at roves list when expanded.</summary>
+    public int HamsAtRovesPanelHeightPx { get; set; } = 180;
+    public HamsAtSettings HamsAt { get; set; } = new();
     public RotatorSettings Rotator { get; set; } = new();
     public RigSettings Rig { get; set; } = new();
     public CloudlogSettings Cloudlog { get; set; } = new();

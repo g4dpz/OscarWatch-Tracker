@@ -106,6 +106,18 @@
   <data name="Main.Passes">
     <value>即将过境</value>
   </data>
+  <data name="Main.HamsAtRoves">
+    <value>即将进行的 rove</value>
+  </data>
+  <data name="Main.HamsAtRoves.Empty">
+    <value>没有适用于您 hams.at 位置的可用 rove。</value>
+  </data>
+  <data name="Main.HamsAtRoves.LoadFailed">
+    <value>无法从 hams.at 加载 rove。</value>
+  </data>
+  <data name="Main.HamsAtRoves.ResizeGrip">
+    <value>拖动以调整 rove 列表大小</value>
+  </data>
   <data name="Pass.Rec">
     <value>录音</value>
   </data>
@@ -339,6 +351,9 @@
   </data>
   <data name="Settings.Tab.Cloudlog">
     <value>Cloudlog</value>
+  </data>
+  <data name="Settings.Tab.Integrations">
+    <value>集成</value>
   </data>
   <data name="Settings.Tab.Radio">
     <value>电台</value>
@@ -975,6 +990,45 @@
   </data>
   <data name="Settings.Recording.Format.Stereo44100">
     <value>立体声 44.1 kHz</value>
+  </data>
+  <data name="Settings.HamsAt.Section">
+    <value>hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.Intro">
+    <value>在侧边栏显示 hams.at 的即将进行的卫星 rove。仅列出对您 hams.at 位置可用的警报 — 若列表为空，请在 hams.at 上设置观测位置。API 密钥存储在本地 settings.json 中。</value>
+  </data>
+  <data name="Settings.HamsAt.Enable">
+    <value>启用 hams.at 即将进行的 rove</value>
+  </data>
+  <data name="Settings.HamsAt.ApiKey">
+    <value>hams.at API 密钥</value>
+  </data>
+  <data name="Settings.HamsAt.ApiKeyWatermark">
+    <value>来自 hams.at 的 Bearer 令牌</value>
+  </data>
+  <data name="Settings.HamsAt.PanelHeight">
+    <value>侧边栏面板高度（像素）</value>
+  </data>
+  <data name="Settings.HamsAt.RefreshInterval">
+    <value>刷新间隔（分钟）</value>
+  </data>
+  <data name="Settings.HamsAt.TestConnection">
+    <value>测试连接</value>
+  </data>
+  <data name="Settings.HamsAt.Testing">
+    <value>正在测试 hams.at 连接…</value>
+  </data>
+  <data name="Settings.HamsAt.EnterApiKey">
+    <value>请先输入 hams.at API 密钥。</value>
+  </data>
+  <data name="Settings.HamsAt.ConnectionOk">
+    <value>已连接 — {0}</value>
+  </data>
+  <data name="Settings.HamsAt.ConnectionFailed">
+    <value>连接失败 — {0}</value>
+  </data>
+  <data name="Settings.Cloudlog.Section">
+    <value>Cloudlog</value>
   </data>
   <data name="Settings.Cloudlog.Intro">
     <value>当您选择卫星或频率更新时，将卫星 TX/RX 发布到 Cloudlog CAT（API v2 /index.php/api/radio）。</value>

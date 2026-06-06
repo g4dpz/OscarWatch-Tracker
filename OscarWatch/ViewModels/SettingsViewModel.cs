@@ -22,6 +22,7 @@ public partial class SettingsViewModel : ViewModelBase
     private readonly ISpeechService _speech;
     private readonly IAudioRecordingService _recording;
     private readonly ICloudlogRadioSyncService _cloudlog;
+    private readonly IHamsAtRovesService _hamsAtRoves;
     private readonly GroundStation _draft = new();
     private bool _isSynchronizing;
 
@@ -291,6 +292,18 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty]
     private string _cloudlogTestStatus = "";
 
+    [ObservableProperty]
+    private bool _hamsAtEnabled;
+
+    [ObservableProperty]
+    private string _hamsAtApiKey = "";
+
+    [ObservableProperty]
+    private int _hamsAtRefreshIntervalMinutes = 10;
+
+    [ObservableProperty]
+    private string _hamsAtTestStatus = "";
+
     public IReadOnlyList<RigTypeOption> RigTypeChoices { get; }
 
     public IReadOnlyList<RigTypeOption> RigDualTypeChoices { get; }
@@ -336,9 +349,11 @@ public partial class SettingsViewModel : ViewModelBase
         ILocalizationService localization,
         ISpeechService speech,
         IAudioRecordingService recording,
-        ICloudlogRadioSyncService cloudlog)
+        ICloudlogRadioSyncService cloudlog,
+        IHamsAtRovesService hamsAtRoves)
     {
         _l = localization;
+        _hamsAtRoves = hamsAtRoves;
         LanguageOptions =
         [
             new LanguageOption(LocalizationCulture.DefaultLanguage, _l.Get("Settings.Language.English")),
@@ -559,6 +574,12 @@ public partial class SettingsViewModel : ViewModelBase
             RadioName = string.IsNullOrWhiteSpace(CloudlogRadioName) ? "OscarWatch" : CloudlogRadioName.Trim(),
             MinUpdateIntervalMs = Math.Clamp(CloudlogMinUpdateIntervalMs, 250, 60_000)
         };
+        _settings.Current.HamsAt = new HamsAtSettings
+        {
+            Enabled = HamsAtEnabled,
+            ApiKey = HamsAtApiKey.Trim(),
+            RefreshIntervalMinutes = Math.Clamp(HamsAtRefreshIntervalMinutes, 1, 120)
+        };
         _cloudlog.ResetThrottle();
         _settings.SyncActiveStationFromGroundStation();
         AppThemeManager.Apply(ThemePreference);
@@ -692,6 +713,12 @@ public partial class SettingsViewModel : ViewModelBase
             CloudlogRadioName = string.IsNullOrWhiteSpace(cloudlog.RadioName) ? "OscarWatch" : cloudlog.RadioName;
             CloudlogMinUpdateIntervalMs = cloudlog.MinUpdateIntervalMs <= 0 ? 1000 : cloudlog.MinUpdateIntervalMs;
             CloudlogTestStatus = "";
+
+            var hamsAt = _settings.Current.HamsAt ?? new HamsAtSettings();
+            HamsAtEnabled = hamsAt.Enabled;
+            HamsAtApiKey = hamsAt.ApiKey;
+            HamsAtRefreshIntervalMinutes = hamsAt.RefreshIntervalMinutes <= 0 ? 10 : hamsAt.RefreshIntervalMinutes;
+            HamsAtTestStatus = "";
             RefreshComPortConflict();
         }
         finally
@@ -789,6 +816,34 @@ public partial class SettingsViewModel : ViewModelBase
 
         if (folders.Count > 0)
             RecordingOutputFolder = folders[0].Path.LocalPath;
+    }
+
+    public async Task TestHamsAtAsync()
+    {
+        try
+        {
+            HamsAtTestStatus = _l.Get("Settings.HamsAt.Testing");
+            var settings = new HamsAtSettings
+            {
+                Enabled = true,
+                ApiKey = HamsAtApiKey.Trim()
+            };
+
+            if (string.IsNullOrWhiteSpace(settings.ApiKey))
+            {
+                HamsAtTestStatus = _l.Get("Settings.HamsAt.EnterApiKey");
+                return;
+            }
+
+            var (ok, message) = await _hamsAtRoves.TestConnectionAsync(settings).ConfigureAwait(true);
+            HamsAtTestStatus = ok
+                ? _l.Get("Settings.HamsAt.ConnectionOk", message)
+                : _l.Get("Settings.HamsAt.ConnectionFailed", message);
+        }
+        catch (Exception ex)
+        {
+            HamsAtTestStatus = ex.Message;
+        }
     }
 
     public async Task TestCloudlogAsync()

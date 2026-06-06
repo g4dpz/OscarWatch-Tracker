@@ -684,9 +684,42 @@
         </ScrollViewer>
       </TabItem>
 
-      <TabItem Header="{loc:Localize Key=Settings.Tab.Cloudlog}">
+      <TabItem Header="{loc:Localize Key=Settings.Tab.Integrations}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
-          <StackPanel Spacing="10" MaxWidth="420">
+          <StackPanel Spacing="14" MaxWidth="420">
+            <TextBlock Text="{loc:Localize Key=Settings.HamsAt.Section}"
+                       FontWeight="SemiBold"
+                       FontSize="13" />
+            <TextBlock TextWrapping="Wrap"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       Text="{loc:Localize Key=Settings.HamsAt.Intro}" />
+            <CheckBox Content="{loc:Localize Key=Settings.HamsAt.Enable}"
+                      IsChecked="{Binding HamsAtEnabled, Mode=TwoWay}" />
+            <TextBlock Text="{loc:Localize Key=Settings.HamsAt.ApiKey}" />
+            <TextBox Text="{Binding HamsAtApiKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Watermark="{loc:Localize Key=Settings.HamsAt.ApiKeyWatermark}" />
+            <TextBlock Text="{loc:Localize Key=Settings.HamsAt.RefreshInterval}" />
+            <NumericUpDown Value="{Binding HamsAtRefreshIntervalMinutes, Mode=TwoWay}"
+                           Minimum="1" Maximum="120"
+                           Increment="1" FormatString="F0" />
+            <Button Content="{loc:Localize Key=Settings.HamsAt.TestConnection}"
+                    Click="OnTestHamsAtClick"
+                    HorizontalAlignment="Left" />
+            <TextBlock Text="{Binding HamsAtTestStatus}"
+                       TextWrapping="Wrap"
+                       FontSize="12"
+                       MinHeight="20"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+
+            <Border BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                    BorderThickness="0,1,0,0"
+                    Margin="0,4,0,0"
+                    Padding="0,10,0,0" />
+
+            <TextBlock Text="{loc:Localize Key=Settings.Cloudlog.Section}"
+                       FontWeight="SemiBold"
+                       FontSize="13" />
             <TextBlock TextWrapping="Wrap"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"

@@ -54,6 +54,7 @@ public partial class App : Application
                 bundledDb));
         services.AddSingleton<ISatelliteDatabaseSyncService, SatelliteDatabaseSyncService>();
         services.AddSingleton<IGitHubReleaseService, GitHubReleaseService>();
+        services.AddSingleton<IHamsAtRovesService, HamsAtRovesService>();
         services.AddSingleton<ILocalizationService>(LocalizationService.Instance);
         services.AddSingleton<FrequencyOverlayViewModel>();
         services.AddSingleton<DxStationOverlayViewModel>();

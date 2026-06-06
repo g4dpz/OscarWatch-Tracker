@@ -106,6 +106,18 @@
   <data name="Main.Passes">
     <value>Upcoming passes</value>
   </data>
+  <data name="Main.HamsAtRoves">
+    <value>Upcoming roves</value>
+  </data>
+  <data name="Main.HamsAtRoves.Empty">
+    <value>No workable roves for your hams.at location.</value>
+  </data>
+  <data name="Main.HamsAtRoves.LoadFailed">
+    <value>Could not load roves from hams.at.</value>
+  </data>
+  <data name="Main.HamsAtRoves.ResizeGrip">
+    <value>Drag to resize the roves list</value>
+  </data>
   <data name="Pass.Rec">
     <value>REC</value>
   </data>
@@ -339,6 +351,9 @@
   </data>
   <data name="Settings.Tab.Cloudlog">
     <value>Cloudlog</value>
+  </data>
+  <data name="Settings.Tab.Integrations">
+    <value>Integrations</value>
   </data>
   <data name="Settings.Tab.Radio">
     <value>Radio</value>
@@ -975,6 +990,45 @@
   </data>
   <data name="Settings.Recording.Format.Stereo44100">
     <value>Stereo 44.1 kHz</value>
+  </data>
+  <data name="Settings.HamsAt.Section">
+    <value>hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.Intro">
+    <value>Show upcoming satellite roves from hams.at in the sidebar. Only alerts marked workable for your hams.at location are listed — set your location on hams.at if none appear. Your API key is stored locally in settings.json like other integrations.</value>
+  </data>
+  <data name="Settings.HamsAt.Enable">
+    <value>Enable hams.at upcoming roves</value>
+  </data>
+  <data name="Settings.HamsAt.ApiKey">
+    <value>hams.at API key</value>
+  </data>
+  <data name="Settings.HamsAt.ApiKeyWatermark">
+    <value>Bearer token from hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.PanelHeight">
+    <value>Sidebar panel height (px)</value>
+  </data>
+  <data name="Settings.HamsAt.RefreshInterval">
+    <value>Refresh interval (minutes)</value>
+  </data>
+  <data name="Settings.HamsAt.TestConnection">
+    <value>Test connection</value>
+  </data>
+  <data name="Settings.HamsAt.Testing">
+    <value>Testing hams.at connection…</value>
+  </data>
+  <data name="Settings.HamsAt.EnterApiKey">
+    <value>Enter your hams.at API key first.</value>
+  </data>
+  <data name="Settings.HamsAt.ConnectionOk">
+    <value>Connected — {0}</value>
+  </data>
+  <data name="Settings.HamsAt.ConnectionFailed">
+    <value>Connection failed — {0}</value>
+  </data>
+  <data name="Settings.Cloudlog.Section">
+    <value>Cloudlog</value>
   </data>
   <data name="Settings.Cloudlog.Intro">
     <value>Posts satellite TX/RX to Cloudlog CAT (API v2 /index.php/api/radio) when you select a satellite or frequencies update.</value>
