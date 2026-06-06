@@ -140,18 +140,34 @@ public partial class MainWindow : Window
         if (SidebarTopScrollViewer is null)
             return;
 
-        const double minPassesHeight = 140;
-        const double expanderHeaderHeight = 32;
-        var rovesReserve = 0.0;
-        if (DataContext is MainViewModel vm && vm.ShowHamsAtRovesPanel)
-        {
-            rovesReserve = expanderHeaderHeight + 8;
-            if (vm.IsHamsAtRovesExpanded)
-                rovesReserve += vm.HamsAtRovesPanelHeight + HamsAtRovesResizeGripHeight + 16;
-        }
-
-        var maxTopHeight = sidebarHeight - minPassesHeight - rovesReserve;
+        var passesReserve = GetPassesReserve();
+        var rovesReserve = GetRovesReserve();
+        var maxTopHeight = sidebarHeight - passesReserve - rovesReserve;
         SidebarTopScrollViewer.MaxHeight = maxTopHeight > 0 ? maxTopHeight : double.PositiveInfinity;
+    }
+
+    private double GetPassesReserve()
+    {
+        const double minPassesListHeight = 140;
+        const double expanderHeaderHeight = 32;
+        var reserve = expanderHeaderHeight + 8;
+        if (DataContext is MainViewModel vm && vm.IsPassesExpanded)
+            reserve += minPassesListHeight;
+
+        return reserve;
+    }
+
+    private double GetRovesReserve()
+    {
+        const double expanderHeaderHeight = 32;
+        if (DataContext is not MainViewModel vm || !vm.ShowHamsAtRovesPanel)
+            return 0;
+
+        var reserve = expanderHeaderHeight + 8;
+        if (vm.IsHamsAtRovesExpanded)
+            reserve += vm.HamsAtRovesPanelHeight + HamsAtRovesResizeGripHeight + 16;
+
+        return reserve;
     }
 
     private void OnHamsAtRovesResizePointerPressed(object? sender, PointerPressedEventArgs e)
@@ -221,11 +237,10 @@ public partial class MainWindow : Window
         if (SidebarLayoutGrid is null)
             return HamsAtRovesMaxPanelHeight;
 
-        const double minPassesHeight = 140;
         const double expanderHeaderHeight = 32;
         const double topSectionFloor = 120;
         var sidebarHeight = SidebarLayoutGrid.Bounds.Height;
-        var computed = sidebarHeight - minPassesHeight - expanderHeaderHeight - HamsAtRovesResizeGripHeight - topSectionFloor - 16;
+        var computed = sidebarHeight - GetPassesReserve() - expanderHeaderHeight - HamsAtRovesResizeGripHeight - topSectionFloor - 16;
         return Math.Clamp(computed, HamsAtRovesMinPanelHeight, HamsAtRovesMaxPanelHeight);
     }
 
