@@ -146,14 +146,7 @@ public static class PassPolarPlotBuilder
         var los = propagator.GetLookAngles(satellite.NoradId, site, plotEnd);
         var maxEl = samples.Count > 0
             ? samples.Max(s => s.ElevationDeg)
-            : 0;
-
-        for (var t = plotStart; t <= plotEnd; t += SampleStep)
-        {
-            var el = propagator.GetLookAngles(satellite.NoradId, site, t).ElevationDeg;
-            if (el > maxEl)
-                maxEl = el;
-        }
+            : 0.0;
 
         return (aos.AzimuthDeg, los.AzimuthDeg, maxEl);
     }

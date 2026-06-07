@@ -185,6 +185,7 @@ public sealed class LiveTrackingService : ILiveTrackingService
             switch (command.Kind)
             {
                 case LiveTrackingCommandKind.Reload:
+                    // Reload invalidates the cached enabled-satellite list (Req 2.4)
                     _orchestrator.ReloadEnabledSatellites();
                     RefreshSnapshot();
                     break;

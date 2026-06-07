@@ -28,5 +28,5 @@ internal sealed class DelegatingOrbitPropagator : IOrbitPropagator
 
     public bool HasSatellite(string noradId) => _inner.HasSatellite(noradId);
 
-    public IReadOnlyList<string> LoadedNoradIds => _inner.LoadedNoradIds;
+    public IReadOnlyCollection<string> LoadedNoradIds => _inner.LoadedNoradIds;
 }

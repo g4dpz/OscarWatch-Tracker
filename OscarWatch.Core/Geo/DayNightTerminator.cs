@@ -147,33 +147,13 @@ public static class DayNightTerminator
 
     private static double GreenwichMeanSiderealTimeRadians(DateTime utc)
     {
-        var jd = ToJulianDate(utc);
+        var jd = AstronomyMath.ToJulianDate(utc);
         var t = (jd - 2451545.0) / 36525.0;
         var gmstDeg = 280.46061837
             + 360.98564736629 * (jd - 2451545.0)
             + 0.000387933 * t * t
             - t * t * t / 38710000.0;
         return NormalizeLongitudeDeg(gmstDeg) * Math.PI / 180.0;
-    }
-
-    private static double ToJulianDate(DateTime utc)
-    {
-        var year = utc.Year;
-        var month = utc.Month;
-        if (month <= 2)
-        {
-            year--;
-            month += 12;
-        }
-
-        var century = year / 100;
-        var b = 2 - century + century / 4;
-        return Math.Floor(365.25 * (year + 4716))
-            + Math.Floor(30.6001 * (month + 1))
-            + utc.Day
-            + utc.TimeOfDay.TotalDays
-            + b
-            - 1524.5;
     }
 
     private static double NormalizeLongitudeDeg(double degrees)
