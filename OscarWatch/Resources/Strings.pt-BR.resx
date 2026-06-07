@@ -814,6 +814,15 @@
   <data name="Settings.Radio.DualEnable">
     <value>Dois rádios (downlink e uplink separados — FT-817/818, FT-991(A), IC-705, série IC-706 ou misto)</value>
   </data>
+  <data name="Settings.Radio.DualIncompleteBoth">
+    <value>Selecione portas COM para os rádios de downlink e uplink.</value>
+  </data>
+  <data name="Settings.Radio.DualIncompleteDownlink">
+    <value>Selecione uma porta COM para o rádio de downlink.</value>
+  </data>
+  <data name="Settings.Radio.DualIncompleteUplink">
+    <value>Selecione uma porta COM para o rádio de uplink.</value>
+  </data>
   <data name="Settings.Radio.Driver">
     <value>Driver do rádio</value>
   </data>

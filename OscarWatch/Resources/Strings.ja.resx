@@ -703,6 +703,15 @@
   <data name="Settings.Radio.DualEnable">
     <value>デュアル無線機（ダウン/アップリンク別 — FT-817/818、FT-991(A)、IC-705、IC-706シリーズ、または混合）</value>
   </data>
+  <data name="Settings.Radio.DualIncompleteBoth">
+    <value>ダウンリンクとアップリンクの両方の無線機にCOMポートを選択してください。</value>
+  </data>
+  <data name="Settings.Radio.DualIncompleteDownlink">
+    <value>ダウンリンク無線機のCOMポートを選択してください。</value>
+  </data>
+  <data name="Settings.Radio.DualIncompleteUplink">
+    <value>アップリンク無線機のCOMポートを選択してください。</value>
+  </data>
   <data name="Settings.Radio.Driver">
     <value>無線機ドライバ</value>
   </data>

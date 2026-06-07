@@ -17,6 +17,24 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Dual_radio_with_one_leg_configured_reports_select_dual_com_ports()
+    {
+        var controller = new RigController();
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            DualRadioEnabled = true,
+            Downlink = new RigEndpointSettings { Type = RigType.YaesuFt817, Port = "COM3" },
+            Uplink = new RigEndpointSettings { Type = RigType.YaesuFt818, Port = "" }
+        };
+
+        controller.PublishContext(settings, null);
+        controller.DrainCommandQueueForTests();
+
+        Assert.Equal(RigStatusKind.SelectDualComPorts, controller.GetStatus().StatusKind);
+    }
+
+    [Fact]
     public void Icom9700_uses_same_tracking_path_as_ic910()
     {
         var rig = new RecordingRigDriver();

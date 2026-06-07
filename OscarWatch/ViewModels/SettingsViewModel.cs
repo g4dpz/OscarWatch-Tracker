@@ -276,6 +276,12 @@ public partial class SettingsViewModel : ViewModelBase
     private string _comPortConflictText = "";
 
     [ObservableProperty]
+    private bool _showDualRadioIncomplete;
+
+    [ObservableProperty]
+    private string _dualRadioIncompleteText = "";
+
+    [ObservableProperty]
     private bool _cloudlogEnabled;
 
     [ObservableProperty]
@@ -542,6 +548,13 @@ public partial class SettingsViewModel : ViewModelBase
 
     public async Task SaveAsync()
     {
+        var rigDraft = BuildRigSettingsForConflictCheck();
+        if (DualRadioConfigHelper.IsIncomplete(rigDraft))
+        {
+            throw new InvalidOperationException(
+                DualRadioConfigLocalizer.Localize(DualRadioConfigHelper.IncompleteCode(rigDraft), _l));
+        }
+
         _settings.Current.GroundStation = new GroundStation
         {
             DisplayName = DisplayName,
@@ -987,6 +1000,8 @@ public partial class SettingsViewModel : ViewModelBase
         var rig = BuildRigSettingsForConflictCheck();
         ShowComPortConflict = SerialPortConflictHelper.TryDescribeConflict(rotator, rig, out var message);
         ComPortConflictText = ComPortConflictLocalizer.Localize(message, _l);
+        ShowDualRadioIncomplete = DualRadioConfigHelper.TryDescribeIncomplete(rig, out var incompleteCode);
+        DualRadioIncompleteText = DualRadioConfigLocalizer.Localize(incompleteCode, _l);
     }
 
     partial void OnRotatorEnabledChanged(bool value) => RefreshComPortConflictIfReady();

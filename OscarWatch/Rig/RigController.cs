@@ -1495,9 +1495,7 @@ public sealed class RigController : IRigController, IDisposable
     private static long ToHz(double kHz) => (long)Math.Round(kHz * 1000.0);
 
     private static bool RigIsConfigured(RigSettings settings) =>
-        settings.Enabled && (settings.DualRadioEnabled
-            ? settings.IsDualRadioConfigured
-            : settings.Type != RigType.None);
+        settings.Enabled && (settings.DualRadioEnabled || settings.Type != RigType.None);
 
     private static bool HasRequiredPorts(RigSettings settings)
     {

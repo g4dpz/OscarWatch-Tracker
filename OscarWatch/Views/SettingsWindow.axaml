@@ -345,6 +345,11 @@
                          Text="{loc:Localize Key=Settings.Radio.CatDelayNote}" />
             </StackPanel>
             <StackPanel Spacing="12" IsVisible="{Binding ShowRigDualConfig}">
+              <TextBlock Text="{Binding DualRadioIncompleteText}"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                         FontSize="11"
+                         TextWrapping="Wrap"
+                         IsVisible="{Binding ShowDualRadioIncomplete}" />
               <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
                       BorderThickness="1"
                       CornerRadius="4"
