@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Collections.Specialized;
 using Avalonia;
 using Avalonia.Controls;
@@ -47,6 +48,10 @@ public class WorldMapControl : ThemeAwareControl
     private Bitmap? _mapBitmap;
     private INotifyCollectionChanged? _trackStatesSource;
     private Size _lastLayoutInvalidationSize;
+
+    private Color _cachedTwilightBaseColor;
+    private int _cachedTwilightBandCount;
+    private ImmutableArray<SolidColorBrush> _twilightBrushes = ImmutableArray<SolidColorBrush>.Empty;
 
     public WorldMapControl()
     {
@@ -591,7 +596,7 @@ public class WorldMapControl : ThemeAwareControl
         return geometry;
     }
 
-    private static void DrawGreylineOverlay(
+    private void DrawGreylineOverlay(
         DrawingContext context,
         DateTime mapUtc,
         double w,
@@ -623,7 +628,7 @@ public class WorldMapControl : ThemeAwareControl
     /// Shade the night hemisphere column-by-column. Avoids polygon fill on the full-world
     /// equirectangular map, which breaks apart under antimeridian splitting.
     /// </summary>
-    private static void DrawNightFillScanlines(
+    private void DrawNightFillScanlines(
         DrawingContext context,
         DayNightGeometry geometry,
         double w,
@@ -647,6 +652,10 @@ public class WorldMapControl : ThemeAwareControl
         const double twilightFadePx = 28;
         const int twilightBands = 5;
 
+        var twilightBrushes = fillBrush is SolidColorBrush solid
+            ? GetTwilightBrushes(solid, twilightBands)
+            : ImmutableArray<SolidColorBrush>.Empty;
+
         for (var i = 0; i < columnCount; i++)
         {
             var lon = -180.0 + i * (360.0 / (columnCount - 1));
@@ -654,10 +663,35 @@ public class WorldMapControl : ThemeAwareControl
             var (x, yTerm) = EquirectangularProjection.GeoToPixel(termLat, lon, w, h);
 
             if (geometry.NightTowardSouth)
-                DrawNightColumnSouth(context, fillBrush, x, yTerm, h, w, stripWidth, twilightFadePx, twilightBands);
+                DrawNightColumnSouth(context, fillBrush, x, yTerm, h, w, stripWidth, twilightFadePx, twilightBrushes);
             else
-                DrawNightColumnNorth(context, fillBrush, x, yTerm, h, w, stripWidth, twilightFadePx, twilightBands);
+                DrawNightColumnNorth(context, fillBrush, x, yTerm, h, w, stripWidth, twilightFadePx, twilightBrushes);
         }
+    }
+
+    private ImmutableArray<SolidColorBrush> GetTwilightBrushes(SolidColorBrush baseBrush, int twilightBands)
+    {
+        if (_twilightBrushes.Length == twilightBands
+            && _cachedTwilightBaseColor == baseBrush.Color
+            && _cachedTwilightBandCount == twilightBands)
+            return _twilightBrushes;
+
+        var brushes = new SolidColorBrush[twilightBands];
+        for (var band = 0; band < twilightBands; band++)
+        {
+            var t = (band + 0.5) / twilightBands;
+            var alpha = (byte)(baseBrush.Color.A * (0.15 + 0.35 * t));
+            brushes[band] = new SolidColorBrush(
+                Color.FromArgb(alpha,
+                    baseBrush.Color.R,
+                    baseBrush.Color.G,
+                    baseBrush.Color.B));
+        }
+
+        _cachedTwilightBaseColor = baseBrush.Color;
+        _cachedTwilightBandCount = twilightBands;
+        _twilightBrushes = ImmutableArray.Create(brushes);
+        return _twilightBrushes;
     }
 
     private static void DrawNightColumnSouth(
@@ -669,24 +703,22 @@ public class WorldMapControl : ThemeAwareControl
         double w,
         double stripWidth,
         double twilightFadePx,
-        int twilightBands)
+        ImmutableArray<SolidColorBrush> twilightBrushes)
     {
+        var twilightBands = twilightBrushes.Length;
         var bodyStart = Math.Min(h, yTerm + twilightFadePx);
         if (h - bodyStart >= 0.5)
             DrawNightStrip(context, baseBrush, x, bodyStart, h, w, stripWidth);
 
-        if (baseBrush is not SolidColorBrush solid)
+        if (twilightBands == 0)
             return;
 
         var bandHeight = twilightFadePx / twilightBands;
         for (var band = 0; band < twilightBands; band++)
         {
-            var t = (band + 0.5) / twilightBands;
-            var alpha = (byte)(solid.Color.A * (0.15 + 0.35 * t));
-            var fadeBrush = new SolidColorBrush(Color.FromArgb(alpha, solid.Color.R, solid.Color.G, solid.Color.B));
             var y0 = yTerm + band * bandHeight;
             var y1 = yTerm + (band + 1) * bandHeight;
-            DrawNightStrip(context, fadeBrush, x, y0, y1, w, stripWidth);
+            DrawNightStrip(context, twilightBrushes[band], x, y0, y1, w, stripWidth);
         }
     }
 
@@ -699,24 +731,22 @@ public class WorldMapControl : ThemeAwareControl
         double w,
         double stripWidth,
         double twilightFadePx,
-        int twilightBands)
+        ImmutableArray<SolidColorBrush> twilightBrushes)
     {
+        var twilightBands = twilightBrushes.Length;
         var bodyEnd = Math.Max(0, yTerm - twilightFadePx);
         if (bodyEnd >= 0.5)
             DrawNightStrip(context, baseBrush, x, 0, bodyEnd, w, stripWidth);
 
-        if (baseBrush is not SolidColorBrush solid)
+        if (twilightBands == 0)
             return;
 
         var bandHeight = twilightFadePx / twilightBands;
         for (var band = 0; band < twilightBands; band++)
         {
-            var t = (band + 0.5) / twilightBands;
-            var alpha = (byte)(solid.Color.A * (0.15 + 0.35 * t));
-            var fadeBrush = new SolidColorBrush(Color.FromArgb(alpha, solid.Color.R, solid.Color.G, solid.Color.B));
             var y1 = yTerm - band * bandHeight;
             var y0 = yTerm - (band + 1) * bandHeight;
-            DrawNightStrip(context, fadeBrush, x, y0, y1, w, stripWidth);
+            DrawNightStrip(context, twilightBrushes[band], x, y0, y1, w, stripWidth);
         }
     }
 
@@ -745,29 +775,35 @@ public class WorldMapControl : ThemeAwareControl
         IReadOnlyList<GeoCoordinate> terminator,
         double longitudeDeg)
     {
-        var lon = longitudeDeg;
-        GeoCoordinate? before = null;
-        GeoCoordinate? after = null;
+        if (terminator.Count == 0)
+            return 0;
 
-        foreach (var p in terminator)
+        var lo = 0;
+        var hi = terminator.Count - 1;
+
+        // Early-out: outside the stored longitude range.
+        if (longitudeDeg <= terminator[lo].LongitudeDeg)
+            return terminator[lo].LatitudeDeg;
+        if (longitudeDeg >= terminator[hi].LongitudeDeg)
+            return terminator[hi].LatitudeDeg;
+
+        // Binary search for bracketing pair.
+        while (hi - lo > 1)
         {
-            if (p.LongitudeDeg <= lon)
-                before = p;
-            if (p.LongitudeDeg >= lon)
-            {
-                after = p;
-                break;
-            }
+            var mid = (lo + hi) >> 1;
+            if (terminator[mid].LongitudeDeg <= longitudeDeg)
+                lo = mid;
+            else
+                hi = mid;
         }
 
-        if (before is null)
-            return terminator[0].LatitudeDeg;
-        if (after is null)
-            return terminator[^1].LatitudeDeg;
+        var before = terminator[lo];
+        var after = terminator[hi];
         if (Math.Abs(after.LongitudeDeg - before.LongitudeDeg) < 0.01)
             return before.LatitudeDeg;
 
-        var t = (lon - before.LongitudeDeg) / (after.LongitudeDeg - before.LongitudeDeg);
+        var t = (longitudeDeg - before.LongitudeDeg)
+              / (after.LongitudeDeg - before.LongitudeDeg);
         return before.LatitudeDeg + t * (after.LatitudeDeg - before.LatitudeDeg);
     }
 

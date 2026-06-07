@@ -8,9 +8,11 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddOscarWatchOrbit(this IServiceCollection services)
     {
         services.AddSingleton<IOrbitPropagator, PublicOrbitToolsPropagator>();
-        services.AddSingleton<IGroundGeometry, SampledGroundGeometry>();
+        services.AddSingleton<IGroundGeometry>(sp =>
+            new SampledGroundGeometry(sp.GetRequiredService<IOrbitPropagator>()));
         services.AddSingleton<IPassPredictor, BruteForcePassPredictor>();
-        services.AddSingleton<IIlluminationPredictor, SunlightSegmentPredictor>();
+        services.AddSingleton<IIlluminationPredictor>(sp =>
+            new SunlightSegmentPredictor(sp.GetRequiredService<IOrbitPropagator>()));
         return services;
     }
 }
