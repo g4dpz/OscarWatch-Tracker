@@ -525,7 +525,38 @@ public partial class MainViewModel : ViewModelBase
     public void ApplyClockFormatFromSettings()
     {
         UpdateUtcClockDisplay();
-        _ = RefreshPassesAsync();
+        RefreshPassClockDisplay();
+        RefreshHamsAtRoveClockDisplay();
+    }
+
+    private void RefreshPassClockDisplay()
+    {
+        var clockFormat = PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock);
+        if (Passes.Count == 0)
+            return;
+
+        var items = Passes.ToList();
+        Passes.Clear();
+        foreach (var item in items)
+        {
+            Passes.Add(item is PassRowViewModel row
+                ? row.WithClockFormat(clockFormat)
+                : item);
+        }
+
+        UpdatePassHighlightState();
+    }
+
+    private void RefreshHamsAtRoveClockDisplay()
+    {
+        if (HamsAtRoves.Count == 0)
+            return;
+
+        var clockFormat = PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock);
+        var rows = HamsAtRoves.ToList();
+        HamsAtRoves.Clear();
+        foreach (var row in rows)
+            HamsAtRoves.Add(row.WithClockFormat(clockFormat, useUtc: false));
     }
 
     partial void OnMapTimeOffsetMinutesChanged(double value)
@@ -1763,6 +1794,7 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
     public string DetailsLine { get; init; } = "";
     public DateTime AosUtc { get; init; }
     public DateTime LosUtc { get; init; }
+    public DateTime MaxElevationUtc { get; init; }
 
     public void UpdateDisplay(DateTime utcNow, TimeSpan imminentWindow, bool isRecording)
     {
@@ -1833,11 +1865,33 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
             NoradId = p.NoradId,
             AosUtc = p.AosUtc,
             LosUtc = p.LosUtc,
+            MaxElevationUtc = p.MaxElevationUtc,
             AosLocal = aos,
             LosLocal = los,
             TcaLocal = PassDisplayFormat.FormatLocal(p.MaxElevationUtc, clockFormat),
             TimeRangeLine = FormatPassTimeRangeLine(p.AosUtc, p.LosUtc, clockFormat),
             DetailsLine = FormatPassDetailsLine(p.MaxElevationDeg, p.Duration)
+        };
+    }
+
+    public PassRowViewModel WithClockFormat(ClockDisplayFormat clockFormat)
+    {
+        var (aos, los) = PassDisplayFormat.FormatLocalTimes(AosUtc, LosUtc, clockFormat: clockFormat);
+        return new()
+        {
+            SatelliteName = SatelliteName,
+            NoradId = NoradId,
+            AosUtc = AosUtc,
+            LosUtc = LosUtc,
+            MaxElevationUtc = MaxElevationUtc,
+            AosLocal = aos,
+            LosLocal = los,
+            TcaLocal = PassDisplayFormat.FormatLocal(MaxElevationUtc, clockFormat),
+            TimeRangeLine = FormatPassTimeRangeLine(AosUtc, LosUtc, clockFormat),
+            DetailsLine = DetailsLine,
+            Highlight = Highlight,
+            BadgeText = BadgeText,
+            ShowBadge = ShowBadge
         };
     }
 
@@ -1879,6 +1933,9 @@ public sealed class HamsAtRoveRowViewModel
     public bool ShowSatellite => !string.IsNullOrWhiteSpace(SatelliteName);
     public string Url { get; init; } = "";
 
+    public DateTime AosUtc { get; init; }
+    public DateTime LosUtc { get; init; }
+
     public static HamsAtRoveRowViewModel From(
         HamsAtUpcomingAlert alert,
         bool useUtc,
@@ -1889,6 +1946,8 @@ public sealed class HamsAtRoveRowViewModel
         GridsText = HamsAtDisplayFormat.FormatGrids(alert.Grids),
         NeededGridsText = FormatGridSubset(alert.Grids, gridChecks, worked: false),
         WorkedGridsText = FormatGridSubset(alert.Grids, gridChecks, worked: true),
+        AosUtc = alert.AosUtc,
+        LosUtc = alert.LosUtc,
         TimeWindowText = HamsAtDisplayFormat.FormatAlertWindow(
             alert.AosUtc,
             alert.LosUtc,
@@ -1897,6 +1956,20 @@ public sealed class HamsAtRoveRowViewModel
         SatelliteName = alert.Satellite?.Name ?? "",
         Comment = alert.Comment,
         Url = alert.Url
+    };
+
+    public HamsAtRoveRowViewModel WithClockFormat(ClockDisplayFormat clockFormat, bool useUtc) => new()
+    {
+        Callsign = Callsign,
+        GridsText = GridsText,
+        NeededGridsText = NeededGridsText,
+        WorkedGridsText = WorkedGridsText,
+        AosUtc = AosUtc,
+        LosUtc = LosUtc,
+        TimeWindowText = HamsAtDisplayFormat.FormatAlertWindow(AosUtc, LosUtc, useUtc, clockFormat),
+        SatelliteName = SatelliteName,
+        Comment = Comment,
+        Url = Url
     };
 
     private static string FormatGridSubset(

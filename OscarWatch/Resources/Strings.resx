@@ -104,10 +104,10 @@
     <value>No upcoming passes</value>
   </data>
   <data name="Main.Passes">
-    <value>Upcoming passes</value>
+    <value>Upcoming Passes</value>
   </data>
   <data name="Main.HamsAtRoves">
-    <value>Upcoming roves</value>
+    <value>Upcoming Roves</value>
   </data>
   <data name="Main.HamsAtRoves.Empty">
     <value>No workable roves for your hams.at location.</value>
