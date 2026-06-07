@@ -803,7 +803,7 @@
     <value>Habilitar controle de rádio</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>Dois rádios (downlink e uplink separados — FT-817/818, FT-991(A), IC-705 ou misto)</value>
+    <value>Dois rádios (downlink e uplink separados — FT-817/818, FT-991(A), IC-705, série IC-706 ou misto)</value>
   </data>
   <data name="Settings.Radio.Driver">
     <value>Driver do rádio</value>
@@ -853,6 +853,15 @@
   <data name="Settings.Radio.Ic705CivHint">
     <value>IC-705 padrão de fábrica A4. Deve corresponder ao menu CI-V do rádio.</value>
   </data>
+  <data name="Settings.Radio.Ic706CivHint">
+    <value>IC-706 padrão de fábrica 48H. Deve corresponder ao endereço CI-V (Initial Set Mode).</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiCivHint">
+    <value>IC-706MKII padrão de fábrica 4CH. Deve corresponder ao endereço CI-V do rádio.</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiGCivHint">
+    <value>IC-706MKIIG padrão de fábrica 58H. Deve corresponder ao menu 34 CI-V ADDRES.</value>
+  </data>
   <data name="Settings.Radio.RefreshComPorts">
     <value>Atualizar portas COM</value>
   </data>
@@ -861,6 +870,15 @@
   </data>
   <data name="Settings.Radio.Ic705Hint">
     <value>IC-705: Defina Conectores → CI-V → Porta USB CI-V para Vincular a [CI-V] (não REMOTE). Combine o baud CI-V nas Configurações (padrão 115200). Uma porta COM por perna — use a porta marcada como CI-V quando duas aparecerem.</value>
+  </data>
+  <data name="Settings.Radio.Ic706Hint">
+    <value>IC-706: CI-V via jack REMOTE (ou CT-17). Apenas 2 m (sem 70 cm). Defina endereço e baud no Initial Set Mode (LOCK na ligar) para corresponder às Configurações (padrão 48H / 19200). CI-V TRN On recomendado.</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiHint">
+    <value>IC-706MKII: mesma configuração CI-V do IC-706. Apenas 2 m (sem 70 cm). Endereço padrão 4CH.</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiGHint">
+    <value>IC-706MKIIG: CI-V via jack REMOTE (ou CT-17). Menu 34 CI-V ADDRES (padrão 58H), menu 35 CI-V BAUD (padrão 19200) e menu 36 CI-V TRN On. Cobre 2 m e 70 cm; satélites 23 cm não são suportados.</value>
   </data>
   <data name="Settings.Radio.Ft991Hint">
     <value>FT-991 / FT-991A: Combine o menu 031 CAT RATE com as Configurações (padrão 38400). CAT ASCII 8N2 com RTS de hardware — use a porta COM USB CAT. Uma COM por perna. FM trava o dial VFO-A durante o rastreamento.</value>

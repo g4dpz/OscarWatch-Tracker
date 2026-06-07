@@ -803,7 +803,7 @@
     <value>Enable radio control</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>Dual radio (separate downlink and uplink — FT-817/818, FT-991(A), IC-705, or mixed)</value>
+    <value>Dual radio (separate downlink and uplink — FT-817/818, FT-991(A), IC-705, IC-706 series, or mixed)</value>
   </data>
   <data name="Settings.Radio.Driver">
     <value>Radio driver</value>
@@ -853,6 +853,15 @@
   <data name="Settings.Radio.Ic705CivHint">
     <value>IC-705 factory default A4. Must match the radio CI-V menu.</value>
   </data>
+  <data name="Settings.Radio.Ic706CivHint">
+    <value>IC-706 factory default 48H. Must match the radio CI-V address (Initial Set Mode).</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiCivHint">
+    <value>IC-706MKII factory default 4CH. Must match the radio CI-V address.</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiGCivHint">
+    <value>IC-706MKIIG factory default 58H. Must match menu 34 CI-V ADDRES.</value>
+  </data>
   <data name="Settings.Radio.RefreshComPorts">
     <value>Refresh COM ports</value>
   </data>
@@ -861,6 +870,15 @@
   </data>
   <data name="Settings.Radio.Ic705Hint">
     <value>IC-705: Set Connectors → CI-V → CI-V USB Port to Link to [CI-V] (not REMOTE). Match CI-V baud in Settings (default 115200). One COM port per leg — use the port labeled CI-V when two appear.</value>
+  </data>
+  <data name="Settings.Radio.Ic706Hint">
+    <value>IC-706: CI-V via the REMOTE jack (or CT-17). 2m only (no 70cm). Set CI-V address and baud in Initial Set Mode (LOCK at power-on) to match Settings (default 48H / 19200). CI-V TRN On recommended.</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiHint">
+    <value>IC-706MKII: same CI-V setup as IC-706. 2m only (no 70cm). Factory default address 4CH.</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiGHint">
+    <value>IC-706MKIIG: CI-V via the REMOTE jack (or CT-17). Set menu 34 CI-V ADDRES to match Settings (default 58H), menu 35 CI-V BAUD to match Settings (default 19200), and menu 36 CI-V TRN On. Covers 2m and 70cm; 23cm satellites are not supported.</value>
   </data>
   <data name="Settings.Radio.Ft991Hint">
     <value>FT-991 / FT-991A: Match menu 031 CAT RATE to Settings (default 38400). 8N2 ASCII CAT with hardware RTS — use the USB CAT COM port. One COM per leg. FM locks the VFO-A dial while tracking.</value>

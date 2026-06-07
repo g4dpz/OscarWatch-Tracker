@@ -24,6 +24,8 @@ public static class RigDriverFactory
             endpoint.Port, endpoint.BaudRate, endpoint.Region, endpoint.CatDelayMs),
         RigType.IcomIc705 => new IcomIc705Driver(
             endpoint.Port, endpoint.BaudRate, ResolveEndpointCivAddress(endpoint), endpoint.CatDelayMs),
+        RigType.IcomIc706 or RigType.IcomIc706Mkii or RigType.IcomIc706MkiiG =>
+            CreateIc706SeriesDriver(endpoint),
         _ => CreateSingle(
             endpoint.Type,
             endpoint.Port,
@@ -32,6 +34,14 @@ public static class RigDriverFactory
             endpoint.CatDelayMs,
             ResolveEndpointCivAddress(endpoint))
     };
+
+    private static IRigDriver CreateIc706SeriesDriver(RigEndpointSettings endpoint) =>
+        new IcomIc706SeriesDriver(
+            endpoint.Type,
+            endpoint.Port,
+            endpoint.BaudRate,
+            ResolveEndpointCivAddress(endpoint),
+            endpoint.CatDelayMs);
 
     private static string ResolveEndpointCivAddress(RigEndpointSettings endpoint)
     {
@@ -56,6 +66,8 @@ public static class RigDriverFactory
             RigType.IcomIc9700 => new IcomIc9700Driver(port, baudRate, civAddress, catDelayMs),
             RigType.IcomIc705 =>
                 throw new InvalidOperationException("IC-705 requires Settings → Radio → Dual radio."),
+            RigType.IcomIc706 or RigType.IcomIc706Mkii or RigType.IcomIc706MkiiG =>
+                throw new InvalidOperationException("IC-706 series radios require Settings → Radio → Dual radio."),
             RigType.YaesuFt847 => new YaesuFt847Driver(port, baudRate, catDelayMs),
             RigType.YaesuFt817 or RigType.YaesuFt818 =>
                 throw new InvalidOperationException("FT-817/FT-818 require Settings → Radio → Dual radio."),

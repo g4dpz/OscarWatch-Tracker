@@ -90,13 +90,14 @@
         <li>On linear SSB/CW, check <a href="radio-rotator.html#doppler-cat-thresholds">Doppler thresholds</a> — very large values can make tracking look sluggish near TCA.</li>
       </ul>
 
-      <h2>Dual radio not connecting (FT-817 / FT-818 / FT-991 / IC-705)</h2>
+      <h2>Dual radio not connecting (FT-817 / FT-818 / FT-991 / IC-705 / IC-706 series)</h2>
       <ul>
         <li>Enable <strong>Settings → Radio → Dual radio</strong> and set a COM port for both downlink and uplink.</li>
-        <li>FT-817, FT-818, FT-991, FT-991A, and IC-705 appear only in the dual-radio leg lists — not as single-rig types.</li>
+        <li>FT-817, FT-818, FT-991, FT-991A, IC-705, and IC-706 / IC-706MKII / IC-706MKIIG appear only in the dual-radio leg lists — not as single-rig types.</li>
         <li><strong>Yaesu FT-817/818:</strong> match menu <strong>#14</strong> baud (suggested <strong>4800</strong>; <strong>38400</strong> also works).</li>
         <li><strong>Yaesu FT-991/991A:</strong> match menu <strong>031</strong> CAT RATE (suggested <strong>38400</strong>); 8N2 with hardware RTS; use the USB CAT COM port.</li>
         <li><strong>IC-705:</strong> CI-V USB Port = <strong>Link to [CI-V]</strong>; match baud (default <strong>115200</strong>); CI-V address <strong>A4</strong> unless changed in the radio menu.</li>
+        <li><strong>IC-706 series:</strong> CI-V via <strong>REMOTE</strong> jack; pick the correct leg type — default addresses <strong>48H</strong> (706), <strong>4CH</strong> (MKII), <strong>58H</strong> (MKIIG); baud <strong>19200</strong>; CI-V TRN On.</li>
         <li>Close Hamlib or other CAT programs using either COM port before starting OscarWatch.</li>
         <li>After switching from another rig (e.g. IC-910), quit OscarWatch, replug USB, and restart if CI-V or CAT stops responding.</li>
       </ul>

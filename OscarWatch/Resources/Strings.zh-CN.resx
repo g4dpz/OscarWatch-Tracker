@@ -803,7 +803,7 @@
     <value>启用电台控制</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>双电台（独立的下行和上行 - FT-817/818、FT-991(A)、IC-705 或混合）</value>
+    <value>双电台（独立的下行和上行 - FT-817/818、FT-991(A)、IC-705、IC-706 系列或混合）</value>
   </data>
   <data name="Settings.Radio.Driver">
     <value>电台驱动</value>
@@ -853,6 +853,15 @@
   <data name="Settings.Radio.Ic705CivHint">
     <value>IC-705 出厂默认 A4。必须与电台 CI-V 菜单匹配。</value>
   </data>
+  <data name="Settings.Radio.Ic706CivHint">
+    <value>IC-706 出厂默认 48H。必须与 Initial Set Mode 中的 CI-V 地址匹配。</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiCivHint">
+    <value>IC-706MKII 出厂默认 4CH。必须与电台 CI-V 地址匹配。</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiGCivHint">
+    <value>IC-706MKIIG 出厂默认 58H。必须与菜单 34 CI-V ADDRES 匹配。</value>
+  </data>
   <data name="Settings.Radio.RefreshComPorts">
     <value>刷新 COM 端口</value>
   </data>
@@ -861,6 +870,15 @@
   </data>
   <data name="Settings.Radio.Ic705Hint">
     <value>IC-705：设置 → 连接器 → CI-V → CI-V USB 端口 → 链接到 [CI-V]（非 REMOTE）。在设置中匹配 CI-V 波特率（默认 115200）。每台电台一个 COM 口 — 出现两个端口时，使用标记为 CI-V 的那个。</value>
+  </data>
+  <data name="Settings.Radio.Ic706Hint">
+    <value>IC-706：通过 REMOTE 接口（或 CT-17）进行 CI-V 控制。仅 2m（无 70cm）。在 Initial Set Mode（开机时按 LOCK）中将地址/波特率与设置匹配（默认 48H / 19200）。建议 CI-V TRN 设为 On。</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiHint">
+    <value>IC-706MKII：与 IC-706 相同的 CI-V 设置。仅 2m（无 70cm）。出厂默认地址 4CH。</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiGHint">
+    <value>IC-706MKIIG：通过 REMOTE 接口（或 CT-17）进行 CI-V 控制。菜单 34 CI-V ADDRES 与设置匹配（默认 58H），菜单 35 CI-V BAUD（默认 19200），菜单 36 CI-V TRN 设为 On。支持 2m 和 70cm；不支持 23cm 卫星。</value>
   </data>
   <data name="Settings.Radio.Ft991Hint">
     <value>FT-991 / FT-991A：将菜单 031 CAT RATE 与设置中的值匹配（默认 38400）。8N2 ASCII CAT，硬件 RTS 控制 — 使用 USB CAT COM 口。每台链路一个 COM 口。FM 模式下跟踪时锁定 VFO-A 旋钮。</value>

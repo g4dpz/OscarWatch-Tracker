@@ -11,6 +11,12 @@ public sealed class RigSettings
     /// <summary>Typical menu 031 CAT RATE for FT-991 / FT-991A (4800–38400 supported).</summary>
     public const int Ft991DefaultBaudRate = 38400;
 
+    /// <summary>Typical CI-V baud for IC-706 series (must match radio menu).</summary>
+    public const int Ic706SeriesDefaultBaudRate = 19200;
+
+    public static bool IsIc706SeriesEndpoint(RigType type) =>
+        type is RigType.IcomIc706 or RigType.IcomIc706Mkii or RigType.IcomIc706MkiiG;
+
     public bool Enabled { get; set; }
 
     /// <summary>When true, downlink and uplink use separate radios (<see cref="Downlink"/> / <see cref="Uplink"/>).</summary>
@@ -53,7 +59,7 @@ public sealed class RigSettings
 
     public static bool IsDualCapableEndpoint(RigType type) =>
         type is RigType.YaesuFt817 or RigType.YaesuFt818 or RigType.YaesuFt991 or RigType.YaesuFt991a
-            or RigType.IcomIc705;
+            or RigType.IcomIc705 or RigType.IcomIc706 or RigType.IcomIc706Mkii or RigType.IcomIc706MkiiG;
 
     /// <summary>FT-817/818 are dual-radio only; move legacy single-radio config to the downlink endpoint.</summary>
     public void MigrateFt817818ToDualOnly()
@@ -94,6 +100,9 @@ public sealed class RigSettings
         RigType.IcomIc9100 => "7C",
         RigType.IcomIc910 => "7C",
         RigType.IcomIc705 => "A4",
+        RigType.IcomIc706 => "48",
+        RigType.IcomIc706Mkii => "4C",
+        RigType.IcomIc706MkiiG => "58",
         _ => "60"
     };
 }

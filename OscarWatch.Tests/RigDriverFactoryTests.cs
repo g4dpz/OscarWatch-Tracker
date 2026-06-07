@@ -42,6 +42,36 @@ public sealed class RigDriverFactoryTests
         }));
     }
 
+    [Theory]
+    [InlineData(RigType.IcomIc706)]
+    [InlineData(RigType.IcomIc706Mkii)]
+    [InlineData(RigType.IcomIc706MkiiG)]
+    public void Create_endpoint_ic706_series_returns_driver_with_civ_address(RigType rigType)
+    {
+        var driver = RigDriverFactory.Create(new RigEndpointSettings
+        {
+            Type = rigType,
+            Port = "COM706",
+            BaudRate = 19200,
+            CivAddress = RigSettings.DefaultCivAddressFor(rigType)
+        });
+
+        Assert.Equal(rigType, driver.RigType);
+    }
+
+    [Theory]
+    [InlineData(RigType.IcomIc706)]
+    [InlineData(RigType.IcomIc706Mkii)]
+    [InlineData(RigType.IcomIc706MkiiG)]
+    public void Create_settings_ic706_series_when_not_dual_throws(RigType rigType)
+    {
+        Assert.Throws<InvalidOperationException>(() => RigDriverFactory.Create(new RigSettings
+        {
+            Type = rigType,
+            Port = "COM706"
+        }));
+    }
+
     [Fact]
     public void Create_endpoint_ft991_returns_driver()
     {

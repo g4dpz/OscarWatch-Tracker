@@ -81,6 +81,7 @@ Per-radio subclasses only override what differs, usually **`SetSatelliteMode`**:
 | [`IcomIc9100Driver`](../OscarWatch/Rig/IcomIc9100Driver.cs) | `IcomIc9100` | `16 5A 01` / `00` (same as IC-9700) |
 | [`IcomIc9700Driver`](../OscarWatch/Rig/IcomIc9700Driver.cs) | `IcomIc9700` | `16 5A 01` / `00` |
 | [`IcomIc705Driver`](../OscarWatch/Rig/IcomIc705Driver.cs) | `IcomIc705` | no-op (dual-radio VFO A only) |
+| [`IcomIc706SeriesDriver`](../OscarWatch/Rig/IcomIc706SeriesDriver.cs) | `IcomIc706`, `IcomIc706Mkii`, `IcomIc706MkiiG` | no-op (dual-radio VFO A only) |
 
 **IC-9700 digital modes:** database `DATA-USB` / `DATA-LSB` send base SSB (`06 01` / `06 00`) then DATA on with FIL1 (`1A 06 01 01`) — USB-D / LSB-D. Command `26` is unavailable in SAT mode; IC-910/9100 keep voice SSB only for `DATA-*` strings.
 
@@ -176,6 +177,32 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 - Enable **Settings → Radio → Dual radio**; configure each leg (type, COM, baud, CI-V address for IC-705 legs).
 - **Connectors → CI-V → CI-V USB Port** = **Link to [CI-V]** on each radio (not REMOTE).
 - One COM port per leg — use the CI-V-labeled port when Windows shows two.
+- On a real pass: both legs get doppler; CTCSS on uplink only.
+
+## Reference: ICOM IC-706 series (shipped, dual radio only)
+
+| Piece | Path |
+|-------|------|
+| Driver | [`OscarWatch/Rig/IcomIc706SeriesDriver.cs`](../OscarWatch/Rig/IcomIc706SeriesDriver.cs) |
+
+One CI-V driver covers **IC-706**, **IC-706MKII**, and **IC-706MKIIG** as separate dual-radio leg types. OscarWatch uses the same VFO-A command set for all three; only the default CI-V address and band coverage differ.
+
+| Model | Default CI-V | Bands (satellite-relevant) |
+|-------|--------------|----------------------------|
+| IC-706 | `48H` | 2m only |
+| IC-706MKII | `4CH` | 2m only |
+| IC-706MKIIG | `58H` | 2m and 70cm |
+
+- **Dual radio only** — not in the single-radio driver list. Each endpoint is one physical radio on VFO A.
+- No dedicated satellite mode — `SetSatelliteMode` is a no-op.
+- Default baud **19200** (must match radio CI-V menu).
+- **23cm** satellites are outside all three models' hardware.
+
+### Hardware checklist (IC-706 series dual)
+
+- Enable **Settings → Radio → Dual radio**; pick the correct leg type so the default CI-V address matches your radio.
+- CI-V via the **REMOTE** jack (or CT-17). **IC-706 / MKII:** Initial Set Mode (LOCK at power-on). **MKIIG:** menus 34–36 (ADDRES / BAUD / TRN On).
+- One COM port per leg.
 - On a real pass: both legs get doppler; CTCSS on uplink only.
 
 ## Reference: Yaesu FT-991 / FT-991A (shipped, dual radio only)

@@ -692,7 +692,7 @@
     <value>無線機制御を有効</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>デュアル無線機（ダウン/アップリンク別 — FT-817/818、FT-991(A)、IC-705、または混合）</value>
+    <value>デュアル無線機（ダウン/アップリンク別 — FT-817/818、FT-991(A)、IC-705、IC-706シリーズ、または混合）</value>
   </data>
   <data name="Settings.Radio.Driver">
     <value>無線機ドライバ</value>
@@ -745,6 +745,15 @@
   <data name="Settings.Radio.Ic705CivHint">
     <value>IC-705 工場出荷 A4。無線機のCI-Vメニューと一致させてください。</value>
   </data>
+  <data name="Settings.Radio.Ic706CivHint">
+    <value>IC-706 工場出荷 48H。Initial Set Mode の CI-V アドレスと一致させてください。</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiCivHint">
+    <value>IC-706MKII 工場出荷 4CH。CI-V アドレスと一致させてください。</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiGCivHint">
+    <value>IC-706MKIIG 工場出荷 58H。メニュー34 CI-V ADDRESと一致させてください。</value>
+  </data>
   <data name="Settings.Radio.RefreshComPorts">
     <value>COMポートを更新</value>
   </data>
@@ -753,6 +762,15 @@
   </data>
   <data name="Settings.Radio.Ic705Hint">
     <value>IC-705: コネクタ → CI-V → CI-V USBポートを [CI-V] にリンク（REMOTEではない）。設定のCI-Vボーレートと一致（既定115200）。レッグごとに1 COM — 2つ表示される場合はCI-Vラベルのポートを使用。</value>
+  </data>
+  <data name="Settings.Radio.Ic706Hint">
+    <value>IC-706: REMOTE端子（またはCT-17）経由のCI-V。2mのみ（70cm非対応）。Initial Set Mode（電源投入時LOCK）でアドレス/ボーレートを設定と一致（既定48H/19200）。CI-V TRN On推奨。</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiHint">
+    <value>IC-706MKII: IC-706と同じCI-V設定。2mのみ（70cm非対応）。工場出荷アドレス4CH。</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiGHint">
+    <value>IC-706MKIIG: REMOTE端子（またはCT-17）経由のCI-V。メニュー34 CI-V ADDRESを設定と一致（既定58H）、メニュー35 CI-V BAUD（既定19200）、メニュー36 CI-V TRN On。2m/70cm対応。23cm衛星は非対応。</value>
   </data>
   <data name="Settings.Radio.Ft991Hint">
     <value>FT-991 / FT-991A: メニュー031 CAT RATEを設定と一致（既定38400）。RTS付き8N2 ASCII CAT — USB CAT COMポートを使用。レッグごとに1 COM。FMは追跡中VFO-Aダイヤル固定。</value>
