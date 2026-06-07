@@ -13,6 +13,7 @@ public sealed class TrackingOrchestrator
     private readonly IGroundGeometry _groundGeometry;
     private readonly IPassPredictor _passPredictor;
     private readonly SatelliteVisualCache _visualCache = new();
+    private IReadOnlyList<SatelliteCatalogEntry> _cachedEnabledSats = Array.Empty<SatelliteCatalogEntry>();
 
     public TrackingOrchestrator(
         ISettingsService settings,
@@ -32,7 +33,9 @@ public sealed class TrackingOrchestrator
     {
         _propagator.Clear();
         _visualCache.Clear();
-        foreach (var sat in _tleService.GetEnabledSatellites(_settings.Current))
+        var sats = _tleService.GetEnabledSatellites(_settings.Current);
+        _cachedEnabledSats = sats;
+        foreach (var sat in sats)
             _propagator.LoadSatellite(sat);
     }
 
@@ -43,7 +46,7 @@ public sealed class TrackingOrchestrator
     public IReadOnlyList<SatelliteTrackState> GetLiveStates(DateTime utc)
     {
         var site = _settings.Current.GroundStation;
-        var sats = _tleService.GetEnabledSatellites(_settings.Current);
+        var sats = _cachedEnabledSats;
         var states = new List<SatelliteTrackState>();
         var sunEci = SunPositionCalculator.GetPosition(utc);
 
@@ -159,15 +162,31 @@ public sealed class TrackingOrchestrator
         var utcEnd = utcStart.AddHours(predictionHours);
         var minDuration = TimeSpan.FromMinutes(Math.Max(0, minimumDurationMinutes));
 
-        var allPasses = new List<PassInfo>();
-        foreach (var sat in _tleService.GetEnabledSatellites(_settings.Current))
+        var sats = _tleService.GetEnabledSatellites(_settings.Current);
+        var tasks = sats.Select(sat =>
+            _passPredictor.GetPassesAsync(sat, site, utcStart, utcEnd, minimumElevationDeg, cancellationToken))
+            .ToList();
+
+        IReadOnlyList<PassInfo>[] results;
+        try
         {
-            var passes = await _passPredictor.GetPassesAsync(
-                sat, site, utcStart, utcEnd, minimumElevationDeg, cancellationToken);
-            allPasses.AddRange(passes);
+            results = await Task.WhenAll(tasks);
+        }
+        catch
+        {
+            results = tasks.Select(t =>
+                t.IsCompletedSuccessfully
+                    ? t.Result
+                    : (IReadOnlyList<PassInfo>)Array.Empty<PassInfo>())
+                .ToArray();
+            var exceptions = tasks.Where(t => t.IsFaulted)
+                                  .Select(t => t.Exception!.InnerException!)
+                                  .ToList();
+            if (exceptions.Count > 0)
+                throw new AggregateException(exceptions);
         }
 
-        return allPasses
+        return results.SelectMany(r => r)
             .Where(p => p.Duration >= minDuration)
             .OrderBy(p => p.AosUtc)
             .ToList();
@@ -187,19 +206,36 @@ public sealed class TrackingOrchestrator
         var minPassDuration = TimeSpan.FromMinutes(Math.Max(0, minimumPassDurationMinutes));
         var minMutualDuration = TimeSpan.FromMinutes(Math.Max(0, minimumMutualDurationMinutes));
 
-        var localPasses = new List<PassInfo>();
-        var remotePasses = new List<PassInfo>();
+        var sats = _tleService.GetEnabledSatellites(_settings.Current);
 
-        foreach (var sat in _tleService.GetEnabledSatellites(_settings.Current))
+        var localTasks = sats.Select(sat =>
+            _passPredictor.GetPassesAsync(sat, localSite, utcStart, utcEnd, minimumElevationDeg, cancellationToken))
+            .ToList();
+        var remoteTasks = sats.Select(sat =>
+            _passPredictor.GetPassesAsync(sat, remoteSite, utcStart, utcEnd, minimumElevationDeg, cancellationToken))
+            .ToList();
+
+        var allTasks = localTasks.Concat(remoteTasks).ToList();
+        try
         {
-            var passes = await _passPredictor.GetPassesAsync(
-                sat, localSite, utcStart, utcEnd, minimumElevationDeg, cancellationToken);
-            localPasses.AddRange(passes.Where(p => p.Duration >= minPassDuration));
-
-            passes = await _passPredictor.GetPassesAsync(
-                sat, remoteSite, utcStart, utcEnd, minimumElevationDeg, cancellationToken);
-            remotePasses.AddRange(passes.Where(p => p.Duration >= minPassDuration));
+            await Task.WhenAll(allTasks);
         }
+        catch
+        {
+            // Allow partial results to be collected below
+        }
+
+        var localPasses = localTasks
+            .Where(t => t.IsCompletedSuccessfully)
+            .SelectMany(t => t.Result)
+            .Where(p => p.Duration >= minPassDuration)
+            .ToList();
+
+        var remotePasses = remoteTasks
+            .Where(t => t.IsCompletedSuccessfully)
+            .SelectMany(t => t.Result)
+            .Where(p => p.Duration >= minPassDuration)
+            .ToList();
 
         return MutualPassFinder.FindOverlaps(localPasses, remotePasses, minMutualDuration);
     }

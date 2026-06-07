@@ -12,5 +12,5 @@ public interface IOrbitPropagator
     EciPosition GetEciPosition(string noradId, DateTime utc);
     LookAngles GetLookAngles(string noradId, GroundStation site, DateTime utc);
     bool HasSatellite(string noradId);
-    IReadOnlyList<string> LoadedNoradIds { get; }
+    IReadOnlyCollection<string> LoadedNoradIds { get; }
 }
