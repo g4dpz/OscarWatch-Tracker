@@ -9,6 +9,7 @@ Thank you to everyone who has donated to support OscarWatch development.
 | Dave | M0GIW / 5B4AOB |
 | Aquilino Torres Morales | HK3Z |
 | Nitin | VU2JEK |
-| Mike | DL2AMB | 
+| Mike | DL2AMB |
+| Michael | DK1MI |
 
 If you donate and would like to be listed here, let Peter know your name and callsign.
