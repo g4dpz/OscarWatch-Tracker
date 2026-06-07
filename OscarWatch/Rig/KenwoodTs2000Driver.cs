@@ -14,6 +14,9 @@ public sealed class KenwoodTs2000Driver : IRigDriver
 
     private readonly IKenwoodCatTransport _transport;
     private readonly int _catDelayMs;
+    private readonly int _satModeSettlingDelayMs;
+    private readonly int _satModeRetryCount;
+    private readonly int _satModeRetryDelayMs;
     private bool _satelliteMode;
     private bool _satelliteLayoutConfirmed;
     private RigVfo _currentVfo = RigVfo.Main;
@@ -22,15 +25,18 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     private long _lastVfoAHz;
     private long _lastVfoBHz;
 
-    public KenwoodTs2000Driver(string port, int baudRate, int catDelayMs = 50)
-        : this(new KenwoodCatTransport(port, baudRate), catDelayMs)
+    public KenwoodTs2000Driver(string port, int baudRate, int catDelayMs = 50, int satModeSettlingDelayMs = 250, int satModeRetryCount = 3, int satModeRetryDelayMs = 200)
+        : this(new KenwoodCatTransport(port, baudRate), catDelayMs, satModeSettlingDelayMs, satModeRetryCount, satModeRetryDelayMs)
     {
     }
 
-    internal KenwoodTs2000Driver(IKenwoodCatTransport transport, int catDelayMs = 50)
+    internal KenwoodTs2000Driver(IKenwoodCatTransport transport, int catDelayMs = 50, int satModeSettlingDelayMs = 250, int satModeRetryCount = 3, int satModeRetryDelayMs = 200)
     {
         _transport = transport;
         _catDelayMs = catDelayMs;
+        _satModeSettlingDelayMs = satModeSettlingDelayMs;
+        _satModeRetryCount = satModeRetryCount;
+        _satModeRetryDelayMs = satModeRetryDelayMs;
     }
 
     public RigType RigType => RigType.KenwoodTs2000;
@@ -208,13 +214,14 @@ public sealed class KenwoodTs2000Driver : IRigDriver
 
         if (on)
         {
-            _satelliteMode = TryEnableSatelliteMode();
-            _satelliteLayoutConfirmed = _satelliteMode;
-            if (!_satelliteLayoutConfirmed)
+            var result = TryEnableSatelliteMode();
+            _satelliteMode = result;
+            _satelliteLayoutConfirmed = result;
+            if (!result)
             {
-                Log.Warning(
-                    "TS-2000 SATL not confirmed via SA; — continuing FA/FB tracking. Check SAT on front panel and memory mode off.");
-                _satelliteMode = true;
+                Log.Error(
+                    "TS-2000 SATL not confirmed after {RetryCount} SA; verification attempts. Radio may not be in satellite mode.",
+                    _satModeRetryCount);
             }
 
             return;
@@ -361,16 +368,30 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     private bool TryEnableSatelliteMode()
     {
         _transport.SendFireAndForget(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
+
+        // Settling delay: give the radio time to transition its internal state to SATL
+        // before proceeding with the entry handshake and verification query.
+        if (_satModeSettlingDelayMs > 0)
+            Thread.Sleep(_satModeSettlingDelayMs);
+
         foreach (var toneOff in KenwoodCatCodec.SatelliteModeEntryToneOffSequence)
             _transport.SendFireAndForget(toneOff, _catDelayMs);
 
         SendSatelliteEntryHandshake();
 
-        var reply = _transport.Transact(KenwoodCatCodec.BuildSatelliteStatusQuery(), _catDelayMs);
-        if (reply is not null && KenwoodCatCodec.TryParseSatelliteOn(reply))
+        // Retry loop: attempt SA; verification up to _satModeRetryCount times
+        // with inter-attempt delays, accounting for variable radio processing time.
+        for (var attempt = 1; attempt <= _satModeRetryCount; attempt++)
         {
-            SendSatelliteToneAndSquelchOff();
-            return true;
+            var reply = _transport.Transact(KenwoodCatCodec.BuildSatelliteStatusQuery(), _catDelayMs);
+            if (reply is not null && KenwoodCatCodec.TryParseSatelliteOn(reply))
+            {
+                SendSatelliteToneAndSquelchOff();
+                return true;
+            }
+
+            if (attempt < _satModeRetryCount && _satModeRetryDelayMs > 0)
+                Thread.Sleep(_satModeRetryDelayMs);
         }
 
         return false;
