@@ -342,37 +342,30 @@ public class WorldMapControl : ThemeAwareControl
             }
         }
 
-        // Pass 2: labels on top (non-focused first, focused last; stagger overlaps).
-        var labelPlacements = new List<Rect>();
+        // Pass 2: labels on top (non-focused first, focused last).
+        // Use the same subpoint projection and map-wrap copies as the markers in pass 1.
         var labelOrder = Enumerable.Range(0, states.Count)
+            .Where(i => TrackingPlotAccessibility.IsPlotSatelliteVisible(
+                SoloFocusedSatellite, FocusedNoradId, states[i].NoradId))
             .OrderBy(i => states[i].NoradId == FocusedNoradId ? 1 : 0)
             .ToList();
 
         foreach (var i in labelOrder)
         {
             var state = states[i];
-            if (!TrackingPlotAccessibility.IsPlotSatelliteVisible(SoloFocusedSatellite, FocusedNoradId, state.NoradId))
-                continue;
-
-            var color = PlotColors.ForIndex(i);
             var isFocused = state.NoradId == FocusedNoradId;
-            var (ax, ay) = GetLabelAnchor(state, w, h);
+            var (sx, sy) = EquirectangularProjection.GeoToPixel(
+                state.Subpoint.LatitudeDeg, state.Subpoint.LongitudeDeg, w, h);
 
-            foreach (var xOffset in GetSubpointWrapOffsets(ax, w))
+            foreach (var xOffset in GetSubpointWrapOffsets(sx, w))
             {
-                var dx = ax + xOffset;
-                if (dx < -WrapEdgeMarginPx || dx > w + WrapEdgeMarginPx)
-                    continue;
-
-                var stagger = StaggerLabelY(dx, ay, labelPlacements);
                 DrawSatelliteLabel(
                     context,
                     state.Name,
-                    dx,
-                    ay + stagger,
+                    sx + xOffset,
+                    sy,
                     palette,
                     isFocused ? 12 : 11);
-                labelPlacements.Add(GetLabelBounds(state.Name, dx, ay + stagger, isFocused ? 12 : 11));
             }
         }
     }
@@ -870,49 +863,6 @@ public class WorldMapControl : ThemeAwareControl
     private static void DrawGroundStationDot(DrawingContext context, double x, double y, UiPalette palette)
     {
         PlotMarkerDrawing.DrawGroundStationMarker(context, x, y, palette);
-    }
-
-    private static (double X, double Y) GetLabelAnchor(SatelliteTrackState state, double w, double h)
-    {
-        return EquirectangularProjection.GeoToPixel(
-            state.Subpoint.LatitudeDeg, state.Subpoint.LongitudeDeg, w, h);
-    }
-
-    private static double StaggerLabelY(double x, double y, List<Rect> placed)
-    {
-        var stagger = 0.0;
-        const double step = 16;
-        const double minDist = 70;
-
-        while (placed.Any(r => RectIntersectsLabelSpot(r, x, y + stagger, minDist)))
-            stagger -= step;
-
-        return stagger;
-    }
-
-    private static bool RectIntersectsLabelSpot(Rect placed, double x, double y, double minDist)
-    {
-        var cx = placed.X + placed.Width / 2;
-        var cy = placed.Y + placed.Height / 2;
-        return Math.Abs(cx - x) < minDist && Math.Abs(cy - y) < minDist;
-    }
-
-    private static Rect GetLabelBounds(string name, double x, double y, double fontSize)
-    {
-        var text = new FormattedText(
-            name,
-            System.Globalization.CultureInfo.CurrentCulture,
-            FlowDirection.LeftToRight,
-            new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.SemiBold),
-            fontSize,
-            Brushes.White)
-        {
-            MaxTextWidth = 120
-        };
-
-        var tx = x - text.Width / 2;
-        var ty = y - text.Height - 8;
-        return new Rect(tx - 4, ty - 2, text.Width + 8, text.Height + 4);
     }
 
     private static void DrawSatelliteLabel(
