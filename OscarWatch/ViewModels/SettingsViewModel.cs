@@ -397,6 +397,11 @@ public partial class SettingsViewModel : ViewModelBase
         && (SelectedDownlinkRigTypeChoice?.Value is RigType.YaesuFt991 or RigType.YaesuFt991a
             || SelectedUplinkRigTypeChoice?.Value is RigType.YaesuFt991 or RigType.YaesuFt991a);
 
+    public bool ShowRigFtx1CatHint =>
+        DualRadioEnabled
+        && (SelectedDownlinkRigTypeChoice?.Value == RigType.YaesuFtx1
+            || SelectedUplinkRigTypeChoice?.Value == RigType.YaesuFtx1);
+
     public IReadOnlyList<RigRegionOption> RigRegionChoices { get; }
 
     public SettingsViewModel(
@@ -473,6 +478,7 @@ public partial class SettingsViewModel : ViewModelBase
             new(RigType.YaesuFt818, "Yaesu FT-818"),
             new(RigType.YaesuFt991, "Yaesu FT-991"),
             new(RigType.YaesuFt991a, "Yaesu FT-991A"),
+            new(RigType.YaesuFtx1, "Yaesu FTX-1"),
             new(RigType.IcomIc705, "ICOM IC-705"),
             new(RigType.IcomIc706, "ICOM IC-706"),
             new(RigType.IcomIc706Mkii, "ICOM IC-706MKII"),
@@ -1011,6 +1017,7 @@ public partial class SettingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(ShowUplinkIc705CivHint));
         OnPropertyChanged(nameof(ShowRigIc705CatHint));
         OnPropertyChanged(nameof(ShowRigFt991CatHint));
+        OnPropertyChanged(nameof(ShowRigFtx1CatHint));
         RefreshComPortConflictIfReady();
     }
 
@@ -1049,6 +1056,7 @@ public partial class SettingsViewModel : ViewModelBase
         NotifyIc706SeriesVisibility();
         OnPropertyChanged(nameof(ShowRigIc705CatHint));
         OnPropertyChanged(nameof(ShowRigFt991CatHint));
+        OnPropertyChanged(nameof(ShowRigFtx1CatHint));
         if (_isSynchronizing || value is null)
             return;
 
@@ -1057,6 +1065,9 @@ public partial class SettingsViewModel : ViewModelBase
 
         if (value.Value is RigType.YaesuFt991 or RigType.YaesuFt991a)
             DownlinkBaudRate = RigSettings.Ft991DefaultBaudRate;
+
+        if (value.Value == RigType.YaesuFtx1)
+            DownlinkBaudRate = RigSettings.Ftx1DefaultBaudRate;
 
         if (value.Value == RigType.IcomIc705)
         {
@@ -1077,6 +1088,7 @@ public partial class SettingsViewModel : ViewModelBase
         NotifyIc706SeriesVisibility();
         OnPropertyChanged(nameof(ShowRigIc705CatHint));
         OnPropertyChanged(nameof(ShowRigFt991CatHint));
+        OnPropertyChanged(nameof(ShowRigFtx1CatHint));
         if (_isSynchronizing || value is null)
             return;
 
@@ -1085,6 +1097,9 @@ public partial class SettingsViewModel : ViewModelBase
 
         if (value.Value is RigType.YaesuFt991 or RigType.YaesuFt991a)
             UplinkBaudRate = RigSettings.Ft991DefaultBaudRate;
+
+        if (value.Value == RigType.YaesuFtx1)
+            UplinkBaudRate = RigSettings.Ftx1DefaultBaudRate;
 
         if (value.Value == RigType.IcomIc705)
         {

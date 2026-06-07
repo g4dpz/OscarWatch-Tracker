@@ -883,6 +883,9 @@
   <data name="Settings.Radio.Ft991Hint">
     <value>FT-991 / FT-991A：将菜单 031 CAT RATE 与设置中的值匹配（默认 38400）。8N2 ASCII CAT，硬件 RTS 控制 — 使用 USB CAT COM 口。每台链路一个 COM 口。FM 模式下跟踪时锁定 VFO-A 旋钮。</value>
   </data>
+  <data name="Settings.Radio.Ftx1Hint">
+    <value>FTX-1 Field / FTX-1optima：将菜单 CAT-1 RATE 与设置中的值匹配（默认 38400）。8N2 ASCII CAT，硬件 RTS 控制 — 使用 Enhanced COM 口（CAT-1），不要用 CAT-2。每台链路一个 COM 口。FM 模式下跟踪时锁定 MAIN VFO 旋钮。</value>
+  </data>
   <data name="Settings.Radio.CwSideband">
     <value>线性 CW：接收保持 USB/LSB（仅发射 CW）</value>
   </data>

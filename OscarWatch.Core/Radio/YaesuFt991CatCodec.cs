@@ -1,7 +1,7 @@
 namespace OscarWatch.Core.Radio;
 
 /// <summary>
-/// Yaesu FT-991 / FT-991A ASCII CAT (newcat / Hamlib-compatible subset).
+/// Yaesu FT-991 / FT-991A / FTX-1 ASCII CAT (newcat / Hamlib-compatible subset).
 /// Frequencies are 9-digit Hz on VFO-A (FA) / VFO-B (FB).
 /// </summary>
 public static class YaesuFt991CatCodec

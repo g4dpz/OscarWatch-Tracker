@@ -883,6 +883,9 @@
   <data name="Settings.Radio.Ft991Hint">
     <value>FT-991 / FT-991A: Match menu 031 CAT RATE to Settings (default 38400). 8N2 ASCII CAT with hardware RTS — use the USB CAT COM port. One COM per leg. FM locks the VFO-A dial while tracking.</value>
   </data>
+  <data name="Settings.Radio.Ftx1Hint">
+    <value>FTX-1 Field / FTX-1optima: Match menu CAT-1 RATE to Settings (default 38400). 8N2 ASCII CAT with hardware RTS — use the Enhanced COM port (CAT-1), not CAT-2. One COM per leg. FM locks the MAIN VFO dial while tracking.</value>
+  </data>
   <data name="Settings.Radio.CwSideband">
     <value>Linear CW: keep receive in USB/LSB (transmit CW only)</value>
   </data>

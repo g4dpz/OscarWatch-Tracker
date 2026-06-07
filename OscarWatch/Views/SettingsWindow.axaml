@@ -512,6 +512,11 @@
                        TextWrapping="Wrap"
                        IsVisible="{Binding ShowRigFt991CatHint}"
                        Text="{loc:Localize Key=Settings.Radio.Ft991Hint}" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding ShowRigFtx1CatHint}"
+                       Text="{loc:Localize Key=Settings.Radio.Ftx1Hint}" />
             <CheckBox Content="{loc:Localize Key=Settings.Radio.CwSideband}"
                       IsChecked="{Binding RigCwKeepSidebandDownlink, Mode=TwoWay}"
                       Margin="0,8,0,0" />

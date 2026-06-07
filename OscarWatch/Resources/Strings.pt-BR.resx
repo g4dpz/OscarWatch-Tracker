@@ -883,6 +883,9 @@
   <data name="Settings.Radio.Ft991Hint">
     <value>FT-991 / FT-991A: Combine o menu 031 CAT RATE com as Configurações (padrão 38400). CAT ASCII 8N2 com RTS de hardware — use a porta COM USB CAT. Uma COM por perna. FM trava o dial VFO-A durante o rastreamento.</value>
   </data>
+  <data name="Settings.Radio.Ftx1Hint">
+    <value>FTX-1 Field / FTX-1optima: Combine o menu CAT-1 RATE com as Configurações (padrão 38400). CAT ASCII 8N2 com RTS de hardware — use a porta Enhanced COM (CAT-1), não CAT-2. Uma COM por perna. FM trava o dial MAIN VFO durante o rastreamento.</value>
+  </data>
   <data name="Settings.Radio.CwSideband">
     <value>CW linear: manter recepção em USB/LSB (somente transmissão em CW)</value>
   </data>

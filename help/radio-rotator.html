@@ -50,6 +50,7 @@
           <tr><td>ICOM IC-910 / IC-9700 / IC-9100</td><td>CI-V, Main/Sub for cross-band; receive-only modes use <strong>Main</strong> on the downlink band (VHF or UHF) with SAT off</td></tr>
           <tr><td>Yaesu FT-847</td><td>Satellite CAT — SAT RX/TX VFOs, doppler, uplink CTCSS</td></tr>
           <tr><td>Yaesu FT-817 / FT-818</td><td><strong>Dual radio only</strong> (Settings → Dual radio): downlink rig on one COM port, uplink on another — full doppler on both; linear SSB/CW lets you spin the <strong>downlink</strong> VFO for passband trim while uplink keeps tracking</td></tr>
+          <tr><td>Yaesu FT-991 / FT-991A / FTX-1</td><td><strong>Dual radio only</strong>: ASCII CAT (8N2) on separate COM ports; VFO-A per radio; FM dial lock via CAT. FTX-1: use <strong>CAT-1</strong> (Enhanced COM), not CAT-2</td></tr>
           <tr><td>ICOM IC-705 / IC-706 series</td><td><strong>Dual radio only</strong>: CI-V legs on separate COM ports; one VFO per radio. IC-706 and MKII are 2m-only; MKIIG adds 70cm (not 23cm)</td></tr>
           <tr><td>Kenwood TS-2000</td><td><strong>Before tracking:</strong> manually select <strong>SAT</strong> on the radio and turn <strong>memory mode off</strong> if it is on. OscarWatch then enables SATL via CAT, auto band swap via <code>FA</code>/<code>FB</code> exchange, linear CW uplink in SATL, TRACE off via CAT (beta)</td></tr>
           <tr><td>Dummy rig</td><td>No hardware — test UI and Doppler only</td></tr>
@@ -67,10 +68,10 @@
         See <a href="frequencies.html">Frequencies</a> for the panel <strong>Voice</strong> / <strong>CW</strong> buttons; see <a href="keyboard-shortcuts.html">Keyboard shortcuts</a> for <strong>Ctrl+W</strong>.
       </p>
 
-      <h3 id="dual-radio-setup">Dual radio (FT-817 / FT-818 / FT-991 / IC-705 / IC-706 series)</h3>
+      <h3 id="dual-radio-setup">Dual radio (FT-817 / FT-818 / FT-991 / FTX-1 / IC-705 / IC-706 series)</h3>
       <p>
         Enable <strong>Settings → Radio → Dual radio</strong> when downlink and uplink are on <strong>separate physical radios</strong>.
-        Supported legs: Yaesu FT-817, FT-818, FT-991, FT-991A, ICOM IC-705, and ICOM IC-706 / IC-706MKII / IC-706MKIIG — including <strong>mixed pairs</strong>.
+        Supported legs: Yaesu FT-817, FT-818, FT-991, FT-991A, FTX-1 Field / FTX-1optima, ICOM IC-705, and ICOM IC-706 / IC-706MKII / IC-706MKIIG — including <strong>mixed pairs</strong>.
         Each radio uses one main VFO only; OscarWatch does not use split or satellite mode on these dual endpoints.
       </p>
 
@@ -168,6 +169,29 @@
         </li>
         <li>
           <strong>FM</strong>: OscarWatch locks VFO-A via CAT (<code>LK1</code>) while tracking. Linear modes leave the dial unlocked for passband trim on the downlink leg.
+        </li>
+      </ul>
+
+      <h3 id="ftx1-dual-setup">Yaesu FTX-1 Field / FTX-1optima</h3>
+      <p>
+        FTX-1 Field and FTX-1optima share the same field head and are supported as <strong>dual-radio endpoints only</strong>.
+        Typical layout: two FTX-1 field heads, or one paired with an FT-817/818, FT-991, or IC-705 on the other leg.
+        HF/50/144/430 coverage suits most satellite bands (not 23cm).
+      </p>
+      <ul>
+        <li>
+          Match <strong>CAT-1 RATE</strong> in the radio menu to Settings — OscarWatch suggests <strong>38400</strong>
+          (4800–115200 also work if set on both sides).
+        </li>
+        <li>
+          Use the USB <strong>Enhanced COM port (CAT-1)</strong> for frequency and mode — not CAT-2 (PTT/CW/digital).
+          OscarWatch uses <strong>8N2</strong> ASCII CAT with hardware RTS.
+        </li>
+        <li>
+          One COM port per leg. Downlink gets RX mode and frequency; uplink gets TX mode, frequency, and CTCSS.
+        </li>
+        <li>
+          <strong>FM</strong>: OscarWatch locks the MAIN VFO dial via CAT (<code>LK1</code>) while tracking. Linear modes leave the dial unlocked for passband trim on the downlink leg.
         </li>
       </ul>
 

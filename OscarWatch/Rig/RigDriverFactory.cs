@@ -22,6 +22,8 @@ public static class RigDriverFactory
             RigType.YaesuFt991, endpoint.Port, endpoint.BaudRate, endpoint.Region, endpoint.CatDelayMs),
         RigType.YaesuFt991a => new YaesuFt991aDriver(
             endpoint.Port, endpoint.BaudRate, endpoint.Region, endpoint.CatDelayMs),
+        RigType.YaesuFtx1 => new YaesuFtx1Driver(
+            endpoint.Port, endpoint.BaudRate, endpoint.Region, endpoint.CatDelayMs),
         RigType.IcomIc705 => new IcomIc705Driver(
             endpoint.Port, endpoint.BaudRate, ResolveEndpointCivAddress(endpoint), endpoint.CatDelayMs),
         RigType.IcomIc706 or RigType.IcomIc706Mkii or RigType.IcomIc706MkiiG =>
@@ -73,6 +75,8 @@ public static class RigDriverFactory
                 throw new InvalidOperationException("FT-817/FT-818 require Settings → Radio → Dual radio."),
             RigType.YaesuFt991 or RigType.YaesuFt991a =>
                 throw new InvalidOperationException("FT-991/FT-991A require Settings → Radio → Dual radio."),
+            RigType.YaesuFtx1 =>
+                throw new InvalidOperationException("FTX-1 series radios require Settings → Radio → Dual radio."),
             RigType.KenwoodTs2000 => new KenwoodTs2000Driver(port, baudRate, catDelayMs),
             RigType.Dummy => new DummyRigDriver(),
             _ => new DummyRigDriver()

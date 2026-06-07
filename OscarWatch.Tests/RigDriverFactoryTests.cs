@@ -96,6 +96,29 @@ public sealed class RigDriverFactoryTests
     }
 
     [Fact]
+    public void Create_endpoint_ftx1_returns_driver()
+    {
+        var driver = RigDriverFactory.Create(new RigEndpointSettings
+        {
+            Type = RigType.YaesuFtx1,
+            Port = "COMFTX1",
+            BaudRate = 38400
+        });
+
+        Assert.Equal(RigType.YaesuFtx1, driver.RigType);
+    }
+
+    [Fact]
+    public void Create_settings_ftx1_when_not_dual_throws()
+    {
+        Assert.Throws<InvalidOperationException>(() => RigDriverFactory.Create(new RigSettings
+        {
+            Type = RigType.YaesuFtx1,
+            Port = "COMFTX1"
+        }));
+    }
+
+    [Fact]
     public void Create_settings_ft817_when_dual_enabled_throws()
     {
         Assert.Throws<InvalidOperationException>(() => RigDriverFactory.Create(new RigSettings

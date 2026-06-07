@@ -37,7 +37,7 @@ public class YaesuFt991Driver : IRigDriver
         RigRegion region = RigRegion.EU,
         int catDelayMs = 50)
     {
-        if (rigType is not (RigType.YaesuFt991 or RigType.YaesuFt991a))
+        if (!RigSettings.IsYaesuNewCatDualEndpoint(rigType))
             throw new ArgumentOutOfRangeException(nameof(rigType));
 
         _rigType = rigType;

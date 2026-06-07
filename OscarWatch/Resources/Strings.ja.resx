@@ -775,6 +775,9 @@
   <data name="Settings.Radio.Ft991Hint">
     <value>FT-991 / FT-991A: メニュー031 CAT RATEを設定と一致（既定38400）。RTS付き8N2 ASCII CAT — USB CAT COMポートを使用。レッグごとに1 COM。FMは追跡中VFO-Aダイヤル固定。</value>
   </data>
+  <data name="Settings.Radio.Ftx1Hint">
+    <value>FTX-1 Field / FTX-1optima: メニューCAT-1 RATEを設定と一致（既定38400）。RTS付き8N2 ASCII CAT — Enhanced COM（CAT-1）を使用（CAT-2不可）。レッグごとに1 COM。FMは追跡中MAIN VFOダイヤル固定。</value>
+  </data>
   <data name="Settings.Radio.CwSideband">
     <value>リニアCW: 受信はUSB/LSBのまま（送信のみCW）</value>
   </data>

@@ -225,6 +225,28 @@ One CI-V driver covers **IC-706**, **IC-706MKII**, and **IC-706MKIIG** as separa
 - Use the USB **CAT** virtual COM port; hardware RTS is required.
 - On a real pass: both legs get doppler; CTCSS on uplink only.
 
+## Reference: Yaesu FTX-1 series (shipped, dual radio only)
+
+| Piece | Path |
+|-------|------|
+| CAT codec | [`OscarWatch.Core/Radio/YaesuFt991CatCodec.cs`](../OscarWatch.Core/Radio/YaesuFt991CatCodec.cs) — shared newcat subset |
+| Serial transport | [`OscarWatch/Rig/YaesuNewCatTransport.cs`](../OscarWatch/Rig/YaesuNewCatTransport.cs) — **8N2**, hardware RTS, semicolon ASCII |
+| Driver | [`OscarWatch/Rig/YaesuFtx1Driver.cs`](../OscarWatch/Rig/YaesuFtx1Driver.cs) |
+
+Covers **FTX-1 Field** and **FTX-1optima** (same field head). Same dual-radio pattern as FT-991: VFO-A (`FA`, `MD0`, `LK`, `CN`/`CT`) per physical radio.
+
+- **Dual radio only** — not in the single-radio driver list.
+- Default baud **38400** on **CAT-1** (menu CAT-1 RATE; 4800–115200 supported).
+- Use the **Enhanced COM port (CAT-1)** for frequency/mode — not CAT-2 (PTT/CW/digital).
+- Cross-check against [Hamlib `ftx1.c`](https://github.com/Hamlib/Hamlib/blob/master/rigs/yaesu/ftx1.c) and the FTX-1 CAT manual.
+
+### Hardware checklist (FTX-1 dual)
+
+- Enable **Settings → Radio → Dual radio**; configure each leg (type, COM, baud).
+- Match **CAT-1 RATE** in the radio menu to Settings on each field head.
+- One **CAT-1** COM port per leg (and a third port for rotator if used).
+- On a real pass: both legs get doppler; CTCSS on uplink only; FM locks the MAIN dial via `LK1`.
+
 ## Reference: Kenwood TS-2000 (shipped, beta)
 
 | Piece | Path |
