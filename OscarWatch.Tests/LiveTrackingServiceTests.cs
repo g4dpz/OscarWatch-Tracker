@@ -118,7 +118,7 @@ public sealed class LiveTrackingServiceTests
 
     private sealed class NullOrbitPropagator : Core.Orbit.IOrbitPropagator
     {
-        public IReadOnlyList<string> LoadedNoradIds { get; } = [];
+        public IReadOnlyCollection<string> LoadedNoradIds { get; } = [];
         public void Clear() { }
         public void LoadSatellite(SatelliteCatalogEntry entry) { }
         public void RemoveSatellite(string noradId) { }

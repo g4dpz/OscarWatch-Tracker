@@ -32,3 +32,6 @@ artifacts/
 
 ## App data (local dev only)
 *.local.json
+
+# Dave, G4DPZ Exclusions
+.kiro/

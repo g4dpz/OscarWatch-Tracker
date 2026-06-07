@@ -8,14 +8,20 @@ public sealed class PublicOrbitToolsPropagator : IOrbitPropagator
     private readonly Dictionary<string, (SatelliteCatalogEntry Entry, Zeptomoby.OrbitTools.Orbit Orbit)> _satellites =
         new(StringComparer.Ordinal);
 
-    public IReadOnlyList<string> LoadedNoradIds => _satellites.Keys.ToList();
+    private readonly Dictionary<(double, double, double), Zeptomoby.OrbitTools.Site> _siteCache = new();
+
+    public IReadOnlyCollection<string> LoadedNoradIds => _satellites.Keys;
 
     public void LoadSatellite(SatelliteCatalogEntry entry) =>
         _satellites[entry.NoradId] = (entry, OrbitToolsMapping.CreateOrbit(entry));
 
     public void RemoveSatellite(string noradId) => _satellites.Remove(noradId);
 
-    public void Clear() => _satellites.Clear();
+    public void Clear()
+    {
+        _satellites.Clear();
+        _siteCache.Clear();
+    }
 
     public bool HasSatellite(string noradId) => _satellites.ContainsKey(noradId);
 
@@ -34,7 +40,17 @@ public sealed class PublicOrbitToolsPropagator : IOrbitPropagator
     public LookAngles GetLookAngles(string noradId, GroundStation site, DateTime utc)
     {
         var orbit = GetOrbit(noradId);
-        var groundSite = OrbitToolsMapping.CreateSite(site);
+        var key = (
+            Math.Round(site.LatitudeDeg,  6),
+            Math.Round(site.LongitudeDeg, 6),
+            Math.Round(site.AltitudeKm,   6));
+
+        if (!_siteCache.TryGetValue(key, out var groundSite))
+        {
+            groundSite = OrbitToolsMapping.CreateSite(site);
+            _siteCache[key] = groundSite;
+        }
+
         var satEci = orbit.PositionEci(utc);
         var topo = groundSite.GetLookAngle(satEci);
 
