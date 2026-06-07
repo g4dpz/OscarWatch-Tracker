@@ -259,6 +259,9 @@
   <data name="Menu.Help.Logs">
     <value>Abrir pasta de _registros</value>
   </data>
+  <data name="Menu.Help.CopyDiagnostics">
+    <value>Copiar _diagnósticos</value>
+  </data>
   <data name="Menu.Help.OperatorGuide">
     <value>Guia do Usuário</value>
   </data>
@@ -411,6 +414,12 @@
   </data>
   <data name="Status.LoadingTle">
     <value>Carregando banco de dados TLE…</value>
+  </data>
+  <data name="Status.DiagnosticsCopied">
+    <value>Diagnósticos copiados para a área de transferência.</value>
+  </data>
+  <data name="Status.DiagnosticsCopyFailed">
+    <value>Não foi possível copiar os diagnósticos.</value>
   </data>
   <data name="Status.LogsFolderFailed">
     <value>Não foi possível abrir a pasta de registros</value>

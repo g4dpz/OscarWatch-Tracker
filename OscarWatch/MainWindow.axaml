@@ -40,6 +40,7 @@
         <MenuItem Header="{loc:Localize Key=Menu.Help.About}" Command="{Binding OpenAboutCommand}" />
         <MenuItem Header="{loc:Localize Key=Menu.Help.Recordings}" Command="{Binding OpenRecordingsFolderCommand}" />
         <MenuItem Header="{loc:Localize Key=Menu.Help.Logs}" Command="{Binding OpenLogsFolderCommand}" />
+        <MenuItem Header="{loc:Localize Key=Menu.Help.CopyDiagnostics}" Command="{Binding CopyDiagnosticsCommand}" />
       </MenuItem>
     </Menu>
 

@@ -58,7 +58,9 @@ public sealed class RigController : IRigController, IDisposable
     private bool _vfoNotMoving;
     private double _passbandDownlinkAdjustKHz;
     private double _passbandUplinkAdjustKHz;
-    private string? _statusMessage;
+    private RigStatusKind _statusKind = RigStatusKind.None;
+    private string? _statusPort;
+    private string? _statusDetail;
     private bool _isTracking;
     private bool _catUpdatesPaused;
     private bool _passInitPending;
@@ -77,7 +79,7 @@ public sealed class RigController : IRigController, IDisposable
 
     private RigSettings _cachedSettings = new();
     private RigTrackingContext? _cachedContext;
-    private RigConnectionStatus _status = new(false, false, null, null, null, false, 0, 0);
+    private RigConnectionStatus _status = new(false, false, RigStatusKind.None, null, null, null, null, false, 0, 0);
 
     public RigController(
         Func<RigSettings, IRigDriver>? driverFactory = null,
@@ -282,7 +284,9 @@ public sealed class RigController : IRigController, IDisposable
         var snapshot = new RigConnectionStatus(
             IsRigConnected(),
             _isTracking,
-            _statusMessage,
+            _statusKind,
+            _statusPort,
+            _statusDetail,
             DisplayHz(_displayRxHz, _lastRigRxHz),
             DisplayHz(_displayTxHz, _lastRigTxHz),
             _catUpdatesPaused,
@@ -298,22 +302,22 @@ public sealed class RigController : IRigController, IDisposable
         if (!RigIsConfigured(settings))
         {
             TearDownRig();
-            _statusMessage = null;
+            SetRigStatus(RigStatusKind.None);
             return;
         }
 
         if (!HasRequiredPorts(settings))
         {
             TearDownRig();
-            _statusMessage = settings.DualRadioEnabled
-                ? "Select COM ports for downlink and uplink radios"
-                : "No COM port selected";
+            SetRigStatus(settings.DualRadioEnabled
+                ? RigStatusKind.SelectDualComPorts
+                : RigStatusKind.NoComPort);
             return;
         }
 
         if (!EnsureConnected(settings))
         {
-            _statusMessage = DescribeConnectionFailure(settings, _lastConnectError);
+            SetRigStatus(DescribeConnectionFailure(settings, _lastConnectError));
             return;
         }
 
@@ -326,7 +330,7 @@ public sealed class RigController : IRigController, IDisposable
         if (context is null || context.TrackState.LookAngles is null)
         {
             _isTracking = false;
-            _statusMessage = settings.CatUpdatesPaused ? "CAT paused (manual tuning)" : "Connected";
+            SetRigStatus(settings.CatUpdatesPaused ? RigStatusKind.CatPaused : RigStatusKind.Connected);
             return;
         }
 
@@ -343,7 +347,7 @@ public sealed class RigController : IRigController, IDisposable
         if (settings.CatUpdatesPaused)
         {
             _isTracking = false;
-            _statusMessage = "CAT paused (manual tuning)";
+            SetRigStatus(RigStatusKind.CatPaused);
             return;
         }
 
@@ -360,8 +364,18 @@ public sealed class RigController : IRigController, IDisposable
         NoteContextOffsetChange(context);
         NoteContextDopplerStrategyChange(context);
         _isTracking = true;
-        _statusMessage = "Tracking";
+        SetRigStatus(RigStatusKind.Tracking);
     }
+
+    private void SetRigStatus(RigStatusKind kind, string? port = null, string? detail = null)
+    {
+        _statusKind = kind;
+        _statusPort = port;
+        _statusDetail = detail;
+    }
+
+    private void SetRigStatus((RigStatusKind Kind, string? Port, string? Detail) status) =>
+        SetRigStatus(status.Kind, status.Port, status.Detail);
 
     private void BeginNewPass(RigSettings settings, RigTrackingContext context, string newPassKey)
     {
@@ -1509,20 +1523,17 @@ public sealed class RigController : IRigController, IDisposable
     private IRigDriver? TxDriver() =>
         _cachedSettings.DualRadioEnabled ? _uplinkDriver : _driver;
 
-    private static string DescribeConnectionFailure(RigSettings settings, string? detail = null)
+    private static (RigStatusKind Kind, string? Port, string? Detail) DescribeConnectionFailure(
+        RigSettings settings,
+        string? detail = null)
     {
-        var port = settings.DualRadioEnabled
-            ? $"{settings.Downlink.Port} / {settings.Uplink.Port}"
-            : settings.Port;
-        var baseMessage = settings.DualRadioEnabled
-            ? "Dual radio not connected"
-            : string.IsNullOrWhiteSpace(port)
-                ? "Rig not connected"
-                : $"Rig not connected ({port})";
+        if (settings.DualRadioEnabled)
+            return (RigStatusKind.DualNotConnected, null, detail);
 
-        return string.IsNullOrWhiteSpace(detail)
-            ? baseMessage
-            : $"{baseMessage}: {detail}";
+        var port = settings.Port;
+        return string.IsNullOrWhiteSpace(port)
+            ? (RigStatusKind.NotConnected, null, detail)
+            : (RigStatusKind.NotConnected, port, detail);
     }
 
     private enum RigCommandKind

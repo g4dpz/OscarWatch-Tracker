@@ -3,7 +3,9 @@ namespace OscarWatch.Core.Models;
 public sealed record RigConnectionStatus(
     bool IsConnected,
     bool IsTracking,
-    string? StatusMessage,
+    RigStatusKind StatusKind,
+    string? StatusPort,
+    string? StatusDetail,
     long? LastReceiveHz,
     long? LastTransmitHz,
     bool CatUpdatesPaused = false,

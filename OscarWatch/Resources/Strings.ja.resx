@@ -178,6 +178,9 @@
   <data name="Menu.Help.About">
     <value>OscarWatchについて(_A)</value>
   </data>
+  <data name="Menu.Help.CopyDiagnostics">
+    <value>診断情報をコピー(_D)</value>
+  </data>
   <data name="Menu.Help.Logs">
     <value>ログフォルダを開く(_L)</value>
   </data>
@@ -309,6 +312,12 @@
   </data>
   <data name="Status.RecordingsFolderFailed">
     <value>録音フォルダを開けませんでした</value>
+  </data>
+  <data name="Status.DiagnosticsCopied">
+    <value>診断情報をクリップボードにコピーしました。</value>
+  </data>
+  <data name="Status.DiagnosticsCopyFailed">
+    <value>診断情報をコピーできませんでした。</value>
   </data>
   <data name="Status.LogsFolderFailed">
     <value>ログフォルダを開けませんでした</value>

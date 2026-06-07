@@ -60,7 +60,8 @@ public class RigControllerTests
         var status = controller.GetStatus();
         Assert.True(status.IsConnected);
         Assert.True(status.IsTracking);
-        Assert.DoesNotContain("not yet implemented", status.StatusMessage ?? "", StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(RigStatusKind.Tracking, status.StatusKind);
+        Assert.DoesNotContain("not yet implemented", RigStatusText.ToEnglish(status), StringComparison.OrdinalIgnoreCase);
         Assert.NotNull(status.LastReceiveHz);
         Assert.NotNull(status.LastTransmitHz);
         Assert.Equal(67.0, rig.LastToneHz);
@@ -424,7 +425,7 @@ public class RigControllerTests
         var status = controller.GetStatus();
         Assert.True(status.CatUpdatesPaused);
         Assert.False(status.IsTracking);
-        Assert.Contains("paused", status.StatusMessage ?? "", StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(RigStatusKind.CatPaused, status.StatusKind);
         Assert.NotNull(status.LastReceiveHz);
         Assert.NotNull(status.LastTransmitHz);
     }
@@ -467,7 +468,7 @@ public class RigControllerTests
         controller.Update(settings, ctx);
         var status = controller.GetStatus();
         Assert.True(status.IsTracking);
-        Assert.Contains("Tracking", status.StatusMessage ?? "", StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(RigStatusKind.Tracking, status.StatusKind);
     }
 
     [Fact]

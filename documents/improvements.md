@@ -4,7 +4,7 @@ This is a review by Cursor not a human
 
 A codebase review snapshot (June 2026). Items are grouped by theme and roughly ordered within each section: **quick wins** first, **larger refactors** later. Severity is subjective — adjust to your roadmap.
 
-**Context:** 4 projects (`Core`, `Orbit`, `OscarWatch`, `Tests`), ~470 automated tests, Avalonia desktop app on **.NET 10**, version **0.8.4**. Rig/rotator logic is strong and well-tested; the main gaps are UI orchestration, settings ergonomics, CI, and documentation depth.
+**Context:** 4 projects (`Core`, `Orbit`, `OscarWatch`, `Tests`), ~480 automated tests, Avalonia desktop app on **.NET 10**, version **0.8.4**. Rig/rotator logic is strong and well-tested; the main gaps are UI orchestration, settings ergonomics, CI, and documentation depth.
 
 ---
 
@@ -26,11 +26,9 @@ Three files carry most of the maintenance burden:
 - **SettingsViewModel:** One sub-VM per tab (`RigSettingsViewModel`, `RotatorSettingsViewModel`, …) or a single `SettingsDraft` model with two-way bind instead of 100+ manual field copies in `SaveAsync` / `LoadFromDraft`.
 - **RigController:** Harder to split, but consider extracting **dial-interaction policy** (8-sample history, 2.5 s Sub cooldown) into a small `RigDialInteractionState` class — would shrink both `RigController.cs` and the 1,695-line `RigControllerTests.cs`.
 
-### 1.2 Rig status messages — fix i18n at the source (medium)
+### ~~1.2 Rig status messages — fix i18n at the source (medium)~~ ✅ Done
 
-`RigController` emits English strings (`"Connected"`, `"Tracking"`, `"CAT paused (manual tuning)"`, …). `MainViewModel.LocalizeRigStatusText` reverse-maps them with string equality.
-
-**Better approach:** Use an enum or resource key on `RigConnectionStatus` (e.g. `RigStatusKind.Connected`) and localize once in the UI layer. Removes fragile string matching and makes new statuses safe for ja/pt-BR/zh-CN.
+**Done (June 2026):** `RigStatusKind` on `RigConnectionStatus` with optional English `StatusPort` / `StatusDetail` for diagnostics. UI uses `RigStatusLocalizer`; logs and the diagnostics bundle use `RigStatusText.ToEnglish()`.
 
 ### 1.3 Settings hint property explosion (medium)
 
@@ -82,7 +80,7 @@ Move labels into `Strings.resx` (or a `RigTypeDisplayNames` map in Core) so all 
 
 1. `SettingsService` load + migration tests (fast, high confidence for upgrades)
 2. `MutualPassFinder` + `IcsPassExporter` unit tests
-3. Extract `RigStatusKind` → test localization without MainViewModel
+3. ~~Extract `RigStatusKind` → test localization without MainViewModel~~ ✅ (`RigStatusTextTests`, `RigStatusLocalizer`)
 4. `SettingsViewModel` save round-trip with a fake `ISettingsService`
 5. MainViewModel: test standby/CAT-pause with injected `IRigController` fake
 
@@ -190,11 +188,9 @@ Publish workflow validates on `ubuntu-latest` only. Windows-specific paths (`Sys
 
 Add a Windows job (even build-only) or document that release candidates need a manual Windows smoke test.
 
-### 6.3 .NET 10 and package versions (medium)
+### ~~6.3 .NET 10 and package versions (medium)~~ ✅ Done
 
-Everything targets `net10.0` while some packages are **9.0.0** (`Microsoft.Extensions.DependencyInjection`, `System.Speech`, `System.IO.Ports`). Works today; may confuse contributors.
-
-Align package major versions with TFMs when stable, or document why 9.x is pinned.
+**Done (June 2026):** `Microsoft.Extensions.DependencyInjection`, `Microsoft.Extensions.DependencyInjection.Abstractions`, `System.Speech`, and `System.IO.Ports` aligned to **10.0.8** on `net10.0`.
 
 ### 6.4 Localization parity not enforced in CI
 
@@ -206,17 +202,17 @@ Align package major versions with TFMs when stable, or document why 9.x is pinne
 
 ## 7. Error handling and observability
 
-### 7.1 Mixed error styles
+### 7.1 Mixed error styles — partially done
 
-- Serilog via static `Log.ForContext<T>()` — consistent but not DI-friendly
-- `TrackingOrchestrator` swallows some TLE decay exceptions silently
-- Rig errors: English strings → UI string match
+- Serilog via static `Log.ForContext<T>()` — consistent but not DI-friendly *(unchanged)*
+- ~~`TrackingOrchestrator` swallows some TLE decay exceptions silently~~ ✅ Debug logs via `ITrackingDiagnostics` (once per NORAD per reload)
+- ~~Rig errors: English strings → UI string match~~ ✅ `RigStatusKind` + `RigStatusLocalizer` (see 1.2)
 
-**Improvements:**
+**Done (June 2026):**
 
-- Structured rig/rotator error codes on status objects
-- Log at Debug when look-angle computation is skipped (with NORAD id + reason)
-- Optional: user-facing “copy diagnostics” bundle (log tail + settings redacted)
+- Structured rig/rotator error codes on status objects (`RigStatusKind`, `RotatorConnectionKind`)
+- Log at Debug when look-angle computation is skipped (NORAD id + exception)
+- Help → **Copy diagnostics** (log tail + redacted settings + English rig/rotator status)
 
 ### 7.2 Settings save failures
 
@@ -243,7 +239,7 @@ These are multi-week efforts; keep them out of the core tracker refactor path un
 
 1. Add PR CI (`build` + `test` on ubuntu + windows)
 2. Resx key parity check in CI
-3. `RigStatusKind` enum + remove string matching in `MainViewModel`
+3. ~~`RigStatusKind` enum + remove string matching in `MainViewModel`~~ ✅
 4. `SettingsService` load/migration tests
 5. Document track-start elevation mismatch in help
 

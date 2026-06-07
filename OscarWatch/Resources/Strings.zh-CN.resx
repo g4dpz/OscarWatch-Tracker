@@ -259,6 +259,9 @@
   <data name="Menu.Help.Logs">
     <value>打开 _logs 文件夹</value>
   </data>
+  <data name="Menu.Help.CopyDiagnostics">
+    <value>复制诊断信息(_D)</value>
+  </data>
   <data name="Menu.Help.OperatorGuide">
     <value>操作指南</value>
   </data>
@@ -411,6 +414,12 @@
   </data>
   <data name="Status.LoadingTle">
     <value>正在加载 TLE 目录…</value>
+  </data>
+  <data name="Status.DiagnosticsCopied">
+    <value>诊断信息已复制到剪贴板。</value>
+  </data>
+  <data name="Status.DiagnosticsCopyFailed">
+    <value>无法复制诊断信息。</value>
   </data>
   <data name="Status.LogsFolderFailed">
     <value>无法打开 _logs 文件夹</value>

@@ -42,6 +42,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
     private RotatorSettings _cachedSettings = new();
     private SatelliteTrackState? _cachedTarget;
+    private RotatorConnectionKind _connectionKind = RotatorConnectionKind.Disconnected;
+    private string? _connectionDetail;
     private RotatorPositionStatus _positionStatus = new(false, null, null);
 
     public RotatorController(Func<RotatorSettings, IRotatorDriver>? driverFactory = null) =>
@@ -206,6 +208,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
                 case RotatorCommandKind.Disconnect:
                     TearDownRotator();
                     ResetTrackingState();
+                    _connectionKind = RotatorConnectionKind.Disconnected;
+                    _connectionDetail = null;
                     break;
 
                 case RotatorCommandKind.Drain:
@@ -226,15 +230,29 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private void RunTrackingIteration()
     {
         var settings = _cachedSettings;
-        if (!settings.Enabled || string.IsNullOrWhiteSpace(settings.Port))
+        if (!settings.Enabled)
         {
             TearDownRotator();
             ResetTrackingState();
+            _connectionKind = RotatorConnectionKind.Disabled;
+            _connectionDetail = null;
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(settings.Port))
+        {
+            TearDownRotator();
+            ResetTrackingState();
+            _connectionKind = RotatorConnectionKind.NoPortSelected;
+            _connectionDetail = null;
             return;
         }
 
         if (!EnsureConnected(settings))
             return;
+
+        _connectionKind = RotatorConnectionKind.Connected;
+        _connectionDetail = null;
 
         PollPosition();
 
@@ -427,7 +445,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
                 _displayElevation,
                 _displayCommandedAzimuth,
                 _displayCompassAzimuth,
-                _parked);
+                _parked,
+                _connectionKind,
+                _connectionDetail);
     }
 
     private void ClearTrackingAzimuthDisplay()
@@ -458,6 +478,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
         catch (Exception ex)
         {
             Log.Warning(ex, "Rotator connect failed on {Port}", settings.Port);
+            _connectionKind = RotatorConnectionKind.ConnectFailed;
+            _connectionDetail = ex.Message;
             TearDownRotator();
             return false;
         }

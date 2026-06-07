@@ -6,4 +6,6 @@ public sealed record RotatorPositionStatus(
     int? ElevationDeg,
     int? CommandedAzimuthDeg = null,
     int? CompassAzimuthDeg = null,
-    bool IsParked = false);
+    bool IsParked = false,
+    RotatorConnectionKind ConnectionKind = RotatorConnectionKind.Unknown,
+    string? ConnectionDetail = null);

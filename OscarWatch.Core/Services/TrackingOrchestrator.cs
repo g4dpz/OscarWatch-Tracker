@@ -12,7 +12,10 @@ public sealed class TrackingOrchestrator
     private readonly IOrbitPropagator _propagator;
     private readonly IGroundGeometry _groundGeometry;
     private readonly IPassPredictor _passPredictor;
+    private readonly ITrackingDiagnostics _diagnostics;
     private readonly SatelliteVisualCache _visualCache = new();
+    private readonly HashSet<string> _loggedLookAngleSkips = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _loggedStateSkips = new(StringComparer.Ordinal);
     private IReadOnlyList<SatelliteCatalogEntry> _cachedEnabledSats = Array.Empty<SatelliteCatalogEntry>();
 
     public TrackingOrchestrator(
@@ -20,19 +23,23 @@ public sealed class TrackingOrchestrator
         ITleService tleService,
         IOrbitPropagator propagator,
         IGroundGeometry groundGeometry,
-        IPassPredictor passPredictor)
+        IPassPredictor passPredictor,
+        ITrackingDiagnostics? diagnostics = null)
     {
         _settings = settings;
         _tleService = tleService;
         _propagator = propagator;
         _groundGeometry = groundGeometry;
         _passPredictor = passPredictor;
+        _diagnostics = diagnostics ?? NullTrackingDiagnostics.Instance;
     }
 
     public void ReloadEnabledSatellites()
     {
         _propagator.Clear();
         _visualCache.Clear();
+        _loggedLookAngleSkips.Clear();
+        _loggedStateSkips.Clear();
         var sats = _tleService.GetEnabledSatellites(_settings.Current);
         _cachedEnabledSats = sats;
         foreach (var sat in sats)
@@ -62,9 +69,10 @@ public sealed class TrackingOrchestrator
                 {
                     look = _propagator.GetLookAngles(sat.NoradId, site, utc);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // satellite may have decayed in TLE
+                    if (_loggedLookAngleSkips.Add(sat.NoradId))
+                        _diagnostics.LookAnglesSkipped(sat.NoradId, utc, ex);
                 }
 
                 var subpoint = _propagator.GetSubpoint(sat.NoradId, utc);
@@ -111,9 +119,10 @@ public sealed class TrackingOrchestrator
                     IsSunlit = isSunlit
                 });
             }
-            catch
+            catch (Exception ex)
             {
-                // Skip satellites with bad TLEs without blocking the rest.
+                if (_loggedStateSkips.Add(sat.NoradId))
+                    _diagnostics.SatelliteStateSkipped(sat.NoradId, utc, ex);
             }
         }
 
@@ -134,8 +143,10 @@ public sealed class TrackingOrchestrator
                 DateTime.UtcNow.AddSeconds(secondsAhead));
             return look.AzimuthDeg;
         }
-        catch
+        catch (Exception ex)
         {
+            if (_loggedLookAngleSkips.Add(noradId))
+                _diagnostics.LookAnglesSkipped(noradId, DateTime.UtcNow.AddSeconds(secondsAhead), ex);
             return null;
         }
     }

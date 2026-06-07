@@ -59,6 +59,7 @@ public partial class App : Application
         services.AddSingleton<ILocalizationService>(LocalizationService.Instance);
         services.AddSingleton<FrequencyOverlayViewModel>();
         services.AddSingleton<DxStationOverlayViewModel>();
+        services.AddSingleton<ITrackingDiagnostics, SerilogTrackingDiagnostics>();
         services.AddSingleton<TrackingOrchestrator>();
         services.AddSingleton<LiveTrackingService>();
         services.AddSingleton<ILiveTrackingService>(sp => sp.GetRequiredService<LiveTrackingService>());

@@ -1,0 +1,84 @@
+using OscarWatch.Core.Models;
+using OscarWatch.Core.Services;
+using OscarWatch.Diagnostics;
+
+namespace OscarWatch.Tests;
+
+public sealed class DiagnosticsBundleBuilderTests
+{
+    [Fact]
+    public void RedactSettings_masks_api_keys()
+    {
+        var settings = new AppSettings
+        {
+            Cloudlog = new CloudlogSettings { ApiKey = "secret-cloudlog" },
+            HamsAt = new HamsAtSettings { ApiKey = "secret-hamsat" }
+        };
+
+        var redacted = DiagnosticsBundleBuilder.RedactSettings(settings);
+
+        Assert.DoesNotContain("secret-cloudlog", redacted);
+        Assert.DoesNotContain("secret-hamsat", redacted);
+        Assert.Contains("\"***\"", redacted);
+    }
+
+    [Fact]
+    public void Build_includes_english_rig_and_rotator_status()
+    {
+        var rig = new StubRigController(new RigConnectionStatus(
+            false,
+            false,
+            RigStatusKind.NotConnected,
+            "COM3",
+            "Access denied",
+            null,
+            null));
+        var rotator = new StubRotatorController(new RotatorPositionStatus(
+            false,
+            null,
+            null,
+            ConnectionKind: RotatorConnectionKind.ConnectFailed,
+            ConnectionDetail: "Port busy"));
+
+        var bundle = DiagnosticsBundleBuilder.Build(new StubSettingsService(), rig, rotator);
+
+        Assert.Contains("Rig not connected (COM3): Access denied", bundle);
+        Assert.Contains("Rotator not connected: Port busy", bundle);
+        Assert.Contains("== Settings (redacted) ==", bundle);
+    }
+
+    private sealed class StubSettingsService : ISettingsService
+    {
+        public AppSettings Current { get; } = new();
+        public string SettingsPath { get; } = Path.Combine(Path.GetTempPath(), "diagnostics-bundle-test.json");
+        public void Load() { }
+        public Task LoadAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task SaveAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public void RequestSave() { }
+        public void SyncGridFromLatLon() { }
+        public void SyncLatLonFromGrid() { }
+        public void EnsureSavedStations() { }
+        public void ApplyActiveStation() { }
+        public void SyncActiveStationFromGroundStation() { }
+    }
+
+    private sealed class StubRigController(RigConnectionStatus status) : IRigController
+    {
+        public RigConnectionStatus GetStatus() => status;
+        public void PublishContext(RigSettings settings, RigTrackingContext? context, bool reinitializePass = false) { }
+        public void Update(RigSettings settings, RigTrackingContext? context) { }
+        public void ApplySelectedCtcss(RigSettings settings, RigTrackingContext? context) { }
+        public void Disconnect() { }
+    }
+
+    private sealed class StubRotatorController(RotatorPositionStatus status) : IRotatorController
+    {
+        public RotatorPositionStatus GetPositionStatus() => status;
+        public void Update(RotatorSettings settings, SatelliteTrackState? target) { }
+        public void Park(RotatorSettings settings) { }
+        public void MoveTo(double azimuthDeg, double elevationDeg, RotatorSettings settings) { }
+        public void Stop(RotatorSettings settings) { }
+        public void SetStandby(bool active, RotatorSettings settings) { }
+        public void Disconnect() { }
+    }
+}

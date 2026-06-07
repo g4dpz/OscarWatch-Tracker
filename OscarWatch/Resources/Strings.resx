@@ -259,6 +259,9 @@
   <data name="Menu.Help.Logs">
     <value>Open _logs folder</value>
   </data>
+  <data name="Menu.Help.CopyDiagnostics">
+    <value>Copy _diagnostics</value>
+  </data>
   <data name="Menu.Help.OperatorGuide">
     <value>Operator Guide</value>
   </data>
@@ -411,6 +414,12 @@
   </data>
   <data name="Status.LoadingTle">
     <value>Loading TLE catalog…</value>
+  </data>
+  <data name="Status.DiagnosticsCopied">
+    <value>Diagnostics copied to clipboard.</value>
+  </data>
+  <data name="Status.DiagnosticsCopyFailed">
+    <value>Could not copy diagnostics.</value>
   </data>
   <data name="Status.LogsFolderFailed">
     <value>Could not open log folder</value>

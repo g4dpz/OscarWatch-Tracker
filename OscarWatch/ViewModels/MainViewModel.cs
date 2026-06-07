@@ -824,62 +824,9 @@ public partial class MainViewModel : ViewModelBase
         }
 
         status ??= _rig.GetStatus();
-        RigStatusText = LocalizeRigStatusText(status);
+        RigStatusText = RigStatusLocalizer.Localize(_l, status);
         RigReceiveText = FormatSidebarFrequency(status.LastReceiveHz, Frequencies.RadioReceiveText, status.IsConnected);
         RigTransmitText = FormatSidebarFrequency(status.LastTransmitHz, Frequencies.RadioTransmitText, status.IsConnected);
-    }
-
-    private string LocalizeRigStatusText(RigConnectionStatus status)
-    {
-        var message = status.StatusMessage;
-        if (string.IsNullOrWhiteSpace(message))
-            return status.IsConnected ? _l.Get("Rig.Connected") : _l.Get("Rig.Disconnected");
-
-        if (message == "Connected")
-            return _l.Get("Rig.Connected");
-
-        if (message == "CAT paused (manual tuning)")
-            return _l.Get("Rig.CatPaused");
-
-        if (message == "Tracking")
-            return _l.Get("Rig.Tracking");
-
-        if (message == "No COM port selected")
-            return _l.Get("Rig.NoComPort");
-
-        if (message == "Select COM ports for downlink and uplink radios")
-            return _l.Get("Rig.SelectDualComPorts");
-
-        if (message == "Dual radio not connected")
-            return _l.Get("Rig.DualNotConnected");
-
-        if (message == "Rig not connected")
-            return _l.Get("Rig.NotConnected");
-
-        if (message.StartsWith("Dual radio not connected: ", StringComparison.Ordinal))
-            return _l.Get("Rig.DualNotConnectedDetail", message["Dual radio not connected: ".Length..]);
-
-        if (message.StartsWith("Rig not connected: ", StringComparison.Ordinal))
-            return _l.Get("Rig.NotConnectedDetail", message["Rig not connected: ".Length..]);
-
-        const string portPrefix = "Rig not connected (";
-        if (message.StartsWith(portPrefix, StringComparison.Ordinal) && message.EndsWith(')'))
-        {
-            var inner = message[portPrefix.Length..^1];
-            if (!message.Contains(": ", StringComparison.Ordinal))
-                return _l.Get("Rig.NotConnectedPort", inner);
-        }
-
-        const string portDetailSep = "): ";
-        var portDetailIdx = message.IndexOf(portDetailSep, StringComparison.Ordinal);
-        if (portDetailIdx > 0 && message.StartsWith(portPrefix, StringComparison.Ordinal))
-        {
-            var port = message[portPrefix.Length..portDetailIdx];
-            var detail = message[(portDetailIdx + portDetailSep.Length)..];
-            return _l.Get("Rig.NotConnectedPortDetail", port, detail);
-        }
-
-        return message;
     }
 
     private static string FormatSidebarFrequency(long? rigHz, string overlayText, bool rigConnected)
@@ -1510,6 +1457,28 @@ public partial class MainViewModel : ViewModelBase
         {
             Log.Warning(ex, "Could not open log directory");
             StatusText = _l.Get("Status.LogsFolderFailed");
+        }
+    }
+
+    [RelayCommand]
+    private async Task CopyDiagnosticsAsync()
+    {
+        try
+        {
+            var text = DiagnosticsBundleBuilder.Build(_settings, _rig, _rotator);
+            if (App.MainWindow?.Clipboard is not { } clipboard)
+            {
+                StatusText = _l.Get("Status.DiagnosticsCopyFailed");
+                return;
+            }
+
+            await clipboard.SetTextAsync(text);
+            StatusText = _l.Get("Status.DiagnosticsCopied");
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Could not copy diagnostics bundle");
+            StatusText = _l.Get("Status.DiagnosticsCopyFailed");
         }
     }
 
