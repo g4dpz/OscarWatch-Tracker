@@ -8,7 +8,7 @@ namespace OscarWatch.Tests;
 public class FsCheckSmokeTests
 {
     [Property]
-    public bool IntegerIdentity(int x) => x == x;
+    public bool IntegerAddZeroIsIdentity(int x) => x + 0 == x;
 
     [Property]
     public bool StringLengthNonNegative(string s) => s.Length >= 0;
