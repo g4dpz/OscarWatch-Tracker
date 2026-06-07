@@ -111,16 +111,37 @@ public static class DiagnosticsBundleBuilder
             if (latest is null || !latest.Exists)
                 return "(no log files)";
 
-            var lines = File.ReadLines(latest.FullName).ToList();
-            if (lines.Count == 0)
-                return "(log file empty)";
-
-            var start = Math.Max(0, lines.Count - LogTailLineCount);
-            return string.Join(Environment.NewLine, lines.Skip(start));
+            return FormatLogTail(ReadSharedLogLines(latest.FullName));
         }
         catch (Exception ex)
         {
             return $"(could not read log tail: {ex.Message})";
         }
+    }
+
+    /// <summary>Read log lines while Serilog (or another writer) still has the file open.</summary>
+    internal static IReadOnlyList<string> ReadSharedLogLines(string path)
+    {
+        using var stream = new FileStream(
+            path,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.ReadWrite | FileShare.Delete);
+        using var reader = new StreamReader(stream);
+
+        var lines = new List<string>();
+        while (reader.ReadLine() is { } line)
+            lines.Add(line);
+
+        return lines;
+    }
+
+    internal static string FormatLogTail(IReadOnlyList<string> lines, int maxLines = LogTailLineCount)
+    {
+        if (lines.Count == 0)
+            return "(log file empty)";
+
+        var start = Math.Max(0, lines.Count - maxLines);
+        return string.Join(Environment.NewLine, lines.Skip(start));
     }
 }

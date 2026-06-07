@@ -23,6 +23,43 @@ public sealed class DiagnosticsBundleBuilderTests
     }
 
     [Fact]
+    public void ReadSharedLogLines_reads_while_file_is_open_for_writing()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"oscarwatch-log-read-{Guid.NewGuid():N}.log");
+        try
+        {
+            File.WriteAllText(path, string.Join(Environment.NewLine, Enumerable.Range(1, 5).Select(i => $"line {i}")));
+
+            using var writer = new FileStream(
+                path,
+                FileMode.Open,
+                FileAccess.ReadWrite,
+                FileShare.ReadWrite | FileShare.Delete);
+
+            var lines = DiagnosticsBundleBuilder.ReadSharedLogLines(path);
+
+            Assert.Equal(5, lines.Count);
+            Assert.Equal("line 5", lines[^1]);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public void FormatLogTail_returns_last_n_lines()
+    {
+        var lines = Enumerable.Range(1, 250).Select(i => $"line {i}").ToList();
+        var tail = DiagnosticsBundleBuilder.FormatLogTail(lines, maxLines: 200);
+
+        Assert.StartsWith("line 51", tail);
+        Assert.EndsWith("line 250", tail);
+        Assert.DoesNotContain("line 50", tail);
+    }
+
+    [Fact]
     public void Build_includes_english_rig_and_rotator_status()
     {
         var rig = new StubRigController(new RigConnectionStatus(
