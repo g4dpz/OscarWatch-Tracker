@@ -6,14 +6,32 @@ namespace OscarWatch.Core.Display;
 public static partial class ReleaseNotesMarkdown
 {
     /// <summary>Prepares GitHub release markdown for the in-app release notes dialog.</summary>
-    public static string PrepareForDisplay(string? markdown)
+    public static string PrepareForDisplay(string? markdown) =>
+        ToPlainText(markdown);
+
+    /// <summary>Converts GitHub release markdown to readable plain text for the release notes dialog.</summary>
+    public static string ToPlainText(string? markdown)
     {
         if (string.IsNullOrWhiteSpace(markdown))
             return markdown ?? "";
 
         var text = StripImages(markdown);
         text = StripLeadingTitle(text);
-        return text;
+        text = FencedCodeBlockRegex().Replace(text, m => "\n" + m.Groups[1].Value.Trim() + "\n");
+        text = MarkdownLinkRegex().Replace(text, m =>
+            string.IsNullOrWhiteSpace(m.Groups[2].Value)
+                ? m.Groups[1].Value
+                : $"{m.Groups[1].Value} ({m.Groups[2].Value})");
+        text = InlineCodeRegex().Replace(text, m => m.Groups[1].Value);
+        text = AtxHeadingRegex().Replace(text, m => "\n" + m.Groups[1].Value.Trim() + "\n");
+        text = UnorderedListRegex().Replace(text, "• ");
+        text = BoldItalicRegex().Replace(text, m =>
+            m.Groups[1].Success ? m.Groups[1].Value
+            : m.Groups[2].Success ? m.Groups[2].Value
+            : m.Groups[3].Success ? m.Groups[3].Value
+            : m.Groups[4].Value);
+        text = CollapseBlankLinesRegex().Replace(text, "\n\n");
+        return text.Trim();
     }
 
     /// <summary>Removes image markup that the in-app renderer does not handle reliably.</summary>
@@ -52,4 +70,22 @@ public static partial class ReleaseNotesMarkdown
 
     [GeneratedRegex(@"^\s*#\s+[^\r\n]+(?:\r?\n)?")]
     private static partial Regex LeadingH1Regex();
+
+    [GeneratedRegex(@"```[^\r\n]*\r?\n([\s\S]*?)```", RegexOptions.Multiline)]
+    private static partial Regex FencedCodeBlockRegex();
+
+    [GeneratedRegex(@"\[([^\]]+)\]\(([^)\s]+)(?:\s+""[^""]*"")?\)")]
+    private static partial Regex MarkdownLinkRegex();
+
+    [GeneratedRegex(@"`([^`]+)`")]
+    private static partial Regex InlineCodeRegex();
+
+    [GeneratedRegex(@"\*\*([^*]+)\*\*|\*([^*]+)\*|__([^_]+)__|_([^_]+)_")]
+    private static partial Regex BoldItalicRegex();
+
+    [GeneratedRegex(@"^\s{0,3}#{1,6}\s+(.+)$", RegexOptions.Multiline)]
+    private static partial Regex AtxHeadingRegex();
+
+    [GeneratedRegex(@"^\s*[-*+]\s+", RegexOptions.Multiline)]
+    private static partial Regex UnorderedListRegex();
 }

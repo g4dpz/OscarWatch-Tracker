@@ -45,6 +45,17 @@ public sealed class ReleaseNotesMarkdownTests
         var result = ReleaseNotesMarkdown.PrepareForDisplay(input);
         Assert.DoesNotContain("# Release", result);
         Assert.DoesNotContain("![shot]", result);
-        Assert.StartsWith("## Section", result);
+        Assert.Contains("Section", result);
+    }
+
+    [Fact]
+    public void ToPlainText_converts_markdown_basics()
+    {
+        const string input = "## New features\n\n* **GPS** support\n\n[Docs](https://example.com/docs)";
+        var result = ReleaseNotesMarkdown.ToPlainText(input);
+        Assert.Contains("New features", result);
+        Assert.Contains("• GPS support", result);
+        Assert.Contains("Docs (https://example.com/docs)", result);
+        Assert.DoesNotContain("**", result);
     }
 }

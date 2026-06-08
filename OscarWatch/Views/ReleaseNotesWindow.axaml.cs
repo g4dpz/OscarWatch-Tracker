@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Markdown.Avalonia;
 using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
 
@@ -24,10 +23,10 @@ public partial class ReleaseNotesWindow : Window
         HeadingText.Text = string.IsNullOrWhiteSpace(release.Name)
             ? release.TagName
             : release.Name;
-        var body = string.IsNullOrWhiteSpace(release.Body)
-            ? release.TagName
-            : ReleaseNotesMarkdown.PrepareForDisplay(release.Body);
-        BodyMarkdown.Markdown = body;
+        var document = string.IsNullOrWhiteSpace(release.Body)
+            ? ReleaseNotesDocument.Parse(release.TagName)
+            : ReleaseNotesDocument.Parse(release.Body);
+        ReleaseNotesContentBuilder.Populate(BodyPanel, document);
         Title = HeadingText.Text ?? Title;
     }
 
