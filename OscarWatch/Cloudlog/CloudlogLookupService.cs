@@ -137,6 +137,10 @@ public sealed class CloudlogLookupService : ICloudlogLookupService
                 IsWorked = worked
             };
         }
+        catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return null;
+        }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             return null;

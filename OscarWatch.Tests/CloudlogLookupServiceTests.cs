@@ -73,6 +73,25 @@ public sealed class CloudlogLookupServiceTests
     }
 
     [Fact]
+    public async Task CheckGridWorkedAsync_returns_null_on_http_timeout()
+    {
+        var handler = new DelayedHandler(TimeSpan.FromSeconds(5));
+        var service = new CloudlogLookupService(new HttpClient(handler) { Timeout = TimeSpan.FromMilliseconds(50) });
+        var settings = new CloudlogSettings
+        {
+            Enabled = true,
+            CheckRoveGrids = true,
+            BaseUrl = "https://cloudlog.example",
+            ApiKey = "test-key",
+            LogbookPublicSlug = "m0abc"
+        };
+
+        var result = await service.CheckGridWorkedAsync(settings, "fn20");
+
+        Assert.Null(result);
+    }
+
+    [Fact]
     public void CanCheckGrids_requires_logbook_slug()
     {
         var service = new CloudlogLookupService(new HttpClient(new StubHandler("{}")));
@@ -104,6 +123,24 @@ public sealed class CloudlogLookupServiceTests
             {
                 Content = new StringContent(_body, Encoding.UTF8, "application/json")
             });
+        }
+    }
+
+    private sealed class DelayedHandler : HttpMessageHandler
+    {
+        private readonly TimeSpan _delay;
+
+        public DelayedHandler(TimeSpan delay) => _delay = delay;
+
+        protected override async Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            await Task.Delay(_delay, cancellationToken).ConfigureAwait(false);
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""{"gridsquare":"FN20","result":"Not Found"}""", Encoding.UTF8, "application/json")
+            };
         }
     }
 
