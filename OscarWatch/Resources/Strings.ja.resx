@@ -635,7 +635,25 @@
     <value>GPS</value>
   </data>
   <data name="Settings.Gps.Intro">
-    <value>NMEAシリアルGPSで局位置（緯度/経度、グリッド、標高）と、任意で追跡用UTCを取得します。</value>
+    <value>シリアルNMEA GPSまたはネットワークgpsdで局位置（緯度/経度、グリッド、標高）と、任意で追跡用UTCを取得します。</value>
+  </data>
+  <data name="Settings.Gps.Connection">
+    <value>接続</value>
+  </data>
+  <data name="Settings.Gps.Connection.Serial">
+    <value>シリアル（COMポート）</value>
+  </data>
+  <data name="Settings.Gps.Connection.Gpsd">
+    <value>gpsd（ネットワーク）</value>
+  </data>
+  <data name="Settings.Gps.GpsdHost">
+    <value>gpsdホスト</value>
+  </data>
+  <data name="Settings.Gps.GpsdPort">
+    <value>gpsdポート</value>
+  </data>
+  <data name="Settings.Gps.GpsdNote">
+    <value>稼働中のgpsdデーモンに接続します（既定ポート2947）。LinuxやRaspberry PiでGPSを共有している場合に使用します。</value>
   </data>
   <data name="Settings.Gps.Enable">
     <value>GPSを有効</value>
@@ -666,6 +684,9 @@
   </data>
   <data name="Settings.Gps.StatusNoPort">
     <value>GPSのCOMポートを選択してください。</value>
+  </data>
+  <data name="Settings.Gps.StatusNoGpsdHost">
+    <value>gpsdのホスト名またはIPアドレスを入力してください。</value>
   </data>
   <data name="Settings.Gps.StatusNotConnected">
     <value>GPS未接続。</value>

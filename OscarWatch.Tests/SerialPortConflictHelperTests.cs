@@ -67,4 +67,19 @@ public class SerialPortConflictHelperTests
         Assert.True(SerialPortConflictHelper.TryDescribeConflict(rotator, rig, gps, out var message));
         Assert.Contains("GPS and rotator", message);
     }
+
+    [Fact]
+    public void No_gps_conflict_when_gps_uses_gpsd_network()
+    {
+        var rotator = new RotatorSettings { Enabled = true, Port = "COM7" };
+        var rig = new RigSettings { Enabled = true, Type = RigType.IcomIc910, Port = "COM8" };
+        var gps = new GpsSettings
+        {
+            Enabled = true,
+            ConnectionKind = GpsConnectionKind.Gpsd,
+            GpsdHost = "127.0.0.1",
+            Port = "COM7"
+        };
+        Assert.False(SerialPortConflictHelper.TryDescribeConflict(rotator, rig, gps, out _));
+    }
 }

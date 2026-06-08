@@ -45,7 +45,7 @@ public partial class App : Application
         services.AddSingleton<PassRecordingCoordinator>();
         services.AddSingleton<IRotatorController, RotatorController>();
         services.AddSingleton<IRigController, RigController>();
-        services.AddSingleton<IGpsService, GpsController>();
+        services.AddSingleton<IGpsService, GpsService>();
         services.AddSingleton<ICloudlogRadioSyncService, CloudlogRadioSyncService>();
         services.AddSingleton<ICloudlogLookupService, CloudlogLookupService>();
         var bundledDb = Path.Combine(AppContext.BaseDirectory, "Assets", "satellite_database.json");

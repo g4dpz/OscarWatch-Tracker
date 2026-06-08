@@ -746,7 +746,25 @@
     <value>GPS</value>
   </data>
   <data name="Settings.Gps.Intro">
-    <value>NMEA serial GPS for station position (lat/lon, grid square, altitude) and optional UTC for tracking.</value>
+    <value>Serial NMEA GPS or network gpsd for station position (lat/lon, grid square, altitude) and optional UTC for tracking.</value>
+  </data>
+  <data name="Settings.Gps.Connection">
+    <value>Connection</value>
+  </data>
+  <data name="Settings.Gps.Connection.Serial">
+    <value>Serial (COM port)</value>
+  </data>
+  <data name="Settings.Gps.Connection.Gpsd">
+    <value>gpsd (network)</value>
+  </data>
+  <data name="Settings.Gps.GpsdHost">
+    <value>gpsd host</value>
+  </data>
+  <data name="Settings.Gps.GpsdPort">
+    <value>gpsd port</value>
+  </data>
+  <data name="Settings.Gps.GpsdNote">
+    <value>Connect to a running gpsd daemon (default port 2947). Typical on Linux or Raspberry Pi when the GPS is already shared on the network.</value>
   </data>
   <data name="Settings.Gps.Enable">
     <value>Enable GPS</value>
@@ -777,6 +795,9 @@
   </data>
   <data name="Settings.Gps.StatusNoPort">
     <value>Select a COM port for the GPS.</value>
+  </data>
+  <data name="Settings.Gps.StatusNoGpsdHost">
+    <value>Enter the gpsd host name or IP address.</value>
   </data>
   <data name="Settings.Gps.StatusNotConnected">
     <value>GPS not connected.</value>

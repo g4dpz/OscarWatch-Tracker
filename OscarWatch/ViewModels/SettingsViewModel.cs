@@ -286,10 +286,19 @@ public partial class SettingsViewModel : ViewModelBase
     private bool _gpsEnabled;
 
     [ObservableProperty]
+    private GpsConnectionOption? _selectedGpsConnectionChoice;
+
+    [ObservableProperty]
     private string? _selectedGpsComPort;
 
     [ObservableProperty]
     private int _gpsBaudRate = GpsSettings.DefaultBaudRate;
+
+    [ObservableProperty]
+    private string _gpsdHost = GpsSettings.DefaultGpsdHost;
+
+    [ObservableProperty]
+    private int _gpsdPort = GpsSettings.DefaultGpsdPort;
 
     [ObservableProperty]
     private bool _gpsAutoUpdateStation;
@@ -307,6 +316,14 @@ public partial class SettingsViewModel : ViewModelBase
     private string _gpsStatusText = "";
 
     public int[] GpsBaudRateOptions { get; } = [4800, 9600, 38400, 57600, 115200];
+
+    public IReadOnlyList<GpsConnectionOption> GpsConnectionChoices { get; }
+
+    public bool ShowGpsSerialFields =>
+        SelectedGpsConnectionChoice?.Value != GpsConnectionKind.Gpsd;
+
+    public bool ShowGpsGpsdFields =>
+        SelectedGpsConnectionChoice?.Value == GpsConnectionKind.Gpsd;
 
     [ObservableProperty]
     private bool _cloudlogEnabled;
@@ -524,6 +541,11 @@ public partial class SettingsViewModel : ViewModelBase
             new(RigRegion.EU, "EU"),
             new(RigRegion.USA, "USA")
         ];
+        GpsConnectionChoices =
+        [
+            new(GpsConnectionKind.Serial, _l.Get("Settings.Gps.Connection.Serial")),
+            new(GpsConnectionKind.Gpsd, _l.Get("Settings.Gps.Connection.Gpsd"))
+        ];
         RecordingFormatOptions =
         [
             new(RecordingFormatPreset.Mono44100, _l.Get("Settings.Recording.Format.Mono44100")),
@@ -699,8 +721,11 @@ public partial class SettingsViewModel : ViewModelBase
         _settings.Current.Gps = new GpsSettings
         {
             Enabled = GpsEnabled,
+            ConnectionKind = SelectedGpsConnectionChoice?.Value ?? GpsConnectionKind.Serial,
             Port = SelectedGpsComPort ?? "",
             BaudRate = GpsBaudRate,
+            GpsdHost = GpsdHost.Trim(),
+            GpsdPort = Math.Clamp(GpsdPort, 1, 65535),
             AutoUpdateStation = GpsAutoUpdateStation,
             UseGpsAltitude = GpsUseAltitude,
             UseGpsTimeForTracking = GpsUseTimeForTracking,
@@ -860,8 +885,13 @@ public partial class SettingsViewModel : ViewModelBase
             HamsAtTestStatus = "";
             var gps = _settings.Current.Gps ?? new GpsSettings();
             GpsEnabled = gps.Enabled;
+            SelectedGpsConnectionChoice =
+                GpsConnectionChoices.FirstOrDefault(c => c.Value == gps.ConnectionKind)
+                ?? GpsConnectionChoices[0];
             SelectedGpsComPort = string.IsNullOrWhiteSpace(gps.Port) ? null : gps.Port;
             GpsBaudRate = gps.BaudRate > 0 ? gps.BaudRate : GpsSettings.DefaultBaudRate;
+            GpsdHost = string.IsNullOrWhiteSpace(gps.GpsdHost) ? GpsSettings.DefaultGpsdHost : gps.GpsdHost.Trim();
+            GpsdPort = gps.GpsdPort > 0 ? gps.GpsdPort : GpsSettings.DefaultGpsdPort;
             GpsAutoUpdateStation = gps.AutoUpdateStation;
             GpsUseAltitude = gps.UseGpsAltitude;
             GpsUseTimeForTracking = gps.UseGpsTimeForTracking;
@@ -1051,7 +1081,10 @@ public partial class SettingsViewModel : ViewModelBase
         var status = _gps.GetStatus();
         if (!GpsEnabled)
             GpsStatusText = _l.Get("Settings.Gps.StatusDisabled");
-        else if (string.IsNullOrWhiteSpace(SelectedGpsComPort))
+        else if (SelectedGpsConnectionChoice?.Value == GpsConnectionKind.Gpsd
+                 && string.IsNullOrWhiteSpace(GpsdHost))
+            GpsStatusText = _l.Get("Settings.Gps.StatusNoGpsdHost");
+        else if (ShowGpsSerialFields && string.IsNullOrWhiteSpace(SelectedGpsComPort))
             GpsStatusText = _l.Get("Settings.Gps.StatusNoPort");
         else if (!status.IsConnected)
             GpsStatusText = string.IsNullOrWhiteSpace(status.Detail)
@@ -1094,8 +1127,11 @@ public partial class SettingsViewModel : ViewModelBase
     private GpsSettings BuildGpsSettingsDraft() => new()
     {
         Enabled = GpsEnabled,
+        ConnectionKind = SelectedGpsConnectionChoice?.Value ?? GpsConnectionKind.Serial,
         Port = SelectedGpsComPort ?? "",
         BaudRate = GpsBaudRate,
+        GpsdHost = GpsdHost.Trim(),
+        GpsdPort = Math.Clamp(GpsdPort, 1, 65535),
         AutoUpdateStation = GpsAutoUpdateStation,
         UseGpsAltitude = GpsUseAltitude,
         UseGpsTimeForTracking = GpsUseTimeForTracking,
@@ -1139,6 +1175,14 @@ public partial class SettingsViewModel : ViewModelBase
         RefreshComPortConflictIfReady();
     }
 
+    partial void OnSelectedGpsConnectionChoiceChanged(GpsConnectionOption? value)
+    {
+        OnPropertyChanged(nameof(ShowGpsSerialFields));
+        OnPropertyChanged(nameof(ShowGpsGpsdFields));
+        PushDraftGpsToServiceIfReady();
+        RefreshComPortConflictIfReady();
+    }
+
     partial void OnSelectedGpsComPortChanged(string? value)
     {
         PushDraftGpsToServiceIfReady();
@@ -1146,6 +1190,10 @@ public partial class SettingsViewModel : ViewModelBase
     }
 
     partial void OnGpsBaudRateChanged(int value) => PushDraftGpsToServiceIfReady();
+
+    partial void OnGpsdHostChanged(string value) => PushDraftGpsToServiceIfReady();
+
+    partial void OnGpsdPortChanged(int value) => PushDraftGpsToServiceIfReady();
     partial void OnDualRadioEnabledChanged(bool value)
     {
         OnPropertyChanged(nameof(ShowRigSingleConfig));
@@ -1481,6 +1529,8 @@ public sealed record TleSourceOption(TleSourceMode Mode, string Label);
 public sealed record TleAutoUpdateOption(TleAutoUpdateMode Mode, string Label);
 
 public sealed record RotatorTypeOption(RotatorType Value, string Label);
+
+public sealed record GpsConnectionOption(GpsConnectionKind Value, string Label);
 
 public sealed record RotatorAzimuthOption(RotatorAzimuthRange Value, string Label);
 

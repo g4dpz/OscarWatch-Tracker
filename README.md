@@ -154,16 +154,19 @@ Open **Settings** from the menu. Tabs:
 
 Settings are stored in `%AppData%/OscarWatch/settings.json`.
 
-### GPS (NMEA serial)
+### GPS (serial or gpsd)
 
-Configure under **Settings → Integrations → GPS**. OscarWatch reads standard **$GPGGA** / **$GNGGA** and **$GPRMC** / **$GNRMC** sentences on a dedicated COM port (8N1; baud usually **4800** or **9600**).
+Configure under **Settings → Integrations → GPS**. Choose **Serial (COM port)** or **gpsd (network)**:
+
+- **Serial** — reads standard **$GPGGA** / **$GNGGA** and **$GPRMC** / **$GNRMC** on a dedicated COM port (8N1; baud usually **4800** or **9600**)
+- **gpsd** — connects to a running [gpsd](https://gpsd.io/) daemon over TCP (default port **2947**); useful when a Pi or Linux host already shares the GPS on your LAN
 
 - **Automatically update station position** — writes lat/lon (and grid square) from a valid fix; optional altitude from GGA
 - **Use GPS UTC for satellite tracking** — orbit propagation uses GPS time instead of the PC clock (does **not** change the Windows system clock)
 - **Apply fix to station** — one-shot update of **Settings → Station** fields
 - Status bar shows **GPS** (green = fix, red = no fix) and **GPS Time** (when time sync is enabled) — see [help](help/map-and-sidebar.html#status-bar)
 
-GPS must use a **different** COM port from the radio and rotator.
+Serial GPS must use a **different** COM port from the radio and rotator. Network gpsd does not use a COM port.
 
 Planned work is listed in [TODO.md](TODO.md). Transponder database merge/sync is documented in [documents/satellite-database.md](documents/satellite-database.md).
 

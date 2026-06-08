@@ -20,7 +20,9 @@ public static class SerialPortConflictHelper
         out string message)
     {
         message = "";
-        var gpsPort = gps is { Enabled: true } ? gps.Port?.Trim() ?? "" : "";
+        var gpsPort = gps is { Enabled: true, ConnectionKind: GpsConnectionKind.Serial }
+            ? gps.Port?.Trim() ?? ""
+            : "";
 
         if (rig.Enabled)
         {

@@ -82,9 +82,10 @@
 
       <h2 id="gps">GPS not connecting or no fix</h2>
       <ul>
-        <li>Enable GPS under <strong>Settings → Integrations → GPS</strong> and pick the correct COM port (Device Manager on Windows).</li>
-        <li>Match <strong>baud rate</strong> to the GPS (often 4800 or 9600). Use <strong>Refresh status</strong> after saving.</li>
-        <li>Use a <strong>dedicated</strong> COM port — not shared with radio or rotator.</li>
+        <li>Enable GPS under <strong>Settings → Integrations → GPS</strong>.</li>
+        <li><strong>Serial:</strong> pick the correct COM port (Device Manager on Windows), match <strong>baud rate</strong> (often 4800 or 9600), and use a port not shared with radio or rotator.</li>
+        <li><strong>gpsd:</strong> set host and port (default <strong>2947</strong>), confirm gpsd is running and reachable on the network (<code>gpsmon host:port</code> on Linux is a quick check).</li>
+        <li>Use <strong>Refresh status</strong> after saving.</li>
         <li>Close other programs that might have the GPS port open.</li>
         <li>Wait for a clear sky view or check the GPS has a valid NMEA output (GGA/RMC).</li>
         <li>Status bar <strong>GPS</strong> red = no fix; green = fix active. <strong>GPS Time</strong> red means time sync is on but GPS UTC is not available yet.</li>

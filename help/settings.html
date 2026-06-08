@@ -110,12 +110,15 @@
 
       <h3 id="gps">GPS</h3>
       <p>
-        Connect a USB or serial <strong>NMEA GPS</strong> on its own COM port (not shared with the radio or rotator).
-        OscarWatch parses common <strong>GGA</strong> and <strong>RMC</strong> sentences for position and time.
+        Choose <strong>Serial (COM port)</strong> for a USB or serial GPS on its own port (not shared with the radio or rotator),
+        or <strong>gpsd (network)</strong> when a <a href="https://gpsd.io/" target="_blank" rel="noopener">gpsd</a> daemon on your LAN
+        (for example on a Raspberry Pi) already manages the receiver.
       </p>
       <ul>
-        <li><strong>Enable GPS</strong> — turn serial GPS on or off.</li>
-        <li><strong>Serial port / baud rate</strong> — match the GPS (often <strong>4800</strong> or <strong>9600</strong> 8N1). Press <strong>Refresh</strong> if the port list is stale.</li>
+        <li><strong>Enable GPS</strong> — turn GPS integration on or off.</li>
+        <li><strong>Connection</strong> — <strong>Serial</strong> reads NMEA <strong>GGA</strong> / <strong>RMC</strong> sentences; <strong>gpsd</strong> uses the JSON watch stream on TCP port <strong>2947</strong> (host + port configurable).</li>
+        <li><strong>Serial port / baud rate</strong> — when using serial, match the GPS (often <strong>4800</strong> or <strong>9600</strong> 8N1). Press <strong>Refresh</strong> if the port list is stale.</li>
+        <li><strong>gpsd host / port</strong> — hostname or IP of the machine running gpsd (often <code>127.0.0.1</code> on the same PC, or your Pi’s LAN address).</li>
         <li><strong>Refresh status</strong> — shows connected / waiting for fix / fix with lat/lon and satellite count.</li>
         <li><strong>Apply fix to station</strong> — copies the current fix into <strong>Settings → Station</strong> (latitude, longitude, grid, and optionally altitude).</li>
         <li><strong>Automatically update station position from GPS fix</strong> — keeps your QTH in sync while roving (saves periodically).</li>
