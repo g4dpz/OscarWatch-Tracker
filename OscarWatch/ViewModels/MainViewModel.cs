@@ -33,6 +33,7 @@ public partial class MainViewModel : ViewModelBase
     private readonly IRecordingTaskScheduler _recordingTasks;
     private readonly IRotatorController _rotator;
     private readonly IRigController _rig;
+    private readonly IGpsService _gps;
     private readonly ICloudlogRadioSyncService _cloudlog;
     private readonly ICloudlogLookupService _cloudlogLookup;
     private readonly ISatelliteDatabaseSyncService _transponderDatabaseSync;
@@ -45,6 +46,7 @@ public partial class MainViewModel : ViewModelBase
     private string? _lastCloudlogErrorShown;
     private string? _recordingPassNoradId;
     private DateTime? _recordingPassAosUtc;
+    private DateTime _lastGpsStationPersistUtc = DateTime.MinValue;
 
     public FrequencyOverlayViewModel Frequencies { get; }
     public DxStationOverlayViewModel DxStation { get; }
@@ -162,6 +164,27 @@ public partial class MainViewModel : ViewModelBase
     private string _comPortConflictText = "";
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(GpsNoFix))]
+    [NotifyPropertyChangedFor(nameof(GpsTimeInactive))]
+    private bool _showGpsStatus;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(GpsNoFix))]
+    private bool _gpsHasFix;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(GpsTimeInactive))]
+    private bool _showGpsTimeStatus;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(GpsTimeInactive))]
+    private bool _gpsTimeActive;
+
+    public bool GpsNoFix => ShowGpsStatus && !GpsHasFix;
+
+    public bool GpsTimeInactive => ShowGpsTimeStatus && !GpsTimeActive;
+
+    [ObservableProperty]
     private bool _soloFocusedSatellite;
 
     [ObservableProperty]
@@ -252,6 +275,7 @@ public partial class MainViewModel : ViewModelBase
         IRecordingTaskScheduler recordingTasks,
         IRotatorController rotator,
         IRigController rig,
+        IGpsService gps,
         ICloudlogRadioSyncService cloudlog,
         ICloudlogLookupService cloudlogLookup,
         ISatelliteDatabaseSyncService transponderDatabaseSync,
@@ -274,6 +298,7 @@ public partial class MainViewModel : ViewModelBase
         _recordingTasks = recordingTasks;
         _rotator = rotator;
         _rig = rig;
+        _gps = gps;
         _cloudlog = cloudlog;
         _cloudlogLookup = cloudlogLookup;
         _cloudlog.StateChanged += OnCloudlogStateChanged;
@@ -416,6 +441,7 @@ public partial class MainViewModel : ViewModelBase
             }
         }
 
+        _gps.Update(_settings.Current.Gps);
         _liveTracking.Start();
         _liveTracking.RequestReload();
         Tick();
@@ -469,6 +495,8 @@ public partial class MainViewModel : ViewModelBase
         UpdatePassHighlightState();
         var focusedForOps = GetFocusedTrackState(operationalStates, FocusedNoradId);
         UpdateComPortConflictState();
+        TryApplyGpsStationUpdate();
+        UpdateGpsStatusDisplay();
         _rotator.Update(_settings.Current.Rotator, EnrichRotatorTarget(focusedForOps));
         UpdateRotatorDisplay();
         var focusedForDisplay = GetFocusedTrackState(mapStates, FocusedNoradId);
@@ -676,8 +704,61 @@ public partial class MainViewModel : ViewModelBase
         ShowComPortConflict = SerialPortConflictHelper.TryDescribeConflict(
             _settings.Current.Rotator,
             _settings.Current.Rig,
+            _settings.Current.Gps,
             out var message);
         ComPortConflictText = ComPortConflictLocalizer.Localize(message, _l);
+    }
+
+    private void UpdateGpsStatusDisplay()
+    {
+        var gpsSettings = _settings.Current.Gps;
+        var status = _gps.GetStatus();
+        ShowGpsStatus = GpsStatusHelper.ShowGpsIndicator(gpsSettings);
+        GpsHasFix = ShowGpsStatus && GpsStatusHelper.HasFix(status);
+        ShowGpsTimeStatus = GpsStatusHelper.ShowGpsTimeIndicator(gpsSettings);
+        GpsTimeActive = GpsStatusHelper.IsGpsTimeActive(gpsSettings, _gps.GetTrackingUtc());
+        OnPropertyChanged(nameof(GpsNoFix));
+        OnPropertyChanged(nameof(GpsTimeInactive));
+    }
+
+    private void TryApplyGpsStationUpdate()
+    {
+        var gpsSettings = _settings.Current.Gps;
+        if (!gpsSettings.AutoUpdateStation || !gpsSettings.Enabled)
+            return;
+
+        var status = _gps.GetStatus();
+        if (!status.HasFix
+            || status.LatitudeDeg is not { } lat
+            || status.LongitudeDeg is not { } lon)
+            return;
+
+        var gs = _settings.Current.GroundStation;
+        var altChanged = gpsSettings.UseGpsAltitude
+            && status.AltitudeMeters is { } alt
+            && Math.Abs(gs.AltitudeMetersAsl - alt) > 0.5;
+        var posChanged = Math.Abs(gs.LatitudeDeg - lat) > 0.00005
+            || Math.Abs(gs.LongitudeDeg - lon) > 0.00005
+            || altChanged;
+
+        if (!posChanged)
+            return;
+
+        gs.LatitudeDeg = lat;
+        gs.LongitudeDeg = lon;
+        if (gpsSettings.UseGpsAltitude && status.AltitudeMeters is { } newAlt)
+            gs.AltitudeMetersAsl = newAlt;
+
+        _settings.SyncGridFromLatLon();
+        _settings.SyncActiveStationFromGroundStation();
+        RefreshGroundStationFromSettings();
+        _liveTracking.RequestReload();
+
+        if (DateTime.UtcNow - _lastGpsStationPersistUtc >= TimeSpan.FromSeconds(60))
+        {
+            _settings.RequestSave();
+            _lastGpsStationPersistUtc = DateTime.UtcNow;
+        }
     }
 
     partial void OnRigCatPausedChanged(bool value)
@@ -1319,6 +1400,8 @@ public partial class MainViewModel : ViewModelBase
             _liveTracking.RequestReload();
             _rotator.Disconnect();
             _rig.Disconnect();
+            _gps.Disconnect();
+            _gps.Update(_settings.Current.Gps);
             _cloudlog.ResetThrottle();
             if (!_settings.Current.PassRecording.Enabled && _recording.IsRecording)
                 await _recording.StopAsync();

@@ -39,6 +39,38 @@ public static class ComPortConflictLocalizer
             return l.Get("ComPort.RotatorAndRadio", port);
         }
 
+        const string gpsRotatorPrefix = "GPS and rotator both use ";
+        if (message.StartsWith(gpsRotatorPrefix, StringComparison.Ordinal)
+            && message.EndsWith(". Use different COM ports or disable one device.", StringComparison.Ordinal))
+        {
+            var port = message[gpsRotatorPrefix.Length..^". Use different COM ports or disable one device.".Length];
+            return l.Get("ComPort.GpsAndRotator", port);
+        }
+
+        const string gpsRadioPrefix = "GPS and radio both use ";
+        if (message.StartsWith(gpsRadioPrefix, StringComparison.Ordinal)
+            && message.EndsWith(". Use different COM ports or disable one device.", StringComparison.Ordinal))
+        {
+            var port = message[gpsRadioPrefix.Length..^". Use different COM ports or disable one device.".Length];
+            return l.Get("ComPort.GpsAndRadio", port);
+        }
+
+        const string gpsDownlinkPrefix = "GPS and downlink radio both use ";
+        if (message.StartsWith(gpsDownlinkPrefix, StringComparison.Ordinal)
+            && message.EndsWith(". Use different COM ports or disable one device.", StringComparison.Ordinal))
+        {
+            var port = message[gpsDownlinkPrefix.Length..^". Use different COM ports or disable one device.".Length];
+            return l.Get("ComPort.GpsAndDownlink", port);
+        }
+
+        const string gpsUplinkPrefix = "GPS and uplink radio both use ";
+        if (message.StartsWith(gpsUplinkPrefix, StringComparison.Ordinal)
+            && message.EndsWith(". Use different COM ports or disable one device.", StringComparison.Ordinal))
+        {
+            var port = message[gpsUplinkPrefix.Length..^". Use different COM ports or disable one device.".Length];
+            return l.Get("ComPort.GpsAndUplink", port);
+        }
+
         return message;
     }
 }

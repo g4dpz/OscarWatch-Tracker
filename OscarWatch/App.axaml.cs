@@ -9,6 +9,7 @@ using OscarWatch.Orbit;
 using OscarWatch.Core.Models;
 using OscarWatch.Cloudlog;
 using OscarWatch.Recording;
+using OscarWatch.Gps;
 using OscarWatch.Rig;
 using OscarWatch.Rotator;
 using OscarWatch.Speech;
@@ -44,6 +45,7 @@ public partial class App : Application
         services.AddSingleton<PassRecordingCoordinator>();
         services.AddSingleton<IRotatorController, RotatorController>();
         services.AddSingleton<IRigController, RigController>();
+        services.AddSingleton<IGpsService, GpsController>();
         services.AddSingleton<ICloudlogRadioSyncService, CloudlogRadioSyncService>();
         services.AddSingleton<ICloudlogLookupService, CloudlogLookupService>();
         var bundledDb = Path.Combine(AppContext.BaseDirectory, "Assets", "satellite_database.json");
@@ -61,7 +63,9 @@ public partial class App : Application
         services.AddSingleton<DxStationOverlayViewModel>();
         services.AddSingleton<ITrackingDiagnostics, SerilogTrackingDiagnostics>();
         services.AddSingleton<TrackingOrchestrator>();
-        services.AddSingleton<LiveTrackingService>();
+        services.AddSingleton<LiveTrackingService>(sp => new LiveTrackingService(
+            sp.GetRequiredService<TrackingOrchestrator>(),
+            sp.GetRequiredService<IGpsService>()));
         services.AddSingleton<ILiveTrackingService>(sp => sp.GetRequiredService<LiveTrackingService>());
         services.AddOscarWatchOrbit();
         services.AddTransient<MainViewModel>();

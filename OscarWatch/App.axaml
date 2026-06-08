@@ -52,5 +52,7 @@
         <SolidColorBrush x:Key="StaleTleForegroundBrush" Color="#B45309" />
         <SolidColorBrush x:Key="SunlightStatusBrush" Color="#B8860B" />
         <SolidColorBrush x:Key="EclipseStatusBrush" Color="#5C6370" />
+        <SolidColorBrush x:Key="GpsOkBrush" Color="#2B6E1F" />
+        <SolidColorBrush x:Key="GpsWarnBrush" Color="#DC2626" />
     </Application.Resources>
 </Application>

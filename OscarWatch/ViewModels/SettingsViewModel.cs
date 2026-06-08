@@ -24,6 +24,7 @@ public partial class SettingsViewModel : ViewModelBase
     private readonly ICloudlogRadioSyncService _cloudlog;
     private readonly ICloudlogLookupService _cloudlogLookup;
     private readonly IHamsAtRovesService _hamsAtRoves;
+    private readonly IGpsService _gps;
     private readonly GroundStation _draft = new();
     private bool _isSynchronizing;
 
@@ -282,6 +283,32 @@ public partial class SettingsViewModel : ViewModelBase
     private string _dualRadioIncompleteText = "";
 
     [ObservableProperty]
+    private bool _gpsEnabled;
+
+    [ObservableProperty]
+    private string? _selectedGpsComPort;
+
+    [ObservableProperty]
+    private int _gpsBaudRate = GpsSettings.DefaultBaudRate;
+
+    [ObservableProperty]
+    private bool _gpsAutoUpdateStation;
+
+    [ObservableProperty]
+    private bool _gpsUseAltitude = true;
+
+    [ObservableProperty]
+    private bool _gpsUseTimeForTracking;
+
+    [ObservableProperty]
+    private int _gpsMinSatellites = 3;
+
+    [ObservableProperty]
+    private string _gpsStatusText = "";
+
+    public int[] GpsBaudRateOptions { get; } = [4800, 9600, 38400, 57600, 115200];
+
+    [ObservableProperty]
     private bool _cloudlogEnabled;
 
     [ObservableProperty]
@@ -417,11 +444,13 @@ public partial class SettingsViewModel : ViewModelBase
         IAudioRecordingService recording,
         ICloudlogRadioSyncService cloudlog,
         ICloudlogLookupService cloudlogLookup,
-        IHamsAtRovesService hamsAtRoves)
+        IHamsAtRovesService hamsAtRoves,
+        IGpsService gps)
     {
         _l = localization;
         _cloudlogLookup = cloudlogLookup;
         _hamsAtRoves = hamsAtRoves;
+        _gps = gps;
         LanguageOptions =
         [
             new LanguageOption(LocalizationCulture.DefaultLanguage, _l.Get("Settings.Language.English")),
@@ -544,6 +573,12 @@ public partial class SettingsViewModel : ViewModelBase
             AvailableComPorts.Add(SelectedComPort);
         if (SelectedRigComPort is not null && !AvailableComPorts.Contains(SelectedRigComPort))
             AvailableComPorts.Add(SelectedRigComPort);
+        if (SelectedDownlinkComPort is not null && !AvailableComPorts.Contains(SelectedDownlinkComPort))
+            AvailableComPorts.Add(SelectedDownlinkComPort);
+        if (SelectedUplinkComPort is not null && !AvailableComPorts.Contains(SelectedUplinkComPort))
+            AvailableComPorts.Add(SelectedUplinkComPort);
+        if (SelectedGpsComPort is not null && !AvailableComPorts.Contains(SelectedGpsComPort))
+            AvailableComPorts.Add(SelectedGpsComPort);
     }
 
     public async Task SaveAsync()
@@ -661,6 +696,17 @@ public partial class SettingsViewModel : ViewModelBase
             ApiKey = HamsAtApiKey.Trim(),
             RefreshIntervalMinutes = Math.Clamp(HamsAtRefreshIntervalMinutes, 1, 120)
         };
+        _settings.Current.Gps = new GpsSettings
+        {
+            Enabled = GpsEnabled,
+            Port = SelectedGpsComPort ?? "",
+            BaudRate = GpsBaudRate,
+            AutoUpdateStation = GpsAutoUpdateStation,
+            UseGpsAltitude = GpsUseAltitude,
+            UseGpsTimeForTracking = GpsUseTimeForTracking,
+            MinSatellites = Math.Clamp(GpsMinSatellites, 1, 20)
+        };
+        _gps.Update(_settings.Current.Gps);
         _cloudlog.ResetThrottle();
         _settings.SyncActiveStationFromGroundStation();
         AppThemeManager.Apply(ThemePreference);
@@ -812,6 +858,15 @@ public partial class SettingsViewModel : ViewModelBase
             HamsAtApiKey = hamsAt.ApiKey;
             HamsAtRefreshIntervalMinutes = hamsAt.RefreshIntervalMinutes <= 0 ? 10 : hamsAt.RefreshIntervalMinutes;
             HamsAtTestStatus = "";
+            var gps = _settings.Current.Gps ?? new GpsSettings();
+            GpsEnabled = gps.Enabled;
+            SelectedGpsComPort = string.IsNullOrWhiteSpace(gps.Port) ? null : gps.Port;
+            GpsBaudRate = gps.BaudRate > 0 ? gps.BaudRate : GpsSettings.DefaultBaudRate;
+            GpsAutoUpdateStation = gps.AutoUpdateStation;
+            GpsUseAltitude = gps.UseGpsAltitude;
+            GpsUseTimeForTracking = gps.UseGpsTimeForTracking;
+            GpsMinSatellites = gps.MinSatellites > 0 ? gps.MinSatellites : 3;
+            PushDraftGpsToService();
             RefreshComPortConflict();
         }
         finally
@@ -990,6 +1045,63 @@ public partial class SettingsViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
+    private void RefreshGpsStatus()
+    {
+        var status = _gps.GetStatus();
+        if (!GpsEnabled)
+            GpsStatusText = _l.Get("Settings.Gps.StatusDisabled");
+        else if (string.IsNullOrWhiteSpace(SelectedGpsComPort))
+            GpsStatusText = _l.Get("Settings.Gps.StatusNoPort");
+        else if (!status.IsConnected)
+            GpsStatusText = string.IsNullOrWhiteSpace(status.Detail)
+                ? _l.Get("Settings.Gps.StatusNotConnected")
+                : _l.Get("Settings.Gps.StatusNotConnectedDetail", status.Detail);
+        else if (!status.HasFix)
+            GpsStatusText = _l.Get("Settings.Gps.StatusNoFix");
+        else
+            GpsStatusText = _l.Get(
+                "Settings.Gps.StatusFix",
+                status.LatitudeDeg!.Value.ToString("F4"),
+                status.LongitudeDeg!.Value.ToString("F4"),
+                status.Satellites ?? 0);
+        ApplyGpsFixNowCommand.NotifyCanExecuteChanged();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanApplyGpsFix))]
+    private void ApplyGpsFixNow()
+    {
+        var status = _gps.GetStatus();
+        if (!status.HasFix || status.LatitudeDeg is null || status.LongitudeDeg is null)
+            return;
+
+        LatitudeDeg = status.LatitudeDeg.Value;
+        LongitudeDeg = status.LongitudeDeg.Value;
+        if (GpsUseAltitude && status.AltitudeMeters is { } alt)
+            AltitudeMeters = alt;
+    }
+
+    private bool CanApplyGpsFix() =>
+        GpsEnabled
+        && _gps.GetStatus() is { HasFix: true, LatitudeDeg: not null, LongitudeDeg: not null };
+
+    private void PushDraftGpsToService()
+    {
+        _gps.Update(BuildGpsSettingsDraft());
+        RefreshGpsStatus();
+    }
+
+    private GpsSettings BuildGpsSettingsDraft() => new()
+    {
+        Enabled = GpsEnabled,
+        Port = SelectedGpsComPort ?? "",
+        BaudRate = GpsBaudRate,
+        AutoUpdateStation = GpsAutoUpdateStation,
+        UseGpsAltitude = GpsUseAltitude,
+        UseGpsTimeForTracking = GpsUseTimeForTracking,
+        MinSatellites = Math.Clamp(GpsMinSatellites, 1, 20)
+    };
+
     private void RefreshComPortConflict()
     {
         var rotator = new RotatorSettings
@@ -998,7 +1110,8 @@ public partial class SettingsViewModel : ViewModelBase
             Port = SelectedComPort ?? ""
         };
         var rig = BuildRigSettingsForConflictCheck();
-        ShowComPortConflict = SerialPortConflictHelper.TryDescribeConflict(rotator, rig, out var message);
+        var gps = BuildGpsSettingsDraft();
+        ShowComPortConflict = SerialPortConflictHelper.TryDescribeConflict(rotator, rig, gps, out var message);
         ComPortConflictText = ComPortConflictLocalizer.Localize(message, _l);
         ShowDualRadioIncomplete = DualRadioConfigHelper.TryDescribeIncomplete(rig, out var incompleteCode);
         DualRadioIncompleteText = DualRadioConfigLocalizer.Localize(incompleteCode, _l);
@@ -1020,6 +1133,19 @@ public partial class SettingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsRotatorSmartAzimuth450Enabled));
     }
     partial void OnRigEnabledChanged(bool value) => RefreshComPortConflictIfReady();
+    partial void OnGpsEnabledChanged(bool value)
+    {
+        PushDraftGpsToServiceIfReady();
+        RefreshComPortConflictIfReady();
+    }
+
+    partial void OnSelectedGpsComPortChanged(string? value)
+    {
+        PushDraftGpsToServiceIfReady();
+        RefreshComPortConflictIfReady();
+    }
+
+    partial void OnGpsBaudRateChanged(int value) => PushDraftGpsToServiceIfReady();
     partial void OnDualRadioEnabledChanged(bool value)
     {
         OnPropertyChanged(nameof(ShowRigSingleConfig));
@@ -1178,6 +1304,13 @@ public partial class SettingsViewModel : ViewModelBase
         if (_isSynchronizing)
             return;
         RefreshComPortConflict();
+    }
+
+    private void PushDraftGpsToServiceIfReady()
+    {
+        if (_isSynchronizing)
+            return;
+        PushDraftGpsToService();
     }
 
     private static void CopyGroundStation(GroundStation source, GroundStation target)

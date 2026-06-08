@@ -61,7 +61,7 @@
       <ul>
         <li>Refresh TLEs (<strong>Satellites → Refresh TLEs</strong>).</li>
         <li>Check station latitude and longitude in Settings.</li>
-        <li>Confirm your PC clock and time zone are correct (UTC is shown in the status bar).</li>
+        <li>Confirm your PC clock and time zone are correct (UTC is shown in the status bar), or enable <strong>Use GPS UTC for satellite tracking</strong> under <a href="settings.html#gps">Settings → Integrations → GPS</a> when you have a reliable GPS fix.</li>
       </ul>
 
       <h2>No frequencies / wrong mode</h2>
@@ -74,10 +74,21 @@
       <h2>Rotator or radio not connecting</h2>
       <ul>
         <li>Check COM port in Settings — use Device Manager on Windows to see which port appears when you plug in USB.</li>
-        <li>Ensure radio and rotator use <strong>different</strong> ports.</li>
+        <li>Ensure radio, rotator, and GPS (if used) each use a <strong>different</strong> port.</li>
         <li>Close other programs using the same port.</li>
         <li>Leave <strong>Standby</strong> if you expect tracking — Resume for live operation.</li>
-        <li>Sidebar may show a COM port conflict warning if both devices share one port.</li>
+        <li>Settings or the sidebar may show a COM port conflict warning if two devices share one port.</li>
+      </ul>
+
+      <h2 id="gps">GPS not connecting or no fix</h2>
+      <ul>
+        <li>Enable GPS under <strong>Settings → Integrations → GPS</strong> and pick the correct COM port (Device Manager on Windows).</li>
+        <li>Match <strong>baud rate</strong> to the GPS (often 4800 or 9600). Use <strong>Refresh status</strong> after saving.</li>
+        <li>Use a <strong>dedicated</strong> COM port — not shared with radio or rotator.</li>
+        <li>Close other programs that might have the GPS port open.</li>
+        <li>Wait for a clear sky view or check the GPS has a valid NMEA output (GGA/RMC).</li>
+        <li>Status bar <strong>GPS</strong> red = no fix; green = fix active. <strong>GPS Time</strong> red means time sync is on but GPS UTC is not available yet.</li>
+        <li><strong>Apply fix to station</strong> is only available when a fix is active (green GPS).</li>
       </ul>
 
       <h2>CAT frequencies not updating</h2>

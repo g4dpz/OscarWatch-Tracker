@@ -57,4 +57,14 @@ public class SerialPortConflictHelperTests
         Assert.True(SerialPortConflictHelper.TryDescribeConflict(rotator, rig, out var message));
         Assert.Contains("Downlink and uplink", message);
     }
+
+    [Fact]
+    public void HasConflict_when_gps_and_rotator_share_port()
+    {
+        var rotator = new RotatorSettings { Enabled = true, Port = "COM7" };
+        var rig = new RigSettings { Enabled = false };
+        var gps = new GpsSettings { Enabled = true, Port = "COM7" };
+        Assert.True(SerialPortConflictHelper.TryDescribeConflict(rotator, rig, gps, out var message));
+        Assert.Contains("GPS and rotator", message);
+    }
 }

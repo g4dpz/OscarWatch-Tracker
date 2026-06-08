@@ -88,9 +88,10 @@ public partial class SettingsWindow : Window
         if (IntegrationsSectionNav is null)
             return;
 
-        var showHamsAt = IntegrationsSectionNav.SelectedIndex <= 0;
-        HamsAtIntegrationSection.IsVisible = showHamsAt;
-        CloudlogIntegrationSection.IsVisible = !showHamsAt;
+        var tag = (IntegrationsSectionNav.SelectedItem as ListBoxItem)?.Tag as string;
+        HamsAtIntegrationSection.IsVisible = tag == "HamsAtIntegrationSection";
+        CloudlogIntegrationSection.IsVisible = tag == "CloudlogIntegrationSection";
+        GpsIntegrationSection.IsVisible = tag == "GpsIntegrationSection";
 
         if (IntegrationsContentScrollViewer is not null)
             IntegrationsContentScrollViewer.Offset = new Vector(0, 0);

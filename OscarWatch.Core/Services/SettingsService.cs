@@ -58,6 +58,7 @@ public sealed class SettingsService : ISettingsService
             selection.DopplerStrategyByMode ??= new Dictionary<string, DopplerStrategy>(StringComparer.OrdinalIgnoreCase);
         }
         Current.Rotator ??= new RotatorSettings();
+        Current.Gps ??= new GpsSettings();
         Current.Rig ??= new RigSettings();
         Current.Rig.MigrateFt817818ToDualOnly();
         Current.Cloudlog ??= new CloudlogSettings();

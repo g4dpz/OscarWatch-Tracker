@@ -48,6 +48,7 @@ public sealed class AppSettings
     public int HamsAtRovesPanelHeightPx { get; set; } = 180;
     public HamsAtSettings HamsAt { get; set; } = new();
     public RotatorSettings Rotator { get; set; } = new();
+    public GpsSettings Gps { get; set; } = new();
     public RigSettings Rig { get; set; } = new();
     public CloudlogSettings Cloudlog { get; set; } = new();
     public PassRecordingSettings PassRecording { get; set; } = new();

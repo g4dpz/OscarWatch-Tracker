@@ -20,7 +20,7 @@ You do **not** need to be a programmer to use published builds.
 - **Pass list**: upcoming passes with max elevation and time-to-AOS; sidebar scrolls on smaller windows
 - **Frequency panel**: transponder modes from a built-in database, live uplink/downlink with Doppler, RX offsets (separate for Voice and CW on linear SSB), and CTCSS (access/arm tones). Keyboard shortcuts: [help/keyboard-shortcuts.html](help/keyboard-shortcuts.html) (**Ctrl+W**, numpad **+** / **−** for RX offset, **S** for solo map view, map arrows, etc.)
 - **Optional automation**: serial **rotator** tracking and **radio CAT** (Doppler, satellite/split layout, tones) during a pass
-- **Optional extras**: voice “satellite rising” alerts, pass **WAV recording**, **Cloudlog** frequency sync
+- **Optional extras**: voice “satellite rising” alerts, pass **WAV recording**, **Cloudlog** frequency sync, **GPS** (NMEA serial) for station position and optional UTC for tracking
 
 OscarWatch does **not** decode telemetry or replace your logging software; it is a pass-tracking and station-assist tool for the shack or field.
 
@@ -45,8 +45,9 @@ To build from source instead, see [Build and run](#build-and-run) below.
 1. Open **Settings → Station** and enter your latitude, longitude, and grid square.
 2. **Satellites → Select satellites**: enable the spacecraft you plan to work.
 3. **Satellites → Refresh TLEs**: refresh at least once per operating day (or enable auto-update under **Settings → Tracking**).
-4. If you use a rig or rotator: **Settings → Radio** and **Settings → Rotator**: set COM ports (rig and rotator must use **different** ports).
-5. Click a satellite on the map or in the pass list to **focus** it. Live az/el and frequencies apply to the focused pass.
+4. If you use a rig or rotator: **Settings → Radio** and **Settings → Rotator**: set COM ports (each device — rig, rotator, GPS — needs its **own** port).
+5. If you rove with a USB GPS: **Settings → Integrations → GPS** — enable, pick COM port and baud (often 4800 or 9600), use **Refresh status** / **Apply fix to station** or turn on auto-update.
+6. Click a satellite on the map or in the pass list to **focus** it. Live az/el and frequencies apply to the focused pass.
 
 ### During a pass
 
@@ -141,16 +142,28 @@ Open **Settings** from the menu. Tabs:
 | Tab            | Purpose                                                                                                                                                                                                                                        |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Station**    | Display name, latitude/longitude, Maidenhead grid square, altitude ASL                                                                                                                                                                         |
-| **Tracking**   | Minimum pass elevation, prediction window, TLE auto-update, transponder database check on startup                                                                                                                                              |
+| **TLE**        | Catalogue source (OscarWatch, AMSAT.org, custom URL, local file) and automatic update schedule                                                                                                                                                  |
+| **Tracking**   | Minimum pass elevation, prediction window, transponder database check on startup                                                                                                                                                               |
 | **Appearance** | Light / dark / system theme; 12- or 24-hour clock; footprint motion arrows and optional greyline on/off                                                                                                                                       |
 | **Voice**      | Enable announcements, trigger elevation (default −3°), voice selection, test button                                                                                                                                                            |
 | **Recording**  | Automatic pass WAV capture, input device, start/stop elevation, output folder, test clip                                                                                                                                                       |
 | **Rotator**    | Type (GS-232 / EasyComm), COM port, 360°/450° azimuth, smart 450°, park, track-start elevation, calibration offsets                                                                                                                            |
 | **Radio**      | Rig type, COM port, **Dual radio** (FT-817/818, FT-991(A), IC-705, IC-706 series, or mixed; separate downlink/uplink COM ports), region, per-leg CI-V address for ICOM dual legs, linear CW receive mode (USB/LSB vs CW on both VFOs), Doppler CAT thresholds (FM default 350 Hz, SSB/CW default 50 Hz; see [help](help/radio-rotator.html#doppler-cat-thresholds)), pause CAT |
-| **Cloudlog**   | Base URL, API key, radio name, test connection; posts SAT uplink/downlink when tracking                                                                                                                                                        |
+| **Integrations** | **GPS** (NMEA serial: COM port, auto-update station, optional GPS UTC for tracking — see [help](help/settings.html#gps)); **hams.at** roves; **Cloudlog** (URL, API key, logbook, radio API)                                              |
 
 
 Settings are stored in `%AppData%/OscarWatch/settings.json`.
+
+### GPS (NMEA serial)
+
+Configure under **Settings → Integrations → GPS**. OscarWatch reads standard **$GPGGA** / **$GNGGA** and **$GPRMC** / **$GNRMC** sentences on a dedicated COM port (8N1; baud usually **4800** or **9600**).
+
+- **Automatically update station position** — writes lat/lon (and grid square) from a valid fix; optional altitude from GGA
+- **Use GPS UTC for satellite tracking** — orbit propagation uses GPS time instead of the PC clock (does **not** change the Windows system clock)
+- **Apply fix to station** — one-shot update of **Settings → Station** fields
+- Status bar shows **GPS** (green = fix, red = no fix) and **GPS Time** (when time sync is enabled) — see [help](help/map-and-sidebar.html#status-bar)
+
+GPS must use a **different** COM port from the radio and rotator.
 
 Planned work is listed in [TODO.md](TODO.md). Transponder database merge/sync is documented in [documents/satellite-database.md](documents/satellite-database.md).
 

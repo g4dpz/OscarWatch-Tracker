@@ -94,6 +94,24 @@
   <data name="Main.MapTimeStatus.Live">
     <value>Live</value>
   </data>
+  <data name="Main.Gps.Status">
+    <value>GPS</value>
+  </data>
+  <data name="Main.Gps.Time">
+    <value>GPS Time</value>
+  </data>
+  <data name="Main.Gps.Tooltip.Fix">
+    <value>GPS fix active</value>
+  </data>
+  <data name="Main.Gps.Tooltip.NoFix">
+    <value>GPS enabled — no fix</value>
+  </data>
+  <data name="Main.Gps.TimeTooltip.Active">
+    <value>Satellite tracking uses GPS UTC</value>
+  </data>
+  <data name="Main.Gps.TimeTooltip.Inactive">
+    <value>GPS time enabled — waiting for fix</value>
+  </data>
   <data name="Main.Pass.AosIn">
     <value>{0} AOS in {1}</value>
   </data>
@@ -147,6 +165,18 @@
   </data>
   <data name="ComPort.RotatorAndRadio">
     <value>Rotator and radio both use {0}. Use different COM ports or disable one device.</value>
+  </data>
+  <data name="ComPort.GpsAndRotator">
+    <value>GPS and rotator both use {0}. Use different COM ports or disable one device.</value>
+  </data>
+  <data name="ComPort.GpsAndRadio">
+    <value>GPS and radio both use {0}. Use different COM ports or disable one device.</value>
+  </data>
+  <data name="ComPort.GpsAndDownlink">
+    <value>GPS and downlink radio both use {0}. Use different COM ports or disable one device.</value>
+  </data>
+  <data name="ComPort.GpsAndUplink">
+    <value>GPS and uplink radio both use {0}. Use different COM ports or disable one device.</value>
   </data>
   <data name="A11y.SatelliteSunlight">
     <value>Satellite in sunlight</value>
@@ -711,6 +741,54 @@
   </data>
   <data name="Settings.Station.Altitude">
     <value>Altitude ASL (m)</value>
+  </data>
+  <data name="Settings.Gps.Title">
+    <value>GPS</value>
+  </data>
+  <data name="Settings.Gps.Intro">
+    <value>NMEA serial GPS for station position (lat/lon, grid square, altitude) and optional UTC for tracking.</value>
+  </data>
+  <data name="Settings.Gps.Enable">
+    <value>Enable GPS</value>
+  </data>
+  <data name="Settings.Gps.AutoUpdateStation">
+    <value>Automatically update station position from GPS fix</value>
+  </data>
+  <data name="Settings.Gps.UseAltitude">
+    <value>Update altitude from GGA</value>
+  </data>
+  <data name="Settings.Gps.UseTimeForTracking">
+    <value>Use GPS UTC for satellite tracking</value>
+  </data>
+  <data name="Settings.Gps.UseTimeNote">
+    <value>Uses GPS time for orbit propagation only — does not change the Windows system clock.</value>
+  </data>
+  <data name="Settings.Gps.MinSatellites">
+    <value>Minimum satellites for fix</value>
+  </data>
+  <data name="Settings.Gps.RefreshStatus">
+    <value>Refresh status</value>
+  </data>
+  <data name="Settings.Gps.ApplyFix">
+    <value>Apply fix to station</value>
+  </data>
+  <data name="Settings.Gps.StatusDisabled">
+    <value>GPS disabled.</value>
+  </data>
+  <data name="Settings.Gps.StatusNoPort">
+    <value>Select a COM port for the GPS.</value>
+  </data>
+  <data name="Settings.Gps.StatusNotConnected">
+    <value>GPS not connected.</value>
+  </data>
+  <data name="Settings.Gps.StatusNotConnectedDetail">
+    <value>GPS not connected: {0}</value>
+  </data>
+  <data name="Settings.Gps.StatusNoFix">
+    <value>Connected — waiting for GPS fix.</value>
+  </data>
+  <data name="Settings.Gps.StatusFix">
+    <value>Fix: {0}°, {1}° ({2} sats)</value>
   </data>
   <data name="Settings.Tle.Source">
     <value>TLE catalog source</value>

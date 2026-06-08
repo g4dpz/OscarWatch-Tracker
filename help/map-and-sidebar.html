@@ -155,10 +155,22 @@
         or shorter — your chosen height is saved automatically.
       </p>
 
-      <h2>Status bar</h2>
+      <h2 id="status-bar">Status bar</h2>
       <p>
         Shows how old the TLE data is and how many satellites are enabled.
         If TLEs are very stale, refresh them before relying on pass times.
+      </p>
+      <p>
+        When <strong>GPS</strong> is enabled in <a href="settings.html#gps">Settings → Integrations → GPS</a>,
+        coloured labels appear to the left of the map-time buttons:
+      </p>
+      <ul>
+        <li><strong>GPS</strong> — <strong>green</strong> = valid fix; <strong>red</strong> = GPS on but no fix yet (or lost).</li>
+        <li><strong>GPS Time</strong> — shown only when <strong>Use GPS UTC for satellite tracking</strong> is on.
+          <strong>Green</strong> = tracking is using GPS UTC; <strong>red</strong> = waiting for a fix with valid time.</li>
+      </ul>
+      <p>
+        Hover a label for a short tooltip. GPS indicators are hidden when GPS is disabled in Settings.
       </p>
       <p>
         On the right, next to the UTC clock, <strong>map time</strong> buttons let you preview footprints

@@ -10,7 +10,7 @@ public sealed class LiveTrackingServiceTests
     {
         var calls = 0;
         var orchestrator = CreateMinimalOrchestrator();
-        using var service = new LiveTrackingService(orchestrator, _ =>
+        using var service = new LiveTrackingService(orchestrator, gps: null, _ =>
         {
             calls++;
             return
@@ -35,7 +35,7 @@ public sealed class LiveTrackingServiceTests
     public void RequestReload_refreshes_snapshot_on_worker()
     {
         var orchestrator = CreateMinimalOrchestrator();
-        using var service = new LiveTrackingService(orchestrator, _ => []);
+        using var service = new LiveTrackingService(orchestrator, gps: null, _ => []);
         service.Start();
         service.RequestReload();
         service.DrainCommandQueueForTests();
@@ -47,7 +47,7 @@ public sealed class LiveTrackingServiceTests
     {
         DateTime? capturedUtc = null;
         var orchestrator = CreateMinimalOrchestrator();
-        using var service = new LiveTrackingService(orchestrator, utc =>
+        using var service = new LiveTrackingService(orchestrator, gps: null, utc =>
         {
             capturedUtc = utc;
             return [];
@@ -67,7 +67,7 @@ public sealed class LiveTrackingServiceTests
     public void GetSnapshot_is_safe_while_worker_updates()
     {
         var orchestrator = CreateMinimalOrchestrator();
-        using var service = new LiveTrackingService(orchestrator, utc =>
+        using var service = new LiveTrackingService(orchestrator, gps: null, utc =>
         [
             new SatelliteTrackState
             {

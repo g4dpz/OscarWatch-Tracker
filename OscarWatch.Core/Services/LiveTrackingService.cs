@@ -12,6 +12,7 @@ public sealed class LiveTrackingService : ILiveTrackingService
     private static readonly TimeSpan CommandWaitTimeout = TimeSpan.FromSeconds(10);
 
     private readonly TrackingOrchestrator _orchestrator;
+    private readonly IGpsService? _gps;
     private readonly Func<DateTime, IReadOnlyList<SatelliteTrackState>>? _computeOverride;
     private readonly object _snapshotLock = new();
     private readonly object _workerStartLock = new();
@@ -31,16 +32,18 @@ public sealed class LiveTrackingService : ILiveTrackingService
         set => Interlocked.Exchange(ref _mapTimeOffsetTicks, value.Ticks);
     }
 
-    public LiveTrackingService(TrackingOrchestrator orchestrator)
-        : this(orchestrator, computeOverride: null)
+    public LiveTrackingService(TrackingOrchestrator orchestrator, IGpsService? gps = null)
+        : this(orchestrator, gps, computeOverride: null)
     {
     }
 
     internal LiveTrackingService(
         TrackingOrchestrator orchestrator,
+        IGpsService? gps,
         Func<DateTime, IReadOnlyList<SatelliteTrackState>>? computeOverride)
     {
         _orchestrator = orchestrator;
+        _gps = gps;
         _computeOverride = computeOverride;
     }
 
@@ -210,7 +213,7 @@ public sealed class LiveTrackingService : ILiveTrackingService
 
     private void RefreshSnapshot()
     {
-        var utc = DateTime.UtcNow + MapTimeOffset;
+        var utc = (_gps?.GetTrackingUtc() ?? DateTime.UtcNow) + MapTimeOffset;
         var states = _computeOverride?.Invoke(utc) ?? _orchestrator.GetLiveStates(utc);
         lock (_snapshotLock)
         {

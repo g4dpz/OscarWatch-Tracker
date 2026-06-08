@@ -26,6 +26,8 @@ public static class AccessibilityThemeResources
     public const string StaleTleKey = "StaleTleForegroundBrush";
     public const string SunlightStatusKey = "SunlightStatusBrush";
     public const string EclipseStatusKey = "EclipseStatusBrush";
+    public const string GpsOkKey = "GpsOkBrush";
+    public const string GpsWarnKey = "GpsWarnBrush";
 
     public static void Install()
     {
@@ -79,5 +81,7 @@ public static class AccessibilityThemeResources
             isDark ? Color.Parse("#F5C842") : Color.Parse("#B8860B"));
         resources[EclipseStatusKey] = new SolidColorBrush(
             isDark ? Color.Parse("#9CA3AF") : Color.Parse("#5C6370"));
+        resources[GpsOkKey] = resources[PassHighlightKey];
+        resources[GpsWarnKey] = resources[PassRecordingBadgeBackgroundKey];
     }
 }

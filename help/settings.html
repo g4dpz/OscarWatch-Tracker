@@ -103,9 +103,30 @@
 
       <h2>Integrations</h2>
       <p>
-        The <strong>Integrations</strong> tab groups external services: <strong>hams.at</strong> Upcoming Roves
-        and <strong>Cloudlog</strong>. See <a href="map-and-sidebar.html#upcoming-roves">Upcoming Roves</a>
-        for how the sidebar panel works.
+        The <strong>Integrations</strong> tab groups optional hardware and external services:
+        <strong>GPS</strong>, <strong>hams.at</strong> Upcoming Roves, and <strong>Cloudlog</strong>.
+        Pick a section from the list on the left.
+      </p>
+
+      <h3 id="gps">GPS</h3>
+      <p>
+        Connect a USB or serial <strong>NMEA GPS</strong> on its own COM port (not shared with the radio or rotator).
+        OscarWatch parses common <strong>GGA</strong> and <strong>RMC</strong> sentences for position and time.
+      </p>
+      <ul>
+        <li><strong>Enable GPS</strong> — turn serial GPS on or off.</li>
+        <li><strong>Serial port / baud rate</strong> — match the GPS (often <strong>4800</strong> or <strong>9600</strong> 8N1). Press <strong>Refresh</strong> if the port list is stale.</li>
+        <li><strong>Refresh status</strong> — shows connected / waiting for fix / fix with lat/lon and satellite count.</li>
+        <li><strong>Apply fix to station</strong> — copies the current fix into <strong>Settings → Station</strong> (latitude, longitude, grid, and optionally altitude).</li>
+        <li><strong>Automatically update station position from GPS fix</strong> — keeps your QTH in sync while roving (saves periodically).</li>
+        <li><strong>Update altitude from GGA</strong> — when auto-update is on, applies height from the GGA sentence.</li>
+        <li><strong>Use GPS UTC for satellite tracking</strong> — pass predictions and live tracking use GPS time instead of the PC clock. Does <strong>not</strong> change the Windows system clock.</li>
+        <li><strong>Minimum satellites for fix</strong> — ignore fixes with fewer satellites in view (default 3).</li>
+      </ul>
+      <p>
+        With GPS enabled, the <a href="map-and-sidebar.html#status-bar">status bar</a> shows
+        <strong>GPS</strong> in <strong>green</strong> when a fix is active and <strong>red</strong> when GPS is on but there is no fix.
+        If <strong>Use GPS UTC</strong> is checked, <strong>GPS Time</strong> appears the same way (green when tracking is using GPS UTC).
       </p>
 
       <h3>hams.at</h3>
