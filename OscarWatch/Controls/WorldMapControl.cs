@@ -53,6 +53,10 @@ public class WorldMapControl : ThemeAwareControl
     private int _cachedTwilightBandCount;
     private ImmutableArray<SolidColorBrush> _twilightBrushes = ImmutableArray<SolidColorBrush>.Empty;
 
+    private LabelOrderBuffer _labelOrderBuffer = new(64);
+    private readonly RenderResourceCache _renderCache = new();
+    private readonly FormattedTextCache _labelCache = new();
+
     public WorldMapControl()
     {
         ClipToBounds = true;
@@ -127,12 +131,16 @@ public class WorldMapControl : ThemeAwareControl
     {
         base.OnAttachedToVisualTree(e);
         LayoutUpdated += OnLayoutUpdatedForRender;
+        if (Application.Current is not null)
+            Application.Current.ActualThemeVariantChanged += OnThemeChangedClearCache;
         Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Loaded);
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         LayoutUpdated -= OnLayoutUpdatedForRender;
+        if (Application.Current is not null)
+            Application.Current.ActualThemeVariantChanged -= OnThemeChangedClearCache;
         UnsubscribeTrackStatesSource();
         base.OnDetachedFromVisualTree(e);
     }
@@ -161,6 +169,8 @@ public class WorldMapControl : ThemeAwareControl
         if (_trackStatesSource is not null)
             _trackStatesSource.CollectionChanged += OnTrackStatesSourceChanged;
 
+        _renderCache.Clear();
+        _labelCache.Clear();
         InvalidateVisual();
     }
 
@@ -173,8 +183,18 @@ public class WorldMapControl : ThemeAwareControl
         _trackStatesSource = null;
     }
 
-    private void OnTrackStatesSourceChanged(object? sender, NotifyCollectionChangedEventArgs e) =>
+    private void OnTrackStatesSourceChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        _renderCache.Clear();
+        _labelCache.Clear();
         InvalidateVisual();
+    }
+
+    private void OnThemeChangedClearCache(object? sender, EventArgs e)
+    {
+        _renderCache.Clear();
+        _labelCache.Clear();
+    }
 
     private void OnLayoutUpdatedForRender(object? sender, EventArgs e)
     {
@@ -344,16 +364,12 @@ public class WorldMapControl : ThemeAwareControl
 
         // Pass 2: labels on top (non-focused first, focused last).
         // Use the same subpoint projection and map-wrap copies as the markers in pass 1.
-        var labelOrder = Enumerable.Range(0, states.Count)
-            .Where(i => TrackingPlotAccessibility.IsPlotSatelliteVisible(
-                SoloFocusedSatellite, FocusedNoradId, states[i].NoradId))
-            .OrderBy(i => states[i].NoradId == FocusedNoradId ? 1 : 0)
-            .ToList();
+        _labelOrderBuffer.Build(states, FocusedNoradId, SoloFocusedSatellite);
 
-        foreach (var i in labelOrder)
+        foreach (var i in _labelOrderBuffer.Indices)
         {
             var state = states[i];
-            var isFocused = state.NoradId == FocusedNoradId;
+            var isFocused = string.Equals(state.NoradId, FocusedNoradId, StringComparison.Ordinal);
             var (sx, sy) = EquirectangularProjection.GeoToPixel(
                 state.Subpoint.LatitudeDeg, state.Subpoint.LongitudeDeg, w, h);
 
@@ -368,6 +384,8 @@ public class WorldMapControl : ThemeAwareControl
                     isFocused ? 12 : 11);
             }
         }
+
+        _labelCache.Evict(states);
     }
 
     private string? HitTestSatellite(Point pos, double w, double h)
@@ -532,7 +550,7 @@ public class WorldMapControl : ThemeAwareControl
     /// Draw the visibility footprint as a geographic ring (equirectangular), with a dedicated
     /// polar-cap shape when the footprint includes a pole.
     /// </summary>
-    private static void DrawFootprint(
+    private void DrawFootprint(
         DrawingContext context,
         IReadOnlyList<GeoCoordinate> footprint,
         GeoCoordinate subpoint,
@@ -553,8 +571,8 @@ public class WorldMapControl : ThemeAwareControl
             ? footprintRadiusDeg
             : FootprintGeometry.EstimateRingRadiusDeg(subpoint, footprint);
 
-        var fillBrush = new SolidColorBrush(fillColor);
-        var pen = new Pen(new SolidColorBrush(strokeColor), strokeWidth);
+        var fillBrush = _renderCache.GetBrush(fillColor);
+        var pen = _renderCache.GetPen(strokeColor, strokeWidth);
         var pixels = FootprintGeometry.ProjectRingToMap(
             subpoint, footprint, radiusDeg, w, h);
         if (pixels.Count < 3)
@@ -602,7 +620,7 @@ public class WorldMapControl : ThemeAwareControl
         var geometry = DayNightTerminator.GetGeometry(
             DateTime.SpecifyKind(mapUtc, DateTimeKind.Utc));
 
-        var fillBrush = new SolidColorBrush(palette.GreylineNightFill);
+        var fillBrush = _renderCache.GetBrush(palette.GreylineNightFill);
         DrawNightFillScanlines(context, geometry, w, h, fillBrush);
 
         if (geometry.DrawTerminatorLine && geometry.Terminator.Count >= 2)
@@ -800,7 +818,7 @@ public class WorldMapControl : ThemeAwareControl
         return before.LatitudeDeg + t * (after.LatitudeDeg - before.LatitudeDeg);
     }
 
-    private static void DrawPolylineSegments(
+    private void DrawPolylineSegments(
         DrawingContext context,
         IReadOnlyList<GeoCoordinate> points,
         double w,
@@ -812,7 +830,7 @@ public class WorldMapControl : ThemeAwareControl
         if (points.Count < 2)
             return;
 
-        var pen = new Pen(new SolidColorBrush(color), thickness);
+        var pen = _renderCache.GetPen(color, thickness);
 
         foreach (var xOffset in GetHorizontalWrapOffsets(points, w, h))
             DrawPolylineOffset(context, points, w, h, xOffset, pen, close);
@@ -865,7 +883,7 @@ public class WorldMapControl : ThemeAwareControl
         PlotMarkerDrawing.DrawGroundStationMarker(context, x, y, palette);
     }
 
-    private static void DrawSatelliteLabel(
+    private void DrawSatelliteLabel(
         DrawingContext context,
         string name,
         double x,
@@ -873,21 +891,12 @@ public class WorldMapControl : ThemeAwareControl
         UiPalette palette,
         double fontSize = 12)
     {
-        var text = new FormattedText(
-            name,
-            System.Globalization.CultureInfo.CurrentCulture,
-            FlowDirection.LeftToRight,
-            new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.SemiBold),
-            fontSize,
-            new SolidColorBrush(palette.MapLabelForeground))
-        {
-            MaxTextWidth = 120
-        };
+        var text = _labelCache.Get(name, fontSize, palette);
 
         var tx = x - text.Width / 2;
         var ty = y - text.Height - 8;
         var bg = new Rect(tx - 4, ty - 2, text.Width + 8, text.Height + 4);
-        context.FillRectangle(new SolidColorBrush(palette.MapLabelBackground), bg);
+        context.FillRectangle(_labelCache.GetBackgroundBrush(palette), bg);
         context.DrawText(text, new Point(tx, ty));
     }
 }
