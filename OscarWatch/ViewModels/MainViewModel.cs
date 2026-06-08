@@ -180,6 +180,9 @@ public partial class MainViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(GpsTimeInactive))]
     private bool _gpsTimeActive;
 
+    [ObservableProperty]
+    private string _gpsStatusText = "";
+
     public bool GpsNoFix => ShowGpsStatus && !GpsHasFix;
 
     public bool GpsTimeInactive => ShowGpsTimeStatus && !GpsTimeActive;
@@ -717,6 +720,10 @@ public partial class MainViewModel : ViewModelBase
         GpsHasFix = ShowGpsStatus && GpsStatusHelper.HasFix(status);
         ShowGpsTimeStatus = GpsStatusHelper.ShowGpsTimeIndicator(gpsSettings);
         GpsTimeActive = GpsStatusHelper.IsGpsTimeActive(gpsSettings, _gps.GetTrackingUtc());
+        var grid = GpsStatusHelper.GridSquareForStatus(gpsSettings, GroundStation.GridSquare);
+        GpsStatusText = grid is not null
+            ? _l.Get("Main.Gps.StatusWithGrid", grid)
+            : _l.Get("Main.Gps.Status");
         OnPropertyChanged(nameof(GpsNoFix));
         OnPropertyChanged(nameof(GpsTimeInactive));
     }

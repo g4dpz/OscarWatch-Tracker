@@ -97,6 +97,9 @@
   <data name="Main.Gps.Status">
     <value>GPS</value>
   </data>
+  <data name="Main.Gps.StatusWithGrid">
+    <value>GPS ({0})</value>
+  </data>
   <data name="Main.Gps.Time">
     <value>Hora GPS</value>
   </data>

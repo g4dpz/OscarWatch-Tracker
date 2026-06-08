@@ -13,4 +13,9 @@ public static class GpsStatusHelper
 
     public static bool IsGpsTimeActive(GpsSettings settings, DateTime? trackingUtc) =>
         ShowGpsTimeIndicator(settings) && trackingUtc is not null;
+
+    public static string? GridSquareForStatus(GpsSettings settings, string? gridSquare) =>
+        settings.Enabled && settings.AutoUpdateStation && !string.IsNullOrWhiteSpace(gridSquare)
+            ? gridSquare.Trim().ToUpperInvariant()
+            : null;
 }

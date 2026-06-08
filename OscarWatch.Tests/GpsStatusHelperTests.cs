@@ -32,4 +32,19 @@ public sealed class GpsStatusHelperTests
         Assert.False(GpsStatusHelper.IsGpsTimeActive(settings, null));
         Assert.True(GpsStatusHelper.IsGpsTimeActive(settings, DateTime.UtcNow));
     }
+
+    [Fact]
+    public void GridSquareForStatus_requires_auto_update_and_non_empty_grid()
+    {
+        var autoUpdate = new GpsSettings { Enabled = true, AutoUpdateStation = true };
+        Assert.Equal("IO87JP", GpsStatusHelper.GridSquareForStatus(autoUpdate, "io87jp"));
+        Assert.Null(GpsStatusHelper.GridSquareForStatus(autoUpdate, ""));
+        Assert.Null(GpsStatusHelper.GridSquareForStatus(autoUpdate, "   "));
+
+        var gpsOnly = new GpsSettings { Enabled = true };
+        Assert.Null(GpsStatusHelper.GridSquareForStatus(gpsOnly, "IO87JP"));
+
+        var disabled = new GpsSettings { AutoUpdateStation = true };
+        Assert.Null(GpsStatusHelper.GridSquareForStatus(disabled, "IO87JP"));
+    }
 }
