@@ -79,6 +79,7 @@ public sealed class RigController : IRigController, IDisposable
 
     private RigSettings _cachedSettings = new();
     private RigTrackingContext? _cachedContext;
+    private bool? _cachedCatPausedOverride;
     private RigConnectionStatus _status = new(false, false, RigStatusKind.None, null, null, null, null, false, 0, 0);
 
     public RigController(
@@ -96,8 +97,8 @@ public sealed class RigController : IRigController, IDisposable
     }
 
     /// <summary>Enqueue latest pass/settings for the rig thread (~1–4 Hz from UI).</summary>
-    public void PublishContext(RigSettings settings, RigTrackingContext? context, bool reinitializePass = false) =>
-        Enqueue(new RigCommand(RigCommandKind.PublishContext, settings, context, reinitializePass));
+    public void PublishContext(RigSettings settings, RigTrackingContext? context, bool reinitializePass = false, bool? catPausedOverride = null) =>
+        Enqueue(new RigCommand(RigCommandKind.PublishContext, settings, context, reinitializePass, catPausedOverride));
 
     /// <summary>Runs one doppler iteration on the rig thread (unit tests).</summary>
     public void RunTrackingLoopOnce() =>
@@ -217,7 +218,8 @@ public sealed class RigController : IRigController, IDisposable
                 case RigCommandKind.PublishContext:
                     _cachedSettings = command.Settings;
                     _cachedContext = command.Context;
-                    ApplyPublishState(_cachedSettings, _cachedContext, command.ReinitializePass);
+                    _cachedCatPausedOverride = command.CatPausedOverride;
+                    ApplyPublishState(_cachedSettings, _cachedContext, command.ReinitializePass, command.CatPausedOverride);
                     if (!command.ReinitializePass && _forceFrequencyApply)
                         RunLoopIteration(ignoreDopplerSuspend: true);
                     break;
@@ -225,7 +227,8 @@ public sealed class RigController : IRigController, IDisposable
                 case RigCommandKind.UpdateSynchronously:
                     _cachedSettings = command.Settings;
                     _cachedContext = command.Context;
-                    ApplyPublishState(_cachedSettings, _cachedContext);
+                    _cachedCatPausedOverride = command.CatPausedOverride;
+                    ApplyPublishState(_cachedSettings, _cachedContext, catPausedOverride: command.CatPausedOverride);
                     RunLoopIteration(ignoreDopplerSuspend: true);
                     break;
 
@@ -297,7 +300,7 @@ public sealed class RigController : IRigController, IDisposable
             _status = snapshot;
     }
 
-    private void ApplyPublishState(RigSettings settings, RigTrackingContext? context, bool reinitializePass = false)
+    private void ApplyPublishState(RigSettings settings, RigTrackingContext? context, bool reinitializePass = false, bool? catPausedOverride = null)
     {
         if (!RigIsConfigured(settings))
         {
@@ -321,8 +324,9 @@ public sealed class RigController : IRigController, IDisposable
             return;
         }
 
-        var resumingFromCatPause = _catUpdatesPaused && !settings.CatUpdatesPaused;
-        _catUpdatesPaused = settings.CatUpdatesPaused;
+        var effectivePaused = catPausedOverride ?? settings.CatUpdatesPaused;
+        var resumingFromCatPause = _catUpdatesPaused && !effectivePaused;
+        _catUpdatesPaused = effectivePaused;
 
         if (context is not null)
             SyncDisplayFrequencies(context);
@@ -330,7 +334,7 @@ public sealed class RigController : IRigController, IDisposable
         if (context is null || context.TrackState.LookAngles is null)
         {
             _isTracking = false;
-            SetRigStatus(settings.CatUpdatesPaused ? RigStatusKind.CatPaused : RigStatusKind.Connected);
+            SetRigStatus(effectivePaused ? RigStatusKind.CatPaused : RigStatusKind.Connected);
             return;
         }
 
@@ -342,9 +346,9 @@ public sealed class RigController : IRigController, IDisposable
         var newPassKey = PassKey(context);
         var passKeyChanged = !string.Equals(_passKey, newPassKey, StringComparison.Ordinal);
         if (passKeyChanged)
-            BeginNewPass(settings, context, newPassKey);
+            BeginNewPass(settings, context, newPassKey, effectivePaused);
 
-        if (settings.CatUpdatesPaused)
+        if (effectivePaused)
         {
             _isTracking = false;
             SetRigStatus(RigStatusKind.CatPaused);
@@ -377,7 +381,7 @@ public sealed class RigController : IRigController, IDisposable
     private void SetRigStatus((RigStatusKind Kind, string? Port, string? Detail) status) =>
         SetRigStatus(status.Kind, status.Port, status.Detail);
 
-    private void BeginNewPass(RigSettings settings, RigTrackingContext context, string newPassKey)
+    private void BeginNewPass(RigSettings settings, RigTrackingContext context, string newPassKey, bool effectivePaused)
     {
         _passKey = newPassKey;
         _passbandDownlinkAdjustKHz = 0;
@@ -389,7 +393,7 @@ public sealed class RigController : IRigController, IDisposable
         _lastContextDopplerStrategy = context.DopplerStrategy;
         _forceFrequencyApply = false;
 
-        if (settings.CatUpdatesPaused)
+        if (effectivePaused)
             _passInitPending = true;
         else
             RunPassInit(settings, context);
@@ -420,6 +424,7 @@ public sealed class RigController : IRigController, IDisposable
         ClearDialHistory();
         _passInitPending = false;
         _catUpdatesPaused = false;
+        _cachedCatPausedOverride = null;
         _lastAppliedCtcssHz = null;
         _lastAppliedCtcssSquelch = null;
         _lastPassDownlinkOnVhf = null;
@@ -432,7 +437,7 @@ public sealed class RigController : IRigController, IDisposable
         if (!IsRigConnected() || _cachedContext is null)
             return;
 
-        if (!_cachedSettings.Enabled || _cachedSettings.CatUpdatesPaused || !_isTracking)
+        if (!_cachedSettings.Enabled || (_cachedCatPausedOverride ?? _cachedSettings.CatUpdatesPaused) || !_isTracking)
             return;
 
         if (!ignoreDopplerSuspend && DateTime.UtcNow < _suspendDopplerUntilUtc)
@@ -1551,18 +1556,21 @@ public sealed class RigController : IRigController, IDisposable
             RigCommandKind kind,
             RigSettings? settings = null,
             RigTrackingContext? context = null,
-            bool reinitializePass = false)
+            bool reinitializePass = false,
+            bool? catPausedOverride = null)
         {
             Kind = kind;
             Settings = settings ?? new RigSettings();
             Context = context;
             ReinitializePass = reinitializePass;
+            CatPausedOverride = catPausedOverride;
         }
 
         public RigCommandKind Kind { get; }
         public RigSettings Settings { get; }
         public RigTrackingContext? Context { get; }
         public bool ReinitializePass { get; }
+        public bool? CatPausedOverride { get; }
         public ManualResetEventSlim? Completed { get; set; }
     }
 }

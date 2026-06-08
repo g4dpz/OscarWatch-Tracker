@@ -12,6 +12,9 @@ public sealed class SatelliteDatabaseService : ISatelliteDatabaseService
     private Dictionary<string, SatelliteRadioEntry> _byName =
         new(StringComparer.OrdinalIgnoreCase);
 
+    private Dictionary<string, SatelliteRadioEntry> _byNormalizedName =
+        new(StringComparer.Ordinal);
+
     private List<SatelliteRadioEntry> _entries = [];
 
     public IReadOnlyList<SatelliteRadioEntry> Entries => _entries;
@@ -54,6 +57,10 @@ public sealed class SatelliteDatabaseService : ISatelliteDatabaseService
             _byName[entry.Name.Trim()] = entry;
             RegisterParentheticalAlias(entry.Name.Trim());
         }
+
+        _byNormalizedName = new Dictionary<string, SatelliteRadioEntry>(_byName.Count, StringComparer.Ordinal);
+        foreach (var (key, entry) in _byName)
+            _byNormalizedName.TryAdd(NormalizeName(key), entry);
     }
 
     public SatelliteRadioEntry? TryGetEntry(string satelliteName)
@@ -96,13 +103,7 @@ public sealed class SatelliteDatabaseService : ISatelliteDatabaseService
         }
 
         var normalized = NormalizeName(trimmed);
-        foreach (var key in _byName.Keys)
-        {
-            if (NormalizeName(key) == normalized)
-                return _byName[key];
-        }
-
-        return null;
+        return _byNormalizedName.GetValueOrDefault(normalized);
     }
 
     private static string NormalizeName(string name) =>

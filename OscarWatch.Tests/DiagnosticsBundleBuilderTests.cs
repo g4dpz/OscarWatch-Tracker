@@ -102,7 +102,7 @@ public sealed class DiagnosticsBundleBuilderTests
     private sealed class StubRigController(RigConnectionStatus status) : IRigController
     {
         public RigConnectionStatus GetStatus() => status;
-        public void PublishContext(RigSettings settings, RigTrackingContext? context, bool reinitializePass = false) { }
+        public void PublishContext(RigSettings settings, RigTrackingContext? context, bool reinitializePass = false, bool? catPausedOverride = null) { }
         public void Update(RigSettings settings, RigTrackingContext? context) { }
         public void ApplySelectedCtcss(RigSettings settings, RigTrackingContext? context) { }
         public void Disconnect() { }

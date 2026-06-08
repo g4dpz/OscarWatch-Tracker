@@ -329,7 +329,7 @@ public partial class MainViewModel : ViewModelBase
         var context = Frequencies.TryBuildRigTrackingContext(focused);
         var rigSettings = GetRigSettingsForController();
         _rig.ApplySelectedCtcss(rigSettings, context);
-        _rig.PublishContext(rigSettings, context);
+        _rig.PublishContext(rigSettings, context, catPausedOverride: GetCatPausedOverride());
         RefreshRigUi(focused);
     }
 
@@ -340,7 +340,7 @@ public partial class MainViewModel : ViewModelBase
 
         var focused = GetFocusedTrackState(_liveTracking.GetSnapshot(), FocusedNoradId);
         var context = Frequencies.TryBuildRigTrackingContext(focused);
-        _rig.PublishContext(GetRigSettingsForController(), context, reinitializePass);
+        _rig.PublishContext(GetRigSettingsForController(), context, reinitializePass, catPausedOverride: GetCatPausedOverride());
         RefreshRigUi(focused);
     }
 
@@ -634,42 +634,16 @@ public partial class MainViewModel : ViewModelBase
             return;
 
         focused ??= GetFocusedTrackState(_liveTracking.GetSnapshot(), FocusedNoradId);
-        _rig.PublishContext(GetRigSettingsForController(), Frequencies.TryBuildRigTrackingContext(focused));
+        _rig.PublishContext(GetRigSettingsForController(), Frequencies.TryBuildRigTrackingContext(focused), catPausedOverride: GetCatPausedOverride());
     }
 
-    private RigSettings GetRigSettingsForController()
+    private RigSettings GetRigSettingsForController() => _settings.Current.Rig;
+
+    private bool? GetCatPausedOverride()
     {
         var rig = _settings.Current.Rig;
-        if (rig.CatUpdatesPaused == RigCatPaused)
-            return rig;
-
-        return new RigSettings
-        {
-            Enabled = rig.Enabled,
-            DualRadioEnabled = rig.DualRadioEnabled,
-            Downlink = CloneEndpoint(rig.Downlink),
-            Uplink = CloneEndpoint(rig.Uplink),
-            Type = rig.Type,
-            Port = rig.Port,
-            BaudRate = rig.BaudRate,
-            CivAddress = rig.CivAddress,
-            Region = rig.Region,
-            DopplerThresholdFmHz = rig.DopplerThresholdFmHz,
-            DopplerThresholdLinearHz = rig.DopplerThresholdLinearHz,
-            CatDelayMs = rig.CatDelayMs,
-            CatUpdatesPaused = RigCatPaused,
-            CwKeepSidebandDownlink = rig.CwKeepSidebandDownlink
-        };
+        return RigCatPaused != rig.CatUpdatesPaused ? RigCatPaused : null;
     }
-
-    private static RigEndpointSettings CloneEndpoint(RigEndpointSettings endpoint) => new()
-    {
-        Type = endpoint.Type,
-        Port = endpoint.Port,
-        BaudRate = endpoint.BaudRate,
-        Region = endpoint.Region,
-        CatDelayMs = endpoint.CatDelayMs
-    };
 
     private void PushCloudlogRadio(SatelliteTrackState? focused)
     {
@@ -1058,7 +1032,13 @@ public partial class MainViewModel : ViewModelBase
         if (string.IsNullOrEmpty(focusedNoradId))
             return null;
 
-        return states.FirstOrDefault(s => string.Equals(s.NoradId, focusedNoradId, StringComparison.Ordinal));
+        for (var i = 0; i < states.Count; i++)
+        {
+            if (string.Equals(states[i].NoradId, focusedNoradId, StringComparison.Ordinal))
+                return states[i];
+        }
+
+        return null;
     }
 
     private void ProcessVoiceAnnouncements(IReadOnlyList<SatelliteTrackState> states)
