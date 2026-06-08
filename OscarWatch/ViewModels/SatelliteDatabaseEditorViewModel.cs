@@ -67,7 +67,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
     public bool HasSelectedMode => SelectedMode is not null;
 
     public IReadOnlyList<string> OperatingModes { get; } =
-        ["USB", "LSB", "FM", "FMN", "CW", "DATA-USB"];
+        ["USB", "LSB", "FM", "FMN", "CW", "DATA-USB", "DATA-LSB"];
 
     public IReadOnlyList<string> DopplerOptions { get; } = ["NOR", "REV"];
 
