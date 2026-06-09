@@ -45,14 +45,17 @@ public sealed class CloudlogRadioSyncService : ICloudlogRadioSyncService
         if (string.IsNullOrWhiteSpace(settings.BaseUrl) || string.IsNullOrWhiteSpace(settings.ApiKey))
             return;
 
-        var minInterval = Math.Max(250, settings.MinUpdateIntervalMs);
         lock (_gate)
         {
-            if (string.Equals(_lastSignature, update.Signature, StringComparison.Ordinal)
-                && (DateTime.UtcNow - _lastPostUtc).TotalMilliseconds < minInterval)
+            if (_inFlight > 0)
                 return;
 
-            if (_inFlight > 0)
+            if (!CloudlogRadioPublishPolicy.ShouldPost(
+                    _lastSignature,
+                    update.Signature,
+                    _lastPostUtc,
+                    DateTime.UtcNow,
+                    settings.MinUpdateIntervalMs))
                 return;
 
             _inFlight++;

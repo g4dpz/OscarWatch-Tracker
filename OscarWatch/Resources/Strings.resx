@@ -1267,7 +1267,7 @@ Continue?</value>
     <value>Cloudlog</value>
   </data>
   <data name="Settings.Cloudlog.Intro">
-    <value>Posts satellite TX/RX to Cloudlog CAT when you select a satellite or frequencies update. Test connection loads your logbooks for grid lookups on hams.at roves.</value>
+    <value>Posts satellite TX/RX to Cloudlog when frequencies or modes change, plus a periodic keepalive while unchanged. Test connection loads your logbooks for grid lookups on hams.at roves.</value>
   </data>
   <data name="Settings.Cloudlog.Enable">
     <value>Enable Cloudlog radio API (required for live updates)</value>
@@ -1294,7 +1294,10 @@ Continue?</value>
     <value>Default is OscarWatch. Must match a radio entry Cloudlog can assign QSOs to.</value>
   </data>
   <data name="Settings.Cloudlog.MinInterval">
-    <value>Minimum update interval (ms)</value>
+    <value>Keepalive interval (ms)</value>
+  </data>
+  <data name="Settings.Cloudlog.MinIntervalNote">
+    <value>Posts immediately when uplink, downlink, modes, or satellite change. Repeats the same state at this interval (default 10 minutes) so Cloudlog stays in sync during long contacts.</value>
   </data>
   <data name="Settings.Cloudlog.TestConnection">
     <value>Test connection</value>

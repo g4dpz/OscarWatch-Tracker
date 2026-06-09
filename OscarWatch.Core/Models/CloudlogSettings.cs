@@ -1,3 +1,5 @@
+using OscarWatch.Core.Cloudlog;
+
 namespace OscarWatch.Core.Models;
 
 public sealed class CloudlogSettings
@@ -12,8 +14,8 @@ public sealed class CloudlogSettings
     /// <summary>Radio identifier in Cloudlog CAT (default OscarWatch).</summary>
     public string RadioName { get; set; } = "OscarWatch";
 
-    /// <summary>Minimum milliseconds between API posts when frequencies change.</summary>
-    public int MinUpdateIntervalMs { get; set; } = 1000;
+    /// <summary>Milliseconds between keepalive posts when satellite/frequencies/modes are unchanged.</summary>
+    public int MinUpdateIntervalMs { get; set; } = CloudlogRadioPublishPolicy.DefaultKeepaliveIntervalMs;
 
     /// <summary>Public slug of the logbook used for grid lookups (hams.at roves).</summary>
     public string LogbookPublicSlug { get; set; } = "";

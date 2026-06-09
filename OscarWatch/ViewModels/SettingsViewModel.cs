@@ -341,7 +341,7 @@ public partial class SettingsViewModel : ViewModelBase
     private string _cloudlogRadioName = "OscarWatch";
 
     [ObservableProperty]
-    private int _cloudlogMinUpdateIntervalMs = 1000;
+    private int _cloudlogMinUpdateIntervalMs = CloudlogRadioPublishPolicy.DefaultKeepaliveIntervalMs;
 
     [ObservableProperty]
     private string _cloudlogTestStatus = "";
@@ -713,7 +713,7 @@ public partial class SettingsViewModel : ViewModelBase
             BaseUrl = CloudlogUrlHelper.NormalizeBaseUrl(CloudlogBaseUrl),
             ApiKey = CloudlogApiKey.Trim(),
             RadioName = string.IsNullOrWhiteSpace(CloudlogRadioName) ? "OscarWatch" : CloudlogRadioName.Trim(),
-            MinUpdateIntervalMs = Math.Clamp(CloudlogMinUpdateIntervalMs, 250, 60_000),
+            MinUpdateIntervalMs = CloudlogRadioPublishPolicy.NormalizeKeepaliveIntervalMs(CloudlogMinUpdateIntervalMs),
             LogbookPublicSlug = SelectedCloudlogLogbook?.PublicSlug?.Trim() ?? "",
             CheckRoveGrids = CloudlogCheckRoveGrids
         };
@@ -867,7 +867,7 @@ public partial class SettingsViewModel : ViewModelBase
             CloudlogBaseUrl = cloudlog.BaseUrl;
             CloudlogApiKey = cloudlog.ApiKey;
             CloudlogRadioName = string.IsNullOrWhiteSpace(cloudlog.RadioName) ? "OscarWatch" : cloudlog.RadioName;
-            CloudlogMinUpdateIntervalMs = cloudlog.MinUpdateIntervalMs <= 0 ? 1000 : cloudlog.MinUpdateIntervalMs;
+            CloudlogMinUpdateIntervalMs = CloudlogRadioPublishPolicy.MigrateKeepaliveIntervalMs(cloudlog.MinUpdateIntervalMs);
             CloudlogCheckRoveGrids = cloudlog.CheckRoveGrids;
             CloudlogTestStatus = "";
             CloudlogLogbooks.Clear();

@@ -1132,7 +1132,7 @@
     <value>Cloudlog</value>
   </data>
   <data name="Settings.Cloudlog.Intro">
-    <value>衛星選択または周波数更新時にCloudlog CAT（API v2 /index.php/api/radio）へ衛星TX/RXを投稿。</value>
+    <value>周波数やモードが変わったときにCloudlogへ衛星TX/RXを投稿し、変化がない間は定期的にキープアライブを送信します。</value>
   </data>
   <data name="Settings.Cloudlog.Enable">
     <value>Cloudlog無線APIを有効（ライブ更新に必要）</value>
@@ -1159,7 +1159,10 @@
     <value>既定はOscarWatch。CloudlogがQSOを割り当てできる無線機エントリと一致させてください。</value>
   </data>
   <data name="Settings.Cloudlog.MinInterval">
-    <value>最小更新間隔 (ms)</value>
+    <value>キープアライブ間隔 (ms)</value>
+  </data>
+  <data name="Settings.Cloudlog.MinIntervalNote">
+    <value>アップリンク・ダウンリンク・モード・衛星が変わったときは即座に投稿。同じ状態はこの間隔（既定10分）で再送します。</value>
   </data>
   <data name="Settings.Cloudlog.TestConnection">
     <value>接続テスト</value>

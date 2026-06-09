@@ -863,8 +863,12 @@
                            Text="{loc:Localize Key=Settings.Cloudlog.RadioNameNote}" />
                 <TextBlock Text="{loc:Localize Key=Settings.Cloudlog.MinInterval}" />
                 <NumericUpDown Value="{Binding CloudlogMinUpdateIntervalMs, Mode=TwoWay}"
-                               Minimum="250" Maximum="60000"
-                               Increment="250" FormatString="F0" />
+                               Minimum="60000" Maximum="3600000"
+                               Increment="60000" FormatString="F0" />
+                <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           FontSize="11"
+                           TextWrapping="Wrap"
+                           Text="{loc:Localize Key=Settings.Cloudlog.MinIntervalNote}" />
               </StackPanel>
 
               <StackPanel x:Name="GpsIntegrationSection"

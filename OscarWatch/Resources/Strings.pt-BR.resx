@@ -1243,7 +1243,7 @@ Continuar?</value>
     <value>Cloudlog</value>
   </data>
   <data name="Settings.Cloudlog.Intro">
-    <value>Envia TX/RX do satélite para o Cloudlog CAT (API v2 /index.php/api/radio) quando você seleciona um satélite ou as frequências são atualizadas.</value>
+    <value>Envia TX/RX do satélite ao Cloudlog quando frequências ou modos mudam, e repete em intervalo de keepalive enquanto não houver mudança.</value>
   </data>
   <data name="Settings.Cloudlog.Enable">
     <value>Habilitar API de rádio do Cloudlog (necessário para atualizações ao vivo)</value>
@@ -1270,7 +1270,10 @@ Continuar?</value>
     <value>O padrão é OscarWatch. Deve corresponder a uma entrada de rádio à qual o Cloudlog pode atribuir QSOs.</value>
   </data>
   <data name="Settings.Cloudlog.MinInterval">
-    <value>Intervalo mínimo de atualização (ms)</value>
+    <value>Intervalo de keepalive (ms)</value>
+  </data>
+  <data name="Settings.Cloudlog.MinIntervalNote">
+    <value>Publica imediatamente quando uplink, downlink, modos ou satélite mudam. Repete o mesmo estado neste intervalo (padrão 10 minutos) durante contatos longos.</value>
   </data>
   <data name="Settings.Cloudlog.TestConnection">
     <value>Testar conexão</value>

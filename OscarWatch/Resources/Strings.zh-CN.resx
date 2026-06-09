@@ -1243,7 +1243,7 @@
     <value>Cloudlog</value>
   </data>
   <data name="Settings.Cloudlog.Intro">
-    <value>当您选择卫星或频率更新时，将卫星 TX/RX 发布到 Cloudlog CAT（API v2 /index.php/api/radio）。</value>
+    <value>频率或模式变化时发布卫星 TX/RX 到 Cloudlog；无变化时按保活间隔重复发送。</value>
   </data>
   <data name="Settings.Cloudlog.Enable">
     <value>启用 Cloudlog radio API（实时更新所需）</value>
@@ -1270,7 +1270,10 @@
     <value>默认为 OscarWatch。必须与 Cloudlog 中可分配 QSO 的电台条目匹配。</value>
   </data>
   <data name="Settings.Cloudlog.MinInterval">
-    <value>最小更新间隔（毫秒）</value>
+    <value>保活间隔（毫秒）</value>
+  </data>
+  <data name="Settings.Cloudlog.MinIntervalNote">
+    <value>上行、下行、模式或卫星变化时立即发布；相同状态按此间隔（默认 10 分钟）重复，以便长时间通联时 Cloudlog 保持同步。</value>
   </data>
   <data name="Settings.Cloudlog.TestConnection">
     <value>测试连接</value>
