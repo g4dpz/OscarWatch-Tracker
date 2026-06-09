@@ -6,6 +6,8 @@ public interface ISettingsService
 {
     AppSettings Current { get; }
     string SettingsPath { get; }
+    string SerializeCurrent();
+    Task ReplaceAndSaveAsync(AppSettings imported, CancellationToken cancellationToken = default);
     void Load();
     Task LoadAsync(CancellationToken cancellationToken = default);
     Task SaveAsync(CancellationToken cancellationToken = default);

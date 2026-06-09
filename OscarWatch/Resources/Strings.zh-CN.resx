@@ -283,6 +283,59 @@
   <data name="Menu.File.Close">
     <value>_关闭</value>
   </data>
+  <data name="Menu.File.Export">
+    <value>导出(_E)</value>
+  </data>
+  <data name="Menu.File.Import">
+    <value>导入(_I)</value>
+  </data>
+  <data name="Menu.File.Export.Settings">
+    <value>设置</value>
+  </data>
+  <data name="Menu.File.Import.Settings">
+    <value>设置</value>
+  </data>
+  <data name="Menu.File.Export.TransponderDatabase">
+    <value>转发器数据库</value>
+  </data>
+  <data name="Menu.File.Import.TransponderDatabase">
+    <value>转发器数据库</value>
+  </data>
+  <data name="File.Export.Settings.Title">
+    <value>导出设置</value>
+  </data>
+  <data name="File.Import.Settings.Title">
+    <value>导入设置</value>
+  </data>
+  <data name="File.Import.Settings.ConfirmTitle">
+    <value>替换设置？</value>
+  </data>
+  <data name="File.Import.Settings.ConfirmMessage">
+    <value>导入将用所选文件替换当前全部设置。COM 端口、音频设备等与本机相关的值可能需要重新调整。文件中的 API 密钥将按原样恢复。
+
+是否继续？</value>
+  </data>
+  <data name="File.Export.Settings.Success">
+    <value>设置已导出。</value>
+  </data>
+  <data name="File.Import.Settings.Success">
+    <value>设置已导入。</value>
+  </data>
+  <data name="File.Export.TransponderDatabase.Title">
+    <value>导出转发器数据库</value>
+  </data>
+  <data name="File.Import.TransponderDatabase.Title">
+    <value>导入转发器数据库</value>
+  </data>
+  <data name="File.Export.Failed">
+    <value>导出失败：{0}</value>
+  </data>
+  <data name="File.Import.Failed">
+    <value>导入失败：{0}</value>
+  </data>
+  <data name="File.Import.Settings.Invalid">
+    <value>设置文件无效：{0}</value>
+  </data>
   <data name="Menu.Help">
     <value>_帮助</value>
   </data>
@@ -290,7 +343,7 @@
     <value>关于 _OscarWatch</value>
   </data>
   <data name="Menu.Help.Logs">
-    <value>打开 _logs 文件夹</value>
+    <value>打开 _Logs 文件夹</value>
   </data>
   <data name="Menu.Help.CopyDiagnostics">
     <value>复制诊断信息(_D)</value>
@@ -305,7 +358,7 @@
     <value>发行说明(_R)</value>
   </data>
   <data name="Menu.Help.Recordings">
-    <value>打开 _recordings 文件夹</value>
+    <value>打开 _Recordings 文件夹</value>
   </data>
   <data name="Menu.Passes">
     <value>_过境</value>

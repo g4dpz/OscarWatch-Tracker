@@ -205,6 +205,59 @@
   <data name="Menu.File.Close">
     <value>閉じる(_C)</value>
   </data>
+  <data name="Menu.File.Export">
+    <value>エクスポート(_E)</value>
+  </data>
+  <data name="Menu.File.Import">
+    <value>インポート(_I)</value>
+  </data>
+  <data name="Menu.File.Export.Settings">
+    <value>設定</value>
+  </data>
+  <data name="Menu.File.Import.Settings">
+    <value>設定</value>
+  </data>
+  <data name="Menu.File.Export.TransponderDatabase">
+    <value>トランスポンダーデータベース</value>
+  </data>
+  <data name="Menu.File.Import.TransponderDatabase">
+    <value>トランスポンダーデータベース</value>
+  </data>
+  <data name="File.Export.Settings.Title">
+    <value>設定をエクスポート</value>
+  </data>
+  <data name="File.Import.Settings.Title">
+    <value>設定をインポート</value>
+  </data>
+  <data name="File.Import.Settings.ConfirmTitle">
+    <value>設定を置き換えますか？</value>
+  </data>
+  <data name="File.Import.Settings.ConfirmMessage">
+    <value>インポートすると、現在の設定がすべて選択したファイルの内容に置き換わります。COMポートやオーディオデバイスなど、このPC固有の値は調整が必要な場合があります。ファイル内のAPIキーはそのまま復元されます。
+
+続行しますか？</value>
+  </data>
+  <data name="File.Export.Settings.Success">
+    <value>設定をエクスポートしました。</value>
+  </data>
+  <data name="File.Import.Settings.Success">
+    <value>設定をインポートしました。</value>
+  </data>
+  <data name="File.Export.TransponderDatabase.Title">
+    <value>トランスポンダーデータベースをエクスポート</value>
+  </data>
+  <data name="File.Import.TransponderDatabase.Title">
+    <value>トランスポンダーデータベースをインポート</value>
+  </data>
+  <data name="File.Export.Failed">
+    <value>エクスポートに失敗しました: {0}</value>
+  </data>
+  <data name="File.Import.Failed">
+    <value>インポートに失敗しました: {0}</value>
+  </data>
+  <data name="File.Import.Settings.Invalid">
+    <value>設定ファイルが無効です: {0}</value>
+  </data>
   <data name="Menu.Help">
     <value>ヘルプ(_H)</value>
   </data>

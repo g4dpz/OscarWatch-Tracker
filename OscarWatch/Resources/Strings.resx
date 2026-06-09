@@ -283,6 +283,59 @@
   <data name="Menu.File.Close">
     <value>_Close</value>
   </data>
+  <data name="Menu.File.Export">
+    <value>_Export</value>
+  </data>
+  <data name="Menu.File.Import">
+    <value>_Import</value>
+  </data>
+  <data name="Menu.File.Export.Settings">
+    <value>Settings</value>
+  </data>
+  <data name="Menu.File.Import.Settings">
+    <value>Settings</value>
+  </data>
+  <data name="Menu.File.Export.TransponderDatabase">
+    <value>Transponder Database</value>
+  </data>
+  <data name="Menu.File.Import.TransponderDatabase">
+    <value>Transponder Database</value>
+  </data>
+  <data name="File.Export.Settings.Title">
+    <value>Export settings</value>
+  </data>
+  <data name="File.Import.Settings.Title">
+    <value>Import settings</value>
+  </data>
+  <data name="File.Import.Settings.ConfirmTitle">
+    <value>Replace settings?</value>
+  </data>
+  <data name="File.Import.Settings.ConfirmMessage">
+    <value>Import replaces all current settings with the chosen file. COM ports, audio devices, and other machine-specific values may need adjustment on this PC. API keys in the file are restored as stored.
+
+Continue?</value>
+  </data>
+  <data name="File.Export.Settings.Success">
+    <value>Settings exported.</value>
+  </data>
+  <data name="File.Import.Settings.Success">
+    <value>Settings imported.</value>
+  </data>
+  <data name="File.Export.TransponderDatabase.Title">
+    <value>Export transponder database</value>
+  </data>
+  <data name="File.Import.TransponderDatabase.Title">
+    <value>Import transponder database</value>
+  </data>
+  <data name="File.Export.Failed">
+    <value>Export failed: {0}</value>
+  </data>
+  <data name="File.Import.Failed">
+    <value>Import failed: {0}</value>
+  </data>
+  <data name="File.Import.Settings.Invalid">
+    <value>Invalid settings file: {0}</value>
+  </data>
   <data name="Menu.Help">
     <value>_Help</value>
   </data>
@@ -290,22 +343,22 @@
     <value>_About OscarWatch</value>
   </data>
   <data name="Menu.Help.Logs">
-    <value>Open _logs folder</value>
+    <value>Open _Logs Folder</value>
   </data>
   <data name="Menu.Help.CopyDiagnostics">
-    <value>Copy _diagnostics</value>
+    <value>Copy _Diagnostics</value>
   </data>
   <data name="Menu.Help.OperatorGuide">
-    <value>Operator Guide</value>
+    <value>_Operator Guide</value>
   </data>
   <data name="Menu.Help.CheckForUpdates">
-    <value>Check for _updates</value>
+    <value>Check for _Updates</value>
   </data>
   <data name="Menu.Help.ReleaseNotes">
-    <value>_Release notes</value>
+    <value>_Release Notes</value>
   </data>
   <data name="Menu.Help.Recordings">
-    <value>Open _recordings folder</value>
+    <value>Open _Recordings Folder</value>
   </data>
   <data name="Menu.Passes">
     <value>_Passes</value>

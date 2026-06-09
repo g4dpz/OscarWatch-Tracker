@@ -12,6 +12,19 @@
   <DockPanel>
     <Menu DockPanel.Dock="Top">
       <MenuItem Header="{loc:Localize Key=Menu.File}">
+        <MenuItem Header="{loc:Localize Key=Menu.File.Import}">
+          <MenuItem Header="{loc:Localize Key=Menu.File.Import.Settings}"
+                    Command="{Binding ImportSettingsCommand}" />
+          <MenuItem Header="{loc:Localize Key=Menu.File.Import.TransponderDatabase}"
+                    Command="{Binding ImportTransponderDatabaseCommand}" />
+        </MenuItem>
+        <MenuItem Header="{loc:Localize Key=Menu.File.Export}">
+          <MenuItem Header="{loc:Localize Key=Menu.File.Export.Settings}"
+                    Command="{Binding ExportSettingsCommand}" />
+          <MenuItem Header="{loc:Localize Key=Menu.File.Export.TransponderDatabase}"
+                    Command="{Binding ExportTransponderDatabaseCommand}" />
+        </MenuItem>
+        <Separator />
         <MenuItem Header="{loc:Localize Key=Menu.File.Close}" Command="{Binding CloseApplicationCommand}" />
       </MenuItem>
       <MenuItem Header="{loc:Localize Key=Menu.Satellites}">
@@ -38,6 +51,7 @@
         <MenuItem Header="{loc:Localize Key=Menu.Help.ReleaseNotes}" Command="{Binding OpenReleaseNotesCommand}" />
         <Separator />
         <MenuItem Header="{loc:Localize Key=Menu.Help.About}" Command="{Binding OpenAboutCommand}" />
+        <Separator />
         <MenuItem Header="{loc:Localize Key=Menu.Help.Recordings}" Command="{Binding OpenRecordingsFolderCommand}" />
         <MenuItem Header="{loc:Localize Key=Menu.Help.Logs}" Command="{Binding OpenLogsFolderCommand}" />
         <MenuItem Header="{loc:Localize Key=Menu.Help.CopyDiagnostics}" Command="{Binding CopyDiagnosticsCommand}" />

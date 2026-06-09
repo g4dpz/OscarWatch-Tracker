@@ -283,6 +283,59 @@
   <data name="Menu.File.Close">
     <value>_Fechar</value>
   </data>
+  <data name="Menu.File.Export">
+    <value>_Exportar</value>
+  </data>
+  <data name="Menu.File.Import">
+    <value>_Importar</value>
+  </data>
+  <data name="Menu.File.Export.Settings">
+    <value>Configurações</value>
+  </data>
+  <data name="Menu.File.Import.Settings">
+    <value>Configurações</value>
+  </data>
+  <data name="Menu.File.Export.TransponderDatabase">
+    <value>Banco de dados de transponder</value>
+  </data>
+  <data name="Menu.File.Import.TransponderDatabase">
+    <value>Banco de dados de transponder</value>
+  </data>
+  <data name="File.Export.Settings.Title">
+    <value>Exportar configurações</value>
+  </data>
+  <data name="File.Import.Settings.Title">
+    <value>Importar configurações</value>
+  </data>
+  <data name="File.Import.Settings.ConfirmTitle">
+    <value>Substituir configurações?</value>
+  </data>
+  <data name="File.Import.Settings.ConfirmMessage">
+    <value>A importação substitui todas as configurações atuais pelo arquivo escolhido. Portas COM, dispositivos de áudio e outros valores específicos deste PC podem precisar de ajuste. As chaves de API no arquivo serão restauradas como estão.
+
+Continuar?</value>
+  </data>
+  <data name="File.Export.Settings.Success">
+    <value>Configurações exportadas.</value>
+  </data>
+  <data name="File.Import.Settings.Success">
+    <value>Configurações importadas.</value>
+  </data>
+  <data name="File.Export.TransponderDatabase.Title">
+    <value>Exportar banco de dados de transponder</value>
+  </data>
+  <data name="File.Import.TransponderDatabase.Title">
+    <value>Importar banco de dados de transponder</value>
+  </data>
+  <data name="File.Export.Failed">
+    <value>Falha na exportação: {0}</value>
+  </data>
+  <data name="File.Import.Failed">
+    <value>Falha na importação: {0}</value>
+  </data>
+  <data name="File.Import.Settings.Invalid">
+    <value>Arquivo de configurações inválido: {0}</value>
+  </data>
   <data name="Menu.Help">
     <value>_Ajuda</value>
   </data>
@@ -302,7 +355,7 @@
     <value>Verificar _atualizações</value>
   </data>
   <data name="Menu.Help.ReleaseNotes">
-    <value>_Notas da versão</value>
+    <value>_Notas da Versão</value>
   </data>
   <data name="Menu.Help.Recordings">
     <value>Abrir pasta de _gravações</value>

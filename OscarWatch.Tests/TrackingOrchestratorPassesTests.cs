@@ -51,6 +51,8 @@ public sealed class TrackingOrchestratorPassesTests
     {
         public AppSettings Current { get; } = new();
         public string SettingsPath { get; } = "";
+        public string SerializeCurrent() => "{}";
+        public Task ReplaceAndSaveAsync(AppSettings imported, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public void Load() { }
         public Task LoadAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task SaveAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;

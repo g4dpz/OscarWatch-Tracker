@@ -32,6 +32,46 @@ public sealed class SettingsService : ISettingsService
 
     public static event Action<Exception>? SaveFailed;
 
+    public string SerializeCurrent() =>
+        JsonSerializer.Serialize(Current, JsonOptions);
+
+    public static bool TryParse(string json, out AppSettings settings, out string? error)
+    {
+        settings = new AppSettings();
+        error = null;
+
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            error = "File is empty.";
+            return false;
+        }
+
+        try
+        {
+            settings = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new AppSettings();
+        }
+        catch (JsonException ex)
+        {
+            error = ex.Message;
+            return false;
+        }
+
+        NormalizeSettings(settings);
+        return true;
+    }
+
+    public async Task ReplaceAndSaveAsync(AppSettings imported, CancellationToken cancellationToken = default)
+    {
+        NormalizeSettings(imported);
+        Current = imported;
+        EnsureSavedStations();
+
+        if (string.IsNullOrWhiteSpace(Current.GroundStation.GridSquare))
+            SyncGridFromLatLon();
+
+        await SaveAsync(cancellationToken).ConfigureAwait(false);
+    }
+
     public void Load()
     {
         Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);
@@ -46,24 +86,10 @@ public sealed class SettingsService : ISettingsService
         }
 
         var json = File.ReadAllText(SettingsPath);
-        Current = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new AppSettings();
-        Current.GroundStation ??= new GroundStation();
-        Current.VoiceAnnouncements ??= new VoiceAnnouncementSettings();
-        Current.FrequencySelections ??= new Dictionary<string, SatelliteFrequencySelection>(StringComparer.OrdinalIgnoreCase);
-        foreach (var selection in Current.FrequencySelections.Values)
-        {
-            selection.ModeOffsets ??= new Dictionary<string, ModeOffsetSettings>(StringComparer.OrdinalIgnoreCase);
-            selection.CwUplinkByMode ??= new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-            selection.CwReceiveOffsetKHzByMode ??= new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
-            selection.DopplerStrategyByMode ??= new Dictionary<string, DopplerStrategy>(StringComparer.OrdinalIgnoreCase);
-        }
-        Current.Rotator ??= new RotatorSettings();
-        Current.Gps ??= new GpsSettings();
-        Current.Rig ??= new RigSettings();
-        Current.Rig.MigrateFt817818ToDualOnly();
-        Current.Cloudlog ??= new CloudlogSettings();
-        Current.PassRecording ??= new PassRecordingSettings();
-        Current.TleSource ??= new TleSourceSettings();
+        if (!TryParse(json, out var settings, out _))
+            settings = new AppSettings();
+
+        Current = settings;
         EnsureSavedStations();
 
         if (string.IsNullOrWhiteSpace(Current.GroundStation.GridSquare))
@@ -153,6 +179,28 @@ public sealed class SettingsService : ISettingsService
         var (lat, lon) = MaidenheadGrid.ToLatLonCenter(Current.GroundStation.GridSquare);
         Current.GroundStation.LatitudeDeg = lat;
         Current.GroundStation.LongitudeDeg = lon;
+    }
+
+    private static void NormalizeSettings(AppSettings settings)
+    {
+        settings.GroundStation ??= new GroundStation();
+        settings.VoiceAnnouncements ??= new VoiceAnnouncementSettings();
+        settings.FrequencySelections ??= new Dictionary<string, SatelliteFrequencySelection>(StringComparer.OrdinalIgnoreCase);
+        foreach (var selection in settings.FrequencySelections.Values)
+        {
+            selection.ModeOffsets ??= new Dictionary<string, ModeOffsetSettings>(StringComparer.OrdinalIgnoreCase);
+            selection.CwUplinkByMode ??= new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+            selection.CwReceiveOffsetKHzByMode ??= new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+            selection.DopplerStrategyByMode ??= new Dictionary<string, DopplerStrategy>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        settings.Rotator ??= new RotatorSettings();
+        settings.Gps ??= new GpsSettings();
+        settings.Rig ??= new RigSettings();
+        settings.Rig.MigrateFt817818ToDualOnly();
+        settings.Cloudlog ??= new CloudlogSettings();
+        settings.PassRecording ??= new PassRecordingSettings();
+        settings.TleSource ??= new TleSourceSettings();
     }
 
     private void SaveToDisk()

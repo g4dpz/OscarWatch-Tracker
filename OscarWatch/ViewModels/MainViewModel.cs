@@ -14,6 +14,7 @@ using OscarWatch.Theme;
 using OscarWatch.Diagnostics;
 using OscarWatch.Help;
 using OscarWatch.Localization;
+using OscarWatch.Services;
 using OscarWatch.Views;
 using Serilog;
 
@@ -1377,31 +1378,98 @@ public partial class MainViewModel : ViewModelBase
         var saved = await window.ShowDialog<bool?>(App.MainWindow) == true;
 
         if (saved)
+            await ApplyPersistedSettingsAsync().ConfigureAwait(true);
+    }
+
+    [RelayCommand]
+    private async Task ExportSettingsAsync()
+    {
+        if (App.MainWindow is null)
+            return;
+
+        var status = await AppDataFileCommands.ExportSettingsAsync(App.MainWindow, _settings, _l)
+            .ConfigureAwait(true);
+        if (status is not null)
+            StatusText = status;
+    }
+
+    [RelayCommand]
+    private async Task ImportSettingsAsync()
+    {
+        if (App.MainWindow is null)
+            return;
+
+        var (applied, status) = await AppDataFileCommands.ImportSettingsAsync(App.MainWindow, _settings, _l)
+            .ConfigureAwait(true);
+        if (status is not null)
+            StatusText = status;
+
+        if (applied)
+            await ApplyPersistedSettingsAsync().ConfigureAwait(true);
+    }
+
+    [RelayCommand]
+    private async Task ExportTransponderDatabaseAsync()
+    {
+        if (App.MainWindow is null)
+            return;
+
+        var status = await AppDataFileCommands.ExportTransponderDatabaseAsync(
+                App.MainWindow,
+                _transponderDatabaseSync,
+                _l)
+            .ConfigureAwait(true);
+        if (status is not null)
+            StatusText = status;
+    }
+
+    [RelayCommand]
+    private async Task ImportTransponderDatabaseAsync()
+    {
+        if (App.MainWindow is null)
+            return;
+
+        var (applied, status) = await AppDataFileCommands.ImportTransponderDatabaseAsync(
+                App.MainWindow,
+                _transponderDatabaseSync,
+                _l)
+            .ConfigureAwait(true);
+
+        if (status is not null)
+            StatusText = status;
+
+        if (applied)
         {
-            ConfigureTleAutoUpdateTimer();
-            ConfigureAppUpdateCheckTimer();
-            ApplyHamsAtSidebarSettings();
-            ConfigureHamsAtRefreshTimer();
-            await RefreshHamsAtRovesAsync().ConfigureAwait(true);
-            await ReloadTleCatalogAfterSettingsAsync().ConfigureAwait(true);
-            _liveTracking.RequestReload();
-            _rotator.Disconnect();
-            _rig.Disconnect();
-            _gps.Disconnect();
-            _gps.Update(_settings.Current.Gps);
-            _cloudlog.ResetThrottle();
-            if (!_settings.Current.PassRecording.Enabled && _recording.IsRecording)
-                await _recording.StopAsync();
-            _passRecordingCoordinator.ResetTracking();
-            await RefreshPassesAsync();
-            UpdateStatus();
-            RefreshGroundStationFromSettings();
-            ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
-            ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
-            RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
-            _liveDisplayTimer?.Start();
+            Frequencies.ReloadFromDatabase();
             Tick();
         }
+    }
+
+    private async Task ApplyPersistedSettingsAsync()
+    {
+        ConfigureTleAutoUpdateTimer();
+        ConfigureAppUpdateCheckTimer();
+        ApplyHamsAtSidebarSettings();
+        ConfigureHamsAtRefreshTimer();
+        await RefreshHamsAtRovesAsync().ConfigureAwait(true);
+        await ReloadTleCatalogAfterSettingsAsync().ConfigureAwait(true);
+        _liveTracking.RequestReload();
+        _rotator.Disconnect();
+        _rig.Disconnect();
+        _gps.Disconnect();
+        _gps.Update(_settings.Current.Gps);
+        _cloudlog.ResetThrottle();
+        if (!_settings.Current.PassRecording.Enabled && _recording.IsRecording)
+            await _recording.StopAsync();
+        _passRecordingCoordinator.ResetTracking();
+        await RefreshPassesAsync();
+        UpdateStatus();
+        RefreshGroundStationFromSettings();
+        ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
+        ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
+        RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
+        _liveDisplayTimer?.Start();
+        Tick();
     }
 
     private void ConfigureTleAutoUpdateTimer()

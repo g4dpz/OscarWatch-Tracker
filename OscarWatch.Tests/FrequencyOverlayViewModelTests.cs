@@ -411,6 +411,8 @@ public class FrequencyOverlayViewModelTests
     {
         public AppSettings Current { get; } = new();
         public string SettingsPath { get; } = Path.Combine(Path.GetTempPath(), "oscarwatch-test-settings.json");
+        public string SerializeCurrent() => "{}";
+        public Task ReplaceAndSaveAsync(AppSettings imported, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public void Load() { }
         public Task LoadAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task SaveAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
