@@ -28,7 +28,9 @@ public sealed class TrackingOrchestratorGroundTrackTests
 
         Assert.Equal(2, states.Count);
         Assert.Empty(states.First(s => s.NoradId == "25544").GroundTrack);
+        Assert.NotNull(states.First(s => s.NoradId == "25544").MotionHeadingDeg);
         Assert.Equal(2, states.First(s => s.NoradId == "27607").GroundTrack.Count);
+        Assert.NotNull(states.First(s => s.NoradId == "27607").MotionHeadingDeg);
         Assert.Equal(1, geometry.GroundTrackCallCount);
     }
 
@@ -45,9 +47,10 @@ public sealed class TrackingOrchestratorGroundTrackTests
             new NullPassPredictor());
 
         orchestrator.ReloadEnabledSatellites();
-        orchestrator.GetLiveStates(DateTime.UtcNow);
+        var states = orchestrator.GetLiveStates(DateTime.UtcNow);
 
         Assert.Equal(0, geometry.GroundTrackCallCount);
+        Assert.NotNull(states[0].MotionHeadingDeg);
     }
 
     private static SatelliteCatalogEntry SampleSatellite(string name, string noradId) => new()
@@ -97,7 +100,8 @@ public sealed class TrackingOrchestratorGroundTrackTests
         public void LoadSatellite(SatelliteCatalogEntry entry) => _ids.Add(entry.NoradId);
         public void RemoveSatellite(string noradId) => _ids.Remove(noradId);
         public bool HasSatellite(string noradId) => _ids.Contains(noradId);
-        public GeoCoordinate GetSubpoint(string noradId, DateTime utc) => new(0, 0, 400);
+        public GeoCoordinate GetSubpoint(string noradId, DateTime utc) =>
+            new(utc.Second * 0.01, utc.Second * 0.01, 400);
         public EciPosition GetEciPosition(string noradId, DateTime utc) => new(7000, 0, 0);
         public LookAngles GetLookAngles(string noradId, GroundStation site, DateTime utc) =>
             new(180, 45, 1000, 0);

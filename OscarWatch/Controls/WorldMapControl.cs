@@ -339,7 +339,8 @@ public class WorldMapControl : ThemeAwareControl
                     2);
 
                 var heading = ShowFootprintMotionArrows
-                    ? GroundTrackHeading.EstimateHeadingDeg(state.Subpoint, state.GroundTrack)
+                    ? state.MotionHeadingDeg
+                      ?? GroundTrackHeading.EstimateHeadingDeg(state.Subpoint, state.GroundTrack)
                     : null;
                 if (heading is { } headingDeg)
                 {

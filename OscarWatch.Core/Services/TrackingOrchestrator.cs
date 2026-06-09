@@ -77,6 +77,7 @@ public sealed class TrackingOrchestrator
                 }
 
                 var subpoint = _propagator.GetSubpoint(sat.NoradId, utc);
+                var motionHeadingDeg = TryEstimateMotionHeadingDeg(sat.NoradId, utc, subpoint);
                 var cache = _visualCache.GetOrAdd(sat.NoradId);
                 var altKm = TleAltitude.ResolveAltitudeKm(subpoint.AltitudeKm, sat);
 
@@ -118,6 +119,7 @@ public sealed class TrackingOrchestrator
                     NoradId = sat.NoradId,
                     Subpoint = subpoint,
                     LookAngles = look,
+                    MotionHeadingDeg = motionHeadingDeg,
                     GroundTrack = groundTrack,
                     Footprint = footprint,
                     FootprintRadiusDeg = footprintRadiusDeg,
@@ -137,6 +139,23 @@ public sealed class TrackingOrchestrator
     private static bool ShouldBuildGroundTrack(string noradId, string? groundTrackNoradId) =>
         !string.IsNullOrWhiteSpace(groundTrackNoradId)
         && string.Equals(noradId, groundTrackNoradId, StringComparison.OrdinalIgnoreCase);
+
+    private double? TryEstimateMotionHeadingDeg(string noradId, DateTime utc, GeoCoordinate subpoint)
+    {
+        try
+        {
+            var ahead = _propagator.GetSubpoint(noradId, utc.AddSeconds(45));
+            return SphericalGeo.InitialBearingDeg(
+                subpoint.LatitudeDeg,
+                subpoint.LongitudeDeg,
+                ahead.LatitudeDeg,
+                EquirectangularProjection.NormalizeLongitudeNear(ahead.LongitudeDeg, subpoint.LongitudeDeg));
+        }
+        catch
+        {
+            return null;
+        }
+    }
 
     /// <summary>Compass azimuth a few seconds ahead for rotator north-wrap lookahead.</summary>
     public double? TryGetAheadAzimuthDeg(string noradId, double secondsAhead = 3.0)

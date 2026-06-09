@@ -8,6 +8,8 @@ public sealed class SatelliteTrackState
     public LookAngles? LookAngles { get; init; }
     /// <summary>Compass azimuth ~1–2 s ahead (rotator east-side north-wrap lookahead).</summary>
     public double? AheadAzimuthDeg { get; init; }
+    /// <summary>Ground-track direction at the subpoint (degrees clockwise from north) for map footprint arrows.</summary>
+    public double? MotionHeadingDeg { get; init; }
     public IReadOnlyList<GeoCoordinate> GroundTrack { get; init; } = [];
     public IReadOnlyList<GeoCoordinate> Footprint { get; init; } = [];
     /// <summary>Angular radius of the 0°-elevation footprint on Earth (degrees).</summary>

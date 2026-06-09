@@ -501,9 +501,6 @@ public partial class MainViewModel : ViewModelBase
         UpdateGpsStatusDisplay();
         _rotator.Update(_settings.Current.Rotator, EnrichRotatorTarget(focusedForOps));
         UpdateRotatorDisplay();
-        var focusedForDisplay = GetFocusedTrackState(mapStates, FocusedNoradId);
-        Frequencies.Update(focusedForDisplay);
-        DxStation.Update(focusedForDisplay);
 
         if (ShowComPortConflict)
             _rig.Disconnect();
@@ -522,12 +519,14 @@ public partial class MainViewModel : ViewModelBase
             ProcessVoiceAnnouncements(mapStates);
 
         var focusedForDisplay = GetFocusedTrackState(mapStates, FocusedNoradId);
+        Frequencies.Update(focusedForDisplay);
         DxStation.Update(focusedForDisplay);
 
         if (ShowComPortConflict || !_settings.Current.Rig.Enabled)
             return;
 
         SyncOverlayPassbandFromRig();
+        UpdateRigDisplay();
         if (IsMapTimeScrubbing)
         {
             var liveFocused = GetFocusedTrackState(_liveTracking.GetLiveNowSnapshot(), FocusedNoradId);
@@ -1020,6 +1019,7 @@ public partial class MainViewModel : ViewModelBase
             Subpoint = state.Subpoint,
             LookAngles = state.LookAngles,
             AheadAzimuthDeg = ahead,
+            MotionHeadingDeg = state.MotionHeadingDeg,
             GroundTrack = state.GroundTrack,
             Footprint = state.Footprint,
             FootprintRadiusDeg = state.FootprintRadiusDeg,
