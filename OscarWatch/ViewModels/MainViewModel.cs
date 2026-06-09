@@ -1282,7 +1282,7 @@ public partial class MainViewModel : ViewModelBase
         if (delta.TotalSeconds < 0)
             NextPassText = _l.Get("Main.Pass.InProgress", next.SatelliteName);
         else
-            NextPassText = _l.Get("Main.Pass.AosIn", next.SatelliteName, delta.ToString(@"hh\:mm\:ss"));
+            NextPassText = _l.Get("Main.Pass.AosIn", next.SatelliteName, PassDisplayFormat.FormatCountdownHms(delta));
     }
 
     private void UpdateStatus()
@@ -1768,40 +1768,47 @@ public partial class MainViewModel : ViewModelBase
 
     private async Task RefreshPassesAsync()
     {
-        var selectedNorad = (SelectedListItem as PassRowViewModel)?.NoradId;
-        var passes = await _tracking.GetUpcomingPassesAsync().ConfigureAwait(false);
-
-        void Apply()
+        try
         {
-            Passes.Clear();
-            DateOnly? currentDay = null;
-            foreach (var p in passes.Take(50))
+            var selectedNorad = (SelectedListItem as PassRowViewModel)?.NoradId;
+            var passes = await _tracking.GetUpcomingPassesAsync().ConfigureAwait(false);
+
+            void Apply()
             {
-                var day = PassDisplayFormat.GetLocalDate(p.AosUtc);
-                if (currentDay != day)
+                Passes.Clear();
+                DateOnly? currentDay = null;
+                foreach (var p in passes.Take(50))
                 {
-                    currentDay = day;
-                    Passes.Add(new PassDayHeaderViewModel
+                    var day = PassDisplayFormat.GetLocalDate(p.AosUtc);
+                    if (currentDay != day)
                     {
-                        DateLabel = PassDisplayFormat.FormatDayHeader(p.AosUtc)
-                    });
+                        currentDay = day;
+                        Passes.Add(new PassDayHeaderViewModel
+                        {
+                            DateLabel = PassDisplayFormat.FormatDayHeader(p.AosUtc)
+                        });
+                    }
+
+                    Passes.Add(PassRowViewModel.From(
+                        p,
+                        PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock)));
                 }
 
-                Passes.Add(PassRowViewModel.From(
-                    p,
-                    PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock)));
+                if (selectedNorad is not null)
+                    SelectedListItem = Passes.OfType<PassRowViewModel>().FirstOrDefault(p => p.NoradId == selectedNorad);
+
+                UpdatePassHighlightState();
             }
 
-            if (selectedNorad is not null)
-                SelectedListItem = Passes.OfType<PassRowViewModel>().FirstOrDefault(p => p.NoradId == selectedNorad);
-
-            UpdatePassHighlightState();
+            if (Dispatcher.UIThread.CheckAccess())
+                Apply();
+            else
+                await Dispatcher.UIThread.InvokeAsync(Apply);
         }
-
-        if (Dispatcher.UIThread.CheckAccess())
-            Apply();
-        else
-            await Dispatcher.UIThread.InvokeAsync(Apply);
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            Log.Warning(ex, "Upcoming pass list refresh failed");
+        }
     }
 }
 

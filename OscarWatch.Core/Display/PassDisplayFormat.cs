@@ -275,6 +275,15 @@ public static class PassDisplayFormat
         return $"{(int)delta.TotalMinutes}:{delta.Seconds:D2}";
     }
 
+    /// <summary>Total hours, minutes, and seconds until an event, e.g. <c>36:15:05</c>.</summary>
+    public static string FormatCountdownHms(TimeSpan delta)
+    {
+        if (delta <= TimeSpan.Zero)
+            return "0:00:00";
+
+        return $"{(int)delta.TotalHours}:{delta.Minutes:D2}:{delta.Seconds:D2}";
+    }
+
     public static ClockDisplayFormat FromSettings(bool use24HourClock) =>
         use24HourClock ? ClockDisplayFormat.TwentyFourHour : ClockDisplayFormat.TwelveHour;
 

@@ -475,12 +475,13 @@ public sealed class RigController : IRigController, IDisposable
             if (!_forceFrequencyApply || !_blockKnobCapture)
                 return;
 
-            WriteDopplerFrequencies(settings, context);
+            if (WriteDopplerFrequencies(settings, context))
+                RestoreOperatorVfo();
             return;
         }
 
-        WriteDopplerFrequencies(settings, context);
-        RestoreOperatorVfo();
+        if (WriteDopplerFrequencies(settings, context))
+            RestoreOperatorVfo();
     }
 
     /// <summary>
@@ -506,12 +507,13 @@ public sealed class RigController : IRigController, IDisposable
                 return;
             }
 
-            WriteDopplerFrequencies(settings, context);
+            if (WriteDopplerFrequencies(settings, context))
+                RestoreOperatorVfo();
             return;
         }
 
-        WriteDopplerFrequencies(settings, context);
-        RestoreOperatorVfo();
+        if (WriteDopplerFrequencies(settings, context))
+            RestoreOperatorVfo();
     }
 
     /// <summary>
@@ -544,8 +546,8 @@ public sealed class RigController : IRigController, IDisposable
 
     private void ProcessAutomaticDoppler(RigSettings settings, RigTrackingContext context)
     {
-        WriteDopplerFrequencies(settings, context);
-        RestoreOperatorVfo();
+        if (WriteDopplerFrequencies(settings, context))
+            RestoreOperatorVfo();
     }
 
     /// <summary>
@@ -709,7 +711,7 @@ public sealed class RigController : IRigController, IDisposable
         Array.Clear(_rxDialHistory);
     }
 
-    private void WriteDopplerFrequencies(RigSettings settings, RigTrackingContext context, bool holdDownlinkCatWrites = false)
+    private bool WriteDopplerFrequencies(RigSettings settings, RigTrackingContext context, bool holdDownlinkCatWrites = false)
     {
         var corrected = ComputeDoppler(context);
 
@@ -723,7 +725,7 @@ public sealed class RigController : IRigController, IDisposable
         var thresholdHz = _thresholdHz;
         var strategy = context.DopplerStrategy;
         if (!forceApply && !ShouldWrite(thresholdHz, rxHz, txHz, strategy))
-            return;
+            return false;
 
         var rxDelta = Math.Abs(rxHz - _lastRigRxHz);
         var txDelta = _isBeaconOnly ? 0 : Math.Abs(txHz - _lastRigTxHz);
@@ -750,17 +752,20 @@ public sealed class RigController : IRigController, IDisposable
             }
         }
 
-        var okRx = true;
-        var okTx = true;
         if (writeTx && _interactive && !settings.DualRadioEnabled && !CanWriteInteractiveSub())
         {
             _forceFrequencyApply = true;
             writeTx = false;
         }
 
-        if (!CanWriteDoppler(settings, writeRx, writeTx))
-            return;
+        if (!writeRx && !writeTx)
+            return false;
 
+        if (!CanWriteDoppler(settings, writeRx, writeTx))
+            return false;
+
+        var wroteRx = false;
+        var wroteTx = false;
         if (settings.Type == RigType.KenwoodTs2000 && _useMainSub && _driver is KenwoodTs2000Driver kenwoodDoppler
             && kenwoodDoppler.IsSatelliteModeActive && (writeRx || writeTx))
         {
@@ -769,44 +774,46 @@ public sealed class RigController : IRigController, IDisposable
                 if (writeRx)
                 {
                     _lastRigRxHz = rxHz;
-                    okRx = true;
+                    wroteRx = true;
                 }
 
                 if (writeTx)
                 {
                     _lastRigTxHz = txHz;
-                    okTx = true;
+                    wroteTx = true;
                 }
             }
 
-            if (_interactive && okTx)
+            if (_interactive && wroteTx)
                 RestoreOperatorVfo();
         }
         else
         {
             if (writeRx)
-                okRx = WriteRx(settings, rxHz);
+                wroteRx = WriteRx(settings, rxHz);
             if (writeTx)
             {
-                okTx = WriteTx(settings, txHz);
-                if (_interactive && okTx)
+                wroteTx = WriteTx(settings, txHz);
+                if (_interactive && wroteTx)
                     RestoreOperatorVfo();
             }
         }
 
-        if (okRx || okTx)
+        if (wroteRx || wroteTx)
         {
-            if (okRx)
+            if (wroteRx)
                 _lastRxWriteUtc = DateTime.UtcNow;
-            if (okTx)
+            if (wroteTx)
                 _lastTxWriteUtc = DateTime.UtcNow;
             _lastWriteUtc = DateTime.UtcNow;
             MarkProgrammaticFrequencySettle();
             FinishOffsetKnobCaptureBlock();
         }
 
-        if ((writeRx && !okRx) || (writeTx && !okTx))
+        if ((writeRx && !wroteRx) || (writeTx && !wroteTx))
             _forceFrequencyApply = true;
+
+        return wroteRx || wroteTx;
     }
 
     private void FinishOffsetKnobCaptureBlock()
@@ -1409,7 +1416,7 @@ public sealed class RigController : IRigController, IDisposable
         if (driver is null)
             return;
 
-        driver.SelectVfo(ReceiveVfo(), force: true);
+        driver.SelectVfo(ReceiveVfo(), force: _interactive);
         if (!_interactive)
             return;
 

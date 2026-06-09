@@ -62,4 +62,54 @@ public class RigDopplerLoopTests
         Assert.Equal(baselineRx + 1_000, rig.MainHz);
         Assert.NotEqual(baselineTx, rig.SubHz);
     }
+
+    [Fact]
+    public void Automatic_fm_skips_vfo_select_when_doppler_is_below_threshold()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.IcomIc9700,
+            Port = "COM1",
+            DopplerThresholdFmHz = 350,
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "Cross band repeater",
+            DownlinkKHz = 437_800,
+            UplinkKHz = 145_990,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR"
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "ISS",
+                NoradId = "25544",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, 0.05)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0.05, 0)
+        };
+
+        controller.Update(settings, ctx);
+        controller.DrainCommandQueueForTests();
+
+        var vfoCallsAfterInit = rig.SelectVfoCallCount;
+        var freqCallsAfterInit = rig.SetFrequencyCallCount;
+
+        for (var i = 0; i < 5; i++)
+            controller.RunTrackingLoopOnce();
+
+        Assert.Equal(vfoCallsAfterInit, rig.SelectVfoCallCount);
+        Assert.Equal(freqCallsAfterInit, rig.SetFrequencyCallCount);
+    }
 }

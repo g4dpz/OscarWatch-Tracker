@@ -178,26 +178,18 @@ public sealed class TrackingOrchestrator
             _passPredictor.GetPassesAsync(sat, site, utcStart, utcEnd, minimumElevationDeg, cancellationToken))
             .ToList();
 
-        IReadOnlyList<PassInfo>[] results;
         try
         {
-            results = await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks);
         }
         catch
         {
-            results = tasks.Select(t =>
-                t.IsCompletedSuccessfully
-                    ? t.Result
-                    : (IReadOnlyList<PassInfo>)Array.Empty<PassInfo>())
-                .ToArray();
-            var exceptions = tasks.Where(t => t.IsFaulted)
-                                  .Select(t => t.Exception!.InnerException!)
-                                  .ToList();
-            if (exceptions.Count > 0)
-                throw new AggregateException(exceptions);
+            // Allow partial results to be collected below.
         }
 
-        return results.SelectMany(r => r)
+        return tasks
+            .Where(t => t.IsCompletedSuccessfully)
+            .SelectMany(t => t.Result)
             .Where(p => p.Duration >= minDuration)
             .OrderBy(p => p.AosUtc)
             .ToList();

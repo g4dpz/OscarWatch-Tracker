@@ -30,6 +30,14 @@ public class PassDisplayFormatTests
     }
 
     [Fact]
+    public void FormatCountdownHms_uses_total_hours_not_wrapped_component()
+    {
+        Assert.Equal("0:00:00", PassDisplayFormat.FormatCountdownHms(TimeSpan.Zero));
+        Assert.Equal("1:30:45", PassDisplayFormat.FormatCountdownHms(TimeSpan.FromSeconds(5445)));
+        Assert.Equal("36:00:00", PassDisplayFormat.FormatCountdownHms(TimeSpan.FromHours(36)));
+    }
+
+    [Fact]
     public void FormatAlertWindow_respects_12_and_24_hour()
     {
         var aosUtc = new DateTime(2026, 6, 4, 15, 30, 0, DateTimeKind.Utc);
