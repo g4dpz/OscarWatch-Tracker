@@ -17,7 +17,7 @@ You do **not** need to be a programmer to use published builds.
 ## What OscarWatch does
 
 - **Map and sky plot**: subpoint, ground track, footprint, and a polar view from your QTH; optional **DX station** marker and live Az/El at a remote grid for the focused satellite; status-bar **map time** buttons (−15m / −5m / Now / +5m / +15m) to preview footprints (rotator and CAT stay on live time)
-- **Pass list**: upcoming passes with max elevation and time-to-AOS; sidebar scrolls on smaller windows
+- **Pass list**: upcoming passes with max elevation and time-to-AOS; right-click a row for a polar **pass plot** at your QTH; sidebar scrolls on smaller windows
 - **Frequency panel**: transponder modes from a built-in database, live uplink/downlink with Doppler, RX offsets (separate for Voice and CW on linear SSB), and CTCSS (access/arm tones). Keyboard shortcuts: [help/keyboard-shortcuts.html](help/keyboard-shortcuts.html) (**Ctrl+W**, numpad **+** / **−** for RX offset, **S** for solo map view, map arrows, etc.)
 - **Optional automation**: serial **rotator** tracking and **radio CAT** (Doppler, satellite/split layout, tones) during a pass
 - **Optional extras**: voice “satellite rising” alerts, pass **WAV recording**, **Cloudlog** frequency sync, **GPS** (NMEA serial) for station position and optional UTC for tracking
@@ -73,7 +73,7 @@ Plain-language help ships with the app: **Help → Operator guide** (also in the
 - **TLE catalog**: fetched from `https://tle.oscarwatch.org/`, cached under `%AppData%/OscarWatch/`
 - **TLE auto-update**: manual refresh, on startup (if stale), or every 6 hours while running (Settings → Tracking)
 - **Satellite picker**: choose which spacecraft to track
-- **Pass predictions**: upcoming passes with TCA (time of closest approach / max elevation), min-elevation and min-duration filters
+- **Pass predictions**: upcoming passes with TCA (time of closest approach / max elevation), min-elevation and min-duration filters; sidebar **View pass plot** for a single-station polar chart
 - **Pass planner**: multi-station profiles (home / portable), pass quality filters, and `.ics` calendar export for contest or field-day planning
 - **Mutual pass finder**: find passes visible from two stations at once (Passes → Mutual pass finder)
 - **DX station monitor**: enter a remote Maidenhead grid on the map; see where that station is and live azimuth/elevation for the focused satellite from their QTH (compact draggable overlay)
