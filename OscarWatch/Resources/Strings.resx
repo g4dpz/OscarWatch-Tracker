@@ -146,7 +146,7 @@
     <value>Passing</value>
   </data>
   <data name="Pass.OpenVisualizer">
-    <value>View pass plot</value>
+    <value>View Pass Plot</value>
   </data>
   <data name="Pass.Visualizer.Heading">
     <value>{0} — {1}</value>
@@ -335,13 +335,13 @@
     <value>Transponder Database</value>
   </data>
   <data name="File.Export.Settings.Title">
-    <value>Export settings</value>
+    <value>Export Settings</value>
   </data>
   <data name="File.Import.Settings.Title">
-    <value>Import settings</value>
+    <value>Import Settings</value>
   </data>
   <data name="File.Import.Settings.ConfirmTitle">
-    <value>Replace settings?</value>
+    <value>Replace Settings?</value>
   </data>
   <data name="File.Import.Settings.ConfirmMessage">
     <value>Import replaces all current settings with the chosen file. COM ports, audio devices, and other machine-specific values may need adjustment on this PC. API keys in the file are restored as stored.
@@ -355,10 +355,10 @@ Continue?</value>
     <value>Settings imported.</value>
   </data>
   <data name="File.Export.TransponderDatabase.Title">
-    <value>Export transponder database</value>
+    <value>Export Transponder Database</value>
   </data>
   <data name="File.Import.TransponderDatabase.Title">
-    <value>Import transponder database</value>
+    <value>Import Transponder Database</value>
   </data>
   <data name="File.Export.Failed">
     <value>Export failed: {0}</value>
