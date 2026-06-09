@@ -60,6 +60,38 @@ public class PassPolarPlotBuilderTests
     }
 
     [Fact]
+    public async Task Build_without_mutual_markers_omits_window_markers()
+    {
+        var predictor = new BruteForcePassPredictor();
+        var utcStart = new DateTime(2026, 5, 23, 0, 0, 0, DateTimeKind.Utc);
+        var passes = await predictor.GetPassesAsync(
+            IssEntry,
+            London,
+            utcStart,
+            utcStart.AddDays(2),
+            minimumElevationDeg: 5);
+
+        var pass = passes[0];
+        Assert.NotEmpty(passes);
+        var propagator = new PublicOrbitToolsPropagator();
+        propagator.LoadSatellite(IssEntry);
+
+        var plot = PassPolarPlotBuilder.Build(
+            IssEntry,
+            propagator,
+            London,
+            pass,
+            useFullPass: true,
+            pass.AosUtc,
+            pass.LosUtc,
+            includeMutualMarkers: false);
+
+        Assert.NotEmpty(plot.Segments);
+        Assert.Null(plot.MutualStart);
+        Assert.Null(plot.MutualEnd);
+    }
+
+    [Fact]
     public async Task Build_mutual_window_only_has_fewer_points_than_full_pass()
     {
         var predictor = new BruteForcePassPredictor();

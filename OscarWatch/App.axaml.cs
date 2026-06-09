@@ -74,6 +74,7 @@ public partial class App : Application
         services.AddTransient<PassPlanningViewModel>();
         services.AddTransient<MutualPassViewModel>();
         services.AddTransient<MutualPassVisualizerViewModel>();
+        services.AddTransient<PassVisualizerViewModel>();
         services.AddTransient<SunlightPredictionViewModel>();
         services.AddTransient<SatelliteDatabaseEditorViewModel>();
         services.AddTransient<RotatorManualViewModel>();

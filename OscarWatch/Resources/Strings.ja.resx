@@ -85,6 +85,15 @@
   <data name="Pass.Passing">
     <value>パス中</value>
   </data>
+  <data name="Pass.OpenVisualizer">
+    <value>パスプロットを表示</value>
+  </data>
+  <data name="Pass.Visualizer.Heading">
+    <value>{0} — {1}</value>
+  </data>
+  <data name="Pass.Visualizer.Subtitle">
+    <value>時間 {0} · {1} ({2})</value>
+  </data>
   <data name="Pass.TimeRange">
     <value>{0}～{1}</value>
   </data>
@@ -1196,6 +1205,9 @@
   </data>
   <data name="Window.MutualPassVisualizer.Title">
     <value>相互パスビジュアライザ</value>
+  </data>
+  <data name="Window.PassVisualizer.Title">
+    <value>パスビジュアライザ</value>
   </data>
   <data name="Window.Sunlight.Title">
     <value>日照予測</value>

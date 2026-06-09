@@ -145,6 +145,15 @@
   <data name="Pass.Passing">
     <value>过境中</value>
   </data>
+  <data name="Pass.OpenVisualizer">
+    <value>查看过境图</value>
+  </data>
+  <data name="Pass.Visualizer.Heading">
+    <value>{0} — {1}</value>
+  </data>
+  <data name="Pass.Visualizer.Subtitle">
+    <value>持续时间 {0} · {1}（{2}）</value>
+  </data>
   <data name="Pass.TimeRange">
     <value>{0} — {1}</value>
   </data>
@@ -614,6 +623,9 @@
   </data>
   <data name="Window.MutualPassVisualizer.Title">
     <value>双向过境可视化</value>
+  </data>
+  <data name="Window.PassVisualizer.Title">
+    <value>过境可视化</value>
   </data>
   <data name="Window.Sunlight.Title">
     <value>日照预测</value>

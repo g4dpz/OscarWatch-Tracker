@@ -6,6 +6,7 @@ using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using OscarWatch.ViewModels;
+using OscarWatch.Views;
 
 namespace OscarWatch;
 
@@ -115,6 +116,42 @@ public partial class MainWindow : Window
     {
         if (e.Container is ListBoxItem item)
             item.Classes.Remove("pass-day-header");
+    }
+
+    private void OnPassesPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (!e.GetCurrentPoint(PassesListBox).Properties.IsRightButtonPressed)
+            return;
+
+        for (var node = e.Source as Visual; node is not null; node = node.GetVisualParent() as Visual)
+        {
+            if (node is ListBoxItem item && item.DataContext is PassRowViewModel passRow)
+            {
+                PassesListBox.SelectedItem = passRow;
+                break;
+            }
+        }
+    }
+
+    private void OnOpenPassVisualizerClick(object? sender, RoutedEventArgs e) =>
+        OpenPassVisualizerForSelectedPass();
+
+    private void OpenPassVisualizerForSelectedPass()
+    {
+        if (DataContext is not MainViewModel vm)
+            return;
+
+        if (PassesListBox.SelectedItem is not PassRowViewModel row)
+            return;
+
+        var visualizerVm = vm.CreatePassVisualizerViewModel(row);
+        if (visualizerVm is null)
+            return;
+
+        new PassVisualizerWindow
+        {
+            DataContext = visualizerVm
+        }.Show(this);
     }
 
     private static void OnPassListContainerPrepared(object? sender, ContainerPreparedEventArgs e)

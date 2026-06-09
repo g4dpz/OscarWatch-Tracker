@@ -1361,6 +1361,24 @@ public partial class MainViewModel : ViewModelBase
         await window.ShowDialog(App.MainWindow);
     }
 
+    public bool CanOpenPassVisualizer(PassRowViewModel? row) =>
+        row is not null && _tleService.Catalog.Any(s => s.NoradId == row.NoradId);
+
+    public PassVisualizerViewModel? CreatePassVisualizerViewModel(PassRowViewModel row)
+    {
+        if (!CanOpenPassVisualizer(row))
+            return null;
+
+        var vm = App.Services.GetRequiredService<PassVisualizerViewModel>();
+        vm.Initialize(
+            row.Source,
+            GroundStation,
+            _settings.Current.PassPlannerUseUtcTime,
+            _settings.Current.Use24HourClock,
+            MinimumElevationDeg);
+        return vm;
+    }
+
     [RelayCommand]
     private async Task OpenSunlightPredictionAsync()
     {
@@ -1905,6 +1923,7 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
     [ObservableProperty]
     private bool _showBadge;
 
+    public PassInfo Source { get; init; } = null!;
     public string SatelliteName { get; init; } = "";
     public string NoradId { get; init; } = "";
     public string AosLocal { get; init; } = "";
@@ -1981,6 +2000,7 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
 
         return new()
         {
+            Source = p,
             SatelliteName = p.SatelliteName,
             NoradId = p.NoradId,
             AosUtc = p.AosUtc,
@@ -1999,6 +2019,7 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
         var (aos, los) = PassDisplayFormat.FormatLocalTimes(AosUtc, LosUtc, clockFormat: clockFormat);
         return new()
         {
+            Source = Source,
             SatelliteName = SatelliteName,
             NoradId = NoradId,
             AosUtc = AosUtc,

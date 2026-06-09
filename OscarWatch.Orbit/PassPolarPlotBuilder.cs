@@ -15,7 +15,8 @@ public static class PassPolarPlotBuilder
         bool useFullPass,
         DateTime mutualStartUtc,
         DateTime mutualEndUtc,
-        double minimumElevationDeg = 0)
+        double minimumElevationDeg = 0,
+        bool includeMutualMarkers = true)
     {
         var plotStart = useFullPass ? pass.AosUtc : Max(pass.AosUtc, mutualStartUtc);
         var plotEnd = useFullPass ? pass.LosUtc : Min(pass.LosUtc, mutualEndUtc);
@@ -52,8 +53,12 @@ public static class PassPolarPlotBuilder
                 AzimuthDeg = s.AzimuthDeg,
                 ElevationDeg = s.ElevationDeg
             }).ToArray(),
-            MutualStart = TryMarkerAt(satellite, propagator, site, mutualStartUtc, PassPolarPlotMarkerKind.MutualWindowStart, minimumElevationDeg),
-            MutualEnd = TryMarkerAt(satellite, propagator, site, mutualEndUtc, PassPolarPlotMarkerKind.MutualWindowEnd, minimumElevationDeg)
+            MutualStart = includeMutualMarkers
+                ? TryMarkerAt(satellite, propagator, site, mutualStartUtc, PassPolarPlotMarkerKind.MutualWindowStart, minimumElevationDeg)
+                : null,
+            MutualEnd = includeMutualMarkers
+                ? TryMarkerAt(satellite, propagator, site, mutualEndUtc, PassPolarPlotMarkerKind.MutualWindowEnd, minimumElevationDeg)
+                : null
         };
     }
 

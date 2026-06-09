@@ -145,6 +145,15 @@
   <data name="Pass.Passing">
     <value>Passing</value>
   </data>
+  <data name="Pass.OpenVisualizer">
+    <value>View pass plot</value>
+  </data>
+  <data name="Pass.Visualizer.Heading">
+    <value>{0} — {1}</value>
+  </data>
+  <data name="Pass.Visualizer.Subtitle">
+    <value>Duration {0} · {1} ({2})</value>
+  </data>
   <data name="Pass.TimeRange">
     <value>{0} to {1}</value>
   </data>
@@ -614,6 +623,9 @@ Continue?</value>
   </data>
   <data name="Window.MutualPassVisualizer.Title">
     <value>Mutual pass visualizer</value>
+  </data>
+  <data name="Window.PassVisualizer.Title">
+    <value>Pass visualizer</value>
   </data>
   <data name="Window.Sunlight.Title">
     <value>Sunlight prediction</value>

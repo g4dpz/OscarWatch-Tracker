@@ -417,7 +417,14 @@
                      MinHeight="0"
                      HorizontalAlignment="Stretch"
                      VerticalAlignment="Stretch"
+                     PointerPressed="OnPassesPointerPressed"
                      SelectedItem="{Binding SelectedListItem, Mode=TwoWay}">
+              <ListBox.ContextMenu>
+                <ContextMenu>
+                  <MenuItem Header="{loc:Localize Key=Pass.OpenVisualizer}"
+                            Click="OnOpenPassVisualizerClick" />
+                </ContextMenu>
+              </ListBox.ContextMenu>
               <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                   <StackPanel />
