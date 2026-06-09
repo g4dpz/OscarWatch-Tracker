@@ -1909,7 +1909,7 @@ Continue?</value>
     <value>Select a TLE satellite or enter a custom name.</value>
   </data>
   <data name="Update.Available.Title">
-    <value>Update available</value>
+    <value>Update Available</value>
   </data>
   <data name="Update.Available.Message">
     <value>A newer version of OscarWatch is available.
@@ -1927,7 +1927,7 @@ Latest: {1} ({2})</value>
     <value>Skip this version</value>
   </data>
   <data name="ReleaseNotes.Title">
-    <value>Release notes</value>
+    <value>Release Notes</value>
   </data>
   <data name="ReleaseNotes.Loading">
     <value>Loading release notes…</value>
