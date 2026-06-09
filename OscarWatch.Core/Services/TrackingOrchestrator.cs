@@ -77,8 +77,20 @@ public sealed class TrackingOrchestrator
                 }
 
                 var subpoint = _propagator.GetSubpoint(sat.NoradId, utc);
-                var motionHeadingDeg = TryEstimateMotionHeadingDeg(sat.NoradId, utc, subpoint);
                 var cache = _visualCache.GetOrAdd(sat.NoradId);
+
+                double? motionHeadingDeg;
+                if (_visualCache.TryGetFreshMotionHeading(sat.NoradId, utc, out var cachedHeading))
+                {
+                    motionHeadingDeg = cachedHeading;
+                }
+                else
+                {
+                    motionHeadingDeg = TryEstimateMotionHeadingDeg(sat.NoradId, utc, subpoint);
+                    cache.MotionHeadingDeg = motionHeadingDeg;
+                    cache.MotionHeadingUtc = utc;
+                }
+
                 var altKm = TleAltitude.ResolveAltitudeKm(subpoint.AltitudeKm, sat);
 
                 IReadOnlyList<GeoCoordinate> groundTrack = [];
