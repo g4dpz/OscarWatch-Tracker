@@ -1093,7 +1093,7 @@
     <value>为多普勒 CAT 延迟做超前补偿</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadNote">
-    <value>启用后，CAT 与 Radio 行按 CAT 延迟的一半预测多普勒（SatPC32 风格），有助于 TCA 附近陡变区段。Sat 行仍显示当前星上频率。</value>
+    <value>启用后，仅在 TCA 附近距离变化率急剧变化时，CAT 与 Radio 行才按 CAT 延迟的一半（上限 50 ms）预测多普勒。AOS/LOS 平缓区段仍用当前变化率。Sat 行仍显示当前星上频率。</value>
   </data>
   <data name="Settings.Rotator.Enable">
     <value>启用天线旋转器</value>

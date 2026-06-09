@@ -49,7 +49,7 @@ public sealed class RigSettings
 
     public int CatDelayMs { get; set; } = 50;
 
-    /// <summary>When true, CAT Doppler uses range rate at utc + half Receive/Transmit CatDelayMs (SatPC32-style lead).</summary>
+    /// <summary>When true, CAT Doppler uses range rate at utc + half Receive/Transmit CatDelayMs on steep legs only.</summary>
     public bool DopplerCatLeadEnabled { get; set; }
 
     /// <summary>When true, automatic CAT frequency updates are suspended (SatPC32-style).</summary>

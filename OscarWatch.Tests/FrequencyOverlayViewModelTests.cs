@@ -1,6 +1,7 @@
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
+using OscarWatch.Core.Radio;
 using OscarWatch.Core.Services;
 using OscarWatch.Localization;
 using OscarWatch.ViewModels;
@@ -451,15 +452,17 @@ public class FrequencyOverlayViewModelTests
             settings,
             database,
             LocalizationService.Instance,
-            new LeadRatePropagator(3.5));
+            new LeadRatePropagator(slopeRate: 0.5, leadRate: 3.5));
         withLead.Update(state);
 
         Assert.NotEqual(withoutLead.RadioReceiveText, withLead.RadioReceiveText);
         Assert.Equal(withoutLead.SatelliteReceiveText, withLead.SatelliteReceiveText);
     }
 
-    private sealed class LeadRatePropagator(double leadRate) : IOrbitPropagator
+    private sealed class LeadRatePropagator(double slopeRate, double leadRate) : IOrbitPropagator
     {
+        private DateTime? _resolveUtc;
+
         public void Clear() { }
         public void LoadSatellite(SatelliteCatalogEntry entry) { }
         public void RemoveSatellite(string noradId) { }
@@ -468,8 +471,20 @@ public class FrequencyOverlayViewModelTests
         public bool HasSatellite(string noradId) => true;
         public IReadOnlyCollection<string> LoadedNoradIds => ["99999"];
 
-        public LookAngles GetLookAngles(string noradId, GroundStation site, DateTime utc) =>
-            new(180, 30, 800, leadRate);
+        public LookAngles GetLookAngles(string noradId, GroundStation site, DateTime utc)
+        {
+            if (_resolveUtc is null)
+                _resolveUtc = utc.AddSeconds(-DopplerCatLead.RangeRateSlopeSampleSec);
+
+            var deltaSec = (utc - _resolveUtc.Value).TotalSeconds;
+            if (deltaSec is >= 0.99 and <= 1.01)
+                return new LookAngles(180, 30, 800, slopeRate);
+
+            if (deltaSec is >= 0.04 and <= 0.06)
+                return new LookAngles(180, 30, 800, leadRate);
+
+            return new LookAngles(180, 30, 800, -1.0);
+        }
     }
 
     private sealed class TestSettingsService : ISettingsService
