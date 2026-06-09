@@ -24,6 +24,8 @@ public sealed class LiveTrackingService : ILiveTrackingService
 
     private IReadOnlyList<SatelliteTrackState> _snapshot = Array.Empty<SatelliteTrackState>();
     private DateTime _snapshotUtc = DateTime.MinValue;
+    private IReadOnlyList<SatelliteTrackState> _liveNowSnapshot = Array.Empty<SatelliteTrackState>();
+    private DateTime _liveNowSnapshotUtc = DateTime.MinValue;
     private long _mapTimeOffsetTicks;
 
     public TimeSpan MapTimeOffset
@@ -56,6 +58,17 @@ public sealed class LiveTrackingService : ILiveTrackingService
     {
         lock (_snapshotLock)
             return _snapshot;
+    }
+
+    public DateTime LiveNowSnapshotUtc
+    {
+        get { lock (_snapshotLock) return _liveNowSnapshotUtc; }
+    }
+
+    public IReadOnlyList<SatelliteTrackState> GetLiveNowSnapshot()
+    {
+        lock (_snapshotLock)
+            return _liveNowSnapshot;
     }
 
     public void Start()
@@ -167,6 +180,8 @@ public sealed class LiveTrackingService : ILiveTrackingService
             {
                 _snapshot = Array.Empty<SatelliteTrackState>();
                 _snapshotUtc = DateTime.MinValue;
+                _liveNowSnapshot = Array.Empty<SatelliteTrackState>();
+                _liveNowSnapshotUtc = DateTime.MinValue;
             }
         }
     }
@@ -213,12 +228,21 @@ public sealed class LiveTrackingService : ILiveTrackingService
 
     private void RefreshSnapshot()
     {
-        var utc = (_gps?.GetTrackingUtc() ?? DateTime.UtcNow) + MapTimeOffset;
-        var states = _computeOverride?.Invoke(utc) ?? _orchestrator.GetLiveStates(utc);
+        var trackingUtc = _gps?.GetTrackingUtc() ?? DateTime.UtcNow;
+        var offset = MapTimeOffset;
+        var displayUtc = trackingUtc + offset;
+
+        var displayStates = _computeOverride?.Invoke(displayUtc) ?? _orchestrator.GetLiveStates(displayUtc);
+        var liveNowStates = offset == TimeSpan.Zero
+            ? displayStates
+            : _computeOverride?.Invoke(trackingUtc) ?? _orchestrator.GetLiveStates(trackingUtc);
+
         lock (_snapshotLock)
         {
-            _snapshot = states;
-            _snapshotUtc = utc;
+            _snapshot = displayStates;
+            _snapshotUtc = displayUtc;
+            _liveNowSnapshot = liveNowStates;
+            _liveNowSnapshotUtc = trackingUtc;
         }
     }
 

@@ -13,8 +13,17 @@ public interface ILiveTrackingService : IDisposable
     /// <summary>Offset applied to <see cref="DateTime.UtcNow"/> for map/sky propagation. Zero is live.</summary>
     TimeSpan MapTimeOffset { get; set; }
 
-    /// <summary>Latest propagated states. Do not mutate the returned list or its elements.</summary>
+    /// <summary>Latest propagated states at map display time (UTC + <see cref="MapTimeOffset"/>). Do not mutate.</summary>
     IReadOnlyList<SatelliteTrackState> GetSnapshot();
+
+    /// <summary>UTC time of the last completed live-now snapshot.</summary>
+    DateTime LiveNowSnapshotUtc { get; }
+
+    /// <summary>
+    /// Latest propagated states at real tracking time (no map offset).
+    /// When <see cref="MapTimeOffset"/> is zero, returns the same list as <see cref="GetSnapshot"/>.
+    /// </summary>
+    IReadOnlyList<SatelliteTrackState> GetLiveNowSnapshot();
 
     /// <summary>Starts the background worker (idempotent).</summary>
     void Start();

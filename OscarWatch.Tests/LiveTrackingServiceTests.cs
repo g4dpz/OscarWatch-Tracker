@@ -45,13 +45,8 @@ public sealed class LiveTrackingServiceTests
     [Fact]
     public void MapTimeOffset_shifts_snapshot_utc()
     {
-        DateTime? capturedUtc = null;
         var orchestrator = CreateMinimalOrchestrator();
-        using var service = new LiveTrackingService(orchestrator, gps: null, utc =>
-        {
-            capturedUtc = utc;
-            return [];
-        });
+        using var service = new LiveTrackingService(orchestrator, gps: null, _ => []);
 
         service.Start();
         var before = DateTime.UtcNow;
@@ -59,8 +54,44 @@ public sealed class LiveTrackingServiceTests
         service.RefreshSnapshotSynchronously();
         var after = DateTime.UtcNow;
 
-        Assert.NotNull(capturedUtc);
-        Assert.InRange(capturedUtc.Value, before.AddMinutes(30), after.AddMinutes(30).AddSeconds(1));
+        Assert.InRange(service.SnapshotUtc, before.AddMinutes(30), after.AddMinutes(30).AddSeconds(1));
+    }
+
+    [Fact]
+    public void GetLiveNowSnapshot_uses_real_utc_when_map_offset_is_set()
+    {
+        var orchestrator = CreateMinimalOrchestrator();
+        using var service = new LiveTrackingService(orchestrator, gps: null, _ => []);
+
+        service.Start();
+        var before = DateTime.UtcNow;
+        service.MapTimeOffset = TimeSpan.FromMinutes(15);
+        service.RefreshSnapshotSynchronously();
+        var after = DateTime.UtcNow;
+
+        Assert.InRange(service.SnapshotUtc, before.AddMinutes(15), after.AddMinutes(15).AddSeconds(1));
+        Assert.InRange(service.LiveNowSnapshotUtc, before, after.AddSeconds(1));
+        Assert.True((service.SnapshotUtc - service.LiveNowSnapshotUtc).TotalMinutes > 14);
+    }
+
+    [Fact]
+    public void GetLiveNowSnapshot_aliases_display_snapshot_when_offset_is_zero()
+    {
+        var orchestrator = CreateMinimalOrchestrator();
+        using var service = new LiveTrackingService(orchestrator, gps: null, _ =>
+        [
+            new SatelliteTrackState
+            {
+                Name = "TEST",
+                NoradId = "1",
+                Subpoint = new GeoCoordinate(0, 0, 400)
+            }
+        ]);
+
+        service.Start();
+        service.RefreshSnapshotSynchronously();
+
+        Assert.Same(service.GetSnapshot(), service.GetLiveNowSnapshot());
     }
 
     [Fact]

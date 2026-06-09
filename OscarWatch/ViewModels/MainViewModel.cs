@@ -488,7 +488,7 @@ public partial class MainViewModel : ViewModelBase
         var mapStates = _liveTracking.GetSnapshot();
 
         var operationalStates = IsMapTimeScrubbing
-            ? _tracking.GetLiveStates(DateTime.UtcNow)
+            ? _liveTracking.GetLiveNowSnapshot()
             : mapStates;
 
         UpdateNextPassCountdown();
@@ -530,7 +530,7 @@ public partial class MainViewModel : ViewModelBase
         SyncOverlayPassbandFromRig();
         if (IsMapTimeScrubbing)
         {
-            var liveFocused = GetFocusedTrackState(_tracking.GetLiveStates(DateTime.UtcNow), FocusedNoradId);
+            var liveFocused = GetFocusedTrackState(_liveTracking.GetLiveNowSnapshot(), FocusedNoradId);
             PublishRigTrackingContext(liveFocused);
         }
         else
