@@ -738,6 +738,12 @@ Continue?</value>
   <data name="Freq.Radio">
     <value>Radio</value>
   </data>
+  <data name="Freq.DopplerLeadEnabled">
+    <value>Lead Doppler enabled — waiting for steep pass leg</value>
+  </data>
+  <data name="Freq.DopplerLeadActive">
+    <value>Lead Doppler active — CAT is predicting ahead on the Radio row</value>
+  </data>
   <data name="Freq.DopplerFull">
     <value>Full</value>
   </data>

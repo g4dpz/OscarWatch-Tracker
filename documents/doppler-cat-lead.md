@@ -17,12 +17,17 @@ Logic lives in `OscarWatch.Core/Radio/DopplerCatLead.cs`.
 
 | Phase | Condition | CAT / Radio row |
 |-------|-----------|-----------------|
-| Gentle leg (typical AOS / LOS) | Range-rate slope below threshold | Snapshot rate (`state.LookAngles`) — same as lead off |
-| Steep leg (TCA middle) | \|d(range rate)/dt\| ≥ threshold | Range rate at `utc + leadMs` (per RX/TX leg in dual-radio) |
+| Gentle leg (typical AOS / LOS) | Slope below blend start | Snapshot range rate only — same as lead off |
+| Ramp (approaching TCA) | Blend start ≤ slope &lt; full | Linear blend between snapshot and lead rate |
+| Steep leg (TCA middle) | Slope ≥ full threshold | Full lead rate at `utc + leadMs` (per RX/TX leg in dual-radio) |
 
 **Lead time:** `leadMs = min(CatDelayMs / 2, MaxLeadMs)`.
 
-**Steep detection:** sample range rate at `utc` and `utc + RangeRateSlopeSampleSec`; slope = \|Δrr\| / sample interval.
+**Blend:** `blend = clamp((slope − SlopeBlendStart) / (Steep − Start), 0, 1)`; `rate = lerp(snapshot, leadRate, blend)`. Avoids a step when the gate turns on.
+
+**Slope:** sample range rate at `utc` and `utc + RangeRateSlopeSampleSec`; slope = \|Δrr\| / sample interval.
+
+**UI:** frequency overlay shows a dot beside **Radio** when lead is enabled (dim = waiting, amber = actively blending).
 
 ### Constants (all in `DopplerCatLead.cs`)
 
@@ -30,7 +35,8 @@ Logic lives in `OscarWatch.Core/Radio/DopplerCatLead.cs`.
 |----------|---------|------|
 | `MaxLeadMs` | `50` | Cap lead so high CI-V **pacing** delay is not treated as tune latency |
 | `RangeRateSlopeSampleSec` | `1.0` | How far ahead we look to measure “how fast range rate is changing” |
-| `SteepRangeRateSlopeKmPerSec2` | `0.018` | Gate: lead only when slope ≥ this (km/s²) |
+| `SlopeBlendStartKmPerSec2` | `0.012` | Slope where lead blend begins (0 = snapshot only) |
+| `SteepRangeRateSlopeKmPerSec2` | `0.018` | Slope where blend reaches 1 (full lead) |
 
 Calibrated against **FO-29** high-elevation pass in `DopplerCatLeadTests.Fo29_lead_applies_near_tca_not_on_gentle_aos_leg` (~79° pass, London test site, seed TLE).
 

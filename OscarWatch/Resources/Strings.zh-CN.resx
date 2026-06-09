@@ -714,6 +714,12 @@
   <data name="Freq.Radio">
     <value>电台</value>
   </data>
+  <data name="Freq.DopplerLeadEnabled">
+    <value>超前多普勒已启用 — 等待陡变区段</value>
+  </data>
+  <data name="Freq.DopplerLeadActive">
+    <value>超前多普勒工作中 — 电台行正在超前预测</value>
+  </data>
   <data name="Freq.DopplerFull">
     <value>全双工</value>
   </data>

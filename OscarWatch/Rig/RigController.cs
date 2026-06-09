@@ -1515,8 +1515,7 @@ public sealed class RigController : IRigController, IDisposable
             txRangeRate);
     }
 
-    private (double RxRangeRateKmPerSec, double TxRangeRateKmPerSec) ResolveRangeRatesForDoppler(
-        RigTrackingContext context)
+    private DopplerLeadRangeRates ResolveRangeRatesForDoppler(RigTrackingContext context)
     {
         var site = _settingsService?.Current.GroundStation ?? new GroundStation();
         return DopplerCatLead.ResolveRangeRates(

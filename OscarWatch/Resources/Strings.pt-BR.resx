@@ -714,6 +714,12 @@ Continuar?</value>
   <data name="Freq.Radio">
     <value>Rádio</value>
   </data>
+  <data name="Freq.DopplerLeadEnabled">
+    <value>Lead Doppler ativo — aguardando trecho íngreme da passagem</value>
+  </data>
+  <data name="Freq.DopplerLeadActive">
+    <value>Lead Doppler em uso — linha Rádio prevê à frente para CAT</value>
+  </data>
   <data name="Freq.DopplerFull">
     <value>Completo</value>
   </data>

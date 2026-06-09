@@ -26,6 +26,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private SatelliteTrackState? _lastTrackState;
     private double _rigPassbandDownlinkAdjustKHz;
     private double _rigPassbandUplinkAdjustKHz;
+    private bool _dopplerLeadActiveLatched;
 
     [ObservableProperty]
     private string _satelliteName = "—";
@@ -112,6 +113,21 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _emptyStateMessage = "";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DopplerLeadToolTip))]
+    private bool _showDopplerLeadIndicator;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DopplerLeadToolTip))]
+    private bool _isDopplerLeadActive;
+
+    public string DopplerLeadToolTip =>
+        !ShowDopplerLeadIndicator
+            ? ""
+            : IsDopplerLeadActive
+                ? _l.Get("Freq.DopplerLeadActive")
+                : _l.Get("Freq.DopplerLeadEnabled");
 
     public double OverlayMinWidth => IsCollapsed ? 220 : 380;
 
@@ -294,8 +310,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             DopplerStrategy,
             txRangeRateKmPerSec);
 
-    private (double RxRangeRateKmPerSec, double TxRangeRateKmPerSec) ResolveRangeRates(
-        SatelliteTrackState state) =>
+    private DopplerLeadRangeRates ResolveRangeRates(SatelliteTrackState state) =>
         DopplerCatLead.ResolveRangeRates(
             _propagator,
             _settings.Current.Rig,
@@ -306,10 +321,31 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private void ApplyFrequencyDisplay(SatelliteTrackState state)
     {
         var snapshotRate = state.LookAngles?.RangeRateKmPerSec ?? 0;
-        var (rxRate, txRate) = ResolveRangeRates(state);
+        var leadRates = ResolveRangeRates(state);
+        UpdateDopplerLeadIndicator(leadRates.LeadBlend);
         var snapshotCorrected = ComputeCorrected(snapshotRate);
-        var radioCorrected = ComputeCorrected(rxRate, txRate);
+        var radioCorrected = ComputeCorrected(leadRates.RxRangeRateKmPerSec, leadRates.TxRangeRateKmPerSec);
         ApplyCorrectedDisplay(snapshotCorrected, radioCorrected);
+    }
+
+    private void UpdateDopplerLeadIndicator(double leadBlend)
+    {
+        ShowDopplerLeadIndicator = _settings.Current.Rig.DopplerCatLeadEnabled;
+        if (!ShowDopplerLeadIndicator)
+        {
+            _dopplerLeadActiveLatched = false;
+            IsDopplerLeadActive = false;
+            return;
+        }
+
+        const double activateBlend = 0.08;
+        const double deactivateBlend = 0.04;
+        if (leadBlend >= activateBlend)
+            _dopplerLeadActiveLatched = true;
+        else if (leadBlend < deactivateBlend)
+            _dopplerLeadActiveLatched = false;
+
+        IsDopplerLeadActive = _dopplerLeadActiveLatched;
     }
 
     public CloudlogRadioUpdate? TryBuildCloudlogUpdate(SatelliteTrackState? state)
@@ -907,6 +943,9 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         SatelliteTransmitText = "—";
         SatelliteReceiveText = "—";
         DopplerShiftText = "";
+        ShowDopplerLeadIndicator = false;
+        IsDopplerLeadActive = false;
+        _dopplerLeadActiveLatched = false;
         IsBeaconOnly = false;
         ShowCtcssRow = false;
         ShowCtcssSelector = false;

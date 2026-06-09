@@ -528,6 +528,12 @@
   <data name="Freq.Radio">
     <value>無線機</value>
   </data>
+  <data name="Freq.DopplerLeadEnabled">
+    <value>リード・ドップラー有効 — 急な通過区間を待機中</value>
+  </data>
+  <data name="Freq.DopplerLeadActive">
+    <value>リード・ドップラー動作中 — 無線機行が先読み補正中</value>
+  </data>
   <data name="Freq.DopplerFull">
     <value>フル</value>
   </data>

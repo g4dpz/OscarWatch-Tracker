@@ -63,6 +63,23 @@ public class DopplerCatLeadTests
     }
 
     [Fact]
+    public void Mid_slope_blends_between_snapshot_and_lead_rates()
+    {
+        var utc = new DateTime(2026, 6, 1, 12, 0, 0, DateTimeKind.Utc);
+        var propagator = new StubPropagator(utc, snapshotRate: -3.0, slopeSampleRate: -2.985, rxLeadRate: 1.0, txLeadRate: 2.0);
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var state = StateWithRate(-3.0);
+
+        var result = DopplerCatLead.ResolveRangeRates(propagator, settings, Site, state, utc);
+
+        Assert.InRange(result.LeadBlend, 0.4, 0.6);
+        Assert.InRange(result.RxRangeRateKmPerSec, -1.01, -0.99);
+        Assert.InRange(result.TxRangeRateKmPerSec, -0.51, -0.49);
+        Assert.NotEqual(-3.0, result.RxRangeRateKmPerSec);
+        Assert.NotEqual(1.0, result.RxRangeRateKmPerSec);
+    }
+
+    [Fact]
     public void Gentle_slope_returns_snapshot_without_lead_queries()
     {
         var utc = new DateTime(2026, 6, 1, 12, 0, 0, DateTimeKind.Utc);
@@ -202,8 +219,8 @@ public class DopplerCatLeadTests
         var (steepRx, _) = DopplerCatLead.ResolveRangeRates(propagator, settings, site, steepState, steepUtc);
 
         Assert.True(maxEl >= 60);
-        Assert.True(aosSlope < DopplerCatLead.SteepRangeRateSlopeKmPerSec2,
-            $"AOS leg slope {aosSlope:F4} km/s² should stay below steep threshold.");
+        Assert.True(aosSlope < DopplerCatLead.SlopeBlendStartKmPerSec2,
+            $"AOS leg slope {aosSlope:F4} km/s² should stay below blend start.");
         Assert.True(steepSlope >= DopplerCatLead.SteepRangeRateSlopeKmPerSec2,
             $"Steep leg slope {steepSlope:F4} km/s² should exceed steep threshold.");
         Assert.Equal(aosState.LookAngles!.RangeRateKmPerSec, aosRx);
@@ -288,6 +305,68 @@ public class DopplerCatLeadTests
         Assert.True(fineCappedHz < fineUncappedHz);
         Assert.InRange(fineUncappedHz, 2, 12);
         Assert.InRange(fineCappedHz, 1, 6);
+    }
+
+    [Fact]
+    public void Jo97_high_pass_lead_overshoot_is_small_on_vhf_downlink()
+    {
+        var entry = new SatelliteCatalogEntry
+        {
+            Name = "JO-97",
+            NoradId = "43803",
+            Line1 = "1 43803U 18099AX  26141.14090581  .00011070  00000-0  35283-3 0  9990",
+            Line2 = "2 43803  97.4139 203.8986 0005533  24.8679 335.2828 15.32693080409484"
+        };
+        var propagator = new PublicOrbitToolsPropagator();
+        propagator.LoadSatellite(entry);
+
+        var site = new GroundStation { LatitudeDeg = 51.5, LongitudeDeg = -0.1, AltitudeMetersAsl = 50 };
+        var (tca, maxEl) = FindHighElevationPassTcaUtc(propagator, entry.NoradId, site, minElevationDeg: 40);
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 145_865,
+            UplinkKHz = 435_110.1,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var cappedLeadMs = DopplerCatLead.ResolveLeadMs(settings.CatDelayMs);
+
+        double MaxGateStepHz()
+        {
+            var maxHz = 0.0;
+            for (var t = tca.AddSeconds(-120); t <= tca.AddSeconds(180); t = t.AddSeconds(1))
+            {
+                var look = propagator.GetLookAngles(entry.NoradId, site, t);
+                if (look.ElevationDeg < 10)
+                    continue;
+
+                var state = new SatelliteTrackState
+                {
+                    Name = entry.Name,
+                    NoradId = entry.NoradId,
+                    Subpoint = propagator.GetSubpoint(entry.NoradId, t),
+                    LookAngles = look
+                };
+
+                var nowHz = DopplerFrequencyCalculator.Compute(mode, look.RangeRateKmPerSec, 0).RadioReceiveKHz * 1000.0;
+                var (leadRx, _) = DopplerCatLead.ResolveRangeRates(propagator, settings, site, state, t);
+                var leadHz = DopplerFrequencyCalculator.Compute(mode, leadRx, 0).RadioReceiveKHz * 1000.0;
+                maxHz = Math.Max(maxHz, Math.Abs(leadHz - nowHz));
+            }
+
+            return maxHz;
+        }
+
+        var gateStepHz = MaxGateStepHz();
+
+        Assert.True(maxEl >= 40);
+        // JO-97 VHF downlink: peak |lead−now| on RX is a few Hz, not hundreds.
+        Assert.InRange(gateStepHz, 0, 10);
+        Assert.Equal(50, cappedLeadMs);
     }
 
     [Fact]

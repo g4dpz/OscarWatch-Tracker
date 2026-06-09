@@ -410,6 +410,59 @@ public class FrequencyOverlayViewModelTests
     }
 
     [Fact]
+    public void Doppler_lead_indicator_reflects_setting_and_active_blend()
+    {
+        var settings = new TestSettingsService();
+        settings.Current.Rig.CatDelayMs = 100;
+
+        var database = new TestSatelliteDatabaseService(
+        [
+            new SatelliteRadioEntry
+            {
+                Name = "RS-44",
+                Modes =
+                [
+                    new SatelliteTransponderMode
+                    {
+                        Type = "SSB Transponder",
+                        DownlinkKHz = 435_667,
+                        UplinkKHz = 145_937.61,
+                        DownlinkMode = "USB",
+                        UplinkMode = "LSB",
+                        Doppler = "REV"
+                    }
+                ]
+            }
+        ]);
+
+        var state = new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "99999",
+            Subpoint = new GeoCoordinate(0, 0, 400),
+            LookAngles = new LookAngles(180, 30, 800, -1.0)
+        };
+
+        settings.Current.Rig.DopplerCatLeadEnabled = false;
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
+        vm.Update(state);
+        Assert.False(vm.ShowDopplerLeadIndicator);
+        Assert.False(vm.IsDopplerLeadActive);
+
+        settings.Current.Rig.DopplerCatLeadEnabled = true;
+        var withLead = new FrequencyOverlayViewModel(
+            settings,
+            database,
+            LocalizationService.Instance,
+            new LeadRatePropagator(slopeRate: 0.5, leadRate: 3.5));
+        withLead.Update(state);
+
+        Assert.True(withLead.ShowDopplerLeadIndicator);
+        Assert.True(withLead.IsDopplerLeadActive);
+        Assert.Contains("Lead Doppler", withLead.DopplerLeadToolTip, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void Cat_lead_radio_row_differs_from_snapshot_when_lead_rate_differs()
     {
         var settings = new TestSettingsService();
