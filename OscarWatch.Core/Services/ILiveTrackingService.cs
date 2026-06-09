@@ -13,6 +13,9 @@ public interface ILiveTrackingService : IDisposable
     /// <summary>Offset applied to <see cref="DateTime.UtcNow"/> for map/sky propagation. Zero is live.</summary>
     TimeSpan MapTimeOffset { get; set; }
 
+    /// <summary>Map-focused NORAD id; ground track geometry is built only for this satellite.</summary>
+    string? FocusedNoradId { get; set; }
+
     /// <summary>Latest propagated states at map display time (UTC + <see cref="MapTimeOffset"/>). Do not mutate.</summary>
     IReadOnlyList<SatelliteTrackState> GetSnapshot();
 

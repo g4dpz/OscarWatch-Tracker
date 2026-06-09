@@ -50,7 +50,8 @@ public sealed class TrackingOrchestrator
     public void InvalidateVisualCache() => _visualCache.Clear();
 
     /// <summary>Propagates all enabled satellites at <paramref name="utc"/>. UI should use <see cref="ILiveTrackingService"/>.</summary>
-    public IReadOnlyList<SatelliteTrackState> GetLiveStates(DateTime utc)
+    /// <param name="groundTrackNoradId">When set, ground track geometry is computed only for this NORAD id (map focus).</param>
+    public IReadOnlyList<SatelliteTrackState> GetLiveStates(DateTime utc, string? groundTrackNoradId = null)
     {
         var site = _settings.Current.GroundStation;
         var sats = _cachedEnabledSats;
@@ -79,14 +80,18 @@ public sealed class TrackingOrchestrator
                 var cache = _visualCache.GetOrAdd(sat.NoradId);
                 var altKm = TleAltitude.ResolveAltitudeKm(subpoint.AltitudeKm, sat);
 
-                if (!_visualCache.TryGetFreshGroundTrack(sat.NoradId, utc, out var groundTrack))
+                IReadOnlyList<GeoCoordinate> groundTrack = [];
+                if (ShouldBuildGroundTrack(sat.NoradId, groundTrackNoradId))
                 {
-                    var periodMin = EstimatePeriodMinutes(sat);
-                    var halfPeriod = TimeSpan.FromMinutes(periodMin / 2.0);
-                    groundTrack = _groundGeometry.GetGroundTrack(
-                        sat, utc - halfPeriod, utc + halfPeriod, TimeSpan.FromSeconds(120));
-                    cache.GroundTrack = groundTrack;
-                    cache.GroundTrackUtc = utc;
+                    if (!_visualCache.TryGetFreshGroundTrack(sat.NoradId, utc, out groundTrack))
+                    {
+                        var periodMin = EstimatePeriodMinutes(sat);
+                        var halfPeriod = TimeSpan.FromMinutes(periodMin / 2.0);
+                        groundTrack = _groundGeometry.GetGroundTrack(
+                            sat, utc - halfPeriod, utc + halfPeriod, TimeSpan.FromSeconds(120));
+                        cache.GroundTrack = groundTrack;
+                        cache.GroundTrackUtc = utc;
+                    }
                 }
 
                 if (!_visualCache.TryGetFreshFootprint(sat.NoradId, utc, out var footprint))
@@ -128,6 +133,10 @@ public sealed class TrackingOrchestrator
 
         return states;
     }
+
+    private static bool ShouldBuildGroundTrack(string noradId, string? groundTrackNoradId) =>
+        !string.IsNullOrWhiteSpace(groundTrackNoradId)
+        && string.Equals(noradId, groundTrackNoradId, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Compass azimuth a few seconds ahead for rotator north-wrap lookahead.</summary>
     public double? TryGetAheadAzimuthDeg(string noradId, double secondsAhead = 3.0)

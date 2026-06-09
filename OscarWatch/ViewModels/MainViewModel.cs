@@ -1236,6 +1236,8 @@ public partial class MainViewModel : ViewModelBase
 
     partial void OnFocusedNoradIdChanged(string? value)
     {
+        _liveTracking.FocusedNoradId = value;
+
         if (string.IsNullOrEmpty(value))
         {
             SoloFocusedSatellite = false;

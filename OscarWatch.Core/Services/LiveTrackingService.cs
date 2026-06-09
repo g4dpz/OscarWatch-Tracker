@@ -27,11 +27,18 @@ public sealed class LiveTrackingService : ILiveTrackingService
     private IReadOnlyList<SatelliteTrackState> _liveNowSnapshot = Array.Empty<SatelliteTrackState>();
     private DateTime _liveNowSnapshotUtc = DateTime.MinValue;
     private long _mapTimeOffsetTicks;
+    private string? _focusedNoradId;
 
     public TimeSpan MapTimeOffset
     {
         get => new(Interlocked.Read(ref _mapTimeOffsetTicks));
         set => Interlocked.Exchange(ref _mapTimeOffsetTicks, value.Ticks);
+    }
+
+    public string? FocusedNoradId
+    {
+        get => Volatile.Read(ref _focusedNoradId);
+        set => Volatile.Write(ref _focusedNoradId, value);
     }
 
     public LiveTrackingService(TrackingOrchestrator orchestrator, IGpsService? gps = null)
@@ -232,10 +239,13 @@ public sealed class LiveTrackingService : ILiveTrackingService
         var offset = MapTimeOffset;
         var displayUtc = trackingUtc + offset;
 
-        var displayStates = _computeOverride?.Invoke(displayUtc) ?? _orchestrator.GetLiveStates(displayUtc);
+        var focus = FocusedNoradId;
+        var displayStates = _computeOverride?.Invoke(displayUtc)
+            ?? _orchestrator.GetLiveStates(displayUtc, focus);
         var liveNowStates = offset == TimeSpan.Zero
             ? displayStates
-            : _computeOverride?.Invoke(trackingUtc) ?? _orchestrator.GetLiveStates(trackingUtc);
+            : _computeOverride?.Invoke(trackingUtc)
+              ?? _orchestrator.GetLiveStates(trackingUtc, focus);
 
         lock (_snapshotLock)
         {
