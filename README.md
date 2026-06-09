@@ -62,7 +62,7 @@ Press **Standby** in the sidebar when you are only planning or browsing: the rot
 
 ### Operator guide
 
-Plain-language help ships with the app: **Help → Operator guide** (also in the `[help/](help/)` folder). Topics include quick start, frequencies, TLEs, pass planning, radio/rotator setup, recording, and troubleshooting.
+Plain-language help ships with the app: **Help → Operator guide** (also in the `[help/](help/)` folder). The UI and guide use **British English** (`en-GB`). Topics include quick start, frequencies, TLEs, pass planning, radio/rotator setup, recording, and troubleshooting.
 
 ---
 

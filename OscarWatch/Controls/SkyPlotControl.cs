@@ -5,6 +5,7 @@ using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using OscarWatch.Core.Models;
+using OscarWatch.Localization;
 
 namespace OscarWatch.Controls;
 
@@ -47,9 +48,7 @@ public class SkyPlotControl : ThemeAwareControl
         HorizontalAlignment = HorizontalAlignment.Stretch;
         MinWidth = 0;
         Cursor = new Cursor(StandardCursorType.Hand);
-        ToolTip.SetTip(
-            this,
-            "Sky plot. Tab here, then use arrow keys to change the selected satellite.");
+        ToolTip.SetTip(this, LocalizationService.Instance.Get("A11y.SkyPlot.TabHint"));
     }
 
     public IReadOnlyList<SatelliteTrackState>? TrackStates
@@ -95,7 +94,11 @@ public class SkyPlotControl : ThemeAwareControl
             BindTrackStatesSource(change.NewValue);
 
         if (change.Property == TrackStatesProperty || change.Property == FocusedNoradIdProperty)
-            TrackingPlotAccessibility.UpdateName(this, "Sky plot", TrackStates, FocusedNoradId);
+            TrackingPlotAccessibility.UpdateName(
+                this,
+                LocalizationService.Instance.Get("Main.SkyPlot"),
+                TrackStates,
+                FocusedNoradId);
     }
 
     private void BindTrackStatesSource(object? value)
@@ -210,7 +213,12 @@ public class SkyPlotControl : ThemeAwareControl
         }
 
         if (visibleCount == 0)
-            DrawCenterMessage(context, cx, cy, "All satellites below horizon", palette);
+            DrawCenterMessage(
+                context,
+                cx,
+                cy,
+                LocalizationService.Instance.Get("A11y.SkyPlot.AllBelowHorizon"),
+                palette);
     }
 
     private static (double Cx, double Cy, double PlotRadius) GetPlotGeometry(double width, double height)

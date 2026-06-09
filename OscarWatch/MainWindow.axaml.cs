@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -28,10 +29,12 @@ public partial class MainWindow : Window
     private double _hamsAtRovesResizeStartY;
     private double _hamsAtRovesResizeStartHeight;
     private IPointer? _hamsAtRovesResizePointer;
+    private PassRowViewModel? _passListContextRow;
 
     public MainWindow()
     {
         InitializeComponent();
+        PassesListBox.AddHandler(PointerPressedEvent, OnPassesListRightClickTunnel, RoutingStrategies.Tunnel);
         AddHandler(KeyDownEvent, OnGlobalKeyDown, RoutingStrategies.Tunnel);
         AddHandler(PointerMovedEvent, OnHamsAtRovesResizePointerMoved, RoutingStrategies.Tunnel);
         AddHandler(PointerReleasedEvent, OnHamsAtRovesResizePointerReleased, RoutingStrategies.Tunnel);
@@ -118,33 +121,47 @@ public partial class MainWindow : Window
             item.Classes.Remove("pass-day-header");
     }
 
-    private void OnPassesPointerPressed(object? sender, PointerPressedEventArgs e)
+    private void OnPassesListRightClickTunnel(object? sender, PointerPressedEventArgs e)
     {
         if (!e.GetCurrentPoint(PassesListBox).Properties.IsRightButtonPressed)
             return;
 
-        for (var node = e.Source as Visual; node is not null; node = node.GetVisualParent() as Visual)
+        _passListContextRow = TryGetPassRowFromPointerSource(e.Source as Visual);
+        e.Handled = _passListContextRow is not null;
+    }
+
+    private void OnPassesContextMenuOpening(object? sender, CancelEventArgs e)
+    {
+        _passListContextRow ??= PassesListBox.SelectedItem as PassRowViewModel;
+        if (_passListContextRow is null)
+            e.Cancel = true;
+    }
+
+    private static PassRowViewModel? TryGetPassRowFromPointerSource(Visual? source)
+    {
+        for (var node = source; node is not null; node = node.GetVisualParent() as Visual)
         {
             if (node is ListBoxItem item && item.DataContext is PassRowViewModel passRow)
-            {
-                PassesListBox.SelectedItem = passRow;
-                break;
-            }
+                return passRow;
         }
+
+        return null;
     }
 
     private void OnOpenPassVisualizerClick(object? sender, RoutedEventArgs e) =>
-        OpenPassVisualizerForSelectedPass();
+        OpenPassVisualizerForContextPass();
 
-    private void OpenPassVisualizerForSelectedPass()
+    private void OpenPassVisualizerForContextPass()
     {
         if (DataContext is not MainViewModel vm)
             return;
 
-        if (PassesListBox.SelectedItem is not PassRowViewModel row)
+        var row = _passListContextRow ?? PassesListBox.SelectedItem as PassRowViewModel;
+        if (row is null)
             return;
 
         var visualizerVm = vm.CreatePassVisualizerViewModel(row);
+        _passListContextRow = null;
         if (visualizerVm is null)
             return;
 

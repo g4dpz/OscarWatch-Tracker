@@ -1,0 +1,40 @@
+---
+description: British English (en-GB) for all user-facing copy and docs
+alwaysApply: true
+---
+
+# UK English (en-GB)
+
+OscarWatch uses **British English** for operator-facing text. Default UI culture is **`en-GB`** (`LocalizationCulture.DefaultLanguage`).
+
+## Where this applies
+
+- `OscarWatch/Resources/Strings.resx` (and translations when adding parallel keys)
+- `help/**/*.html`, `README.md`, operator docs
+- Accessibility strings, tooltips, menu labels, dialogues, error messages
+- Commit messages and PR descriptions for this repo (when writing prose for the user)
+
+## Spelling and wording
+
+| Prefer (UK) | Avoid (US) |
+|-------------|------------|
+| visualiser | visualizer |
+| labelled | labeled |
+| colour, centre, metre, kilometre | color, center, meter, kilometer |
+| grey / greyline | gray |
+| dialogue (UI window in docs) | dialog (in prose) |
+| application / app | program (for software) |
+
+Use **English (UK)** in the language picker label. Keep **License** when citing AGPL or other proper legal names.
+
+## Localisation
+
+- Add user-visible English to `Strings.resx`; avoid new hardcoded English in controls or view models.
+- Use `LocalizationService` / `loc:Localize` — do not assume `en-US` culture.
+- Tests that need English culture should use **`en-GB`**, not `en-US`, unless explicitly testing another locale.
+
+## Exceptions (do not “UK-ify”)
+
+- **Code identifiers** (class names, resource keys, filenames) — rename only when refactoring, not for spelling.
+- **Brands and protocols** (ICOM, CI-V, COM port, PayPal, GitHub).
+- **Diagnostics / logs** labelled “English” for support bundles (`RigStatusText.ToEnglish`, etc.).

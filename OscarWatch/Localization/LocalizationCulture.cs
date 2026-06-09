@@ -8,13 +8,14 @@ namespace OscarWatch.Localization;
 /// <summary>Applies UI culture from settings before windows are created.</summary>
 public static class LocalizationCulture
 {
-    public const string DefaultLanguage = "en";
+    /// <summary>Default UI language: British English (<c>en-GB</c>). Legacy <c>en</c> is accepted as an alias.</summary>
+    public const string DefaultLanguage = "en-GB";
     public const string JapaneseLanguage = "ja";
     public const string PortugueseBrazilLanguage = "pt-BR";
     public const string SimplifiedChineseLanguage = "zh-CN";
 
     public static void ApplyFromSettings(ISettingsService settings) =>
-        Apply(settings.Current.UiLanguage);
+        Apply(NormalizeLanguageCode(settings.Current.UiLanguage));
 
     public static void Apply(string? uiLanguage)
     {
@@ -37,7 +38,24 @@ public static class LocalizationCulture
             || string.Equals(uiLanguage, "zh-Hans", StringComparison.OrdinalIgnoreCase))
             return CultureInfo.GetCultureInfo(SimplifiedChineseLanguage);
 
+        if (string.IsNullOrWhiteSpace(uiLanguage)
+            || string.Equals(uiLanguage, "en", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(uiLanguage, DefaultLanguage, StringComparison.OrdinalIgnoreCase))
+            return CultureInfo.GetCultureInfo(DefaultLanguage);
+
         return CultureInfo.GetCultureInfo(DefaultLanguage);
+    }
+
+    /// <summary>Maps legacy <c>en</c> and empty values to <see cref="DefaultLanguage"/>.</summary>
+    public static string NormalizeLanguageCode(string? uiLanguage)
+    {
+        if (string.IsNullOrWhiteSpace(uiLanguage))
+            return DefaultLanguage;
+
+        var trimmed = uiLanguage.Trim();
+        return string.Equals(trimmed, "en", StringComparison.OrdinalIgnoreCase)
+            ? DefaultLanguage
+            : trimmed;
     }
 
     /// <summary>Reads <see cref="AppSettings.UiLanguage"/> before DI is available (fonts in Program).</summary>
@@ -59,7 +77,7 @@ public static class LocalizationCulture
             {
                 var value = lang.GetString();
                 if (!string.IsNullOrWhiteSpace(value))
-                    return value.Trim();
+                    return NormalizeLanguageCode(value);
             }
         }
         catch

@@ -36,7 +36,7 @@
       <ul>
         <li>Use a <strong>USB serial</strong> cable or proper interface to the radio and rotator.</li>
         <li>Radio and rotator need <strong>different COM ports</strong> (or device paths on Linux/macOS).</li>
-        <li>Close other programs that might hold the port (HRD, WSJT-X rig control, etc.).</li>
+        <li>Close other applications that might hold the port (HRD, WSJT-X rig control, etc.).</li>
         <li>For <strong>normal cross-band</strong> passes, put the radio in <strong>satellite mode</strong> (or the mode your rig manual describes) if OscarWatch has not already done so when tracking starts — except <strong>Kenwood TS-2000</strong>: you must select <strong>SAT</strong> on the front panel yourself (see below).</li>
         <li>For <strong>receive-only</strong> modes (uplink <strong>0</strong> in the database — ISS SSTV, beacons, telemetry), you do <strong>not</strong> need satellite mode: OscarWatch turns it off and tunes the downlink only.</li>
       </ul>
@@ -104,7 +104,7 @@
       </ul>
       <p>
         If the sidebar shows <strong>Dual radio not connected</strong>, check both COM ports, baud on each radio, and that no other
-        program (e.g. Hamlib) has either port open. Quit other CAT tools, restart OscarWatch, and replug USB if CI-V stops responding
+        application (e.g. Hamlib) has either port open. Quit other CAT tools, restart OscarWatch, and replug USB if CI-V stops responding
         after switching from another rig.
       </p>
 
@@ -122,7 +122,7 @@
           (9600 and 19200 also work if set on both sides).
         </li>
         <li>
-          Windows may expose two COM ports per IC-705; use the one labeled <strong>CI-V</strong> (often the higher port number).
+          Windows may expose two COM ports per IC-705; use the one labelled <strong>CI-V</strong> (often the higher port number).
         </li>
         <li>
           Downlink gets RX mode and frequency; uplink gets TX mode, frequency, and CTCSS. FM dial lock is Yaesu-only — on IC-705 legs,
@@ -359,10 +359,10 @@
         <li><strong>Rotate</strong> — slews to the entered position.</li>
         <li><strong>Stop</strong> — stops a slew in progress (GS-232 <code>S</code> and SPID stop command; EasyComm has no standard stop).</li>
         <li><strong>Park</strong> — returns to your configured park position from Settings → Rotator.</li>
-        <li><strong>Close</strong> — dismisses the dialog; the beam stays where you left it until you Park or Resume.</li>
+        <li><strong>Close</strong> — dismisses the dialogue; the beam stays where you left it until you Park or Resume.</li>
       </ul>
       <p>
-        The dialog shows the current polled rotator position when connected. Press <strong>Resume</strong> in the sidebar
+        The dialogue shows the current polled rotator position when connected. Press <strong>Resume</strong> in the sidebar
         when you want OscarWatch to track passes again.
       </p>
     </main>

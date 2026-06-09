@@ -623,7 +623,8 @@ public partial class SettingsViewModel : ViewModelBase
         _settings.Current.MinimumElevationDeg = MinimumElevationDeg;
         _settings.Current.PassPredictionHours = PassPredictionHours;
         _settings.Current.Theme = ThemePreference;
-        _settings.Current.UiLanguage = SelectedLanguage?.Code ?? LocalizationCulture.DefaultLanguage;
+        _settings.Current.UiLanguage = LocalizationCulture.NormalizeLanguageCode(
+            SelectedLanguage?.Code ?? LocalizationCulture.DefaultLanguage);
         _settings.Current.ShowFootprintMotionArrows = ShowFootprintMotionArrows;
         _settings.Current.ShowGreylineOverlay = ShowGreylineOverlay;
         _settings.Current.Use24HourClock = Use24HourClock;
@@ -767,9 +768,7 @@ public partial class SettingsViewModel : ViewModelBase
             ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
             ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
             Use24HourClock = _settings.Current.Use24HourClock;
-            var langCode = string.IsNullOrWhiteSpace(_settings.Current.UiLanguage)
-                ? LocalizationCulture.DefaultLanguage
-                : _settings.Current.UiLanguage.Trim();
+            var langCode = LocalizationCulture.NormalizeLanguageCode(_settings.Current.UiLanguage);
             SelectedLanguage = LanguageOptions.FirstOrDefault(o =>
                 string.Equals(o.Code, langCode, StringComparison.OrdinalIgnoreCase))
                 ?? LanguageOptions[0];

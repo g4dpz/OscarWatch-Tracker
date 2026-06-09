@@ -9,6 +9,7 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
+using OscarWatch.Localization;
 
 namespace OscarWatch.Controls;
 
@@ -152,7 +153,11 @@ public class WorldMapControl : ThemeAwareControl
             BindTrackStatesSource(change.NewValue);
 
         if (change.Property == TrackStatesProperty || change.Property == FocusedNoradIdProperty)
-            TrackingPlotAccessibility.UpdateName(this, "World map", TrackStates, FocusedNoradId);
+            TrackingPlotAccessibility.UpdateName(
+                this,
+                LocalizationService.Instance.Get("Main.WorldMap"),
+                TrackStates,
+                FocusedNoradId);
     }
 
     protected override void OnSizeChanged(SizeChangedEventArgs e)

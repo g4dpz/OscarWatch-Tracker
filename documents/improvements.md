@@ -148,7 +148,7 @@ Each follows existing driver docs: `documents/building-radio-drivers.md`, `docum
 
 ### 5.1 Help vs UI locale mismatch (medium)
 
-UI supports **en, ja, pt-BR, zh-CN** (~100 keys each). All **11 `help/*.html` pages are English only**.
+UI supports **en-GB, ja, pt-BR, zh-CN** (~100 keys each). All **11 `help/*.html` pages are British English only**.
 
 Options: translated help sets, or generate help from the same resource keys as the app (heavier).
 

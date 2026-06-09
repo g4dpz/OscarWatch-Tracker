@@ -23,8 +23,8 @@ public sealed class AppSettings
     /// <summary>Release tag the user skipped; suppresses automatic update prompts only.</summary>
     public string DismissedAppUpdateTag { get; set; } = "";
     public AppThemePreference Theme { get; set; } = AppThemePreference.System;
-    /// <summary>UI language code: <c>en</c> or <c>ja</c>. Applied on next startup.</summary>
-    public string UiLanguage { get; set; } = "en";
+    /// <summary>UI language code: <c>en-GB</c>, <c>ja</c>, <c>pt-BR</c>, or <c>zh-CN</c>. Legacy <c>en</c> is treated as <c>en-GB</c>.</summary>
+    public string UiLanguage { get; set; } = "en-GB";
     /// <summary>Show ground-track direction arrows inside satellite footprints on the world map.</summary>
     public bool ShowFootprintMotionArrows { get; set; } = true;
     /// <summary>Show day/night greyline shading on the world map.</summary>

@@ -1,11 +1,14 @@
 using Avalonia.Automation;
 using Avalonia.Controls;
 using OscarWatch.Core.Models;
+using OscarWatch.Localization;
 
 namespace OscarWatch.Controls;
 
 internal static class TrackingPlotAccessibility
 {
+    private static ILocalizationService L => LocalizationService.Instance;
+
     public static void UpdateName(
         Control control,
         string plotKind,
@@ -15,7 +18,7 @@ internal static class TrackingPlotAccessibility
         var count = states?.Count ?? 0;
         if (count == 0)
         {
-            AutomationProperties.SetName(control, $"{plotKind}. No satellites selected.");
+            AutomationProperties.SetName(control, L.Get("A11y.Plot.NoSatellites", plotKind));
             return;
         }
 
@@ -23,23 +26,31 @@ internal static class TrackingPlotAccessibility
         {
             AutomationProperties.SetName(
                 control,
-                $"{plotKind}. {count} satellite(s). Use arrow keys to select, Enter to confirm.");
+                L.Get("A11y.Plot.SelectWithArrows", plotKind, count));
             return;
         }
 
         var focused = states!.FirstOrDefault(s => s.NoradId == focusedNoradId);
         if (focused is null)
         {
-            AutomationProperties.SetName(control, $"{plotKind}. {count} satellite(s).");
+            AutomationProperties.SetName(control, L.Get("A11y.Plot.SatelliteCount", plotKind, count));
             return;
         }
 
-        var detail = focused.LookAngles is { } la
-            ? $" Azimuth {la.AzimuthDeg:F1} degrees, elevation {la.ElevationDeg:F1} degrees, altitude {focused.Subpoint.AltitudeKm:F0} kilometers."
-            : $" Altitude {focused.Subpoint.AltitudeKm:F0} kilometers, below horizon.";
-        AutomationProperties.SetName(
-            control,
-            $"{plotKind}. Focused {focused.Name}.{detail}");
+        var name = focused.LookAngles is { } la
+            ? L.Get(
+                "A11y.Plot.FocusedWithLookAngles",
+                plotKind,
+                focused.Name,
+                la.AzimuthDeg,
+                la.ElevationDeg,
+                focused.Subpoint.AltitudeKm)
+            : L.Get(
+                "A11y.Plot.FocusedBelowHorizon",
+                plotKind,
+                focused.Name,
+                focused.Subpoint.AltitudeKm);
+        AutomationProperties.SetName(control, name);
     }
 
     public static string? CycleFocusedNoradId(

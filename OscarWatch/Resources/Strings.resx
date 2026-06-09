@@ -196,6 +196,30 @@
   <data name="A11y.SatelliteEclipse">
     <value>Satellite in eclipse</value>
   </data>
+  <data name="Main.WorldMap">
+    <value>World map</value>
+  </data>
+  <data name="A11y.Plot.NoSatellites">
+    <value>{0}. No satellites selected.</value>
+  </data>
+  <data name="A11y.Plot.SelectWithArrows">
+    <value>{0}. {1} satellite(s). Use arrow keys to select, Enter to confirm.</value>
+  </data>
+  <data name="A11y.Plot.SatelliteCount">
+    <value>{0}. {1} satellite(s).</value>
+  </data>
+  <data name="A11y.Plot.FocusedWithLookAngles">
+    <value>{0}. Focused {1}. Azimuth {2:F1} degrees, elevation {3:F1} degrees, altitude {4:F0} kilometres.</value>
+  </data>
+  <data name="A11y.Plot.FocusedBelowHorizon">
+    <value>{0}. Focused {1}. Altitude {2:F0} kilometres, below horizon.</value>
+  </data>
+  <data name="A11y.SkyPlot.TabHint">
+    <value>Sky plot. Tab here, then use arrow keys to change the selected satellite.</value>
+  </data>
+  <data name="A11y.SkyPlot.AllBelowHorizon">
+    <value>All satellites below horizon</value>
+  </data>
   <data name="Main.Radio">
     <value>Radio</value>
   </data>
@@ -430,7 +454,7 @@ Continue?</value>
     <value>Language</value>
   </data>
   <data name="Settings.Language.English">
-    <value>English</value>
+    <value>English (UK)</value>
   </data>
   <data name="Settings.Language.Japanese">
     <value>日本語</value>
@@ -484,7 +508,7 @@ Continue?</value>
     <value>24-hour</value>
   </data>
   <data name="Settings.ClockFormat.Note">
-    <value>Applies to pass lists, planners, map clock, and other times in the app. UTC vs local is still chosen per dialog.</value>
+    <value>Applies to pass lists, planners, map clock, and other times in the app. UTC vs local is still chosen per dialogue.</value>
   </data>
   <data name="Settings.Theme">
     <value>Theme</value>
@@ -622,13 +646,13 @@ Continue?</value>
     <value>Mutual pass finder</value>
   </data>
   <data name="Window.MutualPassVisualizer.Title">
-    <value>Mutual pass visualizer</value>
+    <value>Mutual pass Visualiser</value>
   </data>
   <data name="Window.PassVisualizer.Title">
-    <value>Pass visualizer</value>
+    <value>Pass Visualiser</value>
   </data>
   <data name="Window.Sunlight.Title">
-    <value>Sunlight prediction</value>
+    <value>Sunlight Prediction</value>
   </data>
   <data name="Window.RotatorManual.Title">
     <value>Manual rotator control</value>
@@ -1054,7 +1078,7 @@ Continue?</value>
     <value>FT-817 / FT-818: Set menu #14 to 4800 baud on each radio (38400 also works). 8N2 CAT — one COM per leg. Linear: spin downlink for passband; FM locks dial while tracking.</value>
   </data>
   <data name="Settings.Radio.Ic705Hint">
-    <value>IC-705: Set Connectors → CI-V → CI-V USB Port to Link to [CI-V] (not REMOTE). Match CI-V baud in Settings (default 115200). One COM port per leg — use the port labeled CI-V when two appear.</value>
+    <value>IC-705: Set Connectors → CI-V → CI-V USB Port to Link to [CI-V] (not REMOTE). Match CI-V baud in Settings (default 115200). One COM port per leg — use the port labelled CI-V when two appear.</value>
   </data>
   <data name="Settings.Radio.Ic706Hint">
     <value>IC-706: CI-V via the REMOTE jack (or CT-17). 2m only (no 70cm). Set CI-V address and baud in Initial Set Mode (LOCK at power-on) to match Settings (default 48H / 19200). CI-V TRN On recommended.</value>
@@ -1477,10 +1501,10 @@ Continue?</value>
     <value>Invalid Maidenhead grid square.</value>
   </data>
   <data name="Mutual.OpenVisualizer">
-    <value>Open visualizer</value>
+    <value>Open visualiser</value>
   </data>
   <data name="Mutual.Visualizer.DoubleClickHint">
-    <value>Double-click a pass to open the mutual pass visualizer. Right-click for more options.</value>
+    <value>Double-click a pass to open the mutual pass visualiser. Right-click for more options.</value>
   </data>
   <data name="Mutual.Copy.Title">
     <value>Mutual pass — {0}</value>
