@@ -198,9 +198,8 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private IPassListItem? _selectedListItem;
-    private readonly ObservableCollection<SatelliteTrackState> _liveStates = [];
-
-    public ObservableCollection<SatelliteTrackState> LiveStates => _liveStates;
+    [ObservableProperty]
+    private IReadOnlyList<SatelliteTrackState> _liveStates = [];
 
     [ObservableProperty]
     private GroundStation _groundStation = new();
@@ -487,7 +486,6 @@ public partial class MainViewModel : ViewModelBase
         MapDisplayUtc = DateTime.UtcNow + TimeSpan.FromMinutes(MapTimeOffsetMinutes);
         MinimumElevationDeg = _settings.Current.MinimumElevationDeg;
         var mapStates = _liveTracking.GetSnapshot();
-        SyncLiveStates(mapStates);
 
         var operationalStates = IsMapTimeScrubbing
             ? _tracking.GetLiveStates(DateTime.UtcNow)
@@ -517,6 +515,7 @@ public partial class MainViewModel : ViewModelBase
     private void OnLiveDisplayTick()
     {
         var mapStates = _liveTracking.GetSnapshot();
+        SyncLiveStates(mapStates);
         UpdateLiveTelemetry(mapStates);
 
         if (!IsMapTimeScrubbing)
@@ -1172,11 +1171,16 @@ public partial class MainViewModel : ViewModelBase
             DateTime.UtcNow);
     }
 
+    /// <summary>
+    /// Publishes the tracking worker snapshot to map/sky-plot bindings.
+    /// Assigns the list reference once (no ObservableCollection clear/re-add churn).
+    /// </summary>
     private void SyncLiveStates(IReadOnlyList<SatelliteTrackState> states)
     {
-        _liveStates.Clear();
-        foreach (var s in states)
-            _liveStates.Add(s);
+        if (ReferenceEquals(LiveStates, states))
+            return;
+
+        LiveStates = states;
     }
 
     private void UpdateLiveTelemetry(IReadOnlyList<SatelliteTrackState> states)
@@ -1247,7 +1251,7 @@ public partial class MainViewModel : ViewModelBase
 
     private void ApplySatelliteFocus(string noradId)
     {
-        var states = _liveStates.Count > 0 ? (IReadOnlyList<SatelliteTrackState>)_liveStates : _liveTracking.GetSnapshot();
+        var states = LiveStates.Count > 0 ? LiveStates : _liveTracking.GetSnapshot();
         if (states.Count == 0)
             return;
 
