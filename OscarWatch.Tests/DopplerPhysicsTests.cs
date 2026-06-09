@@ -194,6 +194,25 @@ public class DopplerPhysicsTests
     }
 
     [Fact]
+    public void Split_rx_tx_range_rates_apply_independently()
+    {
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "NOR"
+        };
+
+        var same = DopplerFrequencyCalculator.Compute(mode, 2.0, 0, transmitRangeRateKmPerSec: 2.0);
+        var split = DopplerFrequencyCalculator.Compute(mode, 2.0, 0, transmitRangeRateKmPerSec: -1.5);
+
+        Assert.Equal(same.RadioReceiveKHz, split.RadioReceiveKHz, 3);
+        Assert.NotEqual(same.RadioTransmitKHz, split.RadioTransmitKHz);
+    }
+
+    [Fact]
     public void Rx_offset_is_preserved_across_range_rate_changes()
     {
         var mode = new SatelliteTransponderMode

@@ -320,6 +320,21 @@
         commands to protect the serial link. It does not replace the Doppler thresholds above.
       </p>
 
+      <h3>Lead Doppler for CAT latency</h3>
+      <p>
+        Optional checkbox <strong>Lead Doppler for CAT latency</strong> (off by default) predicts Doppler at
+        <em>now + half your CAT delay</em> before sending a frequency — the same idea as SatPC32 and other
+        satellite trackers. By the time the radio finishes tuning, the target has already moved, especially
+        on the steep leg after <strong>TCA</strong>. The lead uses your existing <strong>CAT delay (ms)</strong>
+        setting (half for downlink, half for uplink in dual-radio setups).
+      </p>
+      <p>
+        When enabled, the frequency overlay <strong>Radio</strong> row shows the lead-ahead command frequency;
+        the <strong>Sat</strong> row and Doppler line still show the current spacecraft-side values.
+        Benefit is most noticeable with higher CAT delay (100–200&nbsp;ms) or fast-changing passes; at the
+        default 50&nbsp;ms the lead is only 25&nbsp;ms ahead.
+      </p>
+
       <h2>Rotators</h2>
       <table>
         <thead>

@@ -1089,6 +1089,12 @@ Continuar?</value>
   <data name="Settings.Radio.DopplerSsbNote">
     <value>As frequências são enviadas ao rádio somente quando a deriva excede este intervalo (estilo SatPC32).</value>
   </data>
+  <data name="Settings.Radio.DopplerCatLead">
+    <value>Antecipar Doppler para latência CAT</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadNote">
+    <value>Quando ativado, o CAT e a linha Rádio preveem o Doppler à frente de metade do atraso CAT (estilo SatPC32). Ajuda em passagens íngremes perto do TCA. A linha Sat continua mostrando a frequência atual na espaçonave.</value>
+  </data>
   <data name="Settings.Rotator.Enable">
     <value>Habilitar rotor</value>
   </data>

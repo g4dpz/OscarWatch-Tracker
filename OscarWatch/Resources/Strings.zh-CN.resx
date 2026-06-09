@@ -1089,6 +1089,12 @@
   <data name="Settings.Radio.DopplerSsbNote">
     <value>仅当频率漂移超过此阈值时，才会将频率发送到电台（SatPC32 风格）。</value>
   </data>
+  <data name="Settings.Radio.DopplerCatLead">
+    <value>为多普勒 CAT 延迟做超前补偿</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadNote">
+    <value>启用后，CAT 与 Radio 行按 CAT 延迟的一半预测多普勒（SatPC32 风格），有助于 TCA 附近陡变区段。Sat 行仍显示当前星上频率。</value>
+  </data>
   <data name="Settings.Rotator.Enable">
     <value>启用天线旋转器</value>
   </data>

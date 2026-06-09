@@ -1113,6 +1113,12 @@ Continue?</value>
   <data name="Settings.Radio.DopplerSsbNote">
     <value>Frequencies are sent to the radio only when drift exceeds this interval (SatPC32-style).</value>
   </data>
+  <data name="Settings.Radio.DopplerCatLead">
+    <value>Lead Doppler for CAT latency</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadNote">
+    <value>When enabled, CAT and the Radio row predict Doppler at half your CAT delay ahead (SatPC32-style). Helps on steep passes near TCA. The Sat row still shows the current spacecraft frequency.</value>
+  </data>
   <data name="Settings.Rotator.Enable">
     <value>Enable rotator</value>
   </data>

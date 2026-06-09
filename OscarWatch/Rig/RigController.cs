@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Radio;
 using OscarWatch.Core.Services;
 using Serilog;
@@ -26,6 +27,8 @@ public sealed class RigController : IRigController, IDisposable
 
     private readonly Func<RigSettings, IRigDriver>? _driverFactory;
     private readonly Func<RigEndpointSettings, IRigDriver>? _endpointFactory;
+    private readonly IOrbitPropagator? _propagator;
+    private readonly ISettingsService? _settingsService;
     private readonly long[] _rxDialHistory = new long[DialHistoryLength];
     private readonly object _statusLock = new();
     private readonly object _workerStartLock = new();
@@ -84,10 +87,14 @@ public sealed class RigController : IRigController, IDisposable
 
     public RigController(
         Func<RigSettings, IRigDriver>? driverFactory = null,
-        Func<RigEndpointSettings, IRigDriver>? endpointFactory = null)
+        Func<RigEndpointSettings, IRigDriver>? endpointFactory = null,
+        IOrbitPropagator? propagator = null,
+        ISettingsService? settingsService = null)
     {
         _driverFactory = driverFactory;
         _endpointFactory = endpointFactory;
+        _propagator = propagator;
+        _settingsService = settingsService;
     }
 
     public RigConnectionStatus GetStatus()
@@ -564,20 +571,23 @@ public sealed class RigController : IRigController, IDisposable
         if (!TryReadReceiveDialHz(out var dialHz))
             return;
 
+        var (rxRangeRate, txRangeRate) = ResolveRangeRatesForDoppler(context);
         var baseline = DopplerFrequencyCalculator.Compute(
             context.Mode,
-            context.TrackState.LookAngles.RangeRateKmPerSec,
+            rxRangeRate,
             context.ReceiveOffsetKHz,
             _passbandDownlinkAdjustKHz,
             _passbandUplinkAdjustKHz,
-            context.DopplerStrategy);
+            context.DopplerStrategy,
+            txRangeRate);
         var pureBaselineHz = ToHz(DopplerFrequencyCalculator.Compute(
             context.Mode,
-            context.TrackState.LookAngles.RangeRateKmPerSec,
+            rxRangeRate,
             context.ReceiveOffsetKHz,
             0,
             0,
-            context.DopplerStrategy).RadioReceiveKHz);
+            context.DopplerStrategy,
+            txRangeRate).RadioReceiveKHz);
         var expectedMainHz = ToHz(baseline.RadioReceiveKHz);
         var deltaFromBaselineHz = dialHz - expectedMainHz;
         var threshold = KnobTuneThresholdHz();
@@ -1494,14 +1504,27 @@ public sealed class RigController : IRigController, IDisposable
 
     private CorrectedFrequencies ComputeDoppler(RigTrackingContext context)
     {
-        var look = context.TrackState.LookAngles!;
+        var (rxRangeRate, txRangeRate) = ResolveRangeRatesForDoppler(context);
         return DopplerFrequencyCalculator.Compute(
             context.Mode,
-            look.RangeRateKmPerSec,
+            rxRangeRate,
             context.ReceiveOffsetKHz,
             _passbandDownlinkAdjustKHz,
             _passbandUplinkAdjustKHz,
-            context.DopplerStrategy);
+            context.DopplerStrategy,
+            txRangeRate);
+    }
+
+    private (double RxRangeRateKmPerSec, double TxRangeRateKmPerSec) ResolveRangeRatesForDoppler(
+        RigTrackingContext context)
+    {
+        var site = _settingsService?.Current.GroundStation ?? new GroundStation();
+        return DopplerCatLead.ResolveRangeRates(
+            _propagator,
+            _cachedSettings,
+            site,
+            context.TrackState,
+            DateTime.UtcNow);
     }
 
     private static long ToHz(double kHz) => (long)Math.Round(kHz * 1000.0);

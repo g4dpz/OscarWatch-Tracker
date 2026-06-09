@@ -546,6 +546,13 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="{loc:Localize Key=Settings.Radio.DopplerSsbNote}" />
+            <CheckBox Content="{loc:Localize Key=Settings.Radio.DopplerCatLead}"
+                      IsChecked="{Binding RigDopplerCatLeadEnabled, Mode=TwoWay}"
+                      Margin="0,8,0,0" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="{loc:Localize Key=Settings.Radio.DopplerCatLeadNote}" />
           </StackPanel>
         </ScrollViewer>
       </TabItem>

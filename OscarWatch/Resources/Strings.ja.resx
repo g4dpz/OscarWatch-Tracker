@@ -978,6 +978,12 @@
   <data name="Settings.Radio.DopplerSsbNote">
     <value>ドリフトがこの間隔を超えたときのみ無線機に周波数を送信（SatPC32方式）。</value>
   </data>
+  <data name="Settings.Radio.DopplerCatLead">
+    <value>CAT遅延に合わせてドップラーを先行</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadNote">
+    <value>有効時、CATとRadio行はCAT遅延の半分だけ先のドップラーを予測（SatPC32方式）。TCA付近の急なパスで有効。Sat行は現在の宇宙機周波数のまま。</value>
+  </data>
   <data name="Settings.Rotator.Enable">
     <value>ローテーターを有効</value>
   </data>

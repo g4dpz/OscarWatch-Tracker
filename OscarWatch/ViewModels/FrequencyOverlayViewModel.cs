@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using OscarWatch.Core.Cloudlog;
 using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Radio;
 using OscarWatch.Core.Services;
 using OscarWatch.Localization;
@@ -16,6 +17,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private readonly ISettingsService _settings;
     private readonly ISatelliteDatabaseService _database;
     private readonly ILocalizationService _l;
+    private readonly IOrbitPropagator? _propagator;
     private string? _currentSatelliteName;
     private string? _currentStorageKey;
     private string? _currentNoradId;
@@ -143,11 +145,13 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     public FrequencyOverlayViewModel(
         ISettingsService settings,
         ISatelliteDatabaseService database,
-        ILocalizationService localization)
+        ILocalizationService localization,
+        IOrbitPropagator? propagator = null)
     {
         _settings = settings;
         _database = database;
         _l = localization;
+        _propagator = propagator;
         OverlayX = settings.Current.FrequencyOverlayX;
         OverlayY = settings.Current.FrequencyOverlayY;
         IsCollapsed = settings.Current.FrequencyOverlayCollapsed;
@@ -275,25 +279,46 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         IsBeaconOnly = SelectedMode.IsBeaconOnly;
 
         _lastRangeRateKmPerSec = state.LookAngles?.RangeRateKmPerSec ?? 0;
-        ApplyCorrectedDisplay(ComputeCorrected(_lastRangeRateKmPerSec));
+        ApplyFrequencyDisplay(state);
     }
 
-    private CorrectedFrequencies ComputeCorrected(double rangeRateKmPerSec) =>
+    private CorrectedFrequencies ComputeCorrected(
+        double rxRangeRateKmPerSec,
+        double? txRangeRateKmPerSec = null) =>
         DopplerFrequencyCalculator.Compute(
             SelectedMode!,
-            rangeRateKmPerSec,
+            rxRangeRateKmPerSec,
             ReceiveOffsetKHz,
             _rigPassbandDownlinkAdjustKHz,
             _rigPassbandUplinkAdjustKHz,
-            DopplerStrategy);
+            DopplerStrategy,
+            txRangeRateKmPerSec);
+
+    private (double RxRangeRateKmPerSec, double TxRangeRateKmPerSec) ResolveRangeRates(
+        SatelliteTrackState state) =>
+        DopplerCatLead.ResolveRangeRates(
+            _propagator,
+            _settings.Current.Rig,
+            _settings.Current.GroundStation,
+            state,
+            DateTime.UtcNow);
+
+    private void ApplyFrequencyDisplay(SatelliteTrackState state)
+    {
+        var snapshotRate = state.LookAngles?.RangeRateKmPerSec ?? 0;
+        var (rxRate, txRate) = ResolveRangeRates(state);
+        var snapshotCorrected = ComputeCorrected(snapshotRate);
+        var radioCorrected = ComputeCorrected(rxRate, txRate);
+        ApplyCorrectedDisplay(snapshotCorrected, radioCorrected);
+    }
 
     public CloudlogRadioUpdate? TryBuildCloudlogUpdate(SatelliteTrackState? state)
     {
         if (state is null || SelectedMode is null)
             return null;
 
-        var rangeRate = state.LookAngles?.RangeRateKmPerSec ?? _lastRangeRateKmPerSec;
-        var corrected = ComputeCorrected(rangeRate);
+        var (rxRate, txRate) = ResolveRangeRates(state);
+        var corrected = ComputeCorrected(rxRate, txRate);
 
         return CloudlogRadioMapper.TryCreate(
             state.Name,
@@ -312,7 +337,8 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         if (!string.Equals(state.NoradId, _currentNoradId, StringComparison.Ordinal))
             return null;
 
-        var corrected = ComputeCorrected(state.LookAngles.RangeRateKmPerSec);
+        var (rxRate, txRate) = ResolveRangeRates(state);
+        var corrected = ComputeCorrected(rxRate, txRate);
 
         return new RigTrackingContext
         {
@@ -465,8 +491,10 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             return;
         }
 
-        _lastRangeRateKmPerSec = _lastTrackState?.LookAngles?.RangeRateKmPerSec ?? _lastRangeRateKmPerSec;
-        ApplyCorrectedDisplay(ComputeCorrected(_lastRangeRateKmPerSec));
+        if (_lastTrackState is not null)
+            ApplyFrequencyDisplay(_lastTrackState);
+        else
+            ApplyCorrectedDisplay(ComputeCorrected(_lastRangeRateKmPerSec), ComputeCorrected(_lastRangeRateKmPerSec));
         UpdateOffsetAppliedHint();
     }
 
@@ -482,15 +510,15 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         RefreshFrequencyDisplay();
     }
 
-    private void ApplyCorrectedDisplay(CorrectedFrequencies corrected)
+    private void ApplyCorrectedDisplay(CorrectedFrequencies snapshotCorrected, CorrectedFrequencies radioCorrected)
     {
         IsBeaconOnly = SelectedMode?.IsBeaconOnly == true;
-        RadioTransmitText = IsBeaconOnly ? "—" : FrequencyDisplayFormat.FormatMHz(corrected.RadioTransmitKHz);
-        RadioReceiveText = FrequencyDisplayFormat.FormatMHz(corrected.RadioReceiveKHz);
-        SatelliteTransmitText = IsBeaconOnly ? "—" : FrequencyDisplayFormat.FormatMHz(corrected.SatelliteTransmitKHz);
-        SatelliteReceiveText = FrequencyDisplayFormat.FormatMHz(corrected.SatelliteReceiveKHz);
-        DopplerShiftText = FrequencyDisplayFormat.FormatDopplerKHz(corrected.DopplerShiftKHz);
-        UpdateCollapsedSummaryText(corrected);
+        RadioTransmitText = IsBeaconOnly ? "—" : FrequencyDisplayFormat.FormatMHz(radioCorrected.RadioTransmitKHz);
+        RadioReceiveText = FrequencyDisplayFormat.FormatMHz(radioCorrected.RadioReceiveKHz);
+        SatelliteTransmitText = IsBeaconOnly ? "—" : FrequencyDisplayFormat.FormatMHz(snapshotCorrected.SatelliteTransmitKHz);
+        SatelliteReceiveText = FrequencyDisplayFormat.FormatMHz(snapshotCorrected.SatelliteReceiveKHz);
+        DopplerShiftText = FrequencyDisplayFormat.FormatDopplerKHz(snapshotCorrected.DopplerShiftKHz);
+        UpdateCollapsedSummaryText(radioCorrected);
     }
 
     private void UpdateCollapsedSummaryText(CorrectedFrequencies? corrected = null)

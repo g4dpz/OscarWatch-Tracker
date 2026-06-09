@@ -223,6 +223,9 @@ public partial class SettingsViewModel : ViewModelBase
     private int _rigCatDelayMs = 50;
 
     [ObservableProperty]
+    private bool _rigDopplerCatLeadEnabled;
+
+    [ObservableProperty]
     private bool _rigCwKeepSidebandDownlink;
 
     [ObservableProperty]
@@ -700,6 +703,7 @@ public partial class SettingsViewModel : ViewModelBase
             DopplerThresholdFmHz = RigDopplerThresholdFmHz,
             DopplerThresholdLinearHz = RigDopplerThresholdLinearHz,
             CatDelayMs = RigCatDelayMs,
+            DopplerCatLeadEnabled = RigDopplerCatLeadEnabled,
             CatUpdatesPaused = _settings.Current.Rig.CatUpdatesPaused,
             CwKeepSidebandDownlink = RigCwKeepSidebandDownlink
         };
@@ -856,6 +860,7 @@ public partial class SettingsViewModel : ViewModelBase
             RigDopplerThresholdFmHz = rig.DopplerThresholdFmHz;
             RigDopplerThresholdLinearHz = rig.DopplerThresholdLinearHz;
             RigCatDelayMs = rig.CatDelayMs;
+            RigDopplerCatLeadEnabled = rig.DopplerCatLeadEnabled;
             RigCwKeepSidebandDownlink = rig.CwKeepSidebandDownlink;
             var cloudlog = _settings.Current.Cloudlog ?? new CloudlogSettings();
             CloudlogEnabled = cloudlog.Enabled;
