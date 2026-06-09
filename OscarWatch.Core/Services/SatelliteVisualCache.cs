@@ -9,6 +9,7 @@ internal sealed class SatelliteVisualCache
 {
     private static readonly TimeSpan GroundTrackRefreshInterval = TimeSpan.FromSeconds(45);
     private static readonly TimeSpan FootprintRefreshInterval = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan MotionHeadingRefreshInterval = TimeSpan.FromSeconds(8);
 
     private readonly Dictionary<string, Entry> _entries = new(StringComparer.Ordinal);
 
@@ -47,6 +48,19 @@ internal sealed class SatelliteVisualCache
         return footprint.Count >= 3;
     }
 
+    public bool TryGetFreshMotionHeading(string noradId, DateTime utc, out double? headingDeg)
+    {
+        headingDeg = null;
+        if (!_entries.TryGetValue(noradId, out var entry))
+            return false;
+
+        if (IsStale(utc, entry.MotionHeadingUtc, MotionHeadingRefreshInterval))
+            return false;
+
+        headingDeg = entry.MotionHeadingDeg;
+        return true;
+    }
+
     /// <summary>
     /// Map-time scrubbing can jump backward; only checking (utc - cached) &gt; interval
     /// incorrectly treated older cached rings as fresh and drew them at a new subpoint.
@@ -61,5 +75,7 @@ internal sealed class SatelliteVisualCache
         public IReadOnlyList<GeoCoordinate> Footprint { get; set; } = [];
         public DateTime FootprintUtc;
         public double FootprintRadiusDeg;
+        public double? MotionHeadingDeg;
+        public DateTime MotionHeadingUtc;
     }
 }
