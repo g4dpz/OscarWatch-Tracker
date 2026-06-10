@@ -714,6 +714,12 @@ Continuar?</value>
   <data name="Freq.Radio">
     <value>Rádio</value>
   </data>
+  <data name="Freq.DopplerLeadEnabled">
+    <value>Lead Doppler ativo — aguardando trecho íngreme da passagem</value>
+  </data>
+  <data name="Freq.DopplerLeadActive">
+    <value>Lead Doppler em uso — linha Rádio prevê à frente para CAT</value>
+  </data>
   <data name="Freq.DopplerFull">
     <value>Completo</value>
   </data>
@@ -1093,7 +1099,7 @@ Continuar?</value>
     <value>Antecipar Doppler para latência CAT</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadNote">
-    <value>Quando ativado, o CAT e a linha Rádio preveem o Doppler à frente de metade do atraso CAT (estilo SatPC32). Ajuda em passagens íngremes perto do TCA. A linha Sat continua mostrando a frequência atual na espaçonave.</value>
+    <value>Quando ativado, o CAT e a linha Rádio só preveem o Doppler à frente (metade do atraso CAT, máx. 50 ms) no trecho íngreme perto do TCA, quando a taxa de variação da distância muda rapidamente. Nos trechos suaves de AOS/LOS usa-se a taxa atual. A linha Sat continua mostrando a frequência atual na espaçonave.</value>
   </data>
   <data name="Settings.Rotator.Enable">
     <value>Habilitar rotor</value>
@@ -1243,7 +1249,7 @@ Continuar?</value>
     <value>Cloudlog</value>
   </data>
   <data name="Settings.Cloudlog.Intro">
-    <value>Envia TX/RX do satélite para o Cloudlog CAT (API v2 /index.php/api/radio) quando você seleciona um satélite ou as frequências são atualizadas.</value>
+    <value>Envia TX/RX do satélite ao Cloudlog quando frequências ou modos mudam, e repete em intervalo de keepalive enquanto não houver mudança.</value>
   </data>
   <data name="Settings.Cloudlog.Enable">
     <value>Habilitar API de rádio do Cloudlog (necessário para atualizações ao vivo)</value>
@@ -1270,7 +1276,10 @@ Continuar?</value>
     <value>O padrão é OscarWatch. Deve corresponder a uma entrada de rádio à qual o Cloudlog pode atribuir QSOs.</value>
   </data>
   <data name="Settings.Cloudlog.MinInterval">
-    <value>Intervalo mínimo de atualização (ms)</value>
+    <value>Intervalo de keepalive (ms)</value>
+  </data>
+  <data name="Settings.Cloudlog.MinIntervalNote">
+    <value>Publica imediatamente quando uplink, downlink, modos ou satélite mudam. Repete o mesmo estado neste intervalo (padrão 10 minutos) durante contatos longos.</value>
   </data>
   <data name="Settings.Cloudlog.TestConnection">
     <value>Testar conexão</value>

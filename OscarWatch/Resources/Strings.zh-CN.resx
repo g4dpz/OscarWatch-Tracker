@@ -714,6 +714,12 @@
   <data name="Freq.Radio">
     <value>电台</value>
   </data>
+  <data name="Freq.DopplerLeadEnabled">
+    <value>超前多普勒已启用 — 等待陡变区段</value>
+  </data>
+  <data name="Freq.DopplerLeadActive">
+    <value>超前多普勒工作中 — 电台行正在超前预测</value>
+  </data>
   <data name="Freq.DopplerFull">
     <value>全双工</value>
   </data>
@@ -1093,7 +1099,7 @@
     <value>为多普勒 CAT 延迟做超前补偿</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadNote">
-    <value>启用后，CAT 与 Radio 行按 CAT 延迟的一半预测多普勒（SatPC32 风格），有助于 TCA 附近陡变区段。Sat 行仍显示当前星上频率。</value>
+    <value>启用后，仅在 TCA 附近距离变化率急剧变化时，CAT 与 Radio 行才按 CAT 延迟的一半（上限 50 ms）预测多普勒。AOS/LOS 平缓区段仍用当前变化率。Sat 行仍显示当前星上频率。</value>
   </data>
   <data name="Settings.Rotator.Enable">
     <value>启用天线旋转器</value>
@@ -1243,7 +1249,7 @@
     <value>Cloudlog</value>
   </data>
   <data name="Settings.Cloudlog.Intro">
-    <value>当您选择卫星或频率更新时，将卫星 TX/RX 发布到 Cloudlog CAT（API v2 /index.php/api/radio）。</value>
+    <value>频率或模式变化时发布卫星 TX/RX 到 Cloudlog；无变化时按保活间隔重复发送。</value>
   </data>
   <data name="Settings.Cloudlog.Enable">
     <value>启用 Cloudlog radio API（实时更新所需）</value>
@@ -1270,7 +1276,10 @@
     <value>默认为 OscarWatch。必须与 Cloudlog 中可分配 QSO 的电台条目匹配。</value>
   </data>
   <data name="Settings.Cloudlog.MinInterval">
-    <value>最小更新间隔（毫秒）</value>
+    <value>保活间隔（毫秒）</value>
+  </data>
+  <data name="Settings.Cloudlog.MinIntervalNote">
+    <value>上行、下行、模式或卫星变化时立即发布；相同状态按此间隔（默认 10 分钟）重复，以便长时间通联时 Cloudlog 保持同步。</value>
   </data>
   <data name="Settings.Cloudlog.TestConnection">
     <value>测试连接</value>

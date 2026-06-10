@@ -2,7 +2,6 @@ using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Radio;
 using OscarWatch.Orbit;
-
 namespace OscarWatch.Tests;
 
 public class DopplerCatLeadTests
@@ -25,7 +24,8 @@ public class DopplerCatLeadTests
     [Fact]
     public void Disabled_returns_snapshot_range_rate()
     {
-        var propagator = new StubPropagator(1.0, 2.0);
+        var utc = new DateTime(2026, 6, 1, 12, 0, 0, DateTimeKind.Utc);
+        var propagator = new StubPropagator(utc, snapshotRate: -3.5, slopeSampleRate: -2.0, rxLeadRate: 1.0, txLeadRate: 2.0);
         var settings = new RigSettings { DopplerCatLeadEnabled = false, CatDelayMs = 100 };
 
         var (rx, tx) = DopplerCatLead.ResolveRangeRates(
@@ -41,10 +41,10 @@ public class DopplerCatLeadTests
     }
 
     [Fact]
-    public void Enabled_queries_propagator_at_half_cat_delay_per_leg()
+    public void Enabled_queries_propagator_at_half_cat_delay_per_leg_on_steep_slope()
     {
         var utc = new DateTime(2026, 6, 1, 12, 0, 0, DateTimeKind.Utc);
-        var propagator = new StubPropagator(1.0, 2.0);
+        var propagator = new StubPropagator(utc, snapshotRate: -3.5, slopeSampleRate: -2.0, rxLeadRate: 1.0, txLeadRate: 2.0);
         var settings = new RigSettings
         {
             DopplerCatLeadEnabled = true,
@@ -54,7 +54,8 @@ public class DopplerCatLeadTests
 
         var (rx, tx) = DopplerCatLead.ResolveRangeRates(propagator, settings, Site, state, utc);
 
-        Assert.Equal(2, propagator.CallCount);
+        Assert.Equal(3, propagator.CallCount);
+        Assert.Equal(utc.AddSeconds(1), propagator.LastSlopeUtc);
         Assert.Equal(utc.AddMilliseconds(50), propagator.LastRxUtc);
         Assert.Equal(utc.AddMilliseconds(50), propagator.LastTxUtc);
         Assert.Equal(1.0, rx);
@@ -62,10 +63,42 @@ public class DopplerCatLeadTests
     }
 
     [Fact]
+    public void Mid_slope_blends_between_snapshot_and_lead_rates()
+    {
+        var utc = new DateTime(2026, 6, 1, 12, 0, 0, DateTimeKind.Utc);
+        var propagator = new StubPropagator(utc, snapshotRate: -3.0, slopeSampleRate: -2.985, rxLeadRate: 1.0, txLeadRate: 2.0);
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var state = StateWithRate(-3.0);
+
+        var result = DopplerCatLead.ResolveRangeRates(propagator, settings, Site, state, utc);
+
+        Assert.InRange(result.LeadBlend, 0.4, 0.6);
+        Assert.InRange(result.RxRangeRateKmPerSec, -1.01, -0.99);
+        Assert.InRange(result.TxRangeRateKmPerSec, -0.51, -0.49);
+        Assert.NotEqual(-3.0, result.RxRangeRateKmPerSec);
+        Assert.NotEqual(1.0, result.RxRangeRateKmPerSec);
+    }
+
+    [Fact]
+    public void Gentle_slope_returns_snapshot_without_lead_queries()
+    {
+        var utc = new DateTime(2026, 6, 1, 12, 0, 0, DateTimeKind.Utc);
+        var propagator = new StubPropagator(utc, snapshotRate: -3.5, slopeSampleRate: -3.5, rxLeadRate: 1.0, txLeadRate: 2.0);
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var state = StateWithRate(-3.5);
+
+        var (rx, tx) = DopplerCatLead.ResolveRangeRates(propagator, settings, Site, state, utc);
+
+        Assert.Equal(1, propagator.CallCount);
+        Assert.Equal(utc.AddSeconds(1), propagator.LastSlopeUtc);
+        Assert.Equal(-3.5, rx);
+        Assert.Equal(-3.5, tx);
+    }
+
+    [Fact]
     public void Dual_radio_uses_per_leg_cat_delay()
     {
         var utc = new DateTime(2026, 6, 1, 12, 0, 0, DateTimeKind.Utc);
-        var propagator = new StubPropagator(1.0, 2.0);
         var settings = new RigSettings
         {
             DopplerCatLeadEnabled = true,
@@ -74,10 +107,11 @@ public class DopplerCatLeadTests
             Uplink = new RigEndpointSettings { CatDelayMs = 120 }
         };
 
-        DopplerCatLead.ResolveRangeRates(propagator, settings, Site, StateWithRate(0), utc);
+        var steep = new StubPropagator(utc, snapshotRate: 0, slopeSampleRate: 0.2, rxLeadRate: 1.0, txLeadRate: 2.0);
+        DopplerCatLead.ResolveRangeRates(steep, settings, Site, StateWithRate(0), utc);
 
-        Assert.Equal(utc.AddMilliseconds(40), propagator.LastRxUtc);
-        Assert.Equal(utc.AddMilliseconds(60), propagator.LastTxUtc);
+        Assert.Equal(utc.AddMilliseconds(40), steep.LastRxUtc);
+        Assert.Equal(utc.AddMilliseconds(50), steep.LastTxUtc);
     }
 
     [Fact]
@@ -98,21 +132,21 @@ public class DopplerCatLeadTests
     }
 
     [Fact]
-    public void Lead_produces_different_doppler_than_now_on_iss_pass_segment()
+    public void Lead_produces_different_doppler_than_now_on_fo29_high_pass_segment()
     {
         var entry = new SatelliteCatalogEntry
         {
-            Name = "ISS (ZARYA)",
-            NoradId = "25544",
-            Line1 = "1 25544U 98067A   25205.51782528  .00016717  00000+0  10270-3 0  9993",
-            Line2 = "2 25544  51.6416 247.4627 0006703 130.5360 325.0288 15.50415322908603"
+            Name = "FO-29",
+            NoradId = "24278",
+            Line1 = "1 24278U 96046B   26141.17662052  .00000000  00000-0  34829-4 0  9991",
+            Line2 = "2 24278  98.5266 353.7450 0350115 166.3802 194.7089 13.53272915469510"
         };
         var propagator = new PublicOrbitToolsPropagator();
         propagator.LoadSatellite(entry);
 
         var site = new GroundStation { LatitudeDeg = 51.5, LongitudeDeg = -0.1, AltitudeMetersAsl = 50 };
-        var tca = FindIssPassTcaUtc(propagator, entry.NoradId, site);
-        var utc = tca.AddSeconds(120);
+        var (tca, maxEl) = FindHighElevationPassTcaUtc(propagator, entry.NoradId, site, minElevationDeg: 60);
+        var utc = FindSteepestUtcNearTca(propagator, entry.NoradId, site, tca);
         var state = new SatelliteTrackState
         {
             Name = entry.Name,
@@ -123,11 +157,11 @@ public class DopplerCatLeadTests
 
         var mode = new SatelliteTransponderMode
         {
-            DownlinkKHz = 435_667,
-            UplinkKHz = 145_937,
+            DownlinkKHz = 435_850.45,
+            UplinkKHz = 145_952.65,
             DownlinkMode = "USB",
             UplinkMode = "LSB",
-            Doppler = "NOR"
+            Doppler = "REV"
         };
 
         var nowRate = state.LookAngles!.RangeRateKmPerSec;
@@ -137,8 +171,228 @@ public class DopplerCatLeadTests
         var (rxLead, _) = DopplerCatLead.ResolveRangeRates(propagator, settings, site, state, utc);
         var leadCorrected = DopplerFrequencyCalculator.Compute(mode, rxLead, 0);
 
+        Assert.True(maxEl >= 60, $"Expected a high FO-29 pass over the test site (best el {maxEl:F1}°).");
         Assert.NotEqual(nowRate, rxLead);
         Assert.NotEqual(nowCorrected.RadioReceiveKHz, leadCorrected.RadioReceiveKHz);
+    }
+
+    [Fact]
+    public void Fo29_lead_applies_near_tca_not_on_gentle_aos_leg()
+    {
+        var entry = new SatelliteCatalogEntry
+        {
+            Name = "FO-29",
+            NoradId = "24278",
+            Line1 = "1 24278U 96046B   26141.17662052  .00000000  00000-0  34829-4 0  9991",
+            Line2 = "2 24278  98.5266 353.7450 0350115 166.3802 194.7089 13.53272915469510"
+        };
+        var propagator = new PublicOrbitToolsPropagator();
+        propagator.LoadSatellite(entry);
+
+        var site = new GroundStation { LatitudeDeg = 51.5, LongitudeDeg = -0.1, AltitudeMetersAsl = 50 };
+        var (tca, maxEl) = FindHighElevationPassTcaUtc(propagator, entry.NoradId, site, minElevationDeg: 60);
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+
+        static SatelliteTrackState StateAt(
+            PublicOrbitToolsPropagator propagator,
+            SatelliteCatalogEntry entry,
+            GroundStation site,
+            DateTime utc) => new()
+        {
+            Name = entry.Name,
+            NoradId = entry.NoradId,
+            Subpoint = propagator.GetSubpoint(entry.NoradId, utc),
+            LookAngles = propagator.GetLookAngles(entry.NoradId, site, utc)
+        };
+
+        var aosUtc = tca.AddMinutes(-4);
+        var steepUtc = FindSteepestUtcNearTca(propagator, entry.NoradId, site, tca);
+        var aosState = StateAt(propagator, entry, site, aosUtc);
+        var steepState = StateAt(propagator, entry, site, steepUtc);
+
+        var aosSlope = DopplerCatLead.ComputeRangeRateSlopeKmPerSec2(
+            propagator, entry.NoradId, site, aosUtc, aosState.LookAngles!.RangeRateKmPerSec);
+        var steepSlope = DopplerCatLead.ComputeRangeRateSlopeKmPerSec2(
+            propagator, entry.NoradId, site, steepUtc, steepState.LookAngles!.RangeRateKmPerSec);
+
+        var (aosRx, _) = DopplerCatLead.ResolveRangeRates(propagator, settings, site, aosState, aosUtc);
+        var (steepRx, _) = DopplerCatLead.ResolveRangeRates(propagator, settings, site, steepState, steepUtc);
+
+        Assert.True(maxEl >= 60);
+        Assert.True(aosSlope < DopplerCatLead.SlopeBlendStartKmPerSec2,
+            $"AOS leg slope {aosSlope:F4} km/s² should stay below blend start.");
+        Assert.True(steepSlope >= DopplerCatLead.SteepRangeRateSlopeKmPerSec2,
+            $"Steep leg slope {steepSlope:F4} km/s² should exceed steep threshold.");
+        Assert.Equal(aosState.LookAngles!.RangeRateKmPerSec, aosRx);
+        Assert.NotEqual(steepState.LookAngles!.RangeRateKmPerSec, steepRx);
+    }
+
+    [Fact]
+    public void Fo29_high_pass_lead_overshoot_is_bounded_after_cap()
+    {
+        var entry = new SatelliteCatalogEntry
+        {
+            Name = "FO-29",
+            NoradId = "24278",
+            Line1 = "1 24278U 96046B   26141.17662052  .00000000  00000-0  34829-4 0  9991",
+            Line2 = "2 24278  98.5266 353.7450 0350115 166.3802 194.7089 13.53272915469510"
+        };
+        var propagator = new PublicOrbitToolsPropagator();
+        propagator.LoadSatellite(entry);
+
+        var site = new GroundStation { LatitudeDeg = 51.5, LongitudeDeg = -0.1, AltitudeMetersAsl = 50 };
+        var (tca, maxEl) = FindHighElevationPassTcaUtc(propagator, entry.NoradId, site, minElevationDeg: 60);
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_850.45,
+            UplinkKHz = 145_952.65,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        const int catDelayMs = 200;
+        var cappedLeadMs = DopplerCatLead.ResolveLeadMs(catDelayMs);
+        var uncappedLeadMs = catDelayMs / 2.0;
+
+        double MaxOvershootHz(double leadMs)
+        {
+            var maxHz = 0.0;
+            var start = tca.AddMinutes(-3);
+            var end = tca.AddMinutes(5);
+            for (var t = start; t <= end; t = t.AddSeconds(15))
+            {
+                var look = propagator.GetLookAngles(entry.NoradId, site, t);
+                if (look.ElevationDeg < 5)
+                    continue;
+
+                var nowHz = DopplerFrequencyCalculator.Compute(mode, look.RangeRateKmPerSec, 0).RadioReceiveKHz * 1000.0;
+                var leadRate = propagator.GetLookAngles(entry.NoradId, site, t.AddMilliseconds(leadMs)).RangeRateKmPerSec;
+                var leadHz = DopplerFrequencyCalculator.Compute(mode, leadRate, 0).RadioReceiveKHz * 1000.0;
+                maxHz = Math.Max(maxHz, Math.Abs(leadHz - nowHz));
+            }
+
+            return maxHz;
+        }
+
+        var uncappedHz = MaxOvershootHz(uncappedLeadMs);
+        var cappedHz = MaxOvershootHz(cappedLeadMs);
+
+        double MaxOvershootHzFine(double leadMs)
+        {
+            var maxHz = 0.0;
+            for (var t = tca.AddSeconds(-90); t <= tca.AddSeconds(180); t = t.AddSeconds(1))
+            {
+                var look = propagator.GetLookAngles(entry.NoradId, site, t);
+                if (look.ElevationDeg < 10)
+                    continue;
+
+                var nowHz = DopplerFrequencyCalculator.Compute(mode, look.RangeRateKmPerSec, 0).RadioReceiveKHz * 1000.0;
+                var leadRate = propagator.GetLookAngles(entry.NoradId, site, t.AddMilliseconds(leadMs)).RangeRateKmPerSec;
+                var leadHz = DopplerFrequencyCalculator.Compute(mode, leadRate, 0).RadioReceiveKHz * 1000.0;
+                maxHz = Math.Max(maxHz, Math.Abs(leadHz - nowHz));
+            }
+
+            return maxHz;
+        }
+
+        var fineUncappedHz = MaxOvershootHzFine(uncappedLeadMs);
+        var fineCappedHz = MaxOvershootHzFine(cappedLeadMs);
+
+        // FO-29 high-el pass, CAT delay 200 ms: peak RX |lead−now| is ~6 Hz uncapped / ~3 Hz capped (1 s steps, TCA±3 min).
+        Assert.True(maxEl >= 60);
+        Assert.True(fineCappedHz < fineUncappedHz);
+        Assert.InRange(fineUncappedHz, 2, 12);
+        Assert.InRange(fineCappedHz, 1, 6);
+    }
+
+    [Fact]
+    public void Jo97_high_pass_lead_overshoot_is_small_on_vhf_downlink()
+    {
+        var entry = new SatelliteCatalogEntry
+        {
+            Name = "JO-97",
+            NoradId = "43803",
+            Line1 = "1 43803U 18099AX  26141.14090581  .00011070  00000-0  35283-3 0  9990",
+            Line2 = "2 43803  97.4139 203.8986 0005533  24.8679 335.2828 15.32693080409484"
+        };
+        var propagator = new PublicOrbitToolsPropagator();
+        propagator.LoadSatellite(entry);
+
+        var site = new GroundStation { LatitudeDeg = 51.5, LongitudeDeg = -0.1, AltitudeMetersAsl = 50 };
+        var (tca, maxEl) = FindHighElevationPassTcaUtc(propagator, entry.NoradId, site, minElevationDeg: 40);
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 145_865,
+            UplinkKHz = 435_110.1,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var cappedLeadMs = DopplerCatLead.ResolveLeadMs(settings.CatDelayMs);
+
+        double MaxGateStepHz()
+        {
+            var maxHz = 0.0;
+            for (var t = tca.AddSeconds(-120); t <= tca.AddSeconds(180); t = t.AddSeconds(1))
+            {
+                var look = propagator.GetLookAngles(entry.NoradId, site, t);
+                if (look.ElevationDeg < 10)
+                    continue;
+
+                var state = new SatelliteTrackState
+                {
+                    Name = entry.Name,
+                    NoradId = entry.NoradId,
+                    Subpoint = propagator.GetSubpoint(entry.NoradId, t),
+                    LookAngles = look
+                };
+
+                var nowHz = DopplerFrequencyCalculator.Compute(mode, look.RangeRateKmPerSec, 0).RadioReceiveKHz * 1000.0;
+                var (leadRx, _) = DopplerCatLead.ResolveRangeRates(propagator, settings, site, state, t);
+                var leadHz = DopplerFrequencyCalculator.Compute(mode, leadRx, 0).RadioReceiveKHz * 1000.0;
+                maxHz = Math.Max(maxHz, Math.Abs(leadHz - nowHz));
+            }
+
+            return maxHz;
+        }
+
+        var gateStepHz = MaxGateStepHz();
+
+        Assert.True(maxEl >= 40);
+        // JO-97 VHF downlink: peak |lead−now| on RX is a few Hz, not hundreds.
+        Assert.InRange(gateStepHz, 0, 10);
+        Assert.Equal(50, cappedLeadMs);
+    }
+
+    [Fact]
+    public void High_cat_delay_lead_is_capped_at_max_ms()
+    {
+        Assert.Equal(25, DopplerCatLead.ResolveLeadMs(50));
+        Assert.Equal(50, DopplerCatLead.ResolveLeadMs(100));
+        Assert.Equal(50, DopplerCatLead.ResolveLeadMs(200));
+        Assert.Equal(50, DopplerCatLead.ResolveLeadMs(500));
+    }
+
+    [Fact]
+    public void Capped_lead_queries_propagator_at_max_not_half_delay()
+    {
+        var utc = new DateTime(2026, 6, 1, 12, 0, 0, DateTimeKind.Utc);
+        var propagator = new StubPropagator(utc, snapshotRate: 0, slopeSampleRate: 0.2, rxLeadRate: 1.0, txLeadRate: 2.0);
+        var settings = new RigSettings
+        {
+            DopplerCatLeadEnabled = true,
+            CatDelayMs = 200
+        };
+
+        DopplerCatLead.ResolveRangeRates(propagator, settings, Site, StateWithRate(0), utc);
+
+        Assert.Equal(utc.AddMilliseconds(50), propagator.LastRxUtc);
+        Assert.Equal(utc.AddMilliseconds(50), propagator.LastTxUtc);
     }
 
     [Fact]
@@ -157,9 +411,15 @@ public class DopplerCatLeadTests
         Assert.Equal(4.1, tx);
     }
 
-    private sealed class StubPropagator(double rxRate, double txRate) : IOrbitPropagator
+    private sealed class StubPropagator(
+        DateTime resolveUtc,
+        double snapshotRate,
+        double slopeSampleRate,
+        double rxLeadRate,
+        double txLeadRate) : IOrbitPropagator
     {
         public int CallCount { get; private set; }
+        public DateTime LastSlopeUtc { get; private set; }
         public DateTime LastRxUtc { get; private set; }
         public DateTime LastTxUtc { get; private set; }
 
@@ -174,27 +434,72 @@ public class DopplerCatLeadTests
         public LookAngles GetLookAngles(string noradId, GroundStation site, DateTime utc)
         {
             CallCount++;
-            if (CallCount == 1)
+            if (utc == resolveUtc.AddSeconds(DopplerCatLead.RangeRateSlopeSampleSec))
             {
-                LastRxUtc = utc;
-                return new LookAngles(180, 30, 800, rxRate);
+                LastSlopeUtc = utc;
+                return new LookAngles(180, 30, 800, slopeSampleRate);
             }
 
-            LastTxUtc = utc;
-            return new LookAngles(180, 30, 800, txRate);
+            if (utc == resolveUtc.AddMilliseconds(40))
+            {
+                LastRxUtc = utc;
+                return new LookAngles(180, 30, 800, rxLeadRate);
+            }
+
+            if (utc == resolveUtc.AddMilliseconds(50))
+            {
+                if (LastRxUtc == default)
+                {
+                    LastRxUtc = utc;
+                    return new LookAngles(180, 30, 800, rxLeadRate);
+                }
+
+                LastTxUtc = utc;
+                return new LookAngles(180, 30, 800, txLeadRate);
+            }
+
+            return new LookAngles(180, 30, 800, snapshotRate);
         }
     }
 
-    private static DateTime FindIssPassTcaUtc(
+    private static DateTime FindSteepestUtcNearTca(
         PublicOrbitToolsPropagator propagator,
         string noradId,
-        GroundStation site)
+        GroundStation site,
+        DateTime tcaUtc)
     {
-        var start = new DateTime(2026, 5, 23, 0, 0, 0, DateTimeKind.Utc);
+        var bestUtc = tcaUtc;
+        var bestSlope = double.MinValue;
+
+        for (var offset = -180; offset <= 180; offset += 5)
+        {
+            var t = tcaUtc.AddSeconds(offset);
+            var rr = propagator.GetLookAngles(noradId, site, t).RangeRateKmPerSec;
+            var slope = DopplerCatLead.ComputeRangeRateSlopeKmPerSec2(propagator, noradId, site, t, rr);
+            if (slope > bestSlope)
+            {
+                bestSlope = slope;
+                bestUtc = t;
+            }
+        }
+
+        Assert.True(bestSlope >= DopplerCatLead.SteepRangeRateSlopeKmPerSec2,
+            $"Expected a steep range-rate leg near TCA (best slope {bestSlope:F4} km/s²).");
+        return bestUtc;
+    }
+
+    private static (DateTime TcaUtc, double MaxElevationDeg) FindHighElevationPassTcaUtc(
+        PublicOrbitToolsPropagator propagator,
+        string noradId,
+        GroundStation site,
+        double minElevationDeg)
+    {
+        // TLE epoch 26141 ≈ 2026-05-21; scan a few days for the best pass.
+        var start = new DateTime(2026, 5, 20, 0, 0, 0, DateTimeKind.Utc);
         var bestEl = double.MinValue;
         var bestUtc = start;
 
-        for (var i = 0; i < 86_400; i += 15)
+        for (var i = 0; i < 259_200; i += 15)
         {
             var t = start.AddSeconds(i);
             var look = propagator.GetLookAngles(noradId, site, t);
@@ -205,8 +510,9 @@ public class DopplerCatLeadTests
             }
         }
 
-        Assert.True(bestEl >= 15, $"Expected a usable ISS pass over the test site (best el {bestEl:F1}°).");
-        return bestUtc;
+        Assert.True(bestEl >= minElevationDeg,
+            $"Expected a pass with elevation ≥ {minElevationDeg:F0}° (best el {bestEl:F1}°).");
+        return (bestUtc, bestEl);
     }
 
     private sealed class ThrowingPropagator : IOrbitPropagator

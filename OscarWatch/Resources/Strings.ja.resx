@@ -528,6 +528,12 @@
   <data name="Freq.Radio">
     <value>無線機</value>
   </data>
+  <data name="Freq.DopplerLeadEnabled">
+    <value>リード・ドップラー有効 — 急な通過区間を待機中</value>
+  </data>
+  <data name="Freq.DopplerLeadActive">
+    <value>リード・ドップラー動作中 — 無線機行が先読み補正中</value>
+  </data>
   <data name="Freq.DopplerFull">
     <value>フル</value>
   </data>
@@ -982,7 +988,7 @@
     <value>CAT遅延に合わせてドップラーを先行</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadNote">
-    <value>有効時、CATとRadio行はCAT遅延の半分だけ先のドップラーを予測（SatPC32方式）。TCA付近の急なパスで有効。Sat行は現在の宇宙機周波数のまま。</value>
+    <value>有効時、レンジレートの変化が急なTCA付近のパス中のみ、CATとRadio行がCAT遅延の半分（最大50 ms）だけ先のドップラーを予測します。AOS/LOSの緩やかな区間は現在のレートのまま。Sat行は現在の宇宙機周波数のまま。</value>
   </data>
   <data name="Settings.Rotator.Enable">
     <value>ローテーターを有効</value>
@@ -1132,7 +1138,7 @@
     <value>Cloudlog</value>
   </data>
   <data name="Settings.Cloudlog.Intro">
-    <value>衛星選択または周波数更新時にCloudlog CAT（API v2 /index.php/api/radio）へ衛星TX/RXを投稿。</value>
+    <value>周波数やモードが変わったときにCloudlogへ衛星TX/RXを投稿し、変化がない間は定期的にキープアライブを送信します。</value>
   </data>
   <data name="Settings.Cloudlog.Enable">
     <value>Cloudlog無線APIを有効（ライブ更新に必要）</value>
@@ -1159,7 +1165,10 @@
     <value>既定はOscarWatch。CloudlogがQSOを割り当てできる無線機エントリと一致させてください。</value>
   </data>
   <data name="Settings.Cloudlog.MinInterval">
-    <value>最小更新間隔 (ms)</value>
+    <value>キープアライブ間隔 (ms)</value>
+  </data>
+  <data name="Settings.Cloudlog.MinIntervalNote">
+    <value>アップリンク・ダウンリンク・モード・衛星が変わったときは即座に投稿。同じ状態はこの間隔（既定10分）で再送します。</value>
   </data>
   <data name="Settings.Cloudlog.TestConnection">
     <value>接続テスト</value>

@@ -454,9 +454,16 @@ public partial class MainViewModel : ViewModelBase
         _liveDisplayTimer?.Start();
 
         StatusText = _l.Get("Status.ComputingPasses");
-        await RefreshPassesAsync().ConfigureAwait(true);
-        await RefreshHamsAtRovesAsync().ConfigureAwait(true);
-        UpdateStatus();
+        try
+        {
+            await RefreshPassesAsync().ConfigureAwait(true);
+        }
+        finally
+        {
+            UpdateStatus();
+        }
+
+        _ = RefreshHamsAtRovesAsyncSafeAsync();
         Tick();
 
         if (_settings.Current.TransponderDatabaseCheckOnStartup)
@@ -921,6 +928,18 @@ public partial class MainViewModel : ViewModelBase
         _hamsAtRefreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(minutes) };
         _hamsAtRefreshTimer.Tick += async (_, _) => await RefreshHamsAtRovesAsync();
         _hamsAtRefreshTimer.Start();
+    }
+
+    private async Task RefreshHamsAtRovesAsyncSafeAsync()
+    {
+        try
+        {
+            await RefreshHamsAtRovesAsync().ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            Log.Warning(ex, "Hams.at rove refresh failed");
+        }
     }
 
     private async Task RefreshHamsAtRovesAsync()

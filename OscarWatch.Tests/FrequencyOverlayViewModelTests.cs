@@ -1,6 +1,7 @@
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
+using OscarWatch.Core.Radio;
 using OscarWatch.Core.Services;
 using OscarWatch.Localization;
 using OscarWatch.ViewModels;
@@ -409,6 +410,59 @@ public class FrequencyOverlayViewModelTests
     }
 
     [Fact]
+    public void Doppler_lead_indicator_reflects_setting_and_active_blend()
+    {
+        var settings = new TestSettingsService();
+        settings.Current.Rig.CatDelayMs = 100;
+
+        var database = new TestSatelliteDatabaseService(
+        [
+            new SatelliteRadioEntry
+            {
+                Name = "RS-44",
+                Modes =
+                [
+                    new SatelliteTransponderMode
+                    {
+                        Type = "SSB Transponder",
+                        DownlinkKHz = 435_667,
+                        UplinkKHz = 145_937.61,
+                        DownlinkMode = "USB",
+                        UplinkMode = "LSB",
+                        Doppler = "REV"
+                    }
+                ]
+            }
+        ]);
+
+        var state = new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "99999",
+            Subpoint = new GeoCoordinate(0, 0, 400),
+            LookAngles = new LookAngles(180, 30, 800, -1.0)
+        };
+
+        settings.Current.Rig.DopplerCatLeadEnabled = false;
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
+        vm.Update(state);
+        Assert.False(vm.ShowDopplerLeadIndicator);
+        Assert.False(vm.IsDopplerLeadActive);
+
+        settings.Current.Rig.DopplerCatLeadEnabled = true;
+        var withLead = new FrequencyOverlayViewModel(
+            settings,
+            database,
+            LocalizationService.Instance,
+            new LeadRatePropagator(slopeRate: 0.5, leadRate: 3.5));
+        withLead.Update(state);
+
+        Assert.True(withLead.ShowDopplerLeadIndicator);
+        Assert.True(withLead.IsDopplerLeadActive);
+        Assert.Contains("Lead Doppler", withLead.DopplerLeadToolTip, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void Cat_lead_radio_row_differs_from_snapshot_when_lead_rate_differs()
     {
         var settings = new TestSettingsService();
@@ -451,15 +505,17 @@ public class FrequencyOverlayViewModelTests
             settings,
             database,
             LocalizationService.Instance,
-            new LeadRatePropagator(3.5));
+            new LeadRatePropagator(slopeRate: 0.5, leadRate: 3.5));
         withLead.Update(state);
 
         Assert.NotEqual(withoutLead.RadioReceiveText, withLead.RadioReceiveText);
         Assert.Equal(withoutLead.SatelliteReceiveText, withLead.SatelliteReceiveText);
     }
 
-    private sealed class LeadRatePropagator(double leadRate) : IOrbitPropagator
+    private sealed class LeadRatePropagator(double slopeRate, double leadRate) : IOrbitPropagator
     {
+        private DateTime? _resolveUtc;
+
         public void Clear() { }
         public void LoadSatellite(SatelliteCatalogEntry entry) { }
         public void RemoveSatellite(string noradId) { }
@@ -468,8 +524,20 @@ public class FrequencyOverlayViewModelTests
         public bool HasSatellite(string noradId) => true;
         public IReadOnlyCollection<string> LoadedNoradIds => ["99999"];
 
-        public LookAngles GetLookAngles(string noradId, GroundStation site, DateTime utc) =>
-            new(180, 30, 800, leadRate);
+        public LookAngles GetLookAngles(string noradId, GroundStation site, DateTime utc)
+        {
+            if (_resolveUtc is null)
+                _resolveUtc = utc.AddSeconds(-DopplerCatLead.RangeRateSlopeSampleSec);
+
+            var deltaSec = (utc - _resolveUtc.Value).TotalSeconds;
+            if (deltaSec is >= 0.99 and <= 1.01)
+                return new LookAngles(180, 30, 800, slopeRate);
+
+            if (deltaSec is >= 0.04 and <= 0.06)
+                return new LookAngles(180, 30, 800, leadRate);
+
+            return new LookAngles(180, 30, 800, -1.0);
+        }
     }
 
     private sealed class TestSettingsService : ISettingsService

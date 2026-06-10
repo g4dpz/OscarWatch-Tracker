@@ -3,9 +3,42 @@ using OscarWatch.Core.Orbit;
 
 namespace OscarWatch.Core.Radio;
 
+public readonly record struct DopplerLeadRangeRates(
+    double RxRangeRateKmPerSec,
+    double TxRangeRateKmPerSec,
+    double LeadBlend)
+{
+    public void Deconstruct(out double rxRangeRateKmPerSec, out double txRangeRateKmPerSec)
+    {
+        rxRangeRateKmPerSec = RxRangeRateKmPerSec;
+        txRangeRateKmPerSec = TxRangeRateKmPerSec;
+    }
+}
+
 public static class DopplerCatLead
 {
-    public static (double RxRangeRateKmPerSec, double TxRangeRateKmPerSec) ResolveRangeRates(
+    /// <summary>
+    /// CAT delay spaces serial commands; it is often much larger than actual tune latency.
+    /// Cap lead so high pacing values do not over-predict Doppler for the whole pass.
+    /// </summary>
+    public const double MaxLeadMs = 50;
+
+    /// <summary>Sample interval for detecting a steep range-rate leg (TCA vicinity).</summary>
+    public const double RangeRateSlopeSampleSec = 1.0;
+
+    /// <summary>
+    /// Range-rate slope (km/s²) where lead blend begins ramping from snapshot rate.
+    /// Below this, CAT uses the instantaneous range rate only.
+    /// </summary>
+    public const double SlopeBlendStartKmPerSec2 = 0.012;
+
+    /// <summary>
+    /// Range-rate slope (km/s²) where lead reaches full strength.
+    /// Between start and full, blend ramps linearly to avoid a step at the gate.
+    /// </summary>
+    public const double SteepRangeRateSlopeKmPerSec2 = 0.018;
+
+    public static DopplerLeadRangeRates ResolveRangeRates(
         IOrbitPropagator? propagator,
         RigSettings settings,
         GroundStation site,
@@ -18,24 +51,72 @@ public static class DopplerCatLead
             || state.LookAngles is null
             || settings.ReceiveCatDelayMs() <= 0 && settings.TransmitCatDelayMs() <= 0)
         {
-            return (fallback, fallback);
+            return new DopplerLeadRangeRates(fallback, fallback, 0);
         }
 
         try
         {
-            var rxLeadMs = settings.ReceiveCatDelayMs() / 2.0;
-            var txLeadMs = settings.TransmitCatDelayMs() / 2.0;
-            var rxRate = rxLeadMs > 0
+            var slope = ComputeRangeRateSlopeKmPerSec2(propagator, state.NoradId, site, utc, fallback);
+            var blend = ComputeLeadBlend(slope);
+            if (blend <= 0)
+                return new DopplerLeadRangeRates(fallback, fallback, 0);
+
+            var rxLeadMs = ResolveLeadMs(settings.ReceiveCatDelayMs());
+            var txLeadMs = ResolveLeadMs(settings.TransmitCatDelayMs());
+            var rxLead = rxLeadMs > 0
                 ? propagator.GetLookAngles(state.NoradId, site, utc.AddMilliseconds(rxLeadMs)).RangeRateKmPerSec
                 : fallback;
-            var txRate = txLeadMs > 0
+            var txLead = txLeadMs > 0
                 ? propagator.GetLookAngles(state.NoradId, site, utc.AddMilliseconds(txLeadMs)).RangeRateKmPerSec
                 : fallback;
-            return (rxRate, txRate);
+
+            var rxRate = Lerp(fallback, rxLead, blend);
+            var txRate = Lerp(fallback, txLead, blend);
+            return new DopplerLeadRangeRates(rxRate, txRate, blend);
         }
         catch
         {
-            return (fallback, fallback);
+            return new DopplerLeadRangeRates(fallback, fallback, 0);
         }
     }
+
+    internal static bool IsSteepRangeRateLeg(
+        IOrbitPropagator propagator,
+        string noradId,
+        GroundStation site,
+        DateTime utc,
+        double rangeRateKmPerSec) =>
+        ComputeLeadBlend(ComputeRangeRateSlopeKmPerSec2(propagator, noradId, site, utc, rangeRateKmPerSec)) >= 1.0;
+
+    internal static double ComputeLeadBlend(double slopeKmPerSec2)
+    {
+        if (slopeKmPerSec2 <= SlopeBlendStartKmPerSec2)
+            return 0;
+
+        if (slopeKmPerSec2 >= SteepRangeRateSlopeKmPerSec2)
+            return 1;
+
+        return (slopeKmPerSec2 - SlopeBlendStartKmPerSec2)
+            / (SteepRangeRateSlopeKmPerSec2 - SlopeBlendStartKmPerSec2);
+    }
+
+    internal static double ComputeRangeRateSlopeKmPerSec2(
+        IOrbitPropagator propagator,
+        string noradId,
+        GroundStation site,
+        DateTime utc,
+        double rangeRateKmPerSec)
+    {
+        var ahead = propagator.GetLookAngles(
+            noradId,
+            site,
+            utc.AddSeconds(RangeRateSlopeSampleSec));
+        return Math.Abs(ahead.RangeRateKmPerSec - rangeRateKmPerSec) / RangeRateSlopeSampleSec;
+    }
+
+    internal static double ResolveLeadMs(int catDelayMs) =>
+        catDelayMs <= 0 ? 0 : Math.Min(catDelayMs / 2.0, MaxLeadMs);
+
+    private static double Lerp(double from, double to, double blend) =>
+        from + (to - from) * blend;
 }

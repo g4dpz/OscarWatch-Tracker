@@ -323,16 +323,16 @@
       <h3>Lead Doppler for CAT latency</h3>
       <p>
         Optional checkbox <strong>Lead Doppler for CAT latency</strong> (off by default) predicts Doppler at
-        <em>now + half your CAT delay</em> before sending a frequency — the same idea as SatPC32 and other
-        satellite trackers. By the time the radio finishes tuning, the target has already moved, especially
-        on the steep leg after <strong>TCA</strong>. The lead uses your existing <strong>CAT delay (ms)</strong>
-        setting (half for downlink, half for uplink in dual-radio setups).
+        <em>now + half your CAT delay</em> before sending a frequency — but <strong>only on the steep middle
+        of the pass</strong> when range rate is changing quickly (around <strong>TCA</strong>). Gentle
+        <strong>AOS</strong> and <strong>LOS</strong> legs keep the current rate, matching how operators
+        report the problem. Lead uses half your <strong>CAT delay (ms)</strong> (half per leg in dual-radio
+        setups), <strong>capped at 50&nbsp;ms</strong> so a large CI-V pacing delay does not over-predict.
       </p>
       <p>
-        When enabled, the frequency overlay <strong>Radio</strong> row shows the lead-ahead command frequency;
-        the <strong>Sat</strong> row and Doppler line still show the current spacecraft-side values.
-        Benefit is most noticeable with higher CAT delay (100–200&nbsp;ms) or fast-changing passes; at the
-        default 50&nbsp;ms the lead is only 25&nbsp;ms ahead.
+        When lead is active, the frequency overlay <strong>Radio</strong> row shows the lead-ahead command
+        frequency; the <strong>Sat</strong> row and Doppler line still show the current spacecraft-side values.
+        On gentle legs both rows match.
       </p>
 
       <h2>Rotators</h2>

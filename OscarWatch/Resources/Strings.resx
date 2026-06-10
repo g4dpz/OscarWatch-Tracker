@@ -738,6 +738,12 @@ Continue?</value>
   <data name="Freq.Radio">
     <value>Radio</value>
   </data>
+  <data name="Freq.DopplerLeadEnabled">
+    <value>Lead Doppler enabled — waiting for steep pass leg</value>
+  </data>
+  <data name="Freq.DopplerLeadActive">
+    <value>Lead Doppler active — CAT is predicting ahead on the Radio row</value>
+  </data>
   <data name="Freq.DopplerFull">
     <value>Full</value>
   </data>
@@ -1117,7 +1123,7 @@ Continue?</value>
     <value>Lead Doppler for CAT latency</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadNote">
-    <value>When enabled, CAT and the Radio row predict Doppler at half your CAT delay ahead (SatPC32-style). Helps on steep passes near TCA. The Sat row still shows the current spacecraft frequency.</value>
+    <value>When enabled, CAT and the Radio row predict Doppler ahead on the steep TCA leg only (when range rate is changing quickly). Lead is half your CAT delay, capped at 50 ms. Gentle AOS/LOS legs use the current rate. The Sat row still shows the current spacecraft frequency.</value>
   </data>
   <data name="Settings.Rotator.Enable">
     <value>Enable rotator</value>
@@ -1267,7 +1273,7 @@ Continue?</value>
     <value>Cloudlog</value>
   </data>
   <data name="Settings.Cloudlog.Intro">
-    <value>Posts satellite TX/RX to Cloudlog CAT when you select a satellite or frequencies update. Test connection loads your logbooks for grid lookups on hams.at roves.</value>
+    <value>Posts satellite TX/RX to Cloudlog when frequencies or modes change, plus a periodic keepalive while unchanged. Test connection loads your logbooks for grid lookups on hams.at roves.</value>
   </data>
   <data name="Settings.Cloudlog.Enable">
     <value>Enable Cloudlog radio API (required for live updates)</value>
@@ -1294,7 +1300,10 @@ Continue?</value>
     <value>Default is OscarWatch. Must match a radio entry Cloudlog can assign QSOs to.</value>
   </data>
   <data name="Settings.Cloudlog.MinInterval">
-    <value>Minimum update interval (ms)</value>
+    <value>Keepalive interval (ms)</value>
+  </data>
+  <data name="Settings.Cloudlog.MinIntervalNote">
+    <value>Posts immediately when uplink, downlink, modes, or satellite change. Repeats the same state at this interval (default 10 minutes) so Cloudlog stays in sync during long contacts.</value>
   </data>
   <data name="Settings.Cloudlog.TestConnection">
     <value>Test connection</value>

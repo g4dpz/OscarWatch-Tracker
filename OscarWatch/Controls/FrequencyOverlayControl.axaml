@@ -168,6 +168,17 @@
       <Setter Property="BorderBrush" Value="#FF404040" />
       <Setter Property="Foreground" Value="#FF808080" />
     </Style>
+    <Style Selector="Ellipse.doppler-lead-dot">
+      <Setter Property="Width" Value="7" />
+      <Setter Property="Height" Value="7" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Ellipse.doppler-lead-dot.idle">
+      <Setter Property="Fill" Value="#FF5A5A5A" />
+    </Style>
+    <Style Selector="Ellipse.doppler-lead-dot.active">
+      <Setter Property="Fill" Value="#FFFFB020" />
+    </Style>
   </UserControl.Styles>
 
   <Border Background="#FF121212"
@@ -207,16 +218,25 @@
                      VerticalAlignment="Center"
                      MaxWidth="120"
                      TextTrimming="CharacterEllipsis" />
-          <TextBlock Grid.Column="1"
-                     Grid.ColumnSpan="2"
-                     Text="{Binding CollapsedSummaryText}"
-                     IsVisible="{Binding IsCollapsed}"
-                     FontFamily="Consolas,Courier New,monospace"
-                     FontSize="12"
-                     LineHeight="16"
-                     Foreground="#FFE0E0E0"
-                     VerticalAlignment="Center"
-                     TextTrimming="CharacterEllipsis" />
+          <StackPanel Grid.Column="1"
+                      Grid.ColumnSpan="2"
+                      Orientation="Horizontal"
+                      Spacing="6"
+                      IsVisible="{Binding IsCollapsed}"
+                      VerticalAlignment="Center">
+            <Ellipse Classes="doppler-lead-dot"
+                     Classes.active="{Binding IsDopplerLeadActive}"
+                     Classes.idle="{Binding !IsDopplerLeadActive}"
+                     IsVisible="{Binding ShowDopplerLeadIndicator}"
+                     ToolTip.Tip="{Binding DopplerLeadToolTip}" />
+            <TextBlock Text="{Binding CollapsedSummaryText}"
+                       FontFamily="Consolas,Courier New,monospace"
+                       FontSize="12"
+                       LineHeight="16"
+                       Foreground="#FFE0E0E0"
+                       VerticalAlignment="Center"
+                       TextTrimming="CharacterEllipsis" />
+          </StackPanel>
           <UniformGrid x:Name="OperatingStyleHeader"
                        Grid.Column="2"
                        Columns="2"
@@ -358,13 +378,22 @@
                       Command="{Binding SelectRxFixedDopplerCommand}"
                       Margin="3,0,0,0" />
             </UniformGrid>
-            <TextBlock Grid.Column="1"
-                       Classes="freq-mono"
-                       Text="{Binding DopplerShiftText}"
-                       FontSize="13"
-                       Foreground="#FFB0B0B0"
-                       HorizontalAlignment="Right"
-                       VerticalAlignment="Center" />
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        Spacing="6"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center">
+              <Ellipse Classes="doppler-lead-dot"
+                       Classes.active="{Binding IsDopplerLeadActive}"
+                       Classes.idle="{Binding !IsDopplerLeadActive}"
+                       IsVisible="{Binding ShowDopplerLeadIndicator}"
+                       ToolTip.Tip="{Binding DopplerLeadToolTip}" />
+              <TextBlock Classes="freq-mono"
+                         Text="{Binding DopplerShiftText}"
+                         FontSize="13"
+                         Foreground="#FFB0B0B0"
+                         VerticalAlignment="Center" />
+            </StackPanel>
           </Grid>
 
           <TextBlock Grid.Row="4" Grid.Column="0" Text="{loc:Localize Key=Freq.Ctcss}" FontSize="14"
