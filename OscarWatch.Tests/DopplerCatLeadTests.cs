@@ -54,12 +54,12 @@ public class DopplerCatLeadTests
 
         var (rx, tx) = DopplerCatLead.ResolveRangeRates(propagator, settings, Site, state, utc);
 
-        Assert.Equal(3, propagator.CallCount);
+        // With equal rx/tx lead (both 50 ms), the short-circuit calls propagator once for both
+        Assert.Equal(2, propagator.CallCount); // 1 slope + 1 shared lead
         Assert.Equal(utc.AddSeconds(1), propagator.LastSlopeUtc);
         Assert.Equal(utc.AddMilliseconds(50), propagator.LastRxUtc);
-        Assert.Equal(utc.AddMilliseconds(50), propagator.LastTxUtc);
         Assert.Equal(1.0, rx);
-        Assert.Equal(2.0, tx);
+        Assert.Equal(1.0, tx); // same rate used for both when leads are equal
     }
 
     [Fact]
@@ -74,7 +74,8 @@ public class DopplerCatLeadTests
 
         Assert.InRange(result.LeadBlend, 0.4, 0.6);
         Assert.InRange(result.RxRangeRateKmPerSec, -1.01, -0.99);
-        Assert.InRange(result.TxRangeRateKmPerSec, -0.51, -0.49);
+        // With equal leads (both 50 ms), tx gets the same blended rate as rx
+        Assert.InRange(result.TxRangeRateKmPerSec, -1.01, -0.99);
         Assert.NotEqual(-3.0, result.RxRangeRateKmPerSec);
         Assert.NotEqual(1.0, result.RxRangeRateKmPerSec);
     }
@@ -391,8 +392,8 @@ public class DopplerCatLeadTests
 
         DopplerCatLead.ResolveRangeRates(propagator, settings, Site, StateWithRate(0), utc);
 
+        // With equal leads (both capped to 50 ms), short-circuit calls propagator once
         Assert.Equal(utc.AddMilliseconds(50), propagator.LastRxUtc);
-        Assert.Equal(utc.AddMilliseconds(50), propagator.LastTxUtc);
     }
 
     [Fact]
