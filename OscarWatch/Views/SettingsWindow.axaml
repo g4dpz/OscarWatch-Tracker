@@ -676,7 +676,7 @@
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="When enabled, high-elevation passes entering the zenith singularity will be analysed and the rotator may pre-position in a flipped orientation to minimise signal loss." />
+                       Text="When enabled, high-elevation passes where the rotator cannot keep up near zenith will be analysed, and the rotator may pre-position in a flipped orientation to minimise signal loss." />
             <TextBlock Text="Slew Rate (°/s)" Margin="0,8,0,0" />
             <NumericUpDown Value="{Binding RotatorSlewRateDegPerSec, Mode=TwoWay}"
                            Minimum="0.1" Maximum="30"
