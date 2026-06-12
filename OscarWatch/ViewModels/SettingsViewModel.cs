@@ -159,6 +159,9 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty]
     private double _rotatorElevationOffsetDeg;
 
+    [ObservableProperty]
+    private double _rotatorMovementThresholdDeg = 1.0;
+
     public ObservableCollection<string> AvailableComPorts { get; } = [];
 
     public bool SpeechAvailable { get; }
@@ -671,7 +674,8 @@ public partial class SettingsViewModel : ViewModelBase
             ParkElevationDeg = RotatorParkElevationDeg,
             AzimuthOffsetDeg = RotatorAzimuthOffsetDeg,
             ElevationOffsetDeg = RotatorElevationOffsetDeg,
-            SmartAzimuth450 = RotatorSmartAzimuth450
+            SmartAzimuth450 = RotatorSmartAzimuth450,
+            MovementThresholdDeg = RotatorMovementThresholdDeg
         };
         _settings.Current.Rig = new RigSettings
         {
@@ -823,6 +827,7 @@ public partial class SettingsViewModel : ViewModelBase
             RotatorAzimuthOffsetDeg = rotator.AzimuthOffsetDeg;
             RotatorElevationOffsetDeg = rotator.ElevationOffsetDeg;
             RotatorSmartAzimuth450 = rotator.SmartAzimuth450;
+            RotatorMovementThresholdDeg = rotator.MovementThresholdDeg;
 
             var rig = _settings.Current.Rig ?? new RigSettings();
             rig.MigrateFt817818ToDualOnly();

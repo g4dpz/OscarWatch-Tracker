@@ -34,6 +34,21 @@ public sealed class RotatorSettings
     /// <summary>Use 361–450° commands for shortest path when <see cref="AzimuthRange"/> is 450°.</summary>
     public bool SmartAzimuth450 { get; set; } = true;
 
+    /// <summary>
+    /// Minimum angular change (degrees) required before a new position command is sent.
+    /// Valid range: [0.1, 10.0]. Default: 1.0°.
+    /// </summary>
+    private double _movementThresholdDeg = 1.0;
+    public double MovementThresholdDeg
+    {
+        get => _movementThresholdDeg;
+        set
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value) || value < 0.1 || value > 10.0) return;
+            _movementThresholdDeg = value;
+        }
+    }
+
     public double MaxAzimuthDeg => (double)AzimuthRange;
     public double MaxElevationDeg => (double)ElevationRange;
 }
