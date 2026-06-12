@@ -66,6 +66,7 @@ public static class RigDriverFactory
             RigType.IcomIc910 => new IcomIc910Driver(port, baudRate, civAddress, catDelayMs),
             RigType.IcomIc9100 => new IcomIc9100Driver(port, baudRate, civAddress, catDelayMs),
             RigType.IcomIc9700 => new IcomIc9700Driver(port, baudRate, civAddress, catDelayMs),
+            RigType.IcomIc821h => new IcomIc821hDriver(port, baudRate, civAddress, catDelayMs),
             RigType.IcomIc705 =>
                 throw new InvalidOperationException("IC-705 requires Settings → Radio → Dual radio."),
             RigType.IcomIc706 or RigType.IcomIc706Mkii or RigType.IcomIc706MkiiG =>

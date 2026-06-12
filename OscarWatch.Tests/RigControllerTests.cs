@@ -906,6 +906,93 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Icom821h_same_band_packet_uses_satellite_main_sub_not_split()
+    {
+        var transport = new RecordingIcomCivTransport();
+        var driver = new IcomIc821hDriver(transport);
+        var controller = new RigController(_ => driver);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.IcomIc821h,
+            Port = "COM1",
+            CatDelayMs = 0,
+            CivAddress = "4C"
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "Packet",
+            DownlinkKHz = 145_825,
+            UplinkKHz = 145_825,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR"
+        };
+
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "ISS",
+                NoradId = "25544",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, 0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0)
+        });
+        controller.DrainCommandQueueForTests();
+
+        Assert.Contains("1a0701", transport.SentCommandBodies);
+        Assert.DoesNotContain("0f01", transport.SentCommandBodies);
+        Assert.Contains("07d1", transport.SentCommandBodies);
+    }
+
+    [Fact]
+    public void Icom821h_beacon_disables_satellite_mode()
+    {
+        var transport = new RecordingIcomCivTransport();
+        var driver = new IcomIc821hDriver(transport);
+        var controller = new RigController(_ => driver);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.IcomIc821h,
+            Port = "COM1",
+            CatDelayMs = 0,
+            CivAddress = "4C"
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "SSTV (VHF)",
+            DownlinkKHz = 145_800,
+            UplinkKHz = 0,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR"
+        };
+
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "ISS",
+                NoradId = "25544",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, 0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0)
+        });
+        controller.DrainCommandQueueForTests();
+
+        Assert.Contains("1a0700", transport.SentCommandBodies);
+        Assert.DoesNotContain("0f01", transport.SentCommandBodies);
+    }
+
+    [Fact]
     public void Icom910_same_band_split_clears_ctcss_on_vfo_ab_not_main_sub()
     {
         var rig = new RecordingRigDriver();

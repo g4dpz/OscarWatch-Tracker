@@ -283,7 +283,7 @@ public sealed class RigController : IRigController, IDisposable
             return;
 
         if (!settings.DualRadioEnabled)
-            _useMainSub = RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz);
+            _useMainSub = ShouldUseMainSubLayout(settings, context);
 
         ApplyCtcss(settings, context, force: true);
         RestoreOperatorVfo();
@@ -932,9 +932,7 @@ public sealed class RigController : IRigController, IDisposable
         if (_driver is null)
             return;
 
-        _useMainSub = !_isBeaconOnly
-            && RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz)
-            && UsesMainSubSatelliteLayout(settings.Type);
+        _useMainSub = !_isBeaconOnly && ShouldUseMainSubLayout(settings, context);
         AssignReceiveVfo(settings, context);
 
         if (_isBeaconOnly)
@@ -965,6 +963,8 @@ public sealed class RigController : IRigController, IDisposable
             // Kenwood SATL uses FA/FB only — never FR/FT (driver no-ops split while in SAT).
             if (_useMainSub && !IsIcomSatelliteLayoutRig(settings.Type) && settings.Type != RigType.KenwoodTs2000)
                 _driver.SetSplitOn(false);
+            if (settings.Type == RigType.IcomIc821h && _driver is IcomIc821hDriver ic821)
+                ic821.EstablishSatelliteVfoState();
             Thread.Sleep(150);
         }
 
@@ -1130,14 +1130,23 @@ public sealed class RigController : IRigController, IDisposable
         $"{context.TrackState.NoradId}|{context.Mode.Type}|{context.Mode.DownlinkKHz}|{context.Mode.UplinkKHz}";
 
     private static bool IsIcomSatelliteLayoutRig(RigType type) =>
-        type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700;
+        type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700 or RigType.IcomIc821h;
 
     private static bool UsesMainSubSatelliteLayout(RigType type) =>
-        type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700
+        type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700 or RigType.IcomIc821h
             or RigType.YaesuFt847 or RigType.KenwoodTs2000 or RigType.Dummy;
+
+    private static bool UsesIcomSatelliteOnlyLayout(RigType type) =>
+        type == RigType.IcomIc821h;
+
+    private static bool ShouldUseMainSubLayout(RigSettings settings, RigTrackingContext context) =>
+        UsesMainSubSatelliteLayout(settings.Type)
+        && (RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz)
+            || UsesIcomSatelliteOnlyLayout(settings.Type));
 
     private static bool UsesIcomSplitAbLayout(RigSettings settings, RigTrackingContext context) =>
         IsIcomSatelliteLayoutRig(settings.Type)
+        && !UsesIcomSatelliteOnlyLayout(settings.Type)
         && !context.Mode.IsBeaconOnly
         && !RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz);
 
@@ -1184,7 +1193,7 @@ public sealed class RigController : IRigController, IDisposable
             yield break;
         }
 
-        if (settings.Type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700
+        if (settings.Type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700 or RigType.IcomIc821h
             or RigType.YaesuFt847 or RigType.KenwoodTs2000)
         {
             yield return RigVfo.Main;
@@ -1289,9 +1298,10 @@ public sealed class RigController : IRigController, IDisposable
         if (settings.DualRadioEnabled)
             return RigVfo.Main;
 
-        if (settings.Type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700)
+        if (settings.Type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700 or RigType.IcomIc821h)
         {
             return RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz)
+                || UsesIcomSatelliteOnlyLayout(settings.Type)
                 ? RigVfo.Sub
                 : RigVfo.VfoB;
         }

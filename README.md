@@ -99,6 +99,7 @@ OscarWatch talks to rigs and rotators over **serial CAT** (COM port on Windows, 
 | **ICOM IC-910**     | CI-V              | Cross-band: satellite mode, Main/Sub, Sub uplink CTCSS. Receive-only (uplink 0): SAT off, downlink on Main |
 | **ICOM IC-9100**    | CI-V              | Same as IC-9700; default CI-V address `7C`                                                                 |
 | **ICOM IC-9700**    | CI-V              | Same layout as IC-910                                                                                      |
+| **ICOM IC-821H**    | CI-V              | Satellite Main/Sub only (no split CAT); same-band duplex (e.g. ISS Packet) stays in SAT; default CI-V `4C`; uplink tone manual on radio |
 | **Yaesu FT-847**    | Yaesu CAT         | Satellite mode, SAT RX/TX VFOs, doppler, uplink CTCSS                                                      |
 | **Yaesu FT-817 / FT-818** | Yaesu CAT (8N2) | **Dual radio only**: downlink radio on one COM port, uplink on another (e.g. two FT-818s); full doppler; linear passband tuning on the downlink VFO; FM locks the dial via CAT |
 | **ICOM IC-705**     | CI-V              | **Dual radio only**: one or two IC-705s, or mixed with FT-817/818; one VFO per radio; per-leg CI-V address (default `A4`) |

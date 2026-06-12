@@ -109,6 +109,7 @@ public sealed class RigSettings
         RigType.IcomIc9700 => "A2",
         RigType.IcomIc9100 => "7C",
         RigType.IcomIc910 => "7C",
+        RigType.IcomIc821h => "4C",
         RigType.IcomIc705 => "A4",
         RigType.IcomIc706 => "48",
         RigType.IcomIc706Mkii => "4C",

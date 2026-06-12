@@ -381,7 +381,8 @@ public partial class SettingsViewModel : ViewModelBase
     public bool ShowRigDualConfig => DualRadioEnabled;
 
     public bool ShowRigCivAddress =>
-        SelectedRigTypeChoice?.Value is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700;
+        SelectedRigTypeChoice?.Value is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700
+            or RigType.IcomIc821h;
 
     public bool ShowRigFt847CatHint =>
         SelectedRigTypeChoice?.Value == RigType.YaesuFt847;
@@ -526,6 +527,7 @@ public partial class SettingsViewModel : ViewModelBase
             new(RigType.IcomIc910, "ICOM IC-910"),
             new(RigType.IcomIc9100, "ICOM IC-9100"),
             new(RigType.IcomIc9700, "ICOM IC-9700"),
+            new(RigType.IcomIc821h, "ICOM IC-821H"),
             new(RigType.YaesuFt847, "Yaesu FT-847"),
             new(RigType.KenwoodTs2000, "Kenwood TS-2000"),
             new(RigType.Dummy, "Dummy Rig")
@@ -1237,12 +1239,12 @@ public partial class SettingsViewModel : ViewModelBase
         if (value.Value is RigType.YaesuFt847 or RigType.KenwoodTs2000)
             RigBaudRate = 57600;
 
-        if (value.Value is not (RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700))
+        if (value.Value is not (RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700 or RigType.IcomIc821h))
             return;
 
         var suggested = RigSettings.DefaultCivAddressFor(value.Value);
         if (string.IsNullOrWhiteSpace(RigCivAddress)
-            || RigCivAddress is "60" or "7C" or "A2")
+            || RigCivAddress is "60" or "7C" or "A2" or "4C")
             RigCivAddress = suggested;
     }
 

@@ -47,7 +47,8 @@
           <tr><th>Radio</th><th>Notes</th></tr>
         </thead>
         <tbody>
-          <tr><td>ICOM IC-910 / IC-9700 / IC-9100</td><td>CI-V, Main/Sub for cross-band; receive-only modes use <strong>Main</strong> on the downlink band (VHF or UHF) with SAT off</td></tr>
+          <tr><td>ICOM IC-910 / IC-9700 / IC-9100</td><td>CI-V, Main/Sub for cross-band; same-band with uplink uses split (VFO A/B); receive-only modes use <strong>Main</strong> on the downlink band with SAT off</td></tr>
+          <tr><td>ICOM IC-821H</td><td>CI-V (<strong>4C</strong>), satellite <strong>Main/Sub only</strong> — no split CAT. Cross-band and same-band (e.g. ISS Packet) use SAT on (Main=RX, Sub=TX). Receive-only modes: SAT off, Main only. Set uplink CTCSS on the radio manually</td></tr>
           <tr><td>Yaesu FT-847</td><td>Satellite CAT — SAT RX/TX VFOs, doppler, uplink CTCSS</td></tr>
           <tr><td>Yaesu FT-817 / FT-818</td><td><strong>Dual radio only</strong> (Settings → Dual radio): downlink rig on one COM port, uplink on another — full doppler on both; linear SSB/CW lets you spin the <strong>downlink</strong> VFO for passband trim while uplink keeps tracking</td></tr>
           <tr><td>Yaesu FT-991 / FT-991A / FTX-1</td><td><strong>Dual radio only</strong>: ASCII CAT (8N2) on separate COM ports; VFO-A per radio; FM dial lock via CAT. FTX-1: use <strong>CAT-1</strong> (Enhanced COM), not CAT-2</td></tr>
@@ -239,7 +240,7 @@
       </p>
       <ul>
         <li>
-          <strong>ICOM IC-910 / IC-9100 / IC-9700</strong> — turns <strong>satellite mode off</strong>, clears CTCSS on Main and Sub
+          <strong>ICOM IC-910 / IC-9100 / IC-9700 / IC-821H</strong> — turns <strong>satellite mode off</strong>, clears CTCSS on Main and Sub (821H: tone is front-panel only)
           (leftover from a previous FM satellite pass), swaps Main/Sub if needed so the downlink band is on <strong>Main</strong>,
           sets downlink mode and frequency on Main, and applies Doppler on Main only.
         </li>
@@ -305,7 +306,7 @@
         <strong>eight</strong> stable dial reads (~800&nbsp;ms) before resuming automatic RX/TX Doppler writes.
       </p>
       <p>
-        On rigs that use <strong>Main/Sub</strong> on one radio (ICOM IC-910 / IC-9700 / IC-9100, Kenwood TS-2000 in SATL),
+        On rigs that use <strong>Main/Sub</strong> on one radio (ICOM IC-910 / IC-9700 / IC-9100 / IC-821H, Kenwood TS-2000 in SATL),
         receive updates on Main as soon as the dial is stable. <strong>Uplink (Sub) CAT is deferred for about
         2.5 seconds</strong> after the last dial movement so brief pauses while scanning the passband do not
         hop the radio to Sub or fight your tuning. OscarWatch then returns the selected VFO to Main for receive.

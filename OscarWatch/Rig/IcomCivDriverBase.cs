@@ -219,7 +219,7 @@ public abstract class IcomCivDriverBase : IRigDriver
     protected virtual IEnumerable<byte[]> GetSetModeCommands(string mode) =>
         IcomCivCodec.EncodeSetModeCommand(mode) is { } cmd ? [cmd] : [];
 
-    public void SetSplitOn(bool on) =>
+    public virtual void SetSplitOn(bool on) =>
         SendWithAckRetry(on ? [0x0F, 0x01] : [0x0F, 0x00], on ? "split on" : "split off");
 
     public abstract void SetSatelliteMode(bool on);
@@ -277,13 +277,13 @@ public abstract class IcomCivDriverBase : IRigDriver
         }
     }
 
-    public void SetToneOn(bool on) =>
+    public virtual void SetToneOn(bool on) =>
         SendWithAckRetry(on ? [0x16, 0x42, 0x01] : [0x16, 0x42, 0x00], on ? "tone on" : "tone off");
 
-    public void SetToneSquelchOn(bool on) =>
+    public virtual void SetToneSquelchOn(bool on) =>
         SendWithAckRetry(on ? [0x16, 0x43, 0x01] : [0x16, 0x43, 0x00], on ? "tone squelch on" : "tone squelch off");
 
-    public void SetToneHz(double hz, bool squelchTone)
+    public virtual void SetToneHz(double hz, bool squelchTone)
     {
         if (_transport is null || !IsConnected)
             return;
