@@ -104,6 +104,10 @@ public class SphericalGeoPropertyTests
         if (!IsFinite(rawLat) || !IsFinite(rawLon))
             return true; // skip non-finite inputs
 
+        // Reject values too large for modulo to preserve precision (same guard as self-identity).
+        if (Math.Abs(rawLat) > 1e8 || Math.Abs(rawLon) > 1e8)
+            return true;
+
         var lat = rawLat % 90.0;
         var lon = rawLon % 180.0;
 
@@ -115,7 +119,8 @@ public class SphericalGeoPropertyTests
 
         var distance = SphericalGeo.AngularDistanceDeg(lat, lon, antiLat, antiLon);
 
-        return Math.Abs(distance - 180.0) < 1e-6;
+        // acos(cosD) near cosD = -1 can deviate from 180° by ~1e-6° after modulo on large inputs.
+        return Math.Abs(distance - 180.0) < 1e-5;
     }
 
     /// <summary>

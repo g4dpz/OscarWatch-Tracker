@@ -7,12 +7,15 @@
         x:DataType="vm:MutualPassVisualizerViewModel"
         Title="{loc:Localize Key=Window.MutualPassVisualizer.Title}"
         Width="920"
-        SizeToContent="Height"
+        Height="560"
         MinWidth="760"
-        MaxHeight="900"
+        MinHeight="480"
         WindowStartupLocation="CenterOwner">
-  <StackPanel Margin="14" Spacing="12" x:Name="ScreenshotRoot">
-    <StackPanel Spacing="8">
+  <Grid Margin="14"
+        RowDefinitions="Auto,*,Auto"
+        RowSpacing="12"
+        x:Name="ScreenshotRoot">
+    <StackPanel Grid.Row="0" Spacing="8">
       <TextBlock Text="{Binding HeadingText}"
                  FontSize="18"
                  FontWeight="SemiBold"
@@ -31,37 +34,46 @@
       </StackPanel>
     </StackPanel>
 
-    <Grid ColumnDefinitions="*,*"
-          ColumnSpacing="16">
-      <StackPanel Grid.Column="0" Spacing="6">
-        <TextBlock Text="{Binding WestPlotHeader}"
+    <Grid Grid.Row="1"
+          ColumnDefinitions="*,*"
+          ColumnSpacing="16"
+          MinHeight="220">
+      <Grid Grid.Column="0"
+            RowDefinitions="Auto,*"
+            RowSpacing="6">
+        <TextBlock Grid.Row="0"
+                   Text="{Binding WestPlotHeader}"
                    FontWeight="SemiBold"
                    FontSize="12"
                    TextWrapping="Wrap" />
-        <ctrl:PassPolarPlotControl PlotData="{Binding WestPlotData}"
+        <ctrl:PassPolarPlotControl Grid.Row="1"
+                                   PlotData="{Binding WestPlotData}"
                                    MinimumElevationDeg="{Binding MinimumElevationDeg}"
                                    UseUtcTime="{Binding UseUtcTime}"
                                    Use24HourClock="{Binding Use24HourClock}"
-                                   Height="300"
                                    HorizontalAlignment="Stretch"
-                                   VerticalAlignment="Top" />
-      </StackPanel>
-      <StackPanel Grid.Column="1" Spacing="6">
-        <TextBlock Text="{Binding EastPlotHeader}"
+                                   VerticalAlignment="Stretch" />
+      </Grid>
+      <Grid Grid.Column="1"
+            RowDefinitions="Auto,*"
+            RowSpacing="6">
+        <TextBlock Grid.Row="0"
+                   Text="{Binding EastPlotHeader}"
                    FontWeight="SemiBold"
                    FontSize="12"
                    TextWrapping="Wrap" />
-        <ctrl:PassPolarPlotControl PlotData="{Binding EastPlotData}"
+        <ctrl:PassPolarPlotControl Grid.Row="1"
+                                   PlotData="{Binding EastPlotData}"
                                    MinimumElevationDeg="{Binding MinimumElevationDeg}"
                                    UseUtcTime="{Binding UseUtcTime}"
                                    Use24HourClock="{Binding Use24HourClock}"
-                                   Height="300"
                                    HorizontalAlignment="Stretch"
-                                   VerticalAlignment="Top" />
-      </StackPanel>
+                                   VerticalAlignment="Stretch" />
+      </Grid>
     </Grid>
 
-    <Border BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+    <Border Grid.Row="2"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
             BorderThickness="0,1,0,0"
             Padding="0,12,0,0">
       <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
@@ -104,5 +116,5 @@
         </StackPanel>
       </Grid>
     </Border>
-  </StackPanel>
+  </Grid>
 </Window>
