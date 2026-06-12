@@ -207,6 +207,9 @@ public partial class SettingsViewModel : ViewModelBase
     public bool IsRotatorSmartAzimuth450Enabled =>
         SelectedAzimuthRangeChoice?.Value == RotatorAzimuthRange.Deg450;
 
+    public bool IsRotatorKeyholeSettingsVisible =>
+        SelectedElevationRangeChoice?.Value == RotatorElevationRange.Deg180;
+
     [ObservableProperty]
     private bool _rotatorKeyholeAvoidanceEnabled;
 
@@ -690,7 +693,8 @@ public partial class SettingsViewModel : ViewModelBase
             AzimuthOffsetDeg = RotatorAzimuthOffsetDeg,
             ElevationOffsetDeg = RotatorElevationOffsetDeg,
             SmartAzimuth450 = RotatorSmartAzimuth450,
-            KeyholeAvoidanceEnabled = RotatorKeyholeAvoidanceEnabled,
+            KeyholeAvoidanceEnabled = RotatorKeyholeAvoidanceEnabled
+                && SelectedElevationRangeChoice?.Value == RotatorElevationRange.Deg180,
             SlewRateDegPerSec = RotatorSlewRateDegPerSec,
             KeyholeThresholdDeg = RotatorKeyholeThresholdDeg,
             MovementThresholdDeg = RotatorMovementThresholdDeg
@@ -1199,6 +1203,14 @@ public partial class SettingsViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(IsRotatorSmartAzimuth450Enabled));
     }
+
+    partial void OnSelectedElevationRangeChoiceChanged(RotatorElevationOption? value)
+    {
+        OnPropertyChanged(nameof(IsRotatorKeyholeSettingsVisible));
+        if (value?.Value != RotatorElevationRange.Deg180)
+            RotatorKeyholeAvoidanceEnabled = false;
+    }
+
     partial void OnRigEnabledChanged(bool value) => RefreshComPortConflictIfReady();
     partial void OnGpsEnabledChanged(bool value)
     {

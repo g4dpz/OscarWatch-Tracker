@@ -144,6 +144,21 @@ public sealed class RotatorControllerKeyholeTests
         return !status.IsKeyholeAvoidanceActive && !status.IsPrePositioning;
     }
 
+    [Fact]
+    public void Keyhole_avoidance_requires_0_180_elevation_range()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var settings = EnabledSettings(keyholeEnabled: true);
+        settings.ElevationRange = RotatorElevationRange.Deg90;
+
+        var controller = new RotatorController(_ => rotator);
+        controller.SetActivePassSynchronously(MakePass(maxElevation: 85));
+        controller.UpdateSynchronously(settings, TrackTarget("99999", 45, 60));
+
+        Assert.Null(controller.CurrentKeyholePlan);
+        Assert.False(controller.GetPositionStatus().IsKeyholeAvoidanceActive);
+    }
+
     #endregion
 
     #region Unit Tests — Pre-Positioning

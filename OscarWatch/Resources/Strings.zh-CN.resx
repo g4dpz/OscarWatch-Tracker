@@ -1119,6 +1119,30 @@
   <data name="Settings.Rotator.ElevationRange">
     <value>仰角范围</value>
   </data>
+  <data name="Settings.Rotator.ElevationRangeNote">
+    <value>标准旋转器选 0–90°。可过顶安装的旋转器（如 Yaesu G-5500）选 0–180°，可跟踪过天顶。</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSection">
+    <value>Keyhole 规避</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeEnable">
+    <value>启用 Keyhole 规避</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeNote">
+    <value>启用后，会分析天顶附近旋转器跟不上卫星的高仰角过顶；必要时可预先转到反向方位（翻转）以减少信号丢失。仅在选择 0–180° 仰角范围时可用。</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSlewRate">
+    <value>旋转速率（°/s）</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSlewRateNote">
+    <value>旋转器最大旋转速率（度/秒），用于估算信号丢失窗口。</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeThreshold">
+    <value>Keyhole 阈值（°）</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeThresholdNote">
+    <value>过顶被判定进入 keyhole 区域所需的最低最大仰角。有效范围：60–89°。</value>
+  </data>
   <data name="Settings.Rotator.TrackStart">
     <value>开始跟踪仰角（°）</value>
   </data>

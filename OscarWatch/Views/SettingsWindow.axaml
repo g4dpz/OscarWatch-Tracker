@@ -624,6 +624,10 @@
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="{loc:Localize Key=Settings.Rotator.ElevationRangeNote}" />
             <TextBlock Text="Tracking" Margin="0,12,0,0" FontWeight="SemiBold" FontSize="13" />
             <TextBlock Text="{loc:Localize Key=Settings.Rotator.TrackStart}" Margin="0,8,0,0" />
             <NumericUpDown Value="{Binding RotatorTrackStartElevationDeg, Mode=TwoWay}"
@@ -682,15 +686,17 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="{loc:Localize Key=Settings.Rotator.OffsetNote}" />
-            <TextBlock Text="Keyhole Avoidance" Margin="0,12,0,0" FontWeight="SemiBold" FontSize="13" />
-            <CheckBox Content="Enable Keyhole Avoidance"
+            <TextBlock Text="{loc:Localize Key=Settings.Rotator.KeyholeSection}" Margin="0,12,0,0" FontWeight="SemiBold" FontSize="13"
+                       IsVisible="{Binding IsRotatorKeyholeSettingsVisible}" />
+            <StackPanel Spacing="0" IsVisible="{Binding IsRotatorKeyholeSettingsVisible}">
+            <CheckBox Content="{loc:Localize Key=Settings.Rotator.KeyholeEnable}"
                       IsChecked="{Binding RotatorKeyholeAvoidanceEnabled, Mode=TwoWay}"
                       Focusable="True" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="When enabled, high-elevation passes where the rotator cannot keep up near zenith will be analysed, and the rotator may pre-position in a flipped orientation to minimise signal loss." />
-            <TextBlock Text="Slew Rate (°/s)" Margin="0,8,0,0" />
+                       Text="{loc:Localize Key=Settings.Rotator.KeyholeNote}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Rotator.KeyholeSlewRate}" Margin="0,8,0,0" />
             <NumericUpDown Value="{Binding RotatorSlewRateDegPerSec, Mode=TwoWay}"
                            Minimum="0.1" Maximum="30"
                            Increment="0.5" FormatString="F1"
@@ -698,8 +704,8 @@
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Maximum rotator slew rate in degrees per second. Used to compute signal-loss windows." />
-            <TextBlock Text="Keyhole Threshold (°)" Margin="0,8,0,0" />
+                       Text="{loc:Localize Key=Settings.Rotator.KeyholeSlewRateNote}" />
+            <TextBlock Text="{loc:Localize Key=Settings.Rotator.KeyholeThreshold}" Margin="0,8,0,0" />
             <NumericUpDown Value="{Binding RotatorKeyholeThresholdDeg, Mode=TwoWay}"
                            Minimum="60" Maximum="89"
                            Increment="1" FormatString="F0"
@@ -707,7 +713,9 @@
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Minimum maximum-elevation for a pass to be classified as entering the keyhole zone. Valid range: 60–89°." />
+                       Margin="0,0,0,0"
+                       Text="{loc:Localize Key=Settings.Rotator.KeyholeThresholdNote}" />
+            </StackPanel>
           </StackPanel>
         </ScrollViewer>
       </TabItem>

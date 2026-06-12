@@ -537,7 +537,10 @@ public sealed class RotatorController : IRotatorController, IDisposable
     {
         _keyholeFlippedActive = false;
 
-        if (!settings.KeyholeAvoidanceEnabled || _propagator is null || _activePassInfo is null)
+        if (!settings.KeyholeAvoidanceEnabled
+            || settings.ElevationRange != RotatorElevationRange.Deg180
+            || _propagator is null
+            || _activePassInfo is null)
         {
             _keyholePlan = null;
             return;

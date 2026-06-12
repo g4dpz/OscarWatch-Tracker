@@ -1008,6 +1008,30 @@
   <data name="Settings.Rotator.ElevationRange">
     <value>仰角範囲</value>
   </data>
+  <data name="Settings.Rotator.ElevationRangeNote">
+    <value>標準ローテーターは 0–90°。Yaesu G-5500 など天頂を越えて追跡できるオーバー・ザ・トップ設置は 0–180°。</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSection">
+    <value>キーホール回避</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeEnable">
+    <value>キーホール回避を有効にする</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeNote">
+    <value>有効にすると、天頂付近でローテーターが追いつかない高仰角パスを解析し、信号ロスを抑えるため反転方位へ事前配置することがあります。仰角範囲が 0–180° のときのみ利用できます。</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSlewRate">
+    <value>スルー速度 (°/s)</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSlewRateNote">
+    <value>ローテーターの最大スルー速度（度/秒）。信号ロス時間の見積もりに使用します。</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeThreshold">
+    <value>キーホール閾値 (°)</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeThresholdNote">
+    <value>キーホール区域に入るとみなすパス最大仰角の下限。有効範囲: 60–89°。</value>
+  </data>
   <data name="Settings.Rotator.TrackStart">
     <value>追跡開始仰角 (°)</value>
   </data>

@@ -1143,6 +1143,30 @@ Continue?</value>
   <data name="Settings.Rotator.ElevationRange">
     <value>Elevation range</value>
   </data>
+  <data name="Settings.Rotator.ElevationRangeNote">
+    <value>0–90° for standard rotators. 0–180° for over-the-top mounts (e.g. Yaesu G-5500) that can track past zenith.</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSection">
+    <value>Keyhole avoidance</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeEnable">
+    <value>Enable keyhole avoidance</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeNote">
+    <value>When enabled, high-elevation passes where the rotator cannot keep up near zenith are analysed, and the rotator may pre-position in a flipped orientation to minimise signal loss. Only available when elevation range is 0–180°.</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSlewRate">
+    <value>Slew rate (°/s)</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSlewRateNote">
+    <value>Maximum rotator slew rate in degrees per second. Used to compute signal-loss windows.</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeThreshold">
+    <value>Keyhole threshold (°)</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeThresholdNote">
+    <value>Minimum maximum-elevation for a pass to be classified as entering the keyhole zone. Valid range: 60–89°.</value>
+  </data>
   <data name="Settings.Rotator.TrackStart">
     <value>Start tracking at elevation (°)</value>
   </data>

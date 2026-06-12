@@ -131,7 +131,7 @@ Pull requests for more native rig support are welcome. A HamLib backend is not o
 | **EasyComm**     | EasyComm II | SPID, M2, and other EasyComm-compatible controllers |
 
 
-Pass tracking when elevation is above the track-start threshold; manual **Park** in the sidebar; **manual rotator** in Standby (menu **Rotator…**: set az/el, Rotate, Stop, Park for a quick contact without resuming pass tracking). Azimuth range **360°** or **450°** (e.g. G-5500). On **450°** rotators, optional **smart azimuth** chooses 361–450° commands for the shortest path across north (Settings → Rotator). Optional **calibration offsets** correct pass tracking and manual moves; park uses your configured park az/el exactly.
+Pass tracking when elevation is above the track-start threshold; manual **Park** in the sidebar; **manual rotator** in Standby (menu **Rotator…**: set az/el, Rotate, Stop, Park for a quick contact without resuming pass tracking). Azimuth range **360°** or **450°** (e.g. G-5500). On **450°** rotators, optional **smart azimuth** chooses 361–450° commands for the shortest path across north (Settings → Rotator). Elevation range **0–90°** or **0–180°** (over-the-top). Optional **keyhole avoidance** on **0–180°** mounts pre-positions for high-elevation zenith passes — see [help](help/radio-rotator.html#keyhole-avoidance). Optional **calibration offsets** correct pass tracking and manual moves; park uses your configured park az/el exactly.
 
 More controllers: [building rotator drivers](documents/building-rotator-drivers.md).
 
@@ -148,7 +148,7 @@ Open **Settings** from the menu. Tabs:
 | **Appearance** | Light / dark / system theme; 12- or 24-hour clock; footprint motion arrows and optional greyline on/off                                                                                                                                       |
 | **Voice**      | Enable announcements, trigger elevation (default −3°), voice selection, test button                                                                                                                                                            |
 | **Recording**  | Automatic pass WAV capture, input device, start/stop elevation, output folder, test clip                                                                                                                                                       |
-| **Rotator**    | Type (GS-232 / EasyComm), COM port, 360°/450° azimuth, smart 450°, park, track-start elevation, calibration offsets                                                                                                                            |
+| **Rotator**    | Type (GS-232 / SPID / EasyComm), COM port, 360°/450° azimuth, smart 450°, **0–90° / 0–180° elevation**, optional keyhole avoidance (0–180° only), park, track-start elevation, calibration offsets |
 | **Radio**      | Rig type, COM port, **Dual radio** (FT-817/818, FT-991(A), IC-705, IC-706 series, or mixed; separate downlink/uplink COM ports), region, per-leg CI-V address for ICOM dual legs, linear CW receive mode (USB/LSB vs CW on both VFOs), Doppler CAT thresholds (FM default 350 Hz, SSB/CW default 50 Hz; see [help](help/radio-rotator.html#doppler-cat-thresholds)), pause CAT |
 | **Integrations** | **GPS** (NMEA serial: COM port, auto-update station, optional GPS UTC for tracking — see [help](help/settings.html#gps)); **hams.at** roves; **Cloudlog** (URL, API key, logbook, radio API)                                              |
 

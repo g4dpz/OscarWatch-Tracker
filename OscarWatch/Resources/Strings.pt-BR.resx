@@ -1119,6 +1119,30 @@ Continuar?</value>
   <data name="Settings.Rotator.ElevationRange">
     <value>Faixa de elevação</value>
   </data>
+  <data name="Settings.Rotator.ElevationRangeNote">
+    <value>0–90° para rotores padrão. 0–180° para montagens over-the-top (ex.: Yaesu G-5500) que podem rastrear além do zênite.</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSection">
+    <value>Evitar keyhole</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeEnable">
+    <value>Ativar evitar keyhole</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeNote">
+    <value>Quando ativado, passagens de alta elevação em que o rotor não acompanha perto do zênite são analisadas, e o rotor pode pré-posicionar-se numa orientação invertida para minimizar perda de sinal. Disponível apenas com faixa de elevação 0–180°.</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSlewRate">
+    <value>Velocidade de rotação (°/s)</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSlewRateNote">
+    <value>Velocidade máxima de rotação do rotor em graus por segundo. Usada para calcular janelas de perda de sinal.</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeThreshold">
+    <value>Limiar de keyhole (°)</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeThresholdNote">
+    <value>Elevação máxima mínima da passagem para classificar entrada na zona de keyhole. Faixa válida: 60–89°.</value>
+  </data>
   <data name="Settings.Rotator.TrackStart">
     <value>Iniciar rastreamento na elevação (°)</value>
   </data>
