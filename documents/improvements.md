@@ -123,9 +123,10 @@ Prefer passing `CatUpdatesPaused` as an override parameter to `IRigController` i
 
 Operators may see the rotator move before CAT updates (or vice versa). Either document clearly, add a rig track-start setting, or unify “start tracking at X°” in Settings.
 
-### 4.2 AOS/LOS rig behaviour (TODO)
+### 4.2 AOS/LOS rig behaviour (partial)
 
-Optional: pause CAT or park rotator at pass end. Would need configurable policy in Settings and hooks in `RigController` / `RotatorController` pass lifecycle.
+- **Done:** **Park rotator after pass** — Settings → Rotator (`ParkAfterPass`, default on); `RotatorController.TryPark` respects it for automatic post-pass moves only.
+- **TODO:** optional pause CAT at pass end (`RigController` pass lifecycle).
 
 ### 4.3 Auto-focus satellite on pass (TODO)
 

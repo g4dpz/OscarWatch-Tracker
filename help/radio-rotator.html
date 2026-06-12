@@ -352,8 +352,9 @@
         <li>For <strong>SPID</strong> native mode: set the controller to <strong>SP</strong> protocol and <strong>Auto (A)</strong> mode on the front panel before connecting.</li>
         <li><strong>Azimuth range</strong> 360° or 450° (G-5500 style).</li>
         <li><strong>Smart azimuth (450°)</strong> — shortest path across north when useful.</li>
-        <li><strong>Track-start elevation</strong> — do not track below this angle (e.g. 0° or a few degrees).</li>
-        <li><strong>Park</strong> positions when you press Park in the sidebar.</li>
+        <li><strong>Track-start elevation</strong> — do not track below this angle (default −3°). Tracking begins when the satellite rises above it.</li>
+        <li><strong>Park azimuth / elevation</strong> — home position for the rotator.</li>
+        <li><strong>Park rotator after pass</strong> — on by default. When enabled, the rotator moves to the park position once the tracked satellite drops below the track-start elevation (or when there is no tracking target). Uncheck to leave the beam where it finished. Manual <strong>Park</strong> in the sidebar and Standby parking are not affected.</li>
         <li><strong>Calibration offsets</strong> — optional azimuth and elevation corrections (degrees) added to pass tracking and manual rotate. Park uses your configured park az/el exactly (the sidebar shows that park position, not offset-adjusted values). Use offsets if the beam consistently stops short of or overshoots the target during tracking.</li>
       </ul>
 

@@ -27,7 +27,8 @@ See [building rotator drivers](documents/building-rotator-drivers.md).
 
 - [ ] **Auto-focus satellite on pass** — when enabled, sat rises above threshold and map overlay focuses without a manual click
 - [ ] **Align track-start elevations** — rotator default −3° vs rig default −70°; document or unify “start tracking at” with overrides
-- [ ] **AOS/LOS rig behaviour** (optional) — pause CAT or park rotator at pass end; configurable
+- [x] **Park rotator after pass** (optional) — Settings → Rotator; default on
+- [ ] **Pause CAT at pass end** (optional) — configurable AOS/LOS rig behaviour
 
 ## Larger projects (lower priority)
 
