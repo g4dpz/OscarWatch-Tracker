@@ -35,8 +35,8 @@ Logic lives in `OscarWatch.Core/Radio/DopplerCatLead.cs`.
 |----------|---------|------|
 | `MaxLeadMs` | `50` | Cap lead so high CI-V **pacing** delay is not treated as tune latency |
 | `RangeRateSlopeSampleSec` | `1.0` | How far ahead we look to measure “how fast range rate is changing” |
-| `SlopeBlendStartKmPerSec2` | `0.012` | Slope where lead blend begins (0 = snapshot only) |
-| `SteepRangeRateSlopeKmPerSec2` | `0.018` | Slope where blend reaches 1 (full lead) |
+| `SlopeBlendStartKmPerSec2` | `0.010` | Slope where lead blend begins (0 = snapshot only) |
+| `SteepRangeRateSlopeKmPerSec2` | `0.016` | Slope where blend reaches 1 (full lead) |
 
 Calibrated against **FO-29** high-elevation pass in `DopplerCatLeadTests.Fo29_lead_applies_near_tca_not_on_gentle_aos_leg` (~79° pass, London test site, seed TLE).
 

@@ -30,13 +30,21 @@ public static class DopplerCatLead
     /// Range-rate slope (km/s²) where lead blend begins ramping from snapshot rate.
     /// Below this, CAT uses the instantaneous range rate only.
     /// </summary>
-    public const double SlopeBlendStartKmPerSec2 = 0.012;
+    public const double SlopeBlendStartKmPerSec2 = 0.010;
 
     /// <summary>
     /// Range-rate slope (km/s²) where lead reaches full strength.
     /// Between start and full, blend ramps linearly to avoid a step at the gate.
     /// </summary>
-    public const double SteepRangeRateSlopeKmPerSec2 = 0.018;
+    public const double SteepRangeRateSlopeKmPerSec2 = 0.016;
+
+    /// <summary>
+    /// On residual pass legs (moderate elevation after TCA), range rate is still large
+    /// while acceleration is modest. Assist lead when both slope and |range rate| exceed these.
+    /// </summary>
+    public const double ResidualAssistRangeRateKmPerSec = 0.45;
+
+    public const double ResidualAssistSlopeStartKmPerSec2 = 0.010;
 
     public static DopplerLeadRangeRates ResolveRangeRates(
         IOrbitPropagator? propagator,
@@ -57,7 +65,7 @@ public static class DopplerCatLead
         try
         {
             var slope = ComputeRangeRateSlopeKmPerSec2(propagator, state.NoradId, site, utc, fallback);
-            var blend = ComputeLeadBlend(slope);
+            var blend = ComputeLeadBlend(slope, fallback);
             if (blend <= 0)
                 return new DopplerLeadRangeRates(fallback, fallback, 0);
 
@@ -96,18 +104,34 @@ public static class DopplerCatLead
         GroundStation site,
         DateTime utc,
         double rangeRateKmPerSec) =>
-        ComputeLeadBlend(ComputeRangeRateSlopeKmPerSec2(propagator, noradId, site, utc, rangeRateKmPerSec)) >= 1.0;
+        ComputeLeadBlend(ComputeRangeRateSlopeKmPerSec2(propagator, noradId, site, utc, rangeRateKmPerSec), rangeRateKmPerSec) >= 1.0;
 
-    internal static double ComputeLeadBlend(double slopeKmPerSec2)
+    internal static double ComputeLeadBlend(double slopeKmPerSec2, double rangeRateKmPerSec = 0)
     {
-        if (slopeKmPerSec2 <= SlopeBlendStartKmPerSec2)
-            return 0;
+        double SlopeBlend()
+        {
+            if (slopeKmPerSec2 <= SlopeBlendStartKmPerSec2)
+                return 0;
 
-        if (slopeKmPerSec2 >= SteepRangeRateSlopeKmPerSec2)
-            return 1;
+            if (slopeKmPerSec2 >= SteepRangeRateSlopeKmPerSec2)
+                return 1;
 
-        return (slopeKmPerSec2 - SlopeBlendStartKmPerSec2)
-            / (SteepRangeRateSlopeKmPerSec2 - SlopeBlendStartKmPerSec2);
+            return (slopeKmPerSec2 - SlopeBlendStartKmPerSec2)
+                / (SteepRangeRateSlopeKmPerSec2 - SlopeBlendStartKmPerSec2);
+        }
+
+        var slopeBlend = SlopeBlend();
+        if (Math.Abs(rangeRateKmPerSec) < ResidualAssistRangeRateKmPerSec
+            || slopeKmPerSec2 <= ResidualAssistSlopeStartKmPerSec2)
+        {
+            return slopeBlend;
+        }
+
+        var residualBlend = Math.Min(0.5,
+            (slopeKmPerSec2 - ResidualAssistSlopeStartKmPerSec2)
+            / (SteepRangeRateSlopeKmPerSec2 - ResidualAssistSlopeStartKmPerSec2) * 0.5);
+
+        return Math.Clamp(Math.Max(slopeBlend, residualBlend), 0, 1);
     }
 
     internal static double ComputeRangeRateSlopeKmPerSec2(

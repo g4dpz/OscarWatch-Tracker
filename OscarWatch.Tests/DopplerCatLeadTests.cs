@@ -66,7 +66,7 @@ public class DopplerCatLeadTests
     public void Mid_slope_blends_between_snapshot_and_lead_rates()
     {
         var utc = new DateTime(2026, 6, 1, 12, 0, 0, DateTimeKind.Utc);
-        var propagator = new StubPropagator(utc, snapshotRate: -3.0, slopeSampleRate: -2.985, rxLeadRate: 1.0, txLeadRate: 2.0);
+        var propagator = new StubPropagator(utc, snapshotRate: -3.0, slopeSampleRate: -2.987, rxLeadRate: 1.0, txLeadRate: 2.0);
         var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
         var state = StateWithRate(-3.0);
 
@@ -394,6 +394,75 @@ public class DopplerCatLeadTests
 
         // With equal leads (both capped to 50 ms), short-circuit calls propagator once
         Assert.Equal(utc.AddMilliseconds(50), propagator.LastRxUtc);
+    }
+
+    [Fact]
+    public void Rs44_post_tca_43deg_residual_leg_activates_cat_lead()
+    {
+        var entry = new SatelliteCatalogEntry
+        {
+            Name = "RS-44",
+            NoradId = "44909",
+            Line1 = "1 44909U 19096E   26141.11069286  .00000018  00000-0  30335-4 0  9995",
+            Line2 = "2 44909  82.5230 357.7010 0216952 207.4466 151.5042 12.79748393298881"
+        };
+        var propagator = new PublicOrbitToolsPropagator();
+        propagator.LoadSatellite(entry);
+
+        var site = new GroundStation { LatitudeDeg = 51.5, LongitudeDeg = -0.1, AltitudeMetersAsl = 50 };
+        var (tca, maxEl) = FindHighElevationPassTcaUtc(propagator, entry.NoradId, site, minElevationDeg: 60);
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+
+        DateTime? postTcaAt43Utc = null;
+        double postTcaBlend = 0;
+        double postTcaSlope = 0;
+        var maxPostTcaDopplerHzPerSec = 0.0;
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        for (var offset = 1; offset <= 900; offset += 1)
+        {
+            var t = tca.AddSeconds(offset);
+            var look = propagator.GetLookAngles(entry.NoradId, site, t);
+            if (look.ElevationDeg < 10)
+                break;
+
+            var next = propagator.GetLookAngles(entry.NoradId, site, t.AddSeconds(1));
+            var nowHz = DopplerFrequencyCalculator.Compute(mode, look.RangeRateKmPerSec, 0).RadioReceiveKHz * 1000.0;
+            var nextHz = DopplerFrequencyCalculator.Compute(mode, next.RangeRateKmPerSec, 0).RadioReceiveKHz * 1000.0;
+            maxPostTcaDopplerHzPerSec = Math.Max(maxPostTcaDopplerHzPerSec, Math.Abs(nextHz - nowHz));
+
+            if (look.ElevationDeg is >= 42 and <= 44)
+            {
+                postTcaAt43Utc ??= t;
+                var state = new SatelliteTrackState
+                {
+                    Name = entry.Name,
+                    NoradId = entry.NoradId,
+                    Subpoint = propagator.GetSubpoint(entry.NoradId, t),
+                    LookAngles = look
+                };
+                var lead = DopplerCatLead.ResolveRangeRates(propagator, settings, site, state, t);
+                postTcaSlope = DopplerCatLead.ComputeRangeRateSlopeKmPerSec2(
+                    propagator, entry.NoradId, site, t, look.RangeRateKmPerSec);
+                postTcaBlend = Math.Max(postTcaBlend, lead.LeadBlend);
+            }
+        }
+
+        Assert.True(maxEl >= 60, $"Expected a high RS-44 pass (best el {maxEl:F1}°).");
+        Assert.NotNull(postTcaAt43Utc);
+        Assert.True(maxPostTcaDopplerHzPerSec > 30,
+            $"Post-TCA Doppler slew {maxPostTcaDopplerHzPerSec:F1} Hz/s exceeds threshold stepping.");
+        Assert.InRange(postTcaSlope, DopplerCatLead.ResidualAssistSlopeStartKmPerSec2, DopplerCatLead.SteepRangeRateSlopeKmPerSec2);
+        Assert.True(postTcaBlend >= 0.08,
+            $"Post-TCA 43° blend {postTcaBlend:F3}, slope {postTcaSlope:F4} km/s².");
     }
 
     [Fact]
