@@ -62,7 +62,7 @@ Press **Standby** in the sidebar when you are only planning or browsing: the rot
 
 ### Operator guide
 
-Plain-language help ships with the app: **Help → Operator guide** (also in the `[help/](help/)` folder). The UI and guide use **British English** (`en-GB`). Topics include quick start, frequencies, TLEs, pass planning, radio/rotator setup, recording, and troubleshooting.
+Plain-language help ships with the app: **Help → Operator guide** (also in the `[help/](help/)` folder). The guide is **English only**; the app UI can be switched under **Settings → Appearance → Language** (restart required). Topics include quick start, frequencies, TLEs, pass planning, radio/rotator setup, recording, and troubleshooting.
 
 ---
 
@@ -213,9 +213,35 @@ Open the recordings or log folder from **Help → Open recordings folder** or **
 
 ## Contributing
 
-Pull requests are welcome for bug fixes, rig or rotator drivers, tracking behaviour, operator-facing features, and **transponder database** entries (new satellites/modes or corrections with a credible source). For larger changes, open an issue first so we can agree direction before you spend time on a big diff.
+Pull requests are welcome for bug fixes, rig or rotator drivers, tracking behaviour, operator-facing features, **UI translations**, and **transponder database** entries (new satellites/modes or corrections with a credible source). For larger changes, open an issue first so we can agree direction before you spend time on a big diff.
 
 Transponder data is also published at [tle.oscarwatch.org/satellite_database.json](https://tle.oscarwatch.org/satellite_database.json); see [documents/satellite-database.md](documents/satellite-database.md).
+
+### Translations (UI)
+
+OscarWatch strings live in `.resx` files under `OscarWatch/Resources/`. **British English** (`Strings.resx`, locale `en-GB`) is the source — add or change keys there first, then update the other locale files.
+
+| Language | Locale | Resource file |
+| -------- | ------ | ------------- |
+| English (UK) | `en-GB` | `Strings.resx` |
+| Japanese | `ja` | `Strings.ja.resx` |
+| Portuguese (Brazil) | `pt-BR` | `Strings.pt-BR.resx` |
+| Chinese (Simplified) | `zh-CN` | `Strings.zh-CN.resx` |
+
+**Using another language:** **Settings → Appearance → Language**, then restart the app.
+
+**Improving an existing translation:** edit the matching `Strings.*.resx` file. Keep the `name="..."` keys identical to `Strings.resx`; only change the `<value>` text. Open a pull request with your changes — even a few corrected menu labels helps.
+
+**Adding a new language:** please [open an issue](https://github.com/magicbug/OscarWatch-Tracker/issues) first (locale code, font/script needs, and whether you can maintain it across releases). In code you will typically need:
+
+1. `OscarWatch/Resources/Strings.<locale>.resx` — copy `Strings.resx` and translate every `<value>` (600+ strings today).
+2. `OscarWatch/Localization/LocalizationCulture.cs` — register the locale.
+3. `OscarWatch/ViewModels/SettingsViewModel.cs` — add a `LanguageOption` so it appears in Settings.
+4. `Settings.Language.*` entries in **all** `.resx` files for the language name shown in the picker.
+
+The bundled **operator help** (`help/`) is not localized yet; translation PRs cover the desktop UI only. A few labels (rig and rotator type names in Settings) are still hard-coded in English.
+
+After editing `.resx` files, run `dotnet build OscarWatch/OscarWatch.csproj` and spot-check the UI in your locale.
 
 ## Support
 
