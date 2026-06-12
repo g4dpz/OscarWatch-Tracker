@@ -202,6 +202,15 @@ public partial class SettingsViewModel : ViewModelBase
         SelectedAzimuthRangeChoice?.Value == RotatorAzimuthRange.Deg450;
 
     [ObservableProperty]
+    private bool _rotatorKeyholeAvoidanceEnabled;
+
+    [ObservableProperty]
+    private double _rotatorSlewRateDegPerSec = 3.0;
+
+    [ObservableProperty]
+    private double _rotatorKeyholeThresholdDeg = 80.0;
+
+    [ObservableProperty]
     private bool _rigEnabled;
 
     [ObservableProperty]
@@ -671,7 +680,10 @@ public partial class SettingsViewModel : ViewModelBase
             ParkElevationDeg = RotatorParkElevationDeg,
             AzimuthOffsetDeg = RotatorAzimuthOffsetDeg,
             ElevationOffsetDeg = RotatorElevationOffsetDeg,
-            SmartAzimuth450 = RotatorSmartAzimuth450
+            SmartAzimuth450 = RotatorSmartAzimuth450,
+            KeyholeAvoidanceEnabled = RotatorKeyholeAvoidanceEnabled,
+            SlewRateDegPerSec = RotatorSlewRateDegPerSec,
+            KeyholeThresholdDeg = RotatorKeyholeThresholdDeg
         };
         _settings.Current.Rig = new RigSettings
         {
@@ -823,6 +835,9 @@ public partial class SettingsViewModel : ViewModelBase
             RotatorAzimuthOffsetDeg = rotator.AzimuthOffsetDeg;
             RotatorElevationOffsetDeg = rotator.ElevationOffsetDeg;
             RotatorSmartAzimuth450 = rotator.SmartAzimuth450;
+            RotatorKeyholeAvoidanceEnabled = rotator.KeyholeAvoidanceEnabled;
+            RotatorSlewRateDegPerSec = rotator.SlewRateDegPerSec;
+            RotatorKeyholeThresholdDeg = rotator.KeyholeThresholdDeg;
 
             var rig = _settings.Current.Rig ?? new RigSettings();
             rig.MigrateFt817818ToDualOnly();

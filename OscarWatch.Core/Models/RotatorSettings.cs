@@ -38,10 +38,28 @@ public sealed class RotatorSettings
     public bool KeyholeAvoidanceEnabled { get; set; } = false;
 
     /// <summary>Maximum rotator slew rate in degrees per second, used for keyhole signal-loss computation.</summary>
-    public double SlewRateDegPerSec { get; set; } = 3.0;
+    private double _slewRateDegPerSec = 3.0;
+    public double SlewRateDegPerSec
+    {
+        get => _slewRateDegPerSec;
+        set
+        {
+            if (value <= 0) return;
+            _slewRateDegPerSec = value;
+        }
+    }
 
     /// <summary>Minimum max-elevation (degrees) for a pass to be classified as entering the keyhole zone. Valid range: [60, 89].</summary>
-    public double KeyholeThresholdDeg { get; set; } = 80.0;
+    private double _keyholeThresholdDeg = 80.0;
+    public double KeyholeThresholdDeg
+    {
+        get => _keyholeThresholdDeg;
+        set
+        {
+            if (value < 60 || value > 89) return;
+            _keyholeThresholdDeg = value;
+        }
+    }
 
     public double MaxAzimuthDeg => (double)AzimuthRange;
     public double MaxElevationDeg => (double)ElevationRange;
