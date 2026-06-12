@@ -121,6 +121,12 @@ public partial class MainViewModel : ViewModelBase
     private bool _canParkRotator;
 
     [ObservableProperty]
+    private bool _isKeyholeAvoidanceActive;
+
+    [ObservableProperty]
+    private bool _isPrePositioning;
+
+    [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ParkRotatorCommand))]
     [NotifyPropertyChangedFor(nameof(StandbyButtonText))]
     [NotifyPropertyChangedFor(nameof(ShowRotatorMenuItem))]
@@ -802,6 +808,8 @@ public partial class MainViewModel : ViewModelBase
             : "—";
         IsRotatorParked = status.IsParked;
         CanParkRotator = status.IsConnected && !IsStandby && !status.IsParked;
+        IsKeyholeAvoidanceActive = status.IsKeyholeAvoidanceActive;
+        IsPrePositioning = status.IsPrePositioning;
     }
 
     internal static string FormatRotatorAzimuthText(RotatorPositionStatus status)

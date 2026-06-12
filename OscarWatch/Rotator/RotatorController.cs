@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Rotator;
 using OscarWatch.Core.Services;
 using Serilog;
@@ -16,6 +17,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private static readonly TimeSpan CommandWaitTimeout = TimeSpan.FromSeconds(10);
 
     private readonly Func<RotatorSettings, IRotatorDriver>? _driverFactory;
+    private readonly IOrbitPropagator? _propagator;
+    private readonly ISettingsService? _settingsService;
     private readonly object _statusLock = new();
     private readonly object _workerStartLock = new();
 
@@ -46,8 +49,21 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private string? _connectionDetail;
     private RotatorPositionStatus _positionStatus = new(false, null, null);
 
-    public RotatorController(Func<RotatorSettings, IRotatorDriver>? driverFactory = null) =>
+    // Keyhole avoidance state
+    private KeyholePlan? _keyholePlan;
+    private bool _keyholeFlippedActive;
+    private bool _isPrePositioning;
+    private PassInfo? _activePassInfo;
+
+    public RotatorController(
+        Func<RotatorSettings, IRotatorDriver>? driverFactory = null,
+        IOrbitPropagator? propagator = null,
+        ISettingsService? settingsService = null)
+    {
         _driverFactory = driverFactory;
+        _propagator = propagator;
+        _settingsService = settingsService;
+    }
 
     public RotatorPositionStatus GetPositionStatus()
     {
@@ -74,9 +90,29 @@ public sealed class RotatorController : IRotatorController, IDisposable
     public void Disconnect() =>
         Enqueue(new RotatorCommand(RotatorCommandKind.Disconnect));
 
+    /// <summary>Supply the active pass for keyhole avoidance planning. Call when the pass changes or becomes known.</summary>
+    public void SetActivePass(PassInfo? pass) =>
+        Enqueue(new RotatorCommand(RotatorCommandKind.SetActivePass, passInfo: pass));
+
     /// <summary>Synchronous tracking tick (unit tests).</summary>
     internal void UpdateSynchronously(RotatorSettings settings, SatelliteTrackState? target) =>
         EnqueueAndWait(new RotatorCommand(RotatorCommandKind.UpdateSynchronously, settings, target));
+
+    /// <summary>Supply the active pass synchronously (unit tests).</summary>
+    internal void SetActivePassSynchronously(PassInfo? pass) =>
+        EnqueueAndWait(new RotatorCommand(RotatorCommandKind.SetActivePass, passInfo: pass));
+
+    /// <summary>The current keyhole plan computed on target change (exposed for testing).</summary>
+    internal KeyholePlan? CurrentKeyholePlan => _keyholePlan;
+
+    /// <summary>Inject a keyhole plan directly for unit testing (bypasses planner).</summary>
+    internal void SetKeyholePlanForTests(KeyholePlan? plan) => _keyholePlan = plan;
+
+    /// <summary>Whether flipped tracking is currently active (exposed for testing).</summary>
+    internal bool IsKeyholeFlippedActive => _keyholeFlippedActive;
+
+    /// <summary>Whether the controller is currently pre-positioning for a flipped pass (exposed for testing).</summary>
+    internal bool IsPrePositioning => _isPrePositioning;
 
     /// <summary>Blocks until queued commands are processed (unit tests).</summary>
     internal void DrainCommandQueueForTests() =>
@@ -205,6 +241,11 @@ public sealed class RotatorController : IRotatorController, IDisposable
                     SetStandbyOnWorker(command.StandbyActive!.Value, command.Settings);
                     break;
 
+                case RotatorCommandKind.SetActivePass:
+                    _activePassInfo = command.PassInfo;
+                    RecomputeKeyholePlan(_cachedSettings);
+                    break;
+
                 case RotatorCommandKind.Disconnect:
                     TearDownRotator();
                     ResetTrackingState();
@@ -271,6 +312,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _lastElevation = null;
             _parked = false;
             ClearTrackingAzimuthDisplay();
+            RecomputeKeyholePlan(settings);
         }
 
         if (_manualParkActive)
@@ -286,10 +328,34 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _manualParkActive = false;
         }
 
+        // Keyhole pre-positioning: if we have a flipped plan and are in the pre-position window,
+        // slew to flipped start azimuth before normal tracking begins.
+        if (TryHandleKeyholePrePosition(settings, target))
+            return;
+
         if (target?.LookAngles is { } lookAngles)
         {
             if (lookAngles.ElevationDeg >= settings.TrackStartElevationDeg)
-                TryTrack(settings, lookAngles.AzimuthDeg, lookAngles.ElevationDeg, target.AheadAzimuthDeg);
+            {
+                var az = lookAngles.AzimuthDeg;
+                var ahead = target.AheadAzimuthDeg;
+
+                // Apply flipped tracking if plan is FlippedStart and we should be flipped
+                if (ShouldTrackFlipped(settings, lookAngles.ElevationDeg))
+                {
+                    az = RotatorAzimuthPlanner.Normalize360(az + 180.0);
+                    ahead = null; // ahead azimuth not meaningful when flipped
+                    _keyholeFlippedActive = true;
+                    _isPrePositioning = false;
+                }
+                else if (_keyholeFlippedActive && lookAngles.ElevationDeg < settings.KeyholeThresholdDeg)
+                {
+                    // Dropped below threshold after being flipped — transition to normal
+                    _keyholeFlippedActive = false;
+                }
+
+                TryTrack(settings, az, lookAngles.ElevationDeg, ahead);
+            }
             else
                 TryPark(settings, afterPass: true);
         }
@@ -435,6 +501,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _displayElevation = null;
         _displayCommandedAzimuth = null;
         _displayCompassAzimuth = null;
+        _keyholePlan = null;
+        _keyholeFlippedActive = false;
+        _isPrePositioning = false;
     }
 
     private void RefreshPositionSnapshot()
@@ -448,13 +517,151 @@ public sealed class RotatorController : IRotatorController, IDisposable
                 _displayCompassAzimuth,
                 _parked,
                 _connectionKind,
-                _connectionDetail);
+                _connectionDetail,
+                IsKeyholeAvoidanceActive: _keyholeFlippedActive,
+                IsPrePositioning: _isPrePositioning);
     }
 
     private void ClearTrackingAzimuthDisplay()
     {
         _displayCommandedAzimuth = null;
         _displayCompassAzimuth = null;
+    }
+
+    /// <summary>
+    /// Recomputes the keyhole plan based on current settings, active pass, and target.
+    /// If keyhole avoidance is disabled, the propagator is unavailable, or no active pass is set,
+    /// the plan is cleared and normal tracking proceeds.
+    /// </summary>
+    private void RecomputeKeyholePlan(RotatorSettings settings)
+    {
+        _keyholeFlippedActive = false;
+
+        if (!settings.KeyholeAvoidanceEnabled || _propagator is null || _activePassInfo is null)
+        {
+            _keyholePlan = null;
+            return;
+        }
+
+        var target = _cachedTarget;
+        if (target is null)
+        {
+            _keyholePlan = null;
+            return;
+        }
+
+        var site = _settingsService?.Current.GroundStation ?? new GroundStation();
+
+        try
+        {
+            var profile = PassProfileBuilder.Build(_activePassInfo, target.NoradId, site, _propagator);
+            if (profile is null)
+            {
+                Log.Information("Keyhole planning: profile build returned null (too many propagation failures), falling back to normal tracking");
+                _keyholePlan = null;
+                return;
+            }
+
+            var plannerSettings = new KeyholePlannerSettings(
+                settings.KeyholeThresholdDeg,
+                settings.SlewRateDegPerSec,
+                settings.ParkAzimuthDeg);
+
+            _keyholePlan = KeyholePlanner.Analyse(profile, plannerSettings);
+
+            if (_keyholePlan.Strategy == KeyholeStrategy.Normal)
+            {
+                Log.Debug("Keyhole planning: pass classified as Normal (flipped not beneficial)");
+            }
+            else
+            {
+                Log.Information(
+                    "Keyhole planning: FlippedStart recommended for {NoradId}, flipped az={FlippedAz:F1}°, lead time={LeadTime}",
+                    target.NoradId,
+                    _keyholePlan.FlippedStartAzimuthDeg,
+                    _keyholePlan.PrePositionLeadTime);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Keyhole planning failed, falling back to normal tracking");
+            _keyholePlan = null;
+        }
+    }
+
+    /// <summary>
+    /// Handles the keyhole pre-positioning branch. If a FlippedStart plan is active and the
+    /// current time is within the pre-position window (AOS − PrePositionLeadTime to AOS),
+    /// commands the rotator to slew to the flipped start azimuth at 0° elevation.
+    /// Returns true if pre-positioning was handled (caller should return early), false otherwise.
+    /// </summary>
+    private bool TryHandleKeyholePrePosition(RotatorSettings settings, SatelliteTrackState? target)
+    {
+        // Only applies if we have a flipped plan with pre-position data
+        if (_keyholePlan?.Strategy != KeyholeStrategy.FlippedStart
+            || _keyholePlan.FlippedStartAzimuthDeg is null
+            || _keyholePlan.PrePositionLeadTime is null
+            || _activePassInfo is null)
+        {
+            _isPrePositioning = false;
+            return false;
+        }
+
+        var now = DateTime.UtcNow;
+        var aosUtc = _activePassInfo.AosUtc;
+        var prePositionStart = aosUtc - _keyholePlan.PrePositionLeadTime.Value;
+
+        // If we are past AOS, pre-positioning window has closed — let normal/flipped tracking handle it
+        if (now >= aosUtc)
+        {
+            _isPrePositioning = false;
+            return false;
+        }
+
+        // If we are before the pre-position start time, nothing to do yet
+        if (now < prePositionStart)
+        {
+            _isPrePositioning = false;
+            return false;
+        }
+
+        // We are in the pre-position window: AOS - PrePositionLeadTime ≤ now < AOS
+        // Check if there is insufficient lead time (already past the point where we could complete the slew)
+        var remainingTime = aosUtc - now;
+        if (remainingTime < TimeSpan.FromSeconds(1))
+        {
+            // Insufficient lead time — fall back to normal tracking
+            Log.Information("Keyhole pre-positioning: insufficient lead time ({Remaining}s remaining), falling back to normal tracking",
+                remainingTime.TotalSeconds);
+            _isPrePositioning = false;
+            return false;
+        }
+
+        // Slew to flipped start azimuth at 0° elevation
+        _isPrePositioning = true;
+        TryTrack(settings, _keyholePlan.FlippedStartAzimuthDeg.Value, 0, null);
+        return true;
+    }
+
+    /// <summary>
+    /// Determines whether the rotator should currently be tracking in flipped mode.
+    /// Returns true if the plan is FlippedStart and either:
+    ///   - The satellite elevation is at or above the keyhole threshold (entering flipped zone), or
+    ///   - We are already flipped and the satellite hasn't dropped below the threshold yet.
+    /// Once flipped tracking starts, it stays active until elevation drops below the threshold.
+    /// The descent below threshold naturally occurs after TCA (time of closest approach).
+    /// </summary>
+    private bool ShouldTrackFlipped(RotatorSettings settings, double elevationDeg)
+    {
+        if (_keyholePlan?.Strategy != KeyholeStrategy.FlippedStart)
+            return false;
+
+        // Already flipped: stay flipped until elevation drops below threshold
+        if (_keyholeFlippedActive)
+            return elevationDeg >= settings.KeyholeThresholdDeg;
+
+        // Not yet flipped: start flipping when elevation reaches the threshold
+        return elevationDeg >= settings.KeyholeThresholdDeg;
     }
 
     private bool EnsureConnected(RotatorSettings settings)
@@ -514,8 +721,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _displayCompassAzimuth = (int)Math.Round(RotatorAzimuthPlanner.Normalize360(azimuthDeg));
 
         var send = _lastAzimuth is null || _lastElevation is null
-            || Math.Abs(commandAz - _lastAzimuth.Value) >= 1
-            || Math.Abs(commandEl - _lastElevation.Value) >= 1;
+            || Math.Abs(commandAz - _lastAzimuth.Value) >= settings.MovementThresholdDeg
+            || Math.Abs(commandEl - _lastElevation.Value) >= settings.MovementThresholdDeg;
 
         if (!send)
             return;
@@ -587,6 +794,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         ManualMove,
         Stop,
         SetStandby,
+        SetActivePass,
         Disconnect,
         Drain,
         Shutdown
@@ -600,7 +808,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
             SatelliteTrackState? target = null,
             bool? standbyActive = null,
             double? azimuthDeg = null,
-            double? elevationDeg = null)
+            double? elevationDeg = null,
+            PassInfo? passInfo = null)
         {
             Kind = kind;
             Settings = settings ?? new RotatorSettings();
@@ -608,6 +817,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             StandbyActive = standbyActive;
             AzimuthDeg = azimuthDeg;
             ElevationDeg = elevationDeg;
+            PassInfo = passInfo;
         }
 
         public RotatorCommandKind Kind { get; }
@@ -616,6 +826,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         public bool? StandbyActive { get; }
         public double? AzimuthDeg { get; }
         public double? ElevationDeg { get; }
+        public PassInfo? PassInfo { get; }
         public ManualResetEventSlim? Completed { get; set; }
     }
 }

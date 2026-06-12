@@ -624,6 +624,7 @@
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
+            <TextBlock Text="Tracking" Margin="0,12,0,0" FontWeight="SemiBold" FontSize="13" />
             <TextBlock Text="{loc:Localize Key=Settings.Rotator.TrackStart}" Margin="0,8,0,0" />
             <NumericUpDown Value="{Binding RotatorTrackStartElevationDeg, Mode=TwoWay}"
                            Minimum="-90" Maximum="90"
@@ -632,6 +633,15 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="{loc:Localize Key=Settings.Rotator.TrackStartNote}" />
+            <TextBlock Text="Movement Threshold (°)" Margin="0,8,0,0" />
+            <NumericUpDown Value="{Binding RotatorMovementThresholdDeg, Mode=TwoWay}"
+                           Minimum="0.1" Maximum="10.0"
+                           Increment="0.1" FormatString="F1"
+                           Focusable="True" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Minimum angular change before a new position command is sent. Lower values give tighter tracking; higher values reduce gear wear. Default: 1.0°." />
             <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,8,0,0">
               <StackPanel Grid.Column="0" Spacing="4">
                 <TextBlock Text="{loc:Localize Key=Settings.Rotator.ParkAzimuth}" />
@@ -672,6 +682,32 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="{loc:Localize Key=Settings.Rotator.OffsetNote}" />
+            <TextBlock Text="Keyhole Avoidance" Margin="0,12,0,0" FontWeight="SemiBold" FontSize="13" />
+            <CheckBox Content="Enable Keyhole Avoidance"
+                      IsChecked="{Binding RotatorKeyholeAvoidanceEnabled, Mode=TwoWay}"
+                      Focusable="True" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="When enabled, high-elevation passes where the rotator cannot keep up near zenith will be analysed, and the rotator may pre-position in a flipped orientation to minimise signal loss." />
+            <TextBlock Text="Slew Rate (°/s)" Margin="0,8,0,0" />
+            <NumericUpDown Value="{Binding RotatorSlewRateDegPerSec, Mode=TwoWay}"
+                           Minimum="0.1" Maximum="30"
+                           Increment="0.5" FormatString="F1"
+                           Focusable="True" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Maximum rotator slew rate in degrees per second. Used to compute signal-loss windows." />
+            <TextBlock Text="Keyhole Threshold (°)" Margin="0,8,0,0" />
+            <NumericUpDown Value="{Binding RotatorKeyholeThresholdDeg, Mode=TwoWay}"
+                           Minimum="60" Maximum="89"
+                           Increment="1" FormatString="F0"
+                           Focusable="True" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="Minimum maximum-elevation for a pass to be classified as entering the keyhole zone. Valid range: 60–89°." />
           </StackPanel>
         </ScrollViewer>
       </TabItem>
