@@ -23,6 +23,14 @@ public class GroundTrackSplitTests
         Line1 = "1 44909U 19096E   26141.11069286  .00000018  00000-0  30335-4 0  9995",
         Line2 = "2 44909  82.5230 357.7010 0216952 207.4466 151.5042 12.79748393298881"
     };
+
+    private static readonly SatelliteCatalogEntry So50 = new()
+    {
+        Name = "SO-50",
+        NoradId = "27607",
+        Line1 = "1 27607U 02058C   26141.24923057  .00000576  00000-0  85866-4 0  9998",
+        Line2 = "2 27607  64.5520 212.3264 0075596 267.4106  91.8345 14.82983020260469"
+    };
     [Fact]
     public void SelectGroundTrackWrapOffset_prefers_primary_map_for_wide_chain()
     {
@@ -157,6 +165,55 @@ public class GroundTrackSplitTests
                     var drawable = dx <= w / 2.0 && dy <= maxDy;
                     Assert.False(drawable && p0.Y <= h * 0.08 && p1.Y <= h * 0.08 && dx > w / 4.0,
                         $"At UTC {utc:HH:mm}, drawable high-lat chord dx={dx:F1} y0={p0.Y:F1} y1={p1.Y:F1}.");
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public void So50_southern_track_does_not_draw_left_edge_chords()
+    {
+        var propagator = new PublicOrbitToolsPropagator();
+        propagator.LoadSatellite(So50);
+        var geometry = new SampledGroundGeometry(propagator);
+
+        const double w = 1200;
+        const double h = 600;
+        var maxDy = h / 3.0;
+        var baseUtc = new DateTime(2026, 6, 12, 0, 0, 0, DateTimeKind.Utc);
+        var periodMin = 1440.0 / 14.82983020260469;
+        var half = TimeSpan.FromMinutes(periodMin / 2.0);
+
+        for (var hour = 0; hour < 24; hour++)
+        {
+            var utc = baseUtc.AddHours(hour);
+            var track = geometry.GetGroundTrack(So50, utc - half, utc + half, TimeSpan.FromSeconds(60));
+            if (track.Count < 50)
+                continue;
+
+            var chains = EquirectangularProjection.ProjectGroundTrackForDraw(track, w, h);
+            foreach (var chain in chains)
+            {
+                var xOffset = WorldMapControl.SelectGroundTrackWrapOffset(chain, w);
+                if (xOffset is null)
+                    continue;
+
+                for (var i = 0; i < chain.Count - 1; i++)
+                {
+                    var p0 = chain[i];
+                    var p1 = chain[i + 1];
+                    var dx = Math.Abs(p1.X - p0.X);
+                    var dy = Math.Abs(p1.Y - p0.Y);
+                    if (dx > w / 2.0 || dy > maxDy)
+                        continue;
+
+                    var sx0 = p0.X + xOffset.Value;
+                    var sx1 = p1.X + xOffset.Value;
+                    var nearLeft = sx0 <= w * 0.05 || sx1 <= w * 0.05;
+                    var southern = p0.Y >= h * 0.55 && p1.Y >= h * 0.55;
+                    Assert.False(nearLeft && southern && dx > w / 4.0,
+                        $"At UTC {utc:HH:mm}, left-edge southern chord dx={dx:F1} " +
+                        $"({sx0:F0},{p0.Y:F0})->({sx1:F0},{p1.Y:F0}).");
                 }
             }
         }
