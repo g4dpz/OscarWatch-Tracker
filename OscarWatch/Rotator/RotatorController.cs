@@ -281,8 +281,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
                 return;
             }
 
+            // Pass ended (or idle manual park): release the hold so tracking can resume on the next rise.
+            // Keep _parked true — the rotator is still at the park position.
             _manualParkActive = false;
-            _parked = false;
         }
 
         if (target?.LookAngles is { } lookAngles)
