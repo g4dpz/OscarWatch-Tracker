@@ -3,15 +3,13 @@ using System.Text;
 using System.Text.Json;
 using OscarWatch.Core.Cloudlog;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Net;
 
 namespace OscarWatch.Cloudlog;
 
 public sealed class CloudlogRadioClient
 {
-    private static readonly HttpClient Http = new()
-    {
-        Timeout = TimeSpan.FromSeconds(12)
-    };
+    private static readonly HttpClient Http = OscarWatchHttpClients.Create(TimeSpan.FromSeconds(12));
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

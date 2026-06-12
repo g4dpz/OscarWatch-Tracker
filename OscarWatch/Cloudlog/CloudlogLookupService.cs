@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using OscarWatch.Core.Cloudlog;
+using OscarWatch.Core.Net;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
 
@@ -180,9 +181,8 @@ public sealed class CloudlogLookupService : ICloudlogLookupService
 
     private static HttpClient CreateDefaultClient()
     {
-        var client = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
+        var client = OscarWatchHttpClients.Create(TimeSpan.FromSeconds(15));
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("OscarWatch", "1.0"));
         return client;
     }
 

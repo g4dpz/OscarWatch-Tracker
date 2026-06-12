@@ -1,4 +1,5 @@
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Net;
 using OscarWatch.Core.Tle;
 
 namespace OscarWatch.Core.Services;
@@ -15,7 +16,7 @@ public sealed class TleService : ITleService
     public TleService(ISettingsService? settings = null, HttpClient? httpClient = null)
     {
         _settings = settings;
-        _httpClient = httpClient ?? new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+        _httpClient = httpClient ?? OscarWatchHttpClients.Create(TimeSpan.FromSeconds(30));
     }
 
     public IReadOnlyList<SatelliteCatalogEntry> Catalog => _catalog;
