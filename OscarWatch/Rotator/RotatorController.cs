@@ -720,8 +720,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _displayCompassAzimuth = (int)Math.Round(RotatorAzimuthPlanner.Normalize360(azimuthDeg));
 
         var send = _lastAzimuth is null || _lastElevation is null
-            || Math.Abs(commandAz - _lastAzimuth.Value) >= 1
-            || Math.Abs(commandEl - _lastElevation.Value) >= 1;
+            || Math.Abs(commandAz - _lastAzimuth.Value) >= settings.MovementThresholdDeg
+            || Math.Abs(commandEl - _lastElevation.Value) >= settings.MovementThresholdDeg;
 
         if (!send)
             return;
