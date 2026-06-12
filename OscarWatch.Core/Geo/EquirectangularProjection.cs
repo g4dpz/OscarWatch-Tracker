@@ -158,7 +158,7 @@ public static class EquirectangularProjection
 
                 {
 
-                    if (chain is { Count: >= 3 })
+                    if (chain is { Count: >= 2 })
 
                         chains.Add(chain);
 
@@ -178,7 +178,7 @@ public static class EquirectangularProjection
 
 
 
-            if (chain is { Count: >= 3 })
+            if (chain is { Count: >= 2 })
 
                 chains.Add(chain);
 
