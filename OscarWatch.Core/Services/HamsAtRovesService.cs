@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using OscarWatch.Core.Net;
 using System.Text.Json.Serialization;
 using OscarWatch.Core.Models;
 
@@ -160,13 +161,8 @@ public sealed class HamsAtRovesService : IHamsAtRovesService
             _ => string.IsNullOrWhiteSpace(ex.Message) ? "Network error." : ex.Message
         };
 
-    private static HttpClient CreateDefaultClient()
-    {
-        var client = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
-        client.DefaultRequestHeaders.UserAgent.Add(
-            new ProductInfoHeaderValue("OscarWatch", "1.0"));
-        return client;
-    }
+    private static HttpClient CreateDefaultClient() =>
+        OscarWatchHttpClients.Create(TimeSpan.FromSeconds(30));
 
     private sealed class HamsAtUpcomingResponseDto
     {

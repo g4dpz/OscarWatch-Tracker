@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Collections.Specialized;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -57,6 +58,8 @@ public class WorldMapControl : ThemeAwareControl
     private LabelOrderBuffer _labelOrderBuffer = new(64);
     private readonly RenderResourceCache _renderCache = new();
     private readonly FormattedTextCache _labelCache = new();
+    private readonly Dictionary<string, FootprintGeometryEntry> _footprintGeometryCache = new();
+    private readonly Dictionary<string, GroundTrackSplitEntry> _groundTrackSplitCache = new();
 
     public WorldMapControl()
     {
@@ -300,12 +303,58 @@ public class WorldMapControl : ThemeAwareControl
         {
             var (rx, ry) = EquirectangularProjection.GeoToPixel(remote.LatitudeDeg, remote.LongitudeDeg, w, h);
             foreach (var xOffset in GetSubpointWrapOffsets(rx, w))
-                PlotMarkerDrawing.DrawRemoteStationMarker(context, rx + xOffset, ry);
+                PlotMarkerDrawing.DrawRemoteStationMarker(context, rx + xOffset, ry, _renderCache);
         }
 
         var states = TrackStates;
         if (states is null)
             return;
+
+        // Evict stale footprint cache entries
+        if (_footprintGeometryCache.Count > 0)
+        {
+            // Snapshot keys into a temporary list to allow removal during iteration.
+            // This runs once per frame (not per satellite), so a small array allocation is acceptable.
+            var keys = _footprintGeometryCache.Keys.ToArray();
+            for (var ki = 0; ki < keys.Length; ki++)
+            {
+                var key = keys[ki];
+                var found = false;
+                for (var i = 0; i < states.Count; i++)
+                {
+                    if (states[i].NoradId == key)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                    _footprintGeometryCache.Remove(key);
+            }
+        }
+
+        // Evict stale ground track split cache entries
+        if (_groundTrackSplitCache.Count > 0)
+        {
+            var keys = _groundTrackSplitCache.Keys.ToArray();
+            for (var ki = 0; ki < keys.Length; ki++)
+            {
+                var key = keys[ki];
+                var found = false;
+                for (var i = 0; i < states.Count; i++)
+                {
+                    if (states[i].NoradId == key)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                    _groundTrackSplitCache.Remove(key);
+            }
+        }
 
         // Pass 1: tracks, footprints, and subpoints (no labels yet).
         for (var i = 0; i < states.Count; i++)
@@ -318,7 +367,7 @@ public class WorldMapControl : ThemeAwareControl
             var isFocused = state.NoradId == FocusedNoradId;
 
             if (isFocused)
-                DrawPolylineSegments(context, state.GroundTrack, w, h, color, 2);
+                DrawCachedGroundTrack(context, state.NoradId, state.GroundTrack, w, h, color, 2);
 
             var (sx, sy) = EquirectangularProjection.GeoToPixel(
                 state.Subpoint.LatitudeDeg, state.Subpoint.LongitudeDeg, w, h);
@@ -329,6 +378,7 @@ public class WorldMapControl : ThemeAwareControl
                 var stroke = Color.FromArgb(200, color.R, color.G, color.B);
                 DrawFootprint(
                     context,
+                    state.NoradId,
                     state.Footprint,
                     state.Subpoint,
                     state.FootprintRadiusDeg,
@@ -356,7 +406,8 @@ public class WorldMapControl : ThemeAwareControl
                             w,
                             h,
                             color,
-                            isFocused);
+                            isFocused,
+                            _renderCache);
                     }
                 }
             }
@@ -364,7 +415,7 @@ public class WorldMapControl : ThemeAwareControl
             foreach (var xOffset in GetSubpointWrapOffsets(sx, w))
             {
                 PlotMarkerDrawing.DrawSatelliteMarker(
-                    context, sx + xOffset, sy, color, isFocused);
+                    context, sx + xOffset, sy, color, isFocused, _renderCache);
             }
         }
 
@@ -558,6 +609,7 @@ public class WorldMapControl : ThemeAwareControl
     /// </summary>
     private void DrawFootprint(
         DrawingContext context,
+        string noradId,
         IReadOnlyList<GeoCoordinate> footprint,
         GeoCoordinate subpoint,
         double footprintRadiusDeg,
@@ -579,16 +631,45 @@ public class WorldMapControl : ThemeAwareControl
 
         var fillBrush = _renderCache.GetBrush(fillColor);
         var pen = _renderCache.GetPen(strokeColor, strokeWidth);
+
+        // Check footprint geometry cache
+        if (_footprintGeometryCache.TryGetValue(noradId, out var entry)
+            && ReferenceEquals(entry.SourceFootprint, footprint)
+            && entry.Width == w
+            && entry.Height == h)
+        {
+            // Cache hit: reuse cached geometries
+            for (var i = 0; i < entry.CachedGeometries.Count; i++)
+            {
+                var (geometry, xOffset) = entry.CachedGeometries[i];
+                context.DrawGeometry(fillBrush, pen, geometry);
+            }
+
+            return;
+        }
+
+        // Cache miss: compute pixels and build geometry
         var pixels = FootprintGeometry.ProjectRingToMap(
             subpoint, footprint, radiusDeg, w, h);
         if (pixels.Count < 3)
             return;
 
+        var newEntry = new FootprintGeometryEntry
+        {
+            SourceFootprint = footprint,
+            Width = w,
+            Height = h
+        };
+        newEntry.CachedGeometries.Clear();
+
         foreach (var xOffset in GetFootprintWrapOffsets(subpoint, footprint, pixels, radiusDeg, w, h))
         {
             var geometry = BuildFootprintGeometry(pixels, xOffset);
+            newEntry.CachedGeometries.Add((geometry, xOffset));
             context.DrawGeometry(fillBrush, pen, geometry);
         }
+
+        _footprintGeometryCache[noradId] = newEntry;
     }
 
     private static StreamGeometry BuildFootprintGeometry(
@@ -884,9 +965,71 @@ public class WorldMapControl : ThemeAwareControl
         }
     }
 
-    private static void DrawGroundStationDot(DrawingContext context, double x, double y, UiPalette palette)
+    private void DrawCachedGroundTrack(
+        DrawingContext context,
+        string noradId,
+        IReadOnlyList<GeoCoordinate> track,
+        double w,
+        double h,
+        Color color,
+        double thickness)
     {
-        PlotMarkerDrawing.DrawGroundStationMarker(context, x, y, palette);
+        if (track.Count < 2)
+            return;
+
+        var splitResult = GetOrComputeGroundTrackSplit(noradId, track, w, h);
+        var pen = _renderCache.GetPen(color, thickness);
+
+        foreach (var xOffset in GetHorizontalWrapOffsets(track, w, h))
+        {
+            foreach (var chain in splitResult)
+            {
+                if (chain.Count < 2)
+                    continue;
+
+                for (var i = 0; i < chain.Count - 1; i++)
+                {
+                    var p0 = chain[i];
+                    var p1 = chain[i + 1];
+                    context.DrawLine(
+                        pen,
+                        new Point(p0.X + xOffset, p0.Y),
+                        new Point(p1.X + xOffset, p1.Y));
+                }
+            }
+        }
+    }
+
+    private IReadOnlyList<IReadOnlyList<(double X, double Y)>> GetOrComputeGroundTrackSplit(
+        string noradId,
+        IReadOnlyList<GeoCoordinate> track,
+        double w,
+        double h)
+    {
+        if (_groundTrackSplitCache.TryGetValue(noradId, out var entry)
+            && ReferenceEquals(entry.SourceTrack, track)
+            && entry.Width == w
+            && entry.Height == h)
+        {
+            return entry.SplitResult;
+        }
+
+        var splitResult = EquirectangularProjection.SplitForMapDraw(track, w, h);
+
+        _groundTrackSplitCache[noradId] = new GroundTrackSplitEntry
+        {
+            SourceTrack = track,
+            Width = w,
+            Height = h,
+            SplitResult = splitResult
+        };
+
+        return splitResult;
+    }
+
+    private void DrawGroundStationDot(DrawingContext context, double x, double y, UiPalette palette)
+    {
+        PlotMarkerDrawing.DrawGroundStationMarker(context, x, y, palette, _renderCache);
     }
 
     private void DrawSatelliteLabel(
@@ -904,5 +1047,21 @@ public class WorldMapControl : ThemeAwareControl
         var bg = new Rect(tx - 4, ty - 2, text.Width + 8, text.Height + 4);
         context.FillRectangle(_labelCache.GetBackgroundBrush(palette), bg);
         context.DrawText(text, new Point(tx, ty));
+    }
+
+    private sealed class FootprintGeometryEntry
+    {
+        public IReadOnlyList<GeoCoordinate> SourceFootprint = [];
+        public double Width;
+        public double Height;
+        public List<(StreamGeometry Geometry, double XOffset)> CachedGeometries = new();
+    }
+
+    private sealed class GroundTrackSplitEntry
+    {
+        public IReadOnlyList<GeoCoordinate> SourceTrack = [];
+        public double Width;
+        public double Height;
+        public IReadOnlyList<IReadOnlyList<(double X, double Y)>> SplitResult = [];
     }
 }

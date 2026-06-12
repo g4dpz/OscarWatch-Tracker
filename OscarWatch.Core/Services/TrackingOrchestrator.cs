@@ -18,6 +18,10 @@ public sealed class TrackingOrchestrator
     private readonly HashSet<string> _loggedStateSkips = new(StringComparer.Ordinal);
     private IReadOnlyList<SatelliteCatalogEntry> _cachedEnabledSats = Array.Empty<SatelliteCatalogEntry>();
 
+    private List<SatelliteTrackState> _bufferA = new(32);
+    private List<SatelliteTrackState> _bufferB = new(32);
+    private bool _useBufferA = true;
+
     public TrackingOrchestrator(
         ISettingsService settings,
         ITleService tleService,
@@ -40,6 +44,8 @@ public sealed class TrackingOrchestrator
         _visualCache.Clear();
         _loggedLookAngleSkips.Clear();
         _loggedStateSkips.Clear();
+        _bufferA.Clear();
+        _bufferB.Clear();
         var sats = _tleService.GetEnabledSatellites(_settings.Current);
         _cachedEnabledSats = sats;
         foreach (var sat in sats)
@@ -55,7 +61,8 @@ public sealed class TrackingOrchestrator
     {
         var site = _settings.Current.GroundStation;
         var sats = _cachedEnabledSats;
-        var states = new List<SatelliteTrackState>();
+        var states = _useBufferA ? _bufferB : _bufferA;
+        states.Clear();
         var sunEci = SunPositionCalculator.GetPosition(utc);
 
         foreach (var sat in sats)
@@ -145,6 +152,7 @@ public sealed class TrackingOrchestrator
             }
         }
 
+        _useBufferA = !_useBufferA;
         return states;
     }
 

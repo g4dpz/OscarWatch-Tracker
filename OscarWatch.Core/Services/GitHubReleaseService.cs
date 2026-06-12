@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
+using OscarWatch.Core.Net;
 using System.Text.Json.Serialization;
 using OscarWatch.Core.Models;
 
@@ -93,8 +94,7 @@ public sealed class GitHubReleaseService : IGitHubReleaseService
 
     private static HttpClient CreateDefaultClient()
     {
-        var client = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
-        client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("OscarWatch-Tracker", "1.0"));
+        var client = OscarWatchHttpClients.Create(TimeSpan.FromSeconds(15));
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
         return client;
     }

@@ -335,8 +335,8 @@ public sealed class RigController : IRigController, IDisposable
         var resumingFromCatPause = _catUpdatesPaused && !effectivePaused;
         _catUpdatesPaused = effectivePaused;
 
-        if (context is not null)
-            SyncDisplayFrequencies(context);
+        if (context is not null && context.TrackState.LookAngles is not null)
+            SyncDisplayFrequencies(ComputeDoppler(context));
 
         if (context is null || context.TrackState.LookAngles is null)
         {
@@ -725,7 +725,7 @@ public sealed class RigController : IRigController, IDisposable
     {
         var corrected = ComputeDoppler(context);
 
-        SyncDisplayFrequencies(context);
+        SyncDisplayFrequencies(corrected);
 
         var rxHz = ToHz(corrected.RadioReceiveKHz);
         var txHz = ToHz(corrected.RadioTransmitKHz);
@@ -1492,12 +1492,8 @@ public sealed class RigController : IRigController, IDisposable
 
     private static bool NearlyEqual(double a, double b) => Math.Abs(a - b) < 0.0001;
 
-    private void SyncDisplayFrequencies(RigTrackingContext context)
+    private void SyncDisplayFrequencies(CorrectedFrequencies corrected)
     {
-        if (context.TrackState.LookAngles is null)
-            return;
-
-        var corrected = ComputeDoppler(context);
         _displayRxHz = ToHz(corrected.RadioReceiveKHz);
         _displayTxHz = ToHz(corrected.RadioTransmitKHz);
     }

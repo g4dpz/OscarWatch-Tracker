@@ -1,4 +1,5 @@
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Net;
 
 namespace OscarWatch.Core.Services;
 
@@ -12,7 +13,7 @@ public sealed class SatelliteDatabaseSyncService : ISatelliteDatabaseSyncService
         HttpClient? httpClient = null)
     {
         _editor = editor;
-        _httpClient = httpClient ?? new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+        _httpClient = httpClient ?? OscarWatchHttpClients.Create(TimeSpan.FromSeconds(30));
     }
 
     public async Task<SatelliteDatabaseMergePlan> FetchMergePlanAsync(CancellationToken cancellationToken = default)

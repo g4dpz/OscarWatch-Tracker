@@ -1003,13 +1003,21 @@ public partial class MainViewModel : ViewModelBase
     private void PruneExpiredPasses()
     {
         var now = DateTime.UtcNow;
-        var expired = Passes.OfType<PassRowViewModel>().Where(p => p.LosUtc < now).ToList();
-        if (expired.Count == 0)
+        var removedAny = false;
+
+        for (var i = Passes.Count - 1; i >= 0; i--)
+        {
+            if (Passes[i] is PassRowViewModel p && p.LosUtc < now)
+            {
+                Passes.RemoveAt(i);
+                removedAny = true;
+            }
+        }
+
+        if (!removedAny)
             return;
 
-        foreach (var pass in expired)
-            Passes.Remove(pass);
-
+        // Remove orphaned day headers (reverse scan)
         for (var i = Passes.Count - 1; i >= 0; i--)
         {
             if (Passes[i] is PassDayHeaderViewModel

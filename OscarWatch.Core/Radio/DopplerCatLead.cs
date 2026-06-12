@@ -63,6 +63,16 @@ public static class DopplerCatLead
 
             var rxLeadMs = ResolveLeadMs(settings.ReceiveCatDelayMs());
             var txLeadMs = ResolveLeadMs(settings.TransmitCatDelayMs());
+
+            // Short-circuit: when both leads are equal and non-zero, call propagator once
+            if (rxLeadMs > 0 && NearlyEqual(rxLeadMs, txLeadMs))
+            {
+                var sharedRate = propagator.GetLookAngles(state.NoradId, site, utc.AddMilliseconds(rxLeadMs)).RangeRateKmPerSec;
+                var rate = Lerp(fallback, sharedRate, blend);
+                return new DopplerLeadRangeRates(rate, rate, blend);
+            }
+
+            // Different leads: existing two-call path
             var rxLead = rxLeadMs > 0
                 ? propagator.GetLookAngles(state.NoradId, site, utc.AddMilliseconds(rxLeadMs)).RangeRateKmPerSec
                 : fallback;
@@ -119,4 +129,6 @@ public static class DopplerCatLead
 
     private static double Lerp(double from, double to, double blend) =>
         from + (to - from) * blend;
+
+    private static bool NearlyEqual(double a, double b) => Math.Abs(a - b) < 0.001;
 }

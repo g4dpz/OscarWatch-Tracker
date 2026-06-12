@@ -20,6 +20,7 @@ public class PassPolarPlotControl : ThemeAwareControl
     private static readonly Color HoverMarkerOutline = Color.Parse("#1a2028");
 
     private PassPolarPlotHitTest.HoverPoint? _hoverPoint;
+    private readonly RenderResourceCache _renderCache = new();
 
     public static readonly StyledProperty<PassPolarPlotData?> PlotDataProperty =
         AvaloniaProperty.Register<PassPolarPlotControl, PassPolarPlotData?>(nameof(PlotData));
@@ -128,7 +129,7 @@ public class PassPolarPlotControl : ThemeAwareControl
         DrawHoverMarker(context, cx, cy, plotRadius);
     }
 
-    private static void DrawMarker(
+    private void DrawMarker(
         DrawingContext context,
         double cx,
         double cy,
@@ -144,10 +145,10 @@ public class PassPolarPlotControl : ThemeAwareControl
         switch (marker.Kind)
         {
             case PassPolarPlotMarkerKind.MutualWindowStart:
-                PlotMarkerDrawing.DrawMutualWindowStartMarker(context, point.X, point.Y);
+                PlotMarkerDrawing.DrawMutualWindowStartMarker(context, point.X, point.Y, _renderCache);
                 break;
             case PassPolarPlotMarkerKind.MutualWindowEnd:
-                PlotMarkerDrawing.DrawMutualWindowEndMarker(context, point.X, point.Y);
+                PlotMarkerDrawing.DrawMutualWindowEndMarker(context, point.X, point.Y, _renderCache);
                 break;
         }
     }
