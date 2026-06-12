@@ -15,6 +15,14 @@ public class GroundTrackSplitTests
         Line1 = "1 07530U 74089B   26141.31992461 -.00000054  00000-0 -48931-4 0  9992",
         Line2 = "2 07530 101.9910 154.2858 0012269 180.6108 191.1977 12.53697584357151"
     };
+
+    private static readonly SatelliteCatalogEntry Rs44 = new()
+    {
+        Name = "RS-44",
+        NoradId = "44909",
+        Line1 = "1 44909U 19096E   26141.11069286  .00000018  00000-0  30335-4 0  9995",
+        Line2 = "2 44909  82.5230 357.7010 0216952 207.4466 151.5042 12.79748393298881"
+    };
     [Fact]
     public void SelectGroundTrackWrapOffset_prefers_primary_map_for_wide_chain()
     {
@@ -110,5 +118,47 @@ public class GroundTrackSplitTests
 
         Assert.True(drawableSegments >= track.Count - 4,
             $"Expected a mostly continuous AO-07 track ({drawableSegments} drawable segments).");
+    }
+
+    [Fact]
+    public void Rs44_high_inclination_track_does_not_draw_rim_chords_at_pole()
+    {
+        var propagator = new PublicOrbitToolsPropagator();
+        propagator.LoadSatellite(Rs44);
+        var geometry = new SampledGroundGeometry(propagator);
+
+        const double w = 1200;
+        const double h = 600;
+        var maxDy = h / 3.0;
+        var baseUtc = new DateTime(2026, 6, 12, 0, 0, 0, DateTimeKind.Utc);
+        var periodMin = 1440.0 / 12.79748393298881;
+        var half = TimeSpan.FromMinutes(periodMin / 2.0);
+
+        for (var hour = 0; hour < 24; hour++)
+        {
+            var utc = baseUtc.AddHours(hour);
+            var track = geometry.GetGroundTrack(Rs44, utc - half, utc + half, TimeSpan.FromSeconds(60));
+            if (track.Count < 50)
+                continue;
+
+            var chains = EquirectangularProjection.ProjectGroundTrackForDraw(track, w, h);
+            foreach (var chain in chains)
+            {
+                for (var i = 0; i < chain.Count - 1; i++)
+                {
+                    var p0 = chain[i];
+                    var p1 = chain[i + 1];
+                    var dx = Math.Abs(p1.X - p0.X);
+                    var dy = Math.Abs(p1.Y - p0.Y);
+                    Assert.True(dy <= maxDy + 0.01,
+                        $"At UTC {utc:HH:mm}, unexpected vertical jump of {dy:F1}px.");
+
+                    // Segments drawable by WorldMapControl use maxDx = w/2.
+                    var drawable = dx <= w / 2.0 && dy <= maxDy;
+                    Assert.False(drawable && p0.Y <= h * 0.08 && p1.Y <= h * 0.08 && dx > w / 4.0,
+                        $"At UTC {utc:HH:mm}, drawable high-lat chord dx={dx:F1} y0={p0.Y:F1} y1={p1.Y:F1}.");
+                }
+            }
+        }
     }
 }

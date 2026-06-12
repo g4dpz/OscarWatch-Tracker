@@ -12,6 +12,12 @@ public static class EquirectangularProjection
 
     private const double PoleLatitudeLimit = 89.9;
 
+    /// <summary>
+    /// Above this latitude, rapid longitude swings are normal near the pole and must not be
+    /// treated as antimeridian crossings on the flat map.
+    /// </summary>
+    private const double GroundTrackPolarLatitudeLimit = 70.0;
+
 
 
     public static (double X, double Y) GeoToPixel(double latDeg, double lonDeg, double width, double height)
@@ -211,7 +217,7 @@ public static class EquirectangularProjection
         foreach (var p in points)
         {
             if (prevPoint is not null && prevRawLon.HasValue
-                && IsAntimeridianStep(prevRawLon.Value, p.LongitudeDeg))
+                && ShouldSplitGroundTrackAtAntimeridian(prevPoint, p, prevRawLon.Value))
             {
                 var crossLon = prevRawLon.Value > p.LongitudeDeg ? 180.0 : -180.0;
                 var crossLat = InterpolateLatitudeAtLongitude(prevPoint, p, crossLon);
@@ -231,6 +237,22 @@ public static class EquirectangularProjection
             }
 
             var pixel = GeoToPixel(p.LatitudeDeg, unwrappedLon, width, height);
+            if (prevPoint is not null && current is { Count: > 0 })
+            {
+                var last = current[^1];
+                var dx = Math.Abs(pixel.X - last.X);
+                var dy = Math.Abs(pixel.Y - last.Y);
+                if (Math.Abs(p.LatitudeDeg) > GroundTrackPolarLatitudeLimit
+                    && Math.Abs(p.LatitudeDeg - prevPoint.LatitudeDeg) < 8.0
+                    && dx > width / 2.0
+                    && dy < height / 6.0)
+                {
+                    if (current.Count >= 2)
+                        segments.Add(current);
+                    current = new List<(double X, double Y)>();
+                }
+            }
+
             current ??= new List<(double X, double Y)>();
             current.Add(pixel);
             prevPoint = p;
@@ -317,6 +339,20 @@ public static class EquirectangularProjection
             return true;
 
         return Math.Abs(ShortestLongitudeDelta(fromLongitudeDeg, toLongitudeDeg)) >= 179.5;
+    }
+
+    private static bool ShouldSplitGroundTrackAtAntimeridian(
+        GeoCoordinate previous,
+        GeoCoordinate next,
+        double previousRawLongitudeDeg)
+    {
+        if (Math.Abs(previous.LatitudeDeg) > GroundTrackPolarLatitudeLimit
+            || Math.Abs(next.LatitudeDeg) > GroundTrackPolarLatitudeLimit)
+        {
+            return false;
+        }
+
+        return IsAntimeridianStep(previousRawLongitudeDeg, next.LongitudeDeg);
     }
 
     private static double ShortestLongitudeDelta(double fromLongitudeDeg, double toLongitudeDeg)
