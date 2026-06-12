@@ -19,6 +19,8 @@ public class SkyPlotControl : ThemeAwareControl
     private const double LabelMarginPx = 16;
 
     private INotifyCollectionChanged? _trackStatesSource;
+    private readonly RenderResourceCache _renderCache = new();
+    private readonly FormattedTextCache _labelCache = new();
 
     public static readonly StyledProperty<IReadOnlyList<SatelliteTrackState>?> TrackStatesProperty =
         AvaloniaProperty.Register<SkyPlotControl, IReadOnlyList<SatelliteTrackState>?>(nameof(TrackStates));
@@ -78,11 +80,15 @@ public class SkyPlotControl : ThemeAwareControl
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
+        if (Application.Current is not null)
+            Application.Current.ActualThemeVariantChanged += OnThemeChangedClearCache;
         BindTrackStatesSource(TrackStates);
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
+        if (Application.Current is not null)
+            Application.Current.ActualThemeVariantChanged -= OnThemeChangedClearCache;
         UnsubscribeTrackStatesSource();
         base.OnDetachedFromVisualTree(e);
     }
@@ -122,6 +128,12 @@ public class SkyPlotControl : ThemeAwareControl
 
     private void OnTrackStatesSourceChanged(object? sender, NotifyCollectionChangedEventArgs e) =>
         InvalidateVisual();
+
+    private void OnThemeChangedClearCache(object? sender, EventArgs e)
+    {
+        _renderCache.Clear();
+        _labelCache.Clear();
+    }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
@@ -169,7 +181,7 @@ public class SkyPlotControl : ThemeAwareControl
         var local = new Rect(0, 0, w, h);
         var (cx, cy, plotRadius) = GetPlotGeometry(w, h);
 
-        context.FillRectangle(new SolidColorBrush(palette.SkyPlotBackground), local);
+        context.FillRectangle(_renderCache.GetBrush(palette.SkyPlotBackground), local);
 
         DrawHorizonDisk(context, cx, cy, plotRadius, palette);
         DrawElevationRing(context, cx, cy, plotRadius, 30, palette.SkyPlotRing30, 1);
@@ -209,6 +221,7 @@ public class SkyPlotControl : ThemeAwareControl
                 point.Y,
                 color,
                 isFocused,
+                _renderCache,
                 la.ElevationDeg < MinimumElevationDeg);
         }
 
@@ -285,16 +298,16 @@ public class SkyPlotControl : ThemeAwareControl
         return true;
     }
 
-    private static void DrawHorizonDisk(DrawingContext context, double cx, double cy, double plotRadius, UiPalette palette)
+    private void DrawHorizonDisk(DrawingContext context, double cx, double cy, double plotRadius, UiPalette palette)
     {
         var disk = new Rect(cx - plotRadius, cy - plotRadius, plotRadius * 2, plotRadius * 2);
         context.DrawEllipse(
-            new SolidColorBrush(palette.SkyPlotBackground),
-            new Pen(new SolidColorBrush(palette.SkyPlotBorder), 1.5),
+            _renderCache.GetBrush(palette.SkyPlotBackground),
+            _renderCache.GetPen(palette.SkyPlotBorder, 1.5),
             disk);
     }
 
-    private static void DrawElevationRing(
+    private void DrawElevationRing(
         DrawingContext context,
         double cx,
         double cy,
@@ -305,16 +318,16 @@ public class SkyPlotControl : ThemeAwareControl
         bool dashed = false)
     {
         var r = (90.0 - Math.Clamp(elevationDeg, 0, 90)) / 90.0 * plotRadius;
-        var pen = new Pen(new SolidColorBrush(color), thickness);
-        if (dashed)
-            pen.DashStyle = DashStyle.Dash;
+        var pen = dashed
+            ? _renderCache.GetDashedPen(color, thickness)
+            : _renderCache.GetPen(color, thickness);
 
         context.DrawEllipse(null, pen, new Rect(cx - r, cy - r, r * 2, r * 2));
     }
 
-    private static void DrawAzimuthSpokes(DrawingContext context, double cx, double cy, double plotRadius, UiPalette palette)
+    private void DrawAzimuthSpokes(DrawingContext context, double cx, double cy, double plotRadius, UiPalette palette)
     {
-        var pen = new Pen(new SolidColorBrush(palette.SkyPlotSpoke), 1);
+        var pen = _renderCache.GetPen(palette.SkyPlotSpoke, 1);
         for (var az = 0; az < 360; az += 45)
         {
             if (!TryAzElToPoint(cx, cy, plotRadius, az, 0, out var spokeEnd))
@@ -324,7 +337,7 @@ public class SkyPlotControl : ThemeAwareControl
         }
     }
 
-    private static void DrawCardinalLabels(DrawingContext context, double cx, double cy, double plotRadius, UiPalette palette)
+    private void DrawCardinalLabels(DrawingContext context, double cx, double cy, double plotRadius, UiPalette palette)
     {
         DrawLabel(context, "N", cx, cy - plotRadius - 14, palette);
         DrawLabel(context, "S", cx, cy + plotRadius + 4, palette);
@@ -332,19 +345,13 @@ public class SkyPlotControl : ThemeAwareControl
         DrawLabel(context, "W", cx - plotRadius - 18, cy - 5, palette);
     }
 
-    private static void DrawLabel(DrawingContext context, string text, double x, double y, UiPalette palette)
+    private void DrawLabel(DrawingContext context, string text, double x, double y, UiPalette palette)
     {
-        var ft = new FormattedText(
-            text,
-            System.Globalization.CultureInfo.CurrentCulture,
-            FlowDirection.LeftToRight,
-            new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.SemiBold),
-            12,
-            new SolidColorBrush(palette.SkyPlotLabel));
+        var ft = _labelCache.Get(text, 12, palette);
         context.DrawText(ft, new Point(x, y));
     }
 
-    private static void DrawMinElevationLabel(
+    private void DrawMinElevationLabel(
         DrawingContext context,
         double cx,
         double cy,
@@ -358,19 +365,9 @@ public class SkyPlotControl : ThemeAwareControl
         DrawLabel(context, $"{minimumElevationDeg:F0}° min", anchor.X + 6, anchor.Y - 6, palette);
     }
 
-    private static void DrawCenterMessage(DrawingContext context, double cx, double cy, string text, UiPalette palette)
+    private void DrawCenterMessage(DrawingContext context, double cx, double cy, string text, UiPalette palette)
     {
-        var ft = new FormattedText(
-            text,
-            System.Globalization.CultureInfo.CurrentCulture,
-            FlowDirection.LeftToRight,
-            new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.Normal),
-            12,
-            new SolidColorBrush(palette.SkyPlotMessage))
-        {
-            MaxTextWidth = 120,
-            TextAlignment = TextAlignment.Center
-        };
+        var ft = _labelCache.Get(text, 12, palette);
         context.DrawText(ft, new Point(cx - ft.Width / 2, cy - ft.Height / 2));
     }
 }

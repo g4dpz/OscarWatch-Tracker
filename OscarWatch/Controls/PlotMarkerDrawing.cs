@@ -15,6 +15,7 @@ internal static class PlotMarkerDrawing
         double y,
         Color fill,
         bool isFocused,
+        RenderResourceCache cache,
         bool belowMinimumElevation = false)
     {
         var radius = isFocused ? 7.0 : 5.0;
@@ -24,36 +25,42 @@ internal static class PlotMarkerDrawing
             : fill;
 
         context.DrawEllipse(
-            new SolidColorBrush(fillColor),
-            new Pen(new SolidColorBrush(OutlineDark), isFocused ? 3 : 2.5),
+            cache.GetBrush(fillColor),
+            cache.GetPen(OutlineDark, isFocused ? 3 : 2.5),
             rect);
-        var lightPen = new Pen(Brushes.White, isFocused ? 2 : 1.5);
-        if (belowMinimumElevation)
-            lightPen.DashStyle = DashStyle.Dash;
 
-        context.DrawEllipse(null, lightPen, rect);
+        if (belowMinimumElevation)
+        {
+            var lightPen = cache.GetDashedPen(Colors.White, isFocused ? 2 : 1.5);
+            context.DrawEllipse(null, lightPen, rect);
+        }
+        else
+        {
+            var lightPen = cache.GetPen(Colors.White, isFocused ? 2 : 1.5);
+            context.DrawEllipse(null, lightPen, rect);
+        }
 
         if (isFocused)
         {
             context.DrawEllipse(
                 null,
-                new Pen(new SolidColorBrush(Colors.Gold), 2),
+                cache.GetPen(Colors.Gold, 2),
                 new Rect(x - radius - 4, y - radius - 4, (radius + 4) * 2, (radius + 4) * 2));
         }
     }
 
-    public static void DrawGroundStationMarker(DrawingContext context, double x, double y, UiPalette palette)
+    public static void DrawGroundStationMarker(DrawingContext context, double x, double y, UiPalette palette, RenderResourceCache cache)
     {
         const double radius = 6;
         var rect = new Rect(x - radius, y - radius, radius * 2, radius * 2);
         context.DrawEllipse(
-            new SolidColorBrush(palette.GroundStationFill),
-            new Pen(new SolidColorBrush(palette.GroundStationOutlineDark), 2.5),
+            cache.GetBrush(palette.GroundStationFill),
+            cache.GetPen(palette.GroundStationOutlineDark, 2.5),
             rect);
-        context.DrawEllipse(null, new Pen(Brushes.White, 1.5), rect);
+        context.DrawEllipse(null, cache.GetPen(Colors.White, 1.5), rect);
     }
 
-    public static void DrawRemoteStationMarker(DrawingContext context, double x, double y)
+    public static void DrawRemoteStationMarker(DrawingContext context, double x, double y, RenderResourceCache cache)
     {
         const double radius = 7;
         var fill = Color.Parse("#E69F00");
@@ -69,8 +76,8 @@ internal static class PlotMarkerDrawing
             ctx.EndFigure(true);
         }
 
-        context.DrawGeometry(new SolidColorBrush(fill), new Pen(new SolidColorBrush(outline), 2.5), geometry);
-        context.DrawGeometry(null, new Pen(Brushes.White, 1.5), geometry);
+        context.DrawGeometry(cache.GetBrush(fill), cache.GetPen(outline, 2.5), geometry);
+        context.DrawGeometry(null, cache.GetPen(Colors.White, 1.5), geometry);
     }
 
     public static void DrawFootprintMotionArrow(
@@ -83,7 +90,8 @@ internal static class PlotMarkerDrawing
         double mapWidth,
         double mapHeight,
         Color color,
-        bool isFocused)
+        bool isFocused,
+        RenderResourceCache cache)
     {
         var (endLat, endLon) = SphericalGeo.DestinationPoint(
             subpoint.LatitudeDeg,
@@ -136,14 +144,14 @@ internal static class PlotMarkerDrawing
             g.EndFigure(true);
         }
 
-        var fill = Color.FromArgb((byte)(isFocused ? 220 : 190), color.R, color.G, color.B);
+        var fillColor = Color.FromArgb((byte)(isFocused ? 220 : 190), color.R, color.G, color.B);
         context.DrawGeometry(
-            new SolidColorBrush(fill),
-            new Pen(new SolidColorBrush(Color.FromArgb(240, 26, 32, 40)), isFocused ? 2 : 1.5),
+            cache.GetBrush(fillColor),
+            cache.GetPen(Color.FromArgb(240, 26, 32, 40), isFocused ? 2 : 1.5),
             geometry);
     }
 
-    public static void DrawMutualWindowStartMarker(DrawingContext context, double x, double y)
+    public static void DrawMutualWindowStartMarker(DrawingContext context, double x, double y, RenderResourceCache cache)
     {
         const double size = 7;
         var fill = Color.Parse("#3DBB6D");
@@ -158,20 +166,20 @@ internal static class PlotMarkerDrawing
             g.EndFigure(true);
         }
 
-        context.DrawGeometry(new SolidColorBrush(fill), new Pen(new SolidColorBrush(outline), 2), geometry);
-        context.DrawGeometry(null, new Pen(Brushes.White, 1.5), geometry);
+        context.DrawGeometry(cache.GetBrush(fill), cache.GetPen(outline, 2), geometry);
+        context.DrawGeometry(null, cache.GetPen(Colors.White, 1.5), geometry);
     }
 
-    public static void DrawMutualWindowEndMarker(DrawingContext context, double x, double y)
+    public static void DrawMutualWindowEndMarker(DrawingContext context, double x, double y, RenderResourceCache cache)
     {
         const double radius = 7;
         var fill = Color.Parse("#E69F00");
         var outline = Color.Parse("#1a2028");
         var rect = new Rect(x - radius, y - radius, radius * 2, radius * 2);
-        context.DrawEllipse(new SolidColorBrush(fill), new Pen(new SolidColorBrush(outline), 2), rect);
-        context.DrawEllipse(null, new Pen(Brushes.White, 1.5), rect);
+        context.DrawEllipse(cache.GetBrush(fill), cache.GetPen(outline, 2), rect);
+        context.DrawEllipse(null, cache.GetPen(Colors.White, 1.5), rect);
 
-        var pen = new Pen(new SolidColorBrush(outline), 2.2);
+        var pen = cache.GetPen(outline, 2.2);
         context.DrawLine(pen, new Point(x - 4, y - 4), new Point(x + 4, y + 4));
         context.DrawLine(pen, new Point(x + 4, y - 4), new Point(x - 4, y + 4));
     }
