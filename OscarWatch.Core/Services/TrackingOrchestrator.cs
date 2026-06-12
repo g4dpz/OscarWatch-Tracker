@@ -108,7 +108,7 @@ public sealed class TrackingOrchestrator
                         var periodMin = EstimatePeriodMinutes(sat);
                         var halfPeriod = TimeSpan.FromMinutes(periodMin / 2.0);
                         groundTrack = _groundGeometry.GetGroundTrack(
-                            sat, utc - halfPeriod, utc + halfPeriod, TimeSpan.FromSeconds(120));
+                            sat, utc - halfPeriod, utc + halfPeriod, TimeSpan.FromSeconds(60));
                         cache.GroundTrack = groundTrack;
                         cache.GroundTrackUtc = utc;
                     }

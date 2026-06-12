@@ -8,6 +8,8 @@ public interface ISatelliteDatabaseSyncService
 
     void ApplyMerge(SatelliteDatabaseMergePlan plan, SatelliteDatabaseMergeSelection selection);
 
+    void SaveMergeAcknowledgments(SatelliteDatabaseMergePlan plan, SatelliteDatabaseMergeSelection selection);
+
     List<SatelliteRadioEntry> LoadLocalEntriesForMerge();
 
     void SaveMergedEntries(IReadOnlyList<SatelliteRadioEntry> merged);

@@ -58,7 +58,7 @@ public static class EquirectangularProjection
 
 
 
-            if (prevLon.HasValue && Math.Abs(p.LongitudeDeg - prevLon.Value) > 180)
+            if (prevLon.HasValue && IsAntimeridianStep(prevLon.Value, p.LongitudeDeg))
 
             {
 
@@ -104,7 +104,7 @@ public static class EquirectangularProjection
 
         {
 
-            if (prevLon.HasValue && Math.Abs(p.LongitudeDeg - prevLon.Value) > 180)
+            if (prevLon.HasValue && IsAntimeridianStep(prevLon.Value, p.LongitudeDeg))
 
                 return true;
 
@@ -158,7 +158,7 @@ public static class EquirectangularProjection
 
                 {
 
-                    if (chain is { Count: >= 3 })
+                    if (chain is { Count: >= 2 })
 
                         chains.Add(chain);
 
@@ -178,7 +178,7 @@ public static class EquirectangularProjection
 
 
 
-            if (chain is { Count: >= 3 })
+            if (chain is { Count: >= 2 })
 
                 chains.Add(chain);
 
@@ -190,7 +190,58 @@ public static class EquirectangularProjection
 
     }
 
+    /// <summary>
+    /// Projects a ground track for map drawing. Longitudes are unwrapped along the path so
+    /// polar orbits are not false-split by pixel jumps; chains break only at the antimeridian.
+    /// </summary>
+    public static IReadOnlyList<IReadOnlyList<(double X, double Y)>> ProjectGroundTrackForDraw(
+        IReadOnlyList<GeoCoordinate> points,
+        double width,
+        double height)
+    {
+        if (points.Count < 2)
+            return [];
 
+        var segments = new List<List<(double X, double Y)>>();
+        List<(double X, double Y)>? current = null;
+        double unwrappedLon = points[0].LongitudeDeg;
+        GeoCoordinate? prevPoint = null;
+        double? prevRawLon = null;
+
+        foreach (var p in points)
+        {
+            if (prevPoint is not null && prevRawLon.HasValue
+                && IsAntimeridianStep(prevRawLon.Value, p.LongitudeDeg))
+            {
+                var crossLon = prevRawLon.Value > p.LongitudeDeg ? 180.0 : -180.0;
+                var crossLat = InterpolateLatitudeAtLongitude(prevPoint, p, crossLon);
+                var crossPixel = GeoToPixel(crossLat, crossLon, width, height);
+
+                current ??= new List<(double X, double Y)>();
+                current.Add(crossPixel);
+                if (current.Count > 0)
+                    segments.Add(current);
+
+                current = new List<(double X, double Y)>();
+                unwrappedLon = p.LongitudeDeg;
+            }
+            else if (prevRawLon is not null)
+            {
+                unwrappedLon += ShortestLongitudeDelta(unwrappedLon, p.LongitudeDeg);
+            }
+
+            var pixel = GeoToPixel(p.LatitudeDeg, unwrappedLon, width, height);
+            current ??= new List<(double X, double Y)>();
+            current.Add(pixel);
+            prevPoint = p;
+            prevRawLon = p.LongitudeDeg;
+        }
+
+        if (current is { Count: > 0 })
+            segments.Add(current);
+
+        return segments;
+    }
 
     public static IReadOnlyList<GeoCoordinate> UnwrapNearLongitude(
 
@@ -258,6 +309,40 @@ public static class EquirectangularProjection
 
         return lon;
 
+    }
+
+    private static bool IsAntimeridianStep(double fromLongitudeDeg, double toLongitudeDeg)
+    {
+        if (Math.Abs(toLongitudeDeg - fromLongitudeDeg) > 180)
+            return true;
+
+        return Math.Abs(ShortestLongitudeDelta(fromLongitudeDeg, toLongitudeDeg)) >= 179.5;
+    }
+
+    private static double ShortestLongitudeDelta(double fromLongitudeDeg, double toLongitudeDeg)
+    {
+        var delta = toLongitudeDeg - fromLongitudeDeg;
+        while (delta > 180)
+            delta -= 360;
+        while (delta < -180)
+            delta += 360;
+        return delta;
+    }
+
+    private static double InterpolateLatitudeAtLongitude(
+        GeoCoordinate a,
+        GeoCoordinate b,
+        double longitudeDeg)
+    {
+        var bLon = NormalizeLongitudeNear(b.LongitudeDeg, a.LongitudeDeg);
+        var lon = NormalizeLongitudeNear(longitudeDeg, a.LongitudeDeg);
+        var deltaLon = bLon - a.LongitudeDeg;
+        if (Math.Abs(deltaLon) < 0.0001)
+            return a.LatitudeDeg;
+
+        var t = (lon - a.LongitudeDeg) / deltaLon;
+        t = Math.Clamp(t, 0.0, 1.0);
+        return a.LatitudeDeg + t * (b.LatitudeDeg - a.LatitudeDeg);
     }
 
 }

@@ -43,4 +43,6 @@ public sealed class SatelliteDatabaseMergeSelection
     public HashSet<string> AcceptedNewModeKeys { get; init; } = new(StringComparer.OrdinalIgnoreCase);
     /// <summary>Conflict keys where the remote mode should replace the local mode.</summary>
     public HashSet<string> AcceptRemoteConflictKeys { get; init; } = new(StringComparer.OrdinalIgnoreCase);
+    /// <summary>Conflict keys where the user confirms keeping the local mode.</summary>
+    public HashSet<string> AcceptLocalConflictKeys { get; init; } = new(StringComparer.OrdinalIgnoreCase);
 }

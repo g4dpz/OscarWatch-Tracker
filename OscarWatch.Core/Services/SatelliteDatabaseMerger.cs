@@ -1,3 +1,4 @@
+using System.Globalization;
 using OscarWatch.Core.Models;
 
 namespace OscarWatch.Core.Services;
@@ -66,6 +67,82 @@ public static class SatelliteDatabaseMerger
             NewModes = newModes,
             Conflicts = conflicts
         };
+    }
+
+    public static string ModeFingerprint(SatelliteTransponderMode mode) =>
+        string.Create(CultureInfo.InvariantCulture,
+            $"{mode.DownlinkKHz:F4}|{mode.UplinkKHz:F4}|{mode.DownlinkMode.Trim()}|{mode.UplinkMode.Trim()}|{mode.Doppler.Trim()}|{FingerprintNullable(mode.CtcssHz)}|{FingerprintNullable(mode.CtcssArmHz)}");
+
+    public static SatelliteDatabaseMergePlan WithoutAcknowledgedConflicts(
+        SatelliteDatabaseMergePlan plan,
+        IReadOnlyList<TransponderConflictAcknowledgment> acknowledgments)
+    {
+        if (acknowledgments.Count == 0 || plan.Conflicts.Count == 0)
+            return plan;
+
+        var ackByKey = acknowledgments
+            .GroupBy(a => a.Key.Trim(), StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.Last(), StringComparer.OrdinalIgnoreCase);
+
+        var conflicts = plan.Conflicts
+            .Where(conflict => !IsAcknowledgedConflict(conflict, ackByKey))
+            .ToList();
+
+        if (conflicts.Count == plan.Conflicts.Count)
+            return plan;
+
+        return new SatelliteDatabaseMergePlan
+        {
+            NewSatellites = plan.NewSatellites,
+            NewModes = plan.NewModes,
+            Conflicts = conflicts
+        };
+    }
+
+    public static List<TransponderConflictAcknowledgment> BuildLocalAcknowledgments(
+        SatelliteDatabaseMergePlan plan,
+        SatelliteDatabaseMergeSelection selection)
+    {
+        var acknowledgments = new List<TransponderConflictAcknowledgment>();
+        foreach (var conflict in plan.Conflicts)
+        {
+            if (!selection.AcceptLocalConflictKeys.Contains(conflict.Key))
+                continue;
+
+            acknowledgments.Add(new TransponderConflictAcknowledgment
+            {
+                Key = conflict.Key,
+                LocalFingerprint = ModeFingerprint(conflict.LocalMode),
+                RemoteFingerprint = ModeFingerprint(conflict.RemoteMode)
+            });
+        }
+
+        return acknowledgments;
+    }
+
+    public static void UpsertLocalAcknowledgments(
+        List<TransponderConflictAcknowledgment> existing,
+        IEnumerable<TransponderConflictAcknowledgment> additions)
+    {
+        foreach (var addition in additions)
+        {
+            var index = existing.FindIndex(a =>
+                string.Equals(a.Key, addition.Key, StringComparison.OrdinalIgnoreCase));
+            if (index >= 0)
+                existing[index] = addition;
+            else
+                existing.Add(addition);
+        }
+    }
+
+    public static void RemoveAcknowledgments(
+        List<TransponderConflictAcknowledgment> existing,
+        IEnumerable<string> keys)
+    {
+        foreach (var key in keys)
+        {
+            existing.RemoveAll(a => string.Equals(a.Key, key, StringComparison.OrdinalIgnoreCase));
+        }
     }
 
     public static List<SatelliteRadioEntry> Apply(
@@ -188,6 +265,20 @@ public static class SatelliteDatabaseMerger
 
     private static bool NearlyEqual(double left, double right) =>
         Math.Abs(left - right) < 0.0001;
+
+    private static string FingerprintNullable(double? value) =>
+        value.HasValue ? value.Value.ToString("F4", CultureInfo.InvariantCulture) : "";
+
+    private static bool IsAcknowledgedConflict(
+        SatelliteDatabaseMergeConflict conflict,
+        IReadOnlyDictionary<string, TransponderConflictAcknowledgment> acknowledgments)
+    {
+        if (!acknowledgments.TryGetValue(conflict.Key, out var acknowledgment))
+            return false;
+
+        return string.Equals(acknowledgment.LocalFingerprint, ModeFingerprint(conflict.LocalMode), StringComparison.Ordinal)
+            && string.Equals(acknowledgment.RemoteFingerprint, ModeFingerprint(conflict.RemoteMode), StringComparison.Ordinal);
+    }
 
     private static SatelliteRadioEntry CloneEntry(SatelliteRadioEntry source) =>
         new()

@@ -980,24 +980,81 @@ public class WorldMapControl : ThemeAwareControl
         var splitResult = GetOrComputeGroundTrackSplit(noradId, track, w, h);
         var pen = _renderCache.GetPen(color, thickness);
 
-        foreach (var xOffset in GetHorizontalWrapOffsets(track, w, h))
+        foreach (var chain in splitResult)
         {
-            foreach (var chain in splitResult)
+            if (chain.Count < 2)
+                continue;
+
+            var maxDx = w / 2.0;
+            var maxDy = h / 3.0;
+
+            var xOffset = SelectGroundTrackWrapOffset(chain, w);
+            if (xOffset is null)
+                continue;
+
+            for (var i = 0; i < chain.Count - 1; i++)
             {
-                if (chain.Count < 2)
+                var p0 = chain[i];
+                var p1 = chain[i + 1];
+                if (Math.Abs(p1.X - p0.X) > maxDx || Math.Abs(p1.Y - p0.Y) > maxDy)
                     continue;
 
-                for (var i = 0; i < chain.Count - 1; i++)
-                {
-                    var p0 = chain[i];
-                    var p1 = chain[i + 1];
-                    context.DrawLine(
-                        pen,
-                        new Point(p0.X + xOffset, p0.Y),
-                        new Point(p1.X + xOffset, p1.Y));
-                }
+                context.DrawLine(
+                    pen,
+                    new Point(p0.X + xOffset.Value, p0.Y),
+                    new Point(p1.X + xOffset.Value, p1.Y));
             }
         }
+    }
+
+    /// <summary>
+    /// Picks one horizontal wrap for a ground-track chain. Avoids duplicate edge stubs from
+    /// drawing the same chain at 0 and ±width.
+    /// </summary>
+    internal static double? SelectGroundTrackWrapOffset(
+        IReadOnlyList<(double X, double Y)> chain,
+        double w)
+    {
+        if (chain.Count < 2)
+            return null;
+
+        var minVisibleSpanPx = Math.Max(WrapEdgeMarginPx * 2, w * 0.08);
+        double? bestOffset = null;
+        var bestVisibleSpan = 0.0;
+
+        foreach (var offset in new[] { 0.0, w, -w })
+        {
+            var visibleSpan = VisibleHorizontalSpan(chain, offset, w);
+            if (visibleSpan < minVisibleSpanPx)
+                continue;
+
+            if (visibleSpan > bestVisibleSpan)
+            {
+                bestVisibleSpan = visibleSpan;
+                bestOffset = offset;
+            }
+        }
+
+        return bestOffset;
+    }
+
+    private static double VisibleHorizontalSpan(
+        IReadOnlyList<(double X, double Y)> chain,
+        double xOffset,
+        double w)
+    {
+        var minX = double.MaxValue;
+        var maxX = double.MinValue;
+        foreach (var p in chain)
+        {
+            var x = p.X + xOffset;
+            minX = Math.Min(minX, x);
+            maxX = Math.Max(maxX, x);
+        }
+
+        var left = Math.Max(0, minX);
+        var right = Math.Min(w, maxX);
+        return Math.Max(0, right - left);
     }
 
     private IReadOnlyList<IReadOnlyList<(double X, double Y)>> GetOrComputeGroundTrackSplit(
@@ -1014,7 +1071,7 @@ public class WorldMapControl : ThemeAwareControl
             return entry.SplitResult;
         }
 
-        var splitResult = EquirectangularProjection.SplitForMapDraw(track, w, h);
+        var splitResult = EquirectangularProjection.ProjectGroundTrackForDraw(track, w, h);
 
         _groundTrackSplitCache[noradId] = new GroundTrackSplitEntry
         {
