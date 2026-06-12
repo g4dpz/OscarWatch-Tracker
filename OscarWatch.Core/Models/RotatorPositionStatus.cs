@@ -8,4 +8,6 @@ public sealed record RotatorPositionStatus(
     int? CompassAzimuthDeg = null,
     bool IsParked = false,
     RotatorConnectionKind ConnectionKind = RotatorConnectionKind.Unknown,
-    string? ConnectionDetail = null);
+    string? ConnectionDetail = null,
+    bool IsKeyholeAvoidanceActive = false,
+    bool IsPrePositioning = false);

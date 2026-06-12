@@ -12,5 +12,7 @@ public interface IRotatorController
     void Stop(RotatorSettings settings);
     void SetStandby(bool active, RotatorSettings settings);
     void Disconnect();
+    /// <summary>Supply the active pass for keyhole avoidance planning. Call when the pass changes or becomes known.</summary>
+    void SetActivePass(PassInfo? pass);
     RotatorPositionStatus GetPositionStatus();
 }

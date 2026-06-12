@@ -34,6 +34,15 @@ public sealed class RotatorSettings
     /// <summary>Use 361–450° commands for shortest path when <see cref="AzimuthRange"/> is 450°.</summary>
     public bool SmartAzimuth450 { get; set; } = true;
 
+    /// <summary>When true, the keyhole avoidance system analyses high-elevation passes and may pre-position the rotator in a flipped orientation.</summary>
+    public bool KeyholeAvoidanceEnabled { get; set; } = false;
+
+    /// <summary>Maximum rotator slew rate in degrees per second, used for keyhole signal-loss computation.</summary>
+    public double SlewRateDegPerSec { get; set; } = 3.0;
+
+    /// <summary>Minimum max-elevation (degrees) for a pass to be classified as entering the keyhole zone. Valid range: [60, 89].</summary>
+    public double KeyholeThresholdDeg { get; set; } = 80.0;
+
     public double MaxAzimuthDeg => (double)AzimuthRange;
     public double MaxElevationDeg => (double)ElevationRange;
 }

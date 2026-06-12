@@ -119,5 +119,6 @@ public sealed class DiagnosticsBundleBuilderTests
         public void Stop(RotatorSettings settings) { }
         public void SetStandby(bool active, RotatorSettings settings) { }
         public void Disconnect() { }
+        public void SetActivePass(PassInfo? pass) { }
     }
 }
