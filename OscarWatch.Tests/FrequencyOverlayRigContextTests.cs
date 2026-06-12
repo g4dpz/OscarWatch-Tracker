@@ -128,6 +128,59 @@ public class FrequencyOverlayRigContextTests
         Assert.Equal(baseline.RadioTransmitKHz, ctx.Corrected.RadioTransmitKHz, 3);
     }
 
+    [Fact]
+    public void TryBuildRigTrackingContext_includes_transmit_offset_on_uplink()
+    {
+        var settings = new TestSettingsService();
+        var database = new TestSatelliteDatabaseService(
+        [
+            new SatelliteRadioEntry
+            {
+                Name = "RS-44",
+                Modes =
+                [
+                    new SatelliteTransponderMode
+                    {
+                        Type = "SSB Transponder",
+                        DownlinkKHz = 435_667,
+                        UplinkKHz = 145_937,
+                        DownlinkMode = "USB",
+                        UplinkMode = "LSB",
+                        Doppler = "REV"
+                    }
+                ]
+            }
+        ]);
+
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
+        vm.Update(new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "99999",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        });
+
+        const double txOffsetKHz = -1.5;
+        vm.IsTransmitOffsetSelected = true;
+        vm.TransmitOffsetKHz = txOffsetKHz;
+
+        var ctx = vm.TryBuildRigTrackingContext(new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "99999",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        });
+
+        Assert.NotNull(ctx);
+        Assert.Equal(txOffsetKHz, ctx.TransmitOffsetKHz);
+
+        var baseline = DopplerFrequencyCalculator.Compute(ctx.Mode, 0, 0);
+        Assert.Equal(baseline.RadioReceiveKHz, ctx.Corrected.RadioReceiveKHz, 3);
+        Assert.InRange(ctx.Corrected.RadioTransmitKHz - baseline.RadioTransmitKHz, -1.6, -1.4);
+    }
+
     private sealed class TestSettingsService : ISettingsService
     {
         public AppSettings Current { get; } = new();

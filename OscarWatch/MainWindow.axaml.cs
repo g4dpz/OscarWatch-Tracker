@@ -368,7 +368,7 @@ public partial class MainWindow : Window
             return;
 
         const int stepHz = 10;
-        main.Frequencies.AdjustReceiveOffsetHz(e.Key == Key.Add ? stepHz : -stepHz);
+        main.Frequencies.AdjustActiveOffsetHz(e.Key == Key.Add ? stepHz : -stepHz);
         e.Handled = true;
     }
 

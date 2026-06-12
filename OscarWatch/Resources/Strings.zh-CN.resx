@@ -747,6 +747,18 @@
   <data name="Freq.RxOffsetKHz">
     <value>接收偏移（kHz）</value>
   </data>
+  <data name="Freq.TxOffsetKHz">
+    <value>发射偏移（kHz）</value>
+  </data>
+  <data name="Freq.OffsetToggleRx">
+    <value>RX</value>
+  </data>
+  <data name="Freq.OffsetToggleTx">
+    <value>TX</value>
+  </data>
+  <data name="Freq.OffsetLegToggleToolTip">
+    <value>在下行的 RX 与上行的 TX 偏移之间切换。两个已存储的偏移会同时生效。</value>
+  </data>
   <data name="Freq.StoreOffset">
     <value>保存偏移</value>
   </data>
@@ -765,11 +777,35 @@
   <data name="Freq.StoredOffsetCw">
     <value>已存储 CW {0} Hz 偏移。</value>
   </data>
+  <data name="Freq.StoredOffsetTx">
+    <value>已存储 TX {0} Hz 偏移。</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedTx">
+    <value>已清除存储的 TX 偏移。</value>
+  </data>
+  <data name="Freq.StoredOffsetCwTx">
+    <value>已存储 CW TX {0} Hz 偏移。</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedCwTx">
+    <value>已清除存储的 CW TX 偏移。</value>
+  </data>
   <data name="Freq.OffsetOnDownlinkTuneUplink">
     <value>{0} 下行。调谐 Main 作为上行。</value>
   </data>
   <data name="Freq.OffsetOnDownlink">
     <value>{0} 下行。</value>
+  </data>
+  <data name="Freq.OffsetOnUplink">
+    <value>{0} 上行。</value>
+  </data>
+  <data name="Freq.OffsetOnUplinkTuneDownlink">
+    <value>{0} 上行。调谐 Main 作为下行。</value>
+  </data>
+  <data name="Freq.OffsetOnBothLegs">
+    <value>{0} 下行，{1} 上行。</value>
+  </data>
+  <data name="Freq.OffsetOnBothLegsRev">
+    <value>{0} 下行，{1} 上行。用 Main 调谐另一路。</value>
   </data>
   <data name="Freq.DownlinkOnlyTuneUplink">
     <value>仅下行。调谐主频以设置上行。</value>

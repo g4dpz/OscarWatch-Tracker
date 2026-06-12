@@ -22,6 +22,14 @@ public sealed class SatelliteFrequencySelection
     public Dictionary<string, double> CwReceiveOffsetKHzByMode { get; set; } =
         new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>Per-mode transmit offset when CW operating style is selected on linear voice transponders.</summary>
+    public Dictionary<string, double> CwTransmitOffsetKHzByMode { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Per-mode offset edit target: false = RX, true = TX.</summary>
+    public Dictionary<string, bool> TransmitOffsetSelectedByMode { get; set; } =
+        new(StringComparer.OrdinalIgnoreCase);
+
     /// <summary>Per-mode Doppler strategy (omitted entries default to <see cref="DopplerStrategy.Full"/>).</summary>
     public Dictionary<string, DopplerStrategy> DopplerStrategyByMode { get; set; } =
         new(StringComparer.OrdinalIgnoreCase);
@@ -130,6 +138,59 @@ public sealed class SatelliteFrequencySelection
             return;
         }
 
-        SetOffsetsForMode(key, 0, receiveOffsetKHz);
+        var (existingTx, _) = GetOffsetsForMode(key);
+        SetOffsetsForMode(key, existingTx, receiveOffsetKHz);
+    }
+
+    public double GetTransmitOffsetForMode(string modeType, bool cwOperatingStyle)
+    {
+        if (string.IsNullOrWhiteSpace(modeType))
+            return 0;
+
+        var key = modeType.Trim();
+        if (cwOperatingStyle
+            && CwTransmitOffsetKHzByMode.TryGetValue(key, out var cwTx))
+            return cwTx;
+
+        return GetOffsetsForMode(key).TransmitOffsetKHz;
+    }
+
+    public void SetTransmitOffsetForMode(string modeType, double transmitOffsetKHz, bool cwOperatingStyle)
+    {
+        if (string.IsNullOrWhiteSpace(modeType))
+            return;
+
+        var key = modeType.Trim();
+        if (cwOperatingStyle)
+        {
+            if (Math.Abs(transmitOffsetKHz) < 0.0001)
+                CwTransmitOffsetKHzByMode.Remove(key);
+            else
+                CwTransmitOffsetKHzByMode[key] = transmitOffsetKHz;
+            return;
+        }
+
+        var (_, existingRx) = GetOffsetsForMode(key);
+        SetOffsetsForMode(key, transmitOffsetKHz, existingRx);
+    }
+
+    public bool GetTransmitOffsetSelectedForMode(string modeType)
+    {
+        if (string.IsNullOrWhiteSpace(modeType))
+            return false;
+
+        return TransmitOffsetSelectedByMode.TryGetValue(modeType.Trim(), out var txSelected) && txSelected;
+    }
+
+    public void SetTransmitOffsetSelectedForMode(string modeType, bool transmitOffsetSelected)
+    {
+        if (string.IsNullOrWhiteSpace(modeType))
+            return;
+
+        var key = modeType.Trim();
+        if (transmitOffsetSelected)
+            TransmitOffsetSelectedByMode[key] = true;
+        else
+            TransmitOffsetSelectedByMode.Remove(key);
     }
 }

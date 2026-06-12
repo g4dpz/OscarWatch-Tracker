@@ -58,7 +58,7 @@
         <strong>Settings → Radio → Linear CW: keep receive in USB/LSB</strong> (usual split) or both VFOs to CW if
         that option is off. OscarWatch remembers Voice/CW per satellite and mode, applies it to CAT and Cloudlog,
         and you can press <strong>Ctrl+W</strong> to toggle quickly during a pass (<a href="keyboard-shortcuts.html">shortcuts</a>).
-        Voice and CW can each have their own stored <strong>RX offset</strong> — see below.
+        Voice and CW can each have their own stored <strong>RX and TX offsets</strong> — see below.
       </p>
 
       <h2>What the columns mean</h2>
@@ -78,17 +78,19 @@
         <a href="radio-rotator.html#beacon-receive-only">Receive-only modes</a> in Radio &amp; rotator help.
       </p>
 
-      <h2>RX offset (kHz)</h2>
+      <h2>Offsets (kHz)</h2>
       <p>
-        Many operators listen slightly off the nominal downlink to find a clear spot in the passband.
-        Use the offset box or the step buttons (+10, +100, etc.) to nudge the downlink in kHz.
-        See <a href="keyboard-shortcuts.html">Keyboard shortcuts</a> for numpad <strong>+</strong> / <strong>−</strong> (±10&nbsp;Hz per press).
+        Many operators listen slightly off the nominal downlink — or transmit slightly off the nominal uplink — to find a clear spot in the passband.
+        Use the offset box or the step buttons (+10, +100, etc.) to nudge the selected leg in kHz.
+        The <strong>RX / TX</strong> toggle to the right of the spinner chooses which leg you are editing; <strong>both</strong> stored offsets apply to the displayed frequencies and to CAT at once.
+        See <a href="keyboard-shortcuts.html">Keyboard shortcuts</a> for numpad <strong>+</strong> / <strong>−</strong> (±10&nbsp;Hz per press on the active leg).
       </p>
       <ul>
         <li>Changes apply to the displayed frequencies and to CAT (when tracking is active).</li>
-        <li><strong>Store offset</strong> saves the offset for this satellite and transponder mode in your settings.</li>
-        <li>On linear SSB modes, <strong>Voice</strong> and <strong>CW</strong> each keep a separate stored RX offset. The first time you switch to CW, OscarWatch starts from your voice offset until you store a CW value; toggling back restores the voice offset.</li>
-        <li>On some satellites (reverse Doppler), you tune the uplink on the radio yourself; the hint text under the panel explains this.</li>
+        <li><strong>Store offset</strong> saves the offset for the active leg (RX or TX), this satellite, and transponder mode in your settings.</li>
+        <li>On linear SSB modes, <strong>Voice</strong> and <strong>CW</strong> each keep separate stored RX and TX offsets. The first time you switch to CW, OscarWatch starts from your voice offsets until you store CW values; toggling back restores the voice offsets.</li>
+        <li>On some satellites (reverse Doppler), you tune one leg on the radio yourself; the hint text under the panel explains this.</li>
+        <li>On <strong>beacon-only</strong> modes (no uplink), only RX offset is available — the TX toggle is hidden.</li>
       </ul>
 
       <h2>CTCSS</h2>

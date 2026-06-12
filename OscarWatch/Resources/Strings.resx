@@ -771,6 +771,18 @@ Continue?</value>
   <data name="Freq.RxOffsetKHz">
     <value>RX offset (kHz)</value>
   </data>
+  <data name="Freq.TxOffsetKHz">
+    <value>TX offset (kHz)</value>
+  </data>
+  <data name="Freq.OffsetToggleRx">
+    <value>RX</value>
+  </data>
+  <data name="Freq.OffsetToggleTx">
+    <value>TX</value>
+  </data>
+  <data name="Freq.OffsetLegToggleToolTip">
+    <value>Switch offset between downlink (RX) and uplink (TX). Both stored offsets apply at once.</value>
+  </data>
   <data name="Freq.StoreOffset">
     <value>Store Offset</value>
   </data>
@@ -789,11 +801,35 @@ Continue?</value>
   <data name="Freq.StoredOffsetCw">
     <value>Stored CW {0} Hz offset.</value>
   </data>
+  <data name="Freq.StoredOffsetTx">
+    <value>Stored {0} Hz TX offset.</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedTx">
+    <value>Stored TX offset cleared.</value>
+  </data>
+  <data name="Freq.StoredOffsetCwTx">
+    <value>Stored CW {0} Hz TX offset.</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedCwTx">
+    <value>Stored CW TX offset cleared.</value>
+  </data>
   <data name="Freq.OffsetOnDownlinkTuneUplink">
     <value>{0} on downlink. Tune Main for uplink.</value>
   </data>
   <data name="Freq.OffsetOnDownlink">
     <value>{0} on downlink.</value>
+  </data>
+  <data name="Freq.OffsetOnUplink">
+    <value>{0} on uplink.</value>
+  </data>
+  <data name="Freq.OffsetOnUplinkTuneDownlink">
+    <value>{0} on uplink. Tune Main for downlink.</value>
+  </data>
+  <data name="Freq.OffsetOnBothLegs">
+    <value>{0} on downlink, {1} on uplink.</value>
+  </data>
+  <data name="Freq.OffsetOnBothLegsRev">
+    <value>{0} on downlink, {1} on uplink. Tune Main for the other leg.</value>
   </data>
   <data name="Freq.DownlinkOnlyTuneUplink">
     <value>Downlink only. Tune Main for uplink.</value>

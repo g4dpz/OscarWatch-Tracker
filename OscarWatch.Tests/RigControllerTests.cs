@@ -542,6 +542,58 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Tx_offset_shifts_uplink_not_downlink_on_rev_satellite()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "99999",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        RigTrackingContext Build(double txOffset) =>
+            new()
+            {
+                TrackState = state,
+                Mode = mode,
+                Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0, txOffset),
+                TransmitOffsetKHz = txOffset,
+                ReceiveOffsetKHz = 0
+            };
+
+        controller.Update(settings, Build(0));
+        Thread.Sleep(650);
+        var rxBefore = rig.MainHz;
+        var txBefore = rig.SubHz;
+
+        controller.Update(settings, Build(2.0));
+        Thread.Sleep(650);
+
+        Assert.Equal(rxBefore, rig.MainHz);
+        Assert.True(rig.SubHz > txBefore);
+    }
+
+    [Fact]
     public void Rx_offset_survives_range_rate_change_on_downlink()
     {
         var rig = new RecordingRigDriver();

@@ -351,9 +351,9 @@ public partial class FrequencyOverlayControl : UserControl
       return;
 
     var khz = (double)(spin.Value ?? 0m);
-    if (Math.Abs(vm.ReceiveOffsetKHz - khz) < 0.0001)
+    if (Math.Abs(vm.ActiveOffsetKHz - khz) < 0.0001)
       return;
-    vm.ReceiveOffsetKHz = khz;
+    vm.ActiveOffsetKHz = khz;
   }
 
   private void OnOffsetStepClick(object? sender, RoutedEventArgs e)
@@ -362,7 +362,7 @@ public partial class FrequencyOverlayControl : UserControl
       return;
 
     if (btn.Tag is string tag && int.TryParse(tag, out var deltaHz))
-      vm.AdjustReceiveOffsetHz(deltaHz);
+      vm.AdjustActiveOffsetHz(deltaHz);
   }
 
   private static (double X, double Y) ClampPosition(

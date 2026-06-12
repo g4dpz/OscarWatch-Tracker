@@ -97,6 +97,14 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private double _receiveOffsetKHz;
 
     [ObservableProperty]
+    private double _transmitOffsetKHz;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ActiveOffsetKHz))]
+    [NotifyPropertyChangedFor(nameof(OffsetLabelText))]
+    private bool _isTransmitOffsetSelected;
+
+    [ObservableProperty]
     private string _offsetAppliedHint = "";
 
     [ObservableProperty]
@@ -152,6 +160,24 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     public bool IsTxFixedDopplerSelected => DopplerStrategy == DopplerStrategy.DownlinkOnly;
 
     public bool IsRxFixedDopplerSelected => DopplerStrategy == DopplerStrategy.UplinkOnly;
+
+    public bool ShowOffsetLegToggle => HasTransponderData && !IsBeaconOnly;
+
+    public string OffsetLabelText => IsTransmitOffsetSelected
+        ? _l.Get("Freq.TxOffsetKHz")
+        : _l.Get("Freq.RxOffsetKHz");
+
+    public double ActiveOffsetKHz
+    {
+        get => IsTransmitOffsetSelected ? TransmitOffsetKHz : ReceiveOffsetKHz;
+        set
+        {
+            if (IsTransmitOffsetSelected)
+                TransmitOffsetKHz = value;
+            else
+                ReceiveOffsetKHz = value;
+        }
+    }
 
     [ObservableProperty]
     private SatelliteTransponderMode? _selectedMode;
@@ -305,6 +331,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             SelectedMode!,
             rxRangeRateKmPerSec,
             ReceiveOffsetKHz,
+            TransmitOffsetKHz,
             _rigPassbandDownlinkAdjustKHz,
             _rigPassbandUplinkAdjustKHz,
             DopplerStrategy,
@@ -381,7 +408,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             TrackState = state,
             Mode = SelectedMode,
             Corrected = corrected,
-            TransmitOffsetKHz = 0,
+            TransmitOffsetKHz = TransmitOffsetKHz,
             ReceiveOffsetKHz = ReceiveOffsetKHz,
             SelectedCtcssHz = GetActiveCtcssHz(),
             CwUplink = IsCwUplink,
@@ -468,22 +495,52 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         if (_isLoadingSelection)
             return;
 
+        OnPropertyChanged(nameof(ActiveOffsetKHz));
         ApplyOffsetEdit();
     }
 
-    /// <summary>Called when RX offset changes (spinner or step buttons).</summary>
+    partial void OnTransmitOffsetKHzChanged(double value)
+    {
+        if (_isLoadingSelection)
+            return;
+
+        OnPropertyChanged(nameof(ActiveOffsetKHz));
+        ApplyOffsetEdit();
+    }
+
+    partial void OnIsTransmitOffsetSelectedChanged(bool value)
+    {
+        if (_isLoadingSelection)
+            return;
+
+        OnPropertyChanged(nameof(ActiveOffsetKHz));
+        OnPropertyChanged(nameof(OffsetLabelText));
+        if (SelectedMode is not null)
+        {
+            GetOrCreateSelection().SetTransmitOffsetSelectedForMode(SelectedMode.Type, value);
+            _settings.RequestSave();
+        }
+
+        RefreshFrequencyDisplay();
+        OffsetsChanged?.Invoke(this, false);
+    }
+
+    /// <summary>Called when offset changes (spinner or step buttons).</summary>
     public void ApplyOffsetEdit()
     {
         RefreshFrequencyDisplay();
         OffsetsChanged?.Invoke(this, false);
     }
 
-    /// <summary>Receive offset nudge in Hz (applied to downlink nominal before doppler).</summary>
-    public void AdjustReceiveOffsetHz(int deltaHz)
+    /// <summary>Active offset nudge in Hz (RX or TX leg per toggle).</summary>
+    public void AdjustActiveOffsetHz(int deltaHz)
     {
         const double maxKHz = 5.0;
-        ReceiveOffsetKHz = Math.Clamp(ReceiveOffsetKHz + deltaHz / 1000.0, -maxKHz, maxKHz);
+        ActiveOffsetKHz = Math.Clamp(ActiveOffsetKHz + deltaHz / 1000.0, -maxKHz, maxKHz);
     }
+
+    /// <summary>Receive offset nudge in Hz (applied to downlink nominal before doppler).</summary>
+    public void AdjustReceiveOffsetHz(int deltaHz) => AdjustActiveOffsetHz(deltaHz);
 
     [RelayCommand(CanExecute = nameof(CanStoreOffset))]
     private void StoreOffset()
@@ -493,14 +550,25 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
         var selection = GetOrCreateSelection();
         selection.RememberOffsets = true;
-        selection.SetReceiveOffsetForMode(SelectedMode.Type, ReceiveOffsetKHz, UseCwReceiveOffsetStorage());
-        _settings.RequestSave();
+        var cw = UseCwOffsetStorage();
+        if (IsTransmitOffsetSelected)
+        {
+            selection.SetTransmitOffsetForMode(SelectedMode.Type, TransmitOffsetKHz, cw);
+            var hz = (int)Math.Round(TransmitOffsetKHz * 1000.0);
+            OffsetAppliedHint = hz == 0
+                ? _l.Get(cw ? "Freq.StoredOffsetClearedCwTx" : "Freq.StoredOffsetClearedTx")
+                : _l.Get(cw ? "Freq.StoredOffsetCwTx" : "Freq.StoredOffsetTx", hz);
+        }
+        else
+        {
+            selection.SetReceiveOffsetForMode(SelectedMode.Type, ReceiveOffsetKHz, cw);
+            var hz = (int)Math.Round(ReceiveOffsetKHz * 1000.0);
+            OffsetAppliedHint = hz == 0
+                ? _l.Get(cw ? "Freq.StoredOffsetClearedCw" : "Freq.StoredOffsetCleared")
+                : _l.Get(cw ? "Freq.StoredOffsetCw" : "Freq.StoredOffset", hz);
+        }
 
-        var hz = (int)Math.Round(ReceiveOffsetKHz * 1000.0);
-        var cw = UseCwReceiveOffsetStorage();
-        OffsetAppliedHint = hz == 0
-            ? _l.Get(cw ? "Freq.StoredOffsetClearedCw" : "Freq.StoredOffsetCleared")
-            : _l.Get(cw ? "Freq.StoredOffsetCw" : "Freq.StoredOffset", hz);
+        _settings.RequestSave();
     }
 
     private bool CanStoreOffset() => HasTransponderData && SelectedMode is not null;
@@ -515,6 +583,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     {
         StoreOffsetCommand.NotifyCanExecuteChanged();
         NotifyDopplerStrategySelectionChanged();
+        OnPropertyChanged(nameof(ShowOffsetLegToggle));
         UpdateCollapsedSummaryText();
     }
 
@@ -597,12 +666,34 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         }
 
         var isRev = SelectedMode.DopplerCorrection == DopplerCorrection.Reverse;
-        if (Math.Abs(ReceiveOffsetKHz) > 0.0001)
+        var hasRx = Math.Abs(ReceiveOffsetKHz) > 0.0001;
+        var hasTx = !IsBeaconOnly && Math.Abs(TransmitOffsetKHz) > 0.0001;
+
+        if (hasRx && hasTx)
+        {
+            var rxOffset = $"{ReceiveOffsetKHz:+0.000;-0.000;0} kHz";
+            var txOffset = $"{TransmitOffsetKHz:+0.000;-0.000;0} kHz";
+            OffsetAppliedHint = isRev
+                ? _l.Get("Freq.OffsetOnBothLegsRev", rxOffset, txOffset)
+                : _l.Get("Freq.OffsetOnBothLegs", rxOffset, txOffset);
+            return;
+        }
+
+        if (hasRx)
         {
             var offset = $"{ReceiveOffsetKHz:+0.000;-0.000;0} kHz";
             OffsetAppliedHint = isRev
                 ? _l.Get("Freq.OffsetOnDownlinkTuneUplink", offset)
                 : _l.Get("Freq.OffsetOnDownlink", offset);
+            return;
+        }
+
+        if (hasTx)
+        {
+            var offset = $"{TransmitOffsetKHz:+0.000;-0.000;0} kHz";
+            OffsetAppliedHint = isRev
+                ? _l.Get("Freq.OffsetOnUplinkTuneDownlink", offset)
+                : _l.Get("Freq.OffsetOnUplink", offset);
             return;
         }
 
@@ -705,7 +796,15 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             var selection = GetOrCreateSelection();
             ReceiveOffsetKHz = selection.GetReceiveOffsetForMode(
                 SelectedMode.Type,
-                UseCwReceiveOffsetStorage());
+                UseCwOffsetStorage());
+            TransmitOffsetKHz = selection.GetTransmitOffsetForMode(
+                SelectedMode.Type,
+                UseCwOffsetStorage());
+            IsTransmitOffsetSelected = !IsBeaconOnly
+                && selection.GetTransmitOffsetSelectedForMode(SelectedMode.Type);
+            OnPropertyChanged(nameof(ActiveOffsetKHz));
+            OnPropertyChanged(nameof(OffsetLabelText));
+            OnPropertyChanged(nameof(ShowOffsetLegToggle));
         }
         finally
         {
@@ -752,7 +851,10 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     partial void OnIsBeaconOnlyChanged(bool value)
     {
         OnPropertyChanged(nameof(ShowDopplerStrategyRow));
+        OnPropertyChanged(nameof(ShowOffsetLegToggle));
         NotifyDopplerStrategySelectionChanged();
+        if (value && IsTransmitOffsetSelected)
+            IsTransmitOffsetSelected = false;
     }
 
     partial void OnIsCwUplinkChanged(bool value)
@@ -769,8 +871,10 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         RequestOverlayReclamp();
     }
 
-    private bool UseCwReceiveOffsetStorage() =>
+    private bool UseCwOffsetStorage() =>
         ShowOperatingStyleRow && IsCwUplink;
+
+    private bool UseCwReceiveOffsetStorage() => UseCwOffsetStorage();
 
     private void ApplyOperatingStyleForSelectedMode()
     {
@@ -960,6 +1064,9 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         OperatingStyleHint = "";
         DopplerStrategy = DopplerStrategy.Full;
         DopplerStrategyHint = "";
+        ReceiveOffsetKHz = 0;
+        TransmitOffsetKHz = 0;
+        IsTransmitOffsetSelected = false;
         OffsetAppliedHint = "";
         NotifyDopplerStrategySelectionChanged();
         UpdateCollapsedSummaryText();

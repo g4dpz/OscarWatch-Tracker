@@ -9,12 +9,13 @@ public static class DopplerFrequencyCalculator
     /// <summary>
     /// Applies the same doppler formula to downlink and uplink for NOR and REV.
     /// REV passband coupling is handled outside this type (Main dial mutates passband baselines).
-    /// Receive offset and passband trim adjust satellite nominals; doppler is applied on the radio row only.
+    /// Receive/transmit offsets and passband trim adjust satellite nominals; doppler is applied on the radio row only.
     /// </summary>
     public static CorrectedFrequencies Compute(
         SatelliteTransponderMode mode,
         double rangeRateKmPerSec,
         double receiveOffsetKHz,
+        double transmitOffsetKHz = 0,
         double passbandDownlinkAdjustKHz = 0,
         double passbandUplinkAdjustKHz = 0,
         DopplerStrategy strategy = DopplerStrategy.Full,
@@ -24,7 +25,7 @@ public static class DopplerFrequencyCalculator
         var txRangeRate = transmitRangeRateKmPerSec ?? rangeRateKmPerSec;
 
         var downlinkBase = mode.DownlinkKHz + receiveOffsetKHz + passbandDownlinkAdjustKHz;
-        var uplinkBase = mode.UplinkKHz + passbandUplinkAdjustKHz;
+        var uplinkBase = mode.UplinkKHz + transmitOffsetKHz + passbandUplinkAdjustKHz;
 
         var applyRxDoppler = strategy != DopplerStrategy.UplinkOnly;
         var applyTxDoppler = !isBeaconOnly && strategy != DopplerStrategy.DownlinkOnly;

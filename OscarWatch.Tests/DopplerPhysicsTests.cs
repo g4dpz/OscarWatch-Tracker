@@ -89,6 +89,68 @@ public class DopplerPhysicsTests
     }
 
     [Fact]
+    public void Tx_offset_applies_to_uplink_before_doppler()
+    {
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var baseline = DopplerFrequencyCalculator.Compute(mode, 0, 0);
+        var txPlus2 = DopplerFrequencyCalculator.Compute(mode, 0, 0, transmitOffsetKHz: 2.5);
+
+        Assert.Equal(baseline.RadioReceiveKHz, txPlus2.RadioReceiveKHz, 3);
+        Assert.InRange(txPlus2.RadioTransmitKHz - baseline.RadioTransmitKHz, 2.4, 2.6);
+    }
+
+    [Fact]
+    public void Rx_and_tx_offsets_apply_together()
+    {
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "NOR"
+        };
+
+        var baseline = DopplerFrequencyCalculator.Compute(mode, 0, 0);
+        var both = DopplerFrequencyCalculator.Compute(mode, 0, 2.0, transmitOffsetKHz: -0.5);
+
+        Assert.InRange(both.RadioReceiveKHz - baseline.RadioReceiveKHz, 1.9, 2.1);
+        Assert.InRange(both.RadioTransmitKHz - baseline.RadioTransmitKHz, -0.6, -0.4);
+        Assert.InRange(both.SatelliteReceiveKHz - mode.DownlinkKHz, 1.9, 2.1);
+        Assert.InRange(both.SatelliteTransmitKHz - mode.UplinkKHz, -0.6, -0.4);
+    }
+
+    [Fact]
+    public void Sat_row_reflects_tx_offset()
+    {
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435.667,
+            UplinkKHz = 145.937,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var corrected = DopplerFrequencyCalculator.Compute(
+            mode,
+            0,
+            receiveOffsetKHz: 0,
+            transmitOffsetKHz: 1.25);
+
+        Assert.InRange(corrected.SatelliteTransmitKHz, 145.937 + 1.25 - 0.001, 145.937 + 1.25 + 0.001);
+        Assert.Equal(mode.DownlinkKHz, corrected.SatelliteReceiveKHz, 3);
+    }
+
+    [Fact]
     public void Rev_passband_trim_moves_uplink_opposite_downlink()
     {
         var mode = new SatelliteTransponderMode

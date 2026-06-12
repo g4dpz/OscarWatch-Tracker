@@ -410,6 +410,91 @@ public class FrequencyOverlayViewModelTests
     }
 
     [Fact]
+    public void Offset_toggle_swaps_spinner_value_without_losing_stored_legs()
+    {
+        var settings = new TestSettingsService();
+        settings.Current.FrequencySelections["RS-44"] = new SatelliteFrequencySelection
+        {
+            ModeType = "SSB Transponder",
+            ModeIndex = 0
+        };
+        settings.Current.FrequencySelections["RS-44"].SetOffsetsForMode("SSB Transponder", 1.5, 2.0);
+
+        var database = CreateRs44Database();
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
+        vm.Update(Rs44TrackState());
+
+        Assert.InRange(vm.ActiveOffsetKHz, 1.999, 2.001);
+        Assert.False(vm.IsTransmitOffsetSelected);
+
+        vm.IsTransmitOffsetSelected = true;
+        Assert.InRange(vm.ActiveOffsetKHz, 1.499, 1.501);
+        Assert.InRange(vm.ReceiveOffsetKHz, 1.999, 2.001);
+
+        vm.IsTransmitOffsetSelected = false;
+        Assert.InRange(vm.ActiveOffsetKHz, 1.999, 2.001);
+    }
+
+    [Fact]
+    public void Store_rx_offset_preserves_existing_tx_offset()
+    {
+        var settings = new TestSettingsService();
+        settings.Current.FrequencySelections["RS-44"] = new SatelliteFrequencySelection
+        {
+            ModeType = "SSB Transponder",
+            ModeIndex = 0
+        };
+        settings.Current.FrequencySelections["RS-44"].SetOffsetsForMode("SSB Transponder", 1.25, 0);
+
+        var vm = new FrequencyOverlayViewModel(settings, CreateRs44Database(), LocalizationService.Instance);
+        vm.Update(Rs44TrackState());
+        vm.ReceiveOffsetKHz = 3.0;
+        vm.StoreOffsetCommand.Execute(null);
+
+        var stored = settings.Current.FrequencySelections["RS-44"].ModeOffsets["SSB Transponder"];
+        Assert.InRange(stored.ReceiveOffsetKHz, 2.999, 3.001);
+        Assert.InRange(stored.TransmitOffsetKHz, 1.249, 1.251);
+    }
+
+    [Fact]
+    public void Store_tx_offset_preserves_existing_rx_offset()
+    {
+        var settings = new TestSettingsService();
+        settings.Current.FrequencySelections["RS-44"] = new SatelliteFrequencySelection
+        {
+            ModeType = "SSB Transponder",
+            ModeIndex = 0
+        };
+        settings.Current.FrequencySelections["RS-44"].SetOffsetsForMode("SSB Transponder", 0, 2.0);
+
+        var vm = new FrequencyOverlayViewModel(settings, CreateRs44Database(), LocalizationService.Instance);
+        vm.Update(Rs44TrackState());
+        vm.IsTransmitOffsetSelected = true;
+        vm.TransmitOffsetKHz = -0.75;
+        vm.StoreOffsetCommand.Execute(null);
+
+        var stored = settings.Current.FrequencySelections["RS-44"].ModeOffsets["SSB Transponder"];
+        Assert.InRange(stored.TransmitOffsetKHz, -0.751, -0.749);
+        Assert.InRange(stored.ReceiveOffsetKHz, 1.999, 2.001);
+    }
+
+    [Fact]
+    public void Both_offsets_shift_displayed_frequencies()
+    {
+        var vm = new FrequencyOverlayViewModel(new TestSettingsService(), CreateRs44Database(), LocalizationService.Instance);
+        vm.Update(Rs44TrackState());
+        vm.ReceiveOffsetKHz = 1.0;
+        vm.TransmitOffsetKHz = 0.5;
+        vm.RefreshFrequencyDisplay();
+
+        var baseline = DopplerFrequencyCalculator.Compute(vm.SelectedMode!, 0, 0);
+        var both = DopplerFrequencyCalculator.Compute(vm.SelectedMode!, 0, 1.0, transmitOffsetKHz: 0.5);
+
+        Assert.InRange(both.RadioReceiveKHz - baseline.RadioReceiveKHz, 0.9, 1.1);
+        Assert.InRange(both.RadioTransmitKHz - baseline.RadioTransmitKHz, 0.4, 0.6);
+    }
+
+    [Fact]
     public void Doppler_lead_indicator_reflects_setting_and_active_blend()
     {
         var settings = new TestSettingsService();
@@ -511,6 +596,35 @@ public class FrequencyOverlayViewModelTests
         Assert.NotEqual(withoutLead.RadioReceiveText, withLead.RadioReceiveText);
         Assert.Equal(withoutLead.SatelliteReceiveText, withLead.SatelliteReceiveText);
     }
+
+    private static TestSatelliteDatabaseService CreateRs44Database() =>
+        new(
+        [
+            new SatelliteRadioEntry
+            {
+                Name = "RS-44",
+                Modes =
+                [
+                    new SatelliteTransponderMode
+                    {
+                        Type = "SSB Transponder",
+                        DownlinkKHz = 435_667,
+                        UplinkKHz = 145_937.61,
+                        DownlinkMode = "USB",
+                        UplinkMode = "LSB",
+                        Doppler = "REV"
+                    }
+                ]
+            }
+        ]);
+
+    private static SatelliteTrackState Rs44TrackState() => new()
+    {
+        Name = "RS-44",
+        NoradId = "99999",
+        Subpoint = new GeoCoordinate(57, 18),
+        LookAngles = new LookAngles(180, 25, 800, 0)
+    };
 
     private sealed class LeadRatePropagator(double slopeRate, double leadRate) : IOrbitPropagator
     {

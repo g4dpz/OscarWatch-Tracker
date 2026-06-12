@@ -70,6 +70,7 @@ public sealed class RigController : IRigController, IDisposable
     private double? _lastAppliedCtcssHz;
     private bool? _lastAppliedCtcssSquelch;
     private double _lastContextRxOffsetKHz;
+    private double _lastContextTxOffsetKHz;
     private DopplerStrategy _lastContextDopplerStrategy = DopplerStrategy.Full;
     private bool _forceFrequencyApply;
     private bool _blockKnobCapture;
@@ -397,6 +398,7 @@ public sealed class RigController : IRigController, IDisposable
         _lastAppliedCtcssHz = null;
         _lastAppliedCtcssSquelch = null;
         _lastContextRxOffsetKHz = context.ReceiveOffsetKHz;
+        _lastContextTxOffsetKHz = context.TransmitOffsetKHz;
         _lastContextDopplerStrategy = context.DopplerStrategy;
         _forceFrequencyApply = false;
 
@@ -576,6 +578,7 @@ public sealed class RigController : IRigController, IDisposable
             context.Mode,
             rxRangeRate,
             context.ReceiveOffsetKHz,
+            context.TransmitOffsetKHz,
             _passbandDownlinkAdjustKHz,
             _passbandUplinkAdjustKHz,
             context.DopplerStrategy,
@@ -584,6 +587,7 @@ public sealed class RigController : IRigController, IDisposable
             context.Mode,
             rxRangeRate,
             context.ReceiveOffsetKHz,
+            context.TransmitOffsetKHz,
             0,
             0,
             context.DopplerStrategy,
@@ -1377,10 +1381,12 @@ public sealed class RigController : IRigController, IDisposable
 
     private void NoteContextOffsetChange(RigTrackingContext context)
     {
-        if (NearlyEqual(context.ReceiveOffsetKHz, _lastContextRxOffsetKHz))
+        if (NearlyEqual(context.ReceiveOffsetKHz, _lastContextRxOffsetKHz)
+            && NearlyEqual(context.TransmitOffsetKHz, _lastContextTxOffsetKHz))
             return;
 
         _lastContextRxOffsetKHz = context.ReceiveOffsetKHz;
+        _lastContextTxOffsetKHz = context.TransmitOffsetKHz;
         _forceFrequencyApply = true;
         _blockKnobCapture = true;
         ClearDialHistory();
@@ -1535,6 +1541,7 @@ public sealed class RigController : IRigController, IDisposable
             context.Mode,
             rxRangeRate,
             context.ReceiveOffsetKHz,
+            context.TransmitOffsetKHz,
             _passbandDownlinkAdjustKHz,
             _passbandUplinkAdjustKHz,
             context.DopplerStrategy,

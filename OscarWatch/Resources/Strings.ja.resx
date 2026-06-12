@@ -561,6 +561,18 @@
   <data name="Freq.RxOffsetKHz">
     <value>RXオフセット (kHz)</value>
   </data>
+  <data name="Freq.TxOffsetKHz">
+    <value>TXオフセット (kHz)</value>
+  </data>
+  <data name="Freq.OffsetToggleRx">
+    <value>RX</value>
+  </data>
+  <data name="Freq.OffsetToggleTx">
+    <value>TX</value>
+  </data>
+  <data name="Freq.OffsetLegToggleToolTip">
+    <value>オフセットをダウンリンク（RX）とアップリンク（TX）で切り替え。保存した両方のオフセットは同時に適用されます。</value>
+  </data>
   <data name="Freq.StoreOffset">
     <value>オフセットを保存</value>
   </data>
@@ -579,11 +591,35 @@
   <data name="Freq.StoredOffsetCw">
     <value>CW {0} Hz のオフセットを保存しました。</value>
   </data>
+  <data name="Freq.StoredOffsetTx">
+    <value>TX {0} Hz のオフセットを保存しました。</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedTx">
+    <value>保存したTXオフセットをクリアしました。</value>
+  </data>
+  <data name="Freq.StoredOffsetCwTx">
+    <value>CW TX {0} Hz のオフセットを保存しました。</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedCwTx">
+    <value>保存したCW TXオフセットをクリアしました。</value>
+  </data>
   <data name="Freq.OffsetOnDownlinkTuneUplink">
     <value>ダウンリンク {0}。アップリンクはMainで調整。</value>
   </data>
   <data name="Freq.OffsetOnDownlink">
     <value>ダウンリンク {0}。</value>
+  </data>
+  <data name="Freq.OffsetOnUplink">
+    <value>アップリンク {0}。</value>
+  </data>
+  <data name="Freq.OffsetOnUplinkTuneDownlink">
+    <value>アップリンク {0}。ダウンリンクはMainで調整。</value>
+  </data>
+  <data name="Freq.OffsetOnBothLegs">
+    <value>ダウンリンク {0}、アップリンク {1}。</value>
+  </data>
+  <data name="Freq.OffsetOnBothLegsRev">
+    <value>ダウンリンク {0}、アップリンク {1}。もう一方はMainで調整。</value>
   </data>
   <data name="Freq.DownlinkOnlyTuneUplink">
     <value>ダウンリンクのみ。アップリンクはMainで調整。</value>
