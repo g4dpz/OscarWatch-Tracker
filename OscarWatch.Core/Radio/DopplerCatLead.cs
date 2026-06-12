@@ -46,6 +46,13 @@ public static class DopplerCatLead
 
     public const double ResidualAssistSlopeStartKmPerSec2 = 0.010;
 
+    /// <summary>
+    /// After TCA the satellite recedes (positive range rate) while slope falls below
+    /// <see cref="SlopeBlendStartKmPerSec2"/>. Assist lead on that leg without affecting
+    /// the symmetric AOS approach (negative range rate at similar |range rate|).
+    /// </summary>
+    public const double RecedingAssistMaxBlend = 0.6;
+
     public static DopplerLeadRangeRates ResolveRangeRates(
         IOrbitPropagator? propagator,
         RigSettings settings,
@@ -121,17 +128,48 @@ public static class DopplerCatLead
         }
 
         var slopeBlend = SlopeBlend();
+        var residualBlend = ComputeResidualAssistBlend(slopeKmPerSec2, rangeRateKmPerSec);
+        var recedingBlend = ComputeRecedingAssistBlend(slopeKmPerSec2, rangeRateKmPerSec);
+
+        return Math.Clamp(Math.Max(Math.Max(slopeBlend, residualBlend), recedingBlend), 0, 1);
+    }
+
+    internal static double ComputeResidualAssistBlend(double slopeKmPerSec2, double rangeRateKmPerSec)
+    {
         if (Math.Abs(rangeRateKmPerSec) < ResidualAssistRangeRateKmPerSec
             || slopeKmPerSec2 <= ResidualAssistSlopeStartKmPerSec2)
         {
-            return slopeBlend;
+            return 0;
         }
 
-        var residualBlend = Math.Min(0.5,
+        var cap = rangeRateKmPerSec > 0 ? 0.75 : 0.5;
+        return Math.Min(cap,
             (slopeKmPerSec2 - ResidualAssistSlopeStartKmPerSec2)
-            / (SteepRangeRateSlopeKmPerSec2 - ResidualAssistSlopeStartKmPerSec2) * 0.5);
+            / (SteepRangeRateSlopeKmPerSec2 - ResidualAssistSlopeStartKmPerSec2) * cap);
+    }
 
-        return Math.Clamp(Math.Max(slopeBlend, residualBlend), 0, 1);
+    /// <summary>
+    /// Post-TCA receding leg: |range rate| stays high while slope drops below the blend start.
+    /// AOS at the same elevation has negative range rate, so this path stays off on approach.
+    /// </summary>
+    internal static double ComputeRecedingAssistBlend(double slopeKmPerSec2, double rangeRateKmPerSec)
+    {
+        if (rangeRateKmPerSec <= 0
+            || slopeKmPerSec2 >= SlopeBlendStartKmPerSec2
+            || Math.Abs(rangeRateKmPerSec) < ResidualAssistRangeRateKmPerSec)
+        {
+            return 0;
+        }
+
+        var rateFactor = Math.Clamp(
+            (Math.Abs(rangeRateKmPerSec) - ResidualAssistRangeRateKmPerSec) / 2.0,
+            0,
+            1);
+
+        // Keep some assist while Doppler is still slewing; taper as slope nears zero.
+        var slopeFactor = Math.Clamp(slopeKmPerSec2 / SlopeBlendStartKmPerSec2, 0.2, 1);
+
+        return RecedingAssistMaxBlend * rateFactor * slopeFactor;
     }
 
     internal static double ComputeRangeRateSlopeKmPerSec2(

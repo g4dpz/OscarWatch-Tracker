@@ -466,6 +466,85 @@ public class DopplerCatLeadTests
     }
 
     [Fact]
+    public void Fo29_post_tca_low_slope_receding_leg_keeps_cat_lead()
+    {
+        var entry = new SatelliteCatalogEntry
+        {
+            Name = "FO-29",
+            NoradId = "24278",
+            Line1 = "1 24278U 96046B   26141.17662052  .00000000  00000-0  34829-4 0  9991",
+            Line2 = "2 24278  98.5266 353.7450 0350115 166.3802 194.7089 13.53272915469510"
+        };
+        var propagator = new PublicOrbitToolsPropagator();
+        propagator.LoadSatellite(entry);
+
+        var site = new GroundStation { LatitudeDeg = 51.5, LongitudeDeg = -0.1, AltitudeMetersAsl = 50 };
+        var (tca, maxEl) = FindHighElevationPassTcaUtc(propagator, entry.NoradId, site, minElevationDeg: 60);
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+
+        // ~3.5 min after TCA: slope below blend start but large positive range rate (receding leg).
+        var utc = tca.AddSeconds(210);
+        var look = propagator.GetLookAngles(entry.NoradId, site, utc);
+        var state = new SatelliteTrackState
+        {
+            Name = entry.Name,
+            NoradId = entry.NoradId,
+            Subpoint = propagator.GetSubpoint(entry.NoradId, utc),
+            LookAngles = look
+        };
+
+        var slope = DopplerCatLead.ComputeRangeRateSlopeKmPerSec2(
+            propagator, entry.NoradId, site, utc, look.RangeRateKmPerSec);
+        var lead = DopplerCatLead.ResolveRangeRates(propagator, settings, site, state, utc);
+
+        Assert.True(maxEl >= 60);
+        Assert.True(look.RangeRateKmPerSec > 0, "Expected receding (positive) range rate post-TCA.");
+        Assert.True(slope < DopplerCatLead.SlopeBlendStartKmPerSec2,
+            $"Slope {slope:F4} km/s² should be below blend start on late post-TCA leg.");
+        Assert.True(lead.LeadBlend >= 0.35,
+            $"Post-TCA receding blend {lead.LeadBlend:F3} should stay active (slope {slope:F4}).");
+        Assert.NotEqual(look.RangeRateKmPerSec, lead.RxRangeRateKmPerSec);
+    }
+
+    [Fact]
+    public void Fo29_aos_approach_with_low_slope_stays_on_snapshot_rate()
+    {
+        var entry = new SatelliteCatalogEntry
+        {
+            Name = "FO-29",
+            NoradId = "24278",
+            Line1 = "1 24278U 96046B   26141.17662052  .00000000  00000-0  34829-4 0  9991",
+            Line2 = "2 24278  98.5266 353.7450 0350115 166.3802 194.7089 13.53272915469510"
+        };
+        var propagator = new PublicOrbitToolsPropagator();
+        propagator.LoadSatellite(entry);
+
+        var site = new GroundStation { LatitudeDeg = 51.5, LongitudeDeg = -0.1, AltitudeMetersAsl = 50 };
+        var (tca, maxEl) = FindHighElevationPassTcaUtc(propagator, entry.NoradId, site, minElevationDeg: 60);
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+
+        var utc = tca.AddSeconds(-240);
+        var look = propagator.GetLookAngles(entry.NoradId, site, utc);
+        var state = new SatelliteTrackState
+        {
+            Name = entry.Name,
+            NoradId = entry.NoradId,
+            Subpoint = propagator.GetSubpoint(entry.NoradId, utc),
+            LookAngles = look
+        };
+
+        var slope = DopplerCatLead.ComputeRangeRateSlopeKmPerSec2(
+            propagator, entry.NoradId, site, utc, look.RangeRateKmPerSec);
+        var (rx, _) = DopplerCatLead.ResolveRangeRates(propagator, settings, site, state, utc);
+
+        Assert.True(maxEl >= 60);
+        Assert.True(look.RangeRateKmPerSec < 0, "Expected approaching (negative) range rate on AOS.");
+        Assert.True(slope < DopplerCatLead.SlopeBlendStartKmPerSec2,
+            $"AOS slope {slope:F4} km/s² should stay below blend start.");
+        Assert.Equal(look.RangeRateKmPerSec, rx);
+    }
+
+    [Fact]
     public void Null_propagator_returns_snapshot_rate()
     {
         var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };

@@ -37,8 +37,11 @@ Logic lives in `OscarWatch.Core/Radio/DopplerCatLead.cs`.
 | `RangeRateSlopeSampleSec` | `1.0` | How far ahead we look to measure “how fast range rate is changing” |
 | `SlopeBlendStartKmPerSec2` | `0.010` | Slope where lead blend begins (0 = snapshot only) |
 | `SteepRangeRateSlopeKmPerSec2` | `0.016` | Slope where blend reaches 1 (full lead) |
+| `RecedingAssistMaxBlend` | `0.6` | Post-TCA receding leg when slope &lt; blend start but range rate is positive and large |
 
 Calibrated against **FO-29** high-elevation pass in `DopplerCatLeadTests.Fo29_lead_applies_near_tca_not_on_gentle_aos_leg` (~79° pass, London test site, seed TLE).
+
+**Post-TCA receding assist:** after TCA, range rate is positive while slope falls below `SlopeBlendStartKmPerSec2`. AOS at the same elevation has negative range rate, so lead stays off on approach. See `Fo29_post_tca_low_slope_receding_leg_keeps_cat_lead` and `Fo29_aos_approach_with_low_slope_stays_on_snapshot_rate`.
 
 ## Reported operator pattern (FO-29)
 
