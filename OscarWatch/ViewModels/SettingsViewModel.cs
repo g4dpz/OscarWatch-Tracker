@@ -154,6 +154,9 @@ public partial class SettingsViewModel : ViewModelBase
     private double _rotatorParkElevationDeg;
 
     [ObservableProperty]
+    private bool _rotatorParkAfterPass = true;
+
+    [ObservableProperty]
     private double _rotatorAzimuthOffsetDeg;
 
     [ObservableProperty]
@@ -669,6 +672,7 @@ public partial class SettingsViewModel : ViewModelBase
             TrackStartElevationDeg = Math.Clamp(RotatorTrackStartElevationDeg, -90, 90),
             ParkAzimuthDeg = RotatorParkAzimuthDeg,
             ParkElevationDeg = RotatorParkElevationDeg,
+            ParkAfterPass = RotatorParkAfterPass,
             AzimuthOffsetDeg = RotatorAzimuthOffsetDeg,
             ElevationOffsetDeg = RotatorElevationOffsetDeg,
             SmartAzimuth450 = RotatorSmartAzimuth450
@@ -820,6 +824,7 @@ public partial class SettingsViewModel : ViewModelBase
             RotatorTrackStartElevationDeg = rotator.TrackStartElevationDeg;
             RotatorParkAzimuthDeg = rotator.ParkAzimuthDeg;
             RotatorParkElevationDeg = rotator.ParkElevationDeg;
+            RotatorParkAfterPass = rotator.ParkAfterPass;
             RotatorAzimuthOffsetDeg = rotator.AzimuthOffsetDeg;
             RotatorElevationOffsetDeg = rotator.ElevationOffsetDeg;
             RotatorSmartAzimuth450 = rotator.SmartAzimuth450;

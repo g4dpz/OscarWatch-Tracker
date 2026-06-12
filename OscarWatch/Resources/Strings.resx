@@ -1155,8 +1155,11 @@ Continue?</value>
   <data name="Settings.Rotator.ParkElevation">
     <value>Park elevation (°)</value>
   </data>
+  <data name="Settings.Rotator.ParkAfterPass">
+    <value>Park rotator after pass</value>
+  </data>
   <data name="Settings.Rotator.ParkNote">
-    <value>Park position is used when no satellite is above the tracking threshold. The focused pass or live satellite is tracked automatically.</value>
+    <value>Park position is used when no satellite is above the tracking threshold. The focused pass or live satellite is tracked automatically. Manual Park on the main window and standby mode are not affected.</value>
   </data>
   <data name="Settings.Rotator.CalibrationOffsets">
     <value>Calibration offsets (°)</value>

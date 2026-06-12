@@ -1131,8 +1131,11 @@ Continuar?</value>
   <data name="Settings.Rotator.ParkElevation">
     <value>Elevação de estacionamento (°)</value>
   </data>
+  <data name="Settings.Rotator.ParkAfterPass">
+    <value>Estacionar rotor após a passagem</value>
+  </data>
   <data name="Settings.Rotator.ParkNote">
-    <value>A posição de estacionamento é usada quando nenhum satélite está acima do limiar de rastreamento. A passagem focada ou o satélite ao vivo é rastreado automaticamente.</value>
+    <value>A posição de estacionamento é usada quando nenhum satélite está acima do limiar de rastreamento. A passagem focada ou o satélite ao vivo é rastreado automaticamente. Estacionamento manual na janela principal e modo standby não são afetados.</value>
   </data>
   <data name="Settings.Rotator.CalibrationOffsets">
     <value>Offsets de calibração (°)</value>

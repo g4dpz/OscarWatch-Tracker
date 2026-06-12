@@ -290,10 +290,10 @@ public sealed class RotatorController : IRotatorController, IDisposable
             if (lookAngles.ElevationDeg >= settings.TrackStartElevationDeg)
                 TryTrack(settings, lookAngles.AzimuthDeg, lookAngles.ElevationDeg, target.AheadAzimuthDeg);
             else
-                TryPark(settings);
+                TryPark(settings, afterPass: true);
         }
         else
-            TryPark(settings);
+            TryPark(settings, afterPass: true);
     }
 
     private void ParkOnWorker(RotatorSettings settings)
@@ -533,8 +533,11 @@ public sealed class RotatorController : IRotatorController, IDisposable
         }
     }
 
-    private void TryPark(RotatorSettings settings)
+    private void TryPark(RotatorSettings settings, bool afterPass = false)
     {
+        if (afterPass && !settings.ParkAfterPass)
+            return;
+
         if (_rotator is null || _parked)
             return;
 

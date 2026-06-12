@@ -41,6 +41,70 @@ public sealed class RotatorControllerTests
     }
 
     [Fact]
+    public void Update_parks_when_satellite_drops_below_track_start()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            TrackStartElevationDeg = 5,
+            ParkAzimuthDeg = 180,
+            ParkElevationDeg = 0,
+            ParkAfterPass = true
+        };
+
+        controller.UpdateSynchronously(settings, TrackTarget("25544", 45, 3));
+
+        Assert.Equal(180, rotator.LastAzimuthDeg);
+        Assert.Equal(0, rotator.LastElevationDeg);
+        Assert.True(controller.GetPositionStatus().IsParked);
+    }
+
+    [Fact]
+    public void Update_skips_automatic_park_after_pass_when_disabled()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            TrackStartElevationDeg = 5,
+            ParkAzimuthDeg = 180,
+            ParkElevationDeg = 0,
+            ParkAfterPass = false
+        };
+
+        controller.UpdateSynchronously(settings, TrackTarget("25544", 45, 3));
+
+        Assert.Equal(0, rotator.SetPositionCallCount);
+        Assert.False(controller.GetPositionStatus().IsParked);
+    }
+
+    [Fact]
+    public void Manual_park_still_works_when_park_after_pass_disabled()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            ParkAzimuthDeg = 180,
+            ParkElevationDeg = 0,
+            ParkAfterPass = false
+        };
+
+        controller.Park(settings);
+        controller.DrainCommandQueueForTests();
+
+        Assert.Equal(180, rotator.LastAzimuthDeg);
+        Assert.True(controller.GetPositionStatus().IsParked);
+    }
+
+    [Fact]
     public void Park_command_sends_park_position()
     {
         var rotator = new RecordingRotatorDriver();

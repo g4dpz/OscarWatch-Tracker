@@ -25,6 +25,9 @@ public sealed class RotatorSettings
     public double ParkAzimuthDeg { get; set; }
     public double ParkElevationDeg { get; set; }
 
+    /// <summary>Move to the park position when the tracked satellite drops below <see cref="TrackStartElevationDeg"/>.</summary>
+    public bool ParkAfterPass { get; set; } = true;
+
     /// <summary>Added to commanded azimuth for tracking, park, and manual moves.</summary>
     public double AzimuthOffsetDeg { get; set; }
 

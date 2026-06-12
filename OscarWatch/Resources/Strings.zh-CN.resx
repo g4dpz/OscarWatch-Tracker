@@ -1131,8 +1131,11 @@
   <data name="Settings.Rotator.ParkElevation">
     <value>停靠仰角（°）</value>
   </data>
+  <data name="Settings.Rotator.ParkAfterPass">
+    <value>过境结束后停靠旋转器</value>
+  </data>
   <data name="Settings.Rotator.ParkNote">
-    <value>当没有卫星高于跟踪阈值时，使用停靠位置。自动跟踪聚焦的过境或实时卫星。</value>
+    <value>当没有卫星高于跟踪阈值时，使用停靠位置。自动跟踪聚焦的过境或实时卫星。主窗口的手动停靠和待机模式不受影响。</value>
   </data>
   <data name="Settings.Rotator.CalibrationOffsets">
     <value>校准偏移量（°）</value>
