@@ -415,19 +415,19 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
                 return;
             }
 
-            var merged = await TransponderDatabaseMergeDialog.TryMergeApplyAsync(
+            var result = await TransponderDatabaseMergeDialog.TryMergeApplyAsync(
                 App.MainWindow,
                 plan,
                 local,
                 SatelliteDatabaseMergePresentation.FileImport).ConfigureAwait(true);
 
-            if (merged is null)
+            if (result is null)
             {
                 StatusMessage = _l.Get("DbEditor.Status.ImportCancelled");
                 return;
             }
 
-            ReloadFromList(merged);
+            ReloadFromList(result.Merged);
             StatusMessage = _l.Get("DbEditor.Status.ImportApplied");
         }
         catch (Exception ex)

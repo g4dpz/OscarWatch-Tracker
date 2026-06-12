@@ -12,15 +12,16 @@ public static class TransponderDatabaseMergeDialog
         SatelliteDatabaseMergePlan plan,
         ISatelliteDatabaseSyncService syncService)
     {
-        var merged = await TryMergeApplyAsync(owner, plan, syncService.LoadLocalEntriesForMerge());
-        if (merged is null)
+        var result = await TryMergeApplyAsync(owner, plan, syncService.LoadLocalEntriesForMerge());
+        if (result is null)
             return false;
 
-        syncService.SaveMergedEntries(merged);
+        syncService.SaveMergedEntries(result.Merged);
+        syncService.SaveMergeAcknowledgments(plan, result.Selection);
         return true;
     }
 
-    public static async Task<List<SatelliteRadioEntry>?> TryMergeApplyAsync(
+    public static async Task<SatelliteDatabaseMergeApplyResult?> TryMergeApplyAsync(
         Window owner,
         SatelliteDatabaseMergePlan plan,
         IReadOnlyList<SatelliteRadioEntry> localEntries,
@@ -39,6 +40,12 @@ public static class TransponderDatabaseMergeDialog
         if (!vm.HasSelectedChanges())
             return null;
 
-        return SatelliteDatabaseMerger.Apply(localEntries, plan, selection);
+        return new SatelliteDatabaseMergeApplyResult(
+            SatelliteDatabaseMerger.Apply(localEntries, plan, selection),
+            selection);
     }
 }
+
+public sealed record SatelliteDatabaseMergeApplyResult(
+    List<SatelliteRadioEntry> Merged,
+    SatelliteDatabaseMergeSelection Selection);

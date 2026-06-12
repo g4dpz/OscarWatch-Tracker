@@ -74,8 +74,12 @@
                     <TextBlock Text="{Binding RemoteSummaryLine}"
                                FontSize="11"
                                TextWrapping="Wrap" />
-                    <CheckBox Content="{Binding UseRemoteLabel}"
-                              IsChecked="{Binding UseRemote, Mode=TwoWay}" />
+                    <StackPanel Orientation="Horizontal" Spacing="16">
+                      <CheckBox Content="{Binding UseLocalLabel}"
+                                IsChecked="{Binding UseLocal, Mode=TwoWay}" />
+                      <CheckBox Content="{Binding UseRemoteLabel}"
+                                IsChecked="{Binding UseRemote, Mode=TwoWay}" />
+                    </StackPanel>
                   </StackPanel>
                 </Border>
               </DataTemplate>

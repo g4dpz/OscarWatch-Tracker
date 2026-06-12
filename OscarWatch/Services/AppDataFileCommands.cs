@@ -171,16 +171,16 @@ public static class AppDataFileCommands
             if (!plan.HasChanges)
                 return (false, l.Get("DbEditor.Status.ImportNoChanges"));
 
-            var merged = await TransponderDatabaseMergeDialog.TryMergeApplyAsync(
+            var result = await TransponderDatabaseMergeDialog.TryMergeApplyAsync(
                 owner,
                 plan,
                 local,
                 SatelliteDatabaseMergePresentation.FileImport).ConfigureAwait(true);
 
-            if (merged is null)
+            if (result is null)
                 return (false, l.Get("DbEditor.Status.ImportCancelled"));
 
-            syncService.SaveMergedEntries(merged);
+            syncService.SaveMergedEntries(result.Merged);
             return (true, l.Get("DbEditor.Status.ImportApplied"));
         }
         catch (Exception ex)

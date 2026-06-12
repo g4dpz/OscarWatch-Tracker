@@ -1833,6 +1833,9 @@ Continuar?</value>
   <data name="DbMerge.UsePublished">
     <value>Usar versão publicada</value>
   </data>
+  <data name="DbMerge.UseLocal">
+    <value>Usar versão local</value>
+  </data>
   <data name="DbMerge.Prefix.Imported">
     <value>Importado</value>
   </data>
@@ -1840,10 +1843,10 @@ Continuar?</value>
     <value>Publicado</value>
   </data>
   <data name="DbMerge.Intro.Import">
-    <value>Novas entradas são selecionadas por padrão. Conflitos mantêm sua cópia do editor a menos que você escolha a versão importada.</value>
+    <value>Novas entradas são selecionadas por padrão. Para conflitos, confirme sua cópia do editor ou escolha a versão importada.</value>
   </data>
   <data name="DbMerge.Intro.Remote">
-    <value>Novas entradas são selecionadas por padrão. Conflitos mantêm sua cópia local a menos que você escolha a versão publicada.</value>
+    <value>Novas entradas são selecionadas por padrão. Para conflitos, confirme sua cópia local ou escolha a versão publicada.</value>
   </data>
   <data name="DbMerge.Summary.Matches">
     <value>Seu banco de dados de transmissores/transponders corresponde a {0}.</value>

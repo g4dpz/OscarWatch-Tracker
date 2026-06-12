@@ -210,6 +210,43 @@ public class SatelliteDatabaseMergerTests
     }
 
     [Fact]
+    public void WithoutAcknowledgedConflicts_hides_matching_conflict()
+    {
+        var local = Entry("RS-44", Mode("FT4", downlink: 435_611.6, uplink: 145_993.61));
+        var remote = Entry("RS-44", Mode("FT4", downlink: 435_611, uplink: 145_993.61));
+        var plan = SatelliteDatabaseMerger.BuildPlan([local], [remote]);
+        var conflict = plan.Conflicts.Single();
+
+        var acknowledgments = SatelliteDatabaseMerger.BuildLocalAcknowledgments(
+            plan,
+            new SatelliteDatabaseMergeSelection { AcceptLocalConflictKeys = { conflict.Key } });
+
+        var filtered = SatelliteDatabaseMerger.WithoutAcknowledgedConflicts(plan, acknowledgments);
+
+        Assert.Empty(filtered.Conflicts);
+        Assert.False(filtered.HasChanges);
+    }
+
+    [Fact]
+    public void WithoutAcknowledgedConflicts_shows_conflict_when_local_changes()
+    {
+        var local = Entry("RS-44", Mode("FT4", downlink: 435_611.6, uplink: 145_993.61));
+        var remote = Entry("RS-44", Mode("FT4", downlink: 435_611, uplink: 145_993.61));
+        var plan = SatelliteDatabaseMerger.BuildPlan([local], [remote]);
+        var conflict = plan.Conflicts.Single();
+
+        var acknowledgments = SatelliteDatabaseMerger.BuildLocalAcknowledgments(
+            plan,
+            new SatelliteDatabaseMergeSelection { AcceptLocalConflictKeys = { conflict.Key } });
+
+        local.Modes[0].DownlinkKHz = 435_611.7;
+        var updatedPlan = SatelliteDatabaseMerger.BuildPlan([local], [remote]);
+        var filtered = SatelliteDatabaseMerger.WithoutAcknowledgedConflicts(updatedPlan, acknowledgments);
+
+        Assert.Single(filtered.Conflicts);
+    }
+
+    [Fact]
     public void ParseJson_accepts_string_frequencies()
     {
         const string json = """
@@ -235,4 +272,24 @@ public class SatelliteDatabaseMergerTests
         Assert.Single(entries);
         Assert.Equal(437_350, entries[0].Modes[0].DownlinkKHz);
     }
+
+    private static SatelliteRadioEntry Entry(string name, params SatelliteTransponderMode[] modes) =>
+        new() { Name = name, Modes = modes.ToList() };
+
+    private static SatelliteTransponderMode Mode(
+        string type,
+        double downlink,
+        double uplink,
+        string downlinkMode = "DATA-USB",
+        string uplinkMode = "DATA-LSB",
+        string doppler = "REV") =>
+        new()
+        {
+            Type = type,
+            DownlinkKHz = downlink,
+            UplinkKHz = uplink,
+            DownlinkMode = downlinkMode,
+            UplinkMode = uplinkMode,
+            Doppler = doppler
+        };
 }

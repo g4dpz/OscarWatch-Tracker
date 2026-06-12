@@ -1833,6 +1833,9 @@
   <data name="DbMerge.UsePublished">
     <value>使用已发布的版本</value>
   </data>
+  <data name="DbMerge.UseLocal">
+    <value>使用本地版本</value>
+  </data>
   <data name="DbMerge.Prefix.Imported">
     <value>导入</value>
   </data>
@@ -1840,10 +1843,10 @@
     <value>已发布</value>
   </data>
   <data name="DbMerge.Intro.Import">
-    <value>默认会选中新条目。除非您选择导入的版本，否则冲突项将保留您编辑器中的副本。</value>
+    <value>默认会选中新条目。对于冲突项，请确认您编辑器中的副本，或选择导入的版本。</value>
   </data>
   <data name="DbMerge.Intro.Remote">
-    <value>默认会选中新条目。除非您选择已发布的版本，否则冲突项将保留您的本地副本。</value>
+    <value>默认会选中新条目。对于冲突项，请确认您的本地副本，或选择已发布的版本。</value>
   </data>
   <data name="DbMerge.Summary.Matches">
     <value>您的转发器数据库与 {0} 匹配。</value>

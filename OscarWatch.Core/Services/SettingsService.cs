@@ -201,6 +201,7 @@ public sealed class SettingsService : ISettingsService
         settings.Cloudlog ??= new CloudlogSettings();
         settings.PassRecording ??= new PassRecordingSettings();
         settings.TleSource ??= new TleSourceSettings();
+        settings.TransponderConflictAcknowledgments ??= [];
     }
 
     private void SaveToDisk()

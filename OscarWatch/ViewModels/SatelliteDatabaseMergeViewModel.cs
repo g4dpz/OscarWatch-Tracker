@@ -32,6 +32,7 @@ public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
         ConflictRemoteSummaryPrefix = presentation == SatelliteDatabaseMergePresentation.FileImport
             ? _l.Get("DbMerge.Prefix.Imported")
             : _l.Get("DbMerge.Prefix.Published");
+        ConflictLocalLabel = _l.Get("DbMerge.UseLocal");
 
         foreach (var item in plan.NewSatellites)
         {
@@ -58,6 +59,7 @@ public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
                 SatelliteDatabaseMerger.DescribeMode(item.RemoteMode),
                 ConflictRemoteSummaryPrefix,
                 ConflictRemoteLabel,
+                ConflictLocalLabel,
                 _l.Get("DbMerge.YoursFormat", SatelliteDatabaseMerger.DescribeMode(item.LocalMode))));
         }
     }
@@ -73,6 +75,8 @@ public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
     public string ConflictRemoteLabel { get; }
 
     public string ConflictRemoteSummaryPrefix { get; }
+
+    public string ConflictLocalLabel { get; }
 
     public bool HasNewSatellites => NewSatellites.Count > 0;
     public bool HasNewModes => NewModes.Count > 0;
@@ -94,6 +98,9 @@ public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
         foreach (var item in Conflicts.Where(i => i.UseRemote))
             selection.AcceptRemoteConflictKeys.Add(item.Key);
 
+        foreach (var item in Conflicts.Where(i => i.UseLocal))
+            selection.AcceptLocalConflictKeys.Add(item.Key);
+
         return selection;
     }
 
@@ -102,7 +109,7 @@ public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
         if (NewSatellites.Any(i => i.IsSelected) || NewModes.Any(i => i.IsSelected))
             return true;
 
-        return Conflicts.Any(i => i.UseRemote);
+        return Conflicts.Any(i => i.UseRemote || i.UseLocal);
     }
 
     private string BuildSummary(SatelliteDatabaseMergePlan plan, SatelliteDatabaseMergePresentation presentation)
@@ -163,6 +170,7 @@ public partial class MergeConflictItem : ObservableObject
         string remoteSummary,
         string remoteSummaryPrefix,
         string useRemoteLabel,
+        string useLocalLabel,
         string yoursSummaryLine)
     {
         Key = key;
@@ -173,6 +181,8 @@ public partial class MergeConflictItem : ObservableObject
         YoursSummaryLine = yoursSummaryLine;
         RemoteSummaryLine = $"{remoteSummaryPrefix}: {remoteSummary}";
         UseRemoteLabel = useRemoteLabel;
+        UseLocalLabel = useLocalLabel;
+        UseLocal = true;
     }
 
     public string Key { get; }
@@ -183,8 +193,24 @@ public partial class MergeConflictItem : ObservableObject
     public string YoursSummaryLine { get; }
     public string RemoteSummaryLine { get; }
     public string UseRemoteLabel { get; }
+    public string UseLocalLabel { get; }
     public string Title => $"{SatelliteName} · {ModeType}";
 
     [ObservableProperty]
     private bool _useRemote;
+
+    [ObservableProperty]
+    private bool _useLocal;
+
+    partial void OnUseRemoteChanged(bool value)
+    {
+        if (value && UseLocal)
+            UseLocal = false;
+    }
+
+    partial void OnUseLocalChanged(bool value)
+    {
+        if (value && UseRemote)
+            UseRemote = false;
+    }
 }

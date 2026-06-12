@@ -1857,6 +1857,9 @@ Continue?</value>
   <data name="DbMerge.UsePublished">
     <value>Use published version</value>
   </data>
+  <data name="DbMerge.UseLocal">
+    <value>Use local version</value>
+  </data>
   <data name="DbMerge.Prefix.Imported">
     <value>Imported</value>
   </data>
@@ -1864,10 +1867,10 @@ Continue?</value>
     <value>Published</value>
   </data>
   <data name="DbMerge.Intro.Import">
-    <value>New entries are selected by default. Conflicts keep your editor copy unless you choose the imported version.</value>
+    <value>New entries are selected by default. For conflicts, confirm your editor copy or choose the imported version.</value>
   </data>
   <data name="DbMerge.Intro.Remote">
-    <value>New entries are selected by default. Conflicts keep your local copy unless you choose the published version.</value>
+    <value>New entries are selected by default. For conflicts, confirm your local copy or choose the published version.</value>
   </data>
   <data name="DbMerge.Summary.Matches">
     <value>Your transponder database matches {0}.</value>

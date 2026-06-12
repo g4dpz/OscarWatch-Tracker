@@ -1755,6 +1755,9 @@
   <data name="DbMerge.UsePublished">
     <value>公開版を使用</value>
   </data>
+  <data name="DbMerge.UseLocal">
+    <value>ローカル版を使用</value>
+  </data>
   <data name="DbMerge.Prefix.Imported">
     <value>インポート</value>
   </data>
@@ -1762,10 +1765,10 @@
     <value>公開</value>
   </data>
   <data name="DbMerge.Intro.Import">
-    <value>新規項目は既定で選択されています。競合はインポート版を選ばない限りエディターの内容を保持します。</value>
+    <value>新規項目は既定で選択されています。競合はエディターの内容を確認するか、インポート版を選んでください。</value>
   </data>
   <data name="DbMerge.Intro.Remote">
-    <value>新規項目は既定で選択されています。競合は公開版を選ばない限りローカルの内容を保持します。</value>
+    <value>新規項目は既定で選択されています。競合はローカルの内容を確認するか、公開版を選んでください。</value>
   </data>
   <data name="DbMerge.Summary.Matches">
     <value>トランスポンダデータベースは {0} と一致しています。</value>
