@@ -78,8 +78,13 @@ internal sealed class RecordingRigDriver : IRigDriver
         LastModeVfo = _currentVfo;
     }
     public int SetSplitOnCallCount { get; private set; }
+    public bool? LastSplitOn { get; private set; }
 
-    public void SetSplitOn(bool on) => SetSplitOnCallCount++;
+    public void SetSplitOn(bool on)
+    {
+        SetSplitOnCallCount++;
+        LastSplitOn = on;
+    }
     public int SetSatelliteModeCallCount { get; private set; }
     public bool? LastSatelliteModeOn { get; private set; }
 

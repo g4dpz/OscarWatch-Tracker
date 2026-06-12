@@ -23,6 +23,13 @@ public class RigSatModeHelperTests
         Assert.False(RigSatModeHelper.UseMainSubLayout(down, up));
 
     [Theory]
+    [InlineData(145_825, 145_825, true)]
+    [InlineData(145_800, 145_200, false)]
+    [InlineData(145_950, 432_146, false)]
+    public void IsSameBandSimplex_detects_equal_uplink_downlink(double down, double up, bool expected) =>
+        Assert.Equal(expected, RigSatModeHelper.IsSameBandSimplex(down, up));
+
+    [Theory]
     [InlineData(435_700_000, 145_865, true)]
     [InlineData(145_900_000, 145_865, false)]
     [InlineData(145_900_000, 435_667, true)]

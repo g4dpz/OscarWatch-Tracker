@@ -9,6 +9,13 @@ public static class RigSatModeHelper
     public static bool UseMainSubLayout(double downlinkKHz, double uplinkKHz) =>
         downlinkKHz > 0 && uplinkKHz > 0 && Math.Abs(downlinkKHz - uplinkKHz) > 10_000;
 
+    /// <summary>
+    /// Nominal uplink and downlink centre frequencies are equal (e.g. ISS Packet 145.825 MHz).
+    /// The radio still needs split — Doppler separates TX and RX during the pass.
+    /// </summary>
+    public static bool IsSameBandSimplex(double downlinkKHz, double uplinkKHz) =>
+        downlinkKHz > 0 && uplinkKHz > 0 && Math.Abs(downlinkKHz - uplinkKHz) < 0.001;
+
     public static bool IsVhfCenterKHz(double kHz) => kHz is > 0 and < 400_000;
 
     public static bool IsUhfCenterKHz(double kHz) => kHz >= 400_000;

@@ -847,6 +847,7 @@ public class RigControllerTests
         controller.DrainCommandQueueForTests();
 
         Assert.False(rig.LastSatelliteModeOn);
+        Assert.False(rig.LastSplitOn);
         Assert.Equal(437_550_000, rig.MainHz);
         Assert.Equal(0, rig.SubHz);
         Assert.Equal(RigVfo.Main, rig.CurrentVfo);
@@ -854,6 +855,101 @@ public class RigControllerTests
         Assert.Contains(RigVfo.Sub, rig.ToneClearedVfos);
         Assert.False(rig.ToneOn);
         Assert.False(rig.ToneSquelchOn);
+    }
+
+    [Fact]
+    public void Icom910_same_band_packet_enables_split_on_vfo_ab()
+    {
+        var rig = new RecordingRigDriver { MainHz = 436_500_000, SubHz = 145_990_000 };
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.IcomIc910,
+            Port = "COM1",
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "Packet",
+            DownlinkKHz = 145_825,
+            UplinkKHz = 145_825,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR"
+        };
+
+        var corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0);
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "ISS",
+                NoradId = "25544",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, 0)
+            },
+            Mode = mode,
+            Corrected = corrected
+        });
+        controller.DrainCommandQueueForTests();
+
+        Assert.False(rig.LastSatelliteModeOn);
+        Assert.True(rig.LastSplitOn);
+        Assert.Equal(145_825_000, rig.MainHz);
+        Assert.Equal(145_825_000, rig.SubHz);
+        Assert.Equal(RigVfo.VfoA, rig.CurrentVfo);
+        Assert.Contains(RigVfo.VfoA, rig.ToneClearedVfos);
+        Assert.Contains(RigVfo.VfoB, rig.ToneClearedVfos);
+        Assert.DoesNotContain(RigVfo.Sub, rig.ToneClearedVfos);
+    }
+
+    [Fact]
+    public void Icom910_same_band_split_clears_ctcss_on_vfo_ab_not_main_sub()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.IcomIc910,
+            Port = "COM1",
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "Voice Region 1",
+            DownlinkKHz = 145_800,
+            UplinkKHz = 145_200,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR",
+            CtcssHz = 67.0
+        };
+
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "ISS",
+                NoradId = "25544",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, 0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            SelectedCtcssHz = 67.0
+        });
+        controller.DrainCommandQueueForTests();
+
+        Assert.False(rig.LastSatelliteModeOn);
+        Assert.True(rig.SetSplitOnCallCount >= 1);
+        Assert.Contains(RigVfo.VfoA, rig.ToneClearedVfos);
+        Assert.Contains(RigVfo.VfoB, rig.ToneClearedVfos);
+        Assert.DoesNotContain(RigVfo.Sub, rig.ToneClearedVfos);
+        Assert.Equal(RigVfo.VfoB, rig.LastToneVfo);
     }
 
     [Fact]
@@ -938,8 +1034,73 @@ public class RigControllerTests
         Assert.Equal(1, rig.ExchangeVfoCallCount);
         Assert.Equal(145_800_000, rig.MainHz);
         Assert.Equal(RigVfo.Main, rig.CurrentVfo);
+        Assert.False(rig.LastSplitOn);
         Assert.Contains(RigVfo.Main, rig.ToneClearedVfos);
         Assert.Contains(RigVfo.Sub, rig.ToneClearedVfos);
+    }
+
+    [Fact]
+    public void Icom910_beacon_after_same_band_packet_turns_split_off()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.IcomIc910,
+            Port = "COM1",
+            CatDelayMs = 0
+        };
+
+        var packet = new SatelliteTransponderMode
+        {
+            Type = "Packet",
+            DownlinkKHz = 145_825,
+            UplinkKHz = 145_825,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR"
+        };
+
+        var sstv = new SatelliteTransponderMode
+        {
+            Type = "SSTV (VHF)",
+            DownlinkKHz = 145_800,
+            UplinkKHz = 0,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR"
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "ISS",
+            NoradId = "25544",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = state,
+            Mode = packet,
+            Corrected = DopplerFrequencyCalculator.Compute(packet, 0, 0)
+        });
+        controller.DrainCommandQueueForTests();
+        Assert.True(rig.LastSplitOn);
+
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = state,
+            Mode = sstv,
+            Corrected = DopplerFrequencyCalculator.Compute(sstv, 0, 0)
+        });
+        controller.DrainCommandQueueForTests();
+
+        Assert.False(rig.LastSatelliteModeOn);
+        Assert.False(rig.LastSplitOn);
+        Assert.Equal(145_800_000, rig.MainHz);
+        Assert.Equal(RigVfo.Main, rig.CurrentVfo);
     }
 
     [Fact]

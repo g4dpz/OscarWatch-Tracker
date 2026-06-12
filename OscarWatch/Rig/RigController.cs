@@ -940,16 +940,17 @@ public sealed class RigController : IRigController, IDisposable
         if (_isBeaconOnly)
         {
             _driver.SetSatelliteMode(false);
-            if (!IsIcomSatelliteLayoutRig(settings.Type))
-                _driver.SetSplitOn(false);
-            ClearCtcssLeavingSatelliteMode(settings);
+            _driver.SetSplitOn(false);
+            ClearCtcssLeavingSatelliteMode(settings, context);
             EnsureBeaconDownlinkOnMain(context);
         }
         else if (!_useMainSub)
         {
             _driver.SetSatelliteMode(false);
             _driver.SetSplitOn(true);
-            ClearCtcssLeavingSatelliteMode(settings);
+            ClearCtcssLeavingSatelliteMode(settings, context);
+            if (UsesIcomSplitAbLayout(settings, context))
+                _driver.SelectVfo(RigVfo.VfoA, force: true);
         }
         else
         {
@@ -1135,6 +1136,11 @@ public sealed class RigController : IRigController, IDisposable
         type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700
             or RigType.YaesuFt847 or RigType.KenwoodTs2000 or RigType.Dummy;
 
+    private static bool UsesIcomSplitAbLayout(RigSettings settings, RigTrackingContext context) =>
+        IsIcomSatelliteLayoutRig(settings.Type)
+        && !context.Mode.IsBeaconOnly
+        && !RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz);
+
     private void AssignReceiveVfo(RigSettings settings, RigTrackingContext context)
     {
         if (_useMainSub)
@@ -1157,21 +1163,28 @@ public sealed class RigController : IRigController, IDisposable
             _driver.ExchangeVfos();
     }
 
-    private void ClearCtcssLeavingSatelliteMode(RigSettings settings)
+    private void ClearCtcssLeavingSatelliteMode(RigSettings settings, RigTrackingContext context)
     {
         if (_driver is null)
             return;
 
-        foreach (var vfo in VfosForSatelliteCtcssClear(settings.Type))
+        foreach (var vfo in VfosForSatelliteCtcssClear(settings, context))
             SetCtcssOffOnVfo(vfo);
 
         _lastAppliedCtcssHz = null;
         _lastAppliedCtcssSquelch = null;
     }
 
-    private static IEnumerable<RigVfo> VfosForSatelliteCtcssClear(RigType type)
+    private static IEnumerable<RigVfo> VfosForSatelliteCtcssClear(RigSettings settings, RigTrackingContext context)
     {
-        if (type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700
+        if (UsesIcomSplitAbLayout(settings, context))
+        {
+            yield return RigVfo.VfoA;
+            yield return RigVfo.VfoB;
+            yield break;
+        }
+
+        if (settings.Type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700
             or RigType.YaesuFt847 or RigType.KenwoodTs2000)
         {
             yield return RigVfo.Main;
@@ -1276,7 +1289,14 @@ public sealed class RigController : IRigController, IDisposable
         if (settings.DualRadioEnabled)
             return RigVfo.Main;
 
-        if (settings.Type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700 or RigType.YaesuFt847 or RigType.KenwoodTs2000)
+        if (settings.Type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700)
+        {
+            return RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz)
+                ? RigVfo.Sub
+                : RigVfo.VfoB;
+        }
+
+        if (settings.Type is RigType.YaesuFt847 or RigType.KenwoodTs2000)
             return RigVfo.Sub;
 
         return RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz)
