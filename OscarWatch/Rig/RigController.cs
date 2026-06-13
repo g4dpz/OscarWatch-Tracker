@@ -24,11 +24,13 @@ public sealed class RigController : IRigController, IDisposable
     private const int PostCatWriteDialSettleMs = 350;
     private static readonly TimeSpan LoopInterval = TimeSpan.FromMilliseconds(100);
     private static readonly TimeSpan CommandWaitTimeout = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan DopplerLogSnapshotInterval = TimeSpan.FromSeconds(1);
 
     private readonly Func<RigSettings, IRigDriver>? _driverFactory;
     private readonly Func<RigEndpointSettings, IRigDriver>? _endpointFactory;
     private readonly IOrbitPropagator? _propagator;
     private readonly ISettingsService? _settingsService;
+    private readonly IDopplerPassLogger _dopplerPassLogger;
     private readonly long[] _rxDialHistory = new long[DialHistoryLength];
     private readonly object _statusLock = new();
     private readonly object _workerStartLock = new();
@@ -80,6 +82,7 @@ public sealed class RigController : IRigController, IDisposable
     private DateTime _suspendConnectUntilUtc = DateTime.MinValue;
     private string? _lastConnectError;
     private bool? _lastPassDownlinkOnVhf;
+    private DateTime _lastDopplerLogUtc = DateTime.MinValue;
 
     private RigSettings _cachedSettings = new();
     private RigTrackingContext? _cachedContext;
@@ -90,12 +93,14 @@ public sealed class RigController : IRigController, IDisposable
         Func<RigSettings, IRigDriver>? driverFactory = null,
         Func<RigEndpointSettings, IRigDriver>? endpointFactory = null,
         IOrbitPropagator? propagator = null,
-        ISettingsService? settingsService = null)
+        ISettingsService? settingsService = null,
+        IDopplerPassLogger? dopplerPassLogger = null)
     {
         _driverFactory = driverFactory;
         _endpointFactory = endpointFactory;
         _propagator = propagator;
         _settingsService = settingsService;
+        _dopplerPassLogger = dopplerPassLogger ?? NullDopplerPassLogger.Instance;
     }
 
     public RigConnectionStatus GetStatus()
@@ -341,6 +346,7 @@ public sealed class RigController : IRigController, IDisposable
 
         if (context is null || context.TrackState.LookAngles is null)
         {
+            EndDopplerPassLog("context_cleared");
             _isTracking = false;
             SetRigStatus(effectivePaused ? RigStatusKind.CatPaused : RigStatusKind.Connected);
             return;
@@ -391,6 +397,7 @@ public sealed class RigController : IRigController, IDisposable
 
     private void BeginNewPass(RigSettings settings, RigTrackingContext context, string newPassKey, bool effectivePaused)
     {
+        EndDopplerPassLog("pass_changed");
         _passKey = newPassKey;
         _passbandDownlinkAdjustKHz = 0;
         _passbandUplinkAdjustKHz = 0;
@@ -406,6 +413,12 @@ public sealed class RigController : IRigController, IDisposable
             _passInitPending = true;
         else
             RunPassInit(settings, context);
+
+        if (settings.DopplerPassLogEnabled)
+        {
+            _lastDopplerLogUtc = DateTime.MinValue;
+            _dopplerPassLogger.BeginPass(settings, context, DateTime.UtcNow);
+        }
     }
 
     private void TearDownRig()
@@ -424,6 +437,7 @@ public sealed class RigController : IRigController, IDisposable
 
     private void ResetTrackingState()
     {
+        EndDopplerPassLog("tracking_reset");
         _passKey = null;
         _lastRigRxHz = 0;
         _lastRigTxHz = 0;
@@ -464,6 +478,8 @@ public sealed class RigController : IRigController, IDisposable
         }
         else
             ProcessAutomaticDoppler(_cachedSettings, _cachedContext);
+
+        TryLogPeriodicSnapshot(_cachedSettings, _cachedContext);
     }
 
     private void ProcessInteractiveLinear(RigSettings settings, RigTrackingContext context)
@@ -640,6 +656,14 @@ public sealed class RigController : IRigController, IDisposable
 
         _passbandDownlinkAdjustKHz = newDown;
         _passbandUplinkAdjustKHz = newUp;
+        LogDopplerEvent(
+            _cachedSettings,
+            context,
+            ComputeDoppler(context),
+            _thresholdHz,
+            ResolveWriteThresholdHz(_cachedSettings, context),
+            "passband_knob",
+            notes: $"delta_khz={deltaKhz:0.000}");
         SeedDialHistoryStable(dialHz);
         _vfoNotMoving = true;
     }
@@ -736,8 +760,9 @@ public sealed class RigController : IRigController, IDisposable
 
         var forceApply = _forceFrequencyApply;
         _forceFrequencyApply = false;
-        var thresholdHz = _thresholdHz;
+        var thresholdHz = ResolveWriteThresholdHz(settings, context);
         var strategy = context.DopplerStrategy;
+        var catPaused = _cachedCatPausedOverride ?? settings.CatUpdatesPaused;
         if (!forceApply && !ShouldWrite(thresholdHz, rxHz, txHz, strategy))
             return false;
 
@@ -826,6 +851,20 @@ public sealed class RigController : IRigController, IDisposable
 
         if ((writeRx && !wroteRx) || (writeTx && !wroteTx))
             _forceFrequencyApply = true;
+
+        if (wroteRx || wroteTx)
+        {
+            LogDopplerEvent(
+                settings,
+                context,
+                corrected,
+                _thresholdHz,
+                thresholdHz,
+                "cat_write",
+                wroteRx: wroteRx,
+                wroteTx: wroteTx,
+                catPaused: catPaused);
+        }
 
         return wroteRx || wroteTx;
     }
@@ -1385,12 +1424,22 @@ public sealed class RigController : IRigController, IDisposable
             && NearlyEqual(context.TransmitOffsetKHz, _lastContextTxOffsetKHz))
             return;
 
+        var notes =
+            $"rx={_lastContextRxOffsetKHz:0.000}->{context.ReceiveOffsetKHz:0.000};tx={_lastContextTxOffsetKHz:0.000}->{context.TransmitOffsetKHz:0.000}";
         _lastContextRxOffsetKHz = context.ReceiveOffsetKHz;
         _lastContextTxOffsetKHz = context.TransmitOffsetKHz;
         _forceFrequencyApply = true;
         _blockKnobCapture = true;
         ClearDialHistory();
         MarkProgrammaticFrequencySettle();
+        LogDopplerEvent(
+            _cachedSettings,
+            context,
+            ComputeDoppler(context),
+            _thresholdHz,
+            ResolveWriteThresholdHz(_cachedSettings, context),
+            "offset_change",
+            notes: notes);
     }
 
     private void NoteContextDopplerStrategyChange(RigTrackingContext context)
@@ -1557,6 +1606,117 @@ public sealed class RigController : IRigController, IDisposable
             site,
             context.TrackState,
             DateTime.UtcNow);
+    }
+
+    private int ResolveWriteThresholdHz(RigSettings settings, RigTrackingContext context)
+    {
+        if (!settings.DopplerAdaptiveThresholdEnabled
+            || _thresholdHz != settings.DopplerThresholdLinearHz
+            || _thresholdHz <= 0)
+        {
+            return _thresholdHz;
+        }
+
+        return DopplerAdaptiveThreshold.Resolve(
+            _thresholdHz,
+            EstimateDopplerSlewHzPerSec(context),
+            enabled: true);
+    }
+
+    private double EstimateDopplerSlewHzPerSec(RigTrackingContext context)
+    {
+        if (_propagator is null || context.TrackState.LookAngles is null)
+            return 0;
+
+        var site = _settingsService?.Current.GroundStation ?? new GroundStation();
+        return DopplerAdaptiveThreshold.EstimateMaxSlewHzPerSec(
+            _propagator,
+            context.TrackState.NoradId,
+            site,
+            DateTime.UtcNow,
+            context.TrackState.LookAngles.RangeRateKmPerSec,
+            context.Mode.DownlinkKHz,
+            context.Mode.UplinkKHz,
+            context.DopplerStrategy,
+            _isBeaconOnly);
+    }
+
+    private GroundStation CurrentSite() =>
+        _settingsService?.Current.GroundStation ?? new GroundStation();
+
+    private void EndDopplerPassLog(string reason)
+    {
+        if (_dopplerPassLogger.ActiveLogPath is null)
+            return;
+
+        _dopplerPassLogger.EndPass(DateTime.UtcNow, reason);
+        _lastDopplerLogUtc = DateTime.MinValue;
+    }
+
+    private void TryLogPeriodicSnapshot(RigSettings settings, RigTrackingContext context)
+    {
+        if (!settings.DopplerPassLogEnabled || _dopplerPassLogger.ActiveLogPath is null)
+            return;
+
+        var utc = DateTime.UtcNow;
+        if (utc - _lastDopplerLogUtc < DopplerLogSnapshotInterval)
+            return;
+
+        _lastDopplerLogUtc = utc;
+        var effectiveThreshold = ResolveWriteThresholdHz(settings, context);
+        var corrected = ComputeDoppler(context);
+        var belowThreshold = !ShouldWrite(
+            effectiveThreshold,
+            ToHz(corrected.RadioReceiveKHz),
+            ToHz(corrected.RadioTransmitKHz),
+            context.DopplerStrategy);
+        LogDopplerEvent(
+            settings,
+            context,
+            corrected,
+            _thresholdHz,
+            effectiveThreshold,
+            "snapshot",
+            belowThreshold: belowThreshold,
+            catPaused: _cachedCatPausedOverride ?? settings.CatUpdatesPaused);
+    }
+
+    private void LogDopplerEvent(
+        RigSettings settings,
+        RigTrackingContext context,
+        CorrectedFrequencies corrected,
+        int baseThresholdHz,
+        int effectiveThresholdHz,
+        string eventName,
+        bool wroteRx = false,
+        bool wroteTx = false,
+        bool belowThreshold = false,
+        bool catPaused = false,
+        string? notes = null)
+    {
+        if (!settings.DopplerPassLogEnabled || _dopplerPassLogger.ActiveLogPath is null)
+            return;
+
+        _dopplerPassLogger.Append(DopplerDiagnostics.Capture(
+            _propagator,
+            settings,
+            CurrentSite(),
+            context,
+            DateTime.UtcNow,
+            baseThresholdHz,
+            effectiveThresholdHz,
+            corrected,
+            _lastRigRxHz,
+            _lastRigTxHz,
+            _passbandDownlinkAdjustKHz,
+            _passbandUplinkAdjustKHz,
+            eventName,
+            wroteRx,
+            wroteTx,
+            belowThreshold,
+            _interactive,
+            catPaused,
+            notes));
     }
 
     private static long ToHz(double kHz) => (long)Math.Round(kHz * 1000.0);

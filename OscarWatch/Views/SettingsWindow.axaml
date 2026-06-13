@@ -546,6 +546,26 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="{loc:Localize Key=Settings.Radio.DopplerSsbNote}" />
+            <CheckBox Content="{loc:Localize Key=Settings.Radio.DopplerAdaptiveThreshold}"
+                      IsChecked="{Binding RigDopplerAdaptiveThresholdEnabled, Mode=TwoWay}"
+                      Margin="0,8,0,0" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="{loc:Localize Key=Settings.Radio.DopplerAdaptiveThresholdNote}" />
+            <CheckBox Content="{loc:Localize Key=Settings.Radio.DopplerPassLog}"
+                      IsChecked="{Binding RigDopplerPassLogEnabled, Mode=TwoWay}"
+                      Margin="0,8,0,0" />
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+              <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                         FontSize="11"
+                         TextWrapping="Wrap"
+                         VerticalAlignment="Center"
+                         Text="{loc:Localize Key=Settings.Radio.DopplerPassLogNote}" />
+              <Button Content="{loc:Localize Key=Settings.Radio.DopplerPassLogOpenFolder}"
+                      Command="{Binding OpenDopplerPassLogFolderCommand}"
+                      Padding="8,4" />
+            </StackPanel>
             <CheckBox Content="{loc:Localize Key=Settings.Radio.DopplerCatLead}"
                       IsChecked="{Binding RigDopplerCatLeadEnabled, Mode=TwoWay}"
                       Margin="0,8,0,0" />

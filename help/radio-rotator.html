@@ -297,6 +297,31 @@
           (maximum CAT activity — only if you need it).
         </li>
       </ul>
+      <p>
+        Optional checkbox <strong>Adaptive threshold near TCA</strong> (off by default) lowers the effective
+        SSB/CW threshold while Doppler slew is fast — typically the steep middle of the pass and the
+        post-TCA leg. Your configured SSB/CW value remains the ceiling; the effective threshold can drop
+        to about half (minimum 25&nbsp;Hz at the default 50&nbsp;Hz setting). Enable this if the radio
+        lags just after TCA despite CAT lead tuning; leave it off if you prefer fewer CAT writes.
+      </p>
+      <h3>Doppler pass log (CSV)</h3>
+      <p>
+        Optional checkbox <strong>Log Doppler tuning passes (CSV)</strong> writes one spreadsheet-friendly
+        file per satellite pass under <code>%AppData%/OscarWatch/doppler-logs</code>. Use
+        <strong>Open log folder</strong> on the same settings page. Each file includes:
+      </p>
+      <ul>
+        <li><strong>1 s snapshots</strong> — elevation, range rate, slope, slew, lead blend, effective threshold, RX/TX delta vs last CAT write (<strong>BelowThreshold</strong> column)</li>
+        <li><strong>cat_write</strong> — when OscarWatch actually sends a new frequency</li>
+        <li><strong>offset_change</strong> — RX/TX offset buttons in the frequency panel</li>
+        <li><strong>passband_knob</strong> — Main dial passband trim on linear modes</li>
+      </ul>
+      <p>
+        Open the CSV in Excel or LibreOffice Calc, filter by <strong>Event</strong>, and sort by
+        <strong>RangeRateKmPerSec</strong> or <strong>SlewHzPerSec</strong> to see post-TCA behaviour.
+        Compare <strong>RxDeltaHz</strong> with <strong>EffectiveThresholdHz</strong> to judge whether
+        adaptive threshold or lead strength needs tuning.
+      </p>
       <p id="passband-knob">
         These thresholds apply to <strong>automatic Doppler writes</strong>. On linear <strong>USB</strong>,
         <strong>LSB</strong>, and <strong>CW</strong> modes, OscarWatch also watches the Main (receive) dial

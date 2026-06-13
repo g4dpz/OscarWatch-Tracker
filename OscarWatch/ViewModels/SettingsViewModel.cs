@@ -239,6 +239,12 @@ public partial class SettingsViewModel : ViewModelBase
     private int _rigDopplerThresholdLinearHz = 50;
 
     [ObservableProperty]
+    private bool _rigDopplerAdaptiveThresholdEnabled;
+
+    [ObservableProperty]
+    private bool _rigDopplerPassLogEnabled;
+
+    [ObservableProperty]
     private int _rigCatDelayMs = 50;
 
     [ObservableProperty]
@@ -735,6 +741,8 @@ public partial class SettingsViewModel : ViewModelBase
             Region = SelectedRigRegionChoice?.Value ?? RigRegion.EU,
             DopplerThresholdFmHz = RigDopplerThresholdFmHz,
             DopplerThresholdLinearHz = RigDopplerThresholdLinearHz,
+            DopplerAdaptiveThresholdEnabled = RigDopplerAdaptiveThresholdEnabled,
+            DopplerPassLogEnabled = RigDopplerPassLogEnabled,
             CatDelayMs = RigCatDelayMs,
             DopplerCatLeadEnabled = RigDopplerCatLeadEnabled,
             DopplerCatLeadMs = RigDopplerCatLeadMs,
@@ -899,6 +907,8 @@ public partial class SettingsViewModel : ViewModelBase
                 : up.CivAddress;
             RigDopplerThresholdFmHz = rig.DopplerThresholdFmHz;
             RigDopplerThresholdLinearHz = rig.DopplerThresholdLinearHz;
+            RigDopplerAdaptiveThresholdEnabled = rig.DopplerAdaptiveThresholdEnabled;
+            RigDopplerPassLogEnabled = rig.DopplerPassLogEnabled;
             RigCatDelayMs = rig.CatDelayMs;
             RigDopplerCatLeadEnabled = rig.DopplerCatLeadEnabled;
             RigDopplerCatLeadMs = Math.Clamp(rig.DopplerCatLeadMs, 0, DopplerCatLead.UserLeadMsMax);
@@ -1043,6 +1053,10 @@ public partial class SettingsViewModel : ViewModelBase
         if (folders.Count > 0)
             RecordingOutputFolder = folders[0].Path.LocalPath;
     }
+
+    [RelayCommand]
+    private void OpenDopplerPassLogFolder() =>
+        DopplerPassLogFileNameFormat.OpenLogDirectory(null);
 
     public async Task TestHamsAtAsync()
     {

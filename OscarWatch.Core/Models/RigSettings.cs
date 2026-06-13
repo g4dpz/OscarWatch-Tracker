@@ -53,6 +53,15 @@ public sealed class RigSettings
     public bool DopplerCatLeadEnabled { get; set; }
 
     /// <summary>
+    /// When true, linear Doppler threshold is lowered while downlink slew is fast (TCA vicinity).
+    /// Base threshold from <see cref="DopplerThresholdLinearHz"/> is never exceeded.
+    /// </summary>
+    public bool DopplerAdaptiveThresholdEnabled { get; set; }
+
+    /// <summary>When true, write a CSV pass log for Doppler tuning (CAT writes, lead, adaptive threshold).</summary>
+    public bool DopplerPassLogEnabled { get; set; }
+
+    /// <summary>
     /// Lead time in ms (0 = automatic: half CAT delay, capped internally).
     /// Does not change CAT pacing delay.
     /// </summary>

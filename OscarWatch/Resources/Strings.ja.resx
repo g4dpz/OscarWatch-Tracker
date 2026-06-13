@@ -1026,6 +1026,21 @@
   <data name="Settings.Radio.DopplerSsbNote">
     <value>ドリフトがこの間隔を超えたときのみ無線機に周波数を送信（SatPC32方式）。</value>
   </data>
+  <data name="Settings.Radio.DopplerAdaptiveThreshold">
+    <value>TCA付近でしきい値を適応</value>
+  </data>
+  <data name="Settings.Radio.DopplerAdaptiveThresholdNote">
+    <value>有効時、線形 SSB/CW のしきい値はドップラー変化率が速い間（通常はパス中盤・TCA後）に下がります。上記 SSB/CW 値が上限のままです。実効しきい値は約半分（最低 25 Hz）まで下がります。既定はオフ。</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLog">
+    <value>ドップラー調整パスを記録（CSV）</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLogNote">
+    <value>パスごとに CSV を出力（CAT 書き込み、1 秒スナップショット、オフセット/ノブ変更）。AppData/OscarWatch/doppler-logs に保存。</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLogOpenFolder">
+    <value>ログフォルダを開く</value>
+  </data>
   <data name="Settings.Radio.DopplerCatLead">
     <value>CAT遅延に合わせてドップラーを先行</value>
   </data>

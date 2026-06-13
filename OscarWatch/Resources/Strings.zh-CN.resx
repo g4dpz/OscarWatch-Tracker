@@ -1137,6 +1137,21 @@
   <data name="Settings.Radio.DopplerSsbNote">
     <value>仅当频率漂移超过此阈值时，才会将频率发送到电台（SatPC32 风格）。</value>
   </data>
+  <data name="Settings.Radio.DopplerAdaptiveThreshold">
+    <value>TCA 附近自适应阈值</value>
+  </data>
+  <data name="Settings.Radio.DopplerAdaptiveThresholdNote">
+    <value>启用后，线性 SSB/CW 阈值在多普勒变化率较快时降低（通常为过顶前后陡变区）。上方 SSB/CW 值仍为上限；有效阈值可降至约一半（最低 25 Hz）。默认关闭。</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLog">
+    <value>记录多普勒调谐过程（CSV）</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLogNote">
+    <value>每次过境写入一个 CSV：CAT 写入、1 秒快照（超前、自适应阈值、频差）、偏移/旋钮变化。保存在 AppData/OscarWatch/doppler-logs。</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLogOpenFolder">
+    <value>打开日志文件夹</value>
+  </data>
   <data name="Settings.Radio.DopplerCatLead">
     <value>为多普勒 CAT 延迟做超前补偿</value>
   </data>

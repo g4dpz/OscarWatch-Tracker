@@ -1137,6 +1137,21 @@ Continuar?</value>
   <data name="Settings.Radio.DopplerSsbNote">
     <value>As frequências são enviadas ao rádio somente quando a deriva excede este intervalo (estilo SatPC32).</value>
   </data>
+  <data name="Settings.Radio.DopplerAdaptiveThreshold">
+    <value>Limiar adaptativo perto do TCA</value>
+  </data>
+  <data name="Settings.Radio.DopplerAdaptiveThresholdNote">
+    <value>Quando ativado, o limiar SSB/CW linear é reduzido enquanto a taxa de variação Doppler é alta (geralmente meio da passagem e pós-TCA). O valor SSB/CW acima permanece o teto; o limiar efetivo pode cair para cerca da metade (mínimo 25 Hz). Desativado por padrão.</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLog">
+    <value>Registar passagens de sintonia Doppler (CSV)</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLogNote">
+    <value>Grava um CSV por passagem com escritas CAT, instantâneos de 1 s (antecipação, limiar adaptativo, deltas) e alterações de offset/manípulo. Guardado em AppData/OscarWatch/doppler-logs.</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLogOpenFolder">
+    <value>Abrir pasta de logs</value>
+  </data>
   <data name="Settings.Radio.DopplerCatLead">
     <value>Antecipar Doppler para latência CAT</value>
   </data>

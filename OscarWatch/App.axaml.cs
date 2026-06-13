@@ -4,6 +4,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
+using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Services;
 using OscarWatch.Orbit;
 using OscarWatch.Core.Models;
@@ -44,7 +45,11 @@ public partial class App : Application
         services.AddSingleton<RisingPassAnnouncer>();
         services.AddSingleton<PassRecordingCoordinator>();
         services.AddSingleton<IRotatorController, RotatorController>();
-        services.AddSingleton<IRigController, RigController>();
+        services.AddSingleton<IDopplerPassLogger, DopplerPassLogger>();
+        services.AddSingleton<IRigController>(sp => new RigController(
+            propagator: sp.GetRequiredService<IOrbitPropagator>(),
+            settingsService: sp.GetRequiredService<ISettingsService>(),
+            dopplerPassLogger: sp.GetRequiredService<IDopplerPassLogger>()));
         services.AddSingleton<IGpsService, GpsService>();
         services.AddSingleton<ICloudlogRadioSyncService, CloudlogRadioSyncService>();
         services.AddSingleton<ICloudlogLookupService, CloudlogLookupService>();
