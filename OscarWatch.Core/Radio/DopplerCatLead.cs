@@ -23,6 +23,9 @@ public static class DopplerCatLead
     /// </summary>
     public const double MaxLeadMs = 50;
 
+    /// <summary>Extra lead cap on the post-TCA receding leg when |range rate| is large.</summary>
+    public const double RecedingMaxLeadMs = 75;
+
     /// <summary>Sample interval for detecting a steep range-rate leg (TCA vicinity).</summary>
     public const double RangeRateSlopeSampleSec = 1.0;
 
@@ -51,7 +54,10 @@ public static class DopplerCatLead
     /// <see cref="SlopeBlendStartKmPerSec2"/>. Assist lead on that leg without affecting
     /// the symmetric AOS approach (negative range rate at similar |range rate|).
     /// </summary>
-    public const double RecedingAssistMaxBlend = 0.6;
+    public const double RecedingAssistMaxBlend = 0.85;
+
+    /// <summary>|Range rate| (km/s) above which receding-leg lead time may use <see cref="RecedingMaxLeadMs"/>.</summary>
+    public const double RecedingLeadBoostRangeRateKmPerSec = 2.0;
 
     public static DopplerLeadRangeRates ResolveRangeRates(
         IOrbitPropagator? propagator,
@@ -76,8 +82,8 @@ public static class DopplerCatLead
             if (blend <= 0)
                 return new DopplerLeadRangeRates(fallback, fallback, 0);
 
-            var rxLeadMs = ResolveLeadMs(settings.ReceiveCatDelayMs());
-            var txLeadMs = ResolveLeadMs(settings.TransmitCatDelayMs());
+            var rxLeadMs = ResolveLeadMs(settings.ReceiveCatDelayMs(), fallback);
+            var txLeadMs = ResolveLeadMs(settings.TransmitCatDelayMs(), fallback);
 
             // Short-circuit: when both leads are equal and non-zero, call propagator once
             if (rxLeadMs > 0 && NearlyEqual(rxLeadMs, txLeadMs))
@@ -130,8 +136,9 @@ public static class DopplerCatLead
         var slopeBlend = SlopeBlend();
         var residualBlend = ComputeResidualAssistBlend(slopeKmPerSec2, rangeRateKmPerSec);
         var recedingBlend = ComputeRecedingAssistBlend(slopeKmPerSec2, rangeRateKmPerSec);
+        var recedingFloor = ComputeRecedingRateFloorBlend(rangeRateKmPerSec);
 
-        return Math.Clamp(Math.Max(Math.Max(slopeBlend, residualBlend), recedingBlend), 0, 1);
+        return Math.Clamp(Math.Max(Math.Max(Math.Max(slopeBlend, residualBlend), recedingBlend), recedingFloor), 0, 1);
     }
 
     internal static double ComputeResidualAssistBlend(double slopeKmPerSec2, double rangeRateKmPerSec)
@@ -166,10 +173,26 @@ public static class DopplerCatLead
             0,
             1);
 
-        // Keep some assist while Doppler is still slewing; taper as slope nears zero.
-        var slopeFactor = Math.Clamp(slopeKmPerSec2 / SlopeBlendStartKmPerSec2, 0.2, 1);
+        // Keep assist while Doppler is still slewing; do not taper to zero on late LOS.
+        var slopeFactor = Math.Clamp(slopeKmPerSec2 / SlopeBlendStartKmPerSec2, 0.45, 1);
 
         return RecedingAssistMaxBlend * rateFactor * slopeFactor;
+    }
+
+    /// <summary>
+    /// Post-TCA receding floor from |range rate| alone — covers late LOS when slope nears zero
+    /// but Doppler is still changing quickly (AOS approach has negative range rate so stays off).
+    /// </summary>
+    internal static double ComputeRecedingRateFloorBlend(double rangeRateKmPerSec)
+    {
+        if (rangeRateKmPerSec <= 0)
+            return 0;
+
+        var abs = Math.Abs(rangeRateKmPerSec);
+        if (abs < ResidualAssistRangeRateKmPerSec)
+            return 0;
+
+        return Math.Clamp((abs - ResidualAssistRangeRateKmPerSec) / 3.0 * 0.55, 0, 0.55);
     }
 
     internal static double ComputeRangeRateSlopeKmPerSec2(
@@ -186,8 +209,21 @@ public static class DopplerCatLead
         return Math.Abs(ahead.RangeRateKmPerSec - rangeRateKmPerSec) / RangeRateSlopeSampleSec;
     }
 
-    internal static double ResolveLeadMs(int catDelayMs) =>
-        catDelayMs <= 0 ? 0 : Math.Min(catDelayMs / 2.0, MaxLeadMs);
+    internal static double ResolveLeadMs(int catDelayMs, double rangeRateKmPerSec = 0)
+    {
+        if (catDelayMs <= 0)
+            return 0;
+
+        var cap = MaxLeadMs;
+        var receding = rangeRateKmPerSec > 0
+            && Math.Abs(rangeRateKmPerSec) >= RecedingLeadBoostRangeRateKmPerSec;
+        if (receding)
+            cap = RecedingMaxLeadMs;
+
+        // Half CAT delay is the usual hint; post-TCA receding may use the higher cap when pacing allows.
+        var leadMs = Math.Max(catDelayMs / 2.0, receding ? cap : 0);
+        return Math.Min(leadMs, cap);
+    }
 
     private static double Lerp(double from, double to, double blend) =>
         from + (to - from) * blend;

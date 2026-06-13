@@ -1159,7 +1159,7 @@ Continue?</value>
     <value>Lead Doppler for CAT latency</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadNote">
-    <value>When enabled, CAT and the Radio row predict Doppler ahead on the steep TCA leg only (when range rate is changing quickly). Lead is half your CAT delay, capped at 50 ms. Gentle AOS/LOS legs use the current rate. The Sat row still shows the current spacecraft frequency.</value>
+    <value>When enabled, CAT and the Radio row predict Doppler ahead on steep and post-TCA legs (when range rate is changing quickly). Lead is half your CAT delay, capped at 50 ms (75 ms on the post-TCA receding leg). Gentle AOS uses the current rate. The Sat row still shows the current spacecraft frequency.</value>
   </data>
   <data name="Settings.Rotator.Enable">
     <value>Enable rotator</value>
