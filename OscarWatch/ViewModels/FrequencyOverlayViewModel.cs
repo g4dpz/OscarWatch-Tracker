@@ -349,15 +349,16 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     {
         var snapshotRate = state.LookAngles?.RangeRateKmPerSec ?? 0;
         var leadRates = ResolveRangeRates(state);
-        UpdateDopplerLeadIndicator(leadRates.LeadBlend);
+        UpdateDopplerLeadIndicator(leadRates.LeadBlend, state.LookAngles?.ElevationDeg);
         var snapshotCorrected = ComputeCorrected(snapshotRate);
         var radioCorrected = ComputeCorrected(leadRates.RxRangeRateKmPerSec, leadRates.TxRangeRateKmPerSec);
         ApplyCorrectedDisplay(snapshotCorrected, radioCorrected);
     }
 
-    private void UpdateDopplerLeadIndicator(double leadBlend)
+    private void UpdateDopplerLeadIndicator(double leadBlend, double? elevationDeg)
     {
-        ShowDopplerLeadIndicator = _settings.Current.Rig.DopplerCatLeadEnabled;
+        var aboveHorizon = elevationDeg is >= 0;
+        ShowDopplerLeadIndicator = _settings.Current.Rig.DopplerCatLeadEnabled && aboveHorizon;
         if (!ShowDopplerLeadIndicator)
         {
             _dopplerLeadActiveLatched = false;

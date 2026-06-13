@@ -27,7 +27,7 @@ Logic lives in `OscarWatch.Core/Radio/DopplerCatLead.cs`.
 
 **Slope:** sample range rate at `utc` and `utc + RangeRateSlopeSampleSec`; slope = \|Δrr\| / sample interval.
 
-**UI:** frequency overlay shows a dot beside **Radio** when lead is enabled (dim = waiting, amber = actively blending).
+**UI:** frequency overlay shows a dot beside **Radio** when lead is enabled and the satellite is **above the horizon** (dim = waiting, amber = actively blending). Hidden below 0° elevation.
 
 ### Constants (all in `DopplerCatLead.cs`)
 
