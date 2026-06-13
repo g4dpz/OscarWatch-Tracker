@@ -32,6 +32,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private string _satelliteName = "—";
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowLeadTuningPanelVisible))]
     private bool _hasTransponderData;
 
     [ObservableProperty]
@@ -114,6 +115,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private double _overlayY = 12;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowLeadTuningPanelVisible))]
     private bool _isCollapsed;
 
     [ObservableProperty]
@@ -129,6 +131,21 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DopplerLeadToolTip))]
     private bool _isDopplerLeadActive;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowLeadTuningPanelVisible))]
+    private bool _showLeadTuningPanel;
+
+    [ObservableProperty]
+    private int _liveLeadGainPercent = 100;
+
+    [ObservableProperty]
+    private int _liveLeadMs;
+
+    private bool _syncingLeadTuning;
+
+    public bool ShowLeadTuningPanelVisible =>
+        ShowLeadTuningPanel && !IsCollapsed && HasTransponderData;
 
     public string DopplerLeadToolTip =>
         !ShowDopplerLeadIndicator
@@ -463,6 +480,48 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     public event EventHandler<bool>? OffsetsChanged;
 
     public event EventHandler? CtcssChanged;
+
+    public event EventHandler? LeadTuningChanged;
+
+    public void ToggleLeadTuningPanel()
+    {
+        ShowLeadTuningPanel = !ShowLeadTuningPanel;
+    }
+
+    partial void OnShowLeadTuningPanelChanged(bool value)
+    {
+        if (value)
+            SyncLeadTuningFromSettings();
+    }
+
+    partial void OnLiveLeadGainPercentChanged(int value) => ApplyLiveLeadTuningToRig();
+
+    partial void OnLiveLeadMsChanged(int value) => ApplyLiveLeadTuningToRig();
+
+    private void SyncLeadTuningFromSettings()
+    {
+        var rig = _settings.Current.Rig;
+        _syncingLeadTuning = true;
+        LiveLeadGainPercent = rig.DopplerCatLeadGainPercent is > 0 and <= 100
+            ? rig.DopplerCatLeadGainPercent
+            : 100;
+        LiveLeadMs = Math.Clamp(rig.DopplerCatLeadMs, 0, DopplerCatLead.UserLeadMsMax);
+        _syncingLeadTuning = false;
+    }
+
+    private void ApplyLiveLeadTuningToRig()
+    {
+        if (_syncingLeadTuning)
+            return;
+
+        _settings.Current.Rig.DopplerCatLeadGainPercent = Math.Clamp(LiveLeadGainPercent, 1, 100);
+        _settings.Current.Rig.DopplerCatLeadMs = Math.Clamp(LiveLeadMs, 0, DopplerCatLead.UserLeadMsMax);
+
+        if (_lastTrackState is not null)
+            ApplyFrequencyDisplay(_lastTrackState);
+
+        LeadTuningChanged?.Invoke(this, EventArgs.Empty);
+    }
 
     private void RequestOverlayReclamp() => OverlayLayoutChanged?.Invoke(this, EventArgs.Empty);
 

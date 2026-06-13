@@ -479,6 +479,34 @@ public class FrequencyOverlayViewModelTests
     }
 
     [Fact]
+    public void Lead_tuning_panel_toggles_with_l_and_applies_live_without_persist()
+    {
+        var settings = new TestSettingsService();
+        settings.Current.Rig.DopplerCatLeadEnabled = true;
+        settings.Current.Rig.DopplerCatLeadGainPercent = 100;
+        settings.Current.Rig.DopplerCatLeadMs = 0;
+
+        var vm = new FrequencyOverlayViewModel(settings, CreateRs44Database(), LocalizationService.Instance);
+        vm.Update(Rs44TrackState());
+
+        Assert.False(vm.ShowLeadTuningPanel);
+        Assert.False(vm.ShowLeadTuningPanelVisible);
+
+        vm.ToggleLeadTuningPanel();
+        Assert.True(vm.ShowLeadTuningPanel);
+        Assert.True(vm.ShowLeadTuningPanelVisible);
+        Assert.Equal(100, vm.LiveLeadGainPercent);
+        Assert.Equal(0, vm.LiveLeadMs);
+
+        vm.LiveLeadGainPercent = 75;
+        Assert.Equal(75, settings.Current.Rig.DopplerCatLeadGainPercent);
+
+        vm.ToggleLeadTuningPanel();
+        Assert.False(vm.ShowLeadTuningPanel);
+        Assert.Equal(75, settings.Current.Rig.DopplerCatLeadGainPercent);
+    }
+
+    [Fact]
     public void Both_offsets_shift_displayed_frequencies()
     {
         var vm = new FrequencyOverlayViewModel(new TestSettingsService(), CreateRs44Database(), LocalizationService.Instance);

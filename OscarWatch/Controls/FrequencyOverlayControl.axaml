@@ -419,7 +419,7 @@
 
         <Grid IsVisible="{Binding HasTransponderData}"
               ColumnDefinitions="52,*,*"
-              RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+              RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
               ColumnSpacing="14"
               RowSpacing="8">
           <TextBlock Grid.Row="0" Grid.Column="1" Text="{loc:Localize Key=Freq.UplinkTx}" FontSize="12" FontWeight="SemiBold"
@@ -498,11 +498,57 @@
             </StackPanel>
           </Grid>
 
-          <TextBlock Grid.Row="4" Grid.Column="0" Text="{loc:Localize Key=Freq.Ctcss}" FontSize="14"
+          <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"
+                  IsVisible="{Binding ShowLeadTuningPanelVisible}"
+                  Background="#FF252525"
+                  BorderBrush="#FF505050"
+                  BorderThickness="1"
+                  CornerRadius="4"
+                  Padding="8,6">
+            <StackPanel Spacing="6">
+              <TextBlock Text="{loc:Localize Key=Freq.LeadTuningTitle}"
+                         FontSize="12"
+                         FontWeight="SemiBold"
+                         Foreground="#FFE0E0E0" />
+              <Grid ColumnDefinitions="*,*"
+                    ColumnSpacing="10">
+                <StackPanel Grid.Column="0" Spacing="4">
+                  <TextBlock Text="{loc:Localize Key=Settings.Radio.DopplerCatLeadGain}"
+                             FontSize="11"
+                             Foreground="#FFB0B0B0" />
+                  <NumericUpDown Value="{Binding LiveLeadGainPercent, Mode=TwoWay}"
+                                 Minimum="10" Maximum="100"
+                                 Increment="5" FormatString="F0"
+                                 MinHeight="32"
+                                 FontSize="13"
+                                 HorizontalAlignment="Stretch"
+                                 HorizontalContentAlignment="Center" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Spacing="4">
+                  <TextBlock Text="{loc:Localize Key=Settings.Radio.DopplerCatLeadMs}"
+                             FontSize="11"
+                             Foreground="#FFB0B0B0" />
+                  <NumericUpDown Value="{Binding LiveLeadMs, Mode=TwoWay}"
+                                 Minimum="0" Maximum="100"
+                                 Increment="5" FormatString="F0"
+                                 MinHeight="32"
+                                 FontSize="13"
+                                 HorizontalAlignment="Stretch"
+                                 HorizontalContentAlignment="Center" />
+                </StackPanel>
+              </Grid>
+              <TextBlock Text="{loc:Localize Key=Freq.LeadTuningHint}"
+                         FontSize="10"
+                         TextWrapping="Wrap"
+                         Foreground="#FF909090" />
+            </StackPanel>
+          </Border>
+
+          <TextBlock Grid.Row="5" Grid.Column="0" Text="{loc:Localize Key=Freq.Ctcss}" FontSize="14"
                      IsVisible="{Binding ShowCtcssRow}"
                      Foreground="#FFE0E0E0" VerticalAlignment="Center" />
 
-          <ComboBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
+          <ComboBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"
                     ItemsSource="{Binding CtcssToneOptions}"
                     SelectedItem="{Binding SelectedCtcssTone, Mode=TwoWay}"
                     IsVisible="{Binding ShowCtcssSelector}"
@@ -532,7 +578,7 @@
             </ComboBox.ItemTemplate>
           </ComboBox>
 
-          <TextBlock Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
+          <TextBlock Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"
                      Text="{Binding SelectedCtcssText}"
                      IsVisible="{Binding ShowCtcssStatic}"
                      FontFamily="Consolas,Courier New,monospace"
@@ -540,7 +586,7 @@
                      Foreground="#FFFFFFFF"
                      VerticalAlignment="Center" />
 
-          <TextBlock Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"
+          <TextBlock Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2"
                      Text="{Binding CtcssHintText}"
                      IsVisible="{Binding ShowCtcssHint}"
                      FontSize="11"

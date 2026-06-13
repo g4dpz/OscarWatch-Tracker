@@ -534,6 +534,12 @@
   <data name="Freq.DopplerLeadActive">
     <value>リード・ドップラー動作中 — 無線機行が先読み補正中</value>
   </data>
+  <data name="Freq.LeadTuningTitle">
+    <value>CATリード調整</value>
+  </data>
+  <data name="Freq.LeadTuningHint">
+    <value>セッションのみ — Lで非表示。即時反映。再起動後も残すには設定→無線機で保存。</value>
+  </data>
   <data name="Freq.DopplerFull">
     <value>フル</value>
   </data>

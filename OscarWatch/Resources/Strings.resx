@@ -744,6 +744,12 @@ Continue?</value>
   <data name="Freq.DopplerLeadActive">
     <value>Lead Doppler active — CAT is predicting ahead on the Radio row</value>
   </data>
+  <data name="Freq.LeadTuningTitle">
+    <value>CAT lead tuning</value>
+  </data>
+  <data name="Freq.LeadTuningHint">
+    <value>Session only — press L to hide. Values apply immediately; use Settings → Radio and Save to keep them after restart.</value>
+  </data>
   <data name="Freq.DopplerFull">
     <value>Full</value>
   </data>

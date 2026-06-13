@@ -318,6 +318,7 @@ public partial class MainViewModel : ViewModelBase
         DxStation = dxStation;
         Frequencies.OffsetsChanged += (_, reinitializePass) => RefreshRigFromOverlay(reinitializePass);
         Frequencies.CtcssChanged += (_, _) => OnCtcssSelectorChanged();
+        Frequencies.LeadTuningChanged += (_, _) => RefreshRigFromOverlay(reinitializePass: false);
 
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += (_, _) => Tick();

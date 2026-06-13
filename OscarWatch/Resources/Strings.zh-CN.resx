@@ -720,6 +720,12 @@
   <data name="Freq.DopplerLeadActive">
     <value>超前多普勒工作中 — 电台行正在超前预测</value>
   </data>
+  <data name="Freq.LeadTuningTitle">
+    <value>CAT 超前微调</value>
+  </data>
+  <data name="Freq.LeadTuningHint">
+    <value>仅本会话 — 按 L 隐藏。立即生效；要在重启后保留请在设置 → 电台中保存。</value>
+  </data>
   <data name="Freq.DopplerFull">
     <value>全双工</value>
   </data>
