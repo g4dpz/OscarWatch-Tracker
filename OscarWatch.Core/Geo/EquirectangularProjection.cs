@@ -210,8 +210,22 @@ public static class EquirectangularProjection
 
         foreach (var p in points)
         {
+            // NaN sentinel: explicit chain break from propagation gap
+            if (double.IsNaN(p.LatitudeDeg))
+            {
+                if (current is { Count: > 0 })
+                    segments.Add(current);
+                current = null;
+                prevPoint = null;
+                prevRawLon = null;
+                unwrappedLon = 0;
+                continue;
+            }
+
             if (prevRawLon is not null)
                 unwrappedLon += ShortestLongitudeDelta(unwrappedLon, p.LongitudeDeg);
+            else
+                unwrappedLon = p.LongitudeDeg;
 
             var pixel = GeoToPixel(p.LatitudeDeg, unwrappedLon, width, height);
             if (prevPoint is not null && current is { Count: > 0 })
@@ -219,7 +233,8 @@ public static class EquirectangularProjection
                 var last = current[^1];
                 var dx = Math.Abs(pixel.X - last.X);
                 var dy = Math.Abs(pixel.Y - last.Y);
-                if (dx > width / 2.0 && dy < height / 6.0)
+                if (dx > width / 2.0 && dy < height / 6.0
+                    && Math.Abs(ShortestLongitudeDelta(prevRawLon!.Value, p.LongitudeDeg)) >= 170.0)
                 {
                     if (current.Count >= 2)
                         segments.Add(current);

@@ -985,25 +985,59 @@ public class WorldMapControl : ThemeAwareControl
             if (chain.Count < 2)
                 continue;
 
-            var maxDx = w / 2.0;
-            var maxDy = h / 3.0;
-
-            var xOffset = SelectGroundTrackWrapOffset(chain, w);
-            if (xOffset is null)
-                continue;
-
-            for (var i = 0; i < chain.Count - 1; i++)
+            // Draw the chain at all wrap offsets where any segment is visible.
+            // ProjectGroundTrackForDraw uses unwrapped longitude, so a single chain
+            // can extend well beyond [0, w]. Drawing at multiple offsets ensures the
+            // full track wraps correctly on the map.
+            foreach (var xOffset in GetGroundTrackChainWrapOffsets(chain, w))
             {
-                var p0 = chain[i];
-                var p1 = chain[i + 1];
-                if (Math.Abs(p1.X - p0.X) > maxDx || Math.Abs(p1.Y - p0.Y) > maxDy)
-                    continue;
+                for (var i = 0; i < chain.Count - 1; i++)
+                {
+                    var p0 = chain[i];
+                    var p1 = chain[i + 1];
 
-                context.DrawLine(
-                    pen,
-                    new Point(p0.X + xOffset.Value, p0.Y),
-                    new Point(p1.X + xOffset.Value, p1.Y));
+                    // Skip segments entirely outside the viewport for this offset
+                    var x0 = p0.X + xOffset;
+                    var x1 = p1.X + xOffset;
+                    if ((x0 < -WrapEdgeMarginPx && x1 < -WrapEdgeMarginPx) ||
+                        (x0 > w + WrapEdgeMarginPx && x1 > w + WrapEdgeMarginPx))
+                        continue;
+
+                    context.DrawLine(
+                        pen,
+                        new Point(x0, p0.Y),
+                        new Point(x1, p1.Y));
+                }
             }
+        }
+    }
+
+    /// <summary>
+    /// Returns the wrap offsets at which a ground-track chain has visible segments.
+    /// Since ProjectGroundTrackForDraw uses unwrapped longitude, the chain's X extent
+    /// may span well beyond [0, w]. We draw at each offset where the chain overlaps the viewport.
+    /// </summary>
+    private static IEnumerable<double> GetGroundTrackChainWrapOffsets(
+        IReadOnlyList<(double X, double Y)> chain,
+        double w)
+    {
+        var minX = double.MaxValue;
+        var maxX = double.MinValue;
+        foreach (var p in chain)
+        {
+            minX = Math.Min(minX, p.X);
+            maxX = Math.Max(maxX, p.X);
+        }
+
+        // Check each offset to see if the chain's X range overlaps the viewport [0, w]
+        foreach (var offset in new[] { 0.0, w, -w })
+        {
+            var shiftedMin = minX + offset;
+            var shiftedMax = maxX + offset;
+
+            // Chain overlaps viewport if shiftedMax > 0 and shiftedMin < w
+            if (shiftedMax > -WrapEdgeMarginPx && shiftedMin < w + WrapEdgeMarginPx)
+                yield return offset;
         }
     }
 
@@ -1035,7 +1069,7 @@ public class WorldMapControl : ThemeAwareControl
             }
         }
 
-        return bestOffset;
+        return bestOffset ?? 0.0;
     }
 
     private static double VisibleHorizontalSpan(

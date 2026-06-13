@@ -46,8 +46,11 @@ public class GroundTrackSplitTests
     }
 
     [Fact]
-    public void SelectGroundTrackWrapOffset_skips_tiny_edge_stub()
+    public void SelectGroundTrackWrapOffset_falls_back_to_zero_for_tiny_edge_stub()
     {
+        // After bugfix 3.2, chains that fail the min-visible-span threshold at all
+        // offsets now fall back to offset 0 instead of returning null (which would
+        // silently drop the chain from rendering).
         const double w = 1200;
         var chain = new List<(double X, double Y)>
         {
@@ -55,7 +58,7 @@ public class GroundTrackSplitTests
             (-1150, 525)
         };
 
-        Assert.Null(WorldMapControl.SelectGroundTrackWrapOffset(chain, w));
+        Assert.Equal(0.0, WorldMapControl.SelectGroundTrackWrapOffset(chain, w));
     }
 
     [Fact]
