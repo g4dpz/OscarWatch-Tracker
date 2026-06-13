@@ -545,21 +545,24 @@ public sealed class RigController : IRigController, IDisposable
         if (!HasNeutralPassbandTrim() || _lastRigRxHz <= 0)
             return false;
 
+        if (!TryReadReceiveDialHz(out var dialHz))
+            return false;
+
         if (DateTime.UtcNow < _ignoreDialUntilUtc)
-            return true;
+            return DialMatchesLastCatWrite(dialHz, KnobTuneThresholdHz());
 
         if (!_vfoNotMoving)
             return false;
 
-        if (!TryReadReceiveDialHz(out var dialHz))
-            return false;
-
-        return Math.Abs(dialHz - _lastRigRxHz) < AutomaticDialMatchToleranceHz();
+        return DialMatchesLastCatWrite(dialHz, AutomaticDialMatchToleranceHz());
     }
 
     /// <summary>Match window for CAT-only tracking: within doppler threshold so display jitter is not passband trim.</summary>
     private int AutomaticDialMatchToleranceHz() =>
         _thresholdHz > 0 ? Math.Max(KnobTuneThresholdHz(), _thresholdHz) : KnobTuneThresholdHz();
+
+    private bool DialMatchesLastCatWrite(long dialHz, int toleranceHz) =>
+        _lastRigRxHz > 0 && Math.Abs(dialHz - _lastRigRxHz) < toleranceHz;
 
     private bool HasNeutralPassbandTrim() =>
         Math.Abs(_passbandDownlinkAdjustKHz) < 0.0001 && Math.Abs(_passbandUplinkAdjustKHz) < 0.0001;
@@ -675,21 +678,24 @@ public sealed class RigController : IRigController, IDisposable
 
     private void SampleReceiveDial()
     {
-        if (DateTime.UtcNow < _ignoreDialUntilUtc)
-        {
-            if (_lastRigRxHz > 0
-                && _rxDialHistoryCount >= DialHistoryLength
-                && _rxDialHistory[0] == _lastRigRxHz)
-                _vfoNotMoving = true;
-            else
-                _vfoNotMoving = false;
-
-            return;
-        }
-
         if (!TryReadReceiveDialHz(out var dialHz))
         {
             _vfoNotMoving = false;
+            return;
+        }
+
+        if (DateTime.UtcNow < _ignoreDialUntilUtc)
+        {
+            if (DialMatchesLastCatWrite(dialHz, KnobTuneThresholdHz())
+                && _rxDialHistoryCount >= DialHistoryLength
+                && _rxDialHistory[0] == _lastRigRxHz)
+            {
+                _vfoNotMoving = true;
+                return;
+            }
+
+            ShiftDialHistory(dialHz);
+            _vfoNotMoving = IsDialHistoryStable();
             return;
         }
 
