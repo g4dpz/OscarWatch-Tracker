@@ -1135,7 +1135,19 @@
     <value>为多普勒 CAT 延迟做超前补偿</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadNote">
-    <value>启用后，仅在 TCA 附近距离变化率急剧变化时，CAT 与 Radio 行才按 CAT 延迟的一半（上限 50 ms）预测多普勒。AOS/LOS 平缓区段仍用当前变化率。Sat 行仍显示当前星上频率。</value>
+    <value>启用后，CAT 与 Radio 行在陡变及过顶后区段预测超前多普勒；过顶附近随距离变化率趋近零而减弱。可在下方微调超前时间与强度。</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadMs">
+    <value>超前时间 (ms)</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadMsNote">
+    <value>0 = 自动（CAT 延迟的一半，上限 50 ms，过顶后 75 ms）。手动设置可在不改变 CAT 节奏的情况下微调预测提前量。</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadGain">
+    <value>超前强度 (%)</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadGainNote">
+    <value>100 = 全部计算超前。若电台偏高于信号，请降低（可试 70–85）。</value>
   </data>
   <data name="Settings.Rotator.Enable">
     <value>启用天线旋转器</value>

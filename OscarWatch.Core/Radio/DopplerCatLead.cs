@@ -54,10 +54,19 @@ public static class DopplerCatLead
     /// <see cref="SlopeBlendStartKmPerSec2"/>. Assist lead on that leg without affecting
     /// the symmetric AOS approach (negative range rate at similar |range rate|).
     /// </summary>
-    public const double RecedingAssistMaxBlend = 0.85;
+    public const double RecedingAssistMaxBlend = 0.55;
 
     /// <summary>|Range rate| (km/s) above which receding-leg lead time may use <see cref="RecedingMaxLeadMs"/>.</summary>
     public const double RecedingLeadBoostRangeRateKmPerSec = 2.0;
+
+    /// <summary>
+    /// Near TCA, |range rate| is small and forward lead overshoots in the field.
+    /// Scale blend from 0 at rr=0 up to full strength at this |range rate|.
+    /// </summary>
+    public const double TcaRangeRateTaperKmPerSec = 0.35;
+
+    /// <summary>Hard cap when the operator sets an explicit lead time.</summary>
+    public const int UserLeadMsMax = 100;
 
     public static DopplerLeadRangeRates ResolveRangeRates(
         IOrbitPropagator? propagator,
@@ -78,19 +87,22 @@ public static class DopplerCatLead
         try
         {
             var slope = ComputeRangeRateSlopeKmPerSec2(propagator, state.NoradId, site, utc, fallback);
-            var blend = ComputeLeadBlend(slope, fallback);
-            if (blend <= 0)
+            var blend = ApplyTcaRangeRateTaper(ComputeLeadBlend(slope, fallback), fallback);
+            var gain = Math.Clamp(settings.DopplerCatLeadGainPercent, 0, 100) / 100.0;
+            var effectiveBlend = blend * gain;
+            if (effectiveBlend <= 0)
                 return new DopplerLeadRangeRates(fallback, fallback, 0);
 
-            var rxLeadMs = ResolveLeadMs(settings.ReceiveCatDelayMs(), fallback);
-            var txLeadMs = ResolveLeadMs(settings.TransmitCatDelayMs(), fallback);
+            var userLeadMs = settings.DopplerCatLeadMs;
+            var rxLeadMs = ResolveLeadMs(settings.ReceiveCatDelayMs(), fallback, userLeadMs);
+            var txLeadMs = ResolveLeadMs(settings.TransmitCatDelayMs(), fallback, userLeadMs);
 
             // Short-circuit: when both leads are equal and non-zero, call propagator once
             if (rxLeadMs > 0 && NearlyEqual(rxLeadMs, txLeadMs))
             {
                 var sharedRate = propagator.GetLookAngles(state.NoradId, site, utc.AddMilliseconds(rxLeadMs)).RangeRateKmPerSec;
-                var rate = Lerp(fallback, sharedRate, blend);
-                return new DopplerLeadRangeRates(rate, rate, blend);
+                var rate = ApplyLeadGain(fallback, Lerp(fallback, sharedRate, blend), gain);
+                return new DopplerLeadRangeRates(rate, rate, effectiveBlend);
             }
 
             // Different leads: existing two-call path
@@ -101,9 +113,9 @@ public static class DopplerCatLead
                 ? propagator.GetLookAngles(state.NoradId, site, utc.AddMilliseconds(txLeadMs)).RangeRateKmPerSec
                 : fallback;
 
-            var rxRate = Lerp(fallback, rxLead, blend);
-            var txRate = Lerp(fallback, txLead, blend);
-            return new DopplerLeadRangeRates(rxRate, txRate, blend);
+            var rxRate = ApplyLeadGain(fallback, Lerp(fallback, rxLead, blend), gain);
+            var txRate = ApplyLeadGain(fallback, Lerp(fallback, txLead, blend), gain);
+            return new DopplerLeadRangeRates(rxRate, txRate, effectiveBlend);
         }
         catch
         {
@@ -117,7 +129,11 @@ public static class DopplerCatLead
         GroundStation site,
         DateTime utc,
         double rangeRateKmPerSec) =>
-        ComputeLeadBlend(ComputeRangeRateSlopeKmPerSec2(propagator, noradId, site, utc, rangeRateKmPerSec), rangeRateKmPerSec) >= 1.0;
+        ApplyTcaRangeRateTaper(
+            ComputeLeadBlend(
+                ComputeRangeRateSlopeKmPerSec2(propagator, noradId, site, utc, rangeRateKmPerSec),
+                rangeRateKmPerSec),
+            rangeRateKmPerSec) >= 1.0;
 
     internal static double ComputeLeadBlend(double slopeKmPerSec2, double rangeRateKmPerSec = 0)
     {
@@ -192,7 +208,16 @@ public static class DopplerCatLead
         if (abs < ResidualAssistRangeRateKmPerSec)
             return 0;
 
-        return Math.Clamp((abs - ResidualAssistRangeRateKmPerSec) / 3.0 * 0.55, 0, 0.55);
+        return Math.Clamp((abs - ResidualAssistRangeRateKmPerSec) / 3.0 * 0.40, 0, 0.40);
+    }
+
+    internal static double ApplyTcaRangeRateTaper(double blend, double rangeRateKmPerSec)
+    {
+        if (blend <= 0)
+            return 0;
+
+        var taper = Math.Clamp(Math.Abs(rangeRateKmPerSec) / TcaRangeRateTaperKmPerSec, 0, 1);
+        return blend * taper;
     }
 
     internal static double ComputeRangeRateSlopeKmPerSec2(
@@ -209,8 +234,14 @@ public static class DopplerCatLead
         return Math.Abs(ahead.RangeRateKmPerSec - rangeRateKmPerSec) / RangeRateSlopeSampleSec;
     }
 
-    internal static double ResolveLeadMs(int catDelayMs, double rangeRateKmPerSec = 0)
+    internal static double ApplyLeadGain(double snapshot, double withLead, double gain) =>
+        snapshot + (withLead - snapshot) * gain;
+
+    internal static double ResolveLeadMs(int catDelayMs, double rangeRateKmPerSec = 0, int userLeadMs = 0)
     {
+        if (userLeadMs > 0)
+            return Math.Clamp(userLeadMs, 1, UserLeadMsMax);
+
         if (catDelayMs <= 0)
             return 0;
 

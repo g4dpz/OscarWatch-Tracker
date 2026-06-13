@@ -329,6 +329,13 @@
         (approaching, negative range rate) keeps the current rate. Lead uses half your
         <strong>CAT delay (ms)</strong> (half per leg in dual-radio setups), <strong>capped at 50&nbsp;ms</strong>
         (75&nbsp;ms post-TCA), so a large CI-V pacing delay does not over-predict.
+        Near <strong>TCA</strong>, lead tapers off as range rate approaches zero (when Doppler Δ crosses ~0).
+      </p>
+      <p>
+        When lead is enabled, <strong>Lead time (ms)</strong> and <strong>Lead strength (%)</strong> appear below
+        the checkbox. Leave lead time at <strong>0</strong> for automatic timing (half CAT delay, capped).
+        Set lead strength below 100 if the radio feels ahead of the signal (many operators use 70–85 on fast birds).
+        These controls do not change CAT pacing delay or the Doppler thresholds.
       </p>
       <p>
         When lead is active, the frequency overlay <strong>Radio</strong> row shows the lead-ahead command

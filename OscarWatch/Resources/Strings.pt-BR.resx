@@ -1135,7 +1135,19 @@ Continuar?</value>
     <value>Antecipar Doppler para latência CAT</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadNote">
-    <value>Quando ativado, o CAT e a linha Rádio só preveem o Doppler à frente (metade do atraso CAT, máx. 50 ms) no trecho íngreme perto do TCA, quando a taxa de variação da distância muda rapidamente. Nos trechos suaves de AOS/LOS usa-se a taxa atual. A linha Sat continua mostrando a frequência atual na espaçonave.</value>
+    <value>Quando ativado, o CAT e a linha Rádio preveem o Doppler à frente nos trechos íngremes e pós-TCA. Perto do TCA, a antecipação reduz quando a taxa de distância se aproxima de zero. Ajuste fino com tempo e intensidade abaixo.</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadMs">
+    <value>Tempo de antecipação (ms)</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadMsNote">
+    <value>0 = automático (metade do atraso CAT, máx. 50 ms ou 75 ms pós-TCA). Defina explicitamente para ajustar a antecipação sem alterar o ritmo do CAT.</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadGain">
+    <value>Intensidade da antecipação (%)</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadGainNote">
+    <value>100 = antecipação total calculada. Reduza se o rádio parecer à frente do sinal (tente 70–85).</value>
   </data>
   <data name="Settings.Rotator.Enable">
     <value>Habilitar rotor</value>

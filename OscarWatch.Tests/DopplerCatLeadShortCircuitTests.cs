@@ -150,7 +150,7 @@ public class DopplerCatLeadShortCircuitTests
     public void Different_leads_can_produce_different_rx_and_tx_rates()
     {
         var utc = new DateTime(2026, 6, 1, 12, 0, 0, DateTimeKind.Utc);
-        const double snapshotRate = 0.0;
+        const double snapshotRate = 1.2;
 
         // Dual-radio: Downlink.CatDelayMs = 80 → rxLeadMs = 40, Uplink.CatDelayMs = 120 → txLeadMs = 50
         // The propagator returns different rates for different lead times
@@ -166,8 +166,8 @@ public class DopplerCatLeadShortCircuitTests
 
         var result = DopplerCatLead.ResolveRangeRates(propagator, settings, Site, state, utc);
 
-        // slope = |0.2 - 0| / 1.0 = 0.2, well above 0.018 → blend = 1.0
-        // Lerp(0, 1.5, 1.0) = 1.5 for rx, Lerp(0, 2.5, 1.0) = 2.5 for tx
+        // slope = |0.2 - 1.2| / 1.0 = 1.0, well above 0.016 → blend = 1.0 (tapered by |rr| ≥ 0.35)
+        // Lerp(1.2, 1.5, 1.0) = 1.5 for rx, Lerp(1.2, 2.5, 1.0) = 2.5 for tx
         Assert.NotEqual(result.RxRangeRateKmPerSec, result.TxRangeRateKmPerSec);
         Assert.Equal(1.5, result.RxRangeRateKmPerSec);
         Assert.Equal(2.5, result.TxRangeRateKmPerSec);

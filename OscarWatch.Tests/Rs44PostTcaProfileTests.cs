@@ -37,7 +37,7 @@ public class Rs44PostTcaProfileTests
 
             Assert.True(maxEl >= 60);
             Assert.True(look.RangeRateKmPerSec > 0, $"offset {offset}s: expected receding range rate.");
-            Assert.True(lead.LeadBlend >= 0.45,
+            Assert.True(lead.LeadBlend >= 0.35,
                 $"RS-44 offset {offset}s: blend {lead.LeadBlend:F3}, slope {slope:F4}, el {look.ElevationDeg:F1}°.");
         }
     }

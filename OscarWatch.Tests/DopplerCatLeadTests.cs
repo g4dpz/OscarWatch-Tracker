@@ -108,8 +108,8 @@ public class DopplerCatLeadTests
             Uplink = new RigEndpointSettings { CatDelayMs = 120 }
         };
 
-        var steep = new StubPropagator(utc, snapshotRate: 0, slopeSampleRate: 0.2, rxLeadRate: 1.0, txLeadRate: 2.0);
-        DopplerCatLead.ResolveRangeRates(steep, settings, Site, StateWithRate(0), utc);
+        var steep = new StubPropagator(utc, snapshotRate: 1.5, slopeSampleRate: 0.2, rxLeadRate: 1.0, txLeadRate: 2.0);
+        DopplerCatLead.ResolveRangeRates(steep, settings, Site, StateWithRate(1.5), utc);
 
         Assert.Equal(utc.AddMilliseconds(40), steep.LastRxUtc);
         Assert.Equal(utc.AddMilliseconds(50), steep.LastTxUtc);
@@ -392,14 +392,14 @@ public class DopplerCatLeadTests
     public void Capped_lead_queries_propagator_at_max_not_half_delay()
     {
         var utc = new DateTime(2026, 6, 1, 12, 0, 0, DateTimeKind.Utc);
-        var propagator = new StubPropagator(utc, snapshotRate: 0, slopeSampleRate: 0.2, rxLeadRate: 1.0, txLeadRate: 2.0);
+        var propagator = new StubPropagator(utc, snapshotRate: 1.0, slopeSampleRate: 0.2, rxLeadRate: 1.0, txLeadRate: 2.0);
         var settings = new RigSettings
         {
             DopplerCatLeadEnabled = true,
             CatDelayMs = 200
         };
 
-        DopplerCatLead.ResolveRangeRates(propagator, settings, Site, StateWithRate(0), utc);
+        DopplerCatLead.ResolveRangeRates(propagator, settings, Site, StateWithRate(1.0), utc);
 
         // With equal leads (both capped to 50 ms), short-circuit calls propagator once
         Assert.Equal(utc.AddMilliseconds(50), propagator.LastRxUtc);
@@ -510,7 +510,7 @@ public class DopplerCatLeadTests
         Assert.True(look.RangeRateKmPerSec > 0, "Expected receding (positive) range rate post-TCA.");
         Assert.True(slope < DopplerCatLead.SlopeBlendStartKmPerSec2,
             $"Slope {slope:F4} km/s² should be below blend start on late post-TCA leg.");
-        Assert.True(lead.LeadBlend >= 0.55,
+        Assert.True(lead.LeadBlend >= 0.50,
             $"Post-TCA receding blend {lead.LeadBlend:F3} should stay active (slope {slope:F4}).");
         Assert.NotEqual(look.RangeRateKmPerSec, lead.RxRangeRateKmPerSec);
     }
@@ -550,7 +550,7 @@ public class DopplerCatLeadTests
         Assert.True(look.RangeRateKmPerSec > 0);
         Assert.True(slope < DopplerCatLead.SlopeBlendStartKmPerSec2,
             $"Late LOS slope {slope:F4} km/s² should be below blend start.");
-        Assert.True(lead.LeadBlend >= 0.45,
+        Assert.True(lead.LeadBlend >= 0.35,
             $"Late post-TCA blend {lead.LeadBlend:F3} should stay active via receding floor.");
         Assert.Equal(75, DopplerCatLead.ResolveLeadMs(settings.CatDelayMs, look.RangeRateKmPerSec));
     }
@@ -607,6 +607,86 @@ public class DopplerCatLeadTests
 
         Assert.Equal(4.1, rx);
         Assert.Equal(4.1, tx);
+    }
+
+    [Fact]
+    public void Tca_vicinity_tapers_lead_when_range_rate_is_small()
+    {
+        var raw = DopplerCatLead.ComputeLeadBlend(DopplerCatLead.SteepRangeRateSlopeKmPerSec2, 0.187);
+        Assert.Equal(1.0, raw);
+
+        Assert.Equal(0, DopplerCatLead.ApplyTcaRangeRateTaper(raw, 0));
+
+        var tapered = DopplerCatLead.ApplyTcaRangeRateTaper(raw, 0.187);
+        Assert.InRange(tapered, 0.45, 0.60);
+    }
+
+    [Fact]
+    public void Rs44_at_tca_lead_blend_is_tapered()
+    {
+        var entry = new SatelliteCatalogEntry
+        {
+            Name = "RS-44",
+            NoradId = "44909",
+            Line1 = "1 44909U 19096E   26141.11069286  .00000018  00000-0  30335-4 0  9995",
+            Line2 = "2 44909  82.5230 357.7010 0216952 207.4466 151.5042 12.79748393298881"
+        };
+        var propagator = new PublicOrbitToolsPropagator();
+        propagator.LoadSatellite(entry);
+        var site = new GroundStation { LatitudeDeg = 51.5, LongitudeDeg = -0.1, AltitudeMetersAsl = 50 };
+        var (tca, maxEl) = FindHighElevationPassTcaUtc(propagator, entry.NoradId, site, minElevationDeg: 60);
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+
+        var look = propagator.GetLookAngles(entry.NoradId, site, tca);
+        var state = new SatelliteTrackState
+        {
+            Name = entry.Name,
+            NoradId = entry.NoradId,
+            Subpoint = propagator.GetSubpoint(entry.NoradId, tca),
+            LookAngles = look
+        };
+        var lead = DopplerCatLead.ResolveRangeRates(propagator, settings, site, state, tca);
+
+        Assert.True(maxEl >= 60);
+        Assert.True(Math.Abs(look.RangeRateKmPerSec) < 0.35, "TCA should have small |range rate|.");
+        Assert.InRange(lead.LeadBlend, 0.05, 0.65);
+        Assert.True(lead.LeadBlend < 0.85, "Near TCA, blend should be tapered below full strength.");
+    }
+
+    [Fact]
+    public void User_lead_ms_overrides_automatic_cap()
+    {
+        Assert.Equal(35, DopplerCatLead.ResolveLeadMs(200, 1.0, 35));
+        Assert.Equal(50, DopplerCatLead.ResolveLeadMs(200, 1.0, 0));
+        Assert.Equal(75, DopplerCatLead.ResolveLeadMs(200, 4.5, 0));
+        Assert.Equal(60, DopplerCatLead.ResolveLeadMs(200, 4.5, 60));
+    }
+
+    [Fact]
+    public void Lead_gain_scales_lead_contribution_not_snapshot()
+    {
+        var utc = new DateTime(2026, 6, 1, 12, 0, 0, DateTimeKind.Utc);
+        const double snapshotRate = -3.5;
+        const double leadRate = 1.0;
+        var propagator = new StubPropagator(utc, snapshotRate: snapshotRate, slopeSampleRate: -2.0, rxLeadRate: leadRate, txLeadRate: leadRate);
+        var state = StateWithRate(snapshotRate);
+
+        var full = DopplerCatLead.ResolveRangeRates(
+            propagator,
+            new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadGainPercent = 100 },
+            Site,
+            state,
+            utc);
+        var half = DopplerCatLead.ResolveRangeRates(
+            propagator,
+            new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadGainPercent = 50 },
+            Site,
+            state,
+            utc);
+
+        Assert.Equal(leadRate, full.RxRangeRateKmPerSec, 3);
+        Assert.Equal(snapshotRate + (leadRate - snapshotRate) * 0.5, half.RxRangeRateKmPerSec, 3);
+        Assert.Equal(full.LeadBlend * 0.5, half.LeadBlend, 3);
     }
 
     private sealed class StubPropagator(

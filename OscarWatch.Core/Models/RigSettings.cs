@@ -52,6 +52,15 @@ public sealed class RigSettings
     /// <summary>When true, CAT Doppler uses range rate at utc + half Receive/Transmit CatDelayMs on steep legs only.</summary>
     public bool DopplerCatLeadEnabled { get; set; }
 
+    /// <summary>
+    /// Lead time in ms (0 = automatic: half CAT delay, capped internally).
+    /// Does not change CAT pacing delay.
+    /// </summary>
+    public int DopplerCatLeadMs { get; set; }
+
+    /// <summary>Scales computed lead strength (0–100). 100 = full blend; 0 = snapshot rate only.</summary>
+    public int DopplerCatLeadGainPercent { get; set; } = 100;
+
     /// <summary>When true, automatic CAT frequency updates are suspended (SatPC32-style).</summary>
     public bool CatUpdatesPaused { get; set; }
 

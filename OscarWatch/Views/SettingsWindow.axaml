@@ -553,6 +553,27 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="{loc:Localize Key=Settings.Radio.DopplerCatLeadNote}" />
+            <StackPanel Spacing="6"
+                        Margin="20,4,0,0"
+                        IsVisible="{Binding RigDopplerCatLeadEnabled}">
+              <TextBlock Text="{loc:Localize Key=Settings.Radio.DopplerCatLeadMs}" />
+              <NumericUpDown Value="{Binding RigDopplerCatLeadMs, Mode=TwoWay}"
+                             Minimum="0" Maximum="100"
+                             Increment="5" FormatString="F0" />
+              <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                         FontSize="11"
+                         TextWrapping="Wrap"
+                         Text="{loc:Localize Key=Settings.Radio.DopplerCatLeadMsNote}" />
+              <TextBlock Text="{loc:Localize Key=Settings.Radio.DopplerCatLeadGain}"
+                         Margin="0,8,0,0" />
+              <NumericUpDown Value="{Binding RigDopplerCatLeadGainPercent, Mode=TwoWay}"
+                             Minimum="0" Maximum="100"
+                             Increment="5" FormatString="F0" />
+              <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                         FontSize="11"
+                         TextWrapping="Wrap"
+                         Text="{loc:Localize Key=Settings.Radio.DopplerCatLeadGainNote}" />
+            </StackPanel>
           </StackPanel>
         </ScrollViewer>
       </TabItem>

@@ -1024,7 +1024,19 @@
     <value>CAT遅延に合わせてドップラーを先行</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadNote">
-    <value>有効時、レンジレートの変化が急なTCA付近のパス中のみ、CATとRadio行がCAT遅延の半分（最大50 ms）だけ先のドップラーを予測します。AOS/LOSの緩やかな区間は現在のレートのまま。Sat行は現在の宇宙機周波数のまま。</value>
+    <value>有効時、急な区間とTCA後でCAT/Radio行がドップラーを先読みします。TCA付近はレンジレートがゼロに近づくと先読みを弱めます。下で先読み時間と強度を微調整できます。</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadMs">
+    <value>先読み時間 (ms)</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadMsNote">
+    <value>0 = 自動（CAT遅延の半分、最大50 ms、TCA後75 ms）。CATペーシングを変えずに先読み量だけ調整できます。</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadGain">
+    <value>先読み強度 (%)</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadGainNote">
+    <value>100 = 計算どおりの先読み。電波より高く感じる場合は下げてください（70–85を試す）。</value>
   </data>
   <data name="Settings.Rotator.Enable">
     <value>ローテーターを有効</value>

@@ -37,11 +37,12 @@ Logic lives in `OscarWatch.Core/Radio/DopplerCatLead.cs`.
 | `RangeRateSlopeSampleSec` | `1.0` | How far ahead we look to measure “how fast range rate is changing” |
 | `SlopeBlendStartKmPerSec2` | `0.010` | Slope where lead blend begins (0 = snapshot only) |
 | `SteepRangeRateSlopeKmPerSec2` | `0.016` | Slope where blend reaches 1 (full lead) |
-| `RecedingAssistMaxBlend` | `0.6` | Post-TCA receding leg when slope &lt; blend start but range rate is positive and large |
+| `RecedingAssistMaxBlend` | `0.55` | Post-TCA receding leg when slope &lt; blend start but range rate is positive and large |
+| `TcaRangeRateTaperKmPerSec` | `0.35` | Near TCA, scale lead from 0 at rr=0 up to full strength at this |range rate| |
 
 Calibrated against **FO-29** high-elevation pass in `DopplerCatLeadTests.Fo29_lead_applies_near_tca_not_on_gentle_aos_leg` (~79° pass, London test site, seed TLE).
 
-**Post-TCA receding assist:** after TCA, range rate is positive while slope falls below `SlopeBlendStartKmPerSec2`. AOS at the same elevation has negative range rate, so lead stays off on approach. See `Fo29_post_tca_low_slope_receding_leg_keeps_cat_lead` and `Fo29_aos_approach_with_low_slope_stays_on_snapshot_rate`.
+**Post-TCA receding assist:** after TCA, range rate is positive while slope falls below `SlopeBlendStartKmPerSec2`. AOS at the same elevation has negative range rate, so lead stays off on approach. **TCA taper:** when |range rate| is small (Doppler Δ crossing ~0), forward lead is scaled down to avoid overshoot (RS-44 field report: recurring −100 Hz RX offset at crossover). See `Fo29_post_tca_low_slope_receding_leg_keeps_cat_lead`, `Rs44_at_tca_lead_blend_is_tapered`, and `Fo29_aos_approach_with_low_slope_stays_on_snapshot_rate`.
 
 ## Reported operator pattern (FO-29)
 
@@ -75,8 +76,8 @@ Symptom: need **−RX offset** (or passband trim down) during the **steep middle
 
 ### Future settings (if constants are not enough)
 
-- **`DopplerCatLeadMs`** — separate from `CatDelayMs` (pacing unchanged).
-- **Lead gain** — scale `0..1` on computed lead offset (fine trim for fast birds).
+- **`DopplerCatLeadMs`** — Settings → Radio, 0 = automatic; explicit ms without changing CAT pacing (`RigSettings.DopplerCatLeadMs`).
+- **Lead gain** — Settings → Radio, 0–100% scales lead contribution (`RigSettings.DopplerCatLeadGainPercent`).
 - **Elevation gate** — optional AND with slope (e.g. only when el > 20°).
 
 ---

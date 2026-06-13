@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Radio;
 
 namespace OscarWatch.Core.Services;
 
@@ -198,6 +199,9 @@ public sealed class SettingsService : ISettingsService
         settings.Gps ??= new GpsSettings();
         settings.Rig ??= new RigSettings();
         settings.Rig.MigrateFt817818ToDualOnly();
+        if (settings.Rig.DopplerCatLeadGainPercent is <= 0 or > 100)
+            settings.Rig.DopplerCatLeadGainPercent = 100;
+        settings.Rig.DopplerCatLeadMs = Math.Clamp(settings.Rig.DopplerCatLeadMs, 0, DopplerCatLead.UserLeadMsMax);
         settings.Cloudlog ??= new CloudlogSettings();
         settings.PassRecording ??= new PassRecordingSettings();
         settings.TleSource ??= new TleSourceSettings();

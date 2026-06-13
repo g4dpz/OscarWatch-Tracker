@@ -8,6 +8,7 @@ using OscarWatch.Core.Display;
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Hardware;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Radio;
 using OscarWatch.Core.Services;
 using OscarWatch.Localization;
 using OscarWatch.Rotator;
@@ -242,6 +243,12 @@ public partial class SettingsViewModel : ViewModelBase
 
     [ObservableProperty]
     private bool _rigDopplerCatLeadEnabled;
+
+    [ObservableProperty]
+    private int _rigDopplerCatLeadMs;
+
+    [ObservableProperty]
+    private int _rigDopplerCatLeadGainPercent = 100;
 
     [ObservableProperty]
     private bool _rigCwKeepSidebandDownlink;
@@ -730,6 +737,8 @@ public partial class SettingsViewModel : ViewModelBase
             DopplerThresholdLinearHz = RigDopplerThresholdLinearHz,
             CatDelayMs = RigCatDelayMs,
             DopplerCatLeadEnabled = RigDopplerCatLeadEnabled,
+            DopplerCatLeadMs = RigDopplerCatLeadMs,
+            DopplerCatLeadGainPercent = RigDopplerCatLeadGainPercent,
             CatUpdatesPaused = _settings.Current.Rig.CatUpdatesPaused,
             CwKeepSidebandDownlink = RigCwKeepSidebandDownlink
         };
@@ -892,6 +901,10 @@ public partial class SettingsViewModel : ViewModelBase
             RigDopplerThresholdLinearHz = rig.DopplerThresholdLinearHz;
             RigCatDelayMs = rig.CatDelayMs;
             RigDopplerCatLeadEnabled = rig.DopplerCatLeadEnabled;
+            RigDopplerCatLeadMs = Math.Clamp(rig.DopplerCatLeadMs, 0, DopplerCatLead.UserLeadMsMax);
+            RigDopplerCatLeadGainPercent = rig.DopplerCatLeadGainPercent is > 0 and <= 100
+                ? rig.DopplerCatLeadGainPercent
+                : 100;
             RigCwKeepSidebandDownlink = rig.CwKeepSidebandDownlink;
             var cloudlog = _settings.Current.Cloudlog ?? new CloudlogSettings();
             CloudlogEnabled = cloudlog.Enabled;
