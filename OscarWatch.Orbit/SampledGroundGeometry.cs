@@ -22,7 +22,9 @@ public sealed class SampledGroundGeometry : IGroundGeometry
     {
         var usePropagator = _propagator.HasSatellite(satellite.NoradId);
         var orbit = usePropagator ? null : OrbitToolsMapping.CreateOrbit(satellite);
-        var points = new List<GeoCoordinate>();
+
+        // First pass: collect all sample results, recording nulls for failures
+        var rawPoints = new List<GeoCoordinate?>();
 
         for (var t = utcStart; t <= utcEnd; t += step)
         {
@@ -31,11 +33,61 @@ public sealed class SampledGroundGeometry : IGroundGeometry
                 var point = usePropagator
                     ? _propagator.GetSubpoint(satellite.NoradId, t)
                     : OrbitToolsMapping.ToGeoCoordinate(orbit!.PositionEci(t));
-                points.Add(point);
+                rawPoints.Add(point);
             }
             catch
             {
-                // skip decayed points
+                rawPoints.Add(null);
+            }
+        }
+
+        // Second pass: fill single nulls with interpolation, replace consecutive
+        // nulls with one NaN sentinel
+        var points = new List<GeoCoordinate>();
+        var i = 0;
+
+        while (i < rawPoints.Count)
+        {
+            if (rawPoints[i] is not null)
+            {
+                points.Add(rawPoints[i]!);
+                i++;
+            }
+            else
+            {
+                // Count consecutive failures
+                var gapStart = i;
+                while (i < rawPoints.Count && rawPoints[i] is null)
+                    i++;
+
+                var gapLength = i - gapStart;
+
+                if (gapLength == 1)
+                {
+                    // Single missing point: interpolate if both neighbours exist
+                    var prev = gapStart > 0 ? rawPoints[gapStart - 1] : null;
+                    var next = i < rawPoints.Count ? rawPoints[i] : null;
+
+                    if (prev is not null && next is not null)
+                    {
+                        // Linear interpolation of lat/lon/alt
+                        var interpLat = (prev.LatitudeDeg + next.LatitudeDeg) / 2.0;
+                        var interpLon = (prev.LongitudeDeg + next.LongitudeDeg) / 2.0;
+                        var interpAlt = (prev.AltitudeKm + next.AltitudeKm) / 2.0;
+                        points.Add(new GeoCoordinate(interpLat, interpLon, interpAlt));
+                    }
+                    else
+                    {
+                        // No previous success (first point fails) or next also fails:
+                        // insert a NaN sentinel
+                        points.Add(new GeoCoordinate(double.NaN, double.NaN));
+                    }
+                }
+                else
+                {
+                    // Consecutive missing points (≥2): insert a single NaN sentinel
+                    points.Add(new GeoCoordinate(double.NaN, double.NaN));
+                }
             }
         }
 
