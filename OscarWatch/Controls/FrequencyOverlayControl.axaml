@@ -111,13 +111,13 @@
     <Style Selector="Button.doppler-strategy-header">
       <Setter Property="MinHeight" Value="26" />
       <Setter Property="MaxHeight" Value="26" />
-      <Setter Property="MinWidth" Value="44" />
+      <Setter Property="MinWidth" Value="0" />
       <Setter Property="Cursor" Value="Hand" />
-      <Setter Property="Padding" Value="6,0" />
+      <Setter Property="Padding" Value="0" />
       <Setter Property="FontSize" Value="11" />
       <Setter Property="FontWeight" Value="SemiBold" />
-      <Setter Property="HorizontalAlignment" Value="Center" />
-      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
       <Setter Property="HorizontalContentAlignment" Value="Center" />
       <Setter Property="VerticalContentAlignment" Value="Center" />
       <Setter Property="Background" Value="#FF1E1E1E" />
@@ -125,8 +125,11 @@
       <Setter Property="Foreground" Value="#FFFFFFFF" />
     </Style>
     <Style Selector="Button.doppler-strategy-header /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
       <Setter Property="HorizontalContentAlignment" Value="Center" />
       <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="TextBlock.TextAlignment" Value="Center" />
     </Style>
     <Style Selector="Button.doppler-strategy-header:pointerover /template/ ContentPresenter#PART_ContentPresenter">
       <Setter Property="Background" Value="#FF2A2A2A" />
@@ -180,16 +183,102 @@
       <Setter Property="Fill" Value="#FFFFB020" />
     </Style>
     <Style Selector="ToggleSwitch.offset-leg">
+      <Setter Property="Foreground" Value="{DynamicResource ToggleSwitchContentForeground}" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
       <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Width" Value="40" />
+      <Setter Property="MinWidth" Value="40" />
+      <Setter Property="MaxWidth" Value="40" />
+      <Setter Property="KnobTransitions">
+        <Transitions>
+          <DoubleTransition Property="Canvas.Left" Duration="0:0:0.2" Easing="CubicEaseOut" />
+        </Transitions>
+      </Setter>
+      <Setter Property="Template">
+        <ControlTemplate TargetType="ToggleSwitch">
+          <!-- Compact switch only — default Fluent template reserves 12px + label slot beside the track. -->
+          <Grid Width="40"
+                Height="20"
+                VerticalAlignment="Center"
+                TemplatedControl.IsTemplateFocusTarget="True"
+                Background="Transparent">
+            <Border x:Name="OuterBorder"
+                    Width="40"
+                    Height="20"
+                    CornerRadius="10"
+                    Background="{DynamicResource ToggleSwitchFillOff}"
+                    BorderBrush="{DynamicResource ToggleSwitchStrokeOff}"
+                    BorderThickness="{DynamicResource ToggleSwitchOuterBorderStrokeThickness}" />
+            <Border x:Name="SwitchKnobBounds"
+                    Width="40"
+                    Height="20"
+                    CornerRadius="10"
+                    Background="{DynamicResource ToggleSwitchFillOn}"
+                    BorderBrush="{DynamicResource ToggleSwitchStrokeOn}"
+                    BorderThickness="{DynamicResource ToggleSwitchOnStrokeThickness}"
+                    Opacity="0" />
+            <Canvas x:Name="PART_SwitchKnob" Width="20" Height="20" HorizontalAlignment="Left">
+              <Grid x:Name="PART_MovingKnobs" Width="20" Height="20">
+                <Ellipse x:Name="SwitchKnobOn"
+                         Width="10"
+                         Height="10"
+                         Opacity="0"
+                         Fill="{DynamicResource ToggleSwitchKnobFillOn}" />
+                <Ellipse x:Name="SwitchKnobOff"
+                         Width="10"
+                         Height="10"
+                         Fill="{DynamicResource ToggleSwitchKnobFillOff}" />
+              </Grid>
+            </Canvas>
+          </Grid>
+        </ControlTemplate>
+      </Setter>
     </Style>
-    <Style Selector="ToggleSwitch.offset-leg /template/ Border#SwitchKnobBounds">
-      <Setter Property="Background" Value="#FF505050" />
+    <Style Selector="ToggleSwitch.offset-leg:checked /template/ Border#OuterBorder">
+      <Setter Property="Opacity" Value="0" />
+    </Style>
+    <Style Selector="ToggleSwitch.offset-leg:checked /template/ Border#SwitchKnobBounds">
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+    <Style Selector="ToggleSwitch.offset-leg:checked /template/ Ellipse#SwitchKnobOff">
+      <Setter Property="Opacity" Value="0" />
+    </Style>
+    <Style Selector="ToggleSwitch.offset-leg:checked /template/ Ellipse#SwitchKnobOn">
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+    <Style Selector="ToggleSwitch.offset-leg:unchecked /template/ Border#OuterBorder">
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+    <Style Selector="ToggleSwitch.offset-leg:unchecked /template/ Border#SwitchKnobBounds">
+      <Setter Property="Opacity" Value="0" />
+    </Style>
+    <Style Selector="ToggleSwitch.offset-leg:unchecked /template/ Ellipse#SwitchKnobOff">
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+    <Style Selector="ToggleSwitch.offset-leg:unchecked /template/ Ellipse#SwitchKnobOn">
+      <Setter Property="Opacity" Value="0" />
+    </Style>
+    <Style Selector="ToggleSwitch.offset-leg:pointerover /template/ Border#OuterBorder">
+      <Setter Property="BorderBrush" Value="{DynamicResource ToggleSwitchStrokeOffPointerOver}" />
+      <Setter Property="Background" Value="{DynamicResource ToggleSwitchFillOffPointerOver}" />
+    </Style>
+    <Style Selector="ToggleSwitch.offset-leg:pointerover /template/ Border#SwitchKnobBounds">
+      <Setter Property="Background" Value="{DynamicResource ToggleSwitchFillOnPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource ToggleSwitchStrokeOnPointerOver}" />
+    </Style>
+    <Style Selector="ToggleSwitch.offset-leg:pointerover /template/ Ellipse#SwitchKnobOff">
+      <Setter Property="Fill" Value="{DynamicResource ToggleSwitchKnobFillOffPointerOver}" />
+    </Style>
+    <Style Selector="ToggleSwitch.offset-leg:pointerover /template/ Ellipse#SwitchKnobOn">
+      <Setter Property="Fill" Value="{DynamicResource ToggleSwitchKnobFillOnPointerOver}" />
     </Style>
     <Style Selector="TextBlock.offset-leg-label">
       <Setter Property="FontSize" Value="12" />
       <Setter Property="FontWeight" Value="SemiBold" />
       <Setter Property="Foreground" Value="#FFE0E0E0" />
       <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="TextAlignment" Value="Center" />
     </Style>
   </UserControl.Styles>
 
@@ -355,41 +444,42 @@
           <TextBlock Grid.Row="2" Grid.Column="1" Classes="freq-mono"
                      Text="{Binding RadioTransmitText}"
                      IsVisible="{Binding !IsBeaconOnly}"
-                     FontSize="16"
+                     FontSize="18" FontWeight="SemiBold"
                      Foreground="#FF909090" />
           <TextBlock Grid.Row="2" Grid.Column="2" Classes="freq-mono"
                      Text="{Binding RadioReceiveText}"
-                     FontSize="16"
+                     FontSize="18" FontWeight="SemiBold"
                      Foreground="#FF909090" />
 
           <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
                 ColumnDefinitions="Auto,*"
                 VerticalAlignment="Center">
-            <UniformGrid x:Name="DopplerStrategyRow"
-                         Columns="3"
-                         Rows="1"
-                         IsVisible="{Binding ShowDopplerStrategyRow}"
-                         HorizontalAlignment="Left"
-                         Width="156">
-              <Button Classes="doppler-strategy-header"
+            <Grid x:Name="DopplerStrategyRow"
+                  Grid.Column="0"
+                  ColumnDefinitions="*,*,*"
+                  ColumnSpacing="6"
+                  IsVisible="{Binding ShowDopplerStrategyRow}"
+                  HorizontalAlignment="Left"
+                  Width="156">
+              <Button Grid.Column="0"
+                      Classes="doppler-strategy-header"
                       Classes.operating-style-active="{Binding IsFullDopplerSelected}"
                       Content="{loc:Localize Key=Freq.DopplerFull}"
                       ToolTip.Tip="{Binding DopplerStrategyHint}"
-                      Command="{Binding SelectFullDopplerCommand}"
-                      Margin="0,0,3,0" />
-              <Button Classes="doppler-strategy-header"
+                      Command="{Binding SelectFullDopplerCommand}" />
+              <Button Grid.Column="1"
+                      Classes="doppler-strategy-header"
                       Classes.operating-style-active="{Binding IsTxFixedDopplerSelected}"
                       Content="{loc:Localize Key=Freq.DopplerTx}"
                       ToolTip.Tip="{loc:Localize Key=Freq.DopplerTxFixedToolTip}"
-                      Command="{Binding SelectTxFixedDopplerCommand}"
-                      Margin="3,0,3,0" />
-              <Button Classes="doppler-strategy-header"
+                      Command="{Binding SelectTxFixedDopplerCommand}" />
+              <Button Grid.Column="2"
+                      Classes="doppler-strategy-header"
                       Classes.operating-style-active="{Binding IsRxFixedDopplerSelected}"
                       Content="{loc:Localize Key=Freq.DopplerRx}"
                       ToolTip.Tip="{loc:Localize Key=Freq.DopplerRxFixedToolTip}"
-                      Command="{Binding SelectRxFixedDopplerCommand}"
-                      Margin="3,0,0,0" />
-            </UniformGrid>
+                      Command="{Binding SelectRxFixedDopplerCommand}" />
+            </Grid>
             <StackPanel Grid.Column="1"
                         Orientation="Horizontal"
                         Spacing="6"
