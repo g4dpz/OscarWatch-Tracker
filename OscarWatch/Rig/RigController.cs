@@ -383,6 +383,7 @@ public sealed class RigController : IRigController, IDisposable
         NoteContextDopplerStrategyChange(context);
         _isTracking = true;
         SetRigStatus(RigStatusKind.Tracking);
+        UpdateDopplerPassLogHorizon(settings, context);
     }
 
     private void SetRigStatus(RigStatusKind kind, string? port = null, string? detail = null)
@@ -413,12 +414,6 @@ public sealed class RigController : IRigController, IDisposable
             _passInitPending = true;
         else
             RunPassInit(settings, context);
-
-        if (settings.DopplerPassLogEnabled)
-        {
-            _lastDopplerLogUtc = DateTime.MinValue;
-            _dopplerPassLogger.BeginPass(settings, context, DateTime.UtcNow);
-        }
     }
 
     private void TearDownRig()
@@ -1655,7 +1650,17 @@ public sealed class RigController : IRigController, IDisposable
 
     private void TryLogPeriodicSnapshot(RigSettings settings, RigTrackingContext context)
     {
-        if (!settings.DopplerPassLogEnabled || _dopplerPassLogger.ActiveLogPath is null)
+        if (!settings.DopplerPassLogEnabled)
+            return;
+
+        if (!IsAboveHorizon(context))
+        {
+            EndDopplerPassLog("below_horizon");
+            return;
+        }
+
+        EnsureDopplerPassLogStarted(settings, context);
+        if (_dopplerPassLogger.ActiveLogPath is null)
             return;
 
         var utc = DateTime.UtcNow;
@@ -1694,7 +1699,17 @@ public sealed class RigController : IRigController, IDisposable
         bool catPaused = false,
         string? notes = null)
     {
-        if (!settings.DopplerPassLogEnabled || _dopplerPassLogger.ActiveLogPath is null)
+        if (!settings.DopplerPassLogEnabled)
+            return;
+
+        if (!IsAboveHorizon(context))
+        {
+            EndDopplerPassLog("below_horizon");
+            return;
+        }
+
+        EnsureDopplerPassLogStarted(settings, context);
+        if (_dopplerPassLogger.ActiveLogPath is null)
             return;
 
         _dopplerPassLogger.Append(DopplerDiagnostics.Capture(
@@ -1717,6 +1732,26 @@ public sealed class RigController : IRigController, IDisposable
             _interactive,
             catPaused,
             notes));
+    }
+
+    private static bool IsAboveHorizon(RigTrackingContext context) =>
+        context.TrackState.LookAngles?.ElevationDeg is >= 0;
+
+    private void UpdateDopplerPassLogHorizon(RigSettings settings, RigTrackingContext context)
+    {
+        if (!IsAboveHorizon(context))
+            EndDopplerPassLog("below_horizon");
+        else
+            EnsureDopplerPassLogStarted(settings, context);
+    }
+
+    private void EnsureDopplerPassLogStarted(RigSettings settings, RigTrackingContext context)
+    {
+        if (!settings.DopplerPassLogEnabled || _passKey is null || _dopplerPassLogger.ActiveLogPath is not null)
+            return;
+
+        _lastDopplerLogUtc = DateTime.MinValue;
+        _dopplerPassLogger.BeginPass(settings, context, DateTime.UtcNow);
     }
 
     private static long ToHz(double kHz) => (long)Math.Round(kHz * 1000.0);

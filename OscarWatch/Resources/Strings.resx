@@ -1171,7 +1171,7 @@ Continue?</value>
     <value>Log Doppler tuning passes (CSV)</value>
   </data>
   <data name="Settings.Radio.DopplerPassLogNote">
-    <value>Writes one CSV per pass with CAT writes, 1 s snapshots (lead, adaptive threshold, deltas), and offset/knob changes. Saved under AppData/OscarWatch/doppler-logs.</value>
+    <value>Writes one CSV per pass with CAT writes, 1 s snapshots (lead, adaptive threshold, deltas), and offset/knob changes. Logging runs only while the satellite is above the horizon (elevation ≥ 0°). Saved under AppData/OscarWatch/doppler-logs.</value>
   </data>
   <data name="Settings.Radio.DopplerPassLogOpenFolder">
     <value>Open log folder</value>
