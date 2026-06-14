@@ -83,13 +83,13 @@ header .tagline {
   font-size: 0.95rem;
 }
 
-nav {
+header nav {
   margin-top: 1.1rem;
   padding-top: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.22);
 }
 
-nav ul {
+header nav ul {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -98,7 +98,7 @@ nav ul {
   gap: 0.4rem;
 }
 
-nav a {
+header nav a {
   display: inline-block;
   color: #e8f4ff;
   text-decoration: none;
@@ -110,13 +110,13 @@ nav a {
   white-space: nowrap;
 }
 
-nav a:hover {
+header nav a:hover {
   background: rgba(255, 255, 255, 0.2);
   text-decoration: none;
   color: #ffffff;
 }
 
-nav a[aria-current="page"] {
+header nav a[aria-current="page"] {
   background: rgba(255, 255, 255, 0.28);
   color: #ffffff;
 }
@@ -214,4 +214,36 @@ footer {
 
 footer a {
   color: var(--link);
+}
+
+.subnav {
+  background: #f4f8fb;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.subnav a {
+  color: var(--link);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.subnav a:hover {
+  text-decoration: underline;
+  color: var(--accent-dark);
+}
+
+.subnav a[aria-current="page"] {
+  color: var(--accent-dark);
+  text-decoration: none;
+}
+
+.lead {
+  font-size: 1.05rem;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
 }

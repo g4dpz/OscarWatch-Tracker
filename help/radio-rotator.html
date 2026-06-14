@@ -13,7 +13,7 @@
         <a href="index.html" class="brand-home" title="Home"><img src="oscarwatch-icon.png" alt="" class="brand-icon" width="56" height="56" /></a>
         <div class="brand-text">
           <h1>Radio &amp; rotator</h1>
-          <p class="tagline">CAT, Doppler, and beam steering</p>
+          <p class="tagline">Connect your station — start here</p>
         </div>
       </div>
       <nav aria-label="Help topics">
@@ -31,414 +31,155 @@
       </nav>
     </header>
 
+    <nav class="subnav" aria-label="Radio and rotator topics">
+      <a href="radio-rotator.html" aria-current="page">Overview</a> ·
+      <a href="radio-icom.html">ICOM</a> ·
+      <a href="radio-yaesu.html">Yaesu</a> ·
+      <a href="radio-kenwood.html">Kenwood</a> ·
+      <a href="radio-offsets.html">RX/TX offsets</a> ·
+      <a href="radio-doppler-tuning.html">Doppler tuning</a> ·
+      <a href="rotators.html">Rotators</a>
+    </nav>
+
     <main>
-      <h2>Before you connect</h2>
+      <p class="lead">
+        OscarWatch can steer your beam and keep your radio on frequency during a pass.
+        You do not need to understand every setting on day one — pick your radio below and read that page first.
+      </p>
+
+      <h2>Before you plug in</h2>
       <ul>
-        <li>Use a <strong>USB serial</strong> cable or proper interface to the radio and rotator.</li>
-        <li>Radio and rotator need <strong>different COM ports</strong> (or device paths on Linux/macOS).</li>
-        <li>Close other applications that might hold the port (HRD, WSJT-X rig control, etc.).</li>
-        <li>For <strong>normal cross-band</strong> passes, put the radio in <strong>satellite mode</strong> (or the mode your rig manual describes) if OscarWatch has not already done so when tracking starts — except <strong>Kenwood TS-2000</strong>: you must select <strong>SAT</strong> on the front panel yourself (see below).</li>
-        <li>For <strong>receive-only</strong> modes (uplink <strong>0</strong> in the database — ISS SSTV, beacons, telemetry), you do <strong>not</strong> need satellite mode: OscarWatch turns it off and tunes the downlink only.</li>
+        <li>Use a <strong>USB serial</strong> lead (or proper interface) to the radio and rotator.</li>
+        <li>Radio and rotator need <strong>different COM ports</strong> — and a third port if you use GPS.</li>
+        <li><strong>Close other programs</strong> that might hold the port (HRD, WSJT-X rig control, Hamlib, etc.).</li>
+        <li>For normal <strong>cross-band</strong> satellites, your radio should be in <strong>satellite mode</strong> when tracking starts (OscarWatch usually sets this), except the <strong>Kenwood TS-2000</strong> — you must select SAT yourself first.</li>
+        <li>For <strong>receive-only</strong> modes (ISS SSTV, beacons — uplink <strong>0</strong> in the database), you do <strong>not</strong> need satellite mode; OscarWatch tunes the downlink only.</li>
       </ul>
 
-      <h2>Supported radios (summary)</h2>
+      <h2>Which radio do you have?</h2>
       <table>
         <thead>
-          <tr><th>Radio</th><th>Notes</th></tr>
+          <tr><th>Your rig</th><th>Read this</th></tr>
         </thead>
         <tbody>
-          <tr><td>ICOM IC-910 / IC-9700 / IC-9100</td><td>CI-V, Main/Sub for cross-band; same-band with uplink uses split (VFO A/B); receive-only modes use <strong>Main</strong> on the downlink band with SAT off</td></tr>
-          <tr><td>ICOM IC-821H</td><td>CI-V (<strong>4C</strong>), satellite <strong>Main/Sub only</strong> — no split CAT. Cross-band and same-band (e.g. ISS Packet) use SAT on (Main=RX, Sub=TX). Receive-only modes: SAT off, Main only. Set uplink CTCSS on the radio manually</td></tr>
-          <tr><td>Yaesu FT-847</td><td>Satellite CAT — SAT RX/TX VFOs, doppler, uplink CTCSS</td></tr>
-          <tr><td>Yaesu FT-817 / FT-818</td><td><strong>Dual radio only</strong> (Settings → Dual radio): downlink rig on one COM port, uplink on another — full doppler on both; linear SSB/CW lets you spin the <strong>downlink</strong> VFO for passband trim while uplink keeps tracking</td></tr>
-          <tr><td>Yaesu FT-991 / FT-991A / FTX-1</td><td><strong>Dual radio only</strong>: ASCII CAT (8N2) on separate COM ports; VFO-A per radio; FM dial lock via CAT. FTX-1: use <strong>CAT-1</strong> (Enhanced COM), not CAT-2</td></tr>
-          <tr><td>ICOM IC-705 / IC-706 series</td><td><strong>Dual radio only</strong>: CI-V legs on separate COM ports; one VFO per radio. IC-706 and MKII are 2m-only; MKIIG adds 70cm (not 23cm)</td></tr>
-          <tr><td>Kenwood TS-2000</td><td><strong>Before tracking:</strong> manually select <strong>SAT</strong> on the radio and turn <strong>memory mode off</strong> if it is on. OscarWatch then enables SATL via CAT, auto band swap via <code>FA</code>/<code>FB</code> exchange, linear CW uplink in SATL, TRACE off via CAT (beta)</td></tr>
-          <tr><td>Dummy rig</td><td>No hardware — test UI and Doppler only</td></tr>
+          <tr><td>ICOM IC-910, IC-9700, IC-9100, IC-821H</td><td><a href="radio-icom.html">ICOM radios</a> — one radio, Main/Sub satellite layout</td></tr>
+          <tr><td>ICOM IC-705 or IC-706 series <em>as a second radio</em></td><td><a href="radio-icom.html#dual-radio">ICOM dual radio</a> (paired with another rig)</td></tr>
+          <tr><td>Yaesu FT-847</td><td><a href="radio-yaesu.html">Yaesu radios</a> — classic satellite CAT radio</td></tr>
+          <tr><td>Yaesu FT-817, FT-818, FT-991, FTX-1 <em>as downlink or uplink leg</em></td><td><a href="radio-yaesu.html#dual-radio">Yaesu dual radio</a></td></tr>
+          <tr><td>Kenwood TS-2000</td><td><a href="radio-kenwood.html">Kenwood TS-2000</a> — manual steps before tracking</td></tr>
+          <tr><td>No hardware yet</td><td><strong>Dummy rig</strong> in Settings — test the map and frequencies only</td></tr>
         </tbody>
       </table>
       <p>
-        Configure under <strong>Settings → Radio</strong>: rig type, COM port, CI-V address (ICOM),
-        For <strong>FT-817 / FT-818</strong>, enable <strong>Dual radio</strong> (each leg: type, COM port, region, CAT delay),
-        <a href="#doppler-cat-thresholds">Doppler thresholds</a>, and
-        <strong>Pause CAT</strong> if you want to tune manually.
-      </p>
-      <p>
-        <strong>Linear CW: keep receive in USB/LSB</strong> — when the frequency panel is set to <strong>CW</strong> on a linear SSB transponder,
-        checked (usual) sets transmit to CW and leaves receive in USB/LSB from the database; unchecked sets both VFOs to CW.
-        See <a href="frequencies.html">Frequencies</a> for the panel <strong>Voice</strong> / <strong>CW</strong> buttons; see <a href="keyboard-shortcuts.html">Keyboard shortcuts</a> for <strong>Ctrl+W</strong>.
+        Everything is configured under <strong>Settings → Radio</strong>: rig type, COM port, and (for ICOM) CI-V address.
+        Use <strong>Pause CAT</strong> if you want to tune by hand without OscarWatch fighting the dial.
       </p>
 
-      <h3 id="dual-radio-setup">Dual radio (FT-817 / FT-818 / FT-991 / FTX-1 / IC-705 / IC-706 series)</h3>
+      <h2>One radio or two?</h2>
       <p>
-        Enable <strong>Settings → Radio → Dual radio</strong> when downlink and uplink are on <strong>separate physical radios</strong>.
-        Supported legs: Yaesu FT-817, FT-818, FT-991, FT-991A, FTX-1 Field / FTX-1optima, ICOM IC-705, and ICOM IC-706 / IC-706MKII / IC-706MKIIG — including <strong>mixed pairs</strong>.
-        Each radio uses one main VFO only; OscarWatch does not use split or satellite mode on these dual endpoints.
+        <strong>Single radio</strong> — one physical rig handles both receive and transmit (ICOM satellite rigs, FT-847, TS-2000).
+        OscarWatch uses satellite mode or split as your rig requires.
+      </p>
+      <p>
+        <strong>Dual radio</strong> — downlink on one radio, uplink on another (common: FT-818 for RX + IC-706 for TX).
+        Enable <strong>Settings → Radio → Dual radio</strong> and set a COM port for each leg.
+        See <a href="radio-yaesu.html#dual-radio">Yaesu dual</a> or <a href="radio-icom.html#dual-radio">ICOM dual</a> for wiring and baud rates.
       </p>
 
-      <h3 id="ft-817-dual-setup">Yaesu FT-817 / FT-818</h3>
+      <h2>What happens during a pass</h2>
+      <p>When you track a satellite and CAT is enabled, OscarWatch:</p>
       <ul>
-        <li>
-          Configure <strong>Downlink</strong> and <strong>Uplink</strong> separately (rig type, COM port, region, CAT delay).
-          ICOM CI-V legs (IC-705, IC-706 series) also need <strong>CI-V address</strong> (factory defaults <strong>A4</strong>, <strong>48H</strong>, <strong>4CH</strong>, or <strong>58H</strong> depending on model).
-        </li>
-        <li>
-          Use a <strong>different COM port</strong> for each radio (and a third port for the rotator if used).
-          OscarWatch shows a warning if downlink and uplink share the same port.
-        </li>
-        <li>
-          Match <strong>menu #14</strong> CAT baud on each radio to Settings — OscarWatch suggests <strong>4800</strong>
-          (Hamlib default; <strong>38400</strong> also works). OscarWatch uses <strong>8N2</strong> serial framing for Yaesu CAT.
-        </li>
-        <li>
-          Each radio uses its <strong>main VFO</strong> only — no split CAT. Downlink gets RX mode and frequency; uplink gets TX mode,
-          frequency, and CTCSS (EU tone or US TSQL per region).
-        </li>
-        <li>
-          <strong>FM</strong> satellites: OscarWatch locks the front-panel dial via CAT on each radio while tracking (reduces knob
-          fights with doppler). <strong>USB/LSB/CW</strong>: dial lock is off so you can spin the downlink VFO across the transponder;
-          pause briefly (~1 s) when you find the signal so passband trim is captured, then doppler continues around your offset.
-        </li>
-        <li>
-          Choose <strong>Full</strong> doppler in the frequency panel for normal satellite passes (both legs corrected).
-        </li>
+        <li>Sets the right modes and satellite layout at pass start (rig-dependent).</li>
+        <li>Updates <strong>receive and transmit frequencies</strong> as Doppler changes.</li>
+        <li>Applies your <strong>RX and TX offsets</strong> from the frequency panel.</li>
+        <li>Sends <strong>CTCSS</strong> when your radio and satellite mode support it.</li>
+        <li>Steers the <strong>rotator</strong> (if configured) while the satellite is above your track-start elevation.</li>
       </ul>
       <p>
-        If the sidebar shows <strong>Dual radio not connected</strong>, check both COM ports, baud on each radio, and that no other
-        application (e.g. Hamlib) has either port open. Quit other CAT tools, restart OscarWatch, and replug USB if CI-V stops responding
-        after switching from another rig.
+        <strong>Standby</strong> in the sidebar parks the rotator and pauses CAT — use it while browsing the map.
+        Press <strong>Resume</strong> when you are ready to operate.
       </p>
 
-      <h3 id="ic-705-dual-setup">ICOM IC-705</h3>
-      <p>
-        IC-705 is supported as a <strong>dual-radio endpoint only</strong> (not in the single-radio driver list).
-        Typical layout: two IC-705s, or one IC-705 paired with an FT-817/818 on the other leg.
-      </p>
-      <ul>
-        <li>
-          Set <strong>Connectors → CI-V → CI-V USB Port</strong> to <strong>Link to [CI-V]</strong> (not REMOTE) on each radio.
-        </li>
-        <li>
-          Match <strong>CI-V baud</strong> in the radio menu to Settings — OscarWatch suggests <strong>115200</strong>
-          (9600 and 19200 also work if set on both sides).
-        </li>
-        <li>
-          Windows may expose two COM ports per IC-705; use the one labelled <strong>CI-V</strong> (often the higher port number).
-        </li>
-        <li>
-          Downlink gets RX mode and frequency; uplink gets TX mode, frequency, and CTCSS. FM dial lock is Yaesu-only — on IC-705 legs,
-          doppler runs normally without locking the front panel.
-        </li>
-      </ul>
-
-      <h3 id="ic-706-dual-setup">ICOM IC-706 / IC-706MKII / IC-706MKIIG</h3>
-      <p>
-        All three models share one OscarWatch CI-V driver and are supported as <strong>dual-radio endpoints only</strong>.
-        Pick the leg type that matches your radio so the default CI-V address is correct.
-      </p>
-      <ul>
-        <li><strong>IC-706</strong> — default address <strong>48H</strong>; <strong>2m only</strong> (no 70cm).</li>
-        <li><strong>IC-706MKII</strong> — default address <strong>4CH</strong>; <strong>2m only</strong> (no 70cm).</li>
-        <li><strong>IC-706MKIIG</strong> — default address <strong>58H</strong>; <strong>2m and 70cm</strong> (not 23cm).</li>
-        <li>
-          CI-V via the <strong>REMOTE</strong> jack (or CT-17). <strong>706 / MKII:</strong> Initial Set Mode (LOCK at power-on).
-          <strong>MKIIG:</strong> menus 34–36 (ADDRES / BAUD / TRN On). Match baud in Settings (suggested <strong>19200</strong>).
-        </li>
-        <li>
-          Typical layout: IC-706 on 2m downlink paired with an FT-817/818 or MKIIG on 70cm uplink, or two radios of the same type.
-        </li>
-        <li>
-          Downlink gets RX mode and frequency; uplink gets TX mode, frequency, and CTCSS. FM dial lock is Yaesu-only.
-        </li>
-      </ul>
-
-      <h3 id="ft-991-dual-setup">Yaesu FT-991 / FT-991A</h3>
-      <p>
-        FT-991 and FT-991A are supported as <strong>dual-radio endpoints only</strong> (not in the single-radio driver list).
-        Typical layout: two FT-991(A)s, or one paired with an FT-817/818 or IC-705 on the other leg.
-      </p>
-      <ul>
-        <li>
-          Match <strong>menu 031 CAT RATE</strong> on each radio to Settings — OscarWatch suggests <strong>38400</strong>
-          (4800 also works if set on both sides).
-        </li>
-        <li>
-          OscarWatch uses <strong>8N2</strong> ASCII CAT with hardware RTS. Use the USB CAT COM port (not the packet port).
-        </li>
-        <li>
-          One COM port per leg. Downlink gets RX mode and frequency; uplink gets TX mode, frequency, and CTCSS.
-        </li>
-        <li>
-          <strong>FM</strong>: OscarWatch locks VFO-A via CAT (<code>LK1</code>) while tracking. Linear modes leave the dial unlocked for passband trim on the downlink leg.
-        </li>
-      </ul>
-
-      <h3 id="ftx1-dual-setup">Yaesu FTX-1 Field / FTX-1optima</h3>
-      <p>
-        FTX-1 Field and FTX-1optima share the same field head and are supported as <strong>dual-radio endpoints only</strong>.
-        Typical layout: two FTX-1 field heads, or one paired with an FT-817/818, FT-991, or IC-705 on the other leg.
-        HF/50/144/430 coverage suits most satellite bands (not 23cm).
-      </p>
-      <ul>
-        <li>
-          Match <strong>CAT-1 RATE</strong> in the radio menu to Settings — OscarWatch suggests <strong>38400</strong>
-          (4800–115200 also work if set on both sides).
-        </li>
-        <li>
-          Use the USB <strong>Enhanced COM port (CAT-1)</strong> for frequency and mode — not CAT-2 (PTT/CW/digital).
-          OscarWatch uses <strong>8N2</strong> ASCII CAT with hardware RTS.
-        </li>
-        <li>
-          One COM port per leg. Downlink gets RX mode and frequency; uplink gets TX mode, frequency, and CTCSS.
-        </li>
-        <li>
-          <strong>FM</strong>: OscarWatch locks the MAIN VFO dial via CAT (<code>LK1</code>) while tracking. Linear modes leave the dial unlocked for passband trim on the downlink leg.
-        </li>
-      </ul>
-
-      <h3 id="ts-2000-setup">Kenwood TS-2000 setup</h3>
-      <p>
-        The TS-2000 needs a few manual steps on the radio <strong>before</strong> OscarWatch can track a satellite pass reliably:
-      </p>
-      <ul>
-        <li>
-          Select <strong>SAT</strong> (satellite mode) on the front panel. OscarWatch sends SATL commands over CAT when tracking starts,
-          but SAT must already be selected on the radio or CAT setup may not engage.
-        </li>
-        <li>
-          Turn <strong>memory mode off</strong> if it is enabled. With memory mode on, frequency and mode changes from CAT may not apply
-          as expected during a pass.
-        </li>
-        <li>
-          Close any radio menu before tracking. CAT is rejected or delayed while a menu is open.
-        </li>
-        <li>
-          In <strong>Settings → Radio</strong>, choose <strong>Kenwood TS-2000</strong>, the correct COM port, and
-          <strong>57600 8N1</strong> (default). If updates are unreliable, try a <strong>CAT delay of 20–30&nbsp;ms</strong>
-          if needed. OscarWatch uses its TS-2000 SATL handshake (<code>SA</code>, <code>TS1</code>, <code>AI2</code>,
-          <code>FA</code>/<code>FB</code>, band <code>SM</code>, <code>PC050</code>), swaps <code>FA</code>/<code>FB</code> if Main is on the wrong band,
-          and polls <code>FA;</code> during tracking to hold the link.
-        </li>
-      </ul>
-      <p>
-        If SATL does not confirm after tracking starts, OscarWatch still tracks on <code>FA</code>/<code>FB</code> and logs a warning —
-        it does <strong>not</strong> send <code>FR</code>/split commands (those fail in SAT on the TS-2000). Check that SAT is selected and memory mode is off, then try again.
-      </p>
-
-      <h2>What CAT does during a pass</h2>
-      <ul>
-        <li>Sets satellite/split layout and modes at pass start (rig-dependent), including Voice/CW from the frequency panel.</li>
-        <li>Updates RX and TX frequencies for Doppler as the satellite moves (receive-only when uplink is 0).</li>
-        <li>Applies CTCSS from the frequency panel when supported (cross-band uplink only).</li>
-        <li>Respects your RX and TX offsets from the frequency panel (both apply; passband trim from the radio dial is separate).</li>
-      </ul>
-
-      <h3 id="beacon-receive-only">Receive-only / beacon modes (uplink 0)</h3>
-      <p>
-        Examples: <strong>ISS SSTV (VHF)</strong>, <strong>ISS SSTV (UHF)</strong>, CW beacons. The frequency panel shows uplink as a dash.
-        At pass start OscarWatch:
-      </p>
-      <ul>
-        <li>
-          <strong>ICOM IC-910 / IC-9100 / IC-9700 / IC-821H</strong> — turns <strong>satellite mode off</strong>, clears CTCSS on Main and Sub (821H: tone is front-panel only)
-          (leftover from a previous FM satellite pass), swaps Main/Sub if needed so the downlink band is on <strong>Main</strong>,
-          sets downlink mode and frequency on Main, and applies Doppler on Main only.
-        </li>
-        <li>
-          <strong>Other supported rigs</strong> — leaves satellite layout according to that driver (often split/VFO A+B);
-          only the receive frequency is updated.
-        </li>
-      </ul>
-      <p>
-        You do not need to select CTCSS for these modes unless you add a tone in the database and panel deliberately.
-        After a cross-band pass, switching to ISS SSTV is enough — OscarWatch reconfigures the radio at the next track start.
-      </p>
-      <p>
-        <strong>Pause CAT</strong> in Settings stops frequency commands while you can still see computed frequencies on screen.
-      </p>
-
-      <h2 id="doppler-cat-thresholds">Doppler CAT thresholds</h2>
-      <p>
-        Under <strong>Settings → Radio</strong>, <strong>Doppler threshold FM</strong> and
-        <strong>Doppler threshold SSB/CW</strong> control how often OscarWatch sends new uplink and downlink
-        frequencies to the radio during a pass. They work like SatPC32: the rig is updated only when the
-        calculated frequency has moved by <em>more than</em> the threshold since the last CAT write.
-        Smaller values mean more frequent updates (and more serial traffic); larger values mean fewer writes.
-        On steep or overhead passes, Doppler changes fastest near <strong>TCA</strong> (time of closest approach);
-        a lower SSB/CW threshold or <strong>Pause CAT</strong> while you tune by hand may help if tracking feels off.
-      </p>
-      <p>
-        OscarWatch picks the threshold from the <strong>downlink mode</strong> in the transponder database
-        (the mode you selected in the frequency panel):
-      </p>
+      <h2>Tuning — offsets and Doppler</h2>
+      <p>Two ideas that confuse newcomers:</p>
       <table>
         <thead>
-          <tr><th>Downlink mode</th><th>Setting used</th><th>Typical use</th></tr>
+          <tr><th>Topic</th><th>Plain English</th><th>Read more</th></tr>
         </thead>
         <tbody>
-          <tr><td><strong>FM</strong> / <strong>FMN</strong></td><td>Doppler threshold FM</td><td>FM cubesats, ISS cross-band FM</td></tr>
-          <tr><td><strong>USB</strong> / <strong>LSB</strong> / <strong>CW</strong></td><td>Doppler threshold SSB/CW</td><td>Linear voice and CW on transponders</td></tr>
-          <tr><td><strong>DATA-USB</strong> / <strong>DATA-LSB</strong></td><td>Always updates (0 Hz)</td><td>Digital modes — no threshold applied</td></tr>
+          <tr>
+            <td><strong>RX / TX offsets</strong></td>
+            <td>Nudge listen and transmit frequencies to find a clear spot in the passband — stored per satellite.</td>
+            <td><a href="radio-offsets.html">When to use offsets</a> · <a href="frequencies.html">Frequency panel</a></td>
+          </tr>
+          <tr>
+            <td><strong>Doppler tuning</strong></td>
+            <td>How often OscarWatch updates the radio, and optional extras (lead, adaptive) for sharp passes.</td>
+            <td><a href="radio-doppler-tuning.html">Doppler tuning guide</a></td>
+          </tr>
+          <tr>
+            <td><strong>Passband trim</strong></td>
+            <td>On linear SSB, spin the <strong>receive</strong> dial to hunt the signal; OscarWatch learns your offset.</td>
+            <td><a href="radio-doppler-tuning.html#passband-knob">Spinning the dial</a></td>
+          </tr>
         </tbody>
       </table>
 
-      <h3>Ballpark numbers</h3>
-      <ul>
-        <li>
-          <strong>FM (default 350 Hz)</strong> — On a ~5 kHz FM channel, Doppler drift is small compared with
-          the passband. You do not need SSB-style precision. Defaults around <strong>200–500 Hz</strong> are
-          usually fine: the radio stays close enough without constant VFO churn. Try <strong>150–250 Hz</strong>
-          if you want slightly tighter tracking; go higher if your rig or USB link struggles with frequent CAT.
-        </li>
-        <li>
-          <strong>SSB/CW (default 50 Hz)</strong> — On a linear transponder you often listen in a narrow slice
-          of the passband, so smaller steps matter. Many operators use <strong>20–100 Hz</strong>.
-          <strong>50 Hz</strong> is a reasonable default. Set <strong>0 Hz</strong> to push every correction
-          (maximum CAT activity — only if you need it).
-        </li>
-      </ul>
+      <h2 id="beacon-receive-only">Receive-only modes (SSTV, beacons)</h2>
       <p>
-        Optional checkbox <strong>Adaptive threshold near TCA</strong> (off by default) lowers the effective
-        SSB/CW threshold while Doppler slew is fast — typically the steep middle of the pass and the
-        post-TCA leg. Your configured SSB/CW value remains the ceiling; the effective threshold can drop
-        to about half (minimum 25&nbsp;Hz at the default 50&nbsp;Hz setting). Enable this if the radio
-        lags just after TCA despite CAT lead tuning; leave it off if you prefer fewer CAT writes.
-      </p>
-      <h3>Doppler pass log (CSV)</h3>
-      <p>
-        Optional checkbox <strong>Log Doppler tuning passes (CSV)</strong> writes one spreadsheet-friendly
-        file per visible pass (elevation ≥ 0°) under <code>%AppData%/OscarWatch/doppler-logs</code>. Use
-        <strong>Open log folder</strong> on the same settings page. Each file includes:
+        When uplink is <strong>0</strong> in the database (e.g. ISS SSTV), the frequency panel shows uplink as a dash.
+        OscarWatch only corrects the <strong>downlink</strong>.
       </p>
       <ul>
-        <li><strong>1 s snapshots</strong> — elevation, range rate, slope, slew, lead blend, effective threshold, RX/TX delta vs last CAT write (<strong>BelowThreshold</strong> column)</li>
-        <li><strong>cat_write</strong> — when OscarWatch actually sends a new frequency</li>
-        <li><strong>offset_change</strong> — RX/TX offset buttons in the frequency panel</li>
-        <li><strong>passband_knob</strong> — Main dial passband trim on linear modes</li>
+        <li><strong>ICOM IC-910 / IC-9700 / IC-9100 / IC-821H</strong> — turns satellite mode off, puts the downlink band on <strong>Main</strong>, applies Doppler there only.</li>
+        <li><strong>Other rigs</strong> — receive frequency only; layout depends on the driver.</li>
       </ul>
-      <p>
-        Open the CSV in Excel or LibreOffice Calc, filter by <strong>Event</strong>, and sort by
-        <strong>RangeRateKmPerSec</strong> or <strong>SlewHzPerSec</strong> to see post-TCA behaviour.
-        Compare <strong>RxDeltaHz</strong> with <strong>EffectiveThresholdHz</strong> to judge whether
-        adaptive threshold or lead strength needs tuning.
-      </p>
-      <p id="passband-knob">
-        These thresholds apply to <strong>automatic Doppler writes</strong>. On linear <strong>USB</strong>,
-        <strong>LSB</strong>, and <strong>CW</strong> modes, OscarWatch also watches the Main (receive) dial
-        when you tune by hand: movements of more than <strong>1 Hz</strong> from the last CAT receive frequency
-        are treated as knob tuning (passband adjust); smaller differences are treated as Doppler lag.
-        While the dial is moving, automatic CAT is paused. After you stop turning, OscarWatch waits for
-        <strong>eight</strong> stable dial reads (~800&nbsp;ms) before resuming automatic RX/TX Doppler writes.
-      </p>
-      <p>
-        On rigs that use <strong>Main/Sub</strong> on one radio (ICOM IC-910 / IC-9700 / IC-9100 / IC-821H, Kenwood TS-2000 in SATL),
-        receive updates on Main as soon as the dial is stable. <strong>Uplink (Sub) CAT is deferred for about
-        2.5 seconds</strong> after the last dial movement so brief pauses while scanning the passband do not
-        hop the radio to Sub or fight your tuning. OscarWatch then returns the selected VFO to Main for receive.
-        On <strong>dual FT-817 / FT-818</strong>, downlink and uplink are separate radios: spinning the downlink pauses RX CAT
-        only; uplink doppler continues on the other radio.
-        FM modes do not use this interactive path — both legs update automatically from the Doppler thresholds.
-        If you are <strong>not</strong> tuning the passband (hands off the dial), linear modes track Doppler
-        continuously like FM so CAT is not throttled by the stability wait after each frequency write.
-      </p>
-      <p>
-        <strong>CAT delay (ms)</strong> on the same settings page is separate: it spaces out CI-V (and similar)
-        commands to protect the serial link. It does not replace the Doppler thresholds above.
-      </p>
+      <p>After a voice satellite pass, switching to ISS SSTV is enough — OscarWatch reconfigures at the next track start.</p>
 
-      <h3>Lead Doppler for CAT latency</h3>
+      <h2>Linear CW note</h2>
       <p>
-        Optional checkbox <strong>Lead Doppler for CAT latency</strong> (off by default) predicts Doppler at
-        <em>now + lead time</em> before sending a frequency — on the steep middle of the pass and on the
-        <strong>post-TCA receding leg</strong> when range rate is still large. Gentle <strong>AOS</strong>
-        (approaching, negative range rate) keeps the current rate. Lead uses half your
-        <strong>CAT delay (ms)</strong> (half per leg in dual-radio setups), <strong>capped at 50&nbsp;ms</strong>
-        (75&nbsp;ms post-TCA), so a large CI-V pacing delay does not over-predict.
-        Near <strong>TCA</strong>, lead tapers off as range rate approaches zero (when Doppler Δ crosses ~0).
-      </p>
-      <p>
-        When lead is enabled, <strong>Lead time (ms)</strong> and <strong>Lead strength (%)</strong> appear below
-        the checkbox. Leave lead time at <strong>0</strong> for automatic timing (half CAT delay, capped).
-        Set lead strength below 100 if the radio feels ahead of the signal (many operators use 70–85 on fast birds).
-        These controls do not change CAT pacing delay or the Doppler thresholds.
-      </p>
-      <p>
-        When lead is active, the frequency overlay <strong>Radio</strong> row shows the lead-ahead command
-        frequency; the <strong>Sat</strong> row and Doppler line still show the current spacecraft-side values.
-        On gentle legs both rows match.
+        On linear SSB transponders, the <strong>Voice</strong> / <strong>CW</strong> buttons in the frequency panel choose how CAT sets modes.
+        With <strong>Linear CW: keep receive in USB/LSB</strong> checked in Settings (usual), transmit goes to CW and receive stays in sideband.
+        See <a href="frequencies.html">Frequencies</a> and <a href="keyboard-shortcuts.html">Shortcuts</a> (<strong>Ctrl+W</strong>).
       </p>
 
       <h2>Rotators</h2>
+      <p>
+        If you use a computer-controlled rotator, OscarWatch can <strong>point your antenna during a pass</strong>
+        while the satellite is above your track-start elevation. You need a <strong>separate COM port</strong> from the radio.
+      </p>
       <table>
         <thead>
-          <tr><th>Controller</th><th>Typical hardware</th></tr>
+          <tr><th>Topic</th><th>Plain English</th><th>Read more</th></tr>
         </thead>
         <tbody>
-          <tr><td>GS-232</td><td>Yaesu G-5500 and many clones</td></tr>
-          <tr><td>SPID</td><td>SPID Rot1Prog / Rot2Prog / rot2proG in <strong>SP</strong> mode (600 baud default; 1200 for Rot1Prog)</td></tr>
-          <tr><td>EasyComm II</td><td>Controllers in <strong>EC</strong> mode — SPID, M2, and similar</td></tr>
+          <tr>
+            <td><strong>Setup</strong></td>
+            <td>Pick your controller type (GS-232, SPID, or EasyComm II), COM port, park position, and az/el limits.</td>
+            <td><a href="rotators.html">Rotator setup</a></td>
+          </tr>
+          <tr>
+            <td><strong>Park &amp; Standby</strong></td>
+            <td>Beam goes to park when a pass ends or you press <strong>Standby</strong>; <strong>Resume</strong> starts tracking again.</td>
+            <td><a href="rotators.html">Park and tracking</a></td>
+          </tr>
+          <tr>
+            <td><strong>Manual pointing</strong></td>
+            <td>In Standby, menu <strong>Rotator…</strong> lets you aim the beam for a quick contact without resuming pass tracking.</td>
+            <td><a href="rotators.html#manual-rotator">Manual rotator</a></td>
+          </tr>
+          <tr>
+            <td><strong>Keyhole avoidance</strong></td>
+            <td>Optional for over-the-top mounts (0–180° elevation) on very high passes where the rotator can struggle near zenith.</td>
+            <td><a href="rotators.html#keyhole-avoidance">Keyhole avoidance</a></td>
+          </tr>
         </tbody>
       </table>
-      <p>Configure under <strong>Settings → Rotator</strong>:</p>
-      <ul>
-        <li>COM port and rotator type.</li>
-        <li>For <strong>SPID</strong> native mode: set the controller to <strong>SP</strong> protocol and <strong>Auto (A)</strong> mode on the front panel before connecting.</li>
-        <li><strong>Azimuth range</strong> 360° or 450° (G-5500 style).</li>
-        <li><strong>Smart azimuth (450°)</strong> — shortest path across north when useful. Only shown when azimuth range is 450°.</li>
-        <li><strong>Elevation range</strong> — <strong>0–90°</strong> for standard rotators, or <strong>0–180°</strong> for over-the-top mounts (e.g. Yaesu G-5500) that can track past zenith by flipping azimuth.</li>
-        <li><strong>Track-start elevation</strong> — do not track below this angle (default −3°). Tracking begins when the satellite rises above it.</li>
-        <li><strong>Park azimuth / elevation</strong> — home position for the rotator.</li>
-        <li><strong>Park rotator after pass</strong> — on by default. When enabled, the rotator moves to the park position once the tracked satellite drops below the track-start elevation (or when there is no tracking target). Uncheck to leave the beam where it finished. Manual <strong>Park</strong> in the sidebar and Standby parking are not affected.</li>
-        <li><strong>Calibration offsets</strong> — optional azimuth and elevation corrections (degrees) added to pass tracking and manual rotate. Park uses your configured park az/el exactly (the sidebar shows that park position, not offset-adjusted values). Use offsets if the beam consistently stops short of or overshoots the target during tracking.</li>
-      </ul>
+      <p>Configure under <strong>Settings → Rotator</strong>.</p>
 
-      <h3 id="keyhole-avoidance">Keyhole avoidance (0–180° elevation only)</h3>
-      <p>
-        On <strong>0–180°</strong> rotators, a high-elevation pass can outrun the rotator near zenith — the
-        “keyhole” where azimuth swings rapidly while elevation passes through 90°. OscarWatch can analyse such
-        passes and, when beneficial, <strong>pre-position</strong> the beam in a flipped orientation (azimuth
-        +180°, elevation 0°) before AOS, then track over the top instead of fighting the keyhole.
-      </p>
-      <p>
-        These options appear in <strong>Settings → Rotator</strong> only when elevation range is
-        <strong>0–180°</strong>. They are hidden for <strong>0–90°</strong> rotators, which cannot use this
-        strategy.
-      </p>
-      <ul>
-        <li><strong>Enable keyhole avoidance</strong> — off by default. When on, the sidebar may show a
-          <strong>Keyhole Avoidance</strong> indicator during a flipped pass.</li>
-        <li><strong>Slew rate (°/s)</strong> — your rotator’s maximum slew speed; used to estimate signal-loss
-          windows when comparing normal vs flipped tracking.</li>
-        <li><strong>Keyhole threshold (°)</strong> — minimum pass max-elevation (60–89°) before a pass is treated
-          as entering the keyhole zone (default 80°).</li>
-      </ul>
-      <p>
-        If keyhole planning fails or is disabled, tracking falls back to normal az/el commands.
-      </p>
-
-      <h2>Standby</h2>
-      <p>
-        <strong>Standby</strong> parks the rotator and pauses CAT. Use it when browsing passes without transmitting or moving the beam.
-        Press <strong>Resume</strong> when you are ready to operate — CAT and pass tracking resume for the focused satellite.
-      </p>
-
-      <h2>Manual rotator (Standby only)</h2>
-      <p>
-        While in Standby, the menu bar shows <strong>Rotator</strong> (only if rotator control is enabled in Settings).
-        Open it to point the beam manually without resuming pass tracking — useful for a quick contact on a terrestrial
-        repeater or a satellite between scheduled passes.
-      </p>
-      <ul>
-        <li>Enter <strong>Azimuth</strong> and <strong>Elevation</strong> (degrees), within your configured az/el limits.</li>
-        <li><strong>Rotate</strong> — slews to the entered position.</li>
-        <li><strong>Stop</strong> — stops a slew in progress (GS-232 <code>S</code> and SPID stop command; EasyComm has no standard stop).</li>
-        <li><strong>Park</strong> — returns to your configured park position from Settings → Rotator.</li>
-        <li><strong>Close</strong> — dismisses the dialogue; the beam stays where you left it until you Park or Resume.</li>
-      </ul>
-      <p>
-        The dialogue shows the current polled rotator position when connected. Press <strong>Resume</strong> in the sidebar
-        when you want OscarWatch to track passes again.
-      </p>
+      <div class="tip">
+        <strong>Stuck?</strong> See <a href="troubleshooting.html">Problems?</a> for COM ports, dual radio, and CAT not updating.
+      </div>
     </main>
 
     <footer><a href="index.html">Back to help home</a></footer>

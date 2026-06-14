@@ -1,6 +1,6 @@
 # Doppler CAT lead — developer notes
 
-Operator-facing help: [help/radio-rotator.html](../help/radio-rotator.html) (Lead Doppler section).
+Operator-facing help: [help/radio-doppler-tuning.html](../help/radio-doppler-tuning.html) (Lead Doppler section).
 
 This note captures **field symptoms**, **tuning knobs**, and **next steps** if lead is still ahead or behind after the phase-gated implementation.
 
