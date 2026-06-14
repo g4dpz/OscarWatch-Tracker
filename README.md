@@ -128,7 +128,8 @@ Pull requests for more native rig support are welcome. A HamLib backend is not o
 | Controller       | Protocol    | Notes                                               |
 | ---------------- | ----------- | --------------------------------------------------- |
 | **Yaesu GS-232** | GS-232      | Yaesu rotators and many GS-232 clones               |
-| **EasyComm**     | EasyComm II | SPID, M2, and other EasyComm-compatible controllers |
+| **SPID**         | SP (native) | Rot1Prog, Rot2Prog, rot2proG — set controller to **SP** mode and **Auto (A)**; 600 baud default (1200 for Rot1Prog) |
+| **EasyComm**     | EasyComm II | M2 and other EasyComm-compatible controllers (SPID also works in **EC** mode if you prefer) |
 
 
 Pass tracking when elevation is above the track-start threshold; manual **Park** in the sidebar; **manual rotator** in Standby (menu **Rotator…**: set az/el, Rotate, Stop, Park for a quick contact without resuming pass tracking). Azimuth range **360°** or **450°** (e.g. G-5500). On **450°** rotators, optional **smart azimuth** chooses 361–450° commands for the shortest path across north (Settings → Rotator). Elevation range **0–90°** or **0–180°** (over-the-top). Optional **keyhole avoidance** on **0–180°** mounts pre-positions for high-elevation zenith passes — see [help](help/rotators.html#keyhole-avoidance). Optional **calibration offsets** correct pass tracking and manual moves; park uses your configured park az/el exactly.
