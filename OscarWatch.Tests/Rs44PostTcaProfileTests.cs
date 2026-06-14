@@ -15,7 +15,13 @@ public class Rs44PostTcaProfileTests
         propagator.LoadSatellite(entry);
         var site = new GroundStation { LatitudeDeg = 51.5, LongitudeDeg = -0.1, AltitudeMetersAsl = 50 };
         var (tca, maxEl) = FindTca(propagator, entry.NoradId, site, 60);
-        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var settings = new RigSettings
+        {
+            DopplerCatLeadEnabled = true,
+            CatDelayMs = 100,
+            DopplerCatLeadMs = 0,
+            DopplerCatLeadGainPercent = 100
+        };
 
         foreach (var offset in new[] { 210, 300, 420 })
         {

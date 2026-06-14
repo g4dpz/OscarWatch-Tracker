@@ -41,6 +41,8 @@ public class RigControllerSingleDopplerTests
             Type = RigType.Dummy,
             DopplerThresholdLinearHz = 50,
             DopplerCatLeadEnabled = true,
+            DopplerCatLeadMs = 0,
+            DopplerCatLeadGainPercent = 100,
             CatDelayMs = 100
         };
 
@@ -107,6 +109,8 @@ public class RigControllerSingleDopplerTests
             Type = RigType.Dummy,
             DopplerThresholdLinearHz = 50,
             DopplerCatLeadEnabled = true,
+            DopplerCatLeadMs = 0,
+            DopplerCatLeadGainPercent = 100,
             CatDelayMs = 100
         };
 
@@ -174,6 +178,7 @@ public class RigControllerSingleDopplerTests
             Type = RigType.Dummy,
             DopplerThresholdLinearHz = 50,
             DopplerCatLeadEnabled = false,
+            DopplerAdaptiveThresholdEnabled = false,
             CatDelayMs = 100
         };
 
