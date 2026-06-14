@@ -20,6 +20,12 @@ public sealed class RigSettings
     /// <summary>Typical CI-V baud for IC-706 series (must match radio menu).</summary>
     public const int Ic706SeriesDefaultBaudRate = 19200;
 
+    /// <summary>Default lead time (ms) when lead Doppler is enabled (0 = automatic half CAT delay).</summary>
+    public const int DefaultDopplerCatLeadMs = 40;
+
+    /// <summary>Default lead strength (%); many operators use 70–85 on fast birds.</summary>
+    public const int DefaultDopplerCatLeadGainPercent = 70;
+
     public static bool IsIc706SeriesEndpoint(RigType type) =>
         type is RigType.IcomIc706 or RigType.IcomIc706Mkii or RigType.IcomIc706MkiiG;
 
@@ -50,13 +56,13 @@ public sealed class RigSettings
     public int CatDelayMs { get; set; } = 50;
 
     /// <summary>When true, CAT Doppler uses range rate at utc + half Receive/Transmit CatDelayMs on steep legs only.</summary>
-    public bool DopplerCatLeadEnabled { get; set; }
+    public bool DopplerCatLeadEnabled { get; set; } = true;
 
     /// <summary>
     /// When true, linear Doppler threshold is lowered while downlink slew is fast (TCA vicinity).
     /// Base threshold from <see cref="DopplerThresholdLinearHz"/> is never exceeded.
     /// </summary>
-    public bool DopplerAdaptiveThresholdEnabled { get; set; }
+    public bool DopplerAdaptiveThresholdEnabled { get; set; } = true;
 
     /// <summary>When true, write a CSV pass log for Doppler tuning (CAT writes, lead, adaptive threshold).</summary>
     public bool DopplerPassLogEnabled { get; set; }
@@ -65,10 +71,10 @@ public sealed class RigSettings
     /// Lead time in ms (0 = automatic: half CAT delay, capped internally).
     /// Does not change CAT pacing delay.
     /// </summary>
-    public int DopplerCatLeadMs { get; set; }
+    public int DopplerCatLeadMs { get; set; } = DefaultDopplerCatLeadMs;
 
     /// <summary>Scales computed lead strength (0–100). 100 = full blend; 0 = snapshot rate only.</summary>
-    public int DopplerCatLeadGainPercent { get; set; } = 100;
+    public int DopplerCatLeadGainPercent { get; set; } = DefaultDopplerCatLeadGainPercent;
 
     /// <summary>When true, automatic CAT frequency updates are suspended (SatPC32-style).</summary>
     public bool CatUpdatesPaused { get; set; }

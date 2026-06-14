@@ -48,7 +48,9 @@ public class DopplerCatLeadTests
         var settings = new RigSettings
         {
             DopplerCatLeadEnabled = true,
-            CatDelayMs = 100
+            CatDelayMs = 100,
+            DopplerCatLeadMs = 0,
+            DopplerCatLeadGainPercent = 100
         };
         var state = StateWithRate(-3.5);
 
@@ -67,7 +69,7 @@ public class DopplerCatLeadTests
     {
         var utc = new DateTime(2026, 6, 1, 12, 0, 0, DateTimeKind.Utc);
         var propagator = new StubPropagator(utc, snapshotRate: -3.0, slopeSampleRate: -2.987, rxLeadRate: 1.0, txLeadRate: 2.0);
-        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadMs = 0, DopplerCatLeadGainPercent = 100 };
         var state = StateWithRate(-3.0);
 
         var result = DopplerCatLead.ResolveRangeRates(propagator, settings, Site, state, utc);
@@ -85,7 +87,7 @@ public class DopplerCatLeadTests
     {
         var utc = new DateTime(2026, 6, 1, 12, 0, 0, DateTimeKind.Utc);
         var propagator = new StubPropagator(utc, snapshotRate: -3.5, slopeSampleRate: -3.5, rxLeadRate: 1.0, txLeadRate: 2.0);
-        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadMs = 0, DopplerCatLeadGainPercent = 100 };
         var state = StateWithRate(-3.5);
 
         var (rx, tx) = DopplerCatLead.ResolveRangeRates(propagator, settings, Site, state, utc);
@@ -104,6 +106,7 @@ public class DopplerCatLeadTests
         {
             DopplerCatLeadEnabled = true,
             DualRadioEnabled = true,
+            DopplerCatLeadMs = 0,
             Downlink = new RigEndpointSettings { CatDelayMs = 80 },
             Uplink = new RigEndpointSettings { CatDelayMs = 120 }
         };
@@ -119,7 +122,7 @@ public class DopplerCatLeadTests
     public void Propagation_failure_falls_back_to_snapshot_rate()
     {
         var propagator = new ThrowingPropagator();
-        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadMs = 0, DopplerCatLeadGainPercent = 100 };
 
         var (rx, tx) = DopplerCatLead.ResolveRangeRates(
             propagator,
@@ -168,7 +171,7 @@ public class DopplerCatLeadTests
         var nowRate = state.LookAngles!.RangeRateKmPerSec;
         var nowCorrected = DopplerFrequencyCalculator.Compute(mode, nowRate, 0);
 
-        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadMs = 0, DopplerCatLeadGainPercent = 100 };
         var (rxLead, _) = DopplerCatLead.ResolveRangeRates(propagator, settings, site, state, utc);
         var leadCorrected = DopplerFrequencyCalculator.Compute(mode, rxLead, 0);
 
@@ -192,7 +195,7 @@ public class DopplerCatLeadTests
 
         var site = new GroundStation { LatitudeDeg = 51.5, LongitudeDeg = -0.1, AltitudeMetersAsl = 50 };
         var (tca, maxEl) = FindHighElevationPassTcaUtc(propagator, entry.NoradId, site, minElevationDeg: 60);
-        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadMs = 0, DopplerCatLeadGainPercent = 100 };
 
         static SatelliteTrackState StateAt(
             PublicOrbitToolsPropagator propagator,
@@ -333,7 +336,7 @@ public class DopplerCatLeadTests
             Doppler = "REV"
         };
 
-        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadMs = 0, DopplerCatLeadGainPercent = 100 };
         var cappedLeadMs = DopplerCatLead.ResolveLeadMs(settings.CatDelayMs);
 
         double MaxGateStepHz()
@@ -396,7 +399,8 @@ public class DopplerCatLeadTests
         var settings = new RigSettings
         {
             DopplerCatLeadEnabled = true,
-            CatDelayMs = 200
+            CatDelayMs = 200,
+            DopplerCatLeadMs = 0
         };
 
         DopplerCatLead.ResolveRangeRates(propagator, settings, Site, StateWithRate(1.0), utc);
@@ -420,7 +424,7 @@ public class DopplerCatLeadTests
 
         var site = new GroundStation { LatitudeDeg = 51.5, LongitudeDeg = -0.1, AltitudeMetersAsl = 50 };
         var (tca, maxEl) = FindHighElevationPassTcaUtc(propagator, entry.NoradId, site, minElevationDeg: 60);
-        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadMs = 0, DopplerCatLeadGainPercent = 100 };
 
         DateTime? postTcaAt43Utc = null;
         double postTcaBlend = 0;
@@ -489,7 +493,7 @@ public class DopplerCatLeadTests
 
         var site = new GroundStation { LatitudeDeg = 51.5, LongitudeDeg = -0.1, AltitudeMetersAsl = 50 };
         var (tca, maxEl) = FindHighElevationPassTcaUtc(propagator, entry.NoradId, site, minElevationDeg: 60);
-        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadMs = 0, DopplerCatLeadGainPercent = 100 };
 
         // ~3.5 min after TCA: slope below blend start but large positive range rate (receding leg).
         var utc = tca.AddSeconds(210);
@@ -530,7 +534,7 @@ public class DopplerCatLeadTests
 
         var site = new GroundStation { LatitudeDeg = 51.5, LongitudeDeg = -0.1, AltitudeMetersAsl = 50 };
         var (tca, maxEl) = FindHighElevationPassTcaUtc(propagator, entry.NoradId, site, minElevationDeg: 60);
-        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadMs = 0, DopplerCatLeadGainPercent = 100 };
 
         var utc = tca.AddSeconds(300);
         var look = propagator.GetLookAngles(entry.NoradId, site, utc);
@@ -570,7 +574,7 @@ public class DopplerCatLeadTests
 
         var site = new GroundStation { LatitudeDeg = 51.5, LongitudeDeg = -0.1, AltitudeMetersAsl = 50 };
         var (tca, maxEl) = FindHighElevationPassTcaUtc(propagator, entry.NoradId, site, minElevationDeg: 60);
-        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadMs = 0, DopplerCatLeadGainPercent = 100 };
 
         var utc = tca.AddSeconds(-240);
         var look = propagator.GetLookAngles(entry.NoradId, site, utc);
@@ -596,7 +600,7 @@ public class DopplerCatLeadTests
     [Fact]
     public void Null_propagator_returns_snapshot_rate()
     {
-        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadMs = 0, DopplerCatLeadGainPercent = 100 };
 
         var (rx, tx) = DopplerCatLead.ResolveRangeRates(
             null,
@@ -635,7 +639,7 @@ public class DopplerCatLeadTests
         propagator.LoadSatellite(entry);
         var site = new GroundStation { LatitudeDeg = 51.5, LongitudeDeg = -0.1, AltitudeMetersAsl = 50 };
         var (tca, maxEl) = FindHighElevationPassTcaUtc(propagator, entry.NoradId, site, minElevationDeg: 60);
-        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100 };
+        var settings = new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadMs = 0, DopplerCatLeadGainPercent = 100 };
 
         var look = propagator.GetLookAngles(entry.NoradId, site, tca);
         var state = new SatelliteTrackState
@@ -673,13 +677,13 @@ public class DopplerCatLeadTests
 
         var full = DopplerCatLead.ResolveRangeRates(
             propagator,
-            new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadGainPercent = 100 },
+            new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadMs = 0, DopplerCatLeadGainPercent = 100 },
             Site,
             state,
             utc);
         var half = DopplerCatLead.ResolveRangeRates(
             propagator,
-            new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadGainPercent = 50 },
+            new RigSettings { DopplerCatLeadEnabled = true, CatDelayMs = 100, DopplerCatLeadMs = 0, DopplerCatLeadGainPercent = 50 },
             Site,
             state,
             utc);

@@ -72,7 +72,7 @@ public static class DopplerDiagnostics
             LeadBlend: lead.LeadBlend,
             LeadGainPercent: settings.DopplerCatLeadGainPercent is > 0 and <= 100
                 ? settings.DopplerCatLeadGainPercent
-                : 100,
+                : RigSettings.DefaultDopplerCatLeadGainPercent,
             LeadMsRx: DopplerCatLead.ResolveLeadMs(settings.ReceiveCatDelayMs(), rangeRate, settings.DopplerCatLeadMs),
             LeadMsTx: DopplerCatLead.ResolveLeadMs(settings.TransmitCatDelayMs(), rangeRate, settings.DopplerCatLeadMs),
             LeadRxRangeRate: lead.RxRangeRateKmPerSec,

@@ -200,7 +200,7 @@ public sealed class SettingsService : ISettingsService
         settings.Rig ??= new RigSettings();
         settings.Rig.MigrateFt817818ToDualOnly();
         if (settings.Rig.DopplerCatLeadGainPercent is <= 0 or > 100)
-            settings.Rig.DopplerCatLeadGainPercent = 100;
+            settings.Rig.DopplerCatLeadGainPercent = RigSettings.DefaultDopplerCatLeadGainPercent;
         settings.Rig.DopplerCatLeadMs = Math.Clamp(settings.Rig.DopplerCatLeadMs, 0, DopplerCatLead.UserLeadMsMax);
         settings.Cloudlog ??= new CloudlogSettings();
         settings.PassRecording ??= new PassRecordingSettings();

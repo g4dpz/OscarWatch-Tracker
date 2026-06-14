@@ -38,7 +38,9 @@ public class DopplerCatLeadShortCircuitTests
         var settings = new RigSettings
         {
             DopplerCatLeadEnabled = true,
-            CatDelayMs = 100 // rxLeadMs = txLeadMs = 50 ms
+            CatDelayMs = 100,
+            DopplerCatLeadMs = 0,
+            DopplerCatLeadGainPercent = 100
         };
         var state = StateWithRate(-3.5);
 
@@ -63,6 +65,8 @@ public class DopplerCatLeadShortCircuitTests
         {
             DopplerCatLeadEnabled = true,
             DualRadioEnabled = true,
+            DopplerCatLeadMs = 0,
+            DopplerCatLeadGainPercent = 100,
             Downlink = new RigEndpointSettings { CatDelayMs = 80 },  // rxLeadMs = 40
             Uplink = new RigEndpointSettings { CatDelayMs = 120 }    // txLeadMs = 50
         };
@@ -90,7 +94,9 @@ public class DopplerCatLeadShortCircuitTests
         var settings = new RigSettings
         {
             DopplerCatLeadEnabled = true,
-            CatDelayMs = 100 // equal leads
+            CatDelayMs = 100,
+            DopplerCatLeadMs = 0,
+            DopplerCatLeadGainPercent = 100 // equal leads
         };
         var state = StateWithRate(snapshotRate);
 
@@ -127,7 +133,9 @@ public class DopplerCatLeadShortCircuitTests
         var settings = new RigSettings
         {
             DopplerCatLeadEnabled = true,
-            CatDelayMs = 100 // rxLeadMs = txLeadMs = 50 ms
+            CatDelayMs = 100,
+            DopplerCatLeadMs = 0,
+            DopplerCatLeadGainPercent = 100
         };
         var state = StateWithRate(snapshotRate);
 
@@ -159,6 +167,8 @@ public class DopplerCatLeadShortCircuitTests
         {
             DopplerCatLeadEnabled = true,
             DualRadioEnabled = true,
+            DopplerCatLeadMs = 0,
+            DopplerCatLeadGainPercent = 100,
             Downlink = new RigEndpointSettings { CatDelayMs = 80 },  // rxLeadMs = 40
             Uplink = new RigEndpointSettings { CatDelayMs = 120 }    // txLeadMs = 50
         };
@@ -185,7 +195,9 @@ public class DopplerCatLeadShortCircuitTests
         var settings = new RigSettings
         {
             DopplerCatLeadEnabled = true,
-            CatDelayMs = 100 // ResolveLeadMs(100) = 50
+            CatDelayMs = 100, // ResolveLeadMs(100) = 50
+            DopplerCatLeadMs = 0,
+            DopplerCatLeadGainPercent = 100
         };
         var state = StateWithRate(-3.5);
 

@@ -67,5 +67,9 @@ public class RigSettingsSerializationTests
         Assert.Equal("4C", RigSettings.DefaultCivAddressFor(RigType.IcomIc821h));
         Assert.Equal(350, s.DopplerThresholdFmHz);
         Assert.Equal(50, s.DopplerThresholdLinearHz);
+        Assert.True(s.DopplerCatLeadEnabled);
+        Assert.True(s.DopplerAdaptiveThresholdEnabled);
+        Assert.Equal(RigSettings.DefaultDopplerCatLeadMs, s.DopplerCatLeadMs);
+        Assert.Equal(RigSettings.DefaultDopplerCatLeadGainPercent, s.DopplerCatLeadGainPercent);
     }
 }

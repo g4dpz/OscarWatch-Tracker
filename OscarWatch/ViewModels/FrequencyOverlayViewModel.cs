@@ -504,7 +504,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         _syncingLeadTuning = true;
         LiveLeadGainPercent = rig.DopplerCatLeadGainPercent is > 0 and <= 100
             ? rig.DopplerCatLeadGainPercent
-            : 100;
+            : RigSettings.DefaultDopplerCatLeadGainPercent;
         LiveLeadMs = Math.Clamp(rig.DopplerCatLeadMs, 0, DopplerCatLead.UserLeadMsMax);
         _syncingLeadTuning = false;
     }

@@ -239,7 +239,7 @@ public partial class SettingsViewModel : ViewModelBase
     private int _rigDopplerThresholdLinearHz = 50;
 
     [ObservableProperty]
-    private bool _rigDopplerAdaptiveThresholdEnabled;
+    private bool _rigDopplerAdaptiveThresholdEnabled = true;
 
     [ObservableProperty]
     private bool _rigDopplerPassLogEnabled;
@@ -248,13 +248,13 @@ public partial class SettingsViewModel : ViewModelBase
     private int _rigCatDelayMs = 50;
 
     [ObservableProperty]
-    private bool _rigDopplerCatLeadEnabled;
+    private bool _rigDopplerCatLeadEnabled = true;
 
     [ObservableProperty]
-    private int _rigDopplerCatLeadMs;
+    private int _rigDopplerCatLeadMs = RigSettings.DefaultDopplerCatLeadMs;
 
     [ObservableProperty]
-    private int _rigDopplerCatLeadGainPercent = 100;
+    private int _rigDopplerCatLeadGainPercent = RigSettings.DefaultDopplerCatLeadGainPercent;
 
     [ObservableProperty]
     private bool _rigCwKeepSidebandDownlink;
@@ -914,7 +914,7 @@ public partial class SettingsViewModel : ViewModelBase
             RigDopplerCatLeadMs = Math.Clamp(rig.DopplerCatLeadMs, 0, DopplerCatLead.UserLeadMsMax);
             RigDopplerCatLeadGainPercent = rig.DopplerCatLeadGainPercent is > 0 and <= 100
                 ? rig.DopplerCatLeadGainPercent
-                : 100;
+                : RigSettings.DefaultDopplerCatLeadGainPercent;
             RigCwKeepSidebandDownlink = rig.CwKeepSidebandDownlink;
             var cloudlog = _settings.Current.Cloudlog ?? new CloudlogSettings();
             CloudlogEnabled = cloudlog.Enabled;
