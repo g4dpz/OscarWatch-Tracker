@@ -484,7 +484,13 @@ Continuar?</value>
     <value>24 horas</value>
   </data>
   <data name="Settings.ClockFormat.Note">
-    <value>Aplica-se a listas de passagens, planejadores, relógio do mapa e outros horários. UTC vs local continua em cada diálogo.</value>
+    <value>Aplica-se ao estilo de 12 ou 24 horas nos horários do aplicativo.</value>
+  </data>
+  <data name="Settings.TimeDisplay">
+    <value>Horários em</value>
+  </data>
+  <data name="Settings.TimeDisplay.Note">
+    <value>Aplica-se ao relógio da barra de estado, lista de passagens, roves hams.at e previsão de luz solar. O planejador e passagens mútuas têm controlo local/UTC separado. O rastreamento de satélites usa sempre UTC internamente.</value>
   </data>
   <data name="Settings.Theme">
     <value>Tema</value>

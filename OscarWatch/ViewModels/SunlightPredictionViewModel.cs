@@ -142,6 +142,7 @@ public partial class SunlightPredictionViewModel : ViewModelBase
         DateTime utcEnd)
     {
         MonthTimelines.Clear();
+        var useUtc = _settings.Current.DisplayTimesInUtc;
         var monthCursor = new DateTime(utcStart.Year, utcStart.Month, 1, 0, 0, 0, DateTimeKind.Utc);
 
         while (monthCursor < utcEnd)
@@ -153,7 +154,7 @@ public partial class SunlightPredictionViewModel : ViewModelBase
             {
                 MonthTimelines.Add(new SunlightMonthTimelineRow
                 {
-                    MonthLabel = PassDisplayFormat.FormatMonthYear(rangeStart),
+                    MonthLabel = PassDisplayFormat.FormatMonthYear(rangeStart, useUtc: useUtc),
                     Segments = ClipSegments(segments, rangeStart, rangeEnd),
                     RangeStartUtc = rangeStart,
                     RangeEndUtc = rangeEnd
@@ -168,14 +169,15 @@ public partial class SunlightPredictionViewModel : ViewModelBase
     {
         SunlightPeriods.Clear();
         var minDuration = TimeSpan.FromMinutes(Math.Max(0, MinSunlightMinutes));
+        var useUtc = _settings.Current.DisplayTimesInUtc;
         var clockFormat = PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock);
 
         foreach (var segment in segments.Where(s => s.IsSunlit && s.Duration >= minDuration))
         {
             SunlightPeriods.Add(new SunlightPeriodRow
             {
-                StartLocal = PassDisplayFormat.FormatLocal(segment.StartUtc, clockFormat),
-                EndLocal = PassDisplayFormat.FormatLocal(segment.EndUtc, clockFormat),
+                StartLocal = PassDisplayFormat.FormatLocal(segment.StartUtc, clockFormat, useUtc: useUtc),
+                EndLocal = PassDisplayFormat.FormatLocal(segment.EndUtc, clockFormat, useUtc: useUtc),
                 Duration = PassDisplayFormat.FormatDurationLong(segment.Duration),
                 DurationSort = segment.Duration
             });
@@ -199,6 +201,7 @@ public partial class SunlightPredictionViewModel : ViewModelBase
         var longestSun = segments.Where(s => s.IsSunlit).MaxBy(s => s.Duration);
         var longestEclipse = segments.Where(s => !s.IsSunlit).MaxBy(s => s.Duration);
 
+        var useUtc = _settings.Current.DisplayTimesInUtc;
         var clockFormat = PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock);
         var parts = new List<string>
         {
@@ -210,8 +213,8 @@ public partial class SunlightPredictionViewModel : ViewModelBase
             parts.Add(_l.Get(
                 "Sunlight.Summary.LongestSun",
                 PassDisplayFormat.FormatDurationLong(longestSun.Duration),
-                PassDisplayFormat.FormatLocal(longestSun.StartUtc, clockFormat),
-                PassDisplayFormat.FormatLocal(longestSun.EndUtc, clockFormat)));
+                PassDisplayFormat.FormatLocal(longestSun.StartUtc, clockFormat, useUtc: useUtc),
+                PassDisplayFormat.FormatLocal(longestSun.EndUtc, clockFormat, useUtc: useUtc)));
         }
 
         if (longestEclipse is not null)

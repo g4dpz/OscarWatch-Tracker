@@ -484,7 +484,13 @@
     <value>24 小时</value>
   </data>
   <data name="Settings.ClockFormat.Note">
-    <value>适用于过境列表、计划器、地图时钟等。UTC 与本地时间仍可在各对话框中单独选择。</value>
+    <value>适用于应用内时间的 12 小时或 24 小时显示样式。</value>
+  </data>
+  <data name="Settings.TimeDisplay">
+    <value>时间显示</value>
+  </data>
+  <data name="Settings.TimeDisplay.Note">
+    <value>适用于状态栏时钟、侧边栏过境列表、hams.at 漫游和日照预测。过境计划器和相互过境有单独的本地/UTC 切换。卫星跟踪计算始终使用 UTC。</value>
   </data>
   <data name="Settings.Theme">
     <value>颜色主题</value>

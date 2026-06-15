@@ -49,12 +49,13 @@ public static class PassDisplayFormat
     public static string FormatLocal(
         DateTime utc,
         ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour,
-        CultureInfo? culture = null)
+        CultureInfo? culture = null,
+        bool useUtc = false)
     {
         culture ??= CultureInfo.CurrentCulture;
         var datePattern = culture.DateTimeFormat.ShortDatePattern;
         var timePattern = GetTimePattern(clockFormat, culture: culture);
-        return ToLocal(utc).ToString($"{datePattern} {timePattern}", culture);
+        return ToDisplayTime(utc, useUtc).ToString($"{datePattern} {timePattern}", culture);
     }
 
     public static string FormatScheduleLine(
@@ -69,18 +70,21 @@ public static class PassDisplayFormat
         return $"{aos}–{los} {maxElevationDeg:F1}° {duration:mm\\:ss}";
     }
 
-    public static DateOnly GetLocalDate(DateTime utc) => DateOnly.FromDateTime(ToLocal(utc));
+    public static DateOnly GetLocalDate(DateTime utc) => GetDisplayDate(utc, useUtc: false);
 
-    public static string FormatMonthYear(DateTime utc, CultureInfo? culture = null)
+    public static DateOnly GetDisplayDate(DateTime utc, bool useUtc) =>
+        DateOnly.FromDateTime(ToDisplayTime(utc, useUtc));
+
+    public static string FormatMonthYear(DateTime utc, CultureInfo? culture = null, bool useUtc = false)
     {
         culture ??= CultureInfo.CurrentCulture;
-        return ToLocal(utc).ToString("MMMM yyyy", culture);
+        return ToDisplayTime(utc, useUtc).ToString("MMMM yyyy", culture);
     }
 
-    public static string FormatDayHeader(DateTime utc, CultureInfo? culture = null)
+    public static string FormatDayHeader(DateTime utc, CultureInfo? culture = null, bool useUtc = false)
     {
         culture ??= CultureInfo.CurrentCulture;
-        return ToLocal(utc).ToString("D", culture);
+        return ToDisplayTime(utc, useUtc).ToString("D", culture);
     }
 
     public static (string Aos, string Los) FormatLocalTimes(
@@ -248,12 +252,19 @@ public static class PassDisplayFormat
         return $"{startPart}–{endPart}";
     }
 
-    public static string FormatUtcClock(DateTime utc, ClockDisplayFormat clockFormat, CultureInfo? culture = null)
+    public static string FormatStatusClock(
+        DateTime utc,
+        ClockDisplayFormat clockFormat,
+        bool useUtc,
+        CultureInfo? culture = null)
     {
         culture ??= CultureInfo.CurrentCulture;
         var timePattern = GetTimePattern(clockFormat, includeSeconds: true, culture: culture);
-        return utc.ToString($"yyyy-MM-dd {timePattern}", culture);
+        return ToDisplayTime(utc, useUtc).ToString($"yyyy-MM-dd {timePattern}", culture);
     }
+
+    public static string FormatUtcClock(DateTime utc, ClockDisplayFormat clockFormat, CultureInfo? culture = null) =>
+        FormatStatusClock(utc, clockFormat, useUtc: true, culture);
 
     public static string FormatHoverTime(
         DateTime utc,

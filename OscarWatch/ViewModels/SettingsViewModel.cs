@@ -62,7 +62,12 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty]
     private bool _use24HourClock;
 
+    [ObservableProperty]
+    private bool _displayTimesInUtc;
+
     public IReadOnlyList<string> ClockFormatLabels { get; }
+
+    public IReadOnlyList<string> TimeDisplayLabels { get; }
 
     [ObservableProperty]
     private LanguageOption? _selectedLanguage;
@@ -534,6 +539,11 @@ public partial class SettingsViewModel : ViewModelBase
             _l.Get("Settings.ClockFormat.12Hour"),
             _l.Get("Settings.ClockFormat.24Hour")
         ];
+        TimeDisplayLabels =
+        [
+            _l.Get("Pass.Time.Local"),
+            _l.Get("Pass.Time.Utc")
+        ];
         RotatorTypeChoices =
         [
             new(RotatorType.YaesuGs232, "Yaesu GS-232"),
@@ -664,6 +674,7 @@ public partial class SettingsViewModel : ViewModelBase
         _settings.Current.ShowFootprintMotionArrows = ShowFootprintMotionArrows;
         _settings.Current.ShowGreylineOverlay = ShowGreylineOverlay;
         _settings.Current.Use24HourClock = Use24HourClock;
+        _settings.Current.DisplayTimesInUtc = DisplayTimesInUtc;
         _settings.Current.TleSource = new TleSourceSettings
         {
             Mode = TleSourceOption?.Mode ?? TleSourceMode.OscarWatch,
@@ -815,6 +826,7 @@ public partial class SettingsViewModel : ViewModelBase
             ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
             ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
             Use24HourClock = _settings.Current.Use24HourClock;
+            DisplayTimesInUtc = _settings.Current.DisplayTimesInUtc;
             var langCode = LocalizationCulture.NormalizeLanguageCode(_settings.Current.UiLanguage);
             SelectedLanguage = LanguageOptions.FirstOrDefault(o =>
                 string.Equals(o.Code, langCode, StringComparison.OrdinalIgnoreCase))
@@ -1541,6 +1553,28 @@ public partial class SettingsViewModel : ViewModelBase
             return;
 
         _settings.Current.Use24HourClock = value;
+        if (App.MainWindow?.DataContext is MainViewModel main)
+            main.ApplyClockFormatFromSettings();
+    }
+
+    public int TimeDisplayIndex
+    {
+        get => DisplayTimesInUtc ? 1 : 0;
+        set
+        {
+            if (value is not (0 or 1) || DisplayTimesInUtc == (value == 1))
+                return;
+
+            DisplayTimesInUtc = value == 1;
+        }
+    }
+
+    partial void OnDisplayTimesInUtcChanged(bool value)
+    {
+        if (_isSynchronizing)
+            return;
+
+        _settings.Current.DisplayTimesInUtc = value;
         if (App.MainWindow?.DataContext is MainViewModel main)
             main.ApplyClockFormatFromSettings();
     }

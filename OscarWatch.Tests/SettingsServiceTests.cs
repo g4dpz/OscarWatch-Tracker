@@ -24,6 +24,39 @@ public sealed class SettingsServiceTests
     }
 
     [Fact]
+    public void TryParse_migrates_legacy_passPlannerUseUtcTime_to_displayTimesInUtc()
+    {
+        const string json = """
+            {
+              "passPlannerUseUtcTime": true,
+              "groundStation": { "displayName": "Home", "latitudeDeg": 51.5, "longitudeDeg": -0.1 }
+            }
+            """;
+
+        Assert.True(SettingsService.TryParse(json, out var parsed, out var error));
+        Assert.Null(error);
+        Assert.True(parsed.DisplayTimesInUtc);
+        Assert.True(parsed.PassPlannerUseUtcTime);
+    }
+
+    [Fact]
+    public void TryParse_displayTimesInUtc_is_independent_of_passPlannerUseUtcTime()
+    {
+        const string json = """
+            {
+              "displayTimesInUtc": false,
+              "passPlannerUseUtcTime": true,
+              "groundStation": { "displayName": "Home", "latitudeDeg": 51.5, "longitudeDeg": -0.1 }
+            }
+            """;
+
+        Assert.True(SettingsService.TryParse(json, out var parsed, out var error));
+        Assert.Null(error);
+        Assert.False(parsed.DisplayTimesInUtc);
+        Assert.True(parsed.PassPlannerUseUtcTime);
+    }
+
+    [Fact]
     public async Task ReplaceAndSaveAsync_persists_imported_settings()
     {
         var path = Path.Combine(Path.GetTempPath(), $"oscarwatch-import-{Guid.NewGuid():N}.json");

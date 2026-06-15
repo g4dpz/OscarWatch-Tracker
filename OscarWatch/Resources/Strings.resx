@@ -508,7 +508,13 @@ Continue?</value>
     <value>24-hour</value>
   </data>
   <data name="Settings.ClockFormat.Note">
-    <value>Applies to pass lists, planners, map clock, and other times in the app. UTC vs local is still chosen per dialogue.</value>
+    <value>Applies to the 12-hour or 24-hour clock style for times in the app.</value>
+  </data>
+  <data name="Settings.TimeDisplay">
+    <value>Times shown in</value>
+  </data>
+  <data name="Settings.TimeDisplay.Note">
+    <value>Applies to the status clock, sidebar pass list, hams.at roves, and sunlight prediction. Pass planner and mutual pass have their own local/UTC control. Satellite tracking always uses UTC internally.</value>
   </data>
   <data name="Settings.Theme">
     <value>Theme</value>

@@ -50,6 +50,7 @@ public sealed class SettingsService : ISettingsService
         try
         {
             settings = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new AppSettings();
+            MigrateDisplayTimesInUtc(json, settings);
         }
         catch (JsonException ex)
         {
@@ -206,6 +207,26 @@ public sealed class SettingsService : ISettingsService
         settings.PassRecording ??= new PassRecordingSettings();
         settings.TleSource ??= new TleSourceSettings();
         settings.TransponderConflictAcknowledgments ??= [];
+    }
+
+    /// <summary>
+    /// Before <see cref="AppSettings.DisplayTimesInUtc"/> existed, <c>passPlannerUseUtcTime</c> drove all UI times.
+    /// </summary>
+    private static void MigrateDisplayTimesInUtc(string json, AppSettings settings)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            if (root.TryGetProperty("displayTimesInUtc", out _))
+                return;
+
+            if (root.TryGetProperty("passPlannerUseUtcTime", out var legacy) && legacy.ValueKind == JsonValueKind.True)
+                settings.DisplayTimesInUtc = true;
+        }
+        catch (JsonException)
+        {
+        }
     }
 
     private void SaveToDisk()

@@ -555,37 +555,52 @@ public partial class MainViewModel : ViewModelBase
     private void UpdateUtcClockDisplay()
     {
         var clockFormat = PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock);
+        var useUtc = _settings.Current.DisplayTimesInUtc;
         var now = DateTime.UtcNow;
+        var label = PassDisplayFormat.FormatTimeZoneLabel(useUtc);
         if (!IsMapTimeScrubbing)
         {
-            UtcClock = PassDisplayFormat.FormatUtcClock(now, clockFormat) + " UTC";
+            UtcClock = $"{PassDisplayFormat.FormatStatusClock(now, clockFormat, useUtc)} {label}";
             return;
         }
 
         var mapUtc = now + TimeSpan.FromMinutes(MapTimeOffsetMinutes);
-        UtcClock = $"{PassDisplayFormat.FormatUtcClock(mapUtc, clockFormat)} UTC  ({MapTimeStatusText})";
+        UtcClock = $"{PassDisplayFormat.FormatStatusClock(mapUtc, clockFormat, useUtc)} {label}  ({MapTimeStatusText})";
     }
 
     public void ApplyClockFormatFromSettings()
     {
         UpdateUtcClockDisplay();
-        RefreshPassClockDisplay();
+        RefreshPassTimeDisplay();
         RefreshHamsAtRoveClockDisplay();
     }
 
-    private void RefreshPassClockDisplay()
+    private void RefreshPassTimeDisplay()
     {
         var clockFormat = PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock);
+        var useUtc = _settings.Current.DisplayTimesInUtc;
         if (Passes.Count == 0)
             return;
 
-        var items = Passes.ToList();
+        var rows = Passes.OfType<PassRowViewModel>().ToList();
+        if (rows.Count == 0)
+            return;
+
         Passes.Clear();
-        foreach (var item in items)
+        DateOnly? currentDay = null;
+        foreach (var row in rows)
         {
-            Passes.Add(item is PassRowViewModel row
-                ? row.WithClockFormat(clockFormat)
-                : item);
+            var day = PassDisplayFormat.GetDisplayDate(row.AosUtc, useUtc);
+            if (currentDay != day)
+            {
+                currentDay = day;
+                Passes.Add(new PassDayHeaderViewModel
+                {
+                    DateLabel = PassDisplayFormat.FormatDayHeader(row.AosUtc, useUtc: useUtc)
+                });
+            }
+
+            Passes.Add(row.WithTimeDisplay(clockFormat, useUtc));
         }
 
         UpdatePassHighlightState();
@@ -597,10 +612,11 @@ public partial class MainViewModel : ViewModelBase
             return;
 
         var clockFormat = PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock);
+        var useUtc = _settings.Current.DisplayTimesInUtc;
         var rows = HamsAtRoves.ToList();
         HamsAtRoves.Clear();
         foreach (var row in rows)
-            HamsAtRoves.Add(row.WithClockFormat(clockFormat, useUtc: false));
+            HamsAtRoves.Add(row.WithClockFormat(clockFormat, useUtc));
     }
 
     partial void OnMapTimeOffsetMinutesChanged(double value)
@@ -994,7 +1010,11 @@ public partial class MainViewModel : ViewModelBase
                     gridChecks = checks;
             }
 
-            rows.Add(HamsAtRoveRowViewModel.From(alert, useUtc: false, clockFormat, gridChecks));
+            rows.Add(HamsAtRoveRowViewModel.From(
+                alert,
+                _settings.Current.DisplayTimesInUtc,
+                clockFormat,
+                gridChecks));
         }
 
         await Dispatcher.UIThread.InvokeAsync(() =>
@@ -1409,7 +1429,7 @@ public partial class MainViewModel : ViewModelBase
         vm.Initialize(
             row.Source,
             GroundStation,
-            _settings.Current.PassPlannerUseUtcTime,
+            _settings.Current.DisplayTimesInUtc,
             _settings.Current.Use24HourClock,
             MinimumElevationDeg);
         return vm;
@@ -1905,21 +1925,21 @@ public partial class MainViewModel : ViewModelBase
             {
                 Passes.Clear();
                 DateOnly? currentDay = null;
+                var useUtc = _settings.Current.DisplayTimesInUtc;
+                var clockFormat = PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock);
                 foreach (var p in passes.Take(50))
                 {
-                    var day = PassDisplayFormat.GetLocalDate(p.AosUtc);
+                    var day = PassDisplayFormat.GetDisplayDate(p.AosUtc, useUtc);
                     if (currentDay != day)
                     {
                         currentDay = day;
                         Passes.Add(new PassDayHeaderViewModel
                         {
-                            DateLabel = PassDisplayFormat.FormatDayHeader(p.AosUtc)
+                            DateLabel = PassDisplayFormat.FormatDayHeader(p.AosUtc, useUtc: useUtc)
                         });
                     }
 
-                    Passes.Add(PassRowViewModel.From(
-                        p,
-                        PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock)));
+                    Passes.Add(PassRowViewModel.From(p, clockFormat, useUtc));
                 }
 
                 if (selectedNorad is not null)
@@ -2030,9 +2050,9 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
         }
     }
 
-    public static PassRowViewModel From(PassInfo p, ClockDisplayFormat clockFormat)
+    public static PassRowViewModel From(PassInfo p, ClockDisplayFormat clockFormat, bool useUtc)
     {
-        var (aos, los) = PassDisplayFormat.FormatLocalTimes(p.AosUtc, p.LosUtc, clockFormat: clockFormat);
+        var (aos, los) = PassDisplayFormat.FormatLocalTimes(p.AosUtc, p.LosUtc, useUtc: useUtc, clockFormat: clockFormat);
 
         return new()
         {
@@ -2044,15 +2064,15 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
             MaxElevationUtc = p.MaxElevationUtc,
             AosLocal = aos,
             LosLocal = los,
-            TcaLocal = PassDisplayFormat.FormatLocal(p.MaxElevationUtc, clockFormat),
-            TimeRangeLine = FormatPassTimeRangeLine(p.AosUtc, p.LosUtc, clockFormat),
+            TcaLocal = PassDisplayFormat.FormatLocal(p.MaxElevationUtc, clockFormat, useUtc: useUtc),
+            TimeRangeLine = FormatPassTimeRangeLine(p.AosUtc, p.LosUtc, clockFormat, useUtc),
             DetailsLine = FormatPassDetailsLine(p.MaxElevationDeg, p.Duration)
         };
     }
 
-    public PassRowViewModel WithClockFormat(ClockDisplayFormat clockFormat)
+    public PassRowViewModel WithTimeDisplay(ClockDisplayFormat clockFormat, bool useUtc)
     {
-        var (aos, los) = PassDisplayFormat.FormatLocalTimes(AosUtc, LosUtc, clockFormat: clockFormat);
+        var (aos, los) = PassDisplayFormat.FormatLocalTimes(AosUtc, LosUtc, useUtc: useUtc, clockFormat: clockFormat);
         return new()
         {
             Source = Source,
@@ -2063,8 +2083,8 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
             MaxElevationUtc = MaxElevationUtc,
             AosLocal = aos,
             LosLocal = los,
-            TcaLocal = PassDisplayFormat.FormatLocal(MaxElevationUtc, clockFormat),
-            TimeRangeLine = FormatPassTimeRangeLine(AosUtc, LosUtc, clockFormat),
+            TcaLocal = PassDisplayFormat.FormatLocal(MaxElevationUtc, clockFormat, useUtc: useUtc),
+            TimeRangeLine = FormatPassTimeRangeLine(AosUtc, LosUtc, clockFormat, useUtc),
             DetailsLine = DetailsLine,
             Highlight = Highlight,
             BadgeText = BadgeText,
@@ -2075,9 +2095,10 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
     private static string FormatPassTimeRangeLine(
         DateTime aosUtc,
         DateTime losUtc,
-        ClockDisplayFormat clockFormat)
+        ClockDisplayFormat clockFormat,
+        bool useUtc)
     {
-        var (aos, los) = PassDisplayFormat.FormatLocalTimes(aosUtc, losUtc, clockFormat: clockFormat);
+        var (aos, los) = PassDisplayFormat.FormatLocalTimes(aosUtc, losUtc, useUtc: useUtc, clockFormat: clockFormat);
         return L.Get("Pass.TimeRange", aos, los);
     }
 

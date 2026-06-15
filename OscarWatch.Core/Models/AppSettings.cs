@@ -9,7 +9,10 @@ public sealed class AppSettings
     public double MinimumElevationDeg { get; set; } = 5.0;
     public int PassPredictionHours { get; set; } = 48;
     public int PassFilterMinDurationMinutes { get; set; } = 2;
-    /// <summary>Show pass planner and mutual pass times in UTC instead of local time.</summary>
+    /// <summary>When true, main UI times (status clock, sidebar passes, hams.at, sunlight) use UTC; otherwise local time.</summary>
+    public bool DisplayTimesInUtc { get; set; }
+
+    /// <summary>When true, pass planner and mutual pass dialogues use UTC; otherwise local. Independent of <see cref="DisplayTimesInUtc"/>.</summary>
     public bool PassPlannerUseUtcTime { get; set; }
     /// <summary>When true, UI times use 24-hour clock; otherwise 12-hour with AM/PM per culture.</summary>
     public bool Use24HourClock { get; set; }

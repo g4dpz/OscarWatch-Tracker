@@ -367,7 +367,13 @@
     <value>24時間</value>
   </data>
   <data name="Settings.ClockFormat.Note">
-    <value>パス一覧、プランナー、地図時計などに適用されます。UTC/現地時刻は各ダイアログで選択します。</value>
+    <value>アプリ内の時刻の12時間/24時間表示に適用されます。</value>
+  </data>
+  <data name="Settings.TimeDisplay">
+    <value>時刻の表示</value>
+  </data>
+  <data name="Settings.TimeDisplay.Note">
+    <value>ステータス時計、サイドバーのパス一覧、hams.atローブ、日照予測に適用されます。パスプランナーと相互パスは別の現地/UTC切り替えがあります。衛星追跡の計算は常にUTCです。</value>
   </data>
   <data name="Settings.Theme">
     <value>テーマ</value>

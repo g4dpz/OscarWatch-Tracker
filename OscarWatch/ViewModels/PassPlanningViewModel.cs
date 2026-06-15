@@ -244,6 +244,7 @@ public partial class PassPlanningViewModel : ViewModelBase
         OnPropertyChanged(nameof(TimeDisplayIndex));
         _settings.Current.PassPlannerUseUtcTime = value;
         RefreshPassDisplayTimes();
+        _settings.RequestSave();
     }
 
     public int TimeDisplayIndex
