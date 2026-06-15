@@ -16,10 +16,24 @@ public static class PassDisplayFormat
         if (Use24Hour(format))
             return includeSeconds ? "HH:mm:ss" : "HH:mm";
 
-        var pattern = includeSeconds
-            ? culture.DateTimeFormat.LongTimePattern
-            : culture.DateTimeFormat.ShortTimePattern;
-        return NormalizeTimePattern(pattern);
+        return GetTwelveHourTimePattern(culture, includeSeconds);
+    }
+
+    /// <summary>
+    /// App 12-hour mode always includes an AM/PM designator. Regional <see cref="DateTimeFormatInfo.ShortTimePattern"/>
+    /// (e.g. en-GB <c>HH:mm</c>) follows locale defaults and is not used here.
+    /// </summary>
+    private static string GetTwelveHourTimePattern(CultureInfo culture, bool includeSeconds)
+    {
+        var patterns = culture.DateTimeFormat.GetAllDateTimePatterns(includeSeconds ? 'T' : 't');
+        foreach (var pattern in patterns)
+        {
+            var normalized = NormalizeTimePattern(pattern);
+            if (normalized.Contains('t', StringComparison.Ordinal))
+                return normalized;
+        }
+
+        return includeSeconds ? "h:mm:ss tt" : "h:mm tt";
     }
 
     /// <summary>ICU/Linux cultures may use narrow no-break space (U+202F) before AM/PM; normalise for stable display and tests.</summary>
