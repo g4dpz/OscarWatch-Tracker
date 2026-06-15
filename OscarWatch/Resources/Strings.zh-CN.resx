@@ -227,7 +227,7 @@
     <value>仰角</value>
   </data>
   <data name="Main.Rotator.Park">
-    <value>停靠</value>
+    <value>停靠转台</value>
   </data>
   <data name="Main.Rotator.Stop">
     <value>停止转台</value>

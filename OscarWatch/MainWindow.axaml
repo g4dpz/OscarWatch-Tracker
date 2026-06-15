@@ -209,7 +209,7 @@
               <Setter Property="FontSize" Value="13" />
               <Setter Property="FontWeight" Value="SemiBold" />
             </Style>
-            <Style Selector="Button.live-sidebar-action.rotator-stop">
+            <Style Selector="Button.live-sidebar-action.rotator-icon">
               <Setter Property="MinWidth" Value="34" />
               <Setter Property="Padding" Value="8,0" />
             </Style>
@@ -349,7 +349,7 @@
                               Spacing="6"
                               VerticalAlignment="Top"
                               Margin="8,0,0,0">
-                    <Button Classes="live-sidebar-action rotator-stop"
+                    <Button Classes="live-sidebar-action rotator-icon"
                             Command="{Binding StopRotatorCommand}"
                             Width="34"
                             VerticalAlignment="Top"
@@ -359,9 +359,13 @@
                       <PathIcon Width="11" Height="11" Data="M0,0 h11 v11 h-11 z" />
                     </Button>
                     <StackPanel Spacing="6">
-                      <Button Classes="live-sidebar-action"
-                              Content="{Binding RotatorParkButtonText}"
-                              Command="{Binding ParkRotatorCommand}" />
+                      <Button Classes="live-sidebar-action rotator-icon"
+                              Command="{Binding ParkRotatorCommand}"
+                              Width="34"
+                              ToolTip.Tip="{Binding RotatorParkButtonText}"
+                              AutomationProperties.Name="{Binding RotatorParkButtonText}">
+                        <PathIcon Width="11" Height="11" Data="M5.5,1.2 L1.2,5.5 V10.5 H4 V7 H7 V10.5 H10.8 V5.5 Z" />
+                      </Button>
                       <Button Classes="live-sidebar-action"
                               Content="{loc:Localize Key=Main.Rotator.Resume}"
                               Command="{Binding ResumeRotatorTrackingCommand}"
@@ -395,15 +399,24 @@
                              VerticalAlignment="Center"
                              Margin="0,0,6,0" />
                   <Button Grid.Column="2"
-                          Classes="live-sidebar-action"
-                          Content="{Binding RigCatPauseButtonText}"
+                          Classes="live-sidebar-action rotator-icon"
                           Command="{Binding ToggleRigCatPauseCommand}"
-                          FontSize="11"
-                          MinWidth="0"
-                          Padding="8,0"
+                          Width="34"
                           HorizontalAlignment="Right"
                           VerticalAlignment="Center"
-                          ToolTip.Tip="{loc:Localize Key=Main.Radio.CatPauseTip}" />
+                          ToolTip.Tip="{Binding RigCatPauseToolTip}"
+                          AutomationProperties.Name="{Binding RigCatPauseButtonText}">
+                    <Grid Width="11" Height="11">
+                      <PathIcon Width="11"
+                                Height="11"
+                                Data="M1.5,1 h2.2 v9 h-2.2 z M7.3,1 h2.2 v9 h-2.2 z"
+                                IsVisible="{Binding !RigCatPaused}" />
+                      <PathIcon Width="11"
+                                Height="11"
+                                Data="M2,1.5 L9.5,5.5 L2,9.5 Z"
+                                IsVisible="{Binding RigCatPaused}" />
+                    </Grid>
+                  </Button>
                 </Grid>
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                   <TextBlock Grid.Column="0"

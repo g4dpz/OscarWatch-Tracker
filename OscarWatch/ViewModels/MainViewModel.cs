@@ -167,11 +167,16 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(RigCatPauseButtonText))]
+    [NotifyPropertyChangedFor(nameof(RigCatPauseToolTip))]
     private bool _rigCatPaused;
 
     public string RigCatPauseButtonText => RigCatPaused
         ? _l.Get("Main.Radio.CatResume")
         : _l.Get("Main.Radio.CatPause");
+
+    public string RigCatPauseToolTip => RigCatPaused
+        ? _l.Get("Main.Radio.CatResume")
+        : _l.Get("Main.Radio.CatPauseTip");
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ToggleRigCatPauseCommand))]

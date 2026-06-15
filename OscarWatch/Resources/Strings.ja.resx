@@ -149,7 +149,7 @@
     <value>ローテーター</value>
   </data>
   <data name="Main.Rotator.Park">
-    <value>パーク</value>
+    <value>ローテーターをパーク</value>
   </data>
   <data name="Main.Rotator.Stop">
     <value>ローテーター停止</value>
