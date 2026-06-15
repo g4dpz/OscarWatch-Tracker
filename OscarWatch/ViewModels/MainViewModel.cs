@@ -47,6 +47,7 @@ public partial class MainViewModel : ViewModelBase
     private string? _lastCloudlogErrorShown;
     private string? _recordingPassNoradId;
     private DateTime? _recordingPassAosUtc;
+    private DateTime? _recordingStartedUtc;
     private DateTime _lastGpsStationPersistUtc = DateTime.MinValue;
 
     public FrequencyOverlayViewModel Frequencies { get; }
@@ -1174,6 +1175,7 @@ public partial class MainViewModel : ViewModelBase
         {
             _recordingPassNoradId = null;
             _recordingPassAosUtc = null;
+            _recordingStartedUtc = null;
             return;
         }
 
@@ -1182,13 +1184,21 @@ public partial class MainViewModel : ViewModelBase
         {
             _recordingPassNoradId = null;
             _recordingPassAosUtc = null;
+            _recordingStartedUtc = null;
             return;
         }
 
-        if (string.Equals(_recordingPassNoradId, noradId, StringComparison.Ordinal)
-            && _recordingPassAosUtc is not null
-            && Passes.OfType<PassRowViewModel>().Any(p =>
-                string.Equals(p.NoradId, noradId, StringComparison.Ordinal) && p.AosUtc == _recordingPassAosUtc))
+        if (!string.Equals(_recordingPassNoradId, noradId, StringComparison.Ordinal))
+        {
+            _recordingPassNoradId = noradId;
+            _recordingPassAosUtc = null;
+            _recordingStartedUtc = DateTime.UtcNow;
+        }
+
+        _recordingStartedUtc ??= DateTime.UtcNow;
+
+        if (_recordingPassAosUtc is not null
+            && string.Equals(_recordingPassNoradId, noradId, StringComparison.Ordinal))
             return;
 
         var pass = FindPassForRecording(noradId, DateTime.UtcNow);
@@ -1213,20 +1223,14 @@ public partial class MainViewModel : ViewModelBase
 
     private PassRowViewModel? FindPassForRecording(string noradId, DateTime utcNow)
     {
-        var rows = Passes.OfType<PassRowViewModel>()
-            .Where(p => string.Equals(p.NoradId, noradId, StringComparison.Ordinal))
-            .OrderBy(p => p.AosUtc)
-            .ToList();
-
-        if (rows.Count == 0)
+        var rows = Passes.OfType<PassRowViewModel>().Select(p => p.Source).ToList();
+        var match = PassSidebarMerge.FindPassForRecording(rows, noradId, utcNow, _recordingStartedUtc);
+        if (match is null)
             return null;
 
-        var inProgress = rows.LastOrDefault(p => utcNow >= p.AosUtc && utcNow <= p.LosUtc);
-        if (inProgress is not null)
-            return inProgress;
-
-        // Recording can start above the elevation threshold before horizon AOS in the pass list.
-        return rows.FirstOrDefault(p => utcNow < p.LosUtc);
+        return Passes.OfType<PassRowViewModel>()
+            .FirstOrDefault(p => string.Equals(p.NoradId, match.NoradId, StringComparison.Ordinal)
+                && p.AosUtc == match.AosUtc);
     }
 
     private void ProcessPassRecording(IReadOnlyList<SatelliteTrackState> states)
@@ -1954,11 +1958,18 @@ public partial class MainViewModel : ViewModelBase
 
             void Apply()
             {
+                var utcNow = DateTime.UtcNow;
+                var inProgress = Passes.OfType<PassRowViewModel>()
+                    .Where(p => p.AosUtc <= utcNow && p.LosUtc > utcNow)
+                    .Select(p => p.Source)
+                    .ToList();
+                var merged = PassSidebarMerge.MergeInProgressPasses(passes, inProgress, utcNow);
+
                 Passes.Clear();
                 DateOnly? currentDay = null;
                 var useUtc = _settings.Current.DisplayTimesInUtc;
                 var clockFormat = PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock);
-                foreach (var p in passes.Take(50))
+                foreach (var p in merged.Take(50))
                 {
                     var day = PassDisplayFormat.GetDisplayDate(p.AosUtc, useUtc);
                     if (currentDay != day)
