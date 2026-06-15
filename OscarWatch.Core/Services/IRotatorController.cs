@@ -10,6 +10,8 @@ public interface IRotatorController
     /// <summary>Manual az/el move while standby is active (browsing mode).</summary>
     void MoveTo(double azimuthDeg, double elevationDeg, RotatorSettings settings);
     void Stop(RotatorSettings settings);
+    /// <summary>Clears emergency-stop hold so pass tracking can resume.</summary>
+    void ResumeTracking(RotatorSettings settings);
     void SetStandby(bool active, RotatorSettings settings);
     void Disconnect();
     /// <summary>Supply the active pass for keyhole avoidance planning. Call when the pass changes or becomes known.</summary>

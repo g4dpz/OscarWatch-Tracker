@@ -229,6 +229,15 @@
   <data name="Main.Rotator.Park">
     <value>Estacionar</value>
   </data>
+  <data name="Main.Rotator.Stop">
+    <value>Parar rotador</value>
+  </data>
+  <data name="Main.Rotator.Stop.ToolTip">
+    <value>Parar o movimento do rotador imediatamente (emergência)</value>
+  </data>
+  <data name="Main.Rotator.Resume">
+    <value>Retomar</value>
+  </data>
   <data name="Main.Rotator.Parked">
     <value>Estacionado</value>
   </data>

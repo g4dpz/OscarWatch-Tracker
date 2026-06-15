@@ -10,4 +10,5 @@ public sealed record RotatorPositionStatus(
     RotatorConnectionKind ConnectionKind = RotatorConnectionKind.Unknown,
     string? ConnectionDetail = null,
     bool IsKeyholeAvoidanceActive = false,
-    bool IsPrePositioning = false);
+    bool IsPrePositioning = false,
+    bool IsTrackingHeld = false);

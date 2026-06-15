@@ -237,6 +237,57 @@ public sealed class RotatorControllerTests
         controller.DrainCommandQueueForTests();
 
         Assert.Equal(1, rotator.StopCallCount);
+        Assert.False(controller.GetPositionStatus().IsTrackingHeld);
+    }
+
+    [Fact]
+    public void Stop_during_tracking_sends_stop_and_holds_tracking()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            TrackStartElevationDeg = 5
+        };
+
+        controller.UpdateSynchronously(settings, TrackTarget("25544", 45, 20));
+        Assert.Equal(1, rotator.SetPositionCallCount);
+
+        controller.Stop(settings);
+        controller.DrainCommandQueueForTests();
+
+        Assert.Equal(1, rotator.StopCallCount);
+        Assert.True(controller.GetPositionStatus().IsTrackingHeld);
+
+        controller.UpdateSynchronously(settings, TrackTarget("25544", 90, 25));
+        Assert.Equal(1, rotator.SetPositionCallCount);
+    }
+
+    [Fact]
+    public void ResumeTracking_clears_hold_and_allows_tracking()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            TrackStartElevationDeg = 5
+        };
+
+        controller.UpdateSynchronously(settings, TrackTarget("25544", 45, 20));
+        controller.Stop(settings);
+        controller.DrainCommandQueueForTests();
+        Assert.True(controller.GetPositionStatus().IsTrackingHeld);
+
+        controller.ResumeTracking(settings);
+        controller.DrainCommandQueueForTests();
+        Assert.False(controller.GetPositionStatus().IsTrackingHeld);
+
+        controller.UpdateSynchronously(settings, TrackTarget("25544", 90, 25));
+        Assert.Equal(2, rotator.SetPositionCallCount);
     }
 
     [Fact]

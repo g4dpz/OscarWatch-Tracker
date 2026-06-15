@@ -209,6 +209,10 @@
               <Setter Property="FontSize" Value="13" />
               <Setter Property="FontWeight" Value="SemiBold" />
             </Style>
+            <Style Selector="Button.live-sidebar-action.rotator-stop">
+              <Setter Property="MinWidth" Value="34" />
+              <Setter Property="Padding" Value="8,0" />
+            </Style>
         </Border.Styles>
         <Grid x:Name="SidebarLayoutGrid"
               RowDefinitions="Auto,*,Auto"
@@ -283,70 +287,88 @@
             <Border Classes="live-panel"
                     IsVisible="{Binding ShowRotatorStatus}">
               <Grid ColumnDefinitions="*,Auto">
-                <StackPanel Grid.Column="0" Spacing="6">
-                  <TextBlock Classes="live-panel-label" Text="{loc:Localize Key=Main.Rotator}" />
-                  <Grid ColumnDefinitions="*,*">
-                    <StackPanel Grid.Column="0" Spacing="2" HorizontalAlignment="Center">
-                      <TextBlock Text="{Binding RotatorAzimuthText}"
-                                 FontSize="18"
+                  <StackPanel Grid.Column="0" Spacing="6">
+                    <TextBlock Classes="live-panel-label" Text="{loc:Localize Key=Main.Rotator}" />
+                    <Grid ColumnDefinitions="*,*">
+                      <StackPanel Grid.Column="0" Spacing="2" HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding RotatorAzimuthText}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   TextAlignment="Center"
+                                   FontFamily="Consolas,Courier New,monospace" />
+                        <TextBlock Text="{loc:Localize Key=Main.Rotator.Az}"
+                                   FontSize="10"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                      </StackPanel>
+                      <StackPanel Grid.Column="1" Spacing="2" HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding RotatorElevationText}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   FontFamily="Consolas,Courier New,monospace" />
+                        <TextBlock Text="{loc:Localize Key=Main.Rotator.El}"
+                                   FontSize="10"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                      </StackPanel>
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" Spacing="8"
+                                IsVisible="{Binding IsKeyholeAvoidanceActive}"
+                                Margin="0,4,0,0">
+                      <TextBlock Text="⚠"
+                                 FontSize="12"
+                                 VerticalAlignment="Center"
+                                 Foreground="{DynamicResource ThemeForegroundBrush}" />
+                      <TextBlock Text="Keyhole Avoidance"
+                                 FontSize="12"
                                  FontWeight="SemiBold"
-                                 HorizontalAlignment="Center"
-                                 TextWrapping="Wrap"
-                                 TextAlignment="Center"
-                                 FontFamily="Consolas,Courier New,monospace" />
-                      <TextBlock Text="{loc:Localize Key=Main.Rotator.Az}"
-                                 FontSize="10"
-                                 HorizontalAlignment="Center"
-                                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                                 VerticalAlignment="Center"
+                                 Focusable="True"
+                                 Foreground="{DynamicResource ThemeForegroundBrush}" />
                     </StackPanel>
-                    <StackPanel Grid.Column="1" Spacing="2" HorizontalAlignment="Center">
-                      <TextBlock Text="{Binding RotatorElevationText}"
-                                 FontSize="18"
+                    <StackPanel Orientation="Horizontal" Spacing="8"
+                                IsVisible="{Binding IsPrePositioning}"
+                                Margin="0,4,0,0">
+                      <TextBlock Text="⏳"
+                                 FontSize="12"
+                                 VerticalAlignment="Center"
+                                 Foreground="{DynamicResource ThemeForegroundBrush}" />
+                      <TextBlock Text="Pre-positioning"
+                                 FontSize="12"
                                  FontWeight="SemiBold"
-                                 HorizontalAlignment="Center"
-                                 FontFamily="Consolas,Courier New,monospace" />
-                      <TextBlock Text="{loc:Localize Key=Main.Rotator.El}"
-                                 FontSize="10"
-                                 HorizontalAlignment="Center"
-                                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                                 VerticalAlignment="Center"
+                                 Focusable="True"
+                                 Foreground="{DynamicResource ThemeForegroundBrush}" />
                     </StackPanel>
-                  </Grid>
-                  <StackPanel Orientation="Horizontal" Spacing="8"
-                              IsVisible="{Binding IsKeyholeAvoidanceActive}"
-                              Margin="0,4,0,0">
-                    <TextBlock Text="⚠"
-                               FontSize="12"
-                               VerticalAlignment="Center"
-                               Foreground="{DynamicResource ThemeForegroundBrush}" />
-                    <TextBlock Text="Keyhole Avoidance"
-                               FontSize="12"
-                               FontWeight="SemiBold"
-                               VerticalAlignment="Center"
-                               Focusable="True"
-                               Foreground="{DynamicResource ThemeForegroundBrush}" />
                   </StackPanel>
-                  <StackPanel Orientation="Horizontal" Spacing="8"
-                              IsVisible="{Binding IsPrePositioning}"
-                              Margin="0,4,0,0">
-                    <TextBlock Text="⏳"
-                               FontSize="12"
-                               VerticalAlignment="Center"
-                               Foreground="{DynamicResource ThemeForegroundBrush}" />
-                    <TextBlock Text="Pre-positioning"
-                               FontSize="12"
-                               FontWeight="SemiBold"
-                               VerticalAlignment="Center"
-                               Focusable="True"
-                               Foreground="{DynamicResource ThemeForegroundBrush}" />
+                  <StackPanel Grid.Column="1"
+                              Orientation="Horizontal"
+                              Spacing="6"
+                              VerticalAlignment="Top"
+                              Margin="8,0,0,0">
+                    <Button Classes="live-sidebar-action rotator-stop"
+                            Command="{Binding StopRotatorCommand}"
+                            Width="34"
+                            VerticalAlignment="Top"
+                            ToolTip.Tip="{loc:Localize Key=Main.Rotator.Stop.ToolTip}"
+                            AutomationProperties.Name="{loc:Localize Key=Main.Rotator.Stop}"
+                            IsVisible="{Binding !IsRotatorTrackingHeld}">
+                      <PathIcon Width="11" Height="11" Data="M0,0 h11 v11 h-11 z" />
+                    </Button>
+                    <StackPanel Spacing="6">
+                      <Button Classes="live-sidebar-action"
+                              Content="{Binding RotatorParkButtonText}"
+                              Command="{Binding ParkRotatorCommand}" />
+                      <Button Classes="live-sidebar-action"
+                              Content="{loc:Localize Key=Main.Rotator.Resume}"
+                              Command="{Binding ResumeRotatorTrackingCommand}"
+                              IsVisible="{Binding IsRotatorTrackingHeld}" />
+                    </StackPanel>
                   </StackPanel>
-                </StackPanel>
-                <Button Grid.Column="1"
-                        Classes="live-sidebar-action"
-                        Content="{Binding RotatorParkButtonText}"
-                        Command="{Binding ParkRotatorCommand}"
-                        VerticalAlignment="Top"
-                        Margin="8,0,0,0" />
-              </Grid>
+                </Grid>
             </Border>
 
             <TextBlock Text="{Binding ComPortConflictText}"

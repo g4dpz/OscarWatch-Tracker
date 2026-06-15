@@ -38,6 +38,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private bool _manualParkActive;
     private bool _standbyActive;
     private bool _standbyManualActive;
+    private bool _trackingHoldAfterStop;
     private int? _displayAzimuth;
     private int? _displayElevation;
     private int? _displayCommandedAzimuth;
@@ -83,6 +84,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
     public void Stop(RotatorSettings settings) =>
         Enqueue(new RotatorCommand(RotatorCommandKind.Stop, settings));
+
+    public void ResumeTracking(RotatorSettings settings) =>
+        Enqueue(new RotatorCommand(RotatorCommandKind.ResumeTracking, settings));
 
     public void SetStandby(bool active, RotatorSettings settings) =>
         Enqueue(new RotatorCommand(RotatorCommandKind.SetStandby, settings, standbyActive: active));
@@ -236,6 +240,11 @@ public sealed class RotatorController : IRotatorController, IDisposable
                     StopOnWorker(command.Settings);
                     break;
 
+                case RotatorCommandKind.ResumeTracking:
+                    _cachedSettings = command.Settings;
+                    _trackingHoldAfterStop = false;
+                    break;
+
                 case RotatorCommandKind.SetStandby:
                     _cachedSettings = command.Settings;
                     SetStandbyOnWorker(command.StandbyActive!.Value, command.Settings);
@@ -296,6 +305,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _connectionDetail = null;
 
         PollPosition();
+
+        if (_trackingHoldAfterStop && !_standbyActive)
+            return;
 
         if (_standbyActive)
         {
@@ -424,9 +436,6 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
     private void StopOnWorker(RotatorSettings settings)
     {
-        if (!_standbyActive)
-            return;
-
         if (!settings.Enabled || string.IsNullOrWhiteSpace(settings.Port))
             return;
 
@@ -439,6 +448,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
         try
         {
             _rotator.Stop();
+            if (!_standbyActive)
+                _trackingHoldAfterStop = true;
         }
         catch (Exception ex)
         {
@@ -462,6 +473,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _parked = false;
             _manualParkActive = false;
             _standbyManualActive = false;
+            _trackingHoldAfterStop = false;
             return;
         }
 
@@ -497,6 +509,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _manualParkActive = false;
         _standbyActive = false;
         _standbyManualActive = false;
+        _trackingHoldAfterStop = false;
         _displayAzimuth = null;
         _displayElevation = null;
         _displayCommandedAzimuth = null;
@@ -519,7 +532,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
                 _connectionKind,
                 _connectionDetail,
                 IsKeyholeAvoidanceActive: _keyholeFlippedActive,
-                IsPrePositioning: _isPrePositioning);
+                IsPrePositioning: _isPrePositioning,
+                IsTrackingHeld: _trackingHoldAfterStop);
     }
 
     private void ClearTrackingAzimuthDisplay()
@@ -796,6 +810,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         Park,
         ManualMove,
         Stop,
+        ResumeTracking,
         SetStandby,
         SetActivePass,
         Disconnect,

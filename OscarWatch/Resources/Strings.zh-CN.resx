@@ -229,6 +229,15 @@
   <data name="Main.Rotator.Park">
     <value>停靠</value>
   </data>
+  <data name="Main.Rotator.Stop">
+    <value>停止转台</value>
+  </data>
+  <data name="Main.Rotator.Stop.ToolTip">
+    <value>立即停止转台运动（紧急）</value>
+  </data>
+  <data name="Main.Rotator.Resume">
+    <value>恢复</value>
+  </data>
   <data name="Main.Rotator.Parked">
     <value>已停靠</value>
   </data>

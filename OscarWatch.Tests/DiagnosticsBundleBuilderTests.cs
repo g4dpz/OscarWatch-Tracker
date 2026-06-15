@@ -117,6 +117,7 @@ public sealed class DiagnosticsBundleBuilderTests
         public void Park(RotatorSettings settings) { }
         public void MoveTo(double azimuthDeg, double elevationDeg, RotatorSettings settings) { }
         public void Stop(RotatorSettings settings) { }
+        public void ResumeTracking(RotatorSettings settings) { }
         public void SetStandby(bool active, RotatorSettings settings) { }
         public void Disconnect() { }
         public void SetActivePass(PassInfo? pass) { }

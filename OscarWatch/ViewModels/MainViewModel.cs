@@ -118,7 +118,17 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ParkRotatorCommand))]
+    [NotifyCanExecuteChangedFor(nameof(StopRotatorCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ResumeRotatorTrackingCommand))]
     private bool _canParkRotator;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(StopRotatorCommand))]
+    private bool _canStopRotator;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ResumeRotatorTrackingCommand))]
+    private bool _isRotatorTrackingHeld;
 
     [ObservableProperty]
     private bool _isKeyholeAvoidanceActive;
@@ -825,6 +835,8 @@ public partial class MainViewModel : ViewModelBase
             : "—";
         IsRotatorParked = status.IsParked;
         CanParkRotator = status.IsConnected && !IsStandby && !status.IsParked;
+        CanStopRotator = status.IsConnected;
+        IsRotatorTrackingHeld = status.IsTrackingHeld;
         IsKeyholeAvoidanceActive = status.IsKeyholeAvoidanceActive;
         IsPrePositioning = status.IsPrePositioning;
     }
@@ -878,6 +890,20 @@ public partial class MainViewModel : ViewModelBase
     private void ParkRotator()
     {
         _rotator.Park(_settings.Current.Rotator);
+        UpdateRotatorDisplay();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanStopRotator))]
+    private void StopRotator()
+    {
+        _rotator.Stop(_settings.Current.Rotator);
+        UpdateRotatorDisplay();
+    }
+
+    [RelayCommand(CanExecute = nameof(IsRotatorTrackingHeld))]
+    private void ResumeRotatorTracking()
+    {
+        _rotator.ResumeTracking(_settings.Current.Rotator);
         UpdateRotatorDisplay();
     }
 

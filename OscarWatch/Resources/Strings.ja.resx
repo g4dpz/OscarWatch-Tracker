@@ -151,6 +151,15 @@
   <data name="Main.Rotator.Park">
     <value>パーク</value>
   </data>
+  <data name="Main.Rotator.Stop">
+    <value>ローテーター停止</value>
+  </data>
+  <data name="Main.Rotator.Stop.ToolTip">
+    <value>ローテーターの動きを直ちに停止（緊急用）</value>
+  </data>
+  <data name="Main.Rotator.Resume">
+    <value>再開</value>
+  </data>
   <data name="Main.Rotator.Parked">
     <value>パーク済</value>
   </data>
