@@ -68,6 +68,35 @@ public static class PassSidebarMerge
         return rows.FirstOrDefault(p => utcNow < p.LosUtc);
     }
 
+    /// <summary>
+    /// Whether the sidebar row should show the REC badge while a pass recording is active.
+    /// Matches the bound list row (<see cref="FindPassForRecording"/>) or any in-progress row
+    /// that was active when recording started (covers AOS drift after pass-list refresh).
+    /// </summary>
+    public static bool IsPassRecordingTarget(
+        PassInfo pass,
+        string? recordingNoradId,
+        DateTime? recordingPassAosUtc,
+        DateTime? recordingStartedUtc,
+        DateTime utcNow,
+        bool isRecording)
+    {
+        if (!isRecording
+            || string.IsNullOrEmpty(recordingNoradId)
+            || !string.Equals(pass.NoradId, recordingNoradId, StringComparison.Ordinal))
+            return false;
+
+        if (utcNow < pass.AosUtc || utcNow > pass.LosUtc)
+            return false;
+
+        if (recordingPassAosUtc is not null && pass.AosUtc == recordingPassAosUtc)
+            return true;
+
+        return recordingStartedUtc is { } started
+            && started >= pass.AosUtc
+            && started <= pass.LosUtc;
+    }
+
     private static bool PassesOverlap(PassInfo a, PassInfo b) =>
         string.Equals(a.NoradId, b.NoradId, StringComparison.Ordinal)
         && a.AosUtc <= b.LosUtc

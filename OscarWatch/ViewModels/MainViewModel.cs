@@ -1197,10 +1197,7 @@ public partial class MainViewModel : ViewModelBase
 
         _recordingStartedUtc ??= DateTime.UtcNow;
 
-        if (_recordingPassAosUtc is not null
-            && string.Equals(_recordingPassNoradId, noradId, StringComparison.Ordinal))
-            return;
-
+        // Re-bind after every pass-list refresh — predicted AOS can shift while recording continues.
         var pass = FindPassForRecording(noradId, DateTime.UtcNow);
         _recordingPassNoradId = noradId;
         _recordingPassAosUtc = pass?.AosUtc;
@@ -1214,12 +1211,15 @@ public partial class MainViewModel : ViewModelBase
     }
 
     private bool IsPassBeingRecorded(PassRowViewModel pass) =>
-        !IsStandby
-        && _recording.IsRecording
-        && !AudioRecordingSessions.IsManualTest(_recording)
-        && _recordingPassAosUtc is not null
-        && string.Equals(pass.NoradId, _recordingPassNoradId, StringComparison.Ordinal)
-        && pass.AosUtc == _recordingPassAosUtc;
+        PassSidebarMerge.IsPassRecordingTarget(
+            pass.Source,
+            _recordingPassNoradId,
+            _recordingPassAosUtc,
+            _recordingStartedUtc,
+            DateTime.UtcNow,
+            isRecording: !IsStandby
+                && _recording.IsRecording
+                && !AudioRecordingSessions.IsManualTest(_recording));
 
     private PassRowViewModel? FindPassForRecording(string noradId, DateTime utcNow)
     {

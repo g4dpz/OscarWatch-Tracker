@@ -67,6 +67,60 @@ public sealed class PassSidebarMergeTests
         Assert.Equal(current.AosUtc, match!.AosUtc);
     }
 
+    [Fact]
+    public void FindPassForRecording_binds_refreshed_pass_when_aos_shifts()
+    {
+        var refreshed = Pass("RS-44", "999", Base.AddMinutes(-4.8), Base.AddMinutes(10.2));
+
+        var match = PassSidebarMerge.FindPassForRecording(
+            [refreshed],
+            "999",
+            Base,
+            recordingStartedUtc: Base.AddMinutes(-2));
+
+        Assert.Equal(refreshed.AosUtc, match!.AosUtc);
+    }
+
+    [Fact]
+    public void IsPassRecordingTarget_shows_rec_after_refresh_when_aos_drifts()
+    {
+        var beforeRefresh = Pass("RS-44", "999", Base.AddMinutes(-5), Base.AddMinutes(10));
+        var afterRefresh = Pass("RS-44", "999", Base.AddMinutes(-4.8), Base.AddMinutes(10.2));
+        var started = Base.AddMinutes(-2);
+
+        Assert.True(PassSidebarMerge.IsPassRecordingTarget(
+            afterRefresh,
+            "999",
+            afterRefresh.AosUtc,
+            started,
+            Base,
+            isRecording: true));
+
+        Assert.True(PassSidebarMerge.IsPassRecordingTarget(
+            afterRefresh,
+            "999",
+            beforeRefresh.AosUtc,
+            started,
+            Base,
+            isRecording: true));
+    }
+
+    [Fact]
+    public void IsPassRecordingTarget_does_not_attach_to_later_pass_same_satellite()
+    {
+        var current = Pass("RS-44", "999", Base.AddMinutes(-5), Base.AddMinutes(10));
+        var later = Pass("RS-44", "999", Base.AddHours(1), Base.AddHours(1).AddMinutes(15));
+        var started = Base.AddMinutes(-2);
+
+        Assert.False(PassSidebarMerge.IsPassRecordingTarget(
+            later,
+            "999",
+            current.AosUtc,
+            started,
+            Base,
+            isRecording: true));
+    }
+
     private static PassInfo Pass(string name, string norad, DateTime aos, DateTime los) => new()
     {
         SatelliteName = name,
