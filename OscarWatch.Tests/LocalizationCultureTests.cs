@@ -21,9 +21,17 @@ public sealed class LocalizationCultureTests
     [InlineData("en", "en-GB")]
     [InlineData("en-GB", "en-GB")]
     [InlineData("ja", "ja")]
+    [InlineData("es", "es")]
     public void NormalizeLanguageCode_maps_legacy_en_to_en_GB(string? input, string expected)
     {
         Assert.Equal(expected, LocalizationCulture.NormalizeLanguageCode(input));
+    }
+
+    [Fact]
+    public void ResolveCulture_maps_spanish_to_es()
+    {
+        var culture = LocalizationCulture.ResolveCulture("es");
+        Assert.Equal("es", culture.Name);
     }
 
     [Fact]

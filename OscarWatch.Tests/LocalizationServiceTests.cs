@@ -37,6 +37,30 @@ public sealed class LocalizationServiceTests
     }
 
     [Fact]
+    public void Get_returns_spanish_when_culture_is_es()
+    {
+        using var _ = TestUiCulture.Apply(LocalizationCulture.SpanishLanguage);
+        var text = LocalizationService.Instance.Get("Menu.File");
+        Assert.Equal("_Archivo", text);
+    }
+
+    [Fact]
+    public void Get_returns_spanish_rotator_park_label()
+    {
+        using var _ = TestUiCulture.Apply(LocalizationCulture.SpanishLanguage);
+        var text = LocalizationService.Instance.Get("Main.Rotator.Park");
+        Assert.Equal("Estacionar rotor", text);
+    }
+
+    [Fact]
+    public void Get_keeps_universal_abbreviations_in_spanish()
+    {
+        using var _ = TestUiCulture.Apply(LocalizationCulture.SpanishLanguage);
+        var text = LocalizationService.Instance.Get("Pass.Rec");
+        Assert.Equal("REC", text);
+    }
+
+    [Fact]
     public void Get_falls_back_to_english_for_untranslated_key()
     {
         using var _ = TestUiCulture.Apply(LocalizationCulture.JapaneseLanguage);

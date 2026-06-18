@@ -450,6 +450,9 @@
   <data name="Settings.Language.SimplifiedChinese">
     <value>简体中文</value>
   </data>
+  <data name="Settings.Language.Spanish">
+    <value>西班牙语</value>
+  </data>
   <data name="Settings.Language.RestartNote">
     <value>切换语言后需重启 OscarWatch 方可生效。</value>
   </data>

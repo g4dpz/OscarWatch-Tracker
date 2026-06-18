@@ -450,6 +450,9 @@ Continuar?</value>
   <data name="Settings.Language.SimplifiedChinese">
     <value>Chinês simplificado</value>
   </data>
+  <data name="Settings.Language.Spanish">
+    <value>Espanhol</value>
+  </data>
   <data name="Settings.Language.RestartNote">
     <value>O idioma é aplicado após reiniciar o app OscarWatch.</value>
   </data>
