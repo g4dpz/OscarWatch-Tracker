@@ -425,6 +425,9 @@ public class WorldMapControl : ThemeAwareControl
 
         foreach (var i in _labelOrderBuffer.Indices)
         {
+            if ((uint)i >= (uint)states.Count)
+                continue;
+
             var state = states[i];
             var isFocused = string.Equals(state.NoradId, FocusedNoradId, StringComparison.Ordinal);
             var (sx, sy) = EquirectangularProjection.GeoToPixel(

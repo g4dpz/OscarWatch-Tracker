@@ -247,14 +247,24 @@ public sealed class LiveTrackingService : ILiveTrackingService
             : _computeOverride?.Invoke(trackingUtc)
               ?? _orchestrator.GetLiveStates(trackingUtc, focus);
 
+        // Copy before publish: orchestrator double-buffers mutable lists that are cleared
+        // on the worker thread; UI render may still be reading the previous snapshot.
+        var publishedDisplay = PublishSnapshot(displayStates);
+        var publishedLiveNow = ReferenceEquals(liveNowStates, displayStates)
+            ? publishedDisplay
+            : PublishSnapshot(liveNowStates);
+
         lock (_snapshotLock)
         {
-            _snapshot = displayStates;
+            _snapshot = publishedDisplay;
             _snapshotUtc = displayUtc;
-            _liveNowSnapshot = liveNowStates;
+            _liveNowSnapshot = publishedLiveNow;
             _liveNowSnapshotUtc = trackingUtc;
         }
     }
+
+    private static IReadOnlyList<SatelliteTrackState> PublishSnapshot(IReadOnlyList<SatelliteTrackState> states) =>
+        states.Count == 0 ? Array.Empty<SatelliteTrackState>() : states.ToArray();
 
     private enum LiveTrackingCommandKind
     {

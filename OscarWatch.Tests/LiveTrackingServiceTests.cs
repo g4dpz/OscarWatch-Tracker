@@ -95,6 +95,43 @@ public sealed class LiveTrackingServiceTests
     }
 
     [Fact]
+    public void Published_snapshot_survives_orchestrator_buffer_reuse()
+    {
+        var satellites = new[]
+        {
+            new SatelliteCatalogEntry
+            {
+                Name = "ISS",
+                NoradId = "25544",
+                Line1 = "1 25544U 98067A   24001.50000000  .00016717  00000-0  10270-3 0  9993",
+                Line2 = "2 25544  51.6400 247.4627 0006703 130.5360 325.0288 15.49519779439320"
+            }
+        };
+
+        var orchestrator = new TrackingOrchestrator(
+            new TestSettingsService(),
+            new StubTleService(satellites),
+            new MinimalPropagator(satellites),
+            new StubGroundGeometry(),
+            new NullPassPredictor());
+        orchestrator.ReloadEnabledSatellites();
+
+        using var service = new LiveTrackingService(orchestrator);
+        service.Start();
+        service.RefreshSnapshotSynchronously();
+
+        var first = service.GetSnapshot();
+        Assert.Single(first);
+        var firstNorad = first[0].NoradId;
+
+        // Orchestrator reuses and clears the same list reference on the next tick.
+        service.RefreshSnapshotSynchronously();
+
+        Assert.Equal(firstNorad, first[0].NoradId);
+        Assert.Single(first);
+    }
+
+    [Fact]
     public void GetSnapshot_is_safe_while_worker_updates()
     {
         var orchestrator = CreateMinimalOrchestrator();
@@ -130,6 +167,54 @@ public sealed class LiveTrackingServiceTests
             new NullOrbitPropagator(),
             new NullGroundGeometry(),
             new NullPassPredictor());
+    }
+
+    private sealed class StubTleService(IReadOnlyList<SatelliteCatalogEntry> satellites) : ITleService
+    {
+        public IReadOnlyList<SatelliteCatalogEntry> Catalog => satellites;
+        public DateTime? LastFetchedUtc => DateTime.UtcNow;
+        public string CachePath => Path.Combine(Path.GetTempPath(), "live-tracking-tle-test");
+        public string ActiveSourceLabel => "test";
+        public IReadOnlyList<SatelliteCatalogEntry> GetEnabledSatellites(AppSettings settings) => satellites;
+        public Task EnsureLoadedAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task RefreshAsync(bool force = false, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public void InvalidateCatalog() { }
+        public bool IsStale(int staleHours) => false;
+    }
+
+    private sealed class MinimalPropagator(IReadOnlyList<SatelliteCatalogEntry> satellites) : Core.Orbit.IOrbitPropagator
+    {
+        private readonly HashSet<string> _ids = satellites.Select(s => s.NoradId).ToHashSet(StringComparer.Ordinal);
+
+        public IReadOnlyCollection<string> LoadedNoradIds => _ids;
+        public void Clear() => _ids.Clear();
+        public void LoadSatellite(SatelliteCatalogEntry entry) => _ids.Add(entry.NoradId);
+        public void RemoveSatellite(string noradId) => _ids.Remove(noradId);
+        public bool HasSatellite(string noradId) => _ids.Contains(noradId);
+        public GeoCoordinate GetSubpoint(string noradId, DateTime utc) =>
+            new(utc.Second * 0.01, utc.Second * 0.01, 400);
+        public EciPosition GetEciPosition(string noradId, DateTime utc) => new(7000, 0, 0);
+        public LookAngles GetLookAngles(string noradId, GroundStation site, DateTime utc) =>
+            new(180, 45, 1000, 0);
+    }
+
+    private sealed class StubGroundGeometry : Core.Orbit.IGroundGeometry
+    {
+        public IReadOnlyList<GeoCoordinate> GetGroundTrack(
+            SatelliteCatalogEntry satellite,
+            DateTime utcStart,
+            DateTime utcEnd,
+            TimeSpan step) => [];
+
+        public IReadOnlyList<GeoCoordinate> GetFootprint(
+            SatelliteCatalogEntry satellite,
+            DateTime utc,
+            double minimumElevationDeg) =>
+        [
+            new(0, 0, 0),
+            new(1, 0, 0),
+            new(0, 1, 0)
+        ];
     }
 
     private sealed class TestSettingsService : ISettingsService
