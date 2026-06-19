@@ -383,18 +383,22 @@ public sealed class RotatorController : IRotatorController, IDisposable
         if (!EnsureConnected(settings))
             return;
 
+        _trackingHoldAfterStop = false;
+        _lastAzimuth = null;
+        _lastElevation = null;
+
         if (_standbyActive)
         {
             _standbyManualActive = false;
             _parked = false;
-            TryPark(settings);
+            TryPark(settings, force: true);
             PollPosition();
             return;
         }
 
         _manualParkActive = true;
         _parked = false;
-        TryPark(settings);
+        TryPark(settings, force: true);
         PollPosition();
     }
 
@@ -758,12 +762,12 @@ public sealed class RotatorController : IRotatorController, IDisposable
         }
     }
 
-    private void TryPark(RotatorSettings settings, bool afterPass = false)
+    private void TryPark(RotatorSettings settings, bool afterPass = false, bool force = false)
     {
         if (afterPass && !settings.ParkAfterPass)
             return;
 
-        if (_rotator is null || _parked)
+        if (_rotator is null || (_parked && !force))
             return;
 
         try

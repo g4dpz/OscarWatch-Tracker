@@ -840,7 +840,7 @@ public partial class MainViewModel : ViewModelBase
             ? $"{status.ElevationDeg.Value}°"
             : "—";
         IsRotatorParked = status.IsParked;
-        CanParkRotator = status.IsConnected && !IsStandby && !status.IsParked;
+        CanParkRotator = status.IsConnected;
         CanStopRotator = status.IsConnected;
         IsRotatorTrackingHeld = status.IsTrackingHeld;
         IsKeyholeAvoidanceActive = status.IsKeyholeAvoidanceActive;

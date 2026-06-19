@@ -291,6 +291,59 @@ public sealed class RotatorControllerTests
     }
 
     [Fact]
+    public void Park_when_already_parked_sends_park_position_again()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            ParkAzimuthDeg = 180,
+            ParkElevationDeg = 0
+        };
+
+        controller.Park(settings);
+        controller.DrainCommandQueueForTests();
+        Assert.Equal(1, rotator.SetPositionCallCount);
+
+        controller.Park(settings);
+        controller.DrainCommandQueueForTests();
+
+        Assert.Equal(2, rotator.SetPositionCallCount);
+        Assert.Equal(180, rotator.LastAzimuthDeg);
+        Assert.Equal(0, rotator.LastElevationDeg);
+        Assert.True(controller.GetPositionStatus().IsParked);
+    }
+
+    [Fact]
+    public void Park_after_stop_clears_tracking_hold()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            TrackStartElevationDeg = 5,
+            ParkAzimuthDeg = 180,
+            ParkElevationDeg = 0
+        };
+
+        controller.UpdateSynchronously(settings, TrackTarget("25544", 45, 20));
+        controller.Stop(settings);
+        controller.DrainCommandQueueForTests();
+        Assert.True(controller.GetPositionStatus().IsTrackingHeld);
+
+        controller.Park(settings);
+        controller.DrainCommandQueueForTests();
+
+        Assert.False(controller.GetPositionStatus().IsTrackingHeld);
+        Assert.Equal(180, rotator.LastAzimuthDeg);
+        Assert.True(controller.GetPositionStatus().IsParked);
+    }
+
+    [Fact]
     public void Park_during_standby_sends_park_position()
     {
         var rotator = new RecordingRotatorDriver();
