@@ -14,6 +14,10 @@ namespace OscarWatch.ViewModels;
 
 public partial class FrequencyOverlayViewModel : ViewModelBase
 {
+    /// <summary>Maximum magnitude for RX/TX offset spinners and nudge keys (kHz).</summary>
+    public const double OffsetMinKHz = -20.0;
+    public const double OffsetMaxKHz = 20.0;
+
     private readonly ISettingsService _settings;
     private readonly ISatelliteDatabaseService _database;
     private readonly ILocalizationService _l;
@@ -189,10 +193,11 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         get => IsTransmitOffsetSelected ? TransmitOffsetKHz : ReceiveOffsetKHz;
         set
         {
+            var clamped = Math.Clamp(value, OffsetMinKHz, OffsetMaxKHz);
             if (IsTransmitOffsetSelected)
-                TransmitOffsetKHz = value;
+                TransmitOffsetKHz = clamped;
             else
-                ReceiveOffsetKHz = value;
+                ReceiveOffsetKHz = clamped;
         }
     }
 
@@ -555,6 +560,13 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         if (_isLoadingSelection)
             return;
 
+        var clamped = Math.Clamp(value, OffsetMinKHz, OffsetMaxKHz);
+        if (Math.Abs(value - clamped) > 0.0001)
+        {
+            ReceiveOffsetKHz = clamped;
+            return;
+        }
+
         OnPropertyChanged(nameof(ActiveOffsetKHz));
         ApplyOffsetEdit();
     }
@@ -563,6 +575,13 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     {
         if (_isLoadingSelection)
             return;
+
+        var clamped = Math.Clamp(value, OffsetMinKHz, OffsetMaxKHz);
+        if (Math.Abs(value - clamped) > 0.0001)
+        {
+            TransmitOffsetKHz = clamped;
+            return;
+        }
 
         OnPropertyChanged(nameof(ActiveOffsetKHz));
         ApplyOffsetEdit();
@@ -595,8 +614,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     /// <summary>Active offset nudge in Hz (RX or TX leg per toggle).</summary>
     public void AdjustActiveOffsetHz(int deltaHz)
     {
-        const double maxKHz = 5.0;
-        ActiveOffsetKHz = Math.Clamp(ActiveOffsetKHz + deltaHz / 1000.0, -maxKHz, maxKHz);
+        ActiveOffsetKHz = Math.Clamp(ActiveOffsetKHz + deltaHz / 1000.0, OffsetMinKHz, OffsetMaxKHz);
     }
 
     /// <summary>Receive offset nudge in Hz (applied to downlink nominal before doppler).</summary>

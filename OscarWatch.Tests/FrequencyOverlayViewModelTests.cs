@@ -457,6 +457,73 @@ public class FrequencyOverlayViewModelTests
     }
 
     [Fact]
+    public void Rx_offset_accepts_and_stores_large_correction_for_wide_passbands()
+    {
+        var settings = new TestSettingsService();
+        settings.Current.FrequencySelections["RS-44"] = new SatelliteFrequencySelection
+        {
+            ModeType = "SSB Transponder",
+            ModeIndex = 0
+        };
+
+        var vm = new FrequencyOverlayViewModel(settings, CreateRs44Database(), LocalizationService.Instance);
+        vm.Update(Rs44TrackState());
+        vm.ReceiveOffsetKHz = 10.5;
+        vm.StoreOffsetCommand.Execute(null);
+
+        Assert.InRange(vm.ReceiveOffsetKHz, 10.499, 10.501);
+        var stored = settings.Current.FrequencySelections["RS-44"].ModeOffsets["SSB Transponder"];
+        Assert.InRange(stored.ReceiveOffsetKHz, 10.499, 10.501);
+    }
+
+    [Fact]
+    public void Tx_offset_accepts_and_stores_large_correction_for_wide_passbands()
+    {
+        var settings = new TestSettingsService();
+        settings.Current.FrequencySelections["RS-44"] = new SatelliteFrequencySelection
+        {
+            ModeType = "SSB Transponder",
+            ModeIndex = 0
+        };
+
+        var vm = new FrequencyOverlayViewModel(settings, CreateRs44Database(), LocalizationService.Instance);
+        vm.Update(Rs44TrackState());
+        vm.IsTransmitOffsetSelected = true;
+        vm.TransmitOffsetKHz = 10.5;
+        vm.StoreOffsetCommand.Execute(null);
+
+        Assert.InRange(vm.TransmitOffsetKHz, 10.499, 10.501);
+        var stored = settings.Current.FrequencySelections["RS-44"].ModeOffsets["SSB Transponder"];
+        Assert.InRange(stored.TransmitOffsetKHz, 10.499, 10.501);
+    }
+
+    [Fact]
+    public void Active_offset_clamps_at_twenty_kHz()
+    {
+        var vm = new FrequencyOverlayViewModel(new TestSettingsService(), CreateRs44Database(), LocalizationService.Instance);
+        vm.Update(Rs44TrackState());
+
+        vm.ReceiveOffsetKHz = 25.0;
+        Assert.Equal(FrequencyOverlayViewModel.OffsetMaxKHz, vm.ReceiveOffsetKHz);
+
+        vm.AdjustReceiveOffsetHz(5000);
+        Assert.Equal(FrequencyOverlayViewModel.OffsetMaxKHz, vm.ReceiveOffsetKHz);
+
+        vm.ReceiveOffsetKHz = -25.0;
+        Assert.Equal(FrequencyOverlayViewModel.OffsetMinKHz, vm.ReceiveOffsetKHz);
+
+        vm.IsTransmitOffsetSelected = true;
+        vm.TransmitOffsetKHz = 25.0;
+        Assert.Equal(FrequencyOverlayViewModel.OffsetMaxKHz, vm.TransmitOffsetKHz);
+
+        vm.AdjustActiveOffsetHz(5000);
+        Assert.Equal(FrequencyOverlayViewModel.OffsetMaxKHz, vm.TransmitOffsetKHz);
+
+        vm.TransmitOffsetKHz = -25.0;
+        Assert.Equal(FrequencyOverlayViewModel.OffsetMinKHz, vm.TransmitOffsetKHz);
+    }
+
+    [Fact]
     public void Store_tx_offset_preserves_existing_rx_offset()
     {
         var settings = new TestSettingsService();
