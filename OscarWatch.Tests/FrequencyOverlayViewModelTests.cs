@@ -1,3 +1,4 @@
+using OscarWatch.Core.Display;
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
@@ -737,6 +738,47 @@ public class FrequencyOverlayViewModelTests
 
         Assert.NotEqual(withoutLead.RadioReceiveText, withLead.RadioReceiveText);
         Assert.Equal(withoutLead.SatelliteReceiveText, withLead.SatelliteReceiveText);
+    }
+
+    [Fact]
+    public void Radio_row_matches_rig_doppler_calculator_with_lead_and_passband()
+    {
+        var settings = new TestSettingsService();
+        settings.Current.Rig.DopplerCatLeadEnabled = true;
+        settings.Current.Rig.DopplerCatLeadMs = 40;
+        settings.Current.Rig.DopplerCatLeadGainPercent = 100;
+        settings.Current.Rig.CatDelayMs = 50;
+
+        var state = Rs44TrackState();
+        var propagator = new LeadRatePropagator(slopeRate: 0.5, leadRate: 3.5);
+        var vm = new FrequencyOverlayViewModel(settings, CreateRs44Database(), LocalizationService.Instance, propagator);
+        vm.Update(state);
+        vm.ReceiveOffsetKHz = -1.2;
+        vm.TransmitOffsetKHz = -1.5;
+        vm.SyncRigPassbandAdjustments(-10.222, 10.222);
+
+        var lead = DopplerCatLead.ResolveRangeRates(
+            propagator,
+            settings.Current.Rig,
+            settings.Current.GroundStation,
+            state,
+            DateTime.UtcNow);
+        var expected = DopplerFrequencyCalculator.Compute(
+            vm.SelectedMode!,
+            lead.RxRangeRateKmPerSec,
+            vm.ReceiveOffsetKHz,
+            vm.TransmitOffsetKHz,
+            -10.222,
+            10.222,
+            vm.DopplerStrategy,
+            lead.TxRangeRateKmPerSec);
+
+        Assert.Equal(
+            FrequencyDisplayFormat.FormatMHz(expected.RadioReceiveKHz),
+            vm.RadioReceiveText);
+        Assert.Equal(
+            FrequencyDisplayFormat.FormatMHz(expected.RadioTransmitKHz),
+            vm.RadioTransmitText);
     }
 
     private static TestSatelliteDatabaseService CreateRs44Database() =>

@@ -78,8 +78,15 @@ public static class DopplerCatLead
         var fallback = state.LookAngles?.RangeRateKmPerSec ?? 0;
         if (!settings.DopplerCatLeadEnabled
             || propagator is null
-            || state.LookAngles is null
-            || settings.ReceiveCatDelayMs() <= 0 && settings.TransmitCatDelayMs() <= 0)
+            || state.LookAngles is null)
+        {
+            return new DopplerLeadRangeRates(fallback, fallback, 0);
+        }
+
+        var hasLeadTimeSource = settings.DopplerCatLeadMs > 0
+            || settings.ReceiveCatDelayMs() > 0
+            || settings.TransmitCatDelayMs() > 0;
+        if (!hasLeadTimeSource)
         {
             return new DopplerLeadRangeRates(fallback, fallback, 0);
         }

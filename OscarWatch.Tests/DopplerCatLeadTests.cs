@@ -41,6 +41,27 @@ public class DopplerCatLeadTests
     }
 
     [Fact]
+    public void Explicit_lead_ms_works_when_cat_delay_is_zero()
+    {
+        var utc = new DateTime(2026, 6, 1, 12, 0, 0, DateTimeKind.Utc);
+        var propagator = new StubPropagator(utc, snapshotRate: -3.5, slopeSampleRate: -2.0, rxLeadRate: 1.0, txLeadRate: 2.0);
+        var settings = new RigSettings
+        {
+            DopplerCatLeadEnabled = true,
+            CatDelayMs = 0,
+            DopplerCatLeadMs = 40,
+            DopplerCatLeadGainPercent = 100
+        };
+
+        var result = DopplerCatLead.ResolveRangeRates(propagator, settings, Site, StateWithRate(-3.5), utc);
+
+        Assert.Equal(2, propagator.CallCount);
+        Assert.True(result.LeadBlend > 0);
+        Assert.Equal(1.0, result.RxRangeRateKmPerSec);
+        Assert.Equal(1.0, result.TxRangeRateKmPerSec);
+    }
+
+    [Fact]
     public void Enabled_queries_propagator_at_half_cat_delay_per_leg_on_steep_slope()
     {
         var utc = new DateTime(2026, 6, 1, 12, 0, 0, DateTimeKind.Utc);

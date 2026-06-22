@@ -490,6 +490,8 @@ public sealed class RigController : IRigController, IDisposable
 
         if (ShouldTrackDopplerAutomatically(context))
         {
+            // Still run passband sync so phantom trim clears when Main returns to the pure Doppler baseline.
+            SyncManualFromMainDial(context);
             ProcessAutomaticDoppler(settings, context);
             return;
         }
@@ -520,6 +522,8 @@ public sealed class RigController : IRigController, IDisposable
 
         if (ShouldTrackDopplerAutomatically(context))
         {
+            // Still run passband sync so phantom trim clears when Main returns to the pure Doppler baseline.
+            SyncManualFromMainDial(context);
             ProcessAutomaticDoppler(settings, context);
             return;
         }
@@ -1637,15 +1641,15 @@ public sealed class RigController : IRigController, IDisposable
 
     private int ResolveWriteThresholdHz(RigSettings settings, RigTrackingContext context)
     {
-        if (!settings.DopplerAdaptiveThresholdEnabled
-            || _thresholdHz != settings.DopplerThresholdLinearHz
-            || _thresholdHz <= 0)
-        {
+        if (!SetupVfosPolicy.IsLinearMode(context.Mode.DownlinkMode))
             return _thresholdHz;
-        }
+
+        var baseThresholdHz = settings.DopplerThresholdLinearHz;
+        if (!settings.DopplerAdaptiveThresholdEnabled || baseThresholdHz <= 0)
+            return baseThresholdHz;
 
         return DopplerAdaptiveThreshold.Resolve(
-            _thresholdHz,
+            baseThresholdHz,
             EstimateDopplerSlewHzPerSec(context),
             enabled: true);
     }

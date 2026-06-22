@@ -54,14 +54,14 @@ public static class DopplerAdaptiveThreshold
             utc,
             rangeRateKmPerSec);
 
+        if (beaconOnly || strategy == DopplerStrategy.DownlinkOnly)
+            return SlewFromRangeRateSlope(downlinkKHz, slope);
+
+        if (strategy == DopplerStrategy.UplinkOnly)
+            return SlewFromRangeRateSlope(uplinkKHz, slope);
+
         var rxSlew = SlewFromRangeRateSlope(downlinkKHz, slope);
-        if (strategy == DopplerStrategy.UplinkOnly || beaconOnly)
-            return rxSlew;
-
         var txSlew = SlewFromRangeRateSlope(uplinkKHz, slope);
-        if (strategy == DopplerStrategy.DownlinkOnly)
-            return rxSlew;
-
         return Math.Max(rxSlew, txSlew);
     }
 }
