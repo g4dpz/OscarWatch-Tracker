@@ -1664,6 +1664,78 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Rev_linear_hands_off_automatic_resumes_with_passband_trim_after_knob_settles()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        RigTrackingContext Build(double rangeRateKmPerSec) => new()
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "RS-44",
+                NoradId = "99999",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, rangeRateKmPerSec)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, rangeRateKmPerSec, 0),
+            TransmitOffsetKHz = 0,
+            ReceiveOffsetKHz = 0
+        };
+
+        controller.Update(settings, Build(0));
+        Thread.Sleep(650);
+        var rxAfterInit = rig.MainHz;
+        Assert.True(rxAfterInit > 0);
+
+        rig.MainHz = rxAfterInit + 2_500;
+        for (var i = 0; i < 14; i++)
+            controller.RunTrackingLoopOnce();
+        Thread.Sleep(2600);
+        for (var i = 0; i < 4; i++)
+            controller.RunTrackingLoopOnce();
+
+        var statusAfterHunt = controller.GetStatus();
+        Assert.InRange(statusAfterHunt.ManualReceiveAdjustKHz, 2.4, 2.6);
+        Assert.InRange(statusAfterHunt.ManualTransmitAdjustKHz, -2.6, -2.4);
+
+        foreach (var rangeRateKmPerSec in new[] { 1.0, 2.5, 4.0, 5.5, 4.0, 2.5, 0.5, -0.5, -2.0, -4.0 })
+        {
+            controller.PublishContext(settings, Build(rangeRateKmPerSec));
+            for (var i = 0; i < 3; i++)
+                controller.RunTrackingLoopOnce();
+        }
+
+        var passbandDl = statusAfterHunt.ManualReceiveAdjustKHz;
+        var passbandUl = statusAfterHunt.ManualTransmitAdjustKHz;
+        var expectedRx = ToHz(DopplerFrequencyCalculator.Compute(
+            mode,
+            -4.0,
+            0,
+            0,
+            passbandDl,
+            passbandUl).RadioReceiveKHz);
+        Assert.InRange(rig.MainHz, expectedRx - 55, expectedRx + 55);
+    }
+
+    [Fact]
     public void Rev_linear_rx_offset_change_preserves_vfo_tune()
     {
         var rig = new RecordingRigDriver();

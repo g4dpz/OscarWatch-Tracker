@@ -810,6 +810,21 @@
   <data name="Freq.StoreOffset">
     <value>Guardar desplazamiento</value>
   </data>
+  <data name="Freq.PassbandTrimTitle">
+    <value>Recorte de pasabanda (dial Main)</value>
+  </data>
+  <data name="Freq.PassbandTrimSummary">
+    <value>Bajada {0} · Subida {1}</value>
+  </data>
+  <data name="Freq.ClearPassbandTrim">
+    <value>Borrar recorte de pasabanda</value>
+  </data>
+  <data name="Freq.ClearPassbandTrimToolTip">
+    <value>Traslada esta búsqueda en Main a los desplazamientos del panel y reanuda el Doppler automático. La frecuencia del radio no salta.</value>
+  </data>
+  <data name="Freq.PassbandTrimCleared">
+    <value>Recorte de pasabanda borrado y aplicado a los desplazamientos del panel.</value>
+  </data>
   <data name="Freq.Voice">
     <value>Voz</value>
   </data>

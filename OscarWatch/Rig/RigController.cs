@@ -17,6 +17,12 @@ public sealed class RigController : IRigController, IDisposable
     private const int DialHistoryLength = 8;
     /// <summary>After operator moves the Main dial, defer Sub (uplink) CAT so brief pauses while scanning do not select Sub.</summary>
     private const int InteractiveSubWriteCooldownMs = 2500;
+
+    /// <summary>
+    /// When Main still matches the last CAT receive write, allow Sub (uplink) CAT immediately —
+    /// Doppler moved the target, not the operator (IC-910/9700 post-TCA uplink lag).
+    /// </summary>
+    private const int InteractiveSubDopplerCooldownMs = 0;
     private const int FmCompanionLegHz = 10;
     /// <summary>Min Hz between dial and last CAT RX to treat as operator tuning (QTrigdoppler uses 1 Hz).</summary>
     private const int KnobTuneCaptureThresholdHz = 1;
@@ -61,6 +67,7 @@ public sealed class RigController : IRigController, IDisposable
     private RigVfo _receiveVfo = RigVfo.VfoA;
     private int _rxDialHistoryCount;
     private bool _vfoNotMoving;
+    private bool _receiveDialMatchesLastCatWrite;
     private double _passbandDownlinkAdjustKHz;
     private double _passbandUplinkAdjustKHz;
     private RigStatusKind _statusKind = RigStatusKind.None;
@@ -537,12 +544,13 @@ public sealed class RigController : IRigController, IDisposable
     }
 
     /// <summary>
-    /// Hands-off linear passes: when passband trim is neutral and Main still shows the last CAT RX write,
-    /// track doppler every loop instead of waiting for dial-stability (which our own writes reset).
+    /// Hands-off linear passes: when Main still shows the last CAT RX write, track doppler every loop
+    /// instead of waiting for dial-stability (which our own writes reset). Passband trim from an earlier
+    /// Main hunt may stay non-zero; that only records where the operator listens, not active tuning.
     /// </summary>
     private bool ShouldTrackDopplerAutomatically(RigTrackingContext context)
     {
-        if (!HasNeutralPassbandTrim() || _lastRigRxHz <= 0)
+        if (_lastRigRxHz <= 0)
             return false;
 
         if (!TryReadReceiveDialHz(out var dialHz))
@@ -681,8 +689,12 @@ public sealed class RigController : IRigController, IDisposable
         if (!TryReadReceiveDialHz(out var dialHz))
         {
             _vfoNotMoving = false;
+            _receiveDialMatchesLastCatWrite = false;
             return;
         }
+
+        _receiveDialMatchesLastCatWrite = _lastRigRxHz > 0
+            && DialMatchesLastCatWrite(dialHz, AutomaticDialMatchToleranceHz());
 
         if (DateTime.UtcNow < _ignoreDialUntilUtc)
         {
@@ -718,16 +730,25 @@ public sealed class RigController : IRigController, IDisposable
         return true;
     }
 
-    private bool CanWriteInteractiveSub() =>
-        (DateTime.UtcNow - _lastDialChangeUtc).TotalMilliseconds >= InteractiveSubWriteCooldownMs;
+    private bool CanWriteInteractiveSub()
+    {
+        var cooldownMs = _vfoNotMoving && _receiveDialMatchesLastCatWrite
+            ? InteractiveSubDopplerCooldownMs
+            : InteractiveSubWriteCooldownMs;
+        return (DateTime.UtcNow - _lastDialChangeUtc).TotalMilliseconds >= cooldownMs;
+    }
 
     private void ShiftDialHistory(long dialHz)
     {
         if (_rxDialHistoryCount > 0)
         {
             var previous = _rxDialHistory[Math.Min(_rxDialHistoryCount, DialHistoryLength) - 1];
-            if (previous != dialHz)
+            if (previous != dialHz
+                && DateTime.UtcNow >= _ignoreDialUntilUtc
+                && IsOperatorDialMovement(dialHz))
+            {
                 _lastDialChangeUtc = DateTime.UtcNow;
+            }
         }
 
         if (_rxDialHistoryCount < DialHistoryLength)
@@ -746,9 +767,14 @@ public sealed class RigController : IRigController, IDisposable
     {
         _rxDialHistoryCount = 0;
         _vfoNotMoving = false;
+        _receiveDialMatchesLastCatWrite = false;
         _lastDialChangeUtc = DateTime.MinValue;
         Array.Clear(_rxDialHistory);
     }
+
+    /// <summary>Main dial moved away from the last CAT RX write — operator passband hunt, not Doppler stepping.</summary>
+    private bool IsOperatorDialMovement(long dialHz) =>
+        _lastRigRxHz <= 0 || Math.Abs(dialHz - _lastRigRxHz) >= KnobTuneThresholdHz();
 
     private bool WriteDopplerFrequencies(RigSettings settings, RigTrackingContext context, bool holdDownlinkCatWrites = false)
     {

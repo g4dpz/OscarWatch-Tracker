@@ -810,6 +810,21 @@ Continue?</value>
   <data name="Freq.StoreOffset">
     <value>Store Offset</value>
   </data>
+  <data name="Freq.PassbandTrimTitle">
+    <value>Passband trim (Main dial)</value>
+  </data>
+  <data name="Freq.PassbandTrimSummary">
+    <value>Downlink {0} · Uplink {1}</value>
+  </data>
+  <data name="Freq.ClearPassbandTrim">
+    <value>Clear passband trim</value>
+  </data>
+  <data name="Freq.ClearPassbandTrimToolTip">
+    <value>Folds this Main-dial hunt into the panel offsets above and resumes hands-off Doppler. Your radio frequency does not jump.</value>
+  </data>
+  <data name="Freq.PassbandTrimCleared">
+    <value>Passband trim cleared and applied to panel offsets.</value>
+  </data>
   <data name="Freq.Voice">
     <value>Voice</value>
   </data>

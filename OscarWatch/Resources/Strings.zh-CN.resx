@@ -786,6 +786,21 @@
   <data name="Freq.StoreOffset">
     <value>保存偏移</value>
   </data>
+  <data name="Freq.PassbandTrimTitle">
+    <value>通带微调（主旋钮）</value>
+  </data>
+  <data name="Freq.PassbandTrimSummary">
+    <value>下行 {0} · 上行 {1}</value>
+  </data>
+  <data name="Freq.ClearPassbandTrim">
+    <value>清除通带微调</value>
+  </data>
+  <data name="Freq.ClearPassbandTrimToolTip">
+    <value>将主旋钮搜寻量并入上方面板偏移，并恢复自动多普勒。电台频率不会跳变。</value>
+  </data>
+  <data name="Freq.PassbandTrimCleared">
+    <value>通带微调已清除并并入面板偏移。</value>
+  </data>
   <data name="Freq.Voice">
     <value>话音</value>
   </data>

@@ -786,6 +786,21 @@ Continuar?</value>
   <data name="Freq.StoreOffset">
     <value>Salvar Offset</value>
   </data>
+  <data name="Freq.PassbandTrimSummary">
+    <value>Downlink {0} · Uplink {1}</value>
+  </data>
+  <data name="Freq.PassbandTrimTitle">
+    <value>Ajuste de passband (dial Main)</value>
+  </data>
+  <data name="Freq.ClearPassbandTrim">
+    <value>Limpar ajuste de passband</value>
+  </data>
+  <data name="Freq.ClearPassbandTrimToolTip">
+    <value>Incorpora esta busca no Main aos offsets do painel e retoma o Doppler automático. A frequência do rádio não salta.</value>
+  </data>
+  <data name="Freq.PassbandTrimCleared">
+    <value>Ajuste de passband limpo e aplicado aos offsets do painel.</value>
+  </data>
   <data name="Freq.Voice">
     <value>Voz</value>
   </data>

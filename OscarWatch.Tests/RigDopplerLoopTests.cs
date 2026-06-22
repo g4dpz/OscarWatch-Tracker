@@ -169,6 +169,55 @@ public class RigDopplerLoopTests
     }
 
     [Fact]
+    public void Interactive_sub_tracks_uplink_without_operator_tune_deferral_when_main_matches_cat()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.IcomIc910,
+            Port = "COM1",
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        RigTrackingContext Build(double rangeRateKmPerSec) => new()
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "RS-44",
+                NoradId = "44909",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 25, 800, rangeRateKmPerSec)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, rangeRateKmPerSec, 0),
+            DopplerStrategy = DopplerStrategy.Full
+        };
+
+        controller.Update(settings, Build(0));
+        Thread.Sleep(650);
+        var txAfterInit = rig.SubHz;
+
+        // Steep receding leg (post-TCA): Doppler moves both legs; operator hands are off Main.
+        controller.PublishContext(settings, Build(3.5), reinitializePass: false);
+        for (var i = 0; i < 14; i++)
+            controller.RunTrackingLoopOnce();
+
+        Assert.NotEqual(txAfterInit, rig.SubHz);
+    }
+
+    [Fact]
     public void Automatic_fm_skips_vfo_select_when_doppler_is_below_threshold()
     {
         var rig = new RecordingRigDriver();

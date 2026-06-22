@@ -600,6 +600,21 @@
   <data name="Freq.StoreOffset">
     <value>オフセットを保存</value>
   </data>
+  <data name="Freq.PassbandTrimTitle">
+    <value>パスバンド調整（Main ダイヤル）</value>
+  </data>
+  <data name="Freq.PassbandTrimSummary">
+    <value>ダウンリンク {0} · アップリンク {1}</value>
+  </data>
+  <data name="Freq.ClearPassbandTrim">
+    <value>パスバンド調整をクリア</value>
+  </data>
+  <data name="Freq.ClearPassbandTrimToolTip">
+    <value>Main ダイヤルでの探索分を上のパネルオフセットに取り込み、手を離したドップラー追従に戻します。無線機の周波数は飛びません。</value>
+  </data>
+  <data name="Freq.PassbandTrimCleared">
+    <value>パスバンド調整をクリアし、パネルオフセットに反映しました。</value>
+  </data>
   <data name="Freq.Voice">
     <value>音声</value>
   </data>
