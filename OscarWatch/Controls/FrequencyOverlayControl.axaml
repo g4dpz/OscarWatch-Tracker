@@ -21,6 +21,18 @@
       <Setter Property="HorizontalAlignment" Value="Stretch" />
       <Setter Property="HorizontalContentAlignment" Value="Center" />
       <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Background" Value="#FF1E1E1E" />
+      <Setter Property="BorderBrush" Value="#FF505050" />
+      <Setter Property="Foreground" Value="#FFFFFFFF" />
+    </Style>
+    <Style Selector="NumericUpDown.freq-panel-spin">
+      <Setter Property="MinHeight" Value="32" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="Background" Value="#FF1E1E1E" />
+      <Setter Property="BorderBrush" Value="#FF505050" />
+      <Setter Property="Foreground" Value="#FFFFFFFF" />
     </Style>
     <Style Selector="NumericUpDown.offset-spin /template/ TextBox#PART_TextBox">
       <Setter Property="MinHeight" Value="0" />
@@ -282,6 +294,7 @@
     </Style>
   </UserControl.Styles>
 
+  <ThemeVariantScope RequestedThemeVariant="Dark">
   <Border Background="#FF121212"
           BorderBrush="#FF505050"
           BorderThickness="1"
@@ -516,7 +529,8 @@
                   <TextBlock Text="{loc:Localize Key=Settings.Radio.DopplerCatLeadGain}"
                              FontSize="11"
                              Foreground="#FFB0B0B0" />
-                  <NumericUpDown Value="{Binding LiveLeadGainPercent, Mode=TwoWay}"
+                  <NumericUpDown Classes="freq-panel-spin"
+                                 Value="{Binding LiveLeadGainPercent, Mode=TwoWay}"
                                  Minimum="10" Maximum="100"
                                  Increment="5" FormatString="F0"
                                  MinHeight="32"
@@ -528,7 +542,8 @@
                   <TextBlock Text="{loc:Localize Key=Settings.Radio.DopplerCatLeadMs}"
                              FontSize="11"
                              Foreground="#FFB0B0B0" />
-                  <NumericUpDown Value="{Binding LiveLeadMs, Mode=TwoWay}"
+                  <NumericUpDown Classes="freq-panel-spin"
+                                 Value="{Binding LiveLeadMs, Mode=TwoWay}"
                                  Minimum="0" Maximum="100"
                                  Increment="5" FormatString="F0"
                                  MinHeight="32"
@@ -646,4 +661,5 @@
       </StackPanel>
     </StackPanel>
   </Border>
+  </ThemeVariantScope>
 </UserControl>
