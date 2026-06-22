@@ -44,6 +44,8 @@ public class SetupVfosPolicyTests
     [InlineData("FMN", 200, 50, 200, false)]
     [InlineData("USB", 200, 50, 50, true)]
     [InlineData("DATA-USB", 200, 50, 0, false)]
+    [InlineData("DATA-FM", 200, 50, 200, false)]
+    [InlineData("FM-DATA", 200, 50, 200, false)]
     public void Evaluate_returns_expected_threshold(
         string mode, int fm, int linear, int expectedThreshold, bool interactive)
     {

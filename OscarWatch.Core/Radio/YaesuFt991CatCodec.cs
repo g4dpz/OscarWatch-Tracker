@@ -76,7 +76,7 @@ public static class YaesuFt991CatCodec
             "USB" or "DATA-USB" => '2',
             "CW" or "CW-U" => '3',
             "CWR" or "CW-L" => '7',
-            "FM" or "DATA-FM" => '4',
+            "FM" or "DATA-FM" or "FM-DATA" => '4',
             "FMN" => 'B',
             "AM" => '5',
             "AMN" => 'D',
@@ -93,7 +93,7 @@ public static class YaesuFt991CatCodec
     public static bool IsFmMode(string mode)
     {
         var upper = mode.Trim().ToUpperInvariant();
-        return upper is "FM" or "FMN" or "DATA-FM" or "C4FM";
+        return upper is "FM" or "FMN" or "DATA-FM" or "FM-DATA" or "C4FM";
     }
 
     public static bool TryGetCtcssIndex(double toneHz, out int zeroBasedIndex)

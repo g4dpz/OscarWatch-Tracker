@@ -140,7 +140,7 @@ public static class YaesuFt817CatCodec
             "CW" => useNarrow ? (byte)0x82 : (byte)0x02,
             "CWR" => useNarrow ? (byte)0x83 : (byte)0x03,
             "AM" => useNarrow ? (byte)0x84 : (byte)0x04,
-            "FM" or "FMN" => useNarrow ? (byte)0x88 : (byte)0x08,
+            "FM" or "FMN" or "DATA-FM" or "FM-DATA" => useNarrow ? (byte)0x88 : (byte)0x08,
             _ => 0x01
         };
     }

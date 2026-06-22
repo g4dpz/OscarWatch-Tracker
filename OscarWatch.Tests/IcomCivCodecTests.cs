@@ -77,6 +77,8 @@ public class IcomCivCodecTests
     [InlineData("LSB", "0600")]
     [InlineData("DATA-USB", "0601")]
     [InlineData("DATA-LSB", "0600")]
+    [InlineData("DATA-FM", "0605")]
+    [InlineData("FM-DATA", "0605")]
     [InlineData("CW", "0603")]
     public void EncodeSetModeCommand_maps_modes(string mode, string expectedHex)
     {
@@ -103,6 +105,8 @@ public class IcomCivCodecTests
     [InlineData("LSB", new[] { "0600", "1a060000" })]
     [InlineData("FM", new[] { "0605" })]
     [InlineData("CW", new[] { "0603" })]
+    [InlineData("DATA-FM", new[] { "0605", "1a060101" })]
+    [InlineData("FM-DATA", new[] { "0605", "1a060101" })]
     public void Encode9700SetModeCommands_includes_data_mode_for_digital_sideband(string mode, string[] expectedHex)
     {
         var commands = IcomCivCodec.Encode9700SetModeCommands(mode);

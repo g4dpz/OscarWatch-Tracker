@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using OscarWatch.Core.Json;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Radio;
 
 namespace OscarWatch.Core.Services;
 
@@ -72,8 +73,8 @@ public static class SatelliteDatabaseFile
         foreach (var mode in entry.Modes)
         {
             mode.Type = mode.Type.Trim();
-            mode.DownlinkMode = mode.DownlinkMode.Trim();
-            mode.UplinkMode = mode.UplinkMode.Trim();
+            mode.DownlinkMode = TransponderCatModes.Normalize(mode.DownlinkMode);
+            mode.UplinkMode = TransponderCatModes.Normalize(mode.UplinkMode);
             mode.Doppler = string.IsNullOrWhiteSpace(mode.Doppler) ? "NOR" : mode.Doppler.Trim().ToUpperInvariant();
             if (mode.CtcssHz is <= 0)
                 mode.CtcssHz = null;

@@ -179,7 +179,7 @@ public static class KenwoodCatCodec
             "LSB" or "DATA-LSB" => '1',
             "USB" or "DATA-USB" => '2',
             "CW" => '3',
-            "FM" or "FMN" => '4',
+            "FM" or "FMN" or "DATA-FM" or "FM-DATA" => '4',
             "AM" => '5',
             _ => (char)0
         };

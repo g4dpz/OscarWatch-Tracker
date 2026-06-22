@@ -4,6 +4,7 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Radio;
 using OscarWatch.Core.Services;
 using OscarWatch.Localization;
 using OscarWatch.Views;
@@ -66,8 +67,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
 
     public bool HasSelectedMode => SelectedMode is not null;
 
-    public IReadOnlyList<string> OperatingModes { get; } =
-        ["USB", "LSB", "FM", "FMN", "CW", "DATA-USB", "DATA-LSB"];
+    public IReadOnlyList<string> OperatingModes { get; } = TransponderCatModes.EditorOptions;
 
     public IReadOnlyList<string> DopplerOptions { get; } = ["NOR", "REV"];
 

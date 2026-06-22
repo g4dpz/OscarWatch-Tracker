@@ -78,7 +78,7 @@ public static class IcomCivCodec
     public static byte[]? EncodeSetModeCommand(string mode) =>
         mode.Trim().ToUpperInvariant() switch
         {
-            "FM" or "FMN" => [0x06, 0x05],
+            "FM" or "FMN" or "DATA-FM" or "FM-DATA" => [0x06, 0x05],
             "USB" or "DATA-USB" => [0x06, 0x01],
             "LSB" or "DATA-LSB" => [0x06, 0x00],
             "CW" => [0x06, 0x03],
@@ -91,18 +91,19 @@ public static class IcomCivCodec
     /// </summary>
     public static byte[][] Encode9700SetModeCommands(string mode)
     {
-        var upper = mode.Trim().ToUpperInvariant();
-        var baseMode = upper switch
+        var normalized = TransponderCatModes.Normalize(mode);
+        var baseMode = normalized switch
         {
             "DATA-USB" => "USB",
             "DATA-LSB" => "LSB",
-            _ => upper
+            "DATA-FM" => "FM",
+            _ => normalized
         };
 
         if (EncodeSetModeCommand(baseMode) is not { } baseCmd)
             return [];
 
-        if (upper is "DATA-USB" or "DATA-LSB")
+        if (normalized is "DATA-USB" or "DATA-LSB" or "DATA-FM")
             return [baseCmd, [0x1A, 0x06, 0x01, 0x01]];
 
         if (baseMode is "USB" or "LSB")

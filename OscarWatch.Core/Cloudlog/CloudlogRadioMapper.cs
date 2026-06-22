@@ -63,6 +63,7 @@ public static class CloudlogRadioMapper
         return upper switch
         {
             "FMN" => "FM",
+            "DATA-FM" or "FM-DATA" => "FM",
             "DATA-USB" => "USB",
             "DATA" => "USB",
             _ => upper
