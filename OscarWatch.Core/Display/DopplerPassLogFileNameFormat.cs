@@ -46,11 +46,37 @@ public static class DopplerPassLogFileNameFormat
     {
         var directory = ResolveLogDirectory(configuredFolder);
         Directory.CreateDirectory(directory);
-        Process.Start(new ProcessStartInfo
+        if (OperatingSystem.IsWindows())
         {
-            FileName = directory,
-            UseShellExecute = true
-        });
+            var psi = new ProcessStartInfo
+            {
+                FileName = "explorer",
+                UseShellExecute = false
+            };
+            psi.ArgumentList.Add(directory);
+            Process.Start(psi);
+            return;
+        }
+
+        if (OperatingSystem.IsMacOS())
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = "open",
+                UseShellExecute = false
+            };
+            psi.ArgumentList.Add(directory);
+            Process.Start(psi);
+            return;
+        }
+
+        var linux = new ProcessStartInfo
+        {
+            FileName = "xdg-open",
+            UseShellExecute = false
+        };
+        linux.ArgumentList.Add(directory);
+        Process.Start(linux);
     }
 
     private static string SanitizeSatelliteName(string satelliteName)

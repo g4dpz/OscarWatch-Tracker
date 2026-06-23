@@ -1483,6 +1483,18 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private async Task OpenDopplerPassInsightsAsync()
+    {
+        var vm = App.Services.GetRequiredService<DopplerPassInsightsViewModel>();
+        await vm.LoadLatestCommand.ExecuteAsync(null).ConfigureAwait(true);
+        var window = new DopplerPassInsightsWindow { DataContext = vm };
+        if (App.MainWindow is null)
+            return;
+
+        await window.ShowDialog(App.MainWindow);
+    }
+
+    [RelayCommand]
     private async Task OpenSettingsAsync()
     {
         var vm = App.Services.GetRequiredService<SettingsViewModel>();

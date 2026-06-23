@@ -40,6 +40,7 @@
         <MenuItem Header="{loc:Localize Key=Menu.Passes.Mutual}" Command="{Binding OpenMutualPassFinderCommand}" />
         <Separator />
         <MenuItem Header="{loc:Localize Key=Menu.Passes.Sunlight}" Command="{Binding OpenSunlightPredictionCommand}" />
+        <MenuItem Header="{loc:Localize Key=Menu.Passes.DopplerInsights}" Command="{Binding OpenDopplerPassInsightsCommand}" />
       </MenuItem>
       <MenuItem Header="{loc:Localize Key=Menu.Rotator}"
                 Command="{Binding OpenRotatorManualCommand}"

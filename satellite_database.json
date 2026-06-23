@@ -238,8 +238,8 @@
           "type": "FM VOICE",
           "downlink": 436795,
           "uplink": 145850,
-          "downlink_mode": "FMN",
-          "uplink_mode": "FMN",
+          "downlink_mode": "FM",
+          "uplink_mode": "FM",
           "doppler": "NOR",
           "ctcss": 67.0,
           "ctcss_arm": 74.4

@@ -414,6 +414,9 @@ Continue?</value>
   <data name="Menu.Passes.Sunlight">
     <value>_Sunlight Prediction</value>
   </data>
+  <data name="Menu.Passes.DopplerInsights">
+    <value>Doppler Pass Insights</value>
+  </data>
   <data name="Menu.Rotator">
     <value>_Rotator</value>
   </data>
@@ -669,8 +672,233 @@ Continue?</value>
   <data name="Window.PassVisualizer.Title">
     <value>Pass Visualiser</value>
   </data>
+  <data name="Window.DopplerInsights.Title">
+    <value>Doppler Pass Insights</value>
+  </data>
   <data name="Window.Sunlight.Title">
     <value>Sunlight Prediction</value>
+  </data>
+  <data name="DopplerInsights.Header">
+    <value>Doppler Pass Insights</value>
+  </data>
+  <data name="DopplerInsights.Subtitle">
+    <value>Load a Doppler CSV log to see write behavior, thresholds, and suggestions for improving CAT tuning.</value>
+  </data>
+  <data name="DopplerInsights.OpenCsv">
+    <value>Open CSV</value>
+  </data>
+  <data name="DopplerInsights.LoadLatest">
+    <value>Load latest</value>
+  </data>
+  <data name="DopplerInsights.OpenFolder">
+    <value>Open log folder</value>
+  </data>
+  <data name="DopplerInsights.Picker.Title">
+    <value>Select Doppler pass CSV</value>
+  </data>
+  <data name="DopplerInsights.Picker.CompareTitle">
+    <value>Select comparison Doppler pass CSV</value>
+  </data>
+  <data name="DopplerInsights.OpenCompareCsv">
+    <value>Open compare CSV</value>
+  </data>
+  <data name="DopplerInsights.ClearCompare">
+    <value>Clear compare</value>
+  </data>
+  <data name="DopplerInsights.Section.Summary">
+    <value>Summary</value>
+  </data>
+  <data name="DopplerInsights.Section.Chart">
+    <value>Time-series chart (solid = primary, dashed = compare)</value>
+  </data>
+  <data name="DopplerInsights.Chart.Legend">
+    <value>Blue = RX delta, Orange = TX delta, Teal = threshold, Purple = CAT writes</value>
+  </data>
+  <data name="DopplerInsights.Chart.Hint">
+    <value>Use +/− buttons to zoom, or scroll horizontally to pan</value>
+  </data>
+  <data name="DopplerInsights.Section.Bars">
+    <value>Activity bars (percent of rows)</value>
+  </data>
+  <data name="DopplerInsights.Section.Analysis">
+    <value>Analysis details</value>
+  </data>
+  <data name="DopplerInsights.Tab.Activity">
+    <value>Activity bars</value>
+  </data>
+  <data name="DopplerInsights.Tab.Overview">
+    <value>Overview</value>
+  </data>
+  <data name="DopplerInsights.Tab.Events">
+    <value>Recent events</value>
+  </data>
+  <data name="DopplerInsights.Tab.Chart">
+    <value>Chart</value>
+  </data>
+  <data name="DopplerInsights.Tab.Files">
+    <value>Files</value>
+  </data>
+  <data name="DopplerInsights.Tab.Comparison">
+    <value>Comparison</value>
+  </data>
+  <data name="DopplerInsights.Tab.Analysis">
+    <value>Analysis</value>
+  </data>
+  <data name="DopplerInsights.Section.Recommendations">
+    <value>Recommendations</value>
+  </data>
+  <data name="DopplerInsights.Section.HowTo">
+    <value>How to use this to tune radio settings</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Intro">
+    <value>Use this panel to compare one pass before and after changing settings.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step1">
+    <value>1) If "Suppressed by threshold" is very high and RX/TX writes are low, lower Doppler threshold slightly.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step2">
+    <value>2) If RX/TX write rates are very high, increase threshold or CAT delay to reduce chatter.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step3">
+    <value>3) If peak slew is high and tracking lags, enable/increase Lead Doppler for CAT latency.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step4">
+    <value>4) Use compare mode: aim for lower p95 deltas with stable write rates and fewer manual interventions.</value>
+  </data>
+  <data name="DopplerInsights.Section.Events">
+    <value>Recent events</value>
+  </data>
+  <data name="DopplerInsights.Bar.RxWrites">
+    <value>RX write rate</value>
+  </data>
+  <data name="DopplerInsights.Bar.TxWrites">
+    <value>TX write rate</value>
+  </data>
+  <data name="DopplerInsights.Bar.BelowThreshold">
+    <value>Suppressed by threshold</value>
+  </data>
+  <data name="DopplerInsights.Bar.Interactive">
+    <value>Manual/interactive periods</value>
+  </data>
+  <data name="DopplerInsights.Status.Ready">
+    <value>Select a CSV file or load the latest pass log.</value>
+  </data>
+  <data name="DopplerInsights.Status.Loading">
+    <value>Loading Doppler pass log</value>
+  </data>
+  <data name="DopplerInsights.Status.Loaded">
+    <value>Loaded {0} rows.</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadingCompare">
+    <value>Loading comparison pass log</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadedCompare">
+    <value>Loaded comparison with {0} rows.</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderOk">
+    <value>Opened Doppler log folder.</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderFailed">
+    <value>Could not open Doppler log folder: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadFailed">
+    <value>Could not load log: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.FileMissing">
+    <value>Selected file was not found.</value>
+  </data>
+  <data name="DopplerInsights.Status.NoLogsFolder">
+    <value>No Doppler log folder found yet: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.NoCsvLogs">
+    <value>No Doppler CSV files were found in: {0}</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Empty">
+    <value>No pass data loaded.</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Value">
+    <value>Satellite: {0}. Pass window: {1} to {2} UTC ({3} min). Rows: {4} total, {5} snapshots, {6} CAT writes, {7} offset changes.</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Empty">
+    <value>Threshold metrics unavailable.</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Value">
+    <value>Thresholds: base {0} Hz, effective {1} Hz (adaptive reduction {2}%). Suppressed rows: {3}%.</value>
+  </data>
+  <data name="DopplerInsights.Activity.Empty">
+    <value>Write activity metrics unavailable.</value>
+  </data>
+  <data name="DopplerInsights.Activity.Value">
+    <value>Writes: RX {0}%, TX {1}%. Interactive rows: {2}%. CAT paused rows: {3}. Lead enabled rows: {4}%.</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Empty">
+    <value>Frequency delta metrics unavailable.</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Value">
+    <value>Deltas: RX avg {0} Hz, RX p95 {1} Hz, TX avg {2} Hz, TX p95 {3} Hz. Peak slew: {4} Hz/s.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Empty">
+    <value>No comparison loaded.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Value">
+    <value>Primary [{0}] RX/TX write {1}%/{2}%, RX/TX p95 {3}/{4} Hz. Compare [{5}] RX/TX write {6}%/{7}%, RX/TX p95 {8}/{9} Hz.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyTitle">
+    <value>Load a comparison pass to see if your settings changes improved tracking.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyText">
+    <value>When you load a second CSV (after changing Doppler threshold, CAT delay, or lead settings), this section will show whether the new pass is better or worse.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.BetterTitle">
+    <value>✓ Comparison pass is better</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.WorseTitle">
+    <value>✗ Comparison pass is worse</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.MixedTitle">
+    <value>~ Comparison pass is mixed</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.Value">
+    <value>RX writes {0}%, TX writes {1}%, RX p95 {2} Hz, TX p95 {3} Hz. Next: {4}</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.IncreaseAggression">
+    <value>Lower threshold or CAT delay slightly to increase tuning aggressiveness.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.StabilizeWrites">
+    <value>Raise threshold or CAT delay slightly to reduce write chatter.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.KeepSettings">
+    <value>Keep these settings - they are working well!</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.SmallStep">
+    <value>Make a small adjustment and compare again.</value>
+  </data>
+  <data name="DopplerInsights.Chart.Empty">
+    <value>Load a Doppler CSV to see time-series plots of RX/TX delta, threshold, and write events.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Empty">
+    <value>Record one full pass to generate tuning recommendations.</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdHigh">
+    <value>Threshold looks high for this pass. Consider lowering Doppler threshold so CAT can react sooner.</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdLow">
+    <value>Write rate is very high. If audio sounds chattery, raise Doppler threshold slightly or increase CAT delay.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Interactive">
+    <value>Manual tuning occurred during this pass. If this was not intentional, check CAT stability and transponder alignment.</value>
+  </data>
+  <data name="DopplerInsights.Reco.CatPaused">
+    <value>CAT paused rows were detected. Verify CAT pause was not left enabled during active tracking.</value>
+  </data>
+  <data name="DopplerInsights.Reco.EnableLead">
+    <value>High Doppler slew with low lead usage. Enable Lead Doppler for CAT latency on steep pass legs.</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveThreshold">
+    <value>Adaptive threshold was active. Compare with a pass where it is disabled to confirm smoother tuning for your rig.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Balanced">
+    <value>This pass looks balanced. Keep settings as-is and compare against additional passes for consistency.</value>
   </data>
   <data name="Window.RotatorManual.Title">
     <value>Manual rotator control</value>
@@ -679,7 +907,7 @@ Continue?</value>
     <value>Transponder database</value>
   </data>
   <data name="Dx.Title">
-    <value>DX station</value>
+    <value>DX Station</value>
   </data>
   <data name="Dx.GridWatermark">
     <value>Maidenhead grid (e.g. JO22 or JO22lk)</value>

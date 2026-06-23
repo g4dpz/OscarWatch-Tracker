@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Doppler pass insights — OscarWatch Help</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <a href="index.html" class="brand-home" title="Home"><img src="oscarwatch-icon.png" alt="" class="brand-icon" width="56" height="56" /></a>
+        <div class="brand-text">
+          <h1>Doppler pass insights</h1>
+          <p class="tagline">Review CAT write behaviour and tune Doppler settings with recorded pass logs</p>
+        </div>
+      </div>
+      <nav aria-label="Help topics">
+        <ul>
+          <li><a href="quick-start.html">Quick start</a></li>
+          <li><a href="map-and-sidebar.html">Map &amp; sidebar</a></li>
+          <li><a href="frequencies.html">Frequencies</a></li>
+          <li><a href="satellites.html">Satellites &amp; TLEs</a></li>
+          <li><a href="passes.html">Pass planning</a></li>
+          <li><a href="radio-rotator.html">Radio &amp; rotator</a></li>
+          <li><a href="settings.html">Settings</a></li>
+          <li><a href="keyboard-shortcuts.html">Shortcuts</a></li>
+          <li><a href="troubleshooting.html">Problems?</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <p class="lead">
+        The Doppler pass insights tool lets you load a recorded pass log (CSV) and see a detailed time-series
+        chart of how your Doppler threshold, CAT delay, and lead settings performed during that pass. You can also
+        load a second pass to compare settings changes side by side.
+      </p>
+
+      <h2>Opening Doppler pass insights</h2>
+      <p>
+        Go to <strong>Menu → Help → Doppler pass insights</strong> to open the window. It will show a list of recent
+        pass logs stored in your local doppler-logs folder.
+      </p>
+
+      <h2>Loading a pass log</h2>
+      <p>
+        Click <strong>Open CSV</strong> to browse to any Doppler log file on your computer. Each row in the CSV
+        records the status of one CAT write (or lack thereof) during the pass. OscarWatch displays:
+      </p>
+      <ul>
+        <li>Your selected pass file path</li>
+        <li>A summary of key metrics (RX/TX write rates, frequency deltas, peak slew)</li>
+        <li>A detailed time-series chart showing what happened second by second</li>
+      </ul>
+
+      <h3>Using "Load latest"</h3>
+      <p>
+        Click <strong>Load latest</strong> to quickly load the most recent pass log without browsing. This is handy
+        if you just finished a pass and want to review it immediately.
+      </p>
+
+      <h3>Opening the logs folder</h3>
+      <p>
+        Click <strong>Open log folder</strong> to open your system file browser to the Doppler logs directory.
+        On Windows, logs are stored in <code>%AppData%\OscarWatch\doppler-logs\</code>.
+      </p>
+
+      <h2>Reading the chart</h2>
+      <p>
+        The chart displays four colour-coded series over the entire pass duration:
+      </p>
+      <ul>
+        <li><strong>Blue</strong> — RX frequency delta (how far off centre the calculated frequency was)</li>
+        <li><strong>Orange</strong> — TX frequency delta (uplink shift)</li>
+        <li><strong>Teal</strong> — Doppler threshold (the band where no CAT write happens)</li>
+        <li><strong>Purple ticks</strong> — Individual CAT writes (when you commanded the radio)</li>
+      </ul>
+      <p>
+        The vertical axis shows frequency in Hertz; the horizontal axis shows elapsed seconds from start of pass.
+      </p>
+
+      <h3>Zooming and panning</h3>
+      <p>
+        Use the zoom buttons above the chart:
+      </p>
+      <ul>
+        <li><strong>+</strong> — Zoom in (up to 16x magnification)</li>
+        <li><strong>−</strong> — Zoom out</li>
+        <li><strong>Reset</strong> — Return to full-pass view</li>
+      </ul>
+      <p>
+        When zoomed in, the chart becomes scrollable. Use the horizontal scrollbar to pan through different parts
+        of the pass. You can also use Ctrl+scroll wheel to zoom. This lets you examine the steep middle of a pass
+        in detail or see the approach and departure legs clearly.
+      </p>
+
+      <h2>Analysis tabs</h2>
+
+      <h3>Overview</h3>
+      <p>
+        The Overview tab displays a summary of the pass:
+      </p>
+      <ul>
+        <li><strong>Summary</strong> — Satellite name, pass window, row count, snapshot count, CAT writes, and offset changes</li>
+        <li><strong>Thresholds</strong> — Your configured threshold band and effective reduction percentage</li>
+        <li><strong>Dynamics</strong> — Peak deltas (slew rate) and p95 percentiles (95th percentile delta, excluding the worst 5%)</li>
+        <li><strong>Activity</strong> — Percentages of rows where CAT was writing, paused, or offset was changed</li>
+        <li><strong>Recommendations</strong> — Suggestions for tuning (if the data indicates issues)</li>
+        <li><strong>How to use this to tune radio settings</strong> — A four-step guide for making targeted improvements</li>
+      </ul>
+
+      <h3>Activity bars</h3>
+      <p>
+        Visual progress bars show:
+      </p>
+      <ul>
+        <li><strong>RX writes</strong> — Percentage of rows where RX was updated</li>
+        <li><strong>TX writes</strong> — Percentage of rows where TX was updated</li>
+        <li><strong>Below threshold</strong> — Percentage of rows inside the threshold band (no write)</li>
+        <li><strong>Interactive</strong> — Percentage of rows where manual offset changes happened</li>
+      </ul>
+
+      <h3>Recent events</h3>
+      <p>
+        A detailed event log showing every sampled point in time-order. Each entry shows UTC time, event type
+        (calculated, written, offset change, etc.), RX and TX deltas, whether writes happened, threshold status,
+        and any notes about what occurred.
+      </p>
+
+      <h2>Comparing two passes</h2>
+      <p>
+        To see if a settings change improved your pass, switch to the <strong>Files</strong> tab and click
+        <strong>Open compare CSV</strong>. Load a second pass log. OscarWatch will:
+      </p>
+      <ul>
+        <li>Overlay the comparison pass on the chart as dashed lines</li>
+        <li>Show both passes' metrics in the primary summary</li>
+        <li>Calculate a verdict (better, worse, or mixed)</li>
+        <li>Display delta changes and recommend the next tuning step</li>
+      </ul>
+
+      <h3>Understanding the comparison verdict</h3>
+      <p>
+        The <strong>Comparison</strong> tab appears once you load a second pass. It shows:
+      </p>
+      <ul>
+        <li>
+          <strong>Tick (✓) Better</strong> — Your second pass improved on 3 or more of these metrics:
+          lower RX/TX write rates, lower p95 deltas, or more stable writes.
+        </li>
+        <li>
+          <strong>Cross (×) Worse</strong> — Your second pass got worse on 2 or more metrics.
+          Consider reverting the change or trying a different adjustment.
+        </li>
+        <li>
+          <strong>Tilde (~) Mixed</strong> — One metric improved, one got worse. Usually means you need
+          to fine-tune further (e.g. threshold went down but writes increased).
+        </li>
+      </ul>
+
+      <h3>Delta details</h3>
+      <p>
+        The comparison shows exact changes for:
+      </p>
+      <ul>
+        <li><strong>RX writes</strong> — Signed percentage change (e.g. +3.2% means more writes in the second pass)</li>
+        <li><strong>TX writes</strong> — Signed percentage change</li>
+        <li><strong>RX p95</strong> — Signed Hertz change (e.g. -8 Hz means lower frequency drift)</li>
+        <li><strong>TX p95</strong> — Signed Hertz change</li>
+      </ul>
+
+      <p>
+        Below the deltas, OscarWatch suggests your next action:
+      </p>
+      <ul>
+        <li><strong>Lower threshold or CAT delay slightly</strong> — More aggression would help; writes are stable but deltas are high</li>
+        <li><strong>Raise threshold or CAT delay slightly</strong> — Reduce chatter; write rate is too high</li>
+        <li><strong>Keep these settings</strong> — You have found good tuning; the pass looks solid</li>
+        <li><strong>Make a small adjustment and compare again</strong> — Results are inconclusive; try one more tweak</li>
+      </ul>
+
+      <h2>Practical tuning workflow</h2>
+      <ol>
+        <li>
+          <strong>Record a baseline pass.</strong> Use your current Doppler settings during a satellite pass.
+          OscarWatch logs the data automatically.
+        </li>
+        <li>
+          <strong>Review with insights.</strong> Open Doppler pass insights and load the CSV. Check the chart
+          and metrics. If the middle of the pass looks choppy or deltas are high, proceed to step 3.
+        </li>
+        <li>
+          <strong>Make one small change.</strong> Go to Settings, Radio tab. Adjust Doppler threshold by 10-20 Hz,
+          or toggle adaptive threshold, or tweak lead strength. Try only one change.
+        </li>
+        <li>
+          <strong>Record a second pass.</strong> Work another satellite pass with your new settings.
+        </li>
+        <li>
+          <strong>Compare the passes.</strong> Load both CSVs in Doppler pass insights using the Comparison feature.
+          Check the verdict and delta details.
+        </li>
+        <li>
+          <strong>Repeat or keep.</strong> If better, consider your next tweak or declare it done.
+          If worse, revert and try a different direction.
+        </li>
+      </ol>
+
+      <div class="tip">
+        <strong>Tip:</strong> Use passes on different satellites for a fair comparison. Passes on high-speed,
+        steep satellites show Doppler effects more clearly than slow, shallow passes. Linear transponders (SSB/CW)
+        reveal tuning differences better than FM cubesats.
+      </div>
+
+      <h2>Chart overlay legend</h2>
+      <p>
+        When comparing two passes, the chart shows:
+      </p>
+      <ul>
+        <li><strong>Solid lines</strong> — Your primary pass (first loaded)</li>
+        <li><strong>Dashed lines</strong> — Your comparison pass (overlaid for direct comparison)</li>
+      </ul>
+      <p>
+        If the dashed lines are close to the solid lines, the two passes tracked similarly. If they diverge,
+        especially near TCA, your settings change affected the behaviour.
+      </p>
+
+      <h2>Exporting and logging</h2>
+      <p>
+        Doppler pass logs are plain CSV files stored in your local logs folder. You can:
+      </p>
+      <ul>
+        <li>Copy them for archiving or sharing</li>
+        <li>Open them in a spreadsheet to do custom analysis</li>
+        <li>Delete old logs to save disk space</li>
+      </ul>
+      <p>
+        Each filename encodes the satellite and UTC start time, for example:
+        <code>RS-44-26-06-22-13-46-doppler.csv</code>
+      </p>
+
+      <div class="tip">
+        <strong>Keeping logs:</strong> Archive passes you are happy with (e.g. "RS-44-tuned-well.csv") so you
+        can return to them later as reference baselines. This helps if you change settings on another satellite
+        and forget what worked well before.
+      </div>
+
+      <h2>See also</h2>
+      <ul>
+        <li><a href="radio-doppler-tuning.html">Doppler tuning settings</a> for a full explanation of thresholds, lead, and adaptive mode</li>
+        <li><a href="radio-rotator.html">Radio &amp; rotator</a> for general CAT setup</li>
+        <li><a href="troubleshooting.html">Problems?</a> if the chart is not loading or logs are missing</li>
+      </ul>
+    </main>
+
+    <footer>OscarWatch — help for satellite operators</footer>
+  </div>
+</body>
+</html>
