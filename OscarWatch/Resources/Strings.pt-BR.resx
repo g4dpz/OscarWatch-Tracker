@@ -645,6 +645,450 @@ Continuar?</value>
   <data name="Window.PassVisualizer.Title">
     <value>Visualizador de passagem</value>
   </data>
+  <data name="Window.DopplerInsights.Title">
+    <value>Análise da passagem Doppler</value>
+  </data>
+  <data name="DopplerInsights.Header">
+    <value>Análise da passagem Doppler</value>
+  </data>
+  <data name="DopplerInsights.Subtitle">
+    <value>Carregue um log de passagem para ver orientações claras de ajuste de limiar adaptativo e antecipação Doppler CAT.</value>
+  </data>
+  <data name="DopplerInsights.OpenCsv">
+    <value>Abrir CSV</value>
+  </data>
+  <data name="DopplerInsights.LoadLatest">
+    <value>Carregar o mais recente</value>
+  </data>
+  <data name="DopplerInsights.OpenFolder">
+    <value>Abrir pasta de logs</value>
+  </data>
+  <data name="DopplerInsights.Picker.Title">
+    <value>Selecionar CSV de passagem Doppler</value>
+  </data>
+  <data name="DopplerInsights.Picker.CompareTitle">
+    <value>Selecionar CSV de passagem Doppler para comparação</value>
+  </data>
+  <data name="DopplerInsights.OpenCompareCsv">
+    <value>Abrir CSV de comparação</value>
+  </data>
+  <data name="DopplerInsights.ClearCompare">
+    <value>Limpar comparação</value>
+  </data>
+  <data name="DopplerInsights.Section.Summary">
+    <value>Resumo</value>
+  </data>
+  <data name="DopplerInsights.Section.Chart">
+    <value>Gráfico temporal (sólido = principal, tracejado = comparação)</value>
+  </data>
+  <data name="DopplerInsights.Chart.Legend">
+    <value>Azul = erro de rastreamento no downlink, Laranja = erro de rastreamento no uplink, Faixa azul-esverdeada = zona de limiar adaptativo, Tracejado = limiar base, Marcas roxas = correções CAT, Faixa cinza = elevação do satélite, Linha âmbar = TCA (elevação máxima)</value>
+  </data>
+  <data name="DopplerInsights.Chart.Explain">
+    <value>Cada linha colorida mostra o quanto a frequência do rádio se desviou do alvo Doppler calculado. Quando o erro atinge o limiar, o OscarWatch envia uma correção CAT (marca roxa) e o erro diminui. Ciclos menores e mais suaves indicam melhor rastreamento.</value>
+  </data>
+  <data name="DopplerInsights.Chart.YAxis">
+    <value>Erro de rastreamento (Hz)</value>
+  </data>
+  <data name="DopplerInsights.Chart.ElevationLabel">
+    <value>El °</value>
+  </data>
+  <data name="DopplerInsights.Chart.TcaLabel">
+    <value>TCA</value>
+  </data>
+  <data name="DopplerInsights.Chart.Hint">
+    <value>Use os botões +/− para ampliar ou role horizontalmente para deslocar</value>
+  </data>
+  <data name="DopplerInsights.Section.Bars">
+    <value>Barras de atividade (percentual de linhas)</value>
+  </data>
+  <data name="DopplerInsights.Section.Analysis">
+    <value>Detalhes da análise</value>
+  </data>
+  <data name="DopplerInsights.Tab.Activity">
+    <value>Barras de atividade</value>
+  </data>
+  <data name="DopplerInsights.Tab.Overview">
+    <value>Visão geral</value>
+  </data>
+  <data name="DopplerInsights.Tab.Events">
+    <value>Eventos recentes</value>
+  </data>
+  <data name="DopplerInsights.Tab.Chart">
+    <value>Gráfico</value>
+  </data>
+  <data name="DopplerInsights.Tab.Tuning">
+    <value>Guia de ajuste</value>
+  </data>
+  <data name="DopplerInsights.Tab.Files">
+    <value>Arquivos</value>
+  </data>
+  <data name="DopplerInsights.Tab.Comparison">
+    <value>Comparação</value>
+  </data>
+  <data name="DopplerInsights.Tab.Analysis">
+    <value>Análise</value>
+  </data>
+  <data name="DopplerInsights.Section.Recommendations">
+    <value>Recomendações</value>
+  </data>
+  <data name="DopplerInsights.Section.HowTo">
+    <value>Como usar isto para ajustar o rádio</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Intro">
+    <value>Use este painel para comparar uma passagem antes e depois de alterar as configurações.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step1">
+    <value>1) Se «Suprimido por limiar» for muito alto e as gravações RX/TX forem baixas, reduza ligeiramente o limiar Doppler.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step2">
+    <value>2) Se as taxas de gravação RX/TX forem muito altas, aumente o limiar ou o atraso CAT para reduzir o ruído de gravações.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step3">
+    <value>3) Se o slew máximo for alto e o rastreamento atrasar, ative ou aumente a antecipação Doppler para latência CAT.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step4">
+    <value>4) Use o modo de comparação: busque deltas p95 mais baixos com taxas de gravação estáveis e menos intervenções manuais.</value>
+  </data>
+  <data name="DopplerInsights.Section.Events">
+    <value>Eventos recentes</value>
+  </data>
+  <data name="DopplerInsights.Bar.RxWrites">
+    <value>Taxa de gravação RX</value>
+  </data>
+  <data name="DopplerInsights.Bar.TxWrites">
+    <value>Taxa de gravação TX</value>
+  </data>
+  <data name="DopplerInsights.Bar.BelowThreshold">
+    <value>Suprimido por limiar</value>
+  </data>
+  <data name="DopplerInsights.Bar.Interactive">
+    <value>Períodos manuais/interativos</value>
+  </data>
+  <data name="DopplerInsights.Status.Ready">
+    <value>Selecione um arquivo CSV ou carregue o log de passagem mais recente.</value>
+  </data>
+  <data name="DopplerInsights.Status.Loading">
+    <value>Carregando log de passagem Doppler</value>
+  </data>
+  <data name="DopplerInsights.Status.Loaded">
+    <value>Carregadas {0} linhas.</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadingCompare">
+    <value>Carregando log de passagem de comparação</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadedCompare">
+    <value>Comparação carregada com {0} linhas.</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderOk">
+    <value>Pasta de logs Doppler aberta.</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderFailed">
+    <value>Não foi possível abrir a pasta de logs Doppler: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadFailed">
+    <value>Não foi possível carregar o log: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.FileMissing">
+    <value>O arquivo selecionado não foi encontrado.</value>
+  </data>
+  <data name="DopplerInsights.Status.NoLogsFolder">
+    <value>Pasta de logs Doppler ainda não encontrada: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.NoCsvLogs">
+    <value>Nenhum arquivo CSV Doppler encontrado em: {0}</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Empty">
+    <value>Nenhum dado de passagem carregado.</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Value">
+    <value>Satélite: {0}. Janela da passagem: {1} a {2} UTC ({3} min). Linhas: {4} no total, {5} instantâneos, {6} gravações CAT, {7} alterações de offset.</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Empty">
+    <value>Métricas de limiar indisponíveis.</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Value">
+    <value>Limiares: base {0} Hz, efetivo {1} Hz (redução adaptativa {2}%). Linhas suprimidas: {3}%.</value>
+  </data>
+  <data name="DopplerInsights.Activity.Empty">
+    <value>Métricas de atividade de gravação indisponíveis.</value>
+  </data>
+  <data name="DopplerInsights.Activity.Value">
+    <value>Gravações: RX {0}%, TX {1}%. Linhas interativas: {2}%. Linhas com CAT pausado: {3}. Linhas com antecipação ativada: {4}%.</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Empty">
+    <value>Métricas de delta de frequência indisponíveis.</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Value">
+    <value>Deltas: RX média {0} Hz, RX p95 {1} Hz, TX média {2} Hz, TX p95 {3} Hz. Slew máximo: {4} Hz/s.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Empty">
+    <value>Nenhuma comparação carregada.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Value">
+    <value>Principal [{0}] gravação RX/TX {1}%/{2}%, p95 RX/TX {3}/{4} Hz. Comparação [{5}] gravação RX/TX {6}%/{7}%, p95 RX/TX {8}/{9} Hz.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyTitle">
+    <value>Carregue uma passagem de comparação para ver se as alterações de configuração melhoraram o rastreamento.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyText">
+    <value>Ao carregar um segundo CSV (após alterar o limiar Doppler, o atraso CAT ou as configurações de antecipação), esta seção mostrará se a nova passagem é melhor ou pior.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.BetterTitle">
+    <value>✓ A passagem de comparação é melhor</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.WorseTitle">
+    <value>✗ A passagem de comparação é pior</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.MixedTitle">
+    <value>~ A passagem de comparação é mista</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.Value">
+    <value>Gravações RX {0}%, gravações TX {1}%, p95 RX {2} Hz, p95 TX {3} Hz. Próximo: {4}</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.IncreaseAggression">
+    <value>Reduza ligeiramente o limiar ou o atraso CAT para aumentar a agressividade do ajuste.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.StabilizeWrites">
+    <value>Aumente ligeiramente o limiar ou o atraso CAT para reduzir o ruído de gravações.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.KeepSettings">
+    <value>Mantenha estas configurações — estão funcionando bem!</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.SmallStep">
+    <value>Faça um pequeno ajuste e compare novamente.</value>
+  </data>
+  <data name="DopplerInsights.Chart.Empty">
+    <value>Carregue um CSV Doppler para ver gráficos temporais de delta RX/TX, limiar e eventos de gravação.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Empty">
+    <value>Registe uma passagem completa para gerar recomendações de ajuste.</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdHigh">
+    <value>O limiar parece alto para esta passagem. Considere reduzir o limiar Doppler para que o CAT reaja mais cedo.</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdLow">
+    <value>A taxa de gravação é muito alta. Se o áudio soar entrecortado, aumente ligeiramente o limiar Doppler ou o atraso CAT.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Interactive">
+    <value>Houve ajuste manual durante esta passagem. Se não foi intencional, verifique a estabilidade do CAT e o alinhamento do transponder.</value>
+  </data>
+  <data name="DopplerInsights.Reco.CatPaused">
+    <value>Foram detectadas linhas com CAT pausado. Verifique se a pausa CAT não ficou ativada durante o rastreamento ativo.</value>
+  </data>
+  <data name="DopplerInsights.Reco.EnableLead">
+    <value>Slew Doppler alto com pouco uso de antecipação. Ative a antecipação Doppler para latência CAT em trechos íngremes da passagem.</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveThreshold">
+    <value>O limiar adaptativo esteve ativo. Compare com uma passagem em que esteja desativado para confirmar um ajuste mais suave no seu equipamento.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Balanced">
+    <value>Esta passagem parece equilibrada. Mantenha as configurações e compare com passagens adicionais para verificar a consistência.</value>
+  </data>
+  <data name="DopplerInsights.Reco.IncreaseLead">
+    <value>A antecipação Doppler estava ativada, mas raramente ativa em trechos de Doppler rápido. Tente aumentar a intensidade ou o tempo de antecipação em Configurações de rádio.</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveHelping">
+    <value>O limiar adaptativo reduziu a banda efetiva em trechos rápidos — parece estar ajudando. Mantenha-o ativado, a menos que prefira um limiar fixo.</value>
+  </data>
+  <data name="DopplerInsights.Reco.TryAdaptive">
+    <value>Foi detectado slew Doppler rápido com limiar fixo. Tente ativar o limiar adaptativo perto do TCA em Configurações de rádio.</value>
+  </data>
+  <data name="DopplerInsights.Section.Adaptive">
+    <value>Limiar adaptativo</value>
+  </data>
+  <data name="DopplerInsights.Section.Lead">
+    <value>Antecipação Doppler (latência CAT)</value>
+  </data>
+  <data name="DopplerInsights.Section.SettingsUsed">
+    <value>Configurações registadas para esta passagem</value>
+  </data>
+  <data name="DopplerInsights.Section.PassPhases">
+    <value>Detalhamento da passagem</value>
+  </data>
+  <data name="DopplerInsights.PassPhases.Intro">
+    <value>Como o rastreamento se comportou em cada etapa da passagem. Concentre-se no TCA e nos trechos descendentes para antecipação Doppler; verifique AOS/subida para ajuste do limiar.</value>
+  </data>
+  <data name="DopplerInsights.PassHeadline.Value">
+    <value>{0} — passagem de {1} min, elevação máxima {2}°</value>
+  </data>
+  <data name="DopplerInsights.Tuning.CompareHint">
+    <value>Dica: altere uma configuração (limiar, adaptativo, tempo ou intensidade de antecipação), execute outra passagem e carregue ambos os CSV em Arquivos → comparação para ver se o rastreamento melhorou.</value>
+  </data>
+  <data name="DopplerInsights.Files.Primary">
+    <value>Passagem principal</value>
+  </data>
+  <data name="DopplerInsights.Files.Comparison">
+    <value>Passagem de comparação</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptyTitle">
+    <value>Nenhuma passagem carregada</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptySummary">
+    <value>Abra um CSV de passagem Doppler para obter orientação de ajuste para o seu rádio.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodTitle">
+    <value>O rastreamento parece bom</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodSummary">
+    <value>O erro de rastreamento típico permaneceu baixo (p95 downlink {0} Hz, p95 uplink {1} Hz). Nenhuma alteração importante sugerida.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdTitle">
+    <value>O limiar pode estar alto demais</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdSummary">
+    <value>{0}% das amostras foram suprimidas pelo limiar — o rádio não foi corrigido com frequência suficiente. Considere reduzir o limiar Doppler linear.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadTitle">
+    <value>Considere antecipação Doppler</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadSummary">
+    <value>Foi detectado slew Doppler rápido, mas a antecipação Doppler estava desativada ou pouco usada. O erro típico no downlink foi {0} Hz.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterTitle">
+    <value>O CAT pode estar agressivo demais</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterSummary">
+    <value>O CAT gravou em {0}% das amostras. Se o ajuste soou entrecortado, aumente ligeiramente o limiar ou o atraso CAT.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualTitle">
+    <value>Ajuste manual detectado</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualSummary">
+    <value>Esta passagem incluiu {0} linhas interativas e {1} linhas com CAT pausado. Revise esses períodos antes de alterar as configurações automáticas.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyTitle">
+    <value>Limiar adaptativo</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyDetail">
+    <value>Carregue uma passagem para ver se o limiar adaptativo ajudou perto do TCA.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledTitle">
+    <value>O limiar adaptativo estava desativado</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledDetail">
+    <value>O slew Doppler máximo foi {0} Hz/s. Um limiar fixo foi usado durante toda a passagem.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledAction">
+    <value>Tente ativar o limiar adaptativo perto do TCA em Configurações de rádio — ele reduz a banda quando o Doppler muda rapidamente.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledNoAction">
+    <value>O slew foi moderado — um limiar fixo está bem, a menos que note atraso perto do TCA.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeTitle">
+    <value>O limiar bloqueou correções em excesso</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeDetail">
+    <value>{0}% das linhas ficaram abaixo do limiar (média efetiva {1} Hz). O rádio esperou demais antes de corrigir.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeAction">
+    <value>Reduza o limiar Doppler (SSB/CW) em 10–20 Hz ou certifique-se de que o limiar adaptativo está ativado.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingTitle">
+    <value>O limiar adaptativo está funcionando</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingDetail">
+    <value>O limiar foi reduzido em ~{0}% em trechos rápidos (slew máximo {1} Hz/s) sem ruído excessivo de CAT.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingAction">
+    <value>Mantenha o adaptativo ativado. Compare com ele desativado apenas se preferir um limiar fixo.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralTitle">
+    <value>O limiar adaptativo teve efeito limitado</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralDetail">
+    <value>A redução média do limiar foi {0}%. O slew Doppler pode ter sido moderado na maior parte da passagem.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralAction">
+    <value>Se ainda ouvir atraso perto do TCA, reduza ligeiramente o limiar base em vez de desativar o adaptativo.</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyTitle">
+    <value>Antecipação Doppler</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyDetail">
+    <value>Carregue uma passagem para ver se a antecipação Doppler acompanhou em trechos rápidos.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledTitle">
+    <value>A antecipação Doppler estava desativada</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledDetail">
+    <value>O slew máximo atingiu {0} Hz/s. O CAT usou apenas Doppler instantâneo.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledAction">
+    <value>Ative a antecipação Doppler para latência CAT em Configurações de rádio e registe outra passagem.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledNoAction">
+    <value>O slew foi baixo — a antecipação Doppler é opcional para este perfil de passagem.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakTitle">
+    <value>A antecipação Doppler foi fraca em trechos rápidos</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakDetail">
+    <value>O erro no downlink em trecho íngreme atingiu {0} Hz com ganho de antecipação em {1}%.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakAction">
+    <value>Aumente a intensidade de antecipação para 85–100% ou defina o tempo de antecipação explicitamente (tente 25–40 ms).</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingTitle">
+    <value>A antecipação Doppler está acompanhando</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingDetail">
+    <value>A antecipação esteve ativa em {0}% das linhas; o p95 no downlink permaneceu em {1} Hz apesar do slew rápido.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingAction">
+    <value>Mantenha as configurações atuais de antecipação. Se o áudio soar à frente do sinal, reduza ligeiramente a intensidade.</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingTitle">
+    <value>O rastreamento atrasou em trechos rápidos</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingDetail">
+    <value>p95 downlink {0} Hz, p95 uplink {1} Hz durante uma passagem de slew alto.</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingAction">
+    <value>Aumente o tempo de antecipação (atualmente {0} ms) ou a intensidade ({1}%). Verifique também se o atraso CAT não é excessivo.</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralTitle">
+    <value>Estado da antecipação Doppler</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralDetail">
+    <value>Antecipação ativa em {0}% das linhas. Slew máximo {1} Hz/s.</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralAction">
+    <value>Ajuste fino com o modo de comparação após uma pequena alteração no tempo ou intensidade de antecipação.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Empty">
+    <value>Comentário de configurações não encontrado neste arquivo de log.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Inferred">
+    <value>Inferido das linhas do log: limiar base ~{0} Hz, antecipação ativa em {1}% das linhas, redução adaptativa ~{2}%.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Value">
+    <value>Limiar linear {0} Hz, atraso CAT {1} ms, Adaptativo {2}, Antecipação Doppler {3}, tempo de antecipação {4} ms, intensidade de antecipação {5}%.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Enabled">
+    <value>ativado</value>
+  </data>
+  <data name="DopplerInsights.Settings.Disabled">
+    <value>desativado</value>
+  </data>
+  <data name="DopplerInsights.Phase.Aos">
+    <value>AOS (início)</value>
+  </data>
+  <data name="DopplerInsights.Phase.Rising">
+    <value>Subida</value>
+  </data>
+  <data name="DopplerInsights.Phase.Tca">
+    <value>Vizinhança do TCA</value>
+  </data>
+  <data name="DopplerInsights.Phase.Descending">
+    <value>Descida</value>
+  </data>
+  <data name="DopplerInsights.Phase.Los">
+    <value>LOS (fim)</value>
+  </data>
+  <data name="DopplerInsights.Phase.Summary">
+    <value>Erro downlink p95 {0} Hz · gravações CAT {1}% · slew máximo {2} Hz/s · elevação máx. {3}°</value>
+  </data>
   <data name="Window.Sunlight.Title">
     <value>Previsão de luz solar</value>
   </data>

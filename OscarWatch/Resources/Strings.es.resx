@@ -669,6 +669,450 @@
   <data name="Window.PassVisualizer.Title">
     <value>Visualizador de pases</value>
   </data>
+  <data name="Window.DopplerInsights.Title">
+    <value>Análisis del pase Doppler</value>
+  </data>
+  <data name="DopplerInsights.Header">
+    <value>Análisis del pase Doppler</value>
+  </data>
+  <data name="DopplerInsights.Subtitle">
+    <value>Cargue un registro de pase para ver consejos claros de ajuste de umbral adaptativo y anticipación Doppler CAT.</value>
+  </data>
+  <data name="DopplerInsights.OpenCsv">
+    <value>Abrir CSV</value>
+  </data>
+  <data name="DopplerInsights.LoadLatest">
+    <value>Cargar el más reciente</value>
+  </data>
+  <data name="DopplerInsights.OpenFolder">
+    <value>Abrir carpeta de registros</value>
+  </data>
+  <data name="DopplerInsights.Picker.Title">
+    <value>Seleccionar CSV de pase Doppler</value>
+  </data>
+  <data name="DopplerInsights.Picker.CompareTitle">
+    <value>Seleccionar CSV de pase Doppler de comparación</value>
+  </data>
+  <data name="DopplerInsights.OpenCompareCsv">
+    <value>Abrir CSV de comparación</value>
+  </data>
+  <data name="DopplerInsights.ClearCompare">
+    <value>Borrar comparación</value>
+  </data>
+  <data name="DopplerInsights.Section.Summary">
+    <value>Resumen</value>
+  </data>
+  <data name="DopplerInsights.Section.Chart">
+    <value>Gráfico temporal (sólido = principal, discontinuo = comparación)</value>
+  </data>
+  <data name="DopplerInsights.Chart.Legend">
+    <value>Azul = error de seguimiento en bajada, Naranja = error de seguimiento en subida, Banda verde azulada = zona de umbral adaptativo, Discontinuo = umbral base, Marcas moradas = correcciones CAT, Franja gris = elevación del satélite, Línea ámbar = TCA (máxima elevación)</value>
+  </data>
+  <data name="DopplerInsights.Chart.Explain">
+    <value>Cada línea de color muestra cuánto se desvió la frecuencia de la radio del objetivo Doppler calculado. Cuando el error alcanza el umbral, OscarWatch envía una corrección CAT (marca morada) y el error vuelve a bajar. Ciclos más pequeños y suaves indican mejor seguimiento.</value>
+  </data>
+  <data name="DopplerInsights.Chart.YAxis">
+    <value>Error de seguimiento (Hz)</value>
+  </data>
+  <data name="DopplerInsights.Chart.ElevationLabel">
+    <value>El °</value>
+  </data>
+  <data name="DopplerInsights.Chart.TcaLabel">
+    <value>TCA</value>
+  </data>
+  <data name="DopplerInsights.Chart.Hint">
+    <value>Use los botones +/− para ampliar o desplácese horizontalmente para desplazar</value>
+  </data>
+  <data name="DopplerInsights.Section.Bars">
+    <value>Barras de actividad (porcentaje de filas)</value>
+  </data>
+  <data name="DopplerInsights.Section.Analysis">
+    <value>Detalles del análisis</value>
+  </data>
+  <data name="DopplerInsights.Tab.Activity">
+    <value>Barras de actividad</value>
+  </data>
+  <data name="DopplerInsights.Tab.Overview">
+    <value>Vista general</value>
+  </data>
+  <data name="DopplerInsights.Tab.Events">
+    <value>Eventos recientes</value>
+  </data>
+  <data name="DopplerInsights.Tab.Chart">
+    <value>Gráfico</value>
+  </data>
+  <data name="DopplerInsights.Tab.Tuning">
+    <value>Guía de ajuste</value>
+  </data>
+  <data name="DopplerInsights.Tab.Files">
+    <value>Archivos</value>
+  </data>
+  <data name="DopplerInsights.Tab.Comparison">
+    <value>Comparación</value>
+  </data>
+  <data name="DopplerInsights.Tab.Analysis">
+    <value>Análisis</value>
+  </data>
+  <data name="DopplerInsights.Section.Recommendations">
+    <value>Recomendaciones</value>
+  </data>
+  <data name="DopplerInsights.Section.HowTo">
+    <value>Cómo usar esto para ajustar la radio</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Intro">
+    <value>Use este panel para comparar un pase antes y después de cambiar los ajustes.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step1">
+    <value>1) Si «Suprimido por umbral» es muy alto y las escrituras RX/TX son bajas, baje ligeramente el umbral Doppler.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step2">
+    <value>2) Si las tasas de escritura RX/TX son muy altas, aumente el umbral o el retardo CAT para reducir el ruido de escrituras.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step3">
+    <value>3) Si el slew máximo es alto y el seguimiento va retrasado, habilite o aumente la anticipación Doppler por latencia CAT.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step4">
+    <value>4) Use el modo comparación: busque deltas p95 más bajos con tasas de escritura estables y menos intervenciones manuales.</value>
+  </data>
+  <data name="DopplerInsights.Section.Events">
+    <value>Eventos recientes</value>
+  </data>
+  <data name="DopplerInsights.Bar.RxWrites">
+    <value>Tasa de escritura RX</value>
+  </data>
+  <data name="DopplerInsights.Bar.TxWrites">
+    <value>Tasa de escritura TX</value>
+  </data>
+  <data name="DopplerInsights.Bar.BelowThreshold">
+    <value>Suprimido por umbral</value>
+  </data>
+  <data name="DopplerInsights.Bar.Interactive">
+    <value>Períodos manuales/interactivos</value>
+  </data>
+  <data name="DopplerInsights.Status.Ready">
+    <value>Seleccione un archivo CSV o cargue el registro de pase más reciente.</value>
+  </data>
+  <data name="DopplerInsights.Status.Loading">
+    <value>Cargando registro de pase Doppler</value>
+  </data>
+  <data name="DopplerInsights.Status.Loaded">
+    <value>Cargadas {0} filas.</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadingCompare">
+    <value>Cargando registro de pase de comparación</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadedCompare">
+    <value>Comparación cargada con {0} filas.</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderOk">
+    <value>Carpeta de registros Doppler abierta.</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderFailed">
+    <value>No se pudo abrir la carpeta de registros Doppler: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadFailed">
+    <value>No se pudo cargar el registro: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.FileMissing">
+    <value>No se encontró el archivo seleccionado.</value>
+  </data>
+  <data name="DopplerInsights.Status.NoLogsFolder">
+    <value>Aún no se encontró la carpeta de registros Doppler: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.NoCsvLogs">
+    <value>No se encontraron archivos CSV Doppler en: {0}</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Empty">
+    <value>No hay datos de pase cargados.</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Value">
+    <value>Satélite: {0}. Ventana del pase: {1} a {2} UTC ({3} min). Filas: {4} en total, {5} instantáneas, {6} escrituras CAT, {7} cambios de desplazamiento.</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Empty">
+    <value>Métricas de umbral no disponibles.</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Value">
+    <value>Umbrales: base {0} Hz, efectivo {1} Hz (reducción adaptativa {2}%). Filas suprimidas: {3}%.</value>
+  </data>
+  <data name="DopplerInsights.Activity.Empty">
+    <value>Métricas de actividad de escritura no disponibles.</value>
+  </data>
+  <data name="DopplerInsights.Activity.Value">
+    <value>Escrituras: RX {0}%, TX {1}%. Filas interactivas: {2}%. Filas con CAT en pausa: {3}. Filas con anticipación habilitada: {4}%.</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Empty">
+    <value>Métricas de delta de frecuencia no disponibles.</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Value">
+    <value>Deltas: RX media {0} Hz, RX p95 {1} Hz, TX media {2} Hz, TX p95 {3} Hz. Slew máximo: {4} Hz/s.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Empty">
+    <value>No hay comparación cargada.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Value">
+    <value>Principal [{0}] escritura RX/TX {1}%/{2}%, p95 RX/TX {3}/{4} Hz. Comparación [{5}] escritura RX/TX {6}%/{7}%, p95 RX/TX {8}/{9} Hz.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyTitle">
+    <value>Cargue un pase de comparación para ver si los cambios de ajustes mejoraron el seguimiento.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyText">
+    <value>Cuando cargue un segundo CSV (tras cambiar el umbral Doppler, el retardo CAT o los ajustes de anticipación), esta sección mostrará si el nuevo pase es mejor o peor.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.BetterTitle">
+    <value>✓ El pase de comparación es mejor</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.WorseTitle">
+    <value>✗ El pase de comparación es peor</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.MixedTitle">
+    <value>~ El pase de comparación es mixto</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.Value">
+    <value>Escrituras RX {0}%, escrituras TX {1}%, p95 RX {2} Hz, p95 TX {3} Hz. Siguiente: {4}</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.IncreaseAggression">
+    <value>Baje ligeramente el umbral o el retardo CAT para aumentar la agresividad del ajuste.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.StabilizeWrites">
+    <value>Suba ligeramente el umbral o el retardo CAT para reducir el ruido de escrituras.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.KeepSettings">
+    <value>Mantenga estos ajustes: ¡funcionan bien!</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.SmallStep">
+    <value>Haga un pequeño ajuste y compare de nuevo.</value>
+  </data>
+  <data name="DopplerInsights.Chart.Empty">
+    <value>Cargue un CSV Doppler para ver gráficos temporales de delta RX/TX, umbral y eventos de escritura.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Empty">
+    <value>Registre un pase completo para generar recomendaciones de ajuste.</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdHigh">
+    <value>El umbral parece alto para este pase. Considere bajar el umbral Doppler para que CAT reaccione antes.</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdLow">
+    <value>La tasa de escritura es muy alta. Si el audio suena entrecortado, suba ligeramente el umbral Doppler o aumente el retardo CAT.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Interactive">
+    <value>Hubo ajuste manual durante este pase. Si no fue intencional, compruebe la estabilidad CAT y la alineación del transpondedor.</value>
+  </data>
+  <data name="DopplerInsights.Reco.CatPaused">
+    <value>Se detectaron filas con CAT en pausa. Verifique que la pausa CAT no quedó habilitada durante el seguimiento activo.</value>
+  </data>
+  <data name="DopplerInsights.Reco.EnableLead">
+    <value>Slew Doppler alto con poco uso de anticipación. Habilite la anticipación Doppler por latencia CAT en tramos pronunciados del pase.</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveThreshold">
+    <value>El umbral adaptativo estuvo activo. Compare con un pase donde esté deshabilitado para confirmar un ajuste más suave en su equipo.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Balanced">
+    <value>Este pase parece equilibrado. Mantenga los ajustes y compare con pases adicionales para comprobar la consistencia.</value>
+  </data>
+  <data name="DopplerInsights.Reco.IncreaseLead">
+    <value>La anticipación Doppler estaba habilitada pero rara vez activa en tramos de Doppler rápido. Pruebe aumentar la intensidad o el tiempo de anticipación en Ajustes de radio.</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveHelping">
+    <value>El umbral adaptativo redujo la banda efectiva en tramos rápidos — parece estar ayudando. Manténgalo habilitado salvo que prefiera un umbral fijo.</value>
+  </data>
+  <data name="DopplerInsights.Reco.TryAdaptive">
+    <value>Se detectó slew Doppler rápido con umbral fijo. Pruebe habilitar el umbral adaptativo cerca del TCA en Ajustes de radio.</value>
+  </data>
+  <data name="DopplerInsights.Section.Adaptive">
+    <value>Umbral adaptativo</value>
+  </data>
+  <data name="DopplerInsights.Section.Lead">
+    <value>Anticipación Doppler (latencia CAT)</value>
+  </data>
+  <data name="DopplerInsights.Section.SettingsUsed">
+    <value>Ajustes registrados para este pase</value>
+  </data>
+  <data name="DopplerInsights.Section.PassPhases">
+    <value>Desglose del pase</value>
+  </data>
+  <data name="DopplerInsights.PassPhases.Intro">
+    <value>Cómo se comportó el seguimiento en cada etapa del pase. Centre la atención en el TCA y los tramos descendentes para la anticipación Doppler; revise AOS/ascenso para el ajuste del umbral.</value>
+  </data>
+  <data name="DopplerInsights.PassHeadline.Value">
+    <value>{0} — pase de {1} min, elevación máxima {2}°</value>
+  </data>
+  <data name="DopplerInsights.Tuning.CompareHint">
+    <value>Consejo: cambie un ajuste (umbral, adaptativo, tiempo o intensidad de anticipación), realice otro pase y cargue ambos CSV desde Archivos → comparación para ver si mejoró el seguimiento.</value>
+  </data>
+  <data name="DopplerInsights.Files.Primary">
+    <value>Pase principal</value>
+  </data>
+  <data name="DopplerInsights.Files.Comparison">
+    <value>Pase de comparación</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptyTitle">
+    <value>No hay pase cargado</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptySummary">
+    <value>Abra un CSV de pase Doppler para obtener orientación de ajuste para su radio.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodTitle">
+    <value>El seguimiento se ve bien</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodSummary">
+    <value>El error de seguimiento típico se mantuvo bajo (p95 bajada {0} Hz, p95 subida {1} Hz). No se sugieren cambios importantes.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdTitle">
+    <value>El umbral puede ser demasiado alto</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdSummary">
+    <value>{0}% de las muestras fueron suprimidas por el umbral — la radio no se corrigió con suficiente frecuencia. Considere bajar el umbral Doppler lineal.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadTitle">
+    <value>Considere la anticipación Doppler</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadSummary">
+    <value>Se detectó slew Doppler rápido pero la anticipación Doppler estaba desactivada o poco usada. El error típico en bajada fue {0} Hz.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterTitle">
+    <value>CAT puede ser demasiado agresivo</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterSummary">
+    <value>CAT escribió en el {0}% de las muestras. Si el ajuste sonaba entrecortado, suba ligeramente el umbral o aumente el retardo CAT.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualTitle">
+    <value>Ajuste manual detectado</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualSummary">
+    <value>Este pase incluyó {0} filas interactivas y {1} filas con CAT en pausa. Revise esos períodos antes de cambiar los ajustes automáticos.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyTitle">
+    <value>Umbral adaptativo</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyDetail">
+    <value>Cargue un pase para ver si el umbral adaptativo ayudó cerca del TCA.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledTitle">
+    <value>El umbral adaptativo estaba desactivado</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledDetail">
+    <value>El slew Doppler máximo fue {0} Hz/s. Se usó un umbral fijo durante todo el pase.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledAction">
+    <value>Pruebe habilitar el umbral adaptativo cerca del TCA en Ajustes de radio — reduce la banda cuando el Doppler cambia rápido.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledNoAction">
+    <value>El slew fue moderado — un umbral fijo está bien salvo que note retraso cerca del TCA.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeTitle">
+    <value>El umbral bloqueó demasiadas correcciones</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeDetail">
+    <value>{0}% de las filas estuvieron por debajo del umbral (media efectiva {1} Hz). La radio esperó demasiado antes de corregir.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeAction">
+    <value>Baje el umbral Doppler (SSB/CW) 10–20 Hz, o asegúrese de que el umbral adaptativo esté habilitado.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingTitle">
+    <value>El umbral adaptativo funciona</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingDetail">
+    <value>El umbral se redujo ~{0}% en tramos rápidos (slew máximo {1} Hz/s) sin ruido excesivo de CAT.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingAction">
+    <value>Mantenga el adaptativo habilitado. Compare con él deshabilitado solo si prefiere un umbral fijo.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralTitle">
+    <value>El umbral adaptativo tuvo efecto limitado</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralDetail">
+    <value>La reducción media del umbral fue {0}%. El slew Doppler pudo ser moderado durante la mayor parte del pase.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralAction">
+    <value>Si aún oye retraso cerca del TCA, baje ligeramente el umbral base en lugar de deshabilitar el adaptativo.</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyTitle">
+    <value>Anticipación Doppler</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyDetail">
+    <value>Cargue un pase para ver si la anticipación Doppler siguió el ritmo en tramos rápidos.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledTitle">
+    <value>La anticipación Doppler estaba desactivada</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledDetail">
+    <value>El slew máximo alcanzó {0} Hz/s. CAT usó solo Doppler instantáneo.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledAction">
+    <value>Habilite la anticipación Doppler por latencia CAT en Ajustes de radio y registre otro pase.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledNoAction">
+    <value>El slew fue bajo — la anticipación Doppler es opcional para este perfil de pase.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakTitle">
+    <value>La anticipación Doppler fue débil en tramos rápidos</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakDetail">
+    <value>El error en bajada en tramo pronunciado alcanzó {0} Hz con ganancia de anticipación al {1}%.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakAction">
+    <value>Aumente la intensidad de anticipación a 85–100%, o configure el tiempo de anticipación explícitamente (pruebe 25–40 ms).</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingTitle">
+    <value>La anticipación Doppler sigue el ritmo</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingDetail">
+    <value>La anticipación estuvo activa en el {0}% de las filas; el p95 en bajada se mantuvo en {1} Hz a pesar del slew rápido.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingAction">
+    <value>Mantenga los ajustes actuales de anticipación. Si el audio suena por delante de la señal, reduzca ligeramente la intensidad.</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingTitle">
+    <value>El seguimiento se retrasó en tramos rápidos</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingDetail">
+    <value>p95 bajada {0} Hz, p95 subida {1} Hz durante un pase de slew alto.</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingAction">
+    <value>Aumente el tiempo de anticipación (actualmente {0} ms) o la intensidad ({1}%). Compruebe también que el retardo CAT no sea excesivo.</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralTitle">
+    <value>Estado de anticipación Doppler</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralDetail">
+    <value>Anticipación activa en el {0}% de las filas. Slew máximo {1} Hz/s.</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralAction">
+    <value>Ajuste fino con el modo comparación tras un pequeño cambio en tiempo o intensidad de anticipación.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Empty">
+    <value>No se encontró el comentario de ajustes en este archivo de registro.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Inferred">
+    <value>Inferido de las filas del registro: umbral base ~{0} Hz, anticipación activa en el {1}% de las filas, reducción adaptativa ~{2}%.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Value">
+    <value>Umbral lineal {0} Hz, retardo CAT {1} ms, Adaptativo {2}, Anticipación Doppler {3}, tiempo de anticipación {4} ms, intensidad de anticipación {5}%.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Enabled">
+    <value>habilitado</value>
+  </data>
+  <data name="DopplerInsights.Settings.Disabled">
+    <value>deshabilitado</value>
+  </data>
+  <data name="DopplerInsights.Phase.Aos">
+    <value>AOS (inicio)</value>
+  </data>
+  <data name="DopplerInsights.Phase.Rising">
+    <value>Ascenso</value>
+  </data>
+  <data name="DopplerInsights.Phase.Tca">
+    <value>Vecindad del TCA</value>
+  </data>
+  <data name="DopplerInsights.Phase.Descending">
+    <value>Descenso</value>
+  </data>
+  <data name="DopplerInsights.Phase.Los">
+    <value>LOS (fin)</value>
+  </data>
+  <data name="DopplerInsights.Phase.Summary">
+    <value>Error bajada p95 {0} Hz · escrituras CAT {1}% · slew máximo {2} Hz/s · elevación máx. {3}°</value>
+  </data>
   <data name="Window.Sunlight.Title">
     <value>Predicción de iluminación solar</value>
   </data>

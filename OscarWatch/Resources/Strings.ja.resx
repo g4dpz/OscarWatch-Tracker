@@ -1353,6 +1353,450 @@
   <data name="Window.PassVisualizer.Title">
     <value>パスビジュアライザ</value>
   </data>
+  <data name="Window.DopplerInsights.Title">
+    <value>ドップラーパス分析</value>
+  </data>
+  <data name="DopplerInsights.Header">
+    <value>ドップラーパス分析</value>
+  </data>
+  <data name="DopplerInsights.Subtitle">
+    <value>パスログを読み込み、適応しきい値とCAT先読みドップラーの調整アドバイスを確認します。</value>
+  </data>
+  <data name="DopplerInsights.OpenCsv">
+    <value>CSVを開く</value>
+  </data>
+  <data name="DopplerInsights.LoadLatest">
+    <value>最新を読み込む</value>
+  </data>
+  <data name="DopplerInsights.OpenFolder">
+    <value>ログフォルダを開く</value>
+  </data>
+  <data name="DopplerInsights.Picker.Title">
+    <value>ドップラーパスCSVを選択</value>
+  </data>
+  <data name="DopplerInsights.Picker.CompareTitle">
+    <value>比較用ドップラーパスCSVを選択</value>
+  </data>
+  <data name="DopplerInsights.OpenCompareCsv">
+    <value>比較CSVを開く</value>
+  </data>
+  <data name="DopplerInsights.ClearCompare">
+    <value>比較をクリア</value>
+  </data>
+  <data name="DopplerInsights.Section.Summary">
+    <value>概要</value>
+  </data>
+  <data name="DopplerInsights.Section.Chart">
+    <value>時系列グラフ（実線=主、破線=比較）</value>
+  </data>
+  <data name="DopplerInsights.Chart.Legend">
+    <value>青=ダウンリンク追従誤差、橙=アップリンク追従誤差、青緑帯=適応しきい値ゾーン、破線=基本しきい値、紫マーク=CAT補正、灰帯=衛星仰角、琥珀線=TCA（最大仰角）</value>
+  </data>
+  <data name="DopplerInsights.Chart.Explain">
+    <value>各色の線は、無線機周波数が計算ドップラー目標からどれだけずれたかを示します。誤差がしきい値に達すると、OscarWatchがCAT補正（紫マーク）を送り、誤差は下がります。小さく滑らかな周期ほど追従が良好です。</value>
+  </data>
+  <data name="DopplerInsights.Chart.YAxis">
+    <value>追従誤差 (Hz)</value>
+  </data>
+  <data name="DopplerInsights.Chart.ElevationLabel">
+    <value>El °</value>
+  </data>
+  <data name="DopplerInsights.Chart.TcaLabel">
+    <value>TCA</value>
+  </data>
+  <data name="DopplerInsights.Chart.Hint">
+    <value>+/−ボタンでズーム、横スクロールでパン</value>
+  </data>
+  <data name="DopplerInsights.Section.Bars">
+    <value>アクティビティバー（行の割合）</value>
+  </data>
+  <data name="DopplerInsights.Section.Analysis">
+    <value>分析の詳細</value>
+  </data>
+  <data name="DopplerInsights.Tab.Activity">
+    <value>アクティビティバー</value>
+  </data>
+  <data name="DopplerInsights.Tab.Overview">
+    <value>概要</value>
+  </data>
+  <data name="DopplerInsights.Tab.Events">
+    <value>最近のイベント</value>
+  </data>
+  <data name="DopplerInsights.Tab.Chart">
+    <value>グラフ</value>
+  </data>
+  <data name="DopplerInsights.Tab.Tuning">
+    <value>調整ガイド</value>
+  </data>
+  <data name="DopplerInsights.Tab.Files">
+    <value>ファイル</value>
+  </data>
+  <data name="DopplerInsights.Tab.Comparison">
+    <value>比較</value>
+  </data>
+  <data name="DopplerInsights.Tab.Analysis">
+    <value>分析</value>
+  </data>
+  <data name="DopplerInsights.Section.Recommendations">
+    <value>推奨事項</value>
+  </data>
+  <data name="DopplerInsights.Section.HowTo">
+    <value>無線設定の調整方法</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Intro">
+    <value>設定変更の前後で1パスを比較するためにこのパネルを使用します。</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step1">
+    <value>1) 「しきい値で抑制」が非常に高く、RX/TX書き込みが少ない場合は、ドップラーしきい値をわずかに下げてください。</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step2">
+    <value>2) RX/TX書き込み率が非常に高い場合は、しきい値またはCAT遅延を上げて書き込みのちらつきを減らしてください。</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step3">
+    <value>3) ピークスルーが高く追従が遅れる場合は、CAT遅延用の先読みドップラーを有効化または強化してください。</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step4">
+    <value>4) 比較モードを使用：安定した書き込み率と手動介入の少なさで、p95デルタを下げることを目指してください。</value>
+  </data>
+  <data name="DopplerInsights.Section.Events">
+    <value>最近のイベント</value>
+  </data>
+  <data name="DopplerInsights.Bar.RxWrites">
+    <value>RX書き込み率</value>
+  </data>
+  <data name="DopplerInsights.Bar.TxWrites">
+    <value>TX書き込み率</value>
+  </data>
+  <data name="DopplerInsights.Bar.BelowThreshold">
+    <value>しきい値で抑制</value>
+  </data>
+  <data name="DopplerInsights.Bar.Interactive">
+    <value>手動/対話期間</value>
+  </data>
+  <data name="DopplerInsights.Status.Ready">
+    <value>CSVファイルを選択するか、最新のパスログを読み込んでください。</value>
+  </data>
+  <data name="DopplerInsights.Status.Loading">
+    <value>ドップラーパスログを読み込み中</value>
+  </data>
+  <data name="DopplerInsights.Status.Loaded">
+    <value>{0}行を読み込みました。</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadingCompare">
+    <value>比較パスログを読み込み中</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadedCompare">
+    <value>比較を{0}行で読み込みました。</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderOk">
+    <value>ドップラーログフォルダを開きました。</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderFailed">
+    <value>ドップラーログフォルダを開けませんでした: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadFailed">
+    <value>ログを読み込めませんでした: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.FileMissing">
+    <value>選択したファイルが見つかりませんでした。</value>
+  </data>
+  <data name="DopplerInsights.Status.NoLogsFolder">
+    <value>ドップラーログフォルダがまだ見つかりません: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.NoCsvLogs">
+    <value>次の場所にドップラーCSVファイルがありません: {0}</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Empty">
+    <value>パスデータが読み込まれていません。</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Value">
+    <value>衛星: {0}。パス窓: {1}～{2} UTC（{3}分）。行: 合計{4}、スナップショット{5}、CAT書き込み{6}、オフセット変更{7}。</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Empty">
+    <value>しきい値メトリクスは利用できません。</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Value">
+    <value>しきい値: 基本{0} Hz、実効{1} Hz（適応削減{2}%）。抑制行: {3}%。</value>
+  </data>
+  <data name="DopplerInsights.Activity.Empty">
+    <value>書き込みアクティビティメトリクスは利用できません。</value>
+  </data>
+  <data name="DopplerInsights.Activity.Value">
+    <value>書き込み: RX {0}%、TX {1}%。対話行: {2}%。CAT一時停止行: {3}。先読み有効行: {4}%。</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Empty">
+    <value>周波数デルタメトリクスは利用できません。</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Value">
+    <value>デルタ: RX平均{0} Hz、RX p95 {1} Hz、TX平均{2} Hz、TX p95 {3} Hz。ピークスルー: {4} Hz/s。</value>
+  </data>
+  <data name="DopplerInsights.Compare.Empty">
+    <value>比較が読み込まれていません。</value>
+  </data>
+  <data name="DopplerInsights.Compare.Value">
+    <value>主 [{0}] RX/TX書き込み {1}%/{2}%、RX/TX p95 {3}/{4} Hz。比較 [{5}] RX/TX書き込み {6}%/{7}%、RX/TX p95 {8}/{9} Hz。</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyTitle">
+    <value>比較パスを読み込み、設定変更で追従が改善したか確認してください。</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyText">
+    <value>2つ目のCSV（ドップラーしきい値、CAT遅延、先読み設定変更後）を読み込むと、このセクションで新しいパスが良いか悪いかを示します。</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.BetterTitle">
+    <value>✓ 比較パスの方が良好</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.WorseTitle">
+    <value>✗ 比較パスの方が不良</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.MixedTitle">
+    <value>~ 比較パスはまちまち</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.Value">
+    <value>RX書き込み {0}%、TX書き込み {1}%、RX p95 {2} Hz、TX p95 {3} Hz。次: {4}</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.IncreaseAggression">
+    <value>しきい値またはCAT遅延をわずかに下げて、調整の積極性を上げてください。</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.StabilizeWrites">
+    <value>しきい値またはCAT遅延をわずかに上げて、書き込みのちらつきを減らしてください。</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.KeepSettings">
+    <value>この設定のまま維持してください — うまく機能しています！</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.SmallStep">
+    <value>小さな調整を行い、再度比較してください。</value>
+  </data>
+  <data name="DopplerInsights.Chart.Empty">
+    <value>ドップラーCSVを読み込み、RX/TXデルタ、しきい値、書き込みイベントの時系列を表示します。</value>
+  </data>
+  <data name="DopplerInsights.Reco.Empty">
+    <value>調整推奨を生成するには、1パス全体を記録してください。</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdHigh">
+    <value>このパスではしきい値が高めに見えます。CATがより早く反応するよう、ドップラーしきい値を下げることを検討してください。</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdLow">
+    <value>書き込み率が非常に高いです。音声がちらつく場合は、ドップラーしきい値をわずかに上げるか、CAT遅延を増やしてください。</value>
+  </data>
+  <data name="DopplerInsights.Reco.Interactive">
+    <value>このパス中に手動調整がありました。意図的でない場合は、CATの安定性とトランスポンダ整合を確認してください。</value>
+  </data>
+  <data name="DopplerInsights.Reco.CatPaused">
+    <value>CAT一時停止行が検出されました。追従中にCAT一時停止が有効のままになっていないか確認してください。</value>
+  </data>
+  <data name="DopplerInsights.Reco.EnableLead">
+    <value>ドップラースルーが高く先読み使用が少ないです。急なパス区間でCAT遅延用の先読みドップラーを有効にしてください。</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveThreshold">
+    <value>適応しきい値が有効でした。無効のパスと比較し、機材にとってより滑らかな調整か確認してください。</value>
+  </data>
+  <data name="DopplerInsights.Reco.Balanced">
+    <value>このパスはバランスが取れているようです。設定はそのままにし、追加パスと比較して一貫性を確認してください。</value>
+  </data>
+  <data name="DopplerInsights.Reco.IncreaseLead">
+    <value>先読みドップラーは有効でしたが、高速ドップラー区間ではほとんど動作しませんでした。無線設定で先読み強度または先読み時間を増やしてみてください。</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveHelping">
+    <value>適応しきい値が高速区間で実効帯域を下げました — 効果があるようです。固定しきい値を好まない限り、有効のままにしてください。</value>
+  </data>
+  <data name="DopplerInsights.Reco.TryAdaptive">
+    <value>固定しきい値で高速ドップラースルーが検出されました。無線設定でTCA付近の適応しきい値を有効にしてみてください。</value>
+  </data>
+  <data name="DopplerInsights.Section.Adaptive">
+    <value>適応しきい値</value>
+  </data>
+  <data name="DopplerInsights.Section.Lead">
+    <value>先読みドップラー（CAT遅延）</value>
+  </data>
+  <data name="DopplerInsights.Section.SettingsUsed">
+    <value>このパスで記録された設定</value>
+  </data>
+  <data name="DopplerInsights.Section.PassPhases">
+    <value>パス内訳</value>
+  </data>
+  <data name="DopplerInsights.PassPhases.Intro">
+    <value>パス各段階での追従の様子。先読みドップラーはTCAと降下区間に注目し、しきい値調整はAOS/上昇を確認してください。</value>
+  </data>
+  <data name="DopplerInsights.PassHeadline.Value">
+    <value>{0} — {1}分パス、最大仰角 {2}°</value>
+  </data>
+  <data name="DopplerInsights.Tuning.CompareHint">
+    <value>ヒント: 設定を1つ変更（しきい値、適応、先読み時間または強度）し、別パスを実行してから、ファイル→比較で両方のCSVを読み込み、追従が改善したか確認してください。</value>
+  </data>
+  <data name="DopplerInsights.Files.Primary">
+    <value>主パス</value>
+  </data>
+  <data name="DopplerInsights.Files.Comparison">
+    <value>比較パス</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptyTitle">
+    <value>パス未読み込み</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptySummary">
+    <value>ドップラーパスCSVを開き、無線設定の調整ガイダンスを取得してください。</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodTitle">
+    <value>追従は良好です</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodSummary">
+    <value>典型的な追従誤差は低く保たれました（ダウンリンク p95 {0} Hz、アップリンク p95 {1} Hz）。大きな変更は推奨しません。</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdTitle">
+    <value>しきい値が高すぎる可能性</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdSummary">
+    <value>サンプルの{0}%がしきい値で抑制されました — 無線機の補正が不十分でした。線形ドップラーしきい値を下げることを検討してください。</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadTitle">
+    <value>先読みドップラーを検討</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadSummary">
+    <value>高速ドップラースルーが検出されましたが、先読みドップラーはオフまたはほとんど使用されていませんでした。典型的なダウンリンク誤差は{0} Hzでした。</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterTitle">
+    <value>CATが過度に積極的な可能性</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterSummary">
+    <value>CATはサンプルの{0}%で書き込みました。調整音がぎこちない場合は、しきい値をわずかに上げるか、CAT遅延を増やしてください。</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualTitle">
+    <value>手動調整を検出</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualSummary">
+    <value>このパスには対話行{0}件とCAT一時停止行{1}件が含まれます。自動設定を変更する前にこれらの期間を確認してください。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyTitle">
+    <value>適応しきい値</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyDetail">
+    <value>パスを読み込み、TCA付近で適応しきい値が役立ったか確認してください。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledTitle">
+    <value>適応しきい値はオフでした</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledDetail">
+    <value>ピークドップラースルーは{0} Hz/sでした。パス全体で固定しきい値が使用されました。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledAction">
+    <value>無線設定でTCA付近の適応しきい値を有効にしてみてください — ドップラー変化が速いときに帯域を下げます。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledNoAction">
+    <value>スルーは中程度でした — TCA付近で遅れがなければ固定しきい値で問題ありません。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeTitle">
+    <value>しきい値が補正を過度にブロック</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeDetail">
+    <value>行の{0}%がしきい値未満でした（実効平均{1} Hz）。無線機は補正前に長く待ちました。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeAction">
+    <value>ドップラーしきい値（SSB/CW）を10～20 Hz下げるか、適応しきい値が有効であることを確認してください。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingTitle">
+    <value>適応しきい値は機能しています</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingDetail">
+    <value>高速区間でしきい値が約{0}%削減されました（ピークスルー{1} Hz/s）。過度なCATちらつきはありません。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingAction">
+    <value>適応は有効のままにしてください。固定しきい値の感覚を好む場合のみ、無効と比較してください。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralTitle">
+    <value>適応しきい値の効果は限定的</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralDetail">
+    <value>平均しきい値削減は{0}%でした。パスの大部分ではドップラースルーは中程度だった可能性があります。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralAction">
+    <value>TCA付近でまだ遅れを感じる場合は、適応を無効にするより基本しきい値をわずかに下げてください。</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyTitle">
+    <value>先読みドップラー</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyDetail">
+    <value>パスを読み込み、高速区間で先読みドップラーが追従できたか確認してください。</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledTitle">
+    <value>先読みドップラーはオフでした</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledDetail">
+    <value>ピークスルーは{0} Hz/sに達しました。CATは瞬時ドップラーのみ使用しました。</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledAction">
+    <value>無線設定でCAT遅延用の先読みドップラーを有効にし、別パスを記録してください。</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledNoAction">
+    <value>スルーは低かったです — このパスプロファイルでは先読みドップラーは任意です。</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakTitle">
+    <value>高速区間で先読みドップラーが弱かった</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakDetail">
+    <value>急勾配区間のダウンリンク誤差は{0} Hz、先読みゲインは{1}%でした。</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakAction">
+    <value>先読み強度を85～100%に上げるか、先読み時間を明示的に設定してください（25～40 msを試す）。</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingTitle">
+    <value>先読みドップラーは追従できています</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingDetail">
+    <value>先読みは行の{0}%で有効でした。高速スルーにもかかわらずダウンリンク p95は{1} Hzでした。</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingAction">
+    <value>現在の先読み設定を維持してください。音声が信号より先行する場合は、先読み強度をわずかに下げてください。</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingTitle">
+    <value>高速区間で追従が遅れました</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingDetail">
+    <value>高スルーパス中のダウンリンク p95 {0} Hz、アップリンク p95 {1} Hz。</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingAction">
+    <value>先読み時間（現在{0} ms）または先読み強度（{1}%）を増やしてください。CAT遅延が過大でないことも確認してください。</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralTitle">
+    <value>先読みドップラーの状態</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralDetail">
+    <value>先読みは行の{0}%で有効。ピークスルー {1} Hz/s。</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralAction">
+    <value>先読み時間または強度を小さく変更した後、比較モードで微調整してください。</value>
+  </data>
+  <data name="DopplerInsights.Settings.Empty">
+    <value>このログファイルに設定コメントが見つかりませんでした。</value>
+  </data>
+  <data name="DopplerInsights.Settings.Inferred">
+    <value>ログ行から推定: 基本しきい値 ~{0} Hz、先読み有効行 {1}%、適応削減 ~{2}%。</value>
+  </data>
+  <data name="DopplerInsights.Settings.Value">
+    <value>線形しきい値 {0} Hz、CAT遅延 {1} ms、適応 {2}、先読みドップラー {3}、先読み時間 {4} ms、先読み強度 {5}%。</value>
+  </data>
+  <data name="DopplerInsights.Settings.Enabled">
+    <value>有効</value>
+  </data>
+  <data name="DopplerInsights.Settings.Disabled">
+    <value>無効</value>
+  </data>
+  <data name="DopplerInsights.Phase.Aos">
+    <value>AOS（開始）</value>
+  </data>
+  <data name="DopplerInsights.Phase.Rising">
+    <value>上昇</value>
+  </data>
+  <data name="DopplerInsights.Phase.Tca">
+    <value>TCA付近</value>
+  </data>
+  <data name="DopplerInsights.Phase.Descending">
+    <value>降下</value>
+  </data>
+  <data name="DopplerInsights.Phase.Los">
+    <value>LOS（終了）</value>
+  </data>
+  <data name="DopplerInsights.Phase.Summary">
+    <value>ダウンリンク誤差 p95 {0} Hz · CAT書き込み {1}% · ピークスルー {2} Hz/s · 最大仰角 {3}°</value>
+  </data>
   <data name="Window.Sunlight.Title">
     <value>日照予測</value>
   </data>

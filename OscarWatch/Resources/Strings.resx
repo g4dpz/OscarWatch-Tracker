@@ -682,7 +682,7 @@ Continue?</value>
     <value>Doppler Pass Insights</value>
   </data>
   <data name="DopplerInsights.Subtitle">
-    <value>Load a Doppler CSV log to see write behavior, thresholds, and suggestions for improving CAT tuning.</value>
+    <value>Load a pass log to see clear tuning advice for Adaptive threshold and Lead Doppler CAT settings.</value>
   </data>
   <data name="DopplerInsights.OpenCsv">
     <value>Open CSV</value>
@@ -712,7 +712,19 @@ Continue?</value>
     <value>Time-series chart (solid = primary, dashed = compare)</value>
   </data>
   <data name="DopplerInsights.Chart.Legend">
-    <value>Blue = RX delta, Orange = TX delta, Teal = threshold, Purple = CAT writes</value>
+    <value>Blue = downlink tracking error, Orange = uplink tracking error, Teal band = adaptive threshold zone, Dashed = base threshold, Purple ticks = CAT corrections, Grey strip = satellite elevation, Amber line = TCA (highest elevation)</value>
+  </data>
+  <data name="DopplerInsights.Chart.Explain">
+    <value>Each coloured line shows how far the radio frequency drifted from the calculated Doppler target. When error reaches the threshold, OscarWatch sends a CAT correction (purple tick) and error drops back. Smaller, smoother cycles mean better tracking.</value>
+  </data>
+  <data name="DopplerInsights.Chart.YAxis">
+    <value>Tracking error (Hz)</value>
+  </data>
+  <data name="DopplerInsights.Chart.ElevationLabel">
+    <value>El °</value>
+  </data>
+  <data name="DopplerInsights.Chart.TcaLabel">
+    <value>TCA</value>
   </data>
   <data name="DopplerInsights.Chart.Hint">
     <value>Use +/− buttons to zoom, or scroll horizontally to pan</value>
@@ -734,6 +746,9 @@ Continue?</value>
   </data>
   <data name="DopplerInsights.Tab.Chart">
     <value>Chart</value>
+  </data>
+  <data name="DopplerInsights.Tab.Tuning">
+    <value>Tuning guide</value>
   </data>
   <data name="DopplerInsights.Tab.Files">
     <value>Files</value>
@@ -899,6 +914,210 @@ Continue?</value>
   </data>
   <data name="DopplerInsights.Reco.Balanced">
     <value>This pass looks balanced. Keep settings as-is and compare against additional passes for consistency.</value>
+  </data>
+  <data name="DopplerInsights.Reco.IncreaseLead">
+    <value>Lead Doppler was enabled but rarely active during fast Doppler legs. Try increasing lead strength or lead time in Radio settings.</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveHelping">
+    <value>Adaptive threshold reduced the effective band during fast legs — this appears to be helping. Keep it enabled unless you prefer a fixed threshold.</value>
+  </data>
+  <data name="DopplerInsights.Reco.TryAdaptive">
+    <value>Fast Doppler slew was detected with a fixed threshold. Try enabling Adaptive threshold near TCA in Radio settings.</value>
+  </data>
+  <data name="DopplerInsights.Section.Adaptive">
+    <value>Adaptive threshold</value>
+  </data>
+  <data name="DopplerInsights.Section.Lead">
+    <value>Lead Doppler (CAT latency)</value>
+  </data>
+  <data name="DopplerInsights.Section.SettingsUsed">
+    <value>Settings recorded for this pass</value>
+  </data>
+  <data name="DopplerInsights.Section.PassPhases">
+    <value>Pass breakdown</value>
+  </data>
+  <data name="DopplerInsights.PassPhases.Intro">
+    <value>How tracking behaved at each stage of the pass. Focus on the TCA and descending legs for Lead Doppler; check AOS/rising for threshold tuning.</value>
+  </data>
+  <data name="DopplerInsights.PassHeadline.Value">
+    <value>{0} — {1} min pass, peak elevation {2}°</value>
+  </data>
+  <data name="DopplerInsights.Tuning.CompareHint">
+    <value>Tip: change one setting (threshold, adaptive, lead time, or lead strength), run another pass, then load both CSV files via Files → comparison to see if tracking improved.</value>
+  </data>
+  <data name="DopplerInsights.Files.Primary">
+    <value>Primary pass</value>
+  </data>
+  <data name="DopplerInsights.Files.Comparison">
+    <value>Comparison pass</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptyTitle">
+    <value>No pass loaded</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptySummary">
+    <value>Open a Doppler pass CSV to get tuning guidance for your radio settings.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodTitle">
+    <value>Tracking looks good</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodSummary">
+    <value>Typical tracking error stayed low (downlink p95 {0} Hz, uplink p95 {1} Hz). No major changes suggested.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdTitle">
+    <value>Threshold may be too high</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdSummary">
+    <value>{0}% of samples were suppressed by the threshold — the radio was not corrected often enough. Consider lowering the linear Doppler threshold.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadTitle">
+    <value>Consider Lead Doppler</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadSummary">
+    <value>Fast Doppler slew was detected but Lead Doppler was off or rarely used. Typical downlink error was {0} Hz.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterTitle">
+    <value>CAT may be too aggressive</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterSummary">
+    <value>CAT wrote on {0}% of samples. If tuning sounded choppy, raise the threshold slightly or increase CAT delay.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualTitle">
+    <value>Manual tuning detected</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualSummary">
+    <value>This pass included {0} interactive rows and {1} CAT-paused rows. Review those periods before changing automatic settings.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyTitle">
+    <value>Adaptive threshold</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyDetail">
+    <value>Load a pass to see whether adaptive threshold helped near TCA.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledTitle">
+    <value>Adaptive threshold was off</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledDetail">
+    <value>Peak Doppler slew was {0} Hz/s. A fixed threshold was used for the whole pass.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledAction">
+    <value>Try enabling Adaptive threshold near TCA in Radio settings — it lowers the band when Doppler changes quickly.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledNoAction">
+    <value>Slew was moderate — a fixed threshold is fine unless you see lag near TCA.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeTitle">
+    <value>Threshold blocked too many corrections</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeDetail">
+    <value>{0}% of rows were below threshold (effective avg {1} Hz). The radio waited too long before correcting.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeAction">
+    <value>Lower Doppler threshold (SSB/CW) by 10–20 Hz, or ensure Adaptive threshold is enabled.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingTitle">
+    <value>Adaptive threshold is working</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingDetail">
+    <value>Threshold was reduced by ~{0}% during fast legs (peak slew {1} Hz/s) without excessive CAT chatter.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingAction">
+    <value>Keep Adaptive enabled. Compare with it disabled only if you want a fixed threshold feel.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralTitle">
+    <value>Adaptive threshold had limited effect</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralDetail">
+    <value>Average threshold reduction was {0}%. Doppler slew may have been moderate for most of the pass.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralAction">
+    <value>If you still hear lag near TCA, lower the base threshold slightly rather than disabling Adaptive.</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyTitle">
+    <value>Lead Doppler</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyDetail">
+    <value>Load a pass to see whether Lead Doppler kept up during fast legs.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledTitle">
+    <value>Lead Doppler was off</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledDetail">
+    <value>Peak slew reached {0} Hz/s. CAT used instantaneous Doppler only.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledAction">
+    <value>Enable Lead Doppler for CAT latency in Radio settings, then log another pass.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledNoAction">
+    <value>Slew was low — Lead Doppler is optional for this pass profile.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakTitle">
+    <value>Lead Doppler was weak on fast legs</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakDetail">
+    <value>Steep-leg downlink error reached {0} Hz with lead gain at {1}%.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakAction">
+    <value>Increase lead strength to 85–100%, or set lead time explicitly (try 25–40 ms).</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingTitle">
+    <value>Lead Doppler is keeping up</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingDetail">
+    <value>Lead was active on {0}% of rows; downlink p95 stayed at {1} Hz despite fast slew.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingAction">
+    <value>Keep current lead settings. If audio sounds ahead of the signal, reduce lead strength slightly.</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingTitle">
+    <value>Tracking lagged on fast legs</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingDetail">
+    <value>Downlink p95 {0} Hz, uplink p95 {1} Hz during a high-slew pass.</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingAction">
+    <value>Increase lead time (currently {0} ms) or lead strength ({1}%). Also check CAT delay is not excessive.</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralTitle">
+    <value>Lead Doppler status</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralDetail">
+    <value>Lead active on {0}% of rows. Peak slew {1} Hz/s.</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralAction">
+    <value>Fine-tune with compare mode after a small change to lead time or strength.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Empty">
+    <value>Settings comment not found in this log file.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Inferred">
+    <value>Inferred from log rows: base threshold ~{0} Hz, lead active {1}% of rows, adaptive reduction ~{2}%.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Value">
+    <value>Linear threshold {0} Hz, CAT delay {1} ms, Adaptive {2}, Lead Doppler {3}, lead time {4} ms, lead strength {5}%.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Enabled">
+    <value>enabled</value>
+  </data>
+  <data name="DopplerInsights.Settings.Disabled">
+    <value>disabled</value>
+  </data>
+  <data name="DopplerInsights.Phase.Aos">
+    <value>AOS (start)</value>
+  </data>
+  <data name="DopplerInsights.Phase.Rising">
+    <value>Rising</value>
+  </data>
+  <data name="DopplerInsights.Phase.Tca">
+    <value>TCA vicinity</value>
+  </data>
+  <data name="DopplerInsights.Phase.Descending">
+    <value>Descending</value>
+  </data>
+  <data name="DopplerInsights.Phase.Los">
+    <value>LOS (end)</value>
+  </data>
+  <data name="DopplerInsights.Phase.Summary">
+    <value>Downlink error p95 {0} Hz · CAT writes {1}% · peak slew {2} Hz/s · max elevation {3}°</value>
   </data>
   <data name="Window.RotatorManual.Title">
     <value>Manual rotator control</value>

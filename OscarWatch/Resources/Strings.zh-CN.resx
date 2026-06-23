@@ -645,6 +645,450 @@
   <data name="Window.PassVisualizer.Title">
     <value>过境可视化</value>
   </data>
+  <data name="Window.DopplerInsights.Title">
+    <value>多普勒过境分析</value>
+  </data>
+  <data name="DopplerInsights.Header">
+    <value>多普勒过境分析</value>
+  </data>
+  <data name="DopplerInsights.Subtitle">
+    <value>加载过境日志，查看自适应阈值与 CAT 超前多普勒设置的清晰调谐建议。</value>
+  </data>
+  <data name="DopplerInsights.OpenCsv">
+    <value>打开 CSV</value>
+  </data>
+  <data name="DopplerInsights.LoadLatest">
+    <value>加载最新</value>
+  </data>
+  <data name="DopplerInsights.OpenFolder">
+    <value>打开日志文件夹</value>
+  </data>
+  <data name="DopplerInsights.Picker.Title">
+    <value>选择多普勒过境 CSV</value>
+  </data>
+  <data name="DopplerInsights.Picker.CompareTitle">
+    <value>选择用于比较的多普勒过境 CSV</value>
+  </data>
+  <data name="DopplerInsights.OpenCompareCsv">
+    <value>打开比较 CSV</value>
+  </data>
+  <data name="DopplerInsights.ClearCompare">
+    <value>清除比较</value>
+  </data>
+  <data name="DopplerInsights.Section.Summary">
+    <value>摘要</value>
+  </data>
+  <data name="DopplerInsights.Section.Chart">
+    <value>时序图（实线=主数据，虚线=比较）</value>
+  </data>
+  <data name="DopplerInsights.Chart.Legend">
+    <value>蓝=下行跟踪误差，橙=上行跟踪误差，青绿带=自适应阈值区，虚线=基础阈值，紫标记=CAT 校正，灰条=卫星仰角，琥珀线=TCA（最高仰角）</value>
+  </data>
+  <data name="DopplerInsights.Chart.Explain">
+    <value>每条彩色线显示电台频率偏离计算多普勒目标的程度。误差达到阈值时，OscarWatch 发送 CAT 校正（紫标记），误差回落。周期越小越平滑，跟踪越好。</value>
+  </data>
+  <data name="DopplerInsights.Chart.YAxis">
+    <value>跟踪误差 (Hz)</value>
+  </data>
+  <data name="DopplerInsights.Chart.ElevationLabel">
+    <value>El °</value>
+  </data>
+  <data name="DopplerInsights.Chart.TcaLabel">
+    <value>TCA</value>
+  </data>
+  <data name="DopplerInsights.Chart.Hint">
+    <value>使用 +/− 按钮缩放，或横向滚动平移</value>
+  </data>
+  <data name="DopplerInsights.Section.Bars">
+    <value>活动条（行百分比）</value>
+  </data>
+  <data name="DopplerInsights.Section.Analysis">
+    <value>分析详情</value>
+  </data>
+  <data name="DopplerInsights.Tab.Activity">
+    <value>活动条</value>
+  </data>
+  <data name="DopplerInsights.Tab.Overview">
+    <value>概览</value>
+  </data>
+  <data name="DopplerInsights.Tab.Events">
+    <value>近期事件</value>
+  </data>
+  <data name="DopplerInsights.Tab.Chart">
+    <value>图表</value>
+  </data>
+  <data name="DopplerInsights.Tab.Tuning">
+    <value>调谐指南</value>
+  </data>
+  <data name="DopplerInsights.Tab.Files">
+    <value>文件</value>
+  </data>
+  <data name="DopplerInsights.Tab.Comparison">
+    <value>比较</value>
+  </data>
+  <data name="DopplerInsights.Tab.Analysis">
+    <value>分析</value>
+  </data>
+  <data name="DopplerInsights.Section.Recommendations">
+    <value>建议</value>
+  </data>
+  <data name="DopplerInsights.Section.HowTo">
+    <value>如何据此调谐电台设置</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Intro">
+    <value>使用此面板比较更改设置前后的同一次过境。</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step1">
+    <value>1) 若「被阈值抑制」很高而 RX/TX 写入很少，请略微降低多普勒阈值。</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step2">
+    <value>2) 若 RX/TX 写入率很高，请提高阈值或 CAT 延迟以减少写入抖动。</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step3">
+    <value>3) 若峰值变化率很高且跟踪滞后，请启用或增强 CAT 延迟超前多普勒。</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step4">
+    <value>4) 使用比较模式：在写入率稳定、手动干预更少的前提下，力求更低的 p95 频差。</value>
+  </data>
+  <data name="DopplerInsights.Section.Events">
+    <value>近期事件</value>
+  </data>
+  <data name="DopplerInsights.Bar.RxWrites">
+    <value>RX 写入率</value>
+  </data>
+  <data name="DopplerInsights.Bar.TxWrites">
+    <value>TX 写入率</value>
+  </data>
+  <data name="DopplerInsights.Bar.BelowThreshold">
+    <value>被阈值抑制</value>
+  </data>
+  <data name="DopplerInsights.Bar.Interactive">
+    <value>手动/交互时段</value>
+  </data>
+  <data name="DopplerInsights.Status.Ready">
+    <value>选择 CSV 文件或加载最新过境日志。</value>
+  </data>
+  <data name="DopplerInsights.Status.Loading">
+    <value>正在加载多普勒过境日志</value>
+  </data>
+  <data name="DopplerInsights.Status.Loaded">
+    <value>已加载 {0} 行。</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadingCompare">
+    <value>正在加载比较过境日志</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadedCompare">
+    <value>已加载比较数据，共 {0} 行。</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderOk">
+    <value>已打开多普勒日志文件夹。</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderFailed">
+    <value>无法打开多普勒日志文件夹：{0}</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadFailed">
+    <value>无法加载日志：{0}</value>
+  </data>
+  <data name="DopplerInsights.Status.FileMissing">
+    <value>未找到所选文件。</value>
+  </data>
+  <data name="DopplerInsights.Status.NoLogsFolder">
+    <value>尚未找到多普勒日志文件夹：{0}</value>
+  </data>
+  <data name="DopplerInsights.Status.NoCsvLogs">
+    <value>在以下位置未找到多普勒 CSV 文件：{0}</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Empty">
+    <value>未加载过境数据。</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Value">
+    <value>卫星：{0}。过境窗口：{1} 至 {2} UTC（{3} 分钟）。行：共 {4}，快照 {5}，CAT 写入 {6}，偏移变更 {7}。</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Empty">
+    <value>阈值指标不可用。</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Value">
+    <value>阈值：基础 {0} Hz，有效 {1} Hz（自适应削减 {2}%）。抑制行：{3}%。</value>
+  </data>
+  <data name="DopplerInsights.Activity.Empty">
+    <value>写入活动指标不可用。</value>
+  </data>
+  <data name="DopplerInsights.Activity.Value">
+    <value>写入：RX {0}%，TX {1}%。交互行：{2}%。CAT 暂停行：{3}。超前启用行：{4}%。</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Empty">
+    <value>频率差指标不可用。</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Value">
+    <value>频差：RX 均值 {0} Hz，RX p95 {1} Hz，TX 均值 {2} Hz，TX p95 {3} Hz。峰值变化率：{4} Hz/s。</value>
+  </data>
+  <data name="DopplerInsights.Compare.Empty">
+    <value>未加载比较数据。</value>
+  </data>
+  <data name="DopplerInsights.Compare.Value">
+    <value>主数据 [{0}] RX/TX 写入 {1}%/{2}%，RX/TX p95 {3}/{4} Hz。比较 [{5}] RX/TX 写入 {6}%/{7}%，RX/TX p95 {8}/{9} Hz。</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyTitle">
+    <value>加载比较过境，查看设置更改是否改善了跟踪。</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyText">
+    <value>加载第二个 CSV（更改多普勒阈值、CAT 延迟或超前设置后），本节将显示新过境是更好还是更差。</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.BetterTitle">
+    <value>✓ 比较过境更好</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.WorseTitle">
+    <value>✗ 比较过境更差</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.MixedTitle">
+    <value>~ 比较过境好坏参半</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.Value">
+    <value>RX 写入 {0}%，TX 写入 {1}%，RX p95 {2} Hz，TX p95 {3} Hz。下一步：{4}</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.IncreaseAggression">
+    <value>略微降低阈值或 CAT 延迟，以提高调谐积极性。</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.StabilizeWrites">
+    <value>略微提高阈值或 CAT 延迟，以减少写入抖动。</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.KeepSettings">
+    <value>保持这些设置——运行良好！</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.SmallStep">
+    <value>做小调整后再次比较。</value>
+  </data>
+  <data name="DopplerInsights.Chart.Empty">
+    <value>加载多普勒 CSV 以查看 RX/TX 频差、阈值与写入事件的时序图。</value>
+  </data>
+  <data name="DopplerInsights.Reco.Empty">
+    <value>记录一次完整过境以生成调谐建议。</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdHigh">
+    <value>此过境的阈值似乎偏高。考虑降低多普勒阈值，使 CAT 更快响应。</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdLow">
+    <value>写入率很高。若音频听起来抖动，请略微提高多普勒阈值或增加 CAT 延迟。</value>
+  </data>
+  <data name="DopplerInsights.Reco.Interactive">
+    <value>此过境期间发生了手动调谐。若非有意，请检查 CAT 稳定性与转发器对齐。</value>
+  </data>
+  <data name="DopplerInsights.Reco.CatPaused">
+    <value>检测到 CAT 暂停行。请确认主动跟踪期间未遗留 CAT 暂停。</value>
+  </data>
+  <data name="DopplerInsights.Reco.EnableLead">
+    <value>多普勒变化率高但超前使用少。在陡峭过境区段启用 CAT 延迟超前多普勒。</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveThreshold">
+    <value>自适应阈值已启用。与禁用的过境比较，确认对您的设备是否更平滑。</value>
+  </data>
+  <data name="DopplerInsights.Reco.Balanced">
+    <value>此过境看起来均衡。保持设置不变，并与更多过境比较以确认一致性。</value>
+  </data>
+  <data name="DopplerInsights.Reco.IncreaseLead">
+    <value>超前多普勒已启用，但在快速多普勒区段很少生效。请在电台设置中尝试提高超前强度或超前时间。</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveHelping">
+    <value>自适应阈值在快速区段降低了有效带宽——似乎有帮助。除非偏好固定阈值，否则保持启用。</value>
+  </data>
+  <data name="DopplerInsights.Reco.TryAdaptive">
+    <value>在固定阈值下检测到快速多普勒变化。请在电台设置中尝试在 TCA 附近启用自适应阈值。</value>
+  </data>
+  <data name="DopplerInsights.Section.Adaptive">
+    <value>自适应阈值</value>
+  </data>
+  <data name="DopplerInsights.Section.Lead">
+    <value>超前多普勒（CAT 延迟）</value>
+  </data>
+  <data name="DopplerInsights.Section.SettingsUsed">
+    <value>此过境记录的配置</value>
+  </data>
+  <data name="DopplerInsights.Section.PassPhases">
+    <value>过境分段</value>
+  </data>
+  <data name="DopplerInsights.PassPhases.Intro">
+    <value>各过境阶段的跟踪表现。关注 TCA 与下降区段以评估超前多普勒；检查 AOS/上升以调阈值。</value>
+  </data>
+  <data name="DopplerInsights.PassHeadline.Value">
+    <value>{0} — {1} 分钟过境，峰值仰角 {2}°</value>
+  </data>
+  <data name="DopplerInsights.Tuning.CompareHint">
+    <value>提示：更改一项设置（阈值、自适应、超前时间或强度），再运行一次过境，然后通过 文件 → 比较 加载两个 CSV，查看跟踪是否改善。</value>
+  </data>
+  <data name="DopplerInsights.Files.Primary">
+    <value>主过境</value>
+  </data>
+  <data name="DopplerInsights.Files.Comparison">
+    <value>比较过境</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptyTitle">
+    <value>未加载过境</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptySummary">
+    <value>打开多普勒过境 CSV，获取电台设置调谐指导。</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodTitle">
+    <value>跟踪良好</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodSummary">
+    <value>典型跟踪误差保持较低（下行 p95 {0} Hz，上行 p95 {1} Hz）。无需重大更改。</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdTitle">
+    <value>阈值可能过高</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdSummary">
+    <value>{0}% 的样本被阈值抑制——电台校正不够频繁。考虑降低线性多普勒阈值。</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadTitle">
+    <value>考虑超前多普勒</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadSummary">
+    <value>检测到快速多普勒变化，但超前多普勒关闭或很少使用。典型下行误差为 {0} Hz。</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterTitle">
+    <value>CAT 可能过于激进</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterSummary">
+    <value>CAT 在 {0}% 的样本上写入。若调谐听起来断续，请略微提高阈值或增加 CAT 延迟。</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualTitle">
+    <value>检测到手动调谐</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualSummary">
+    <value>此过境包含 {0} 个交互行和 {1} 个 CAT 暂停行。更改自动设置前请复查这些时段。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyTitle">
+    <value>自适应阈值</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyDetail">
+    <value>加载过境以查看自适应阈值在 TCA 附近是否有帮助。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledTitle">
+    <value>自适应阈值已关闭</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledDetail">
+    <value>峰值多普勒变化率为 {0} Hz/s。整个过境使用固定阈值。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledAction">
+    <value>请在电台设置中尝试在 TCA 附近启用自适应阈值——多普勒快速变化时会降低带宽。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledNoAction">
+    <value>变化率适中——除非 TCA 附近有滞后，否则固定阈值即可。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeTitle">
+    <value>阈值阻止了过多校正</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeDetail">
+    <value>{0}% 的行低于阈值（有效均值 {1} Hz）。电台等待过久才校正。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeAction">
+    <value>将多普勒阈值（SSB/CW）降低 10–20 Hz，或确保已启用自适应阈值。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingTitle">
+    <value>自适应阈值运行良好</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingDetail">
+    <value>快速区段阈值削减约 {0}%（峰值变化率 {1} Hz/s），且无过多 CAT 抖动。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingAction">
+    <value>保持自适应启用。仅当您偏好固定阈值感时才与禁用状态比较。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralTitle">
+    <value>自适应阈值效果有限</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralDetail">
+    <value>平均阈值削减为 {0}%。过境大部分时间多普勒变化率可能适中。</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralAction">
+    <value>若 TCA 附近仍感滞后，请略微降低基础阈值，而非禁用自适应。</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyTitle">
+    <value>超前多普勒</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyDetail">
+    <value>加载过境以查看超前多普勒在快速区段是否跟得上。</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledTitle">
+    <value>超前多普勒已关闭</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledDetail">
+    <value>峰值变化率达到 {0} Hz/s。CAT 仅使用瞬时多普勒。</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledAction">
+    <value>在电台设置中启用 CAT 延迟超前多普勒，然后记录另一次过境。</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledNoAction">
+    <value>变化率较低——对此过境特征，超前多普勒为可选项。</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakTitle">
+    <value>快速区段中超前多普勒偏弱</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakDetail">
+    <value>陡变区段下行误差达 {0} Hz，超前增益为 {1}%。</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakAction">
+    <value>将超前强度提高到 85–100%，或显式设置超前时间（可试 25–40 ms）。</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingTitle">
+    <value>超前多普勒跟得上</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingDetail">
+    <value>超前在 {0}% 的行上生效；尽管变化率快，下行 p95 仍为 {1} Hz。</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingAction">
+    <value>保持当前超前设置。若音频听起来超前于信号，请略微降低超前强度。</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingTitle">
+    <value>快速区段跟踪滞后</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingDetail">
+    <value>高变化率过境中下行 p95 {0} Hz，上行 p95 {1} Hz。</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingAction">
+    <value>增加超前时间（当前 {0} ms）或超前强度（{1}%）。同时检查 CAT 延迟是否过大。</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralTitle">
+    <value>超前多普勒状态</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralDetail">
+    <value>超前在 {0}% 的行上生效。峰值变化率 {1} Hz/s。</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralAction">
+    <value>小幅更改超前时间或强度后，用比较模式微调。</value>
+  </data>
+  <data name="DopplerInsights.Settings.Empty">
+    <value>此日志文件中未找到设置注释。</value>
+  </data>
+  <data name="DopplerInsights.Settings.Inferred">
+    <value>由日志行推断：基础阈值 ~{0} Hz，超前活跃行 {1}%，自适应削减 ~{2}%。</value>
+  </data>
+  <data name="DopplerInsights.Settings.Value">
+    <value>线性阈值 {0} Hz，CAT 延迟 {1} ms，自适应 {2}，超前多普勒 {3}，超前时间 {4} ms，超前强度 {5}%。</value>
+  </data>
+  <data name="DopplerInsights.Settings.Enabled">
+    <value>已启用</value>
+  </data>
+  <data name="DopplerInsights.Settings.Disabled">
+    <value>已禁用</value>
+  </data>
+  <data name="DopplerInsights.Phase.Aos">
+    <value>AOS（开始）</value>
+  </data>
+  <data name="DopplerInsights.Phase.Rising">
+    <value>上升</value>
+  </data>
+  <data name="DopplerInsights.Phase.Tca">
+    <value>TCA 附近</value>
+  </data>
+  <data name="DopplerInsights.Phase.Descending">
+    <value>下降</value>
+  </data>
+  <data name="DopplerInsights.Phase.Los">
+    <value>LOS（结束）</value>
+  </data>
+  <data name="DopplerInsights.Phase.Summary">
+    <value>下行误差 p95 {0} Hz · CAT 写入 {1}% · 峰值变化率 {2} Hz/s · 最大仰角 {3}°</value>
+  </data>
   <data name="Window.Sunlight.Title">
     <value>日照预测</value>
   </data>

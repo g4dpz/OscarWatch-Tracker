@@ -7,9 +7,9 @@
         x:DataType="vm:DopplerPassInsightsViewModel"
         Title="{loc:Localize Key=Window.DopplerInsights.Title}"
         Width="1000"
-        Height="800"
-        MinWidth="800"
-        MinHeight="600"
+        Height="820"
+        MinWidth="860"
+        MinHeight="640"
         WindowStartupLocation="CenterOwner">
   <Grid RowDefinitions="Auto,Auto,*,Auto"
         RowSpacing="10"
@@ -46,10 +46,156 @@
         </Style>
       </TabControl.Styles>
 
+      <!-- Tuning guide (default) -->
+      <TabItem Header="{loc:Localize Key=DopplerInsights.Tab.Tuning}">
+        <ScrollViewer Margin="8" VerticalScrollBarVisibility="Auto">
+          <StackPanel Spacing="12">
+            <TextBlock Text="{Binding PassHeadlineText}"
+                       FontSize="14"
+                       FontWeight="SemiBold"
+                       TextWrapping="Wrap" />
+
+            <Border BorderThickness="1"
+                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                    CornerRadius="8"
+                    Padding="14,12">
+              <StackPanel Spacing="6">
+                <TextBlock Text="{Binding TuningVerdictTitle}"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           TextWrapping="Wrap" />
+                <TextBlock Text="{Binding TuningVerdictSummary}"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+              </StackPanel>
+            </Border>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+              <Border Grid.Column="0"
+                      BorderThickness="1"
+                      BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                      CornerRadius="8"
+                      Padding="12,10">
+                <StackPanel Spacing="6">
+                  <TextBlock Text="{loc:Localize Key=DopplerInsights.Section.Adaptive}"
+                             FontWeight="SemiBold"
+                             FontSize="13" />
+                  <TextBlock Text="{Binding AdaptiveTitle}"
+                             FontWeight="SemiBold"
+                             TextWrapping="Wrap" />
+                  <TextBlock Text="{Binding AdaptiveDetail}"
+                             TextWrapping="Wrap"
+                             Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+                  <TextBlock Text="{Binding AdaptiveAction}"
+                             TextWrapping="Wrap"
+                             FontStyle="Italic" />
+                </StackPanel>
+              </Border>
+
+              <Border Grid.Column="1"
+                      BorderThickness="1"
+                      BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                      CornerRadius="8"
+                      Padding="12,10">
+                <StackPanel Spacing="6">
+                  <TextBlock Text="{loc:Localize Key=DopplerInsights.Section.Lead}"
+                             FontWeight="SemiBold"
+                             FontSize="13" />
+                  <TextBlock Text="{Binding LeadTitle}"
+                             FontWeight="SemiBold"
+                             TextWrapping="Wrap" />
+                  <TextBlock Text="{Binding LeadDetail}"
+                             TextWrapping="Wrap"
+                             Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+                  <TextBlock Text="{Binding LeadAction}"
+                             TextWrapping="Wrap"
+                             FontStyle="Italic" />
+                </StackPanel>
+              </Border>
+            </Grid>
+
+            <Border BorderThickness="1"
+                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                    CornerRadius="8"
+                    Padding="12,10">
+              <StackPanel Spacing="8">
+                <TextBlock Text="{loc:Localize Key=DopplerInsights.Section.SettingsUsed}"
+                           FontWeight="SemiBold" />
+                <TextBlock Text="{Binding SettingsUsedText}"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+              </StackPanel>
+            </Border>
+
+            <Border BorderThickness="1"
+                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                    CornerRadius="8"
+                    Padding="12,10">
+              <StackPanel Spacing="8">
+                <TextBlock Text="{loc:Localize Key=DopplerInsights.Section.Recommendations}"
+                           FontWeight="SemiBold" />
+                <ItemsControl ItemsSource="{Binding Recommendations}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,6">
+                        <TextBlock Text="•" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding}" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+
+            <Border BorderThickness="1"
+                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                    CornerRadius="8"
+                    Padding="12,10">
+              <StackPanel Spacing="8">
+                <TextBlock Text="{loc:Localize Key=DopplerInsights.Section.PassPhases}"
+                           FontWeight="SemiBold" />
+                <TextBlock Text="{loc:Localize Key=DopplerInsights.PassPhases.Intro}"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource ThemeSecondaryForegroundBrush}"
+                           FontSize="12" />
+                <ItemsControl ItemsSource="{Binding PassPhases}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="vm:DopplerPassPhaseSummary">
+                      <Border BorderThickness="0,0,0,1"
+                              BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                              Padding="0,8">
+                        <StackPanel Spacing="2">
+                          <TextBlock Text="{Binding Label}"
+                                     FontWeight="SemiBold" />
+                          <TextBlock Text="{Binding Summary}"
+                                     TextWrapping="Wrap"
+                                     Foreground="{DynamicResource ThemeSecondaryForegroundBrush}"
+                                     FontSize="12" />
+                        </StackPanel>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+
+            <TextBlock Text="{loc:Localize Key=DopplerInsights.Tuning.CompareHint}"
+                       TextWrapping="Wrap"
+                       FontSize="12"
+                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
       <!-- Chart Tab -->
       <TabItem Header="{loc:Localize Key=DopplerInsights.Tab.Chart}">
-        <Grid RowDefinitions="Auto,Auto,*" RowSpacing="8" Margin="8">
-          <StackPanel Grid.Row="0"
+        <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="8" Margin="8">
+          <TextBlock Grid.Row="0"
+                     Text="{loc:Localize Key=DopplerInsights.Chart.Explain}"
+                     TextWrapping="Wrap"
+                     FontSize="12"
+                     Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+          <StackPanel Grid.Row="1"
                       Orientation="Horizontal"
                       Spacing="8"
                       VerticalAlignment="Center">
@@ -61,16 +207,16 @@
                        Foreground="{DynamicResource ThemeSecondaryForegroundBrush}"
                        Margin="8,0,0,0" />
           </StackPanel>
-          <TextBlock Grid.Row="1"
+          <TextBlock Grid.Row="2"
                      Text="{loc:Localize Key=DopplerInsights.Chart.Legend}"
                      FontSize="11"
                      Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
-          <ScrollViewer Grid.Row="2"
+          <ScrollViewer Grid.Row="3"
                         HorizontalScrollBarVisibility="Auto"
                         VerticalScrollBarVisibility="Disabled">
             <ctrl:DopplerTimeSeriesChartControl Name="ChartControl"
                                                 MinWidth="1000"
-                                                MinHeight="250"
+                                                MinHeight="300"
                                                 HorizontalAlignment="Stretch"
                                                 VerticalAlignment="Stretch"
                                                 Loaded="OnChartControlLoaded"
@@ -78,6 +224,99 @@
                                                 ComparisonSamples="{Binding ComparisonChartSamples}" />
           </ScrollViewer>
         </Grid>
+      </TabItem>
+
+      <!-- Analysis Tab -->
+      <TabItem Header="{loc:Localize Key=DopplerInsights.Tab.Analysis}">
+        <TabControl Margin="0,4,0,0">
+          <TabControl.Styles>
+            <Style Selector="TabItem">
+              <Setter Property="FontSize" Value="12" />
+              <Setter Property="Padding" Value="10,4" />
+            </Style>
+          </TabControl.Styles>
+
+          <TabItem Header="{loc:Localize Key=DopplerInsights.Tab.Overview}">
+            <ScrollViewer Margin="8"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+              <StackPanel Spacing="8">
+                <TextBlock Text="{loc:Localize Key=DopplerInsights.Section.Summary}" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding PassSummaryText}" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding ThresholdSummaryText}" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding DynamicsSummaryText}" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding ActivitySummaryText}" TextWrapping="Wrap" />
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
+
+          <TabItem Header="{loc:Localize Key=DopplerInsights.Tab.Activity}">
+            <ScrollViewer Margin="8"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+              <StackPanel Spacing="6">
+                <TextBlock Text="{loc:Localize Key=DopplerInsights.Bar.RxWrites}" FontSize="12" />
+                <ProgressBar Minimum="0" Maximum="100" Value="{Binding RxWritePercent}" Height="10" />
+                <TextBlock Text="{loc:Localize Key=DopplerInsights.Bar.TxWrites}" FontSize="12" />
+                <ProgressBar Minimum="0" Maximum="100" Value="{Binding TxWritePercent}" Height="10" />
+                <TextBlock Text="{loc:Localize Key=DopplerInsights.Bar.BelowThreshold}" FontSize="12" />
+                <ProgressBar Minimum="0" Maximum="100" Value="{Binding BelowThresholdPercent}" Height="10" />
+                <TextBlock Text="{loc:Localize Key=DopplerInsights.Bar.Interactive}" FontSize="12" />
+                <ProgressBar Minimum="0" Maximum="100" Value="{Binding InteractivePercent}" Height="10" />
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
+
+          <TabItem Header="{loc:Localize Key=DopplerInsights.Tab.Events}">
+            <ListBox Margin="8"
+                     ItemsSource="{Binding EventRows}">
+              <ListBox.ItemTemplate>
+                <DataTemplate DataType="vm:DopplerInsightEventRow">
+                  <TextBlock TextWrapping="Wrap"
+                             FontFamily="Consolas,Courier New,monospace"
+                             FontSize="11">
+                    <Run Text="{Binding Utc}" />
+                    <Run Text="  " />
+                    <Run Text="{Binding Event}" />
+                    <Run Text="  RX:" />
+                    <Run Text="{Binding RxDeltaHz}" />
+                    <Run Text="  TX:" />
+                    <Run Text="{Binding TxDeltaHz}" />
+                    <Run Text="  WR:" />
+                    <Run Text="{Binding WroteRx}" />
+                    <Run Text=" / " />
+                    <Run Text="{Binding WroteTx}" />
+                    <Run Text="  TH:" />
+                    <Run Text="{Binding BelowThreshold}" />
+                    <Run Text="  " />
+                    <Run Text="{Binding Notes}" />
+                  </TextBlock>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </TabItem>
+        </TabControl>
+      </TabItem>
+
+      <!-- Comparison Tab -->
+      <TabItem Header="{loc:Localize Key=DopplerInsights.Tab.Comparison}" IsVisible="{Binding HasComparison}">
+        <ScrollViewer Margin="8" VerticalScrollBarVisibility="Auto">
+          <StackPanel Spacing="8">
+            <TextBlock Text="{Binding ComparisonSummaryText}"
+                       TextWrapping="Wrap" />
+            <Border BorderThickness="0,1,0,0"
+                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                    Padding="0,8,0,0">
+              <StackPanel Spacing="4">
+                <TextBlock Text="{Binding ComparisonInterpretationTitle}"
+                           FontWeight="SemiBold"
+                           FontSize="14" />
+                <TextBlock Text="{Binding ComparisonInterpretationText}"
+                           TextWrapping="Wrap" />
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </ScrollViewer>
       </TabItem>
 
       <!-- Files Tab -->
@@ -89,7 +328,7 @@
                     CornerRadius="6"
                     Padding="10,8">
               <StackPanel Spacing="6">
-                <TextBlock Text="Primary Pass" FontWeight="SemiBold" FontSize="12" />
+                <TextBlock Text="{loc:Localize Key=DopplerInsights.Files.Primary}" FontWeight="SemiBold" FontSize="12" />
                 <TextBlock Text="{Binding SelectedFilePath}"
                            FontFamily="Consolas,Courier New,monospace"
                            FontSize="11"
@@ -104,7 +343,7 @@
                     Padding="10,8">
               <StackPanel Spacing="6">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="Comparison Pass" FontWeight="SemiBold" FontSize="12" />
+                  <TextBlock Text="{loc:Localize Key=DopplerInsights.Files.Comparison}" FontWeight="SemiBold" FontSize="12" />
                   <Button Content="{loc:Localize Key=DopplerInsights.OpenFolder}"
                           Command="{Binding OpenLogFolderCommand}"
                           MinWidth="100"
@@ -129,129 +368,6 @@
             </Border>
           </StackPanel>
         </ScrollViewer>
-      </TabItem>
-
-      <!-- Comparison Tab -->
-      <TabItem Header="{loc:Localize Key=DopplerInsights.Tab.Comparison}" IsVisible="{Binding HasComparison}">
-        <ScrollViewer Margin="8" VerticalScrollBarVisibility="Auto">
-          <StackPanel Spacing="8">
-            <TextBlock Text="{Binding ComparisonSummaryText}"
-                       TextWrapping="Wrap" />
-            <Border BorderThickness="0,1,0,0"
-                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-                    Padding="0,8,0,0">
-              <StackPanel Spacing="4">
-                <TextBlock Text="{Binding ComparisonInterpretationTitle}"
-                           FontWeight="SemiBold"
-                           FontSize="14" />
-                <TextBlock Text="{Binding ComparisonInterpretationText}"
-                           TextWrapping="Wrap" />
-              </StackPanel>
-            </Border>
-          </StackPanel>
-        </ScrollViewer>
-      </TabItem>
-
-      <!-- Analysis Tab -->
-      <TabItem Header="{loc:Localize Key=DopplerInsights.Tab.Analysis}">
-        <Grid RowDefinitions="Auto,*" RowSpacing="8" Margin="8">
-          <TabControl Grid.Row="0">
-            <TabControl.Styles>
-              <Style Selector="TabItem">
-                <Setter Property="FontSize" Value="12" />
-                <Setter Property="Padding" Value="10,4" />
-              </Style>
-            </TabControl.Styles>
-
-            <TabItem Header="{loc:Localize Key=DopplerInsights.Tab.Overview}">
-              <ScrollViewer Margin="8"
-                            VerticalScrollBarVisibility="Auto"
-                            HorizontalScrollBarVisibility="Disabled">
-                <StackPanel Spacing="8">
-                  <TextBlock Text="{loc:Localize Key=DopplerInsights.Section.Summary}" FontWeight="SemiBold" />
-                  <TextBlock Text="{Binding PassSummaryText}" TextWrapping="Wrap" />
-                  <TextBlock Text="{Binding ThresholdSummaryText}" TextWrapping="Wrap" />
-                  <TextBlock Text="{Binding DynamicsSummaryText}" TextWrapping="Wrap" />
-                  <TextBlock Text="{Binding ActivitySummaryText}" TextWrapping="Wrap" />
-
-                  <Border BorderThickness="0,1,0,0"
-                          BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-                          Padding="0,8,0,0">
-                    <StackPanel Spacing="6">
-                      <TextBlock Text="{loc:Localize Key=DopplerInsights.Section.Recommendations}" FontWeight="SemiBold" />
-                      <ItemsControl ItemsSource="{Binding Recommendations}">
-                        <ItemsControl.ItemTemplate>
-                          <DataTemplate>
-                            <TextBlock Text="{Binding}" TextWrapping="Wrap" Margin="0,0,0,4" />
-                          </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                      </ItemsControl>
-                    </StackPanel>
-                  </Border>
-
-                  <Border BorderThickness="0,1,0,0"
-                          BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-                          Padding="0,8,0,0">
-                    <StackPanel Spacing="4">
-                      <TextBlock Text="{loc:Localize Key=DopplerInsights.Section.HowTo}" FontWeight="SemiBold" />
-                      <TextBlock Text="{loc:Localize Key=DopplerInsights.HowTo.Intro}" TextWrapping="Wrap" />
-                      <TextBlock Text="{loc:Localize Key=DopplerInsights.HowTo.Step1}" TextWrapping="Wrap" />
-                      <TextBlock Text="{loc:Localize Key=DopplerInsights.HowTo.Step2}" TextWrapping="Wrap" />
-                      <TextBlock Text="{loc:Localize Key=DopplerInsights.HowTo.Step3}" TextWrapping="Wrap" />
-                      <TextBlock Text="{loc:Localize Key=DopplerInsights.HowTo.Step4}" TextWrapping="Wrap" />
-                    </StackPanel>
-                  </Border>
-                </StackPanel>
-              </ScrollViewer>
-            </TabItem>
-
-            <TabItem Header="{loc:Localize Key=DopplerInsights.Tab.Activity}">
-              <ScrollViewer Margin="8"
-                            VerticalScrollBarVisibility="Auto"
-                            HorizontalScrollBarVisibility="Disabled">
-                <StackPanel Spacing="6">
-                  <TextBlock Text="{loc:Localize Key=DopplerInsights.Bar.RxWrites}" FontSize="12" />
-                  <ProgressBar Minimum="0" Maximum="100" Value="{Binding RxWritePercent}" Height="10" />
-                  <TextBlock Text="{loc:Localize Key=DopplerInsights.Bar.TxWrites}" FontSize="12" />
-                  <ProgressBar Minimum="0" Maximum="100" Value="{Binding TxWritePercent}" Height="10" />
-                  <TextBlock Text="{loc:Localize Key=DopplerInsights.Bar.BelowThreshold}" FontSize="12" />
-                  <ProgressBar Minimum="0" Maximum="100" Value="{Binding BelowThresholdPercent}" Height="10" />
-                  <TextBlock Text="{loc:Localize Key=DopplerInsights.Bar.Interactive}" FontSize="12" />
-                  <ProgressBar Minimum="0" Maximum="100" Value="{Binding InteractivePercent}" Height="10" />
-                </StackPanel>
-              </ScrollViewer>
-            </TabItem>
-
-            <TabItem Header="{loc:Localize Key=DopplerInsights.Tab.Events}">
-              <ListBox Margin="8"
-                       ItemsSource="{Binding EventRows}">
-                <ListBox.ItemTemplate>
-                  <DataTemplate DataType="vm:DopplerInsightEventRow">
-                    <TextBlock TextWrapping="Wrap"
-                               FontFamily="Consolas,Courier New,monospace"
-                               FontSize="11">
-                      <Run Text="{Binding Utc}" />
-                      <Run Text="  " />
-                      <Run Text="{Binding Event}" />
-                      <Run Text="  RX:" />
-                      <Run Text="{Binding RxDeltaHz}" />
-                      <Run Text="  TX:" />
-                      <Run Text="{Binding TxDeltaHz}" />
-                      <Run Text="  WR:" />
-                      <Run Text="{Binding WroteRx}" />
-                      <Run Text=" / " />
-                      <Run Text="{Binding WroteTx}" />
-                      <Run Text="  TH:" />
-                      <Run Text="{Binding BelowThreshold}" />
-                      <Run Text="  " />
-                      <Run Text="{Binding Notes}" />
-                    </TextBlock>
-                  </DataTemplate>
-                </ListBox.ItemTemplate>
-              </ListBox>
-            </TabItem>
-          </TabControl>
-        </Grid>
       </TabItem>
     </TabControl>
 

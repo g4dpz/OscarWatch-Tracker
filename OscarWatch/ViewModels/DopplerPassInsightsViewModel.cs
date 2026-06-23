@@ -24,6 +24,14 @@ public partial class DopplerPassInsightsViewModel : ViewModelBase
         ComparisonSummaryText = _l.Get("DopplerInsights.Compare.Empty");
         ComparisonInterpretationTitle = _l.Get("DopplerInsights.Compare.Interpretation.EmptyTitle");
         ComparisonInterpretationText = _l.Get("DopplerInsights.Compare.Interpretation.EmptyText");
+        TuningVerdictTitle = _l.Get("DopplerInsights.Verdict.EmptyTitle");
+        TuningVerdictSummary = _l.Get("DopplerInsights.Verdict.EmptySummary");
+        AdaptiveTitle = _l.Get("DopplerInsights.Adaptive.EmptyTitle");
+        AdaptiveDetail = _l.Get("DopplerInsights.Adaptive.EmptyDetail");
+        LeadTitle = _l.Get("DopplerInsights.Lead.EmptyTitle");
+        LeadDetail = _l.Get("DopplerInsights.Lead.EmptyDetail");
+        SettingsUsedText = _l.Get("DopplerInsights.Settings.Empty");
+        PassHeadlineText = _l.Get("DopplerInsights.PassSummary.Empty");
     }
 
     [ObservableProperty]
@@ -60,6 +68,49 @@ public partial class DopplerPassInsightsViewModel : ViewModelBase
     private string _comparisonInterpretationText = "";
 
     [ObservableProperty]
+    private string _tuningVerdictTitle = "";
+
+    [ObservableProperty]
+    private string _tuningVerdictSummary = "";
+
+    [ObservableProperty]
+    private string _adaptiveTitle = "";
+
+    [ObservableProperty]
+    private string _adaptiveDetail = "";
+
+    [ObservableProperty]
+    private string _adaptiveAction = "";
+
+    [ObservableProperty]
+    private string _leadTitle = "";
+
+    [ObservableProperty]
+    private string _leadDetail = "";
+
+    [ObservableProperty]
+    private string _leadAction = "";
+
+    [ObservableProperty]
+    private string _settingsUsedText = "";
+
+    [ObservableProperty]
+    private string _passHeadlineText = "";
+
+    [ObservableProperty]
+    private double _maxElevationDeg;
+
+    public ObservableCollection<string> Recommendations { get; } = [];
+
+    public ObservableCollection<DopplerInsightEventRow> EventRows { get; } = [];
+
+    public ObservableCollection<DopplerPassPhaseSummary> PassPhases { get; } = [];
+
+    public ObservableCollection<DopplerInsightChartSample> PrimaryChartSamples { get; } = [];
+
+    public ObservableCollection<DopplerInsightChartSample> ComparisonChartSamples { get; } = [];
+
+    [ObservableProperty]
     private double _rxWritePercent;
 
     [ObservableProperty]
@@ -70,14 +121,6 @@ public partial class DopplerPassInsightsViewModel : ViewModelBase
 
     [ObservableProperty]
     private double _interactivePercent;
-
-    public ObservableCollection<string> Recommendations { get; } = [];
-
-    public ObservableCollection<DopplerInsightEventRow> EventRows { get; } = [];
-
-    public ObservableCollection<DopplerInsightChartSample> PrimaryChartSamples { get; } = [];
-
-    public ObservableCollection<DopplerInsightChartSample> ComparisonChartSamples { get; } = [];
 
     [RelayCommand]
     private async Task LoadLatestAsync()
@@ -150,7 +193,7 @@ public partial class DopplerPassInsightsViewModel : ViewModelBase
         try
         {
             var lines = await File.ReadAllLinesAsync(path).ConfigureAwait(true);
-            _primaryRows = ParseRows(lines);
+            _primaryRows = ParseRows(lines, out _passSettings);
             ApplyPrimaryMetrics(_primaryRows);
             RebuildChartSamples();
             UpdateComparisonSummary();
@@ -176,7 +219,7 @@ public partial class DopplerPassInsightsViewModel : ViewModelBase
         try
         {
             var lines = await File.ReadAllLinesAsync(path).ConfigureAwait(true);
-            _comparisonRows = ParseRows(lines);
+            _comparisonRows = ParseRows(lines, out _);
             HasComparison = _comparisonRows.Count > 0;
             RebuildChartSamples();
             UpdateComparisonSummary();
@@ -188,10 +231,13 @@ public partial class DopplerPassInsightsViewModel : ViewModelBase
         }
     }
 
+    private DopplerPassSettingsSnapshot? _passSettings;
+
     private void ApplyPrimaryMetrics(List<DopplerInsightCsvRow> rows)
     {
         Recommendations.Clear();
         EventRows.Clear();
+        PassPhases.Clear();
 
         if (rows.Count == 0)
         {
@@ -199,10 +245,21 @@ public partial class DopplerPassInsightsViewModel : ViewModelBase
             ThresholdSummaryText = _l.Get("DopplerInsights.Threshold.Empty");
             ActivitySummaryText = _l.Get("DopplerInsights.Activity.Empty");
             DynamicsSummaryText = _l.Get("DopplerInsights.Dynamics.Empty");
+            PassHeadlineText = _l.Get("DopplerInsights.PassSummary.Empty");
             RxWritePercent = 0;
             TxWritePercent = 0;
             BelowThresholdPercent = 0;
             InteractivePercent = 0;
+            MaxElevationDeg = 0;
+            TuningVerdictTitle = _l.Get("DopplerInsights.Verdict.EmptyTitle");
+            TuningVerdictSummary = _l.Get("DopplerInsights.Verdict.EmptySummary");
+            AdaptiveTitle = _l.Get("DopplerInsights.Adaptive.EmptyTitle");
+            AdaptiveDetail = _l.Get("DopplerInsights.Adaptive.EmptyDetail");
+            AdaptiveAction = "";
+            LeadTitle = _l.Get("DopplerInsights.Lead.EmptyTitle");
+            LeadDetail = _l.Get("DopplerInsights.Lead.EmptyDetail");
+            LeadAction = "";
+            SettingsUsedText = _l.Get("DopplerInsights.Settings.Empty");
             Recommendations.Add(_l.Get("DopplerInsights.Reco.Empty"));
             return;
         }
@@ -271,15 +328,29 @@ public partial class DopplerPassInsightsViewModel : ViewModelBase
             P95(txAbs).ToString("0", CultureInfo.InvariantCulture),
             maxSlew.ToString("0", CultureInfo.InvariantCulture));
 
-        BuildRecommendations(
-            belowThresholdPercent: BelowThresholdPercent,
-            rxWritePercent: RxWritePercent,
-            txWritePercent: TxWritePercent,
-            interactiveCount: interactiveCount,
-            catPausedCount: catPausedCount,
-            leadEnabledPct: leadEnabledPct,
-            maxSlew: maxSlew,
-            thresholdReductionPct: thresholdReductionPct);
+        MaxElevationDeg = rows.Max(r => r.ElevationDeg);
+        PassHeadlineText = _l.Get(
+            "DopplerInsights.PassHeadline.Value",
+            sat,
+            Math.Max(0, (end - start).TotalMinutes).ToString("0.0", CultureInfo.InvariantCulture),
+            MaxElevationDeg.ToString("0.0", CultureInfo.InvariantCulture));
+
+        var assessment = DopplerPassInsightsAnalyzer.Assess(_l, rows, _passSettings);
+        TuningVerdictTitle = assessment.VerdictTitle;
+        TuningVerdictSummary = assessment.VerdictSummary;
+        AdaptiveTitle = assessment.AdaptiveTitle;
+        AdaptiveDetail = assessment.AdaptiveDetail;
+        AdaptiveAction = assessment.AdaptiveAction;
+        LeadTitle = assessment.LeadTitle;
+        LeadDetail = assessment.LeadDetail;
+        LeadAction = assessment.LeadAction;
+        SettingsUsedText = assessment.SettingsUsedText;
+        Recommendations.Clear();
+        foreach (var recommendation in assessment.Recommendations)
+            Recommendations.Add(recommendation);
+
+        foreach (var phase in DopplerPassInsightsAnalyzer.BuildPassPhases(_l, rows))
+            PassPhases.Add(phase);
 
         foreach (var row in rows.OrderByDescending(r => r.Utc).Take(160))
         {
@@ -414,7 +485,9 @@ public partial class DopplerPassInsightsViewModel : ViewModelBase
             SecondsFromStart: Math.Max(0, (r.Utc - startUtc).TotalSeconds),
             AbsRxDeltaHz: Math.Abs(r.RxDeltaHz),
             AbsTxDeltaHz: Math.Abs(r.TxDeltaHz),
+            BaseThresholdHz: Math.Max(0, r.BaseThresholdHz),
             EffectiveThresholdHz: Math.Max(0, r.EffectiveThresholdHz),
+            ElevationDeg: r.ElevationDeg,
             SlewHzPerSec: Math.Abs(r.SlewHzPerSec),
             WroteRx: r.WroteRx,
             WroteTx: r.WroteTx,
@@ -422,40 +495,9 @@ public partial class DopplerPassInsightsViewModel : ViewModelBase
             .ToArray();
     }
 
-    private void BuildRecommendations(
-        double belowThresholdPercent,
-        double rxWritePercent,
-        double txWritePercent,
-        int interactiveCount,
-        int catPausedCount,
-        double leadEnabledPct,
-        double maxSlew,
-        double thresholdReductionPct)
+    private static List<DopplerInsightCsvRow> ParseRows(IReadOnlyList<string> lines, out DopplerPassSettingsSnapshot? settings)
     {
-        if (belowThresholdPercent >= 75 && rxWritePercent < 12)
-            Recommendations.Add(_l.Get("DopplerInsights.Reco.ThresholdHigh"));
-
-        if (rxWritePercent >= 80 || txWritePercent >= 80)
-            Recommendations.Add(_l.Get("DopplerInsights.Reco.ThresholdLow"));
-
-        if (interactiveCount > 0)
-            Recommendations.Add(_l.Get("DopplerInsights.Reco.Interactive"));
-
-        if (catPausedCount > 0)
-            Recommendations.Add(_l.Get("DopplerInsights.Reco.CatPaused"));
-
-        if (maxSlew >= 250 && leadEnabledPct < 40)
-            Recommendations.Add(_l.Get("DopplerInsights.Reco.EnableLead"));
-
-        if (thresholdReductionPct > 20)
-            Recommendations.Add(_l.Get("DopplerInsights.Reco.AdaptiveThreshold"));
-
-        if (Recommendations.Count == 0)
-            Recommendations.Add(_l.Get("DopplerInsights.Reco.Balanced"));
-    }
-
-    private static List<DopplerInsightCsvRow> ParseRows(IReadOnlyList<string> lines)
-    {
+        settings = null;
         var rows = new List<DopplerInsightCsvRow>();
         string[]? header = null;
         Dictionary<string, int>? index = null;
@@ -466,7 +508,11 @@ public partial class DopplerPassInsightsViewModel : ViewModelBase
                 continue;
 
             if (raw.StartsWith('#'))
+            {
+                if (settings is null)
+                    settings = DopplerPassInsightsAnalyzer.ParseSettingsComment(raw);
                 continue;
+            }
 
             var columns = ParseCsvLine(raw);
             if (header is null)
@@ -483,6 +529,7 @@ public partial class DopplerPassInsightsViewModel : ViewModelBase
                 Utc: ReadDate(columns, index, "Utc"),
                 Event: ReadString(columns, index, "Event"),
                 SatelliteName: ReadString(columns, index, "Satellite"),
+                ElevationDeg: ReadDouble(columns, index, "ElevDeg"),
                 BaseThresholdHz: ReadInt(columns, index, "BaseThresholdHz"),
                 EffectiveThresholdHz: ReadInt(columns, index, "EffectiveThresholdHz"),
                 SlewHzPerSec: ReadDouble(columns, index, "SlewHzPerSec"),
@@ -631,7 +678,9 @@ public sealed record DopplerInsightChartSample(
     double SecondsFromStart,
     long AbsRxDeltaHz,
     long AbsTxDeltaHz,
+    int BaseThresholdHz,
     int EffectiveThresholdHz,
+    double ElevationDeg,
     double SlewHzPerSec,
     bool WroteRx,
     bool WroteTx,
@@ -641,6 +690,7 @@ internal sealed record DopplerInsightCsvRow(
     DateTime Utc,
     string Event,
     string SatelliteName,
+    double ElevationDeg,
     int BaseThresholdHz,
     int EffectiveThresholdHz,
     double SlewHzPerSec,
