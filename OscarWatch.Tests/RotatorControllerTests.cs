@@ -176,6 +176,30 @@ public sealed class RotatorControllerTests
     }
 
     [Fact]
+    public void Standby_does_not_park_when_park_after_pass_disabled()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            ParkAzimuthDeg = 180,
+            ParkElevationDeg = 0,
+            ParkAfterPass = false
+        };
+
+        controller.SetStandby(true, settings);
+        controller.DrainCommandQueueForTests();
+
+        Assert.Equal(0, rotator.SetPositionCallCount);
+        Assert.False(controller.GetPositionStatus().IsParked);
+
+        controller.UpdateSynchronously(settings, null);
+        Assert.Equal(0, rotator.SetPositionCallCount);
+    }
+
+    [Fact]
     public void Manual_move_applies_calibration_offsets()
     {
         var rotator = new RecordingRotatorDriver();

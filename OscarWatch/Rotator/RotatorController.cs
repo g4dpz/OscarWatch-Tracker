@@ -311,7 +311,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
         if (_standbyActive)
         {
-            if (!_standbyManualActive)
+            if (!_standbyManualActive && settings.ParkAfterPass)
                 TryPark(settings);
             return;
         }
@@ -491,7 +491,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
             return;
 
         _parked = false;
-        TryPark(settings);
+        if (settings.ParkAfterPass)
+            TryPark(settings);
         PollPosition();
     }
 
