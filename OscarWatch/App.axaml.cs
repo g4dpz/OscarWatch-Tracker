@@ -80,6 +80,7 @@ public partial class App : Application
         services.AddTransient<MutualPassViewModel>();
         services.AddTransient<MutualPassVisualizerViewModel>();
         services.AddTransient<PassVisualizerViewModel>();
+        services.AddTransient<PassRadarGalleryViewModel>();
         services.AddTransient<DopplerPassInsightsViewModel>();
         services.AddTransient<SunlightPredictionViewModel>();
         services.AddTransient<SatelliteDatabaseEditorViewModel>();

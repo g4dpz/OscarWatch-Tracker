@@ -312,6 +312,20 @@ public static class PassDisplayFormat
     public static ClockDisplayFormat FromSettings(bool use24HourClock) =>
         use24HourClock ? ClockDisplayFormat.TwentyFourHour : ClockDisplayFormat.TwelveHour;
 
+    /// <summary>Compact pass label for radar gallery cards, e.g. <c>Today 18:56</c>.</summary>
+    public static string FormatGalleryPassTime(
+        DateTime aosUtc,
+        bool useUtc,
+        ClockDisplayFormat clockFormat,
+        CultureInfo? culture = null)
+    {
+        culture ??= CultureInfo.CurrentUICulture;
+        var aos = ToDisplayTime(aosUtc, useUtc);
+        var dayLabel = HamsAtDisplayFormat.FormatRelativeDay(aos, culture);
+        var timePattern = GetTimePattern(clockFormat, culture: culture);
+        return $"{dayLabel} {aos.ToString(timePattern, culture)}";
+    }
+
     private static DateTime ToDisplayTime(DateTime utc, bool useUtc) =>
         useUtc ? EnsureUtc(utc) : ToLocal(utc);
 

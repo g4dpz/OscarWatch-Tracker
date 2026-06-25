@@ -74,7 +74,7 @@ Plain-language help ships with the app: **Help → Operator guide** (also in the
 - **TLE auto-update**: manual refresh, on startup (if stale), or every 6 hours while running (Settings → Tracking)
 - **Satellite picker**: choose which spacecraft to track
 - **Pass predictions**: upcoming passes with TCA (time of closest approach / max elevation), min-elevation and min-duration filters; sidebar **View pass plot** for a single-station polar chart
-- **Pass planner**: multi-station profiles (home / portable), pass quality filters, and `.ics` calendar export for contest or field-day planning
+- **Pass planner**: multi-station profiles (home / portable), pass quality filters, satellite filter, **pass radar gallery** (polar plots for all upcoming passes of one satellite), and `.ics` calendar export for contest or field-day planning
 - **Mutual pass finder**: find passes visible from two stations at once (Passes → Mutual pass finder)
 - **DX station monitor**: enter a remote Maidenhead grid on the map; see where that station is and live azimuth/elevation for the focused satellite from their QTH (compact draggable overlay)
 - **Live telemetry**: azimuth, elevation, range, and altitude updated every second (UTC)

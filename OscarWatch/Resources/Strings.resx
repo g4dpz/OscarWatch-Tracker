@@ -672,6 +672,15 @@ Continue?</value>
   <data name="Window.PassVisualizer.Title">
     <value>Pass Visualiser</value>
   </data>
+  <data name="Window.PassRadarGallery.Title">
+    <value>Pass radar gallery</value>
+  </data>
+  <data name="PassRadar.Gallery.Heading">
+    <value>{0} pass radar — {1}</value>
+  </data>
+  <data name="PassRadar.Gallery.Subtitle">
+    <value>{0} passes · next {1} h · min el {2:F0}° ({3})</value>
+  </data>
   <data name="Window.DopplerInsights.Title">
     <value>Doppler Pass Insights</value>
   </data>
@@ -1982,6 +1991,12 @@ Continue?</value>
   </data>
   <data name="Planner.PassesHeader">
     <value>Passes</value>
+  </data>
+  <data name="Planner.SatelliteFilter.All">
+    <value>All satellites</value>
+  </data>
+  <data name="Planner.OpenPassRadarGallery">
+    <value>Pass radar gallery</value>
   </data>
   <data name="Planner.Col.Satellite">
     <value>Satellite</value>

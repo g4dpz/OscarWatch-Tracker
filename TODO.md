@@ -25,6 +25,11 @@ See [building rotator drivers](documents/building-rotator-drivers.md).
 
 ## Operations & UX
 
+- [ ] **Pass radar gallery (phase 2+)** — follow-ups after pass-planner gallery (phase 1 shipped):
+  - [ ] **Horizon mask** — per-station obstructions (trees, buildings) drawn on polar plots; optional grey/clip below mask
+  - [ ] **Direction arrows** along the pass track
+  - [ ] **Single-colour path mode** — optional planner-style track (vs sunlit/eclipse segments)
+  - [ ] **Denser elevation rings** — optional 15° / 45° / 75° rings on pass polar plots
 - [ ] **Auto-focus satellite on pass** — when enabled, sat rises above threshold and map overlay focuses without a manual click
 - [ ] **Align track-start elevations** — rotator default −3° vs rig default −70°; document or unify “start tracking at” with overrides
 - [x] **Park rotator after pass** (optional) — Settings → Rotator; default on
@@ -65,6 +70,10 @@ See [building rotator drivers](documents/building-rotator-drivers.md).
 - [x] Rotator park button shows “Parked” when parked
 - [x] Manual rotator positioning dialog
 - [x] Standby no longer persists CAT pause to settings on app close
+
+### Operations & UX
+
+- [x] **Pass radar gallery (phase 1)** — pass planner satellite filter; gallery window with polar plots (4 per row), screenshot export; help in `passes.html`
 
 ### Recording
 

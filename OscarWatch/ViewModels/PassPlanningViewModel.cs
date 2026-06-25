@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using OscarWatch.Core.Export;
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Display;
@@ -24,6 +25,11 @@ public partial class PassPlanningViewModel : ViewModelBase
 
     public ObservableCollection<StationProfile> Stations { get; } = [];
     public ObservableCollection<PassPlanningPassRow> Passes { get; } = [];
+    public ObservableCollection<PassPlanningPassRow> DisplayedPasses { get; } = [];
+    public ObservableCollection<SatelliteFilterOption> SatelliteFilters { get; } = [];
+
+    [ObservableProperty]
+    private SatelliteFilterOption? _selectedSatelliteFilter;
 
     [ObservableProperty]
     private StationProfile? _selectedStation;
@@ -268,6 +274,72 @@ public partial class PassPlanningViewModel : ViewModelBase
         Passes.Clear();
         foreach (var row in rows)
             Passes.Add(PassPlanningPassRow.From(row.Source, UseUtcTime, _settings.Current.Use24HourClock));
+
+        RebuildDisplayedPasses();
+    }
+
+    partial void OnSelectedSatelliteFilterChanged(SatelliteFilterOption? value) =>
+        RebuildDisplayedPasses();
+
+    private void RebuildSatelliteFilters()
+    {
+        var previousNorad = SelectedSatelliteFilter?.NoradId;
+        SatelliteFilters.Clear();
+        SatelliteFilters.Add(SatelliteFilterOption.All(_l));
+
+        foreach (var group in Passes
+                     .Select(p => p.Source)
+                     .GroupBy(p => p.NoradId)
+                     .OrderBy(g => g.First().SatelliteName, StringComparer.OrdinalIgnoreCase))
+        {
+            var first = group.First();
+            SatelliteFilters.Add(new SatelliteFilterOption(first.SatelliteName, first.NoradId));
+        }
+
+        SelectedSatelliteFilter = previousNorad is null
+            ? SatelliteFilters.FirstOrDefault()
+            : SatelliteFilters.FirstOrDefault(f => f.NoradId == previousNorad)
+              ?? SatelliteFilters.FirstOrDefault();
+    }
+
+    private void RebuildDisplayedPasses()
+    {
+        DisplayedPasses.Clear();
+        var noradId = SelectedSatelliteFilter?.NoradId;
+        foreach (var row in Passes)
+        {
+            if (noradId is not null && row.Source.NoradId != noradId)
+                continue;
+
+            DisplayedPasses.Add(row);
+        }
+
+        OnPropertyChanged(nameof(CanOpenPassRadarGallery));
+    }
+
+    public bool CanOpenPassRadarGallery =>
+        SelectedSatelliteFilter?.NoradId is not null && DisplayedPasses.Count > 0;
+
+    public PassRadarGalleryViewModel? CreatePassRadarGalleryViewModel()
+    {
+        if (!CanOpenPassRadarGallery)
+            return null;
+
+        ApplyEditableFieldsToSelectedStation();
+        var site = SelectedStation?.ToGroundStation() ?? _settings.Current.GroundStation;
+        var passes = DisplayedPasses.Select(p => p.Source).ToList();
+        var satelliteName = passes[0].SatelliteName;
+
+        var vm = App.Services.GetRequiredService<PassRadarGalleryViewModel>();
+        vm.Initialize(
+            satelliteName,
+            site,
+            passes,
+            UseUtcTime,
+            _settings.Current.Use24HourClock,
+            FilterMinElevationDeg,
+            FilterPredictionHours);
+        return vm;
     }
 
     [RelayCommand]
@@ -289,6 +361,9 @@ public partial class PassPlanningViewModel : ViewModelBase
             Passes.Clear();
             foreach (var pass in passes)
                 Passes.Add(PassPlanningPassRow.From(pass, UseUtcTime, _settings.Current.Use24HourClock));
+
+            RebuildSatelliteFilters();
+            RebuildDisplayedPasses();
 
             StatusText = _l.Get("Pass.CountPasses", Passes.Count, FilterPredictionHours);
         }
@@ -412,4 +487,21 @@ public sealed class PassPlanningPassRow
             AosLosLine = aosLosLine
         };
     }
+}
+
+public sealed class SatelliteFilterOption
+{
+    public string DisplayName { get; }
+    public string? NoradId { get; }
+
+    public SatelliteFilterOption(string displayName, string? noradId)
+    {
+        DisplayName = displayName;
+        NoradId = noradId;
+    }
+
+    public static SatelliteFilterOption All(ILocalizationService l) =>
+        new(l.Get("Planner.SatelliteFilter.All"), noradId: null);
+
+    public override string ToString() => DisplayName;
 }

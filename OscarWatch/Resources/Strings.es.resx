@@ -669,6 +669,15 @@
   <data name="Window.PassVisualizer.Title">
     <value>Visualizador de pases</value>
   </data>
+  <data name="Window.PassRadarGallery.Title">
+    <value>Galería de radar de pases</value>
+  </data>
+  <data name="PassRadar.Gallery.Heading">
+    <value>Radar de pases de {0} — {1}</value>
+  </data>
+  <data name="PassRadar.Gallery.Subtitle">
+    <value>{0} pases · próximas {1} h · el. mín. {2:F0}° ({3})</value>
+  </data>
   <data name="Window.DopplerInsights.Title">
     <value>Análisis del pase Doppler</value>
   </data>
@@ -1979,6 +1988,12 @@
   </data>
   <data name="Planner.PassesHeader">
     <value>Pases</value>
+  </data>
+  <data name="Planner.SatelliteFilter.All">
+    <value>Todos los satélites</value>
+  </data>
+  <data name="Planner.OpenPassRadarGallery">
+    <value>Galería de radar de pases</value>
   </data>
   <data name="Planner.Col.Satellite">
     <value>Satélite</value>

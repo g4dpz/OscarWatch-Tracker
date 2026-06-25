@@ -1353,6 +1353,15 @@
   <data name="Window.PassVisualizer.Title">
     <value>パスビジュアライザ</value>
   </data>
+  <data name="Window.PassRadarGallery.Title">
+    <value>パスレーダーギャラリー</value>
+  </data>
+  <data name="PassRadar.Gallery.Heading">
+    <value>{0} パスレーダー — {1}</value>
+  </data>
+  <data name="PassRadar.Gallery.Subtitle">
+    <value>{0} パス · 今後 {1} 時間 · 最低仰角 {2:F0}° ({3})</value>
+  </data>
   <data name="Window.DopplerInsights.Title">
     <value>ドップラーパス分析</value>
   </data>
@@ -1859,6 +1868,12 @@
   </data>
   <data name="Planner.PassesHeader">
     <value>パス</value>
+  </data>
+  <data name="Planner.SatelliteFilter.All">
+    <value>すべての衛星</value>
+  </data>
+  <data name="Planner.OpenPassRadarGallery">
+    <value>パスレーダーギャラリー</value>
   </data>
   <data name="Planner.Col.Satellite">
     <value>衛星</value>

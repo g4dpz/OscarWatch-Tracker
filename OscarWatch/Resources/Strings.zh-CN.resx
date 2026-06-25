@@ -645,6 +645,15 @@
   <data name="Window.PassVisualizer.Title">
     <value>过境可视化</value>
   </data>
+  <data name="Window.PassRadarGallery.Title">
+    <value>过境雷达图库</value>
+  </data>
+  <data name="PassRadar.Gallery.Heading">
+    <value>{0} 过境雷达 — {1}</value>
+  </data>
+  <data name="PassRadar.Gallery.Subtitle">
+    <value>{0} 次过境 · 未来 {1} 小时 · 最低仰角 {2:F0}° ({3})</value>
+  </data>
   <data name="Window.DopplerInsights.Title">
     <value>多普勒过境分析</value>
   </data>
@@ -1955,6 +1964,12 @@
   </data>
   <data name="Planner.PassesHeader">
     <value>过境列表</value>
+  </data>
+  <data name="Planner.SatelliteFilter.All">
+    <value>所有卫星</value>
+  </data>
+  <data name="Planner.OpenPassRadarGallery">
+    <value>过境雷达图库</value>
   </data>
   <data name="Planner.Col.Satellite">
     <value>卫星</value>
