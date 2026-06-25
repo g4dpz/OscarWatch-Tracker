@@ -151,10 +151,11 @@
         and <strong>CW</strong>, OscarWatch also watches the <strong>receive</strong> dial when you tune by hand:
       </p>
       <ul>
-        <li>Movement more than <strong>1 Hz</strong> from the last CAT receive frequency = you are hunting the passband.</li>
+        <li>Movement more than about <strong>30 Hz</strong> (USB/LSB/CW) from the last CAT receive frequency = you are hunting the passband. Small dial jitter below that is ignored.</li>
         <li>While you turn the dial, automatic CAT pauses.</li>
         <li>After you stop, OscarWatch waits for <strong>eight</strong> stable reads (~800 ms) before resuming Doppler.</li>
-        <li>Your hunt is remembered as an <a href="radio-offsets.html">RX offset</a> so tracking continues around your spot.</li>
+        <li>Your hunt is remembered for the <strong>rest of that overhead pass</strong> so Doppler continues around your spot.</li>
+        <li>When the satellite sets and rises again on the <strong>next pass</strong> (same bird still selected), passband trim is cleared automatically. Stored <a href="radio-offsets.html">RX/TX offsets</a> in settings are not changed.</li>
       </ul>
       <p>
         <strong>ICOM Main/Sub rigs:</strong> receive updates on Main when the dial is stable; uplink (Sub) CAT waits

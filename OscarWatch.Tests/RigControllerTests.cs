@@ -1608,6 +1608,57 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Rev_linear_sub_threshold_dial_jitter_does_not_capture_passband()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 145_865,
+            UplinkKHz = 435_110.1,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "JO-97",
+                NoradId = "22222",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, 0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            TransmitOffsetKHz = 0,
+            ReceiveOffsetKHz = 0
+        };
+
+        controller.Update(settings, ctx);
+        Thread.Sleep(650);
+        var rxAfterInit = rig.MainHz;
+        Assert.True(rxAfterInit > 0);
+
+        rig.MainHz = rxAfterInit + 20;
+        for (var i = 0; i < 14; i++)
+            controller.RunTrackingLoopOnce();
+
+        var status = controller.GetStatus();
+        Assert.InRange(status.ManualReceiveAdjustKHz, -0.001, 0.001);
+        Assert.InRange(status.ManualTransmitAdjustKHz, -0.001, 0.001);
+    }
+
+    [Fact]
     public void Rev_linear_clears_phantom_manual_when_dial_matches_doppler_baseline()
     {
         var rig = new RecordingRigDriver();
@@ -1733,6 +1784,73 @@ public class RigControllerTests
             passbandDl,
             passbandUl).RadioReceiveKHz);
         Assert.InRange(rig.MainHz, expectedRx - 55, expectedRx + 55);
+    }
+
+    [Fact]
+    public void Passband_trim_clears_on_orbital_aos_same_satellite_and_mode()
+    {
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        RigTrackingContext Build(double elevationDeg, double rangeRateKmPerSec = 0) => new()
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "RS-44",
+                NoradId = "99999",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, elevationDeg, 800, rangeRateKmPerSec)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, rangeRateKmPerSec, 0),
+            TransmitOffsetKHz = 0,
+            ReceiveOffsetKHz = 0
+        };
+
+        controller.Update(settings, Build(20));
+        Thread.Sleep(650);
+        var rxAfterInit = rig.MainHz;
+        Assert.True(rxAfterInit > 0);
+
+        rig.MainHz = rxAfterInit + 2_500;
+        for (var i = 0; i < 14; i++)
+            controller.RunTrackingLoopOnce();
+        Thread.Sleep(2600);
+        for (var i = 0; i < 4; i++)
+            controller.RunTrackingLoopOnce();
+
+        var statusAfterHunt = controller.GetStatus();
+        Assert.InRange(statusAfterHunt.ManualReceiveAdjustKHz, 2.4, 2.6);
+        Assert.InRange(statusAfterHunt.ManualTransmitAdjustKHz, -2.6, -2.4);
+
+        controller.PublishContext(settings, Build(-2));
+        controller.RunTrackingLoopOnce();
+
+        var statusBelowHorizon = controller.GetStatus();
+        Assert.InRange(statusBelowHorizon.ManualReceiveAdjustKHz, 2.4, 2.6);
+
+        controller.PublishContext(settings, Build(5));
+        controller.RunTrackingLoopOnce();
+
+        var statusAfterAos = controller.GetStatus();
+        Assert.InRange(statusAfterAos.ManualReceiveAdjustKHz, -0.001, 0.001);
+        Assert.InRange(statusAfterAos.ManualTransmitAdjustKHz, -0.001, 0.001);
     }
 
     [Fact]

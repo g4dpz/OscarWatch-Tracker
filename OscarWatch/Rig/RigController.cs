@@ -24,8 +24,6 @@ public sealed class RigController : IRigController, IDisposable
     /// </summary>
     private const int InteractiveSubDopplerCooldownMs = 0;
     private const int FmCompanionLegHz = 10;
-    /// <summary>Min Hz between dial and last CAT RX to treat as operator tuning (QTrigdoppler uses 1 Hz).</summary>
-    private const int KnobTuneCaptureThresholdHz = 1;
     /// <summary>After a CAT frequency write, ignore dial stability briefly so reads settle.</summary>
     private const int PostCatWriteDialSettleMs = 350;
     private static readonly TimeSpan LoopInterval = TimeSpan.FromMilliseconds(100);
@@ -61,6 +59,7 @@ public sealed class RigController : IRigController, IDisposable
     private DateTime _lastRxWriteUtc = DateTime.MinValue;
     private DateTime _lastTxWriteUtc = DateTime.MinValue;
     private int _thresholdHz;
+    private int _knobTuneThresholdHz = KnobTuneCapturePolicy.LinearThresholdHz;
     private bool _interactive;
     private bool _useMainSub;
     private bool _isBeaconOnly;
@@ -90,6 +89,8 @@ public sealed class RigController : IRigController, IDisposable
     private string? _lastConnectError;
     private bool? _lastPassDownlinkOnVhf;
     private DateTime _lastDopplerLogUtc = DateTime.MinValue;
+    /// <summary>Prior loop horizon state; used to detect orbital AOS (below → above 0°).</summary>
+    private bool? _wasAboveHorizon;
 
     private RigSettings _cachedSettings = new();
     private RigTrackingContext? _cachedContext;
@@ -390,6 +391,7 @@ public sealed class RigController : IRigController, IDisposable
         NoteContextDopplerStrategyChange(context);
         _isTracking = true;
         SetRigStatus(RigStatusKind.Tracking);
+        TryClearPassbandOnOrbitalAos(settings, context);
         UpdateDopplerPassLogHorizon(settings, context);
     }
 
@@ -409,6 +411,7 @@ public sealed class RigController : IRigController, IDisposable
         _passKey = newPassKey;
         _passbandDownlinkAdjustKHz = 0;
         _passbandUplinkAdjustKHz = 0;
+        _wasAboveHorizon = context.TrackState.LookAngles is null ? null : IsAboveHorizon(context);
         ClearDialHistory();
         _lastAppliedCtcssHz = null;
         _lastAppliedCtcssSquelch = null;
@@ -441,6 +444,7 @@ public sealed class RigController : IRigController, IDisposable
     {
         EndDopplerPassLog("tracking_reset");
         _passKey = null;
+        _wasAboveHorizon = null;
         _lastRigRxHz = 0;
         _lastRigTxHz = 0;
         _displayRxHz = 0;
@@ -470,6 +474,8 @@ public sealed class RigController : IRigController, IDisposable
 
         if (_cachedContext.TrackState.LookAngles is null)
             return;
+
+        TryClearPassbandOnOrbitalAos(_cachedSettings, _cachedContext);
 
         if (_interactive && SetupVfosPolicy.IsLinearMode(_cachedContext.Mode.DownlinkMode))
         {
@@ -686,7 +692,7 @@ public sealed class RigController : IRigController, IDisposable
         _rxDialHistoryCount = DialHistoryLength;
     }
 
-    private static int KnobTuneThresholdHz() => KnobTuneCaptureThresholdHz;
+    private int KnobTuneThresholdHz() => _knobTuneThresholdHz;
 
     private void SampleReceiveDial()
     {
@@ -1051,6 +1057,7 @@ public sealed class RigController : IRigController, IDisposable
             settings.DopplerThresholdLinearHz);
         _thresholdHz = setup.ThresholdHz;
         _interactive = setup.Interactive;
+        _knobTuneThresholdHz = KnobTuneCapturePolicy.Resolve(context.EffectiveDownlinkMode);
 
         // FT-847 can revert to narrow FM when SAT frequencies/CTCSS are programmed after mode.
         var deferModeSetup = settings.Type == RigType.YaesuFt847;
@@ -1114,6 +1121,7 @@ public sealed class RigController : IRigController, IDisposable
             settings.DopplerThresholdLinearHz);
         _thresholdHz = setup.ThresholdHz;
         _interactive = setup.Interactive;
+        _knobTuneThresholdHz = KnobTuneCapturePolicy.Resolve(context.EffectiveDownlinkMode);
 
         var corrected = ComputeDoppler(context);
         var rxHz = ToHz(corrected.RadioReceiveKHz);
@@ -1772,6 +1780,40 @@ public sealed class RigController : IRigController, IDisposable
 
     private static bool IsAboveHorizon(RigTrackingContext context) =>
         context.TrackState.LookAngles?.ElevationDeg is >= 0;
+
+    /// <summary>
+    /// Clears runtime passband trim when the satellite rises above the horizon again on the same
+    /// satellite/mode — stored RX/TX offsets in settings are unchanged.
+    /// </summary>
+    private void TryClearPassbandOnOrbitalAos(RigSettings settings, RigTrackingContext context)
+    {
+        if (context.TrackState.LookAngles is null)
+            return;
+
+        var above = IsAboveHorizon(context);
+        if (_wasAboveHorizon == false && above)
+            ClearPassbandTrim(settings, context, "passband_aos_reset");
+
+        _wasAboveHorizon = above;
+    }
+
+    private void ClearPassbandTrim(RigSettings settings, RigTrackingContext context, string eventName)
+    {
+        if (Math.Abs(_passbandDownlinkAdjustKHz) < 0.0001 && Math.Abs(_passbandUplinkAdjustKHz) < 0.0001)
+            return;
+
+        _passbandDownlinkAdjustKHz = 0;
+        _passbandUplinkAdjustKHz = 0;
+        _forceFrequencyApply = true;
+        LogDopplerEvent(
+            settings,
+            context,
+            ComputeDoppler(context),
+            _thresholdHz,
+            ResolveWriteThresholdHz(settings, context),
+            eventName,
+            catPaused: _cachedCatPausedOverride ?? settings.CatUpdatesPaused);
+    }
 
     private void UpdateDopplerPassLogHorizon(RigSettings settings, RigTrackingContext context)
     {
