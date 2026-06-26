@@ -46,6 +46,40 @@ public class RigControllerDopplerLogTests
         Assert.Null(logger.ActiveLogPath);
     }
 
+    [Fact]
+    public void Doppler_pass_log_records_cat_pause_transition_and_heartbeat()
+    {
+        var logger = new RecordingDopplerPassLogger();
+        var controller = new RigController(dopplerPassLogger: logger);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy,
+            DopplerPassLogEnabled = true,
+            CatDelayMs = 0,
+            DopplerThresholdLinearHz = 0
+        };
+        var context = ContextWithElevation(25);
+
+        controller.Update(settings, context);
+        Assert.NotNull(logger.ActiveLogPath);
+
+        settings.CatUpdatesPaused = true;
+        controller.Update(settings, context);
+        Assert.Contains(logger.Entries, e => e.Event == "cat_pause_start");
+        Assert.True(logger.Entries.Single(e => e.Event == "cat_pause_start").CatPaused);
+        Assert.Equal("cat_paused", logger.Entries.Single(e => e.Event == "cat_pause_start").SkipReason);
+        Assert.False(logger.Entries.Single(e => e.Event == "cat_pause_start").RigTracking);
+
+        Thread.Sleep(1100);
+        controller.RunTrackingLoopOnce();
+        Assert.Contains(logger.Entries, e => e.Event == "cat_paused");
+
+        settings.CatUpdatesPaused = false;
+        controller.Update(settings, context);
+        Assert.Contains(logger.Entries, e => e.Event == "cat_pause_end");
+    }
+
     private static RigTrackingContext ContextWithElevation(double elevationDeg)
     {
         var mode = new SatelliteTransponderMode

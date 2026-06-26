@@ -106,6 +106,7 @@ OscarWatch talks to rigs and rotators over **serial CAT** (COM port on Windows, 
 | **ICOM IC-706 / IC-706MKII / IC-706MKIIG** | CI-V | **Dual radio only**: shared CI-V driver; default addresses `48` / `4C` / `58`. IC-706 and MKII are 2m-only; MKIIG adds 70cm. 23cm not supported |
 | **Yaesu FT-991 / FT-991A** | Yaesu ASCII CAT (8N2) | **Dual radio only**: one or two FT-991(A)s, or mixed with other dual legs; VFO-A per radio; FM dial lock via `LK` |
 | **Yaesu FTX-1 Field / FTX-1optima** | Yaesu ASCII CAT (8N2) | **Dual radio only**: same newcat subset as FT-991; use CAT-1 (Enhanced COM) per leg; HF/50/144/430 coverage |
+| **SDR (rigctl TCP)** | Hamlib-style rigctl over TCP | **Dual radio downlink only**: SDR++, SDR Connect, or any rigctl server; bidirectional frequency for passband trim ([help](help/radio-sdr-dual.html)) |
 | **Kenwood TS-2000** | Kenwood ASCII CAT | **Beta**: before tracking: put the radio in **SAT** mode and turn **memory mode off** on the front panel; then OscarWatch uses SATL via CAT, auto `FA`/`FB` band swap, linear CW uplink in SATL, TRACE off via CAT |
 | **Dummy rig**       | n/a               | No serial I/O; for UI and doppler testing without a radio                                                  |
 
@@ -150,7 +151,7 @@ Open **Settings** from the menu. Tabs:
 | **Voice**      | Enable announcements, trigger elevation (default −3°), voice selection, test button                                                                                                                                                            |
 | **Recording**  | Automatic pass WAV capture, input device, start/stop elevation, output folder, test clip                                                                                                                                                       |
 | **Rotator**    | Type (GS-232 / SPID / EasyComm), COM port, 360°/450° azimuth, smart 450°, **0–90° / 0–180° elevation**, optional keyhole avoidance (0–180° only), park, track-start elevation, calibration offsets |
-| **Radio**      | Rig type, COM port, **Dual radio** (FT-817/818, FT-991(A), IC-705, IC-706 series, or mixed; separate downlink/uplink COM ports), region, per-leg CI-V address for ICOM dual legs, linear CW receive mode (USB/LSB vs CW on both VFOs), Doppler CAT thresholds (FM default 350 Hz, SSB/CW default 50 Hz; adaptive and lead on by default; see [help](help/radio-doppler-tuning.html#doppler-cat-thresholds)), pause CAT |
+| **Radio**      | Rig type, COM port, **Dual radio** (FT-817/818, FT-991(A), IC-705, IC-706 series, SDR rigctl downlink, or mixed; separate downlink/uplink), region, per-leg CI-V address for ICOM dual legs, linear CW receive mode (USB/LSB vs CW on both VFOs), Doppler CAT thresholds (FM default 350 Hz, SSB/CW default 50 Hz; adaptive and lead on by default; see [help](help/radio-doppler-tuning.html#doppler-cat-thresholds)), pause CAT |
 | **Integrations** | **GPS** (NMEA serial: COM port, auto-update station, optional GPS UTC for tracking — see [help](help/settings.html#gps)); **hams.at** roves; **Cloudlog** (URL, API key, logbook, radio API)                                              |
 
 

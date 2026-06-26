@@ -36,6 +36,7 @@
       <a href="radio-icom.html">ICOM</a> ·
       <a href="radio-yaesu.html">Yaesu</a> ·
       <a href="radio-kenwood.html">Kenwood</a> ·
+      <a href="radio-sdr-dual.html">SDR dual</a> ·
       <a href="radio-offsets.html">RX/TX offsets</a> ·
       <a href="radio-doppler-tuning.html" aria-current="page">Doppler tuning</a> ·
       <a href="rotators.html">Rotators</a>
@@ -180,6 +181,20 @@
         <code>%AppData%/OscarWatch/doppler-logs</code>. Use <strong>Open log folder</strong> on the same settings page.
         Open <a href="doppler-pass-insights.html">Doppler pass insights</a> (Menu → Help) to load a log — the
         <strong>Tuning guide</strong> tab gives plain-language advice on adaptive threshold and Lead Doppler settings.
+      </p>
+      <p>
+        Column <strong>DialTracking</strong> shows how the rig classified each row:
+        <strong>hands_off</strong> (linear, Main matches CAT — automatic Doppler),
+        <strong>dial_wait</strong> (dial moving or stability timer),
+        <strong>dial_track</strong> (passband hunt),
+        <strong>automatic</strong> (FM/data).
+        <strong>MainDialHz</strong> and <strong>DialVsCatHz</strong> (Main minus last CAT RX) show phantom knob
+        movement. <strong>VfoStable</strong> is 1 when the eight-sample dial history agrees.
+        <strong>RigTracking</strong> is 0 when CAT pause or Standby stopped the loop.
+        <strong>SkipReason</strong> explains withheld writes (<code>cat_paused</code>, <code>vfo_unstable</code>,
+        <code>below_threshold</code>, <code>doppler_suspend</code>, <code>sub_cooldown</code>).
+        Events <code>cat_pause_start</code>, <code>cat_paused</code>, and <code>cat_pause_end</code> annotate
+        operator CAT pause — no more silent gaps.
       </p>
 
       <p><a href="radio-rotator.html">← Back to radio overview</a> · <a href="settings.html">Settings</a></p>

@@ -23,7 +23,13 @@ public static class DopplerDiagnostics
         bool wroteTx = false,
         bool belowThreshold = false,
         bool interactive = false,
+        string dialTracking = DopplerDialTrackingMode.Automatic,
+        long mainDialHz = 0,
+        long dialVsCatHz = 0,
+        bool vfoStable = false,
+        bool rigTracking = true,
         bool catPaused = false,
+        string? skipReason = null,
         string? notes = null)
     {
         var look = context.TrackState.LookAngles;
@@ -93,7 +99,13 @@ public static class DopplerDiagnostics
             WroteTx: wroteTx,
             BelowThreshold: belowThreshold,
             Interactive: interactive,
+            DialTracking: dialTracking,
+            MainDialHz: mainDialHz,
+            DialVsCatHz: dialVsCatHz,
+            VfoStable: vfoStable,
+            RigTracking: rigTracking,
             CatPaused: catPaused,
+            SkipReason: skipReason,
             Notes: notes);
     }
 }

@@ -371,4 +371,66 @@ public sealed class RigControllerDualRadioTests
         Assert.Contains(downTransport.SentCommands, c => c.StartsWith("FA", StringComparison.Ordinal));
         Assert.Contains(upTransport.SentFrames, f => f.Length == 5 && f[4] == 0x01);
     }
+
+    [Fact]
+    public void Dual_sdr_downlink_writes_rx_frequency_on_pass_init()
+    {
+        using var sdrServer = new RigCtlTcpStubServer();
+        var upRig = new RecordingRigDriver();
+        var controller = new RigController(
+            endpointFactory: ep => ep.Type == RigType.SdrRigCtlTcp
+                ? new RigCtlTcpDriver("127.0.0.1", sdrServer.Port)
+                : upRig);
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "Voice U/V",
+            DownlinkKHz = 145_960,
+            UplinkKHz = 435_250,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "NOR"
+        };
+
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            DualRadioEnabled = true,
+            DopplerThresholdLinearHz = 50,
+            Downlink = new RigEndpointSettings
+            {
+                Type = RigType.SdrRigCtlTcp,
+                NetworkHost = "127.0.0.1",
+                NetworkPort = sdrServer.Port,
+                CatDelayMs = 0
+            },
+            Uplink = new RigEndpointSettings
+            {
+                Type = RigType.YaesuFt818,
+                Port = "COM_UL",
+                BaudRate = 38400,
+                CatDelayMs = 0
+            }
+        };
+
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "RS-44",
+                NoradId = "44909",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 30, 800, 0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            DopplerStrategy = DopplerStrategy.Full
+        });
+
+        Thread.Sleep(650);
+
+        var expectedRx = (long)(DopplerFrequencyCalculator.Compute(mode, 0, 0).RadioReceiveKHz * 1000);
+        Assert.InRange(sdrServer.FrequencyHz, expectedRx - 5, expectedRx + 5);
+        Assert.True(upRig.MainHz > 0);
+    }
 }

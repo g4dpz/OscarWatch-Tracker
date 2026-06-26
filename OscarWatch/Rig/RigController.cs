@@ -346,7 +346,8 @@ public sealed class RigController : IRigController, IDisposable
         }
 
         var effectivePaused = catPausedOverride ?? settings.CatUpdatesPaused;
-        var resumingFromCatPause = _catUpdatesPaused && !effectivePaused;
+        var wasPaused = _catUpdatesPaused;
+        var resumingFromCatPause = wasPaused && !effectivePaused;
         _catUpdatesPaused = effectivePaused;
 
         if (context is not null && context.TrackState.LookAngles is not null)
@@ -373,9 +374,14 @@ public sealed class RigController : IRigController, IDisposable
         if (effectivePaused)
         {
             _isTracking = false;
+            if (!wasPaused)
+                LogDopplerPauseTransition(settings, context, "cat_pause_start");
             SetRigStatus(RigStatusKind.CatPaused);
             return;
         }
+
+        if (resumingFromCatPause)
+            LogDopplerPauseTransition(settings, context, "cat_pause_end");
 
         if (resumingFromCatPause || _passInitPending)
         {
@@ -466,11 +472,16 @@ public sealed class RigController : IRigController, IDisposable
         if (!IsRigConnected() || _cachedContext is null)
             return;
 
+        TryLogOperationalSnapshot();
+
         if (!_cachedSettings.Enabled || (_cachedCatPausedOverride ?? _cachedSettings.CatUpdatesPaused) || !_isTracking)
             return;
 
         if (!ignoreDopplerSuspend && DateTime.UtcNow < _suspendDopplerUntilUtc)
+        {
+            TryLogDopplerSuspendSnapshot();
             return;
+        }
 
         if (_cachedContext.TrackState.LookAngles is null)
             return;
@@ -578,6 +589,12 @@ public sealed class RigController : IRigController, IDisposable
     /// <summary>Match window for CAT-only tracking: within doppler threshold so display jitter is not passband trim.</summary>
     private int AutomaticDialMatchToleranceHz() =>
         _thresholdHz > 0 ? Math.Max(KnobTuneThresholdHz(), _thresholdHz) : KnobTuneThresholdHz();
+
+    private string ResolveDialTrackingMode(RigTrackingContext context) =>
+        DopplerDialTrackingMode.Resolve(
+            _interactive,
+            _interactive && ShouldTrackDopplerAutomatically(context),
+            _vfoNotMoving);
 
     private bool DialMatchesLastCatWrite(long dialHz, int toleranceHz) =>
         _lastRigRxHz > 0 && Math.Abs(dialHz - _lastRigRxHz) < toleranceHz;
@@ -988,8 +1005,8 @@ public sealed class RigController : IRigController, IDisposable
         }
         catch (Exception ex)
         {
-            Log.Warning(ex, "Dual rig connect failed (down {DownPort}, up {UpPort})",
-                settings.Downlink.Port, settings.Uplink.Port);
+            Log.Warning(ex, "Dual rig connect failed (down {DownEndpoint}, up {UpPort})",
+                FormatEndpointLabel(settings.Downlink), settings.Uplink.Port);
             TearDownRig();
             return false;
         }
@@ -999,7 +1016,9 @@ public sealed class RigController : IRigController, IDisposable
         _endpointFactory?.Invoke(endpoint) ?? RigDriverFactory.Create(endpoint);
 
     private static string EndpointConnectionKey(RigEndpointSettings endpoint) =>
-        $"{endpoint.Type}|{endpoint.Port}|{endpoint.BaudRate}|{endpoint.CatDelayMs}|{endpoint.CivAddress}";
+        RigSettings.IsSdrDownlinkEndpoint(endpoint.Type)
+            ? $"{endpoint.Type}|{endpoint.NetworkHost}|{endpoint.NetworkPort}|{endpoint.CatDelayMs}"
+            : $"{endpoint.Type}|{endpoint.Port}|{endpoint.BaudRate}|{endpoint.CatDelayMs}|{endpoint.CivAddress}";
 
     private void RunPassInit(RigSettings settings, RigTrackingContext context)
     {
@@ -1727,7 +1746,140 @@ public sealed class RigController : IRigController, IDisposable
             effectiveThreshold,
             "snapshot",
             belowThreshold: belowThreshold,
-            catPaused: _cachedCatPausedOverride ?? settings.CatUpdatesPaused);
+            catPaused: _cachedCatPausedOverride ?? settings.CatUpdatesPaused,
+            skipReason: ResolveTrackingSkipReason(settings, belowThreshold));
+    }
+
+    private void TryLogOperationalSnapshot()
+    {
+        if (_cachedContext is null || !IsRigConnected())
+            return;
+
+        var settings = _cachedSettings;
+        if (!settings.DopplerPassLogEnabled || !settings.Enabled)
+            return;
+
+        var catPaused = _cachedCatPausedOverride ?? settings.CatUpdatesPaused;
+        if (!catPaused && _isTracking)
+            return;
+
+        if (!IsAboveHorizon(_cachedContext))
+        {
+            EndDopplerPassLog("below_horizon");
+            return;
+        }
+
+        EnsureDopplerPassLogStarted(settings, _cachedContext);
+        if (_dopplerPassLogger.ActiveLogPath is null)
+            return;
+
+        var utc = DateTime.UtcNow;
+        if (utc - _lastDopplerLogUtc < DopplerLogSnapshotInterval)
+            return;
+
+        _lastDopplerLogUtc = utc;
+        var corrected = ComputeDoppler(_cachedContext);
+        LogDopplerEvent(
+            settings,
+            _cachedContext,
+            corrected,
+            _thresholdHz,
+            ResolveWriteThresholdHz(settings, _cachedContext),
+            catPaused ? "cat_paused" : "operational_hold",
+            catPaused: catPaused,
+            skipReason: ResolveOperationalSkipReason(settings, catPaused));
+    }
+
+    private void TryLogDopplerSuspendSnapshot()
+    {
+        var settings = _cachedSettings;
+        if (!settings.DopplerPassLogEnabled || _cachedContext is null)
+            return;
+
+        if (!IsAboveHorizon(_cachedContext))
+            return;
+
+        EnsureDopplerPassLogStarted(settings, _cachedContext);
+        if (_dopplerPassLogger.ActiveLogPath is null)
+            return;
+
+        var utc = DateTime.UtcNow;
+        if (utc - _lastDopplerLogUtc < DopplerLogSnapshotInterval)
+            return;
+
+        _lastDopplerLogUtc = utc;
+        LogDopplerEvent(
+            settings,
+            _cachedContext,
+            ComputeDoppler(_cachedContext),
+            _thresholdHz,
+            ResolveWriteThresholdHz(settings, _cachedContext),
+            "doppler_suspend",
+            skipReason: "doppler_suspend");
+    }
+
+    private void LogDopplerPauseTransition(RigSettings settings, RigTrackingContext context, string eventName)
+    {
+        if (!settings.DopplerPassLogEnabled || !IsAboveHorizon(context))
+            return;
+
+        EnsureDopplerPassLogStarted(settings, context);
+        if (_dopplerPassLogger.ActiveLogPath is null)
+            return;
+
+        _lastDopplerLogUtc = DateTime.UtcNow;
+        var catPaused = eventName == "cat_pause_start";
+        LogDopplerEvent(
+            settings,
+            context,
+            ComputeDoppler(context),
+            _thresholdHz,
+            ResolveWriteThresholdHz(settings, context),
+            eventName,
+            catPaused: catPaused,
+            skipReason: catPaused ? "cat_paused" : null);
+    }
+
+    private string? ResolveOperationalSkipReason(RigSettings settings, bool catPaused)
+    {
+        if (catPaused)
+            return "cat_paused";
+
+        if (!settings.Enabled)
+            return "rig_disabled";
+
+        if (!_isTracking)
+            return "not_tracking";
+
+        return null;
+    }
+
+    private string? ResolveTrackingSkipReason(RigSettings settings, bool belowThreshold)
+    {
+        if (DateTime.UtcNow < _suspendDopplerUntilUtc)
+            return "doppler_suspend";
+
+        if (_interactive && !_vfoNotMoving)
+            return "vfo_unstable";
+
+        if (belowThreshold)
+            return "below_threshold";
+
+        if (_interactive && !settings.DualRadioEnabled && !CanWriteInteractiveSub())
+            return "sub_cooldown";
+
+        return null;
+    }
+
+    private (long MainDialHz, long DialVsCatHz) ReadDialDiagnostics()
+    {
+        if (!TryReadReceiveDialHz(out var dialHz))
+            return (0, 0);
+
+        if (_lastRigRxHz <= 0)
+            return (dialHz, 0);
+
+        return (dialHz, dialHz - _lastRigRxHz);
     }
 
     private void LogDopplerEvent(
@@ -1741,6 +1893,7 @@ public sealed class RigController : IRigController, IDisposable
         bool wroteTx = false,
         bool belowThreshold = false,
         bool catPaused = false,
+        string? skipReason = null,
         string? notes = null)
     {
         if (!settings.DopplerPassLogEnabled)
@@ -1755,6 +1908,8 @@ public sealed class RigController : IRigController, IDisposable
         EnsureDopplerPassLogStarted(settings, context);
         if (_dopplerPassLogger.ActiveLogPath is null)
             return;
+
+        var (mainDialHz, dialVsCatHz) = ReadDialDiagnostics();
 
         _dopplerPassLogger.Append(DopplerDiagnostics.Capture(
             _propagator,
@@ -1774,7 +1929,13 @@ public sealed class RigController : IRigController, IDisposable
             wroteTx,
             belowThreshold,
             _interactive,
+            ResolveDialTrackingMode(context),
+            mainDialHz,
+            dialVsCatHz,
+            _vfoNotMoving,
+            _isTracking,
             catPaused,
+            skipReason,
             notes));
     }
 
@@ -1833,6 +1994,11 @@ public sealed class RigController : IRigController, IDisposable
     }
 
     private static long ToHz(double kHz) => (long)Math.Round(kHz * 1000.0);
+
+    private static string FormatEndpointLabel(RigEndpointSettings endpoint) =>
+        RigSettings.IsSdrDownlinkEndpoint(endpoint.Type)
+            ? $"{endpoint.NetworkHost}:{endpoint.NetworkPort}"
+            : endpoint.Port;
 
     private static bool RigIsConfigured(RigSettings settings) =>
         settings.Enabled && (settings.DualRadioEnabled || settings.Type != RigType.None);

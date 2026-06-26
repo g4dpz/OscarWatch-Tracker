@@ -36,5 +36,11 @@ public sealed record DopplerPassLogEntry(
     bool WroteTx,
     bool BelowThreshold,
     bool Interactive,
+    string DialTracking,
+    long MainDialHz,
+    long DialVsCatHz,
+    bool VfoStable,
+    bool RigTracking,
     bool CatPaused,
+    string? SkipReason,
     string? Notes);

@@ -1566,6 +1566,39 @@ Continuar?</value>
   <data name="Settings.Radio.Downlink">
     <value>Rádio de downlink</value>
   </data>
+  <data name="Settings.Radio.SdrRigCtl">
+    <value>SDR (rigctl TCP)</value>
+  </data>
+  <data name="Settings.Radio.SdrHost">
+    <value>Host rigctl</value>
+  </data>
+  <data name="Settings.Radio.SdrPort">
+    <value>Porta rigctl</value>
+  </data>
+  <data name="Settings.Radio.SdrPresetSdrPlus">
+    <value>Predefinição SDR++ (4532)</value>
+  </data>
+  <data name="Settings.Radio.SdrPresetSdrConnect">
+    <value>Predefinição SDR Connect (5454)</value>
+  </data>
+  <data name="Settings.Radio.SdrTestConnection">
+    <value>Testar ligação rigctl</value>
+  </data>
+  <data name="Settings.Radio.SdrTesting">
+    <value>A testar ligação rigctl…</value>
+  </data>
+  <data name="Settings.Radio.SdrEnterHostPort">
+    <value>Introduza um host e porta válidos.</value>
+  </data>
+  <data name="Settings.Radio.SdrConnectionOk">
+    <value>Ligação rigctl OK — leitura de frequência bem-sucedida.</value>
+  </data>
+  <data name="Settings.Radio.SdrConnectionFailed">
+    <value>Falha na ligação rigctl: {0}</value>
+  </data>
+  <data name="Settings.Radio.SdrHint">
+    <value>Ative o servidor rigctl no SDR++ (Module Manager → rigctl_server) ou SDR Connect e corresponda host e porta. O OscarWatch envia a frequência RX Doppler e lê o VFO do waterfall para o passband. Use 100 ms ou mais de atraso CAT no downlink.</value>
+  </data>
   <data name="Settings.Radio.Uplink">
     <value>Rádio de uplink</value>
   </data>

@@ -1002,6 +1002,39 @@
   <data name="Settings.Radio.Downlink">
     <value>ダウンリンク無線機</value>
   </data>
+  <data name="Settings.Radio.SdrRigCtl">
+    <value>SDR（rigctl TCP）</value>
+  </data>
+  <data name="Settings.Radio.SdrHost">
+    <value>rigctl ホスト</value>
+  </data>
+  <data name="Settings.Radio.SdrPort">
+    <value>rigctl ポート</value>
+  </data>
+  <data name="Settings.Radio.SdrPresetSdrPlus">
+    <value>SDR++ プリセット（4532）</value>
+  </data>
+  <data name="Settings.Radio.SdrPresetSdrConnect">
+    <value>SDR Connect プリセット（5454）</value>
+  </data>
+  <data name="Settings.Radio.SdrTestConnection">
+    <value>rigctl 接続をテスト</value>
+  </data>
+  <data name="Settings.Radio.SdrTesting">
+    <value>rigctl 接続をテスト中…</value>
+  </data>
+  <data name="Settings.Radio.SdrEnterHostPort">
+    <value>有効なホストとポートを入力してください。</value>
+  </data>
+  <data name="Settings.Radio.SdrConnectionOk">
+    <value>rigctl 接続 OK — 周波数読み取り成功。</value>
+  </data>
+  <data name="Settings.Radio.SdrConnectionFailed">
+    <value>rigctl 接続失敗: {0}</value>
+  </data>
+  <data name="Settings.Radio.SdrHint">
+    <value>SDR++（Module Manager → rigctl_server）または SDR Connect で rigctl サーバーを有効にし、ホストとポートを一致させます。OscarWatch はドップラー RX 周波数を送信し、ウォーターフォール VFO を読み取ってパスバンドを調整します。ダウンリンクの CAT 遅延は 100 ms 以上を推奨します。</value>
+  </data>
   <data name="Settings.Radio.Uplink">
     <value>アップリンク無線機</value>
   </data>

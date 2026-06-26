@@ -1566,6 +1566,39 @@
   <data name="Settings.Radio.Downlink">
     <value>下行电台</value>
   </data>
+  <data name="Settings.Radio.SdrRigCtl">
+    <value>SDR（rigctl TCP）</value>
+  </data>
+  <data name="Settings.Radio.SdrHost">
+    <value>rigctl 主机</value>
+  </data>
+  <data name="Settings.Radio.SdrPort">
+    <value>rigctl 端口</value>
+  </data>
+  <data name="Settings.Radio.SdrPresetSdrPlus">
+    <value>SDR++ 预设（4532）</value>
+  </data>
+  <data name="Settings.Radio.SdrPresetSdrConnect">
+    <value>SDR Connect 预设（5454）</value>
+  </data>
+  <data name="Settings.Radio.SdrTestConnection">
+    <value>测试 rigctl 连接</value>
+  </data>
+  <data name="Settings.Radio.SdrTesting">
+    <value>正在测试 rigctl 连接…</value>
+  </data>
+  <data name="Settings.Radio.SdrEnterHostPort">
+    <value>请输入有效的主机和端口。</value>
+  </data>
+  <data name="Settings.Radio.SdrConnectionOk">
+    <value>rigctl 连接成功 — 已读取频率。</value>
+  </data>
+  <data name="Settings.Radio.SdrConnectionFailed">
+    <value>rigctl 连接失败：{0}</value>
+  </data>
+  <data name="Settings.Radio.SdrHint">
+    <value>在 SDR++（Module Manager → rigctl_server）或 SDR Connect 中启用 rigctl 服务器，并匹配主机与端口。OscarWatch 推送多普勒 RX 频率并读取瀑布图 VFO 以调整 passband。下行 CAT 延迟建议 100 ms 或以上。</value>
+  </data>
   <data name="Settings.Radio.Uplink">
     <value>上行电台</value>
   </data>

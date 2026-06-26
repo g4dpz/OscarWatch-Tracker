@@ -41,6 +41,9 @@ public class DopplerPassLoggerTests
         logger.EndPass(DateTime.UtcNow, "test");
         var text = File.ReadAllText(path);
         Assert.Contains("Utc,Event,NoradId", text);
+        Assert.Contains("DialTracking", text);
+        Assert.Contains("MainDialHz", text);
+        Assert.Contains("SkipReason", text);
         Assert.Contains("# pass_start", text);
         Assert.Contains("lead_gain=70", text);
         Assert.Contains("adaptive=True", text);
@@ -143,6 +146,12 @@ public class DopplerPassLoggerTests
             WroteTx: false,
             BelowThreshold: true,
             Interactive: true,
+            DialTracking: DopplerDialTrackingMode.HandsOff,
+            MainDialHz: 435_667_050,
+            DialVsCatHz: 50,
+            VfoStable: true,
+            RigTracking: true,
             CatPaused: false,
+            SkipReason: null,
             Notes: notes);
 }

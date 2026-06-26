@@ -47,7 +47,13 @@ public sealed class DopplerPassLogger : IDopplerPassLogger
         "WroteTx",
         "BelowThreshold",
         "Interactive",
+        "DialTracking",
+        "MainDialHz",
+        "DialVsCatHz",
+        "VfoStable",
+        "RigTracking",
         "CatPaused",
+        "SkipReason",
         "Notes"
     ];
 
@@ -163,7 +169,13 @@ public sealed class DopplerPassLogger : IDopplerPassLogger
             entry.WroteTx ? "1" : "0",
             entry.BelowThreshold ? "1" : "0",
             entry.Interactive ? "1" : "0",
+            Escape(entry.DialTracking),
+            entry.MainDialHz.ToString(CultureInfo.InvariantCulture),
+            entry.DialVsCatHz.ToString(CultureInfo.InvariantCulture),
+            entry.VfoStable ? "1" : "0",
+            entry.RigTracking ? "1" : "0",
             entry.CatPaused ? "1" : "0",
+            Escape(entry.SkipReason),
             Escape(entry.Notes)
         ]);
 

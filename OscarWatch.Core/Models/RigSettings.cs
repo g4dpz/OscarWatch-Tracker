@@ -91,9 +91,14 @@ public sealed class RigSettings
         DualRadioEnabled && Downlink.IsConfigured && Uplink.IsConfigured;
 
     public static bool IsDualCapableEndpoint(RigType type) =>
+        IsDualCapableSerialEndpoint(type) || IsSdrDownlinkEndpoint(type);
+
+    public static bool IsDualCapableSerialEndpoint(RigType type) =>
         type is RigType.YaesuFt817 or RigType.YaesuFt818 or RigType.YaesuFtx1
             or RigType.YaesuFt991 or RigType.YaesuFt991a
             or RigType.IcomIc705 or RigType.IcomIc706 or RigType.IcomIc706Mkii or RigType.IcomIc706MkiiG;
+
+    public static bool IsSdrDownlinkEndpoint(RigType type) => type == RigType.SdrRigCtlTcp;
 
     /// <summary>FT-817/818 are dual-radio only; move legacy single-radio config to the downlink endpoint.</summary>
     public void MigrateFt817818ToDualOnly()

@@ -11,6 +11,7 @@ using OscarWatch.Core.Models;
 using OscarWatch.Core.Radio;
 using OscarWatch.Core.Services;
 using OscarWatch.Localization;
+using OscarWatch.Rig;
 using OscarWatch.Rotator;
 using OscarWatch.Theme;
 
@@ -307,6 +308,15 @@ public partial class SettingsViewModel : ViewModelBase
     private string _uplinkCivAddress = "";
 
     [ObservableProperty]
+    private string _downlinkNetworkHost = RigEndpointSettings.SdrRigCtlDefaultHost;
+
+    [ObservableProperty]
+    private int _downlinkNetworkPort = RigEndpointSettings.SdrRigCtlDefaultPort;
+
+    [ObservableProperty]
+    private string _downlinkSdrTestStatus = "";
+
+    [ObservableProperty]
     private RigRegionOption? _selectedRigRegionChoice;
 
     [ObservableProperty]
@@ -408,6 +418,18 @@ public partial class SettingsViewModel : ViewModelBase
     public IReadOnlyList<RigTypeOption> RigTypeChoices { get; }
 
     public IReadOnlyList<RigTypeOption> RigDualTypeChoices { get; }
+
+    public IReadOnlyList<RigTypeOption> RigDualDownlinkTypeChoices { get; }
+
+    public IReadOnlyList<RigTypeOption> RigDualUplinkTypeChoices { get; }
+
+    public bool ShowDownlinkSerialFields =>
+        DualRadioEnabled
+        && SelectedDownlinkRigTypeChoice?.Value != RigType.SdrRigCtlTcp;
+
+    public bool ShowDownlinkSdrFields =>
+        DualRadioEnabled
+        && SelectedDownlinkRigTypeChoice?.Value == RigType.SdrRigCtlTcp;
 
     public bool ShowRigSingleConfig => !DualRadioEnabled;
 
@@ -583,6 +605,12 @@ public partial class SettingsViewModel : ViewModelBase
             new(RigType.IcomIc706Mkii, "ICOM IC-706MKII"),
             new(RigType.IcomIc706MkiiG, "ICOM IC-706MKIIG")
         ];
+        RigDualDownlinkTypeChoices =
+        [
+            new(RigType.SdrRigCtlTcp, _l.Get("Settings.Radio.SdrRigCtl")),
+            .. RigDualTypeChoices
+        ];
+        RigDualUplinkTypeChoices = RigDualTypeChoices;
         RigRegionChoices =
         [
             new(RigRegion.EU, "EU"),
@@ -735,7 +763,9 @@ public partial class SettingsViewModel : ViewModelBase
                 BaudRate = DownlinkBaudRate,
                 Region = SelectedDownlinkRegionChoice?.Value ?? RigRegion.EU,
                 CatDelayMs = DownlinkCatDelayMs,
-                CivAddress = DownlinkCivAddress.Trim()
+                CivAddress = DownlinkCivAddress.Trim(),
+                NetworkHost = DownlinkNetworkHost.Trim(),
+                NetworkPort = DownlinkNetworkPort
             },
             Uplink = new RigEndpointSettings
             {
@@ -898,12 +928,19 @@ public partial class SettingsViewModel : ViewModelBase
                 ?? RigRegionChoices[0];
             var down = rig.Downlink ?? new RigEndpointSettings();
             var up = rig.Uplink ?? new RigEndpointSettings();
-            SelectedDownlinkRigTypeChoice = RigDualTypeChoices.FirstOrDefault(o => o.Value == down.Type)
-                ?? RigDualTypeChoices[0];
-            SelectedUplinkRigTypeChoice = RigDualTypeChoices.FirstOrDefault(o => o.Value == up.Type)
-                ?? RigDualTypeChoices[1];
+            SelectedDownlinkRigTypeChoice = RigDualDownlinkTypeChoices.FirstOrDefault(o => o.Value == down.Type)
+                ?? RigDualDownlinkTypeChoices[1];
+            SelectedUplinkRigTypeChoice = RigDualUplinkTypeChoices.FirstOrDefault(o => o.Value == up.Type)
+                ?? RigDualUplinkTypeChoices[1];
             SelectedDownlinkComPort = string.IsNullOrWhiteSpace(down.Port) ? null : down.Port;
             SelectedUplinkComPort = string.IsNullOrWhiteSpace(up.Port) ? null : up.Port;
+            DownlinkNetworkHost = string.IsNullOrWhiteSpace(down.NetworkHost)
+                ? RigEndpointSettings.SdrRigCtlDefaultHost
+                : down.NetworkHost;
+            DownlinkNetworkPort = down.NetworkPort > 0
+                ? down.NetworkPort
+                : RigEndpointSettings.SdrRigCtlDefaultPort;
+            DownlinkSdrTestStatus = "";
             DownlinkBaudRate = down.BaudRate > 0 ? down.BaudRate : RigSettings.Ft817818DefaultBaudRate;
             UplinkBaudRate = up.BaudRate > 0 ? up.BaudRate : RigSettings.Ft817818DefaultBaudRate;
             SelectedDownlinkRegionChoice = RigRegionChoices.FirstOrDefault(o => o.Value == down.Region)
@@ -1070,6 +1107,47 @@ public partial class SettingsViewModel : ViewModelBase
     [RelayCommand]
     private void OpenDopplerPassLogFolder() =>
         DopplerPassLogFileNameFormat.OpenLogDirectory(null);
+
+    [RelayCommand]
+    private void ApplyDownlinkSdrPlusPreset()
+    {
+        DownlinkNetworkHost = RigEndpointSettings.SdrRigCtlDefaultHost;
+        DownlinkNetworkPort = RigEndpointSettings.SdrRigCtlDefaultPort;
+    }
+
+    [RelayCommand]
+    private void ApplyDownlinkSdrConnectPreset()
+    {
+        DownlinkNetworkHost = RigEndpointSettings.SdrRigCtlDefaultHost;
+        DownlinkNetworkPort = RigEndpointSettings.SdrConnectRigCtlPort;
+    }
+
+    [RelayCommand]
+    public async Task TestDownlinkSdrConnectionAsync()
+    {
+        try
+        {
+            DownlinkSdrTestStatus = _l.Get("Settings.Radio.SdrTesting");
+            if (string.IsNullOrWhiteSpace(DownlinkNetworkHost) || DownlinkNetworkPort is <= 0 or > 65535)
+            {
+                DownlinkSdrTestStatus = _l.Get("Settings.Radio.SdrEnterHostPort");
+                return;
+            }
+
+            await Task.Run(() =>
+            {
+                using var driver = new RigCtlTcpDriver(DownlinkNetworkHost.Trim(), DownlinkNetworkPort);
+                driver.Open();
+                return driver.ReadFrequencyHz(RigVfo.Main);
+            }).ConfigureAwait(true);
+
+            DownlinkSdrTestStatus = _l.Get("Settings.Radio.SdrConnectionOk");
+        }
+        catch (Exception ex)
+        {
+            DownlinkSdrTestStatus = _l.Get("Settings.Radio.SdrConnectionFailed", ex.Message);
+        }
+    }
 
     public async Task TestHamsAtAsync()
     {
@@ -1283,6 +1361,8 @@ public partial class SettingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(ShowRigDualConfig));
         OnPropertyChanged(nameof(ShowRigFt817CatHint));
         OnPropertyChanged(nameof(ShowDownlinkCivAddress));
+        OnPropertyChanged(nameof(ShowDownlinkSerialFields));
+        OnPropertyChanged(nameof(ShowDownlinkSdrFields));
         OnPropertyChanged(nameof(ShowUplinkCivAddress));
         OnPropertyChanged(nameof(ShowDownlinkIc705CivHint));
         NotifyIc706SeriesVisibility();
@@ -1324,6 +1404,8 @@ public partial class SettingsViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(ShowRigFt817CatHint));
         OnPropertyChanged(nameof(ShowDownlinkCivAddress));
+        OnPropertyChanged(nameof(ShowDownlinkSerialFields));
+        OnPropertyChanged(nameof(ShowDownlinkSdrFields));
         OnPropertyChanged(nameof(ShowDownlinkIc705CivHint));
         NotifyIc706SeriesVisibility();
         OnPropertyChanged(nameof(ShowRigIc705CatHint));
@@ -1350,10 +1432,19 @@ public partial class SettingsViewModel : ViewModelBase
 
         if (RigSettings.IsIc706SeriesEndpoint(value.Value))
             ApplyIc706SeriesDefaults(value.Value, v => DownlinkBaudRate = v, v => DownlinkCivAddress = v, DownlinkCivAddress);
+
+        if (value.Value == RigType.SdrRigCtlTcp && DownlinkCatDelayMs < 100)
+            DownlinkCatDelayMs = 100;
     }
 
     partial void OnSelectedUplinkRigTypeChoiceChanged(RigTypeOption? value)
     {
+        if (!_isSynchronizing && value?.Value == RigType.SdrRigCtlTcp)
+        {
+            SelectedUplinkRigTypeChoice = RigDualUplinkTypeChoices.First(o => o.Value == RigType.YaesuFt818);
+            return;
+        }
+
         OnPropertyChanged(nameof(ShowRigFt817CatHint));
         OnPropertyChanged(nameof(ShowUplinkCivAddress));
         OnPropertyChanged(nameof(ShowUplinkIc705CivHint));
@@ -1421,7 +1512,9 @@ public partial class SettingsViewModel : ViewModelBase
         Downlink = new RigEndpointSettings
         {
             Type = SelectedDownlinkRigTypeChoice?.Value ?? RigType.YaesuFt817,
-            Port = SelectedDownlinkComPort ?? ""
+            Port = SelectedDownlinkComPort ?? "",
+            NetworkHost = DownlinkNetworkHost.Trim(),
+            NetworkPort = DownlinkNetworkPort
         },
         Uplink = new RigEndpointSettings
         {

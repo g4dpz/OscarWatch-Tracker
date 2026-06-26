@@ -365,7 +365,7 @@
                 <StackPanel Spacing="8">
                   <TextBlock Text="{loc:Localize Key=Settings.Radio.Downlink}" FontWeight="SemiBold" />
                   <TextBlock Text="{loc:Localize Key=Settings.Radio.Label}" />
-                  <ComboBox ItemsSource="{Binding RigDualTypeChoices}"
+                  <ComboBox ItemsSource="{Binding RigDualDownlinkTypeChoices}"
                             SelectedItem="{Binding SelectedDownlinkRigTypeChoice, Mode=TwoWay}"
                             HorizontalAlignment="Stretch">
                     <ComboBox.ItemTemplate>
@@ -374,6 +374,7 @@
                       </DataTemplate>
                     </ComboBox.ItemTemplate>
                   </ComboBox>
+                  <StackPanel Spacing="8" IsVisible="{Binding ShowDownlinkSerialFields}">
                   <TextBlock Text="{loc:Localize Key=Settings.Radio.SerialPort}" />
                   <ComboBox ItemsSource="{Binding AvailableComPorts}"
                             SelectedItem="{Binding SelectedDownlinkComPort, Mode=TwoWay}"
@@ -418,6 +419,32 @@
                       </DataTemplate>
                     </ComboBox.ItemTemplate>
                   </ComboBox>
+                  </StackPanel>
+                  <StackPanel Spacing="8" IsVisible="{Binding ShowDownlinkSdrFields}">
+                    <TextBlock Text="{loc:Localize Key=Settings.Radio.SdrHost}" />
+                    <TextBox Text="{Binding DownlinkNetworkHost, Mode=TwoWay}"
+                             Watermark="127.0.0.1" />
+                    <TextBlock Text="{loc:Localize Key=Settings.Radio.SdrPort}" />
+                    <NumericUpDown Value="{Binding DownlinkNetworkPort, Mode=TwoWay}"
+                                   Minimum="1" Maximum="65535"
+                                   Increment="1" FormatString="F0" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <Button Content="{loc:Localize Key=Settings.Radio.SdrPresetSdrPlus}"
+                              Command="{Binding ApplyDownlinkSdrPlusPresetCommand}" />
+                      <Button Content="{loc:Localize Key=Settings.Radio.SdrPresetSdrConnect}"
+                              Command="{Binding ApplyDownlinkSdrConnectPresetCommand}" />
+                    </StackPanel>
+                    <Button Content="{loc:Localize Key=Settings.Radio.SdrTestConnection}"
+                            Command="{Binding TestDownlinkSdrConnectionCommand}" />
+                    <TextBlock Text="{Binding DownlinkSdrTestStatus}"
+                               Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                               FontSize="11"
+                               TextWrapping="Wrap" />
+                    <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                               FontSize="11"
+                               TextWrapping="Wrap"
+                               Text="{loc:Localize Key=Settings.Radio.SdrHint}" />
+                  </StackPanel>
                   <TextBlock Text="{loc:Localize Key=Settings.Radio.CatDelay}" />
                   <NumericUpDown Value="{Binding DownlinkCatDelayMs, Mode=TwoWay}"
                                  Minimum="0" Maximum="500"
@@ -431,7 +458,7 @@
                 <StackPanel Spacing="8">
                   <TextBlock Text="{loc:Localize Key=Settings.Radio.Uplink}" FontWeight="SemiBold" />
                   <TextBlock Text="{loc:Localize Key=Settings.Radio.Label}" />
-                  <ComboBox ItemsSource="{Binding RigDualTypeChoices}"
+                  <ComboBox ItemsSource="{Binding RigDualUplinkTypeChoices}"
                             SelectedItem="{Binding SelectedUplinkRigTypeChoice, Mode=TwoWay}"
                             HorizontalAlignment="Stretch">
                     <ComboBox.ItemTemplate>

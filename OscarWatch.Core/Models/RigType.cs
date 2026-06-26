@@ -18,5 +18,7 @@ public enum RigType
     YaesuFt991a,
     YaesuFtx1,
     KenwoodTs2000,
+    /// <summary>SDR application rigctl TCP server (dual-radio downlink only).</summary>
+    SdrRigCtlTcp,
     Dummy
 }

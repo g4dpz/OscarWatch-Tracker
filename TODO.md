@@ -61,6 +61,7 @@ See [building rotator drivers](documents/building-rotator-drivers.md).
 - [x] **Yaesu FT-817 / FT-818** — dual-radio endpoints only (one VFO per radio)
 - [x] **ICOM IC-705** — dual-radio endpoints only (CI-V; mix with FT-817/818)
 - [x] **Yaesu FT-991 / FT-991A** — dual-radio endpoints only (ASCII CAT; mix with other dual legs)
+- [x] **SDR downlink (rigctl TCP)** — dual-radio downlink via SDR++/SDR Connect rigctl server; bidirectional frequency
 - [x] ICOM IC-9100 driver (CI-V; satellite/Main/Sub/tone path as IC-9700)
 - [x] Hardware validation: IC-9700, IC-9100, FT-847 (satellite mode, doppler, tones)
 
