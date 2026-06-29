@@ -958,6 +958,62 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Icom9700_same_band_uhf_packet_437_437_swaps_vfo_when_starting_on_vhf()
+    {
+        // Issue #36: IC-9700 does not switch TX band to 437 MHz for a 437/437 MHz FM-data transponder
+        // Starting on VHF (145 MHz) and tracking a UHF SPLIT transponder (437/437)
+        // should trigger a VFO exchange to get both RX and TX on UHF.
+        var rig = new RecordingRigDriver { MainHz = 145_990_000, SubHz = 145_990_000 };
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.IcomIc9700,
+            Port = "COM1",
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "FM-DATA",
+            DownlinkKHz = 437_825,
+            UplinkKHz = 437_825,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR"
+        };
+
+        var corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0);
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "AO-91",
+                NoradId = "43013",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, 0)
+            },
+            Mode = mode,
+            Corrected = corrected
+        });
+        controller.DrainCommandQueueForTests();
+
+        Assert.False(rig.LastSatelliteModeOn);
+        Assert.True(rig.LastSplitOn);
+        // VFO A should have 437 MHz for RX (may be after exchange)
+        Assert.True(rig.MainHz == 437_825_000 || rig.SubHz == 437_825_000,
+            $"Expected 437 MHz on either VFO A or B, got MainHz={rig.MainHz}, SubHz={rig.SubHz}");
+        // Both frequencies should be 437 MHz (same-band transponder)
+        Assert.True((rig.MainHz == 437_825_000 && rig.SubHz == 437_825_000) || 
+                    (rig.MainHz == 437_825_000 || rig.SubHz == 437_825_000),
+            $"Expected 437 MHz frequencies, got MainHz={rig.MainHz}, SubHz={rig.SubHz}");
+        Assert.Equal(RigVfo.VfoA, rig.CurrentVfo);
+        Assert.Contains(RigVfo.VfoA, rig.ToneClearedVfos);
+        Assert.Contains(RigVfo.VfoB, rig.ToneClearedVfos);
+        Assert.DoesNotContain(RigVfo.Sub, rig.ToneClearedVfos);
+    }
+
+    [Fact]
     public void Icom821h_same_band_packet_uses_satellite_main_sub_not_split()
     {
         var transport = new RecordingIcomCivTransport();

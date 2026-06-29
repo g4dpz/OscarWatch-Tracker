@@ -1067,8 +1067,7 @@ public sealed class RigController : IRigController, IDisposable
             Thread.Sleep(150);
         }
 
-        if (_useMainSub)
-            TryBandSwap(context);
+        TryBandSwap(context);
 
         var setup = SetupVfosPolicy.Evaluate(
             context.EffectiveDownlinkMode,
