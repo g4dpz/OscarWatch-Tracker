@@ -413,7 +413,7 @@ public sealed class RigControllerDualRadioTests
             }
         };
 
-        controller.Update(settings, new RigTrackingContext
+        var context = new RigTrackingContext
         {
             TrackState = new SatelliteTrackState
             {
@@ -425,11 +425,25 @@ public sealed class RigControllerDualRadioTests
             Mode = mode,
             Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
             DopplerStrategy = DopplerStrategy.Full
-        });
-
-        Thread.Sleep(650);
+        };
 
         var expectedRx = (long)(DopplerFrequencyCalculator.Compute(mode, 0, 0).RadioReceiveKHz * 1000);
+        var initCompleted = false;
+        for (var attempt = 0; attempt < 20; attempt++)
+        {
+            controller.Update(settings, context);
+            if (sdrServer.FrequencyHz >= expectedRx - 5
+                && sdrServer.FrequencyHz <= expectedRx + 5
+                && upRig.MainHz > 0)
+            {
+                initCompleted = true;
+                break;
+            }
+
+            Thread.Sleep(50);
+        }
+
+        Assert.True(initCompleted);
         Assert.InRange(sdrServer.FrequencyHz, expectedRx - 5, expectedRx + 5);
         Assert.True(upRig.MainHz > 0);
     }
