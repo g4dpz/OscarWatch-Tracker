@@ -53,7 +53,7 @@ public partial class PassRadarGalleryViewModel : ViewModelBase
     [ObservableProperty]
     private bool _use24HourClock;
 
-    public void Initialize(
+    public async Task InitializeAsync(
         string satelliteName,
         GroundStation site,
         IReadOnlyList<PassInfo> passes,
@@ -86,27 +86,23 @@ public partial class PassRadarGalleryViewModel : ViewModelBase
         if (satellite is null)
             return;
 
-        _propagator.LoadSatellite(satellite);
-
-        var plots = PassRadarGalleryBuilder.BuildPlots(
-            satellite,
-            _propagator,
-            site,
-            passes,
-            minimumElevationDeg);
-
-        var clockFormat = PassDisplayFormat.FromSettings(use24HourClock);
-        var orderedPasses = passes.OrderBy(p => p.AosUtc).ToList();
-
-        for (var i = 0; i < orderedPasses.Count; i++)
+        // Heavy computation off UI thread
+        var (plots, sortedPasses) = await Task.Run(() =>
         {
-            var pass = orderedPasses[i];
-            var plot = plots[i];
-            var timeText = PassDisplayFormat.FormatGalleryPassTime(
-                pass.AosUtc,
-                useUtcTime,
-                clockFormat);
+            _propagator.LoadSatellite(satellite);
+            var sortedList = passes.OrderBy(p => p.AosUtc).ToList();
+            var builtPlots = PassRadarGalleryBuilder.BuildPlots(
+                satellite, _propagator, site, sortedList, minimumElevationDeg);
+            return (builtPlots, sortedList);
+        }).ConfigureAwait(true);
 
+        // Populate cards on UI thread
+        var clockFormat = PassDisplayFormat.FromSettings(use24HourClock);
+        for (var i = 0; i < sortedPasses.Count; i++)
+        {
+            var pass = sortedPasses[i];
+            var plot = plots[i];
+            var timeText = PassDisplayFormat.FormatGalleryPassTime(pass.AosUtc, useUtcTime, clockFormat);
             Cards.Add(new PassRadarCardViewModel
             {
                 TitleText = satelliteName,

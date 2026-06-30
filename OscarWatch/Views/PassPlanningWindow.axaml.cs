@@ -28,12 +28,12 @@ public partial class PassPlanningWindow : Window
         await vm.ExportSatelliteIcsAsync(this, row);
     }
 
-    private void OnOpenPassRadarGalleryClick(object? sender, RoutedEventArgs e)
+    private async void OnOpenPassRadarGalleryClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not PassPlanningViewModel vm)
             return;
 
-        var galleryVm = vm.CreatePassRadarGalleryViewModel();
+        var galleryVm = await vm.CreatePassRadarGalleryViewModelAsync();
         if (galleryVm is null)
             return;
 
