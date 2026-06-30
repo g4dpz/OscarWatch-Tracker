@@ -438,8 +438,11 @@ public partial class MainViewModel : ViewModelBase
 
     public async Task InitializeAsync()
     {
+        var startupStopwatch = Stopwatch.StartNew();
+
         // Phase 1: Parallel I/O — load settings and TLE concurrently
         StatusText = _l.Get("Status.LoadingSettingsFull");
+        var phase1Stopwatch = Stopwatch.StartNew();
 
         var settingsTask = LoadSettingsSafeAsync();
         var tleTask = LoadTleSafeAsync();
@@ -448,8 +451,14 @@ public partial class MainViewModel : ViewModelBase
 
         var settingsLoaded = await settingsTask.ConfigureAwait(true);
         var tleLoaded = await tleTask.ConfigureAwait(true);
+        Log.Information(
+            "Startup phase 1 (load settings+tle) completed in {ElapsedMs} ms (settingsLoaded={SettingsLoaded}, tleLoaded={TleLoaded})",
+            phase1Stopwatch.ElapsedMilliseconds,
+            settingsLoaded,
+            tleLoaded);
 
         // Phase 2: Apply loaded settings and show window interactive
+        var phase2Stopwatch = Stopwatch.StartNew();
         if (settingsLoaded)
         {
             AppThemeManager.Apply(_settings.Current.Theme);
@@ -462,14 +471,18 @@ public partial class MainViewModel : ViewModelBase
             RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
         }
 
+        Log.Information("Startup phase 2 (apply settings to UI) completed in {ElapsedMs} ms", phase2Stopwatch.ElapsedMilliseconds);
+
         if (tleLoaded
             && TleSourceResolver.UsesNetwork(_settings.Current.TleSource)
             && _tleService.IsStale(_settings.Current.TleStaleHours))
         {
             try
             {
+                var tleRefreshStopwatch = Stopwatch.StartNew();
                 StatusText = _l.Get("Status.RefreshingTle");
                 await _tleService.RefreshAsync().ConfigureAwait(true);
+                Log.Information("Startup stale TLE refresh completed in {ElapsedMs} ms", tleRefreshStopwatch.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
@@ -505,12 +518,14 @@ public partial class MainViewModel : ViewModelBase
         Tick();
 
         if (_settings.Current.TransponderDatabaseCheckOnStartup)
-            await CheckTransponderDatabaseUpdatesAsync(showWhenUpToDate: false).ConfigureAwait(true);
+            _ = RunStartupTransponderCheckAsync();
 
         ConfigureAppUpdateCheckTimer();
 
         if (_settings.Current.AppUpdateCheckEnabled)
             _ = RunStartupAppUpdateCheckAsync();
+
+        Log.Information("Startup interactive initialization completed in {ElapsedMs} ms", startupStopwatch.ElapsedMilliseconds);
     }
 
     private async Task<bool> LoadSettingsSafeAsync()
@@ -550,6 +565,20 @@ public partial class MainViewModel : ViewModelBase
         catch (Exception ex)
         {
             Log.Warning(ex, "Startup application update check failed");
+        }
+    }
+
+    private async Task RunStartupTransponderCheckAsync()
+    {
+        var checkStopwatch = Stopwatch.StartNew();
+        try
+        {
+            await CheckTransponderDatabaseUpdatesAsync(showWhenUpToDate: false).ConfigureAwait(true);
+            Log.Information("Startup transponder database check completed in {ElapsedMs} ms", checkStopwatch.ElapsedMilliseconds);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Startup transponder database check failed");
         }
     }
 

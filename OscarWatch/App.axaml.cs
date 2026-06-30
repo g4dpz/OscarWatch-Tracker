@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -88,10 +89,11 @@ public partial class App : Application
 
         Services = services.BuildServiceProvider();
 
-        var settings = Services.GetRequiredService<ISettingsService>();
-        settings.Load();
-        LocalizationCulture.ApplyFromSettings(settings);
-        AppThemeManager.Apply(settings.Current.Theme);
+        // Avoid full settings service load before the first window is created.
+        // MainViewModel.InitializeAsync loads settings shortly after the window opens.
+        var startupLanguage = LocalizationCulture.ReadUiLanguageFromDisk();
+        LocalizationCulture.Apply(startupLanguage);
+        AppThemeManager.Apply(AppThemeManager.ReadPreferenceFromDisk());
         AccessibilityThemeResources.Install();
 
         AppLogging.RegisterAvaloniaHandlers();
@@ -101,9 +103,11 @@ public partial class App : Application
             var version = typeof(App).Assembly.GetName().Version?.ToString(3) ?? "dev";
             Log.Information("OscarWatch {Version} starting", version);
 
+            var startupStopwatch = Stopwatch.StartNew();
             var mainVm = Services.GetRequiredService<MainViewModel>();
             MainWindow = new MainWindow { DataContext = mainVm };
             desktop.MainWindow = MainWindow;
+            Log.Information("Main window created in {ElapsedMs} ms", startupStopwatch.ElapsedMilliseconds);
 
             AppSingleInstance.StartActivationListener(ActivateMainWindow);
         }

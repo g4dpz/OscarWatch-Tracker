@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -318,8 +319,10 @@ public partial class MainWindow : Window
         base.OnOpened(e);
         if (DataContext is MainViewModel vm)
         {
+            var initStopwatch = Stopwatch.StartNew();
             vm.SidebarLayoutInvalidated += OnSidebarLayoutInvalidated;
             await vm.InitializeAsync();
+            Serilog.Log.Information("MainWindow.OnOpened initialization completed in {ElapsedMs} ms", initStopwatch.ElapsedMilliseconds);
             if (SidebarLayoutGrid is not null)
                 UpdateSidebarTopMaxHeight(SidebarLayoutGrid.Bounds.Height);
         }
