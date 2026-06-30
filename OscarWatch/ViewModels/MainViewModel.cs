@@ -438,21 +438,32 @@ public partial class MainViewModel : ViewModelBase
 
     public async Task InitializeAsync()
     {
+        // Phase 1: Parallel I/O — load settings and TLE concurrently
         StatusText = _l.Get("Status.LoadingSettingsFull");
-        await _settings.LoadAsync().ConfigureAwait(true);
-        AppThemeManager.Apply(_settings.Current.Theme);
-        RefreshGroundStationFromSettings();
-        ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
-        ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
-        IsSkyPlotExpanded = _settings.Current.SkyPlotExpanded;
-        IsPassesExpanded = _settings.Current.PassesExpanded;
-        ApplyHamsAtSidebarSettings();
-        RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
 
-        StatusText = _l.Get("Status.LoadingTle");
-        await _tleService.EnsureLoadedAsync().ConfigureAwait(true);
+        var settingsTask = LoadSettingsSafeAsync();
+        var tleTask = LoadTleSafeAsync();
 
-        if (TleSourceResolver.UsesNetwork(_settings.Current.TleSource)
+        await Task.WhenAll(settingsTask, tleTask).ConfigureAwait(true);
+
+        var settingsLoaded = await settingsTask.ConfigureAwait(true);
+        var tleLoaded = await tleTask.ConfigureAwait(true);
+
+        // Phase 2: Apply loaded settings and show window interactive
+        if (settingsLoaded)
+        {
+            AppThemeManager.Apply(_settings.Current.Theme);
+            RefreshGroundStationFromSettings();
+            ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
+            ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
+            IsSkyPlotExpanded = _settings.Current.SkyPlotExpanded;
+            IsPassesExpanded = _settings.Current.PassesExpanded;
+            ApplyHamsAtSidebarSettings();
+            RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
+        }
+
+        if (tleLoaded
+            && TleSourceResolver.UsesNetwork(_settings.Current.TleSource)
             && _tleService.IsStale(_settings.Current.TleStaleHours))
         {
             try
@@ -476,15 +487,19 @@ public partial class MainViewModel : ViewModelBase
         ConfigureHamsAtRefreshTimer();
         _liveDisplayTimer?.Start();
 
-        StatusText = _l.Get("Status.ComputingPasses");
-        try
+        // Phase 3: Fire pass prediction on background thread (non-blocking)
+        UpdateStatus();
+        _ = Task.Run(async () =>
         {
-            await RefreshPassesAsync().ConfigureAwait(true);
-        }
-        finally
-        {
-            UpdateStatus();
-        }
+            try
+            {
+                await RefreshPassesAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Background pass prediction failed during startup");
+            }
+        });
 
         _ = RefreshHamsAtRovesAsyncSafeAsync();
         Tick();
@@ -496,6 +511,34 @@ public partial class MainViewModel : ViewModelBase
 
         if (_settings.Current.AppUpdateCheckEnabled)
             _ = RunStartupAppUpdateCheckAsync();
+    }
+
+    private async Task<bool> LoadSettingsSafeAsync()
+    {
+        try
+        {
+            await _settings.LoadAsync().ConfigureAwait(false);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Settings load failed during startup — using defaults");
+            return false;
+        }
+    }
+
+    private async Task<bool> LoadTleSafeAsync()
+    {
+        try
+        {
+            await _tleService.EnsureLoadedAsync().ConfigureAwait(false);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "TLE load failed during startup");
+            return false;
+        }
     }
 
     private async Task RunStartupAppUpdateCheckAsync()

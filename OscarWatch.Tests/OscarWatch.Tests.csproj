@@ -17,6 +17,7 @@
     <PackageReference Include="Xunit.SkippableFact" Version="1.5.61" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\OscarWatch\OscarWatch.csproj" />
     <ProjectReference Include="..\OscarWatch.Core\OscarWatch.Core.csproj" />
     <ProjectReference Include="..\OscarWatch.Orbit\OscarWatch.Orbit.csproj" />
   </ItemGroup>
