@@ -320,7 +320,7 @@ public partial class PassPlanningViewModel : ViewModelBase
     public bool CanOpenPassRadarGallery =>
         SelectedSatelliteFilter?.NoradId is not null && DisplayedPasses.Count > 0;
 
-    public PassRadarGalleryViewModel? CreatePassRadarGalleryViewModel()
+    public async Task<PassRadarGalleryViewModel?> CreatePassRadarGalleryViewModelAsync()
     {
         if (!CanOpenPassRadarGallery)
             return null;
@@ -331,7 +331,7 @@ public partial class PassPlanningViewModel : ViewModelBase
         var satelliteName = passes[0].SatelliteName;
 
         var vm = App.Services.GetRequiredService<PassRadarGalleryViewModel>();
-        vm.Initialize(
+        await vm.InitializeAsync(
             satelliteName,
             site,
             passes,
