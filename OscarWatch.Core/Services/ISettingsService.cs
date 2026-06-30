@@ -12,6 +12,7 @@ public interface ISettingsService
     Task LoadAsync(CancellationToken cancellationToken = default);
     Task SaveAsync(CancellationToken cancellationToken = default);
     void RequestSave();
+    Task FlushAsync(CancellationToken cancellationToken = default);
     void SyncGridFromLatLon();
     void SyncLatLonFromGrid();
     void EnsureSavedStations();
