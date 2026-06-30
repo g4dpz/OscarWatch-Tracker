@@ -52,6 +52,31 @@ public sealed class TrackingOrchestrator
             _propagator.LoadSatellite(sat);
     }
 
+    /// <summary>
+    /// Adds a single satellite to the propagator and enabled list without clearing existing state.
+    /// </summary>
+    public void AddSatellite(SatelliteCatalogEntry satellite)
+    {
+        if (_propagator.HasSatellite(satellite.NoradId))
+            return; // Already loaded
+
+        _propagator.LoadSatellite(satellite);
+        var newList = new List<SatelliteCatalogEntry>(_cachedEnabledSats) { satellite };
+        _cachedEnabledSats = newList;
+    }
+
+    /// <summary>
+    /// Removes a single satellite from the propagator, visual cache, and enabled list without clearing other state.
+    /// </summary>
+    public void RemoveSatellite(string noradId)
+    {
+        _propagator.RemoveSatellite(noradId);
+        _visualCache.Remove(noradId);
+        _loggedLookAngleSkips.Remove(noradId);
+        _loggedStateSkips.Remove(noradId);
+        _cachedEnabledSats = _cachedEnabledSats.Where(s => s.NoradId != noradId).ToList();
+    }
+
     /// <summary>Clears cached ground tracks and footprints (e.g. after map-time scrub).</summary>
     public void InvalidateVisualCache() => _visualCache.Clear();
 
