@@ -18,10 +18,24 @@ public sealed class DopplerTimeSeriesChartControl : ThemeAwareControl
     private static readonly Color CompareTxColor = Color.Parse("#FB923C");
     private static readonly Color CompareThresholdColor = Color.Parse("#34D399");
     private static readonly Color CompareWriteColor = Color.Parse("#C084FC");
+    private static readonly Color TcaMarkerColor = Color.Parse("#F59E0B");
 
     private readonly RenderResourceCache _renderCache = new();
+    private readonly FormattedTextCache _textCache = new();
     private double _zoomLevel = 1.0;
     private double _panOffsetSeconds = 0.0;
+
+    // Cached LINQ-computed metrics (recomputed only when samples change)
+    private double _cachedMaxSeconds;
+    private double _cachedMaxHz;
+    private double _cachedMaxElev;
+    private int _cachedTcaIndex = -1;
+
+    // Cached visible-window filtered samples (recomputed on zoom/pan/sample change)
+    private List<DopplerInsightChartSample>? _visiblePrimary;
+    private List<DopplerInsightChartSample>? _visibleCompare;
+    private double _lastZoom;
+    private double _lastPan;
 
     public static readonly StyledProperty<IReadOnlyList<DopplerInsightChartSample>?> PrimarySamplesProperty =
         AvaloniaProperty.Register<DopplerTimeSeriesChartControl, IReadOnlyList<DopplerInsightChartSample>?>(nameof(PrimarySamples));
@@ -57,6 +71,7 @@ public sealed class DopplerTimeSeriesChartControl : ThemeAwareControl
         set
         {
             _zoomLevel = Math.Max(1.0, Math.Min(16.0, value));
+            InvalidateVisibleWindow();
             InvalidateVisual();
         }
     }
@@ -67,6 +82,7 @@ public sealed class DopplerTimeSeriesChartControl : ThemeAwareControl
         set
         {
             _panOffsetSeconds = Math.Max(0, value);
+            InvalidateVisibleWindow();
             InvalidateVisual();
         }
     }
@@ -75,7 +91,18 @@ public sealed class DopplerTimeSeriesChartControl : ThemeAwareControl
     {
         _zoomLevel = 1.0;
         _panOffsetSeconds = 0.0;
+        InvalidateVisibleWindow();
         InvalidateVisual();
+    }
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+        if (change.Property == PrimarySamplesProperty || change.Property == ComparisonSamplesProperty)
+        {
+            RecomputeCachedMetrics();
+            InvalidateVisibleWindow();
+        }
     }
 
     private void OnPointerWheelChanged(object? sender, PointerWheelEventArgs e)
@@ -85,6 +112,29 @@ public sealed class DopplerTimeSeriesChartControl : ThemeAwareControl
             ZoomLevel += e.Delta.Y * 0.5;
             e.Handled = true;
         }
+    }
+
+    /// <summary>
+    /// Recomputes cached metrics from samples. Called when PrimarySamples or ComparisonSamples changes.
+    /// </summary>
+    internal void RecomputeCachedMetrics()
+    {
+        var primary = PrimarySamples ?? [];
+        var compare = ComparisonSamples ?? [];
+
+        _cachedMaxSeconds = ComputeMaxDurationSeconds(primary, compare);
+        _cachedMaxHz = ComputeMaxY(primary, compare);
+        _cachedMaxElev = ComputeMaxElevation(primary, compare);
+        _cachedTcaIndex = ComputeTcaIndex(primary);
+    }
+
+    /// <summary>
+    /// Invalidates the visible-window cached sample lists, forcing recomputation on next render.
+    /// </summary>
+    private void InvalidateVisibleWindow()
+    {
+        _visiblePrimary = null;
+        _visibleCompare = null;
     }
 
     public override void Render(DrawingContext context)
@@ -109,9 +159,9 @@ public sealed class DopplerTimeSeriesChartControl : ThemeAwareControl
         var plot = new Rect(54, 18, Math.Max(20, w - 66), Math.Max(20, h - elevStripHeight - 48));
         var elevStrip = new Rect(plot.X, plot.Bottom + 10, plot.Width, elevStripHeight);
 
-        var maxSeconds = MaxDurationSeconds(primary, compare);
-        var maxHz = MaxY(primary, compare);
-        var maxElev = MaxElevation(primary, compare);
+        var maxSeconds = _cachedMaxSeconds;
+        var maxHz = _cachedMaxHz;
+        var maxElev = _cachedMaxElev;
         if (maxSeconds <= 0 || maxHz <= 0)
         {
             DrawMessage(context, LocalizationService.Instance.Get("DopplerInsights.Chart.Empty"), palette);
@@ -123,9 +173,12 @@ public sealed class DopplerTimeSeriesChartControl : ThemeAwareControl
         var viewStartSeconds = clampedPan;
         var viewEndSeconds = viewStartSeconds + viewportWidthSeconds;
 
+        // Ensure visible-window cache is up to date
+        EnsureVisibleWindow(primary, compare, viewStartSeconds, viewEndSeconds);
+
         DrawGrid(context, plot, palette);
         DrawAxes(context, plot, palette, viewStartSeconds, viewEndSeconds, maxHz);
-        DrawThresholdBand(context, primary, plot, viewStartSeconds, viewEndSeconds, maxHz);
+        DrawThresholdBand(context, _visiblePrimary!, plot, viewStartSeconds, viewEndSeconds, maxHz);
 
         DrawSeries(context, primary, plot, viewStartSeconds, viewEndSeconds, maxHz, s => s.AbsRxDeltaHz, _renderCache.GetPen(PrimaryRxColor, 2.0), breakOnWrite: true);
         DrawSeries(context, primary, plot, viewStartSeconds, viewEndSeconds, maxHz, s => s.AbsTxDeltaHz, _renderCache.GetPen(PrimaryTxColor, 1.6), breakOnWrite: true);
@@ -141,18 +194,50 @@ public sealed class DopplerTimeSeriesChartControl : ThemeAwareControl
         if (maxElev > 0)
         {
             DrawElevationStrip(context, primary, elevStrip, viewStartSeconds, viewEndSeconds, maxElev, palette);
-            DrawTcaMarker(context, primary, plot, elevStrip, viewStartSeconds, viewEndSeconds, palette);
+            DrawTcaMarker(context, primary, plot, elevStrip, viewStartSeconds, viewEndSeconds, palette, _renderCache, _textCache);
         }
     }
 
-    private static double MaxDurationSeconds(IReadOnlyList<DopplerInsightChartSample> primary, IReadOnlyList<DopplerInsightChartSample> compare)
+    private void EnsureVisibleWindow(
+        IReadOnlyList<DopplerInsightChartSample> primary,
+        IReadOnlyList<DopplerInsightChartSample> compare,
+        double viewStartSeconds,
+        double viewEndSeconds)
+    {
+        // ReSharper disable once CompareOfFloatsByEqualityOperator
+        if (_visiblePrimary is not null && _lastZoom == _zoomLevel && _lastPan == _panOffsetSeconds)
+            return;
+
+        _visiblePrimary = FilterToWindow(primary, viewStartSeconds, viewEndSeconds);
+        _visibleCompare = FilterToWindow(compare, viewStartSeconds, viewEndSeconds);
+        _lastZoom = _zoomLevel;
+        _lastPan = _panOffsetSeconds;
+    }
+
+    internal static List<DopplerInsightChartSample> FilterToWindow(
+        IReadOnlyList<DopplerInsightChartSample> samples,
+        double viewStartSeconds,
+        double viewEndSeconds)
+    {
+        var result = new List<DopplerInsightChartSample>();
+        for (var i = 0; i < samples.Count; i++)
+        {
+            var s = samples[i];
+            if (s.SecondsFromStart >= viewStartSeconds && s.SecondsFromStart <= viewEndSeconds)
+                result.Add(s);
+        }
+
+        return result;
+    }
+
+    internal static double ComputeMaxDurationSeconds(IReadOnlyList<DopplerInsightChartSample> primary, IReadOnlyList<DopplerInsightChartSample> compare)
     {
         var p = primary.Count == 0 ? 0 : primary.Max(s => s.SecondsFromStart);
         var c = compare.Count == 0 ? 0 : compare.Max(s => s.SecondsFromStart);
         return Math.Max(1, Math.Max(p, c));
     }
 
-    private static double MaxY(IReadOnlyList<DopplerInsightChartSample> primary, IReadOnlyList<DopplerInsightChartSample> compare)
+    internal static double ComputeMaxY(IReadOnlyList<DopplerInsightChartSample> primary, IReadOnlyList<DopplerInsightChartSample> compare)
     {
         static IEnumerable<double> Values(IReadOnlyList<DopplerInsightChartSample> samples)
         {
@@ -169,11 +254,30 @@ public sealed class DopplerTimeSeriesChartControl : ThemeAwareControl
         return max <= 0 ? 0 : max * 1.08;
     }
 
-    private static double MaxElevation(IReadOnlyList<DopplerInsightChartSample> primary, IReadOnlyList<DopplerInsightChartSample> compare)
+    internal static double ComputeMaxElevation(IReadOnlyList<DopplerInsightChartSample> primary, IReadOnlyList<DopplerInsightChartSample> compare)
     {
         var p = primary.Count == 0 ? 0 : primary.Max(s => s.ElevationDeg);
         var c = compare.Count == 0 ? 0 : compare.Max(s => s.ElevationDeg);
         return Math.Max(p, c);
+    }
+
+    internal static int ComputeTcaIndex(IReadOnlyList<DopplerInsightChartSample> samples)
+    {
+        if (samples.Count == 0)
+            return -1;
+
+        var maxIndex = 0;
+        var maxElev = samples[0].ElevationDeg;
+        for (var i = 1; i < samples.Count; i++)
+        {
+            if (samples[i].ElevationDeg > maxElev)
+            {
+                maxElev = samples[i].ElevationDeg;
+                maxIndex = i;
+            }
+        }
+
+        return maxIndex;
     }
 
     private void DrawGrid(DrawingContext context, Rect plot, UiPalette palette)
@@ -194,38 +298,41 @@ public sealed class DopplerTimeSeriesChartControl : ThemeAwareControl
         }
     }
 
-    private static void DrawThresholdBand(
+    private void DrawThresholdBand(
         DrawingContext context,
-        IReadOnlyList<DopplerInsightChartSample> samples,
+        IReadOnlyList<DopplerInsightChartSample> inView,
         Rect plot,
         double viewStartSeconds,
         double viewEndSeconds,
         double maxHz)
     {
-        if (samples.Count == 0)
-            return;
-
-        var inView = samples
-            .Where(s => s.SecondsFromStart >= viewStartSeconds && s.SecondsFromStart <= viewEndSeconds)
-            .ToList();
         if (inView.Count == 0)
             return;
 
-        var baseThreshold = inView.Max(s => s.BaseThresholdHz);
+        var baseThreshold = 0.0;
+        var effectiveSum = 0.0;
+        for (var i = 0; i < inView.Count; i++)
+        {
+            var s = inView[i];
+            if (s.BaseThresholdHz > baseThreshold)
+                baseThreshold = s.BaseThresholdHz;
+            effectiveSum += s.EffectiveThresholdHz;
+        }
+
         if (baseThreshold <= 0)
             return;
 
-        var effectiveThreshold = inView.Average(s => s.EffectiveThresholdHz);
+        var effectiveThreshold = effectiveSum / inView.Count;
         var baseY = plot.Bottom - plot.Height * (Math.Clamp(baseThreshold, 0, maxHz) / maxHz);
         var effectiveY = plot.Bottom - plot.Height * (Math.Clamp(effectiveThreshold, 0, maxHz) / maxHz);
 
-        var bandBrush = new SolidColorBrush(Color.FromArgb(28, PrimaryThresholdColor.R, PrimaryThresholdColor.G, PrimaryThresholdColor.B));
+        var bandBrush = _renderCache.GetBrush(Color.FromArgb(28, PrimaryThresholdColor.R, PrimaryThresholdColor.G, PrimaryThresholdColor.B));
         var top = Math.Min(baseY, effectiveY);
         var bottom = Math.Max(baseY, effectiveY);
         if (bottom - top > 1)
             context.FillRectangle(bandBrush, new Rect(plot.X, top, plot.Width, bottom - top));
 
-        var basePen = new Pen(new SolidColorBrush(PrimaryBaseThresholdColor), 1, dashStyle: DashStyle.Dash);
+        var basePen = _renderCache.GetDashedPen(PrimaryBaseThresholdColor, 1);
         context.DrawLine(basePen, new Point(plot.X, baseY), new Point(plot.Right, baseY));
     }
 
@@ -338,13 +445,7 @@ public sealed class DopplerTimeSeriesChartControl : ThemeAwareControl
         }
 
         var label = LocalizationService.Instance.Get("DopplerInsights.Chart.ElevationLabel");
-        var formatted = new FormattedText(
-            label,
-            System.Globalization.CultureInfo.CurrentCulture,
-            FlowDirection.LeftToRight,
-            new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.Normal),
-            9,
-            new SolidColorBrush(palette.SkyPlotLabel));
+        var formatted = _textCache.Get(label, 9, palette);
         context.DrawText(formatted, new Point(strip.X - 52, strip.Y + 6));
     }
 
@@ -355,7 +456,9 @@ public sealed class DopplerTimeSeriesChartControl : ThemeAwareControl
         Rect elevStrip,
         double viewStartSeconds,
         double viewEndSeconds,
-        UiPalette palette)
+        UiPalette palette,
+        RenderResourceCache renderCache,
+        FormattedTextCache textCache)
     {
         if (samples.Count == 0)
             return;
@@ -368,70 +471,37 @@ public sealed class DopplerTimeSeriesChartControl : ThemeAwareControl
         var relativeTime = tca.SecondsFromStart - viewStartSeconds;
         var x = plot.X + plot.Width * (relativeTime / viewportWidth);
 
-        var markerPen = new Pen(new SolidColorBrush(Color.Parse("#F59E0B")), 1, dashStyle: DashStyle.Dash);
+        var markerPen = renderCache.GetDashedPen(TcaMarkerColor, 1);
         context.DrawLine(markerPen, new Point(x, plot.Y), new Point(x, elevStrip.Bottom));
 
         var label = LocalizationService.Instance.Get("DopplerInsights.Chart.TcaLabel");
-        var formatted = new FormattedText(
-            label,
-            System.Globalization.CultureInfo.CurrentCulture,
-            FlowDirection.LeftToRight,
-            new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.SemiBold),
-            9,
-            new SolidColorBrush(Color.Parse("#F59E0B")));
+        var formatted = textCache.Get(label, 9, palette);
         context.DrawText(formatted, new Point(Math.Min(x + 3, plot.Right - formatted.Width), plot.Y + 2));
     }
 
-    private static void DrawMessage(DrawingContext context, string text, UiPalette palette)
+    private void DrawMessage(DrawingContext context, string text, UiPalette palette)
     {
-        var formatted = new FormattedText(
-            text,
-            System.Globalization.CultureInfo.CurrentCulture,
-            FlowDirection.LeftToRight,
-            new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.SemiBold),
-            12,
-            new SolidColorBrush(palette.SkyPlotMessage));
+        var formatted = _textCache.Get(text, 12, palette);
         context.DrawText(formatted, new Point(14, 14));
     }
 
-    private static void DrawAxes(DrawingContext context, Rect plot, UiPalette palette, double viewStartSeconds, double viewEndSeconds, double maxHz)
+    private void DrawAxes(DrawingContext context, Rect plot, UiPalette palette, double viewStartSeconds, double viewEndSeconds, double maxHz)
     {
-        var labelBrush = new SolidColorBrush(palette.SkyPlotLabel);
+        var labelBrush = _renderCache.GetBrush(palette.SkyPlotLabel);
         var yTitle = LocalizationService.Instance.Get("DopplerInsights.Chart.YAxis");
-        var yLabel = new FormattedText(
-            yTitle,
-            System.Globalization.CultureInfo.CurrentCulture,
-            FlowDirection.LeftToRight,
-            new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.SemiBold),
-            10,
-            labelBrush);
+        var yLabel = _textCache.Get(yTitle, 10, palette);
         context.DrawText(yLabel, new Point(4, plot.Y + plot.Height / 2 - yLabel.Height / 2));
 
-        var yMax = new FormattedText(
-            $"{Math.Round(maxHz)} Hz",
-            System.Globalization.CultureInfo.CurrentCulture,
-            FlowDirection.LeftToRight,
-            new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.Normal),
-            9,
-            labelBrush);
+        var yMaxText = $"{Math.Round(maxHz)} Hz";
+        var yMax = _textCache.Get(yMaxText, 9, palette);
         context.DrawText(yMax, new Point(4, plot.Y - 2));
 
-        var left = new FormattedText(
-            FormatPassTime(viewStartSeconds),
-            System.Globalization.CultureInfo.CurrentCulture,
-            FlowDirection.LeftToRight,
-            new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.Normal),
-            10,
-            labelBrush);
+        var leftText = FormatPassTime(viewStartSeconds);
+        var left = _textCache.Get(leftText, 10, palette);
         context.DrawText(left, new Point(plot.X, plot.Bottom + 3));
 
-        var right = new FormattedText(
-            FormatPassTime(viewEndSeconds),
-            System.Globalization.CultureInfo.CurrentCulture,
-            FlowDirection.LeftToRight,
-            new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.Normal),
-            10,
-            labelBrush);
+        var rightText = FormatPassTime(viewEndSeconds);
+        var right = _textCache.Get(rightText, 10, palette);
         context.DrawText(right, new Point(Math.Max(plot.X, plot.Right - right.Width), plot.Bottom + 3));
     }
 
@@ -444,4 +514,10 @@ public sealed class DopplerTimeSeriesChartControl : ThemeAwareControl
         var remainder = (int)Math.Round(seconds % 60);
         return $"{minutes}m {remainder}s";
     }
+
+    // Expose cached metrics for testing
+    internal double CachedMaxSeconds => _cachedMaxSeconds;
+    internal double CachedMaxHz => _cachedMaxHz;
+    internal double CachedMaxElev => _cachedMaxElev;
+    internal int CachedTcaIndex => _cachedTcaIndex;
 }
