@@ -1220,15 +1220,29 @@ public partial class MainViewModel : ViewModelBase
 
     private async Task SpeakAnnouncementAsync(string text, string voiceName)
     {
+        var selectedVoice = string.IsNullOrWhiteSpace(voiceName) ? null : voiceName;
         try
         {
             await _speech.SpeakAsync(
                 text,
-                string.IsNullOrWhiteSpace(voiceName) ? null : voiceName).ConfigureAwait(false);
+                selectedVoice).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            Log.Warning(ex, "Voice announcement failed: {Text}", text);
+            // Bluetooth/headset handover can transiently fail TTS output.
+            // Retry once after a short delay and let the OS pick the default voice.
+            Log.Warning(ex, "Voice announcement failed; retrying with default voice: {Text}", text);
+
+            try
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(1200)).ConfigureAwait(false);
+                await _speech.SpeakAsync(text, voiceName: null).ConfigureAwait(false);
+                Log.Information("Voice announcement retry succeeded: {Text}", text);
+            }
+            catch (Exception retryEx)
+            {
+                Log.Warning(retryEx, "Voice announcement retry failed: {Text}", text);
+            }
         }
     }
 
