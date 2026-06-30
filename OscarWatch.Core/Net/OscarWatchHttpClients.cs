@@ -8,6 +8,13 @@ public static class OscarWatchHttpClients
 {
     public const string ProductName = "OscarWatch";
 
+    private static readonly SocketsHttpHandler SharedHandler = new()
+    {
+        PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+        PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+        MaxConnectionsPerServer = 10
+    };
+
     public static ProductInfoHeaderValue CreateUserAgent() =>
         new(ProductName, GetProductVersion());
 
@@ -21,10 +28,15 @@ public static class OscarWatchHttpClients
 
     public static HttpClient Create(TimeSpan timeout)
     {
-        var client = new HttpClient { Timeout = timeout };
+        var client = new HttpClient(SharedHandler, disposeHandler: false)
+        {
+            Timeout = timeout
+        };
         ApplyUserAgent(client);
         return client;
     }
+
+    public static void DisposeSharedHandler() => SharedHandler.Dispose();
 
     public static string GetProductVersion()
     {
