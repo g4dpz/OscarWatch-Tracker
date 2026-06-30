@@ -7,7 +7,7 @@ using OscarWatch.Core.Radio;
 
 namespace OscarWatch.Core.Services;
 
-public sealed class SettingsService : ISettingsService
+public sealed class SettingsService : ISettingsService, IDisposable
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -18,6 +18,9 @@ public sealed class SettingsService : ISettingsService
     };
 
     private readonly SemaphoreSlim _saveGate = new(1, 1);
+    private Timer? _saveTimer;
+    private volatile bool _savePending;
+    private const int SaveQuietPeriodMs = 500;
 
     public SettingsService(string? settingsPath = null)
     {
@@ -25,11 +28,18 @@ public sealed class SettingsService : ISettingsService
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "OscarWatch",
             "settings.json");
+
+        _saveTimer = new Timer(OnSaveTimerElapsed, null, Timeout.Infinite, Timeout.Infinite);
     }
 
     public AppSettings Current { get; private set; } = new();
 
     public string SettingsPath { get; }
+
+    /// <summary>
+    /// Indicates whether a save is pending (exposed for testing).
+    /// </summary>
+    internal bool SavePending => _savePending;
 
     public static event Action<Exception>? SaveFailed;
 
@@ -123,11 +133,41 @@ public sealed class SettingsService : ISettingsService
 
     public void RequestSave()
     {
-        _ = SaveAsync().ContinueWith(
-            static _ => { },
-            CancellationToken.None,
-            TaskContinuationOptions.OnlyOnFaulted,
-            TaskScheduler.Default);
+        _savePending = true;
+        _saveTimer?.Change(SaveQuietPeriodMs, Timeout.Infinite);
+    }
+
+    private void OnSaveTimerElapsed(object? state)
+    {
+        if (!_savePending) return;
+        _savePending = false;
+        _ = SaveAsync().ContinueWith(t =>
+        {
+            if (t.IsFaulted)
+            {
+                _savePending = true; // Retry on next trigger
+                _ = t.Exception; // Observe the exception (already reported by SaveAsync)
+            }
+        }, TaskScheduler.Default);
+    }
+
+    public async Task FlushAsync(CancellationToken cancellationToken = default)
+    {
+        _saveTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+        if (_savePending)
+        {
+            _savePending = false;
+            await SaveAsync(cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    public void Dispose()
+    {
+        // Stop the timer to prevent further callbacks
+        _saveTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+        _saveTimer?.Dispose();
+        _saveTimer = null;
+        _saveGate.Dispose();
     }
 
     public void EnsureSavedStations()

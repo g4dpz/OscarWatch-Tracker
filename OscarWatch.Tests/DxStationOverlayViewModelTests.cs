@@ -170,6 +170,7 @@ public class DxStationOverlayViewModelTests
         public Task LoadAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task SaveAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
         public void RequestSave() { }
+        public Task FlushAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
         public void SyncGridFromLatLon() { }
         public void SyncLatLonFromGrid() { }
         public void EnsureSavedStations() { }

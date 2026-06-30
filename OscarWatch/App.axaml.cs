@@ -108,6 +108,7 @@ public partial class App : Application
             var mainVm = Services.GetRequiredService<MainViewModel>();
             MainWindow = new MainWindow { DataContext = mainVm };
             desktop.MainWindow = MainWindow;
+            desktop.ShutdownRequested += OnDesktopShutdownRequested;
             Log.Information("Main window created in {ElapsedMs} ms", startupStopwatch.ElapsedMilliseconds);
 
             AppSingleInstance.StartActivationListener(ActivateMainWindow);
@@ -136,5 +137,12 @@ public partial class App : Application
             MainWindow.Show();
             MainWindow.Activate();
         });
+    }
+
+    private static void OnDesktopShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
+    {
+        // Flush pending settings save on shutdown
+        var settings = Services?.GetService<ISettingsService>();
+        settings?.FlushAsync().GetAwaiter().GetResult();
     }
 }
