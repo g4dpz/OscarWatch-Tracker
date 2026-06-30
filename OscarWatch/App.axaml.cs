@@ -5,6 +5,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
+using OscarWatch.Core.Net;
 using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Services;
 using OscarWatch.Orbit;
@@ -111,9 +112,16 @@ public partial class App : Application
             Log.Information("Main window created in {ElapsedMs} ms", startupStopwatch.ElapsedMilliseconds);
 
             AppSingleInstance.StartActivationListener(ActivateMainWindow);
+
+            desktop.Exit += OnDesktopExit;
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private static void OnDesktopExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
+    {
+        OscarWatchHttpClients.DisposeSharedHandler();
     }
 
     private static void ActivateMainWindow()
