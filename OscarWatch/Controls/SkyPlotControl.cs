@@ -21,6 +21,7 @@ public class SkyPlotControl : ThemeAwareControl
     private INotifyCollectionChanged? _trackStatesSource;
     private readonly RenderResourceCache _renderCache = new();
     private readonly FormattedTextCache _labelCache = new();
+    private readonly Dictionary<string, (double X, double Y)> _lastRenderedPositions = new();
 
     public static readonly StyledProperty<IReadOnlyList<SatelliteTrackState>?> TrackStatesProperty =
         AvaloniaProperty.Register<SkyPlotControl, IReadOnlyList<SatelliteTrackState>?>(nameof(TrackStates));
@@ -37,7 +38,6 @@ public class SkyPlotControl : ThemeAwareControl
     static SkyPlotControl()
     {
         AffectsRender<SkyPlotControl>(
-            TrackStatesProperty,
             FocusedNoradIdProperty,
             MinimumElevationDegProperty,
             SoloFocusedSatelliteProperty);
@@ -97,7 +97,11 @@ public class SkyPlotControl : ThemeAwareControl
     {
         base.OnPropertyChanged(change);
         if (change.Property == TrackStatesProperty)
+        {
             BindTrackStatesSource(change.NewValue);
+            if (ShouldRenderForTrackStates())
+                InvalidateVisual();
+        }
 
         if (change.Property == TrackStatesProperty || change.Property == FocusedNoradIdProperty)
             TrackingPlotAccessibility.UpdateName(
@@ -107,14 +111,109 @@ public class SkyPlotControl : ThemeAwareControl
                 FocusedNoradId);
     }
 
+    private bool ShouldRenderForTrackStates()
+    {
+        var states = TrackStates;
+        if (states is null || states.Count == 0)
+        {
+            if (_lastRenderedPositions.Count > 0)
+            {
+                _lastRenderedPositions.Clear();
+                return true;
+            }
+            return false;
+        }
+
+        var (cx, cy, plotRadius) = GetPlotGeometry(Bounds.Width, Bounds.Height);
+        if (plotRadius <= 0)
+            return true; // Can't compute positions, render anyway
+
+        var visibleCount = 0;
+        foreach (var state in states)
+        {
+            if (state.LookAngles is not { } la)
+                continue;
+
+            if (!TryAzElToPoint(cx, cy, plotRadius, la.AzimuthDeg, la.ElevationDeg, out var point))
+                continue;
+
+            visibleCount++;
+
+            if (_lastRenderedPositions.TryGetValue(state.NoradId, out var prev))
+            {
+                var dx = point.X - prev.X;
+                var dy = point.Y - prev.Y;
+                if (dx * dx + dy * dy >= 1.0) // >= 1 pixel movement
+                    return true;
+            }
+            else
+            {
+                return true; // New satellite appeared
+            }
+        }
+
+        // Check if satellite count changed (satellite disappeared)
+        if (_lastRenderedPositions.Count != visibleCount)
+            return true;
+
+        return false;
+    }
+
+    /// <summary>
+    /// Determines whether a render is needed based on position movement.
+    /// Extracted as internal static for testability.
+    /// </summary>
+    internal static bool HasMovedBeyondThreshold(
+        IReadOnlyList<SatelliteTrackState> states,
+        Dictionary<string, (double X, double Y)> previousPositions,
+        double cx, double cy, double plotRadius,
+        double thresholdPxSquared = 1.0)
+    {
+        if (states.Count == 0)
+        {
+            return previousPositions.Count > 0;
+        }
+
+        if (plotRadius <= 0)
+            return true;
+
+        var visibleCount = 0;
+        foreach (var state in states)
+        {
+            if (state.LookAngles is not { } la)
+                continue;
+
+            if (!TryAzElToPoint(cx, cy, plotRadius, la.AzimuthDeg, la.ElevationDeg, out var point))
+                continue;
+
+            visibleCount++;
+
+            if (previousPositions.TryGetValue(state.NoradId, out var prev))
+            {
+                var dx = point.X - prev.X;
+                var dy = point.Y - prev.Y;
+                if (dx * dx + dy * dy >= thresholdPxSquared)
+                    return true;
+            }
+            else
+            {
+                return true; // New satellite appeared
+            }
+        }
+
+        // Check if satellite count changed (satellite disappeared)
+        if (previousPositions.Count != visibleCount)
+            return true;
+
+        return false;
+    }
+
     private void BindTrackStatesSource(object? value)
     {
         UnsubscribeTrackStatesSource();
         _trackStatesSource = value as INotifyCollectionChanged;
         if (_trackStatesSource is not null)
             _trackStatesSource.CollectionChanged += OnTrackStatesSourceChanged;
-
-        InvalidateVisual();
     }
 
     private void UnsubscribeTrackStatesSource()
@@ -126,8 +225,11 @@ public class SkyPlotControl : ThemeAwareControl
         _trackStatesSource = null;
     }
 
-    private void OnTrackStatesSourceChanged(object? sender, NotifyCollectionChangedEventArgs e) =>
-        InvalidateVisual();
+    private void OnTrackStatesSourceChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (ShouldRenderForTrackStates())
+            InvalidateVisual();
+    }
 
     private void OnThemeChangedClearCache(object? sender, EventArgs e)
     {
@@ -223,6 +325,17 @@ public class SkyPlotControl : ThemeAwareControl
                 isFocused,
                 _renderCache,
                 la.ElevationDeg < MinimumElevationDeg);
+        }
+
+        // Update position cache after rendering all satellites
+        _lastRenderedPositions.Clear();
+        for (var i = 0; i < states.Count; i++)
+        {
+            if (states[i].LookAngles is not { } la2)
+                continue;
+            if (!TryAzElToPoint(cx, cy, plotRadius, la2.AzimuthDeg, la2.ElevationDeg, out var cachedPoint))
+                continue;
+            _lastRenderedPositions[states[i].NoradId] = (cachedPoint.X, cachedPoint.Y);
         }
 
         if (visibleCount == 0)
