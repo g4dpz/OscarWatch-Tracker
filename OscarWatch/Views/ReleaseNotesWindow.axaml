@@ -28,7 +28,7 @@
                Margin="0,0,0,8" />
     <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
-      <StackPanel x:Name="BodyPanel" Spacing="0" />
+      <StackPanel x:Name="BodyPanel" Spacing="0" Margin="0,0,12,0" />
     </ScrollViewer>
   </DockPanel>
 </Window>
