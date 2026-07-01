@@ -2052,6 +2052,18 @@
   <data name="Planner.Export.SatelliteFile">
     <value>卫星</value>
   </data>
+  <data name="Planner.ContextMenu.CopySatelliteDetails">
+    <value>复制卫星详情</value>
+  </data>
+  <data name="Planner.ContextMenu.ViewPassPlot">
+    <value>查看过境图</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadar">
+    <value>打开过境雷达</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadarGallery">
+    <value>打开过境雷达库(所有过境)</value>
+  </data>
   <data name="Mutual.Section.StationsFilters">
     <value>台站和筛选器</value>
   </data>

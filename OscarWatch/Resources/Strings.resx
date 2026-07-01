@@ -2079,6 +2079,18 @@ Continue?</value>
   <data name="Planner.Export.SatelliteFile">
     <value>satellite</value>
   </data>
+  <data name="Planner.ContextMenu.CopySatelliteDetails">
+    <value>Copy satellite details</value>
+  </data>
+  <data name="Planner.ContextMenu.ViewPassPlot">
+    <value>View pass plot</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadar">
+    <value>Open pass radar</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadarGallery">
+    <value>Open pass radar gallery (all passes)</value>
+  </data>
   <data name="Mutual.Section.StationsFilters">
     <value>Stations &amp; filters</value>
   </data>

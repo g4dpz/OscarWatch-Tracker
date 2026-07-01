@@ -2076,6 +2076,18 @@
   <data name="Planner.Export.SatelliteFile">
     <value>satellite</value>
   </data>
+  <data name="Planner.ContextMenu.CopySatelliteDetails">
+    <value>Copiar detalles del satélite</value>
+  </data>
+  <data name="Planner.ContextMenu.ViewPassPlot">
+    <value>Ver gráfico de paso</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadar">
+    <value>Abrir radar de paso</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadarGallery">
+    <value>Abrir galería de radar (todos los pasos)</value>
+  </data>
   <data name="Mutual.Section.StationsFilters">
     <value>Estaciones &amp; filtros</value>
   </data>

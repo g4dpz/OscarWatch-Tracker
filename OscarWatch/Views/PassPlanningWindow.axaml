@@ -178,7 +178,8 @@
                   VerticalAlignment="Center" />
         </Grid>
 
-        <DataGrid ItemsSource="{Binding DisplayedPasses}"
+        <DataGrid x:Name="PassesDataGrid"
+                  ItemsSource="{Binding DisplayedPasses}"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
                   CanUserResizeColumns="False"
@@ -188,6 +189,19 @@
                   HeadersVisibility="Column"
                   MinHeight="120"
                   BorderThickness="0">
+          <DataGrid.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="{loc:Localize Key=Planner.ContextMenu.CopySatelliteDetails}"
+                        Command="{Binding CopySatelliteDetailsCommand}"
+                        CommandParameter="{Binding #PassesDataGrid.SelectedItem}" />
+              <MenuItem Header="{loc:Localize Key=Planner.ContextMenu.ViewPassPlot}"
+                        Command="{Binding OpenPassVisualizerCommand}"
+                        CommandParameter="{Binding #PassesDataGrid.SelectedItem}" />
+              <MenuItem Header="{loc:Localize Key=Planner.ContextMenu.OpenPassRadarGallery}"
+                        Command="{Binding OpenPassRadarGalleryForSatelliteCommand}"
+                        CommandParameter="{Binding #PassesDataGrid.SelectedItem}" />
+            </ContextMenu>
+          </DataGrid.ContextMenu>
           <DataGrid.Styles>
             <Style Selector="DataGridColumnHeader">
               <Setter Property="FontWeight" Value="SemiBold" />

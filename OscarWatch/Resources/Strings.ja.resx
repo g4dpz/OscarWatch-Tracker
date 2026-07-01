@@ -1956,6 +1956,18 @@
   <data name="Planner.Export.SatelliteFile">
     <value>satellite</value>
   </data>
+  <data name="Planner.ContextMenu.CopySatelliteDetails">
+    <value>衛星の詳細をコピー</value>
+  </data>
+  <data name="Planner.ContextMenu.ViewPassPlot">
+    <value>パスプロットを表示</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadar">
+    <value>パスレーダーを開く</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadarGallery">
+    <value>パスレーダーギャラリーを開く(すべてのパス)</value>
+  </data>
   <data name="Mutual.Section.StationsFilters">
     <value>局とフィルター</value>
   </data>

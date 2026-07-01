@@ -10,6 +10,7 @@ using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
 using OscarWatch.Localization;
+using OscarWatch.Views;
 
 namespace OscarWatch.ViewModels;
 
@@ -426,6 +427,83 @@ public partial class PassPlanningViewModel : ViewModelBase
         var chars = name.Select(c => invalid.Contains(c) ? '_' : c).ToArray();
         var sanitized = new string(chars).Trim();
         return string.IsNullOrEmpty(sanitized) ? l.Get("Planner.Export.SatelliteFile") : sanitized;
+    }
+
+    [RelayCommand]
+    private async Task CopySatelliteDetailsAsync(PassPlanningPassRow row)
+    {
+        var pass = row.Source;
+        var details = string.Join(
+            Environment.NewLine,
+            $"Satellite: {row.SatelliteName}",
+            $"NORAD ID: {pass.NoradId}",
+            $"AOS: {row.AosLocal}",
+            $"LOS: {row.LosLocal}",
+            $"TCA: {row.TcaLocal}",
+            $"Max Elevation: {row.MaxEl}",
+            $"Duration: {row.Duration}",
+            $"Azimuth: {row.AzimuthSummary}");
+
+        var clipboard = TopLevel.GetTopLevel(App.MainWindow)?.Clipboard;
+        if (clipboard is not null)
+            await clipboard.SetTextAsync(details);
+    }
+
+    [RelayCommand]
+    private void OpenPassVisualizer(PassPlanningPassRow row)
+    {
+        if (App.MainWindow is null)
+            return;
+
+        ApplyEditableFieldsToSelectedStation();
+        var site = SelectedStation?.ToGroundStation() ?? _settings.Current.GroundStation;
+
+        var vm = App.Services.GetRequiredService<PassVisualizerViewModel>();
+        vm.Initialize(
+            row.Source,
+            site,
+            UseUtcTime,
+            _settings.Current.Use24HourClock,
+            FilterMinElevationDeg);
+
+        new PassVisualizerWindow
+        {
+            DataContext = vm
+        }.Show(App.MainWindow);
+    }
+
+    [RelayCommand]
+    private async Task OpenPassRadarGalleryForSatelliteAsync(PassPlanningPassRow row)
+    {
+        if (App.MainWindow is null)
+            return;
+
+        ApplyEditableFieldsToSelectedStation();
+        var site = SelectedStation?.ToGroundStation() ?? _settings.Current.GroundStation;
+        
+        // Get all passes for this satellite
+        var passes = Passes
+            .Where(p => p.Source.NoradId == row.Source.NoradId)
+            .Select(p => p.Source)
+            .ToList();
+
+        if (passes.Count == 0)
+            return;
+
+        var vm = App.Services.GetRequiredService<PassRadarGalleryViewModel>();
+        await vm.InitializeAsync(
+            row.SatelliteName,
+            site,
+            passes,
+            UseUtcTime,
+            _settings.Current.Use24HourClock,
+            FilterMinElevationDeg,
+            FilterPredictionHours);
+
+        new PassRadarGalleryWindow
+        {
+            DataContext = vm
+        }.Show(App.MainWindow);
     }
 
     public async Task SaveFiltersAndStationsAsync()

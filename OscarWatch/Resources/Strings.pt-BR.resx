@@ -2052,6 +2052,18 @@ Continuar?</value>
   <data name="Planner.Export.SatelliteFile">
     <value>satélite</value>
   </data>
+  <data name="Planner.ContextMenu.CopySatelliteDetails">
+    <value>Copiar detalhes do satélite</value>
+  </data>
+  <data name="Planner.ContextMenu.ViewPassPlot">
+    <value>Ver gráfico de passagem</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadar">
+    <value>Abrir radar de passagem</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadarGallery">
+    <value>Abrir galeria de radar (todas as passagens)</value>
+  </data>
   <data name="Mutual.Section.StationsFilters">
     <value>Estações &amp; filtros</value>
   </data>
