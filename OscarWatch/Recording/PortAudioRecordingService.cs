@@ -64,17 +64,44 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
         if (!_initialized)
             return [];
 
+        // PortAudio on Windows enumerates devices from multiple audio APIs:
+        // - WASAPI (modern, low-latency)
+        // - DirectSound (legacy)
+        // - MME (very legacy)
+        // - WDM-KS (kernel streaming)
+        // A single physical device can appear multiple times, once per API.
+        // Our deduplication prefers lower-latency devices and combines by name.
+        
         var candidates = new List<RecordingDeviceCandidate>();
+        Log.Debug("PortAudio: Scanning {DeviceCount} devices", PortAudio.DeviceCount);
+        
         for (var i = 0; i < PortAudio.DeviceCount; i++)
         {
             var info = PortAudio.GetDeviceInfo(i);
+            
+            Log.Debug(
+                "PortAudio Device {Index}: '{Name}' (in={Channels}, latency={Latency}ms)",
+                i,
+                info.name,
+                info.maxInputChannels,
+                info.defaultLowInputLatency * 1000);
+            
             if (info.maxInputChannels <= 0)
                 continue;
 
             candidates.Add(new RecordingDeviceCandidate(i, info.name, info.defaultLowInputLatency));
         }
 
-        return RecordingDeviceListBuilder.Build(candidates);
+        Log.Debug("PortAudio: Found {InputDevices} input devices", candidates.Count);
+        var result = RecordingDeviceListBuilder.Build(candidates);
+        Log.Debug("After deduplication: {FinalDevices} unique devices", result.Count);
+        
+        foreach (var device in result)
+        {
+            Log.Debug("  - Device: '{DisplayName}' (index={Id})", device.DisplayName, device.Id);
+        }
+
+        return result;
     }
 
     public async Task StartAsync(
@@ -83,6 +110,7 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
         string deviceId,
         RecordingFormatPreset format,
         string outputPath,
+        string? deviceName = null,
         CancellationToken cancellationToken = default)
     {
         if (!_initialized)
@@ -98,7 +126,51 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
                 throw new InvalidOperationException($"Invalid audio device id '{deviceId}'.");
 
             var (preferredSampleRate, channels) = format.GetFormat();
+            
+            // Validate device index is still valid; if not, try to find by name
+            if (deviceIndex < 0 || deviceIndex >= PortAudio.DeviceCount || 
+                PortAudio.GetDeviceInfo(deviceIndex).maxInputChannels <= 0)
+            {
+                if (!string.IsNullOrWhiteSpace(deviceName))
+                {
+                    // Try to find device by name (more stable than index across reboots)
+                    // Format both the stored name and PortAudio names for comparison
+                    var formattedStoredName = RecordingDeviceNameFormatter.Format(deviceName.Trim());
+                    deviceIndex = -1;
+                    for (var i = 0; i < PortAudio.DeviceCount; i++)
+                    {
+                        var info = PortAudio.GetDeviceInfo(i);
+                        if (info.maxInputChannels > 0)
+                        {
+                            var formattedPortAudioName = RecordingDeviceNameFormatter.Format(info.name);
+                            if (formattedPortAudioName.Equals(formattedStoredName, StringComparison.OrdinalIgnoreCase))
+                            {
+                                deviceIndex = i;
+                                Log.Information("Found device by name: '{Device}' at index {NewIndex}", deviceName, i);
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                if (deviceIndex < 0 || deviceIndex >= PortAudio.DeviceCount)
+                {
+                    Log.Warning("Could not find device: id='{DeviceId}' name='{DeviceName}'", deviceId, deviceName ?? "(not provided)");
+                    throw new InvalidOperationException(
+                        $"Audio device is no longer available. " +
+                        $"Please go to Settings → Recording, click Refresh, and re-select your radio input device.");
+                }
+            }
+
             var deviceInfo = PortAudio.GetDeviceInfo(deviceIndex);
+            if (deviceInfo.maxInputChannels <= 0)
+            {
+                Log.Warning("Device at index {DeviceIndex} ('{Device}') has no input channels", deviceIndex, deviceInfo.name);
+                throw new InvalidOperationException(
+                    $"Device '{deviceInfo.name}' does not support audio input. " +
+                    $"Please go to Settings → Recording, click Refresh, and re-select your radio input device.");
+            }
+            
             if (deviceInfo.maxInputChannels < channels)
                 throw new InvalidOperationException(
                     $"Device '{deviceInfo.name}' does not support {channels} input channel(s).");
@@ -137,12 +209,15 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
             ActiveNoradId = noradId;
             ActiveOutputPath = outputPath;
             Log.Information(
-                "Recording started for {Satellite} ({NoradId}) -> {Path} (rate={SampleRate} Hz, frames={Frames}, ring={RingKb} KB)",
+                "Recording started for {Satellite} ({NoradId}) on device '{Device}' (index={DeviceIndex}) -> {Path} (rate={SampleRate} Hz, frames={Frames}, channels={Channels}, ring={RingKb} KB)",
                 satelliteName,
                 noradId,
+                deviceInfo.name,
+                deviceIndex,
                 outputPath,
                 actualSampleRate,
                 framesPerBuffer,
+                _activeChannels,
                 RingBufferBytes / 1024);
         }
         catch (Exception ex)

@@ -92,7 +92,8 @@ public sealed class PassRecordingCoordinator
                 focusedState.Name,
                 settings.DeviceId,
                 settings.Format,
-                outputPath),
+                outputPath,
+                settings.DeviceDisplayName),
             "start pass recording");
     }
 

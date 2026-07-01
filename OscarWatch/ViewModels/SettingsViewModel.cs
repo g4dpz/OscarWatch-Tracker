@@ -1036,7 +1036,8 @@ public partial class SettingsViewModel : ViewModelBase
                 "Test",
                 SelectedRecordingDevice.Id,
                 format,
-                outputPath).ConfigureAwait(true);
+                outputPath,
+                SelectedRecordingDevice.DisplayName).ConfigureAwait(true);
             await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(true);
             await _recording.StopAsync().ConfigureAwait(true);
             RecordingTestStatus = _l.Get("Settings.Recording.TestSaved", outputPath);

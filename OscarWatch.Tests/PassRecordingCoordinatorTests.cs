@@ -145,6 +145,7 @@ internal sealed class FakeAudioRecordingService : IAudioRecordingService
         string deviceId,
         RecordingFormatPreset format,
         string outputPath,
+        string? deviceName = null,
         CancellationToken cancellationToken = default)
     {
         StartCount++;

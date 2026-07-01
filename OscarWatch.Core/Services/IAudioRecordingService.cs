@@ -19,6 +19,7 @@ public interface IAudioRecordingService
         string deviceId,
         RecordingFormatPreset format,
         string outputPath,
+        string? deviceName = null,
         CancellationToken cancellationToken = default);
     Task StopAsync(CancellationToken cancellationToken = default);
 }
