@@ -657,6 +657,21 @@
   <data name="Rig.NotConnectedPortDetail">
     <value>Radio no conectada ({0}): {1}</value>
   </data>
+  <data name="Rig.SerialPortNotFound">
+    <value>Puerto serie no encontrado ({0}). Comprueba el cable USB y actualiza la lista de puertos.</value>
+  </data>
+  <data name="Rig.SerialPortBusy">
+    <value>Puerto serie en uso ({0}). Cierra otros programas CAT o elige otro puerto.</value>
+  </data>
+  <data name="Rig.DualEndpointSerialPortNotFound">
+    <value>Puerto serie de {0} no encontrado ({1}). Comprueba el cable USB y actualiza la lista de puertos.</value>
+  </data>
+  <data name="Rig.DualEndpointSerialPortBusy">
+    <value>Puerto serie de {0} en uso ({1}). Cierra otros programas CAT o elige otro puerto.</value>
+  </data>
+  <data name="Rig.DualRadioSamePort">
+    <value>Las radios de bajada y subida usan el mismo puerto serie. Usa puertos distintos para cada radio.</value>
+  </data>
   <data name="Window.PassPlanner.Title">
     <value>Planificador de pases</value>
   </data>

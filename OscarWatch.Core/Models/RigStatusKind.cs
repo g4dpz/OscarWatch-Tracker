@@ -12,4 +12,7 @@ public enum RigStatusKind
     SelectDualComPorts,
     NotConnected,
     DualNotConnected,
+    SerialPortNotFound,
+    SerialPortBusy,
+    DualRadioSamePort,
 }

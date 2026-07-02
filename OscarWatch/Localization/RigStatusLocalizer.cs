@@ -29,6 +29,22 @@ public static class RigStatusLocalizer
                 return string.IsNullOrWhiteSpace(status.StatusDetail)
                     ? localization.Get("Rig.DualNotConnected")
                     : localization.Get("Rig.DualNotConnectedDetail", status.StatusDetail);
+            case RigStatusKind.SerialPortNotFound:
+                return LocalizeEndpointSerialPortFailure(
+                    localization,
+                    status,
+                    "Rig.SerialPortNotFound",
+                    "Rig.DualEndpointSerialPortNotFound");
+            case RigStatusKind.SerialPortBusy:
+                return LocalizeEndpointSerialPortFailure(
+                    localization,
+                    status,
+                    "Rig.SerialPortBusy",
+                    "Rig.DualEndpointSerialPortBusy");
+            case RigStatusKind.DualRadioSamePort:
+                return string.IsNullOrWhiteSpace(status.StatusPort)
+                    ? localization.Get("Rig.DualRadioSamePort")
+                    : localization.Get("ComPort.DualRadioSamePort", status.StatusPort);
             case RigStatusKind.NotConnected:
                 if (!string.IsNullOrWhiteSpace(status.StatusPort) && !string.IsNullOrWhiteSpace(status.StatusDetail))
                     return localization.Get("Rig.NotConnectedPortDetail", status.StatusPort, status.StatusDetail);
@@ -40,5 +56,25 @@ public static class RigStatusLocalizer
             default:
                 return status.StatusDetail ?? RigStatusText.ToEnglish(status);
         }
+    }
+
+    private static string LocalizeEndpointSerialPortFailure(
+        ILocalizationService localization,
+        RigConnectionStatus status,
+        string singlePortKey,
+        string dualEndpointKey)
+    {
+        if (!string.IsNullOrWhiteSpace(status.StatusDetail) && !string.IsNullOrWhiteSpace(status.StatusPort))
+        {
+            var endpoint = status.StatusDetail == "Uplink"
+                ? localization.Get("Settings.Radio.Uplink")
+                : localization.Get("Settings.Radio.Downlink");
+            return localization.Get(dualEndpointKey, endpoint, status.StatusPort);
+        }
+
+        if (!string.IsNullOrWhiteSpace(status.StatusPort))
+            return localization.Get(singlePortKey, status.StatusPort);
+
+        return RigStatusText.ToEnglish(status);
     }
 }

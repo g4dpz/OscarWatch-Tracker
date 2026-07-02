@@ -633,6 +633,21 @@
   <data name="Rig.NotConnectedPortDetail">
     <value>电台未连接 ({0}): {1}</value>
   </data>
+  <data name="Rig.SerialPortNotFound">
+    <value>未找到串口 ({0})。请检查 USB 连接并刷新端口列表。</value>
+  </data>
+  <data name="Rig.SerialPortBusy">
+    <value>串口正在使用中 ({0})。请关闭其他 CAT 程序或选择其他端口。</value>
+  </data>
+  <data name="Rig.DualEndpointSerialPortNotFound">
+    <value>{0} 串口未找到 ({1})。请检查 USB 连接并刷新端口列表。</value>
+  </data>
+  <data name="Rig.DualEndpointSerialPortBusy">
+    <value>{0} 串口正在使用中 ({1})。请关闭其他 CAT 程序或选择其他端口。</value>
+  </data>
+  <data name="Rig.DualRadioSamePort">
+    <value>下行和上行电台使用同一串口。请为每台电台选择不同端口。</value>
+  </data>
   <data name="Window.PassPlanner.Title">
     <value>过境规划器</value>
   </data>

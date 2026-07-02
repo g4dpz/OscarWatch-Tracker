@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using OscarWatch.Core.Hardware;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Radio;
@@ -29,6 +30,7 @@ public sealed class RigController : IRigController, IDisposable
     private static readonly TimeSpan LoopInterval = TimeSpan.FromMilliseconds(100);
     private static readonly TimeSpan CommandWaitTimeout = TimeSpan.FromSeconds(10);
     private static readonly TimeSpan DopplerLogSnapshotInterval = TimeSpan.FromSeconds(1);
+    private const int ConnectFailureBackoffSeconds = 3;
 
     private readonly Func<RigSettings, IRigDriver>? _driverFactory;
     private readonly Func<RigEndpointSettings, IRigDriver>? _endpointFactory;
@@ -87,6 +89,9 @@ public sealed class RigController : IRigController, IDisposable
     private DateTime _suspendDopplerUntilUtc = DateTime.MinValue;
     private DateTime _suspendConnectUntilUtc = DateTime.MinValue;
     private string? _lastConnectError;
+    private SerialPortConnectErrorKind _lastConnectErrorKind = SerialPortConnectErrorKind.None;
+    private string? _lastConnectErrorPort;
+    private string? _lastConnectEndpoint;
     private bool? _lastPassDownlinkOnVhf;
     private DateTime _lastDopplerLogUtc = DateTime.MinValue;
     /// <summary>Prior loop horizon state; used to detect orbital AOS (below → above 0°).</summary>
@@ -341,7 +346,7 @@ public sealed class RigController : IRigController, IDisposable
 
         if (!EnsureConnected(settings))
         {
-            SetRigStatus(DescribeConnectionFailure(settings, _lastConnectError));
+            SetRigStatus(DescribeConnectionFailure(settings));
             return;
         }
 
@@ -954,28 +959,41 @@ public sealed class RigController : IRigController, IDisposable
             if (_driver.IsConnected)
             {
                 _lastConnectError = null;
+                _lastConnectErrorKind = SerialPortConnectErrorKind.None;
+                _lastConnectErrorPort = null;
+                _lastConnectEndpoint = null;
                 return true;
             }
 
             _lastConnectError = $"Opened {settings.Port} but CI-V is not responding";
             Log.Warning("Rig opened {Port} for {RigType} but link is not active", settings.Port, settings.Type);
             TearDownRig();
-            _suspendConnectUntilUtc = DateTime.UtcNow.AddSeconds(3);
+            RecordConnectFailure(
+                SerialPortConnectErrorKind.Generic,
+                settings.Port,
+                endpointLabel: null,
+                englishDetail: _lastConnectError);
             return false;
         }
         catch (Exception ex)
         {
-            _lastConnectError = ex.Message;
+            RecordConnectFailure(
+                ClassifyConnectError(ex),
+                settings.Port,
+                endpointLabel: null,
+                englishDetail: ex.Message);
             Log.Warning(ex, "Rig connect failed for {RigType} on {Port}", settings.Type, settings.Port);
             _driver?.Dispose();
             _driver = null;
-            _suspendConnectUntilUtc = DateTime.UtcNow.AddSeconds(3);
             return false;
         }
     }
 
     private bool EnsureDualConnected(RigSettings settings)
     {
+        if (DateTime.UtcNow < _suspendConnectUntilUtc)
+            return _downlinkDriver?.IsConnected == true && _uplinkDriver?.IsConnected == true;
+
         var downKey = EndpointConnectionKey(settings.Downlink);
         var upKey = EndpointConnectionKey(settings.Uplink);
         var downOk = _downlinkDriver is not null
@@ -988,6 +1006,14 @@ public sealed class RigController : IRigController, IDisposable
         if (downOk && upOk)
             return true;
 
+        var upPort = settings.Uplink.Type == RigType.Dummy ? "" : settings.Uplink.Port;
+        if (SerialPortConnectErrorHelper.TryDescribeDualSamePort(settings.Downlink.Port, upPort, out var sharedPort))
+        {
+            RecordConnectFailure(SerialPortConnectErrorKind.DualSamePort, sharedPort, endpointLabel: null);
+            TearDownRig();
+            return false;
+        }
+
         TearDownRig();
 
         try
@@ -996,21 +1022,69 @@ public sealed class RigController : IRigController, IDisposable
             _downlinkDriver.Open();
             _downlinkConnectedKey = downKey;
             if (!_downlinkDriver.IsConnected)
+            {
+                RecordConnectFailure(
+                    SerialPortConnectErrorKind.Generic,
+                    settings.Downlink.Port,
+                    SerialPortConnectErrorHelper.EndpointDownlink,
+                    $"Opened {FormatEndpointLabel(settings.Downlink)} but the link is not active");
+                TearDownRig();
                 return false;
+            }
 
             _uplinkDriver = CreateEndpointDriver(settings.Uplink);
             _uplinkDriver.Open();
             _uplinkConnectedKey = upKey;
-            return _uplinkDriver.IsConnected;
+            if (!_uplinkDriver.IsConnected)
+            {
+                RecordConnectFailure(
+                    SerialPortConnectErrorKind.Generic,
+                    settings.Uplink.Port,
+                    SerialPortConnectErrorHelper.EndpointUplink,
+                    $"Opened {FormatEndpointLabel(settings.Uplink)} but the link is not active");
+                TearDownRig();
+                return false;
+            }
+
+            _lastConnectError = null;
+            _lastConnectErrorKind = SerialPortConnectErrorKind.None;
+            _lastConnectErrorPort = null;
+            _lastConnectEndpoint = null;
+            return true;
         }
         catch (Exception ex)
         {
-            Log.Warning(ex, "Dual rig connect failed (down {DownEndpoint}, up {UpPort})",
-                FormatEndpointLabel(settings.Downlink), settings.Uplink.Port);
+            var failedPort = settings.Downlink.Port;
+            var failedEndpoint = SerialPortConnectErrorHelper.EndpointDownlink;
+            if (_uplinkDriver is not null)
+            {
+                failedPort = settings.Uplink.Port;
+                failedEndpoint = SerialPortConnectErrorHelper.EndpointUplink;
+            }
+
+            RecordConnectFailure(ClassifyConnectError(ex), failedPort, failedEndpoint, ex.Message);
+            Log.Warning(ex, "Dual rig connect failed (down {DownEndpoint}, up {UpEndpoint})",
+                FormatEndpointLabel(settings.Downlink), FormatEndpointLabel(settings.Uplink));
             TearDownRig();
             return false;
         }
     }
+
+    private void RecordConnectFailure(
+        SerialPortConnectErrorKind kind,
+        string? port,
+        string? endpointLabel,
+        string? englishDetail = null)
+    {
+        _lastConnectErrorKind = kind;
+        _lastConnectErrorPort = port;
+        _lastConnectEndpoint = endpointLabel;
+        _lastConnectError = englishDetail ?? SerialPortConnectErrorHelper.ToEnglish(kind, port ?? "", endpointLabel);
+        _suspendConnectUntilUtc = DateTime.UtcNow.AddSeconds(ConnectFailureBackoffSeconds);
+    }
+
+    private static SerialPortConnectErrorKind ClassifyConnectError(Exception ex) =>
+        SerialPortConnectErrorHelper.Classify(ex);
 
     private IRigDriver CreateEndpointDriver(RigEndpointSettings endpoint) =>
         _endpointFactory?.Invoke(endpoint) ?? RigDriverFactory.Create(endpoint);
@@ -2039,17 +2113,26 @@ public sealed class RigController : IRigController, IDisposable
     private IRigDriver? TxDriver() =>
         _cachedSettings.DualRadioEnabled ? _uplinkDriver : _driver;
 
-    private static (RigStatusKind Kind, string? Port, string? Detail) DescribeConnectionFailure(
-        RigSettings settings,
-        string? detail = null)
+    private (RigStatusKind Kind, string? Port, string? Detail) DescribeConnectionFailure(RigSettings settings)
     {
+        if (_lastConnectErrorKind == SerialPortConnectErrorKind.DualSamePort)
+            return (RigStatusKind.DualRadioSamePort, _lastConnectErrorPort, null);
+
+        if (_lastConnectErrorKind is SerialPortConnectErrorKind.PortNotFound or SerialPortConnectErrorKind.PortBusy)
+        {
+            var kind = _lastConnectErrorKind == SerialPortConnectErrorKind.PortNotFound
+                ? RigStatusKind.SerialPortNotFound
+                : RigStatusKind.SerialPortBusy;
+            return (kind, _lastConnectErrorPort, _lastConnectEndpoint);
+        }
+
         if (settings.DualRadioEnabled)
-            return (RigStatusKind.DualNotConnected, null, detail);
+            return (RigStatusKind.DualNotConnected, null, _lastConnectError);
 
         var port = settings.Port;
         return string.IsNullOrWhiteSpace(port)
-            ? (RigStatusKind.NotConnected, null, detail)
-            : (RigStatusKind.NotConnected, port, detail);
+            ? (RigStatusKind.NotConnected, null, _lastConnectError)
+            : (RigStatusKind.NotConnected, port, _lastConnectError);
     }
 
     private enum RigCommandKind

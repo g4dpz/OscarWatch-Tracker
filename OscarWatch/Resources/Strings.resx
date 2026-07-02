@@ -660,6 +660,21 @@ Continue?</value>
   <data name="Rig.NotConnectedPortDetail">
     <value>Rig not connected ({0}): {1}</value>
   </data>
+  <data name="Rig.SerialPortNotFound">
+    <value>Serial port not found ({0}). Check the USB cable and refresh the port list.</value>
+  </data>
+  <data name="Rig.SerialPortBusy">
+    <value>Serial port in use ({0}). Close other CAT programs or choose a different port.</value>
+  </data>
+  <data name="Rig.DualEndpointSerialPortNotFound">
+    <value>{0} serial port not found ({1}). Check the USB cable and refresh the port list.</value>
+  </data>
+  <data name="Rig.DualEndpointSerialPortBusy">
+    <value>{0} serial port in use ({1}). Close other CAT programs or choose a different port.</value>
+  </data>
+  <data name="Rig.DualRadioSamePort">
+    <value>Downlink and uplink radios use the same serial port. Use different ports for each radio.</value>
+  </data>
   <data name="Window.PassPlanner.Title">
     <value>Pass planner</value>
   </data>

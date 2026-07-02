@@ -23,6 +23,22 @@ public static class RigStatusText
                 return "Select COM ports for downlink and uplink radios";
             case RigStatusKind.DualNotConnected:
                 return FormatConnectionFailure("Dual radio not connected", status.StatusPort, status.StatusDetail);
+            case RigStatusKind.SerialPortNotFound:
+                return FormatEndpointSerialPortFailure(
+                    "Serial port not found",
+                    status.StatusPort,
+                    status.StatusDetail,
+                    "Check the USB cable and refresh the port list.");
+            case RigStatusKind.SerialPortBusy:
+                return FormatEndpointSerialPortFailure(
+                    "Serial port in use",
+                    status.StatusPort,
+                    status.StatusDetail,
+                    "Close other CAT programs or choose a different port.");
+            case RigStatusKind.DualRadioSamePort:
+                return string.IsNullOrWhiteSpace(status.StatusPort)
+                    ? "Downlink and uplink radios use the same serial port. Use different ports for each radio."
+                    : $"Downlink and uplink radios both use {status.StatusPort}. Use different COM ports for each radio.";
             case RigStatusKind.NotConnected:
                 var baseMessage = string.IsNullOrWhiteSpace(status.StatusPort)
                     ? "Rig not connected"
@@ -43,5 +59,20 @@ public static class RigStatusText
         return string.IsNullOrWhiteSpace(detail)
             ? baseMessage
             : $"{baseMessage}: {detail}";
+    }
+
+    private static string FormatEndpointSerialPortFailure(
+        string baseMessage,
+        string? port,
+        string? endpointLabel,
+        string guidance)
+    {
+        if (!string.IsNullOrWhiteSpace(endpointLabel) && !string.IsNullOrWhiteSpace(port))
+            return $"{endpointLabel} {baseMessage.ToLowerInvariant()} ({port}). {guidance}";
+
+        if (!string.IsNullOrWhiteSpace(port))
+            return $"{baseMessage} ({port}). {guidance}";
+
+        return $"{baseMessage}. {guidance}";
     }
 }

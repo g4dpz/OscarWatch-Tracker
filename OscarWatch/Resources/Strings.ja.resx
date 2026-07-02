@@ -510,6 +510,21 @@
   <data name="Rig.NotConnectedPortDetail">
     <value>無線機未接続 ({0}): {1}</value>
   </data>
+  <data name="Rig.SerialPortNotFound">
+    <value>シリアルポートが見つかりません ({0})。USBケーブルを確認し、ポート一覧を更新してください。</value>
+  </data>
+  <data name="Rig.SerialPortBusy">
+    <value>シリアルポートは使用中です ({0})。他のCATプログラムを閉じるか、別のポートを選んでください。</value>
+  </data>
+  <data name="Rig.DualEndpointSerialPortNotFound">
+    <value>{0}のシリアルポートが見つかりません ({1})。USBケーブルを確認し、ポート一覧を更新してください。</value>
+  </data>
+  <data name="Rig.DualEndpointSerialPortBusy">
+    <value>{0}のシリアルポートは使用中です ({1})。他のCATプログラムを閉じるか、別のポートを選んでください。</value>
+  </data>
+  <data name="Rig.DualRadioSamePort">
+    <value>ダウンリンクとアップリンクの無線機が同じシリアルポートを使用しています。各無線機に別のポートを使用してください。</value>
+  </data>
   <data name="Freq.SelectSatellite">
     <value>衛星を選択</value>
   </data>
