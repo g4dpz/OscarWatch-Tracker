@@ -1016,9 +1016,11 @@ public sealed class RigController : IRigController, IDisposable
         _endpointFactory?.Invoke(endpoint) ?? RigDriverFactory.Create(endpoint);
 
     private static string EndpointConnectionKey(RigEndpointSettings endpoint) =>
-        RigSettings.IsSdrDownlinkEndpoint(endpoint.Type)
-            ? $"{endpoint.Type}|{endpoint.NetworkHost}|{endpoint.NetworkPort}|{endpoint.CatDelayMs}"
-            : $"{endpoint.Type}|{endpoint.Port}|{endpoint.BaudRate}|{endpoint.CatDelayMs}|{endpoint.CivAddress}";
+        endpoint.Type == RigType.Dummy
+            ? "Dummy"
+            : RigSettings.IsSdrDownlinkEndpoint(endpoint.Type)
+                ? $"{endpoint.Type}|{endpoint.NetworkHost}|{endpoint.NetworkPort}|{endpoint.CatDelayMs}"
+                : $"{endpoint.Type}|{endpoint.Port}|{endpoint.BaudRate}|{endpoint.CatDelayMs}|{endpoint.CivAddress}";
 
     private void RunPassInit(RigSettings settings, RigTrackingContext context)
     {
@@ -1129,9 +1131,12 @@ public sealed class RigController : IRigController, IDisposable
         else
             _downlinkDriver.SetToneOn(false);
 
-        _uplinkDriver.SelectVfo(RigVfo.Main, force: true);
-        _uplinkDriver.SetToneOn(false);
-        _uplinkDriver.SetToneSquelchOn(false);
+        if (settings.Uplink.Type != RigType.Dummy)
+        {
+            _uplinkDriver.SelectVfo(RigVfo.Main, force: true);
+            _uplinkDriver.SetToneOn(false);
+            _uplinkDriver.SetToneSquelchOn(false);
+        }
 
         var setup = SetupVfosPolicy.Evaluate(
             context.EffectiveDownlinkMode,
@@ -1152,7 +1157,7 @@ public sealed class RigController : IRigController, IDisposable
         var rxWritten = _downlinkDriver.SetFrequencyHz(rxHz);
 
         var txWritten = true;
-        if (!_isBeaconOnly)
+        if (!_isBeaconOnly && settings.Uplink.Type != RigType.Dummy)
         {
             _uplinkDriver.SelectVfo(RigVfo.Main);
             _uplinkDriver.SetMode(context.EffectiveUplinkMode);
@@ -1369,7 +1374,7 @@ public sealed class RigController : IRigController, IDisposable
     private void ApplyCtcss(RigSettings settings, RigTrackingContext context, bool force)
     {
         var driver = TxDriver();
-        if (driver is null || context.SelectedCtcssHz is not { } hz || hz <= 0)
+        if (driver is null || settings.Uplink.Type == RigType.Dummy || context.SelectedCtcssHz is not { } hz || hz <= 0)
             return;
 
         var squelch = settings.TransmitRegion() == RigRegion.USA;
@@ -1461,7 +1466,7 @@ public sealed class RigController : IRigController, IDisposable
             _downlinkDriver.SetToneOn(false);
 
         var rxWritten = _downlinkDriver.SetFrequencyHz(rxHz);
-        if (_isBeaconOnly)
+        if (_isBeaconOnly || settings.Uplink.Type == RigType.Dummy)
             return new InitialFrequencyWriteResult(rxWritten, TxWritten: true);
 
         _uplinkDriver.SelectVfo(RigVfo.Main);
@@ -1612,6 +1617,12 @@ public sealed class RigController : IRigController, IDisposable
 
     private bool WriteTx(RigSettings settings, long hz)
     {
+        if (settings.Uplink.Type == RigType.Dummy)
+        {
+            _lastRigTxHz = hz;
+            return true;
+        }
+
         var driver = TxDriver();
         if (driver is null)
             return false;
@@ -2012,12 +2023,14 @@ public sealed class RigController : IRigController, IDisposable
 
     private bool IsRigConnected() =>
         _cachedSettings.DualRadioEnabled
-            ? _downlinkDriver?.IsConnected == true && _uplinkDriver?.IsConnected == true
+            ? _downlinkDriver?.IsConnected == true
+              && (_cachedSettings.Uplink.Type == RigType.Dummy || _uplinkDriver?.IsConnected == true)
             : _driver?.IsConnected == true;
 
     private bool SupportsTracking() =>
         _cachedSettings.DualRadioEnabled
-            ? _downlinkDriver?.SupportsTracking == true && _uplinkDriver?.SupportsTracking == true
+            ? _downlinkDriver?.SupportsTracking == true
+              && (_cachedSettings.Uplink.Type == RigType.Dummy || _uplinkDriver?.SupportsTracking == true)
             : _driver?.SupportsTracking == true;
 
     private IRigDriver? RxDriver() =>

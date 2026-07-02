@@ -1596,6 +1596,9 @@ Continue?</value>
   <data name="Settings.Radio.SdrRigCtl">
     <value>SDR (rigctl TCP)</value>
   </data>
+  <data name="Settings.Radio.DummyUplink">
+    <value>Dummy uplink (RX only)</value>
+  </data>
   <data name="Settings.Radio.SdrHost">
     <value>rigctl host</value>
   </data>

@@ -467,39 +467,41 @@
                       </DataTemplate>
                     </ComboBox.ItemTemplate>
                   </ComboBox>
-                  <TextBlock Text="{loc:Localize Key=Settings.Radio.SerialPort}" />
-                  <ComboBox ItemsSource="{Binding AvailableComPorts}"
-                            SelectedItem="{Binding SelectedUplinkComPort, Mode=TwoWay}"
-                            PlaceholderText="{loc:Localize Key=Settings.Radio.SelectComPort}"
-                            HorizontalAlignment="Stretch" />
-                  <TextBlock Text="{loc:Localize Key=Settings.Radio.BaudRate}" />
-                  <ComboBox ItemsSource="{Binding RigBaudRateOptions}"
-                            SelectedItem="{Binding UplinkBaudRate, Mode=TwoWay}"
-                            HorizontalAlignment="Stretch" />
-                  <StackPanel Spacing="4" IsVisible="{Binding ShowUplinkCivAddress}">
-                    <TextBlock Text="{loc:Localize Key=Settings.Radio.CivAddress}" />
-                    <TextBox Text="{Binding UplinkCivAddress, Mode=TwoWay}"
-                             Watermark="A4 / 48 / 4C / 58" />
-                    <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                               FontSize="11"
-                               TextWrapping="Wrap"
-                               IsVisible="{Binding ShowUplinkIc705CivHint}"
-                               Text="{loc:Localize Key=Settings.Radio.Ic705CivHint}" />
-                    <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                               FontSize="11"
-                               TextWrapping="Wrap"
-                               IsVisible="{Binding ShowUplinkIc706CivHint}"
-                               Text="{loc:Localize Key=Settings.Radio.Ic706CivHint}" />
-                    <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                               FontSize="11"
-                               TextWrapping="Wrap"
-                               IsVisible="{Binding ShowUplinkIc706MkiiCivHint}"
-                               Text="{loc:Localize Key=Settings.Radio.Ic706MkiiCivHint}" />
-                    <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                               FontSize="11"
-                               TextWrapping="Wrap"
-                               IsVisible="{Binding ShowUplinkIc706MkiiGCivHint}"
-                               Text="{loc:Localize Key=Settings.Radio.Ic706MkiiGCivHint}" />
+                  <StackPanel Spacing="8" IsVisible="{Binding ShowUplinkSerialFields}">
+                    <TextBlock Text="{loc:Localize Key=Settings.Radio.SerialPort}" />
+                    <ComboBox ItemsSource="{Binding AvailableComPorts}"
+                              SelectedItem="{Binding SelectedUplinkComPort, Mode=TwoWay}"
+                              PlaceholderText="{loc:Localize Key=Settings.Radio.SelectComPort}"
+                              HorizontalAlignment="Stretch" />
+                    <TextBlock Text="{loc:Localize Key=Settings.Radio.BaudRate}" />
+                    <ComboBox ItemsSource="{Binding RigBaudRateOptions}"
+                              SelectedItem="{Binding UplinkBaudRate, Mode=TwoWay}"
+                              HorizontalAlignment="Stretch" />
+                    <StackPanel Spacing="4" IsVisible="{Binding ShowUplinkCivAddress}">
+                      <TextBlock Text="{loc:Localize Key=Settings.Radio.CivAddress}" />
+                      <TextBox Text="{Binding UplinkCivAddress, Mode=TwoWay}"
+                               Watermark="A4 / 48 / 4C / 58" />
+                      <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                 FontSize="11"
+                                 TextWrapping="Wrap"
+                                 IsVisible="{Binding ShowUplinkIc705CivHint}"
+                                 Text="{loc:Localize Key=Settings.Radio.Ic705CivHint}" />
+                      <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                 FontSize="11"
+                                 TextWrapping="Wrap"
+                                 IsVisible="{Binding ShowUplinkIc706CivHint}"
+                                 Text="{loc:Localize Key=Settings.Radio.Ic706CivHint}" />
+                      <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                 FontSize="11"
+                                 TextWrapping="Wrap"
+                                 IsVisible="{Binding ShowUplinkIc706MkiiCivHint}"
+                                 Text="{loc:Localize Key=Settings.Radio.Ic706MkiiCivHint}" />
+                      <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                 FontSize="11"
+                                 TextWrapping="Wrap"
+                                 IsVisible="{Binding ShowUplinkIc706MkiiGCivHint}"
+                                 Text="{loc:Localize Key=Settings.Radio.Ic706MkiiGCivHint}" />
+                    </StackPanel>
                   </StackPanel>
                   <TextBlock Text="{loc:Localize Key=Settings.Radio.Region}" />
                   <ComboBox ItemsSource="{Binding RigRegionChoices}"

@@ -91,4 +91,12 @@ public sealed class RigEndpointSettingsTests
 
         Assert.True(endpoint.IsConfigured);
     }
+
+    [Fact]
+    public void IsConfigured_dummy_without_port()
+    {
+        var endpoint = new RigEndpointSettings { Type = RigType.Dummy };
+
+        Assert.True(endpoint.IsConfigured);
+    }
 }

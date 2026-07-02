@@ -58,6 +58,27 @@ public sealed class DualRadioConfigHelperTests
         Assert.Equal("", DualRadioConfigHelper.IncompleteCode(rig));
     }
 
+    [Fact]
+    public void IsIncomplete_false_when_uplink_is_dummy()
+    {
+        var rig = new RigSettings
+        {
+            Enabled = true,
+            DualRadioEnabled = true,
+            Downlink = new RigEndpointSettings
+            {
+                Type = RigType.YaesuFt817,
+                Port = "COM3"
+            },
+            Uplink = new RigEndpointSettings
+            {
+                Type = RigType.Dummy
+            }
+        };
+        Assert.False(DualRadioConfigHelper.IsIncomplete(rig));
+        Assert.Equal("", DualRadioConfigHelper.IncompleteCode(rig));
+    }
+
     private static RigSettings DualRig(string? downPort = null, string? upPort = null) => new()
     {
         Enabled = true,

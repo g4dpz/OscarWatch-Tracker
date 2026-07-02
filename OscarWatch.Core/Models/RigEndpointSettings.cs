@@ -27,7 +27,9 @@ public sealed class RigEndpointSettings
     public int NetworkPort { get; set; } = SdrRigCtlDefaultPort;
 
     public bool IsConfigured =>
-        RigSettings.IsSdrDownlinkEndpoint(Type)
-            ? NetworkPort is > 0 and <= 65535 && !string.IsNullOrWhiteSpace(NetworkHost)
-            : RigSettings.IsDualCapableSerialEndpoint(Type) && !string.IsNullOrWhiteSpace(Port);
+        Type == RigType.Dummy
+            ? true
+            : RigSettings.IsSdrDownlinkEndpoint(Type)
+                ? NetworkPort is > 0 and <= 65535 && !string.IsNullOrWhiteSpace(NetworkHost)
+                : RigSettings.IsDualCapableSerialEndpoint(Type) && !string.IsNullOrWhiteSpace(Port);
 }

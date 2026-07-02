@@ -431,6 +431,10 @@ public partial class SettingsViewModel : ViewModelBase
         DualRadioEnabled
         && SelectedDownlinkRigTypeChoice?.Value == RigType.SdrRigCtlTcp;
 
+    public bool ShowUplinkSerialFields =>
+        DualRadioEnabled
+        && SelectedUplinkRigTypeChoice?.Value != RigType.Dummy;
+
     public bool ShowRigSingleConfig => !DualRadioEnabled;
 
     public bool ShowRigDualConfig => DualRadioEnabled;
@@ -610,7 +614,11 @@ public partial class SettingsViewModel : ViewModelBase
             new(RigType.SdrRigCtlTcp, _l.Get("Settings.Radio.SdrRigCtl")),
             .. RigDualTypeChoices
         ];
-        RigDualUplinkTypeChoices = RigDualTypeChoices;
+        RigDualUplinkTypeChoices =
+        [
+            new(RigType.Dummy, _l.Get("Settings.Radio.DummyUplink")),
+            .. RigDualTypeChoices
+        ];
         RigRegionChoices =
         [
             new(RigRegion.EU, "EU"),
@@ -1364,6 +1372,7 @@ public partial class SettingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(ShowDownlinkCivAddress));
         OnPropertyChanged(nameof(ShowDownlinkSerialFields));
         OnPropertyChanged(nameof(ShowDownlinkSdrFields));
+        OnPropertyChanged(nameof(ShowUplinkSerialFields));
         OnPropertyChanged(nameof(ShowUplinkCivAddress));
         OnPropertyChanged(nameof(ShowDownlinkIc705CivHint));
         NotifyIc706SeriesVisibility();
@@ -1448,6 +1457,7 @@ public partial class SettingsViewModel : ViewModelBase
 
         OnPropertyChanged(nameof(ShowRigFt817CatHint));
         OnPropertyChanged(nameof(ShowUplinkCivAddress));
+        OnPropertyChanged(nameof(ShowUplinkSerialFields));
         OnPropertyChanged(nameof(ShowUplinkIc705CivHint));
         NotifyIc706SeriesVisibility();
         OnPropertyChanged(nameof(ShowRigIc705CatHint));

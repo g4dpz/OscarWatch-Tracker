@@ -59,6 +59,20 @@ public class SerialPortConflictHelperTests
     }
 
     [Fact]
+    public void No_conflict_when_uplink_is_dummy()
+    {
+        var rotator = new RotatorSettings { Enabled = true, Port = "COM3" };
+        var rig = new RigSettings
+        {
+            Enabled = true,
+            DualRadioEnabled = true,
+            Downlink = new RigEndpointSettings { Type = RigType.YaesuFt817, Port = "COM4" },
+            Uplink = new RigEndpointSettings { Type = RigType.Dummy, Port = "COM3" }
+        };
+        Assert.False(SerialPortConflictHelper.HasConflict(rotator, rig));
+    }
+
+    [Fact]
     public void HasConflict_when_gps_and_rotator_share_port()
     {
         var rotator = new RotatorSettings { Enabled = true, Port = "COM7" };

@@ -31,7 +31,7 @@ public static class SerialPortConflictHelper
             if (rig.DualRadioEnabled)
             {
                 var downPort = rig.Downlink.Port?.Trim() ?? "";
-                var upPort = rig.Uplink.Port?.Trim() ?? "";
+                var upPort = rig.Uplink.Type == RigType.Dummy ? "" : rig.Uplink.Port?.Trim() ?? "";
 
                 if (downPort.Length > 0 && upPort.Length > 0
                     && string.Equals(downPort, upPort, StringComparison.OrdinalIgnoreCase))

@@ -50,6 +50,14 @@
         it pushes Doppler-corrected RX frequency and reads the waterfall VFO for interactive passband trim.
       </p>
 
+      <h2>RX-only operation</h2>
+      <p>
+        To use the SDR as a receive-only device with no transmit radio, set the
+        <strong>uplink</strong> to <strong>Dummy uplink (RX only)</strong>. OscarWatch will track
+        the satellite and display the computed uplink frequency, but it will not send CAT commands
+        to a transmit radio.
+      </p>
+
       <h2>SDR++</h2>
       <ol>
         <li>Open <strong>Module Manager</strong> and add <strong>rigctl_server</strong> if it is not already present.</li>
@@ -69,7 +77,7 @@
         <li>Linear passes: tune on the SDR waterfall — OscarWatch reads frequency via rigctl and adjusts downlink passband trim; uplink Doppler continues on the TX radio. See <a href="radio-doppler-tuning.html#passband-knob">spinning the dial</a>.</li>
         <li>FM passes: Doppler updates are pushed to the SDR centre frequency; spin the TX radio or overlay for uplink offset as usual.</li>
         <li>Use <strong>100 ms or more</strong> downlink CAT delay when the SDR feels sluggish.</li>
-        <li>SDR is <strong>downlink only</strong>; the uplink must remain a supported CAT radio.</li>
+        <li>SDR is <strong>downlink only</strong>; the uplink can be a supported CAT radio or <strong>Dummy uplink (RX only)</strong> for receive-only operation.</li>
       </ul>
 
       <h2>Troubleshooting</h2>

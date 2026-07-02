@@ -18,6 +18,7 @@ public static class RigDriverFactory
             endpoint.NetworkHost,
             endpoint.NetworkPort,
             endpoint.CatDelayMs),
+        RigType.Dummy => new DummyRigDriver(),
         RigType.YaesuFt817 => new YaesuFt817Driver(
             RigType.YaesuFt817, endpoint.Port, endpoint.BaudRate, endpoint.Region, endpoint.CatDelayMs),
         RigType.YaesuFt818 => new YaesuFt818Driver(
@@ -41,11 +42,14 @@ public static class RigDriverFactory
             ResolveEndpointCivAddress(endpoint))
     };
 
-    /// <summary>Dual-radio uplink must be a serial CAT rig, not SDR rigctl.</summary>
+    /// <summary>Dual-radio uplink must be a serial CAT rig or dummy, not SDR rigctl.</summary>
     public static void EnsureValidDualEndpoint(RigEndpointSettings endpoint, bool isDownlink)
     {
         if (endpoint.Type == RigType.SdrRigCtlTcp && !isDownlink)
             throw new InvalidOperationException("SDR rigctl TCP is supported on the downlink only.");
+
+        if (endpoint.Type == RigType.Dummy && isDownlink)
+            throw new InvalidOperationException("Dummy radio is supported on the uplink only.");
     }
 
     private static IRigDriver CreateIc706SeriesDriver(RigEndpointSettings endpoint) =>

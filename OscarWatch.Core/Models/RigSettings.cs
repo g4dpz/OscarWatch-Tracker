@@ -100,6 +100,8 @@ public sealed class RigSettings
 
     public static bool IsSdrDownlinkEndpoint(RigType type) => type == RigType.SdrRigCtlTcp;
 
+    public static bool IsDummyUplinkEndpoint(RigType type) => type == RigType.Dummy;
+
     /// <summary>FT-817/818 are dual-radio only; move legacy single-radio config to the downlink endpoint.</summary>
     public void MigrateFt817818ToDualOnly()
     {
