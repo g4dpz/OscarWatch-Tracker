@@ -19,6 +19,8 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     private readonly int _satModeRetryDelayMs;
     private bool _satelliteMode;
     private bool _satelliteLayoutConfirmed;
+    /// <summary>True after <see cref="SetSatelliteMode"/>(true); FA/FB doppler works even when SA; did not confirm SATL.</summary>
+    private bool _faFbSatelliteTracking;
     private RigVfo _currentVfo = RigVfo.Main;
     private long _lastMainHz;
     private long _lastSubHz;
@@ -43,6 +45,8 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     public bool IsConnected => _transport.IsOpen;
     public bool SupportsTracking => true;
     public bool IsSatelliteModeActive => _satelliteMode;
+    /// <summary>True when cross-band FA/FB satellite tracking was requested (SATL confirmed or fallback).</summary>
+    public bool UsesFaFbSatelliteTracking => _faFbSatelliteTracking;
     public bool SupportsVfoExchange => true;
 
     public void Open()
@@ -77,7 +81,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         if (!_transport.IsOpen)
             return true;
 
-        if (_satelliteMode)
+        if (_faFbSatelliteTracking)
             return false;
 
         var letter = VfoLetterFor(_currentVfo);
@@ -89,7 +93,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     /// </summary>
     public bool ApplySatelliteDopplerStep(long downlinkHz, long uplinkHz)
     {
-        if (!_satelliteMode || !_transport.IsOpen || downlinkHz <= 0 || uplinkHz <= 0)
+        if (!_faFbSatelliteTracking || !_transport.IsOpen || downlinkHz <= 0 || uplinkHz <= 0)
             return false;
 
         _lastMainHz = downlinkHz;
@@ -121,7 +125,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         char downlinkModeCode,
         char uplinkModeCode)
     {
-        if (!_satelliteMode || !_transport.IsOpen)
+        if (!_faFbSatelliteTracking || !_transport.IsOpen)
             return;
 
         _lastMainHz = downlinkHz;
@@ -185,7 +189,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
 
     public void SetSplitOn(bool on)
     {
-        if (!_transport.IsOpen || _satelliteMode)
+        if (!_transport.IsOpen || _faFbSatelliteTracking)
             return;
 
         if (on)
@@ -196,7 +200,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
 
     public void SendSatelliteLinkHoldPolls()
     {
-        if (!_satelliteMode || !_transport.IsOpen)
+        if (!_faFbSatelliteTracking || !_transport.IsOpen)
             return;
 
         for (var i = 0; i < KenwoodCatCodec.SatelliteLinkHoldPollCount; i++)
@@ -209,6 +213,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         {
             _satelliteMode = on;
             _satelliteLayoutConfirmed = false;
+            _faFbSatelliteTracking = on;
             return;
         }
 
@@ -217,10 +222,11 @@ public sealed class KenwoodTs2000Driver : IRigDriver
             var result = TryEnableSatelliteMode();
             _satelliteMode = result;
             _satelliteLayoutConfirmed = result;
+            _faFbSatelliteTracking = true;
             if (!result)
             {
-                Log.Error(
-                    "TS-2000 SATL not confirmed after {RetryCount} SA; verification attempts. Radio may not be in satellite mode.",
+                Log.Warning(
+                    "TS-2000 SATL not confirmed after {RetryCount} SA; verification attempts; continuing FA/FB tracking.",
                     _satModeRetryCount);
             }
 
@@ -229,6 +235,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
 
         _satelliteMode = false;
         _satelliteLayoutConfirmed = false;
+        _faFbSatelliteTracking = false;
         SendSatelliteModeExitSequence();
     }
 
@@ -245,7 +252,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
 
     public void ExchangeVfos()
     {
-        if (!_satelliteMode || !_transport.IsOpen)
+        if (!_faFbSatelliteTracking || !_transport.IsOpen)
             return;
 
         var downlinkHz = ReadFrequencyHz(RigVfo.Main);

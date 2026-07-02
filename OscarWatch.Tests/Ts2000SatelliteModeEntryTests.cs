@@ -173,12 +173,11 @@ public class Ts2000SatelliteModeEntryTests : Ts2000TestBase
     }
 
     /// <summary>
-    /// Requirement 2.4: No further satellite tracking commands sent after SA; retries exhaust.
-    /// After SetSatelliteMode(true) fails, ApplySatelliteDopplerStep should return false
-    /// and send no commands.
+    /// Requirement 2.4: After SA; retries exhaust, IsSatelliteModeActive is false but FA/FB
+    /// Doppler tracking continues on the fallback path.
     /// </summary>
     [Fact]
-    public void No_tracking_commands_sent_after_SA_retries_exhaust()
+    public void FA_FB_tracking_continues_after_SA_retries_exhaust()
     {
         var transport = new NonConfirmingSatelliteTransport();
         var driver = new KenwoodTs2000Driver(transport, catDelayMs: 0, satModeSettlingDelayMs: 0, satModeRetryCount: 3, satModeRetryDelayMs: 0);
@@ -186,14 +185,16 @@ public class Ts2000SatelliteModeEntryTests : Ts2000TestBase
 
         driver.SetSatelliteMode(true);
 
-        // Clear the command log after entry attempt
+        Assert.False(driver.IsSatelliteModeActive);
+        Assert.True(driver.UsesFaFbSatelliteTracking);
+
         transport.SentCommands.Clear();
 
-        // Attempting a Doppler step should return false and send no commands
         var result = driver.ApplySatelliteDopplerStep(145_900_000, 435_700_000);
 
-        Assert.False(result);
-        Assert.Empty(transport.SentCommands);
+        Assert.True(result);
+        Assert.Contains("FA00145900000;", transport.SentCommands);
+        Assert.Contains("FB00435700000;", transport.SentCommands);
     }
 
     /// <summary>

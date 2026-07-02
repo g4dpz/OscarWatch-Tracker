@@ -636,6 +636,15 @@ Continue?</value>
   <data name="Rig.Tracking">
     <value>Tracking</value>
   </data>
+  <data name="Rig.Ts2000SatlUnconfirmed">
+    <value>Tracking (TS-2000 SATL not confirmed — using FA/FB)</value>
+  </data>
+  <data name="Rig.Ts2000SatlWarningTitle">
+    <value>TS-2000 satellite mode not confirmed</value>
+  </data>
+  <data name="Rig.Ts2000SatlWarningMessage">
+    <value>The radio did not confirm SATL via CAT (SA;). OscarWatch will continue Doppler correction on FA/FB, but for best results press SAT on the radio, turn memory mode off, and close any front-panel menu, then re-select the satellite to retry full SATL. See Settings → Radio for the TS-2000 CAT hint.</value>
+  </data>
   <data name="Rig.NoComPort">
     <value>No COM port selected</value>
   </data>

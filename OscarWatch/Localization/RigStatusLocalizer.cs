@@ -21,6 +21,8 @@ public static class RigStatusLocalizer
                 return localization.Get("Rig.CatPaused");
             case RigStatusKind.Tracking:
                 return localization.Get("Rig.Tracking");
+            case RigStatusKind.Ts2000SatlUnconfirmed:
+                return localization.Get("Rig.Ts2000SatlUnconfirmed");
             case RigStatusKind.NoComPort:
                 return localization.Get("Rig.NoComPort");
             case RigStatusKind.SelectDualComPorts:

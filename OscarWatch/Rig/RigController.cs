@@ -401,10 +401,22 @@ public sealed class RigController : IRigController, IDisposable
         NoteContextOffsetChange(context);
         NoteContextDopplerStrategyChange(context);
         _isTracking = true;
-        SetRigStatus(RigStatusKind.Tracking);
+        SetRigStatus(ResolveTrackingStatusKind(settings));
         TryClearPassbandOnOrbitalAos(settings, context);
         UpdateDopplerPassLogHorizon(settings, context);
     }
+
+    private RigStatusKind ResolveTrackingStatusKind(RigSettings settings) =>
+        IsKenwoodSatlUnconfirmed(settings)
+            ? RigStatusKind.Ts2000SatlUnconfirmed
+            : RigStatusKind.Tracking;
+
+    private bool IsKenwoodSatlUnconfirmed(RigSettings settings) =>
+        settings.Type == RigType.KenwoodTs2000
+        && _useMainSub
+        && _driver is KenwoodTs2000Driver kenwood
+        && kenwood.UsesFaFbSatelliteTracking
+        && !kenwood.IsSatelliteModeActive;
 
     private void SetRigStatus(RigStatusKind kind, string? port = null, string? detail = null)
     {
@@ -865,7 +877,7 @@ public sealed class RigController : IRigController, IDisposable
         var wroteRx = false;
         var wroteTx = false;
         if (settings.Type == RigType.KenwoodTs2000 && _useMainSub && _driver is KenwoodTs2000Driver kenwoodDoppler
-            && kenwoodDoppler.IsSatelliteModeActive && (writeRx || writeTx))
+            && kenwoodDoppler.UsesFaFbSatelliteTracking && (writeRx || writeTx))
         {
             if (kenwoodDoppler.ApplySatelliteDopplerStep(rxHz, txHz))
             {

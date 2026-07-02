@@ -216,6 +216,8 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private string? _focusedNoradId;
 
+    private string? _ts2000SatlWarningPassKey;
+
     public ObservableCollection<IPassListItem> Passes { get; } = [];
 
     [ObservableProperty]
@@ -1024,6 +1026,36 @@ public partial class MainViewModel : ViewModelBase
         RigStatusText = RigStatusLocalizer.Localize(_l, status);
         RigReceiveText = FormatSidebarFrequency(status.LastReceiveHz, Frequencies.RadioReceiveText, status.IsConnected);
         RigTransmitText = FormatSidebarFrequency(status.LastTransmitHz, Frequencies.RadioTransmitText, status.IsConnected);
+        TryShowTs2000SatlWarning(status);
+    }
+
+    private void TryShowTs2000SatlWarning(RigConnectionStatus status)
+    {
+        if (status.StatusKind != RigStatusKind.Ts2000SatlUnconfirmed)
+            return;
+
+        var passKey = FocusedNoradId;
+        if (string.IsNullOrWhiteSpace(passKey)
+            || string.Equals(_ts2000SatlWarningPassKey, passKey, StringComparison.Ordinal))
+            return;
+
+        _ts2000SatlWarningPassKey = passKey;
+        _ = ShowTs2000SatlWarningAsync();
+    }
+
+    private async Task ShowTs2000SatlWarningAsync()
+    {
+        if (App.MainWindow is null)
+            return;
+
+        try
+        {
+            await Ts2000SatlWarningDialog.ShowAsync(App.MainWindow, _l).ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Failed to show TS-2000 SATL warning dialogue");
+        }
     }
 
     private static string FormatSidebarFrequency(long? rigHz, string overlayText, bool rigConnected)

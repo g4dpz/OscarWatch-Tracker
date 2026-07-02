@@ -6,6 +6,7 @@ public sealed class RigStatusTextTests
 {
     [Theory]
     [InlineData(RigStatusKind.Tracking, null, null, "Tracking")]
+    [InlineData(RigStatusKind.Ts2000SatlUnconfirmed, null, null, "Tracking (TS-2000 SATL not confirmed — using FA/FB)")]
     [InlineData(RigStatusKind.CatPaused, null, null, "CAT paused (manual tuning)")]
     [InlineData(RigStatusKind.NotConnected, "COM3", "Access denied", "Rig not connected (COM3): Access denied")]
     [InlineData(RigStatusKind.DualNotConnected, null, "downlink offline", "Dual radio not connected: downlink offline")]

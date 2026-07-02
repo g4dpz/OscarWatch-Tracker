@@ -233,6 +233,115 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Ts2000_satl_unconfirmed_uses_FA_FB_doppler_and_reports_degraded_status()
+    {
+        var transport = new NonConfirmingSatelliteTransport(returnNull: false);
+        var driver = new KenwoodTs2000Driver(transport, catDelayMs: 0, satModeSettlingDelayMs: 0, satModeRetryCount: 3, satModeRetryDelayMs: 0);
+        var controller = new RigController(_ => driver);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.KenwoodTs2000,
+            Port = "COM1",
+            DopplerThresholdFmHz = 200,
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 145_900,
+            UplinkKHz = 435_700,
+            DownlinkMode = "FMN",
+            UplinkMode = "FMN",
+            Doppler = "NOR"
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "IO-117",
+                NoradId = "55555",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 45, 600, 2.0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 2.0, 0)
+        };
+
+        controller.Update(settings, ctx);
+        controller.DrainCommandQueueForTests();
+
+        Assert.False(driver.IsSatelliteModeActive);
+        Assert.True(driver.UsesFaFbSatelliteTracking);
+        Assert.Equal(RigStatusKind.Ts2000SatlUnconfirmed, controller.GetStatus().StatusKind);
+
+        transport.SentCommands.Clear();
+        var state2 = new SatelliteTrackState
+        {
+            Name = "IO-117",
+            NoradId = "55555",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 45, 600, 5.0)
+        };
+        var corrected2 = DopplerFrequencyCalculator.Compute(mode, 5.0, 0);
+        controller.PublishContext(settings, new RigTrackingContext
+        {
+            TrackState = state2,
+            Mode = mode,
+            Corrected = corrected2
+        });
+        controller.DrainCommandQueueForTests();
+        controller.RunTrackingLoopOnce();
+        controller.DrainCommandQueueForTests();
+
+        var expectedRxHz = (long)Math.Round(corrected2.RadioReceiveKHz * 1000.0);
+        Assert.Contains($"FA{expectedRxHz:D11};", transport.SentCommands);
+    }
+
+    private sealed class NonConfirmingSatelliteTransport : IKenwoodCatTransport
+    {
+        private readonly bool _returnNull;
+
+        public NonConfirmingSatelliteTransport(bool returnNull = false) => _returnNull = returnNull;
+
+        public List<string> SentCommands { get; } = [];
+        public bool IsOpen { get; private set; }
+
+        public void Open() => IsOpen = true;
+
+        public bool SendFireAndForget(string command, int postDelayMs = 50)
+        {
+            SentCommands.Add(Normalize(command));
+            return true;
+        }
+
+        public bool SendCommand(string command, int postDelayMs = 50) =>
+            SendFireAndForget(command, postDelayMs);
+
+        public string? Transact(string command, int postDelayMs = 50)
+        {
+            var normalized = Normalize(command);
+            SentCommands.Add(normalized);
+            return normalized switch
+            {
+                "SA;" => _returnNull ? null : "SA0;",
+                "FA;" => "FA00435750000;",
+                _ => null
+            };
+        }
+
+        public void Dispose() => IsOpen = false;
+
+        private static string Normalize(string command)
+        {
+            var cmd = command.Trim();
+            return cmd.EndsWith(';') ? cmd : cmd + ";";
+        }
+    }
+
+    [Fact]
     public void Reselect_same_pass_reruns_pass_init()
     {
         var rig = new RecordingRigDriver();
