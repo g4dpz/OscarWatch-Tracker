@@ -81,4 +81,54 @@ public sealed class YaesuFt817DriverTests
         Assert.Contains(transport.SentFrames, f => f.SequenceEqual(YaesuFt817CatCodec.DialLockOff.ToArray()));
     }
 
+    [Fact]
+    public void SetToneHz_on_main_does_not_toggle_vfo()
+    {
+        var transport = new RecordingYaesuCatTransport();
+        var driver = new YaesuFt817Driver(RigType.YaesuFt817, transport);
+        driver.Open();
+        driver.SelectVfo(RigVfo.Main);
+        transport.SentFrames.Clear();
+
+        driver.SetToneHz(67.0, squelchTone: false);
+
+        Assert.DoesNotContain(transport.SentFrames, f => f.SequenceEqual(YaesuFt817CatCodec.ToggleVfo.ToArray()));
+        Assert.Contains(
+            transport.SentFrames,
+            f => f.SequenceEqual(YaesuFt817CatCodec.BuildCtcssFrequencyCommand(67.0)));
+    }
+
+    [Fact]
+    public void SetToneHz_on_vfoB_does_not_toggle_when_already_on_b()
+    {
+        var transport = new RecordingYaesuCatTransport();
+        var driver = new YaesuFt817Driver(RigType.YaesuFt817, transport);
+        driver.Open();
+        transport.SentFrames.Clear();
+
+        driver.SelectVfo(RigVfo.VfoB);
+        Assert.Contains(transport.SentFrames, f => f.SequenceEqual(YaesuFt817CatCodec.ToggleVfo.ToArray()));
+
+        transport.SentFrames.Clear();
+        driver.SetToneHz(67.0, squelchTone: false);
+
+        Assert.DoesNotContain(transport.SentFrames, f => f.SequenceEqual(YaesuFt817CatCodec.ToggleVfo.ToArray()));
+    }
+
+    [Fact]
+    public void SetToneOn_respects_selected_vfo_without_toggle_on_main()
+    {
+        var transport = new RecordingYaesuCatTransport();
+        var driver = new YaesuFt817Driver(RigType.YaesuFt817, transport);
+        driver.Open();
+        driver.SelectVfo(RigVfo.Main);
+        transport.SentFrames.Clear();
+
+        driver.SetToneOn(true);
+
+        Assert.DoesNotContain(transport.SentFrames, f => f.SequenceEqual(YaesuFt817CatCodec.ToggleVfo.ToArray()));
+        Assert.Contains(
+            transport.SentFrames,
+            f => f.SequenceEqual(YaesuFt817CatCodec.BuildCtcssOnCommand(encoderOnly: true)));
+    }
 }

@@ -25,12 +25,18 @@ public sealed class YaesuFt817CatCodecTests
     }
 
     [Fact]
-    public void BuildCtcss_67Hz()
+    public void BuildCtcss_67Hz_uses_bcd_tone_bytes()
     {
-        Assert.True(YaesuFt817CatCodec.TryGetCtcssCatCode(67.0, out var code));
+        Assert.True(YaesuFt817CatCodec.IsSupportedCtcssTone(67.0));
         var cmd = YaesuFt817CatCodec.BuildCtcssFrequencyCommand(67.0);
-        Assert.Equal(code, cmd[0]);
-        Assert.Equal(0x0b, cmd[4]);
+        Assert.Equal([0x06, 0x70, 0x06, 0x70, 0x0b], cmd);
+    }
+
+    [Fact]
+    public void BuildCtcss_192_8Hz_uses_bcd_tone_bytes()
+    {
+        var cmd = YaesuFt817CatCodec.BuildCtcssFrequencyCommand(192.8);
+        Assert.Equal([0x19, 0x28, 0x19, 0x28, 0x0b], cmd);
     }
 
     [Fact]

@@ -150,13 +150,13 @@ public class YaesuFt817Driver : IRigDriver
         if (!_transport.IsOpen)
             return;
 
-        if (!YaesuFt817CatCodec.TryGetCtcssCatCode(hz, out _))
+        if (!YaesuFt817CatCodec.IsSupportedCtcssTone(hz))
         {
             Log.Warning("{RigType} does not support CTCSS {Hz} Hz", _rigType, hz);
             return;
         }
 
-        EnsureRadioVfo(wantB: true);
+        EnsureRadioVfo(IsVfoB(_currentVfo));
         var cmd = YaesuFt817CatCodec.BuildCtcssFrequencyCommand(hz);
         _transport.SendFrame(cmd, _catDelayMs);
     }
@@ -181,6 +181,7 @@ public class YaesuFt817Driver : IRigDriver
         if (!_transport.IsOpen)
             return;
 
+        EnsureRadioVfo(IsVfoB(_currentVfo));
         var cmd = on
             ? YaesuFt817CatCodec.BuildCtcssOnCommand(encoderOnly)
             : YaesuFt817CatCodec.BuildCtcssOffCommand();

@@ -26,14 +26,6 @@ public static class YaesuFt817CatCodec
         1862, 1928, 2035, 2107, 2181, 2257, 2336, 2418, 2503
     ];
 
-    private static readonly byte[] CtcssCatCodes =
-    [
-        0x3F, 0x39, 0x1F, 0x3E, 0x0F, 0x3D, 0x1E, 0x3C, 0x0E, 0x3B,
-        0x1D, 0x3A, 0x0D, 0x1C, 0x0C, 0x1B, 0x0B, 0x1A, 0x0A, 0x19,
-        0x09, 0x18, 0x08, 0x17, 0x07, 0x16, 0x06, 0x15, 0x05, 0x14,
-        0x04, 0x13, 0x03, 0x12, 0x02, 0x11, 0x01, 0x10, 0x00
-    ];
-
     public static void EncodeFrequency10Hz(long hz, Span<byte> command)
     {
         if (command.Length != CommandLength)
@@ -94,12 +86,35 @@ public static class YaesuFt817CatCodec
         return upper is "FM" or "FMN";
     }
 
+    /// <summary>
+    /// Encode CTCSS tone (0.1 Hz units) into the first two command bytes (KA7OEI / Hamlib ft817).
+    /// </summary>
+    public static void EncodeCtcssTone10Hz(int toneTenthsHz, Span<byte> command)
+    {
+        if (command.Length < 2)
+            throw new ArgumentException("Command span must include at least two bytes.", nameof(command));
+
+        if (toneTenthsHz is < 0 or > 9999)
+            throw new ArgumentOutOfRangeException(nameof(toneTenthsHz));
+
+        var hundreds = toneTenthsHz / 100;
+        var tens = toneTenthsHz % 100;
+        command[0] = (byte)(((hundreds / 10) << 4) | (hundreds % 10));
+        command[1] = (byte)(((tens / 10) << 4) | (tens % 10));
+    }
+
     public static byte[] BuildCtcssFrequencyCommand(double toneHz)
     {
-        if (!TryGetCtcssCatCode(toneHz, out var catCode))
+        if (!IsSupportedCtcssTone(toneHz))
             throw new ArgumentOutOfRangeException(nameof(toneHz), "CTCSS tone not supported by FT-817.");
 
-        return [catCode, 0x00, 0x00, 0x00, 0x0b];
+        var toneTenths = (int)Math.Round(toneHz * 10);
+        var cmd = new byte[5];
+        EncodeCtcssTone10Hz(toneTenths, cmd);
+        cmd[2] = cmd[0];
+        cmd[3] = cmd[1];
+        cmd[4] = 0x0b;
+        return cmd;
     }
 
     public static byte[] BuildCtcssOnCommand(bool encoderOnly) =>
@@ -107,19 +122,15 @@ public static class YaesuFt817CatCodec
 
     public static byte[] BuildCtcssOffCommand() => [0x8a, 0x00, 0x00, 0x00, 0x0a];
 
-    public static bool TryGetCtcssCatCode(double toneHz, out byte catCode)
+    public static bool IsSupportedCtcssTone(double toneHz)
     {
         var target = (int)Math.Round(toneHz * 10);
         for (var i = 0; i < CtcssTonesHz.Length; i++)
         {
             if (CtcssTonesHz[i] == target)
-            {
-                catCode = CtcssCatCodes[i];
                 return true;
-            }
         }
 
-        catCode = 0;
         return false;
     }
 
