@@ -1401,8 +1401,17 @@
   <data name="Window.CreateLogbook.Title">
     <value>新規ログブック</value>
   </data>
+  <data name="Window.EditLogbook.Title">
+    <value>ログブックを編集</value>
+  </data>
   <data name="Logbook.CreateLogbook.Intro">
     <value>ポータブル運用、コンテスト、その他のオペレーション用に別のログブックを作成します。</value>
+  </data>
+  <data name="Logbook.EditLogbook.Intro">
+    <value>このログブックの名前、コールサイン、グリッドを更新します。既存のQSO記録は変更されません。</value>
+  </data>
+  <data name="Logbook.EditLogbook">
+    <value>ログブックを編集</value>
   </data>
   <data name="Logbook.DeleteLogbook.ConfirmTitle">
     <value>ログブックを削除</value>
@@ -1535,6 +1544,9 @@
   </data>
   <data name="Logbook.Status.Created">
     <value>ログブック「{0}」を作成しました。</value>
+  </data>
+  <data name="Logbook.Status.LogbookUpdated">
+    <value>ログブック「{0}」を更新しました。</value>
   </data>
   <data name="Logbook.Status.Deleted">
     <value>ログブック「{0}」を削除しました。</value>

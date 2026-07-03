@@ -16,6 +16,9 @@
         <Separator />
         <MenuItem Header="{loc:Localize Key=Logbook.NewLogbook}"
                   Click="OnNewLogbookClick" />
+        <MenuItem Header="{loc:Localize Key=Logbook.EditLogbook}"
+                  Click="OnEditLogbookClick"
+                  IsEnabled="{Binding CanEditLogbook}" />
         <MenuItem Header="{loc:Localize Key=Logbook.Menu.DeleteLogbook}"
                   Click="OnDeleteLogbookClick"
                   IsEnabled="{Binding CanDeleteLogbook}" />
@@ -41,10 +44,6 @@
         <MenuItem Header="{loc:Localize Key=Logbook.ExportAdif}"
                   Click="OnExportAdifClick"
                   IsEnabled="{Binding CanExport}" />
-      </MenuItem>
-      <MenuItem Header="{loc:Localize Key=Logbook.Menu.Settings}">
-        <MenuItem Header="{loc:Localize Key=Logbook.Menu.SettingsComingSoon}"
-                  IsEnabled="False" />
       </MenuItem>
     </Menu>
 

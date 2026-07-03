@@ -124,6 +124,8 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
 
     public bool CanDeleteLogbook => SelectedLogbook is not null;
 
+    public bool CanEditLogbook => SelectedLogbook is not null;
+
     public bool CanExport => SelectedLogbook is not null && QsoRows.Count > 0;
 
     public bool CanDeleteQso => SelectedQso is not null && !IsEditingQso;
@@ -181,10 +183,33 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         RefreshStationPanel();
     }
 
-    public async Task CreateLogbookAsync(QsoLogbookCreateRequest request)
+    public async Task CreateLogbookAsync(LogbookDetailsDialogResult result)
     {
-        await CreateLogbookInternalAsync(request).ConfigureAwait(true);
-        StatusText = _l.Get("Logbook.Status.Created", request.Name);
+        await CreateLogbookInternalAsync(new QsoLogbookCreateRequest
+        {
+            Name = result.Name,
+            MyCallsign = result.MyCallsign,
+            MyGridSquare = result.MyGridSquare
+        }).ConfigureAwait(true);
+        StatusText = _l.Get("Logbook.Status.Created", result.Name);
+    }
+
+    public async Task UpdateLogbookAsync(LogbookDetailsDialogResult result)
+    {
+        if (!result.UpdateLogbookId.HasValue)
+            return;
+
+        var updated = await _repository.UpdateLogbookAsync(new QsoLogbookUpdateRequest
+        {
+            Id = result.UpdateLogbookId.Value,
+            Name = result.Name,
+            MyCallsign = result.MyCallsign,
+            MyGridSquare = result.MyGridSquare
+        }).ConfigureAwait(true);
+
+        await ReloadLogbooksAsync().ConfigureAwait(true);
+        SelectedLogbook = Logbooks.FirstOrDefault(l => l.Id == updated.Id);
+        StatusText = _l.Get("Logbook.Status.LogbookUpdated", updated.Name);
     }
 
     public async Task DeleteSelectedLogbookAsync()
@@ -389,6 +414,8 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         CancelEditQso();
         _ = ReloadQsosAsync();
         CommitQsoCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanEditLogbook));
+        OnPropertyChanged(nameof(CanDeleteLogbook));
         OnPropertyChanged(nameof(CanExport));
         OnPropertyChanged(nameof(CurrentLogbookDisplayName));
         RefreshLogbookSwitchItems();

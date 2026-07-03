@@ -657,8 +657,17 @@ Continuar?</value>
   <data name="Window.CreateLogbook.Title">
     <value>Novo livro</value>
   </data>
+  <data name="Window.EditLogbook.Title">
+    <value>Editar livro</value>
+  </data>
   <data name="Logbook.CreateLogbook.Intro">
     <value>Crie um livro separado para operações portáteis, concursos ou outras sessões.</value>
+  </data>
+  <data name="Logbook.EditLogbook.Intro">
+    <value>Atualize o nome, indicativo e grid deste livro. Os QSOs existentes não são alterados.</value>
+  </data>
+  <data name="Logbook.EditLogbook">
+    <value>Editar livro</value>
   </data>
   <data name="Logbook.DeleteLogbook.ConfirmTitle">
     <value>Excluir livro</value>
@@ -791,6 +800,9 @@ Continuar?</value>
   </data>
   <data name="Logbook.Status.Created">
     <value>Livro “{0}” criado.</value>
+  </data>
+  <data name="Logbook.Status.LogbookUpdated">
+    <value>Livro “{0}” atualizado.</value>
   </data>
   <data name="Logbook.Status.Deleted">
     <value>Livro “{0}” excluído.</value>

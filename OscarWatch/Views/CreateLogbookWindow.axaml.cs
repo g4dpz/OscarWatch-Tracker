@@ -28,10 +28,10 @@ public partial class CreateLogbookWindow : Window
             return;
         }
 
-        if (!vm.TryConfirm(out var request))
+        if (!vm.TryConfirm(out var result))
             return;
 
-        Close(request);
+        Close(result);
     }
 
     private void OnCancelClick(object? sender, RoutedEventArgs e) => Close(null);

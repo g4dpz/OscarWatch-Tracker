@@ -273,6 +273,35 @@ public class QsoLogbookRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task UpdateLogbookAsync_updates_name_callsign_and_grid()
+    {
+        await _repository.InitializeAsync();
+
+        var logbook = await _repository.CreateLogbookAsync(new QsoLogbookCreateRequest
+        {
+            Name = "Portable",
+            MyCallsign = "2M0SQL",
+            MyGridSquare = "IO87IP"
+        });
+
+        var updated = await _repository.UpdateLogbookAsync(new QsoLogbookUpdateRequest
+        {
+            Id = logbook.Id,
+            Name = "SOTA day",
+            MyCallsign = "m0abc/p",
+            MyGridSquare = "io77, io87"
+        });
+
+        Assert.Equal("SOTA day", updated.Name);
+        Assert.Equal("M0ABC/P", updated.MyCallsign);
+        Assert.Equal("IO77,IO87", updated.MyGridSquare);
+        Assert.Equal(logbook.CreatedUtc, updated.CreatedUtc);
+
+        var listed = await _repository.ListLogbooksAsync();
+        Assert.Contains(listed, item => item.Id == logbook.Id && item.Name == "SOTA day");
+    }
+
+    [Fact]
     public async Task DeleteLogbookAsync_removes_qsos_via_foreign_key_cascade()
     {
         await _repository.InitializeAsync();

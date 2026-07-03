@@ -681,8 +681,17 @@
   <data name="Window.CreateLogbook.Title">
     <value>Nuevo libro</value>
   </data>
+  <data name="Window.EditLogbook.Title">
+    <value>Editar libro</value>
+  </data>
   <data name="Logbook.CreateLogbook.Intro">
     <value>Cree un libro separado para activaciones portátiles, concursos u otras sesiones.</value>
+  </data>
+  <data name="Logbook.EditLogbook.Intro">
+    <value>Actualice el nombre, indicativo y locator de este libro. Los QSO existentes no se modifican.</value>
+  </data>
+  <data name="Logbook.EditLogbook">
+    <value>Editar libro</value>
   </data>
   <data name="Logbook.DeleteLogbook.ConfirmTitle">
     <value>Eliminar libro</value>
@@ -815,6 +824,9 @@
   </data>
   <data name="Logbook.Status.Created">
     <value>Libro “{0}” creado.</value>
+  </data>
+  <data name="Logbook.Status.LogbookUpdated">
+    <value>Libro “{0}” actualizado.</value>
   </data>
   <data name="Logbook.Status.Deleted">
     <value>Libro “{0}” eliminado.</value>

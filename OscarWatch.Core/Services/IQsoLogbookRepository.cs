@@ -12,6 +12,8 @@ public interface IQsoLogbookRepository
 
     Task<QsoLogbook> CreateLogbookAsync(QsoLogbookCreateRequest request, CancellationToken cancellationToken = default);
 
+    Task<QsoLogbook> UpdateLogbookAsync(QsoLogbookUpdateRequest request, CancellationToken cancellationToken = default);
+
     Task DeleteLogbookAsync(long logbookId, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<QsoRecord>> ListQsosAsync(long logbookId, CancellationToken cancellationToken = default);

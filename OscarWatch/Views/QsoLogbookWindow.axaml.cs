@@ -79,21 +79,40 @@ public partial class QsoLogbookWindow : Window
         }
     }
 
+    private async Task<LogbookDetailsDialogResult?> ShowLogbookDetailsDialogAsync(
+        CreateLogbookViewModel createVm)
+    {
+        return await new CreateLogbookWindow { DataContext = createVm }
+            .ShowDialog<LogbookDetailsDialogResult?>(this)
+            .ConfigureAwait(true);
+    }
+
     private async void OnNewLogbookClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not QsoLogbookViewModel vm)
             return;
 
         var createVm = App.Services.GetRequiredService<CreateLogbookViewModel>();
-        createVm.Reset(vm.SelectedLogbook);
-        var request = await new CreateLogbookWindow { DataContext = createVm }
-            .ShowDialog<QsoLogbookCreateRequest?>(this)
-            .ConfigureAwait(true);
-
-        if (request is null)
+        createVm.ResetForCreate(vm.SelectedLogbook);
+        var result = await ShowLogbookDetailsDialogAsync(createVm).ConfigureAwait(true);
+        if (result is null || result.UpdateLogbookId.HasValue)
             return;
 
-        await vm.CreateLogbookAsync(request).ConfigureAwait(true);
+        await vm.CreateLogbookAsync(result).ConfigureAwait(true);
+    }
+
+    private async void OnEditLogbookClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not QsoLogbookViewModel vm || vm.SelectedLogbook is null)
+            return;
+
+        var createVm = App.Services.GetRequiredService<CreateLogbookViewModel>();
+        createVm.LoadForEdit(vm.SelectedLogbook);
+        var result = await ShowLogbookDetailsDialogAsync(createVm).ConfigureAwait(true);
+        if (result is null || !result.UpdateLogbookId.HasValue)
+            return;
+
+        await vm.UpdateLogbookAsync(result).ConfigureAwait(true);
     }
 
     private async void OnDeleteLogbookClick(object? sender, RoutedEventArgs e)

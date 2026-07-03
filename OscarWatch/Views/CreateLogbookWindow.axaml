@@ -5,7 +5,7 @@
         xmlns:ctrl="using:OscarWatch.Controls"
         x:Class="OscarWatch.Views.CreateLogbookWindow"
         x:DataType="vm:CreateLogbookViewModel"
-        Title="{loc:Localize Key=Window.CreateLogbook.Title}"
+        Title="{Binding WindowTitle}"
         Width="440"
         SizeToContent="Height"
         MinWidth="400"
@@ -31,7 +31,7 @@
                 Classes="dialog-footer"
                 Click="OnCancelClick"
                 IsCancel="True" />
-        <Button Content="{loc:Localize Key=Common.Add}"
+        <Button Content="{Binding ConfirmButtonText}"
                 Classes="dialog-footer accent"
                 Click="OnCreateClick"
                 IsDefault="True" />
@@ -39,7 +39,7 @@
     </StackPanel>
 
     <StackPanel Spacing="12">
-      <TextBlock Text="{loc:Localize Key=Logbook.CreateLogbook.Intro}"
+      <TextBlock Text="{Binding IntroText}"
                  TextWrapping="Wrap"
                  Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
       <StackPanel Spacing="4">

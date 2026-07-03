@@ -699,8 +699,17 @@ Continue?</value>
   <data name="Window.CreateLogbook.Title">
     <value>New logbook</value>
   </data>
+  <data name="Window.EditLogbook.Title">
+    <value>Edit logbook</value>
+  </data>
   <data name="Logbook.CreateLogbook.Intro">
     <value>Create a separate logbook for portable activations, contests, or other operating sessions.</value>
+  </data>
+  <data name="Logbook.EditLogbook.Intro">
+    <value>Update the name, callsign, and grid for this logbook. Existing QSO records are not changed.</value>
+  </data>
+  <data name="Logbook.EditLogbook">
+    <value>Edit logbook</value>
   </data>
   <data name="Logbook.DeleteLogbook.ConfirmTitle">
     <value>Delete logbook</value>
@@ -833,6 +842,9 @@ Continue?</value>
   </data>
   <data name="Logbook.Status.Created">
     <value>Created logbook “{0}”.</value>
+  </data>
+  <data name="Logbook.Status.LogbookUpdated">
+    <value>Updated logbook “{0}”.</value>
   </data>
   <data name="Logbook.Status.Deleted">
     <value>Deleted logbook “{0}”.</value>

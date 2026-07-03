@@ -127,6 +127,39 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         };
     }
 
+    public async Task<QsoLogbook> UpdateLogbookAsync(
+        QsoLogbookUpdateRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(request.Name);
+        await EnsureInitializedAsync(cancellationToken).ConfigureAwait(false);
+
+        await using var connection = OpenConnection();
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            UPDATE logbooks
+            SET name = $name, my_callsign = $myCallsign, my_grid_square = $myGridSquare
+            WHERE id = $id
+            """;
+        command.Parameters.AddWithValue("$id", request.Id);
+        command.Parameters.AddWithValue("$name", request.Name.Trim());
+        command.Parameters.AddWithValue("$myCallsign", MaidenheadLocator.NormalizeCallsign(request.MyCallsign));
+        command.Parameters.AddWithValue("$myGridSquare", MaidenheadLocator.NormalizeGrids(request.MyGridSquare));
+        var rows = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        if (rows == 0)
+            throw new InvalidOperationException($"Logbook {request.Id} was not found.");
+
+        await using var read = connection.CreateCommand();
+        read.CommandText = """
+            SELECT id, name, created_utc, started_utc, ended_utc, my_callsign, my_grid_square, notes
+            FROM logbooks
+            WHERE id = $id
+            """;
+        read.Parameters.AddWithValue("$id", request.Id);
+        var logbooks = await ReadLogbooksAsync(read, cancellationToken).ConfigureAwait(false);
+        return logbooks.Single();
+    }
+
     public async Task DeleteLogbookAsync(long logbookId, CancellationToken cancellationToken = default)
     {
         await EnsureInitializedAsync(cancellationToken).ConfigureAwait(false);

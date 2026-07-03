@@ -657,8 +657,17 @@
   <data name="Window.CreateLogbook.Title">
     <value>新建日志</value>
   </data>
+  <data name="Window.EditLogbook.Title">
+    <value>编辑日志</value>
+  </data>
   <data name="Logbook.CreateLogbook.Intro">
     <value>为便携操作、比赛或其他操作时段创建单独的日志。</value>
+  </data>
+  <data name="Logbook.EditLogbook.Intro">
+    <value>更新此日志的名称、呼号和网格。现有 QSO 记录不会更改。</value>
+  </data>
+  <data name="Logbook.EditLogbook">
+    <value>编辑日志</value>
   </data>
   <data name="Logbook.DeleteLogbook.ConfirmTitle">
     <value>删除日志</value>
@@ -791,6 +800,9 @@
   </data>
   <data name="Logbook.Status.Created">
     <value>已创建日志“{0}”。</value>
+  </data>
+  <data name="Logbook.Status.LogbookUpdated">
+    <value>已更新日志“{0}”。</value>
   </data>
   <data name="Logbook.Status.Deleted">
     <value>已删除日志“{0}”。</value>

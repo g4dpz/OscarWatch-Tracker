@@ -21,3 +21,20 @@ public sealed class QsoLogbookCreateRequest
     public DateTime? EndedUtc { get; init; }
     public string Notes { get; init; } = "";
 }
+
+public sealed class QsoLogbookUpdateRequest
+{
+    public required long Id { get; init; }
+    public required string Name { get; init; }
+    public string MyCallsign { get; init; } = "";
+    public string MyGridSquare { get; init; } = "";
+}
+
+/// <summary>Result from the new/edit logbook dialogue.</summary>
+public sealed class LogbookDetailsDialogResult
+{
+    public long? UpdateLogbookId { get; init; }
+    public required string Name { get; init; }
+    public string MyCallsign { get; init; } = "";
+    public string MyGridSquare { get; init; } = "";
+}
