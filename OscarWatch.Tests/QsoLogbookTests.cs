@@ -334,6 +334,55 @@ public class QsoLogbookRepositoryTests : IDisposable
         Assert.Equal(0, orphanCount);
     }
 
+    [Fact]
+    public async Task Cloudlog_settings_and_upload_status_round_trip()
+    {
+        await _repository.InitializeAsync();
+
+        var logbook = await _repository.CreateLogbookAsync(new QsoLogbookCreateRequest
+        {
+            Name = "Cloudlog test",
+            MyCallsign = "2M0SQL",
+            MyGridSquare = "IO87IP"
+        });
+
+        var updatedLogbook = await _repository.UpdateLogbookCloudlogSettingsAsync(new QsoLogbookCloudlogSettingsRequest
+        {
+            Id = logbook.Id,
+            CloudlogAutoUpload = true,
+            CloudlogStationProfileId = 42
+        });
+
+        Assert.True(updatedLogbook.CloudlogAutoUpload);
+        Assert.Equal(42, updatedLogbook.CloudlogStationProfileId);
+
+        var qso = await _repository.AddQsoAsync(new QsoRecordCreateRequest
+        {
+            LogbookId = logbook.Id,
+            QsoUtc = DateTime.UtcNow,
+            Call = "G0ABC",
+            CloudlogUploadStatus = CloudlogUploadStatus.Pending
+        });
+
+        Assert.Equal(CloudlogUploadStatus.Pending, qso.CloudlogUploadStatus);
+
+        await _repository.UpdateQsoCloudlogUploadStateAsync(
+            qso.Id,
+            CloudlogUploadStatus.Failed,
+            1,
+            "Network error",
+            null);
+
+        var pending = await _repository.ListQsosPendingCloudlogUploadAsync();
+        Assert.Contains(pending, item => item.Id == qso.Id);
+
+        await _repository.ResetFailedCloudlogUploadsAsync(logbook.Id);
+        var reloaded = await _repository.GetQsoByIdAsync(qso.Id);
+        Assert.NotNull(reloaded);
+        Assert.Equal(CloudlogUploadStatus.Pending, reloaded!.CloudlogUploadStatus);
+        Assert.Equal(0, reloaded.CloudlogUploadAttempts);
+    }
+
     public void Dispose()
     {
         _repository.Dispose();

@@ -702,6 +702,57 @@
   <data name="Logbook.Menu.Settings">
     <value>设置</value>
   </data>
+  <data name="Window.LogbookSettings.Title">
+    <value>日志设置</value>
+  </data>
+  <data name="Logbook.Settings.Saved">
+    <value>日志设置已保存。</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.Intro">
+    <value>记录 QSO 时自动上传到 Cloudlog。Cloudlog URL 和 API 密钥来自设置 → 集成。</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlLabel">
+    <value>Cloudlog URL</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlNote">
+    <value>在主应用程序的设置 → 集成中配置 URL 和 API 密钥。</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NotConfigured">
+    <value>未配置 — 请打开设置 → 集成</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.AutoUpload">
+    <value>启用自动 QSO 上传</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfile">
+    <value>台站位置</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfileNote">
+    <value>上传 QSO 时使用的 Cloudlog 台站配置文件。失败的上传会自动重试。</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RefreshProfiles">
+    <value>刷新</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryFailed">
+    <value>重试失败的上传</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryStarted">
+    <value>正在重试失败的上传…</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ProfilesLoaded">
+    <value>已加载 {0} 个台站位置。</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NoProfiles">
+    <value>Cloudlog 未返回台站位置。</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.LoadProfilesFailed">
+    <value>无法从 Cloudlog 加载台站位置。</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ConfigureIntegrationsFirst">
+    <value>启用上传前，请先在设置 → 集成中配置 Cloudlog。</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationRequired">
+    <value>请选择 Cloudlog 上传的台站位置。</value>
+  </data>
   <data name="Logbook.Menu.SettingsComingSoon">
     <value>日志设置</value>
   </data>

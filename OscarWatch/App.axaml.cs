@@ -57,6 +57,8 @@ public partial class App : Application
         services.AddSingleton<IGpsService, GpsService>();
         services.AddSingleton<ICloudlogRadioSyncService, CloudlogRadioSyncService>();
         services.AddSingleton<ICloudlogLookupService, CloudlogLookupService>();
+        services.AddSingleton<CloudlogQsoClient>();
+        services.AddSingleton<ICloudlogQsoUploadService, CloudlogQsoUploadService>();
         var bundledDb = Path.Combine(AppContext.BaseDirectory, "Assets", "satellite_database.json");
         services.AddSingleton<ISatelliteDatabaseService>(_ =>
             new SatelliteDatabaseService(bundledDb));
@@ -94,6 +96,7 @@ public partial class App : Application
         services.AddTransient<RotatorManualViewModel>();
         services.AddTransient<QsoLogbookViewModel>();
         services.AddTransient<CreateLogbookViewModel>();
+        services.AddTransient<LogbookSettingsViewModel>();
 
         Services = services.BuildServiceProvider();
 

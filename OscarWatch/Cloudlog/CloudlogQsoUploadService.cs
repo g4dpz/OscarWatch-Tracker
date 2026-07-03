@@ -1,0 +1,164 @@
+using OscarWatch.Core.Logbook;
+using OscarWatch.Core.Models;
+using OscarWatch.Core.Services;
+
+namespace OscarWatch.Cloudlog;
+
+public sealed class CloudlogQsoUploadService : ICloudlogQsoUploadService
+{
+    private readonly IQsoLogbookRepository _repository;
+    private readonly ISettingsService _settings;
+    private readonly ICloudlogLookupService _lookup;
+    private readonly CloudlogQsoClient _client;
+    private readonly SemaphoreSlim _gate = new(1, 1);
+    private int _processing;
+
+    public CloudlogQsoUploadService(
+        IQsoLogbookRepository repository,
+        ISettingsService settings,
+        ICloudlogLookupService lookup,
+        CloudlogQsoClient client)
+    {
+        _repository = repository;
+        _settings = settings;
+        _lookup = lookup;
+        _client = client;
+    }
+
+    public Task QueueUploadIfEnabledAsync(long qsoId, CancellationToken cancellationToken = default)
+    {
+        _ = UploadInBackgroundAsync(qsoId);
+        return Task.CompletedTask;
+    }
+
+    public Task ProcessRetryQueueAsync(CancellationToken cancellationToken = default) =>
+        ProcessRetryQueueInternalAsync(cancellationToken);
+
+    public async Task ResetFailedUploadsForRetryAsync(long logbookId, CancellationToken cancellationToken = default)
+    {
+        await _repository.ResetFailedCloudlogUploadsAsync(logbookId, cancellationToken).ConfigureAwait(false);
+        _ = ProcessRetryQueueInternalAsync(CancellationToken.None);
+    }
+
+    private async Task UploadInBackgroundAsync(long qsoId)
+    {
+        try
+        {
+            await _gate.WaitAsync().ConfigureAwait(false);
+            try
+            {
+                await TryUploadQsoAsync(qsoId, CancellationToken.None).ConfigureAwait(false);
+            }
+            finally
+            {
+                _gate.Release();
+            }
+
+            await ProcessRetryQueueInternalAsync(CancellationToken.None).ConfigureAwait(false);
+        }
+        catch
+        {
+            // Upload state is persisted in the database for later retry.
+        }
+    }
+
+    private async Task ProcessRetryQueueInternalAsync(CancellationToken cancellationToken)
+    {
+        if (Interlocked.CompareExchange(ref _processing, 1, 0) != 0)
+            return;
+
+        try
+        {
+            await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+            try
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    var pending = await _repository.ListQsosPendingCloudlogUploadAsync(10, cancellationToken)
+                        .ConfigureAwait(false);
+                    if (pending.Count == 0)
+                        break;
+
+                    foreach (var qso in pending)
+                    {
+                        if (cancellationToken.IsCancellationRequested)
+                            return;
+
+                        await TryUploadQsoAsync(qso.Id, cancellationToken).ConfigureAwait(false);
+                    }
+                }
+            }
+            finally
+            {
+                _gate.Release();
+            }
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _processing, 0);
+        }
+    }
+
+    private async Task TryUploadQsoAsync(long qsoId, CancellationToken cancellationToken)
+    {
+        var qso = await _repository.GetQsoByIdAsync(qsoId, cancellationToken).ConfigureAwait(false);
+        if (qso is null)
+            return;
+
+        if (qso.CloudlogUploadStatus is CloudlogUploadStatus.Sent or CloudlogUploadStatus.None)
+            return;
+
+        var logbook = await _repository.GetLogbookByIdAsync(qso.LogbookId, cancellationToken).ConfigureAwait(false);
+        if (logbook is null)
+            return;
+
+        if (!logbook.CloudlogAutoUpload || !logbook.CloudlogStationProfileId.HasValue)
+            return;
+
+        var cloudlog = _settings.Current.Cloudlog;
+        if (!_lookup.CanUploadQsos(cloudlog))
+        {
+            await MarkFailedAsync(
+                qso,
+                qso.CloudlogUploadAttempts + 1,
+                "Enter your Cloudlog URL and API key in Settings → Integrations first.",
+                cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
+        var adif = AdifExporter.ExportRecord(logbook, qso);
+        var (ok, error) = await _client.PostQsoAsync(
+            cloudlog.BaseUrl,
+            cloudlog.ApiKey,
+            logbook.CloudlogStationProfileId.Value,
+            adif,
+            cancellationToken).ConfigureAwait(false);
+
+        if (ok)
+        {
+            await _repository.UpdateQsoCloudlogUploadStateAsync(
+                qsoId,
+                CloudlogUploadStatus.Sent,
+                qso.CloudlogUploadAttempts + 1,
+                null,
+                DateTime.UtcNow,
+                cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
+        await MarkFailedAsync(
+            qso,
+            qso.CloudlogUploadAttempts + 1,
+            error ?? "Upload failed.",
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    private Task MarkFailedAsync(QsoRecord qso, int attempts, string error, CancellationToken cancellationToken) =>
+        _repository.UpdateQsoCloudlogUploadStateAsync(
+            qso.Id,
+            CloudlogUploadStatus.Failed,
+            attempts,
+            error,
+            null,
+            cancellationToken);
+}

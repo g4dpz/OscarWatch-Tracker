@@ -1446,6 +1446,57 @@
   <data name="Logbook.Menu.Settings">
     <value>設定</value>
   </data>
+  <data name="Window.LogbookSettings.Title">
+    <value>ログブック設定</value>
+  </data>
+  <data name="Logbook.Settings.Saved">
+    <value>ログブック設定を保存しました。</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.Intro">
+    <value>ログ記録時に QSO を Cloudlog へ自動アップロードします。Cloudlog の URL と API キーは設定 → 連携から取得します。</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlLabel">
+    <value>Cloudlog URL</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlNote">
+    <value>メインアプリの設定 → 連携で URL と API キーを設定してください。</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NotConfigured">
+    <value>未設定 — 設定 → 連携を開いてください</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.AutoUpload">
+    <value>QSO の自動アップロードを有効にする</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfile">
+    <value>ステーション位置</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfileNote">
+    <value>QSO 投稿時に使用する Cloudlog ステーションプロファイル。失敗したアップロードは自動的に再試行されます。</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RefreshProfiles">
+    <value>更新</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryFailed">
+    <value>失敗したアップロードを再試行</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryStarted">
+    <value>失敗したアップロードを再試行しています…</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ProfilesLoaded">
+    <value>ステーション位置を {0} 件読み込みました。</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NoProfiles">
+    <value>Cloudlog からステーション位置が返されませんでした。</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.LoadProfilesFailed">
+    <value>Cloudlog からステーション位置を読み込めませんでした。</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ConfigureIntegrationsFirst">
+    <value>アップロードを有効にする前に、設定 → 連携で Cloudlog を設定してください。</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationRequired">
+    <value>Cloudlog アップロード用のステーション位置を選択してください。</value>
+  </data>
   <data name="Logbook.Menu.SettingsComingSoon">
     <value>ログブック設定</value>
   </data>

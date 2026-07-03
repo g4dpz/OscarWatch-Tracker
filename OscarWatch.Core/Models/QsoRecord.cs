@@ -20,6 +20,10 @@ public sealed class QsoRecord
     public string BandRx { get; init; } = "";
     public string PropMode { get; init; } = "SAT";
     public DateTime CreatedUtc { get; init; }
+    public CloudlogUploadStatus CloudlogUploadStatus { get; init; }
+    public int CloudlogUploadAttempts { get; init; }
+    public string CloudlogUploadLastError { get; init; } = "";
+    public DateTime? CloudlogUploadSentUtc { get; init; }
 }
 
 public sealed class QsoRecordCreateRequest
@@ -40,6 +44,7 @@ public sealed class QsoRecordCreateRequest
     public string Band { get; init; } = "";
     public string BandRx { get; init; } = "";
     public string PropMode { get; init; } = "SAT";
+    public CloudlogUploadStatus CloudlogUploadStatus { get; init; } = CloudlogUploadStatus.None;
 }
 
 public sealed class QsoRecordUpdateRequest

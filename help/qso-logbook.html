@@ -117,6 +117,25 @@
         <li><strong>Edit → Delete QSO</strong> — asks for confirmation, then removes the selected contact.</li>
       </ul>
 
+      <h2>Logbook settings — Cloudlog upload</h2>
+      <p>
+        Choose <strong>Settings</strong> from the logbook menu to open per-logbook options.
+        The first tab is <strong>Cloudlog</strong>:
+      </p>
+      <ul>
+        <li><strong>Enable automatic QSO upload</strong> — posts each new contact to Cloudlog after you add it.</li>
+        <li><strong>Station location</strong> — pick a Cloudlog station profile (loaded from the
+          <code>station_info</code> API). Press <strong>Refresh</strong> to reload the list.</li>
+        <li><strong>Retry failed uploads</strong> — re-queues contacts that could not be uploaded.</li>
+      </ul>
+      <p>
+        Cloudlog URL and API key come from the main application
+        <a href="settings.html">Settings → Integrations</a>; you do not enter them again in the logbook.
+        If an upload fails (network error, API rejection, etc.), the QSO stays in the local database with
+        a failed status and OscarWatch retries later when the logbook opens or when you press
+        <strong>Retry failed uploads</strong>.
+      </p>
+
       <h2>Export ADIF</h2>
       <p>
         Choose <strong>Export → Export ADIF</strong> to save the current logbook as a <code>.adi</code> file.
@@ -142,7 +161,8 @@
 
       <div class="tip">
         <strong>Tip:</strong> Cloudlog’s <strong>Logbook</strong> dropdown under Settings → Integrations
-        is for online grid checks on hams.at roves — not the local QSO logbook described here.
+        is for online grid checks on hams.at roves. Automatic QSO upload uses a separate
+        <strong>station location</strong> picker in the logbook’s own Settings dialogue.
       </div>
     </main>
 

@@ -726,6 +726,57 @@
   <data name="Logbook.Menu.Settings">
     <value>Ajustes</value>
   </data>
+  <data name="Window.LogbookSettings.Title">
+    <value>Ajustes del libro</value>
+  </data>
+  <data name="Logbook.Settings.Saved">
+    <value>Ajustes del libro guardados.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.Intro">
+    <value>Sube QSOs nuevos a Cloudlog automáticamente al registrarlos. La URL y la clave API de Cloudlog provienen de Ajustes → Integraciones.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlLabel">
+    <value>URL de Cloudlog</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlNote">
+    <value>Configure la URL y la clave API en Ajustes → Integraciones de la aplicación principal.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NotConfigured">
+    <value>No configurado — abra Ajustes → Integraciones</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.AutoUpload">
+    <value>Activar subida automática de QSOs</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfile">
+    <value>Ubicación de estación</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfileNote">
+    <value>Perfil de estación de Cloudlog usado al publicar QSOs. Las subidas fallidas se reintentan automáticamente.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RefreshProfiles">
+    <value>Actualizar</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryFailed">
+    <value>Reintentar subidas fallidas</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryStarted">
+    <value>Reintentando subidas fallidas…</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ProfilesLoaded">
+    <value>{0} ubicación(es) de estación cargada(s).</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NoProfiles">
+    <value>Cloudlog no devolvió ubicaciones de estación.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.LoadProfilesFailed">
+    <value>No se pudieron cargar las ubicaciones de estación desde Cloudlog.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ConfigureIntegrationsFirst">
+    <value>Configure Cloudlog en Ajustes → Integraciones antes de activar la subida.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationRequired">
+    <value>Seleccione una ubicación de estación para la subida a Cloudlog.</value>
+  </data>
   <data name="Logbook.Menu.SettingsComingSoon">
     <value>Ajustes del libro</value>
   </data>

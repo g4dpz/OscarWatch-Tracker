@@ -702,6 +702,57 @@ Continuar?</value>
   <data name="Logbook.Menu.Settings">
     <value>Configurações</value>
   </data>
+  <data name="Window.LogbookSettings.Title">
+    <value>Configurações do logbook</value>
+  </data>
+  <data name="Logbook.Settings.Saved">
+    <value>Configurações do logbook guardadas.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.Intro">
+    <value>Envia QSOs novos para o Cloudlog automaticamente ao registar. A URL e a chave API do Cloudlog vêm de Configurações → Integrações.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlLabel">
+    <value>URL do Cloudlog</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlNote">
+    <value>Configure a URL e a chave API em Configurações → Integrações na aplicação principal.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NotConfigured">
+    <value>Não configurado — abra Configurações → Integrações</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.AutoUpload">
+    <value>Ativar envio automático de QSOs</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfile">
+    <value>Localização da estação</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfileNote">
+    <value>Perfil de estação Cloudlog usado ao publicar QSOs. Envios falhados são repetidos automaticamente.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RefreshProfiles">
+    <value>Atualizar</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryFailed">
+    <value>Repetir envios falhados</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryStarted">
+    <value>A repetir envios falhados…</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ProfilesLoaded">
+    <value>{0} localização(ões) de estação carregada(s).</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NoProfiles">
+    <value>O Cloudlog não devolveu localizações de estação.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.LoadProfilesFailed">
+    <value>Não foi possível carregar localizações de estação do Cloudlog.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ConfigureIntegrationsFirst">
+    <value>Configure o Cloudlog em Configurações → Integrações antes de ativar o envio.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationRequired">
+    <value>Selecione uma localização de estação para envio ao Cloudlog.</value>
+  </data>
   <data name="Logbook.Menu.SettingsComingSoon">
     <value>Configurações do livro</value>
   </data>

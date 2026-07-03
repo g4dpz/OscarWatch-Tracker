@@ -744,6 +744,57 @@ Continue?</value>
   <data name="Logbook.Menu.Settings">
     <value>Settings</value>
   </data>
+  <data name="Window.LogbookSettings.Title">
+    <value>Logbook settings</value>
+  </data>
+  <data name="Logbook.Settings.Saved">
+    <value>Logbook settings saved.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.Intro">
+    <value>Upload new QSOs to Cloudlog automatically when logging. Cloudlog URL and API key come from Settings → Integrations.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlLabel">
+    <value>Cloudlog URL</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlNote">
+    <value>Configure URL and API key in the main application Settings → Integrations.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NotConfigured">
+    <value>Not configured — open Settings → Integrations</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.AutoUpload">
+    <value>Enable automatic QSO upload</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfile">
+    <value>Station location</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfileNote">
+    <value>Cloudlog station profile used when posting QSOs. Failed uploads are retried automatically.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RefreshProfiles">
+    <value>Refresh</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryFailed">
+    <value>Retry failed uploads</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryStarted">
+    <value>Retrying failed uploads…</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ProfilesLoaded">
+    <value>{0} station location(s) loaded.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NoProfiles">
+    <value>No station locations returned from Cloudlog.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.LoadProfilesFailed">
+    <value>Could not load station locations from Cloudlog.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ConfigureIntegrationsFirst">
+    <value>Configure Cloudlog in Settings → Integrations before enabling upload.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationRequired">
+    <value>Select a station location for Cloudlog upload.</value>
+  </data>
   <data name="Logbook.Menu.SettingsComingSoon">
     <value>Logbook settings</value>
   </data>

@@ -7,6 +7,23 @@ namespace OscarWatch.Core.Logbook;
 
 public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
 {
+    private const string LogbookSelectColumns = """
+        id, name, created_utc, started_utc, ended_utc, my_callsign, my_grid_square, notes,
+        cloudlog_auto_upload, cloudlog_station_profile_id
+        """;
+
+    private const string QsoSelectColumns = """
+        id, logbook_id, qso_utc, call, rst_sent, rst_rcvd, grid_square, name, comment,
+        sat_name, mode, mode_rx, freq_hz, freq_rx_hz, band, band_rx, prop_mode, created_utc,
+        cloudlog_upload_status, cloudlog_upload_attempts, cloudlog_upload_last_error, cloudlog_upload_sent_utc
+        """;
+
+    private const string QsoSelectColumnsFromAlias = """
+        q.id, q.logbook_id, q.qso_utc, q.call, q.rst_sent, q.rst_rcvd, q.grid_square, q.name, q.comment,
+        q.sat_name, q.mode, q.mode_rx, q.freq_hz, q.freq_rx_hz, q.band, q.band_rx, q.prop_mode, q.created_utc,
+        q.cloudlog_upload_status, q.cloudlog_upload_attempts, q.cloudlog_upload_last_error, q.cloudlog_upload_sent_utc
+        """;
+
     private readonly SemaphoreSlim _gate = new(1, 1);
     private bool _initialized;
 
@@ -69,6 +86,7 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
                 CREATE INDEX IF NOT EXISTS idx_qsos_call ON qsos(call);
                 """;
             await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+            await ApplyMigrationsAsync(connection, cancellationToken).ConfigureAwait(false);
             _initialized = true;
         }
         finally
@@ -82,8 +100,8 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         await EnsureInitializedAsync(cancellationToken).ConfigureAwait(false);
         await using var connection = OpenConnection();
         await using var command = connection.CreateCommand();
-        command.CommandText = """
-            SELECT id, name, created_utc, started_utc, ended_utc, my_callsign, my_grid_square, notes
+        command.CommandText = $"""
+            SELECT {LogbookSelectColumns}
             FROM logbooks
             ORDER BY datetime(created_utc) DESC, id DESC
             """;
@@ -150,8 +168,8 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
             throw new InvalidOperationException($"Logbook {request.Id} was not found.");
 
         await using var read = connection.CreateCommand();
-        read.CommandText = """
-            SELECT id, name, created_utc, started_utc, ended_utc, my_callsign, my_grid_square, notes
+        read.CommandText = $"""
+            SELECT {LogbookSelectColumns}
             FROM logbooks
             WHERE id = $id
             """;
@@ -177,9 +195,8 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         await EnsureInitializedAsync(cancellationToken).ConfigureAwait(false);
         await using var connection = OpenConnection();
         await using var command = connection.CreateCommand();
-        command.CommandText = """
-            SELECT id, logbook_id, qso_utc, call, rst_sent, rst_rcvd, grid_square, name, comment,
-                   sat_name, mode, mode_rx, freq_hz, freq_rx_hz, band, band_rx, prop_mode, created_utc
+        command.CommandText = $"""
+            SELECT {QsoSelectColumns}
             FROM qsos
             WHERE logbook_id = $logbookId
             ORDER BY datetime(qso_utc) DESC, id DESC
@@ -200,9 +217,8 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
 
         await using var connection = OpenConnection();
         await using var command = connection.CreateCommand();
-        command.CommandText = """
-            SELECT id, logbook_id, qso_utc, call, rst_sent, rst_rcvd, grid_square, name, comment,
-                   sat_name, mode, mode_rx, freq_hz, freq_rx_hz, band, band_rx, prop_mode, created_utc
+        command.CommandText = $"""
+            SELECT {QsoSelectColumns}
             FROM qsos
             WHERE logbook_id = $logbookId AND call LIKE $prefix ESCAPE '\'
             ORDER BY datetime(qso_utc) DESC, id DESC
@@ -225,9 +241,8 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         await EnsureInitializedAsync(cancellationToken).ConfigureAwait(false);
         await using var connection = OpenConnection();
         await using var command = connection.CreateCommand();
-        command.CommandText = """
-            SELECT id, logbook_id, qso_utc, call, rst_sent, rst_rcvd, grid_square, name, comment,
-                   sat_name, mode, mode_rx, freq_hz, freq_rx_hz, band, band_rx, prop_mode, created_utc
+        command.CommandText = $"""
+            SELECT {QsoSelectColumns}
             FROM qsos
             WHERE logbook_id = $logbookId AND call = $call
             ORDER BY datetime(qso_utc) DESC, id DESC
@@ -253,10 +268,12 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         command.CommandText = """
             INSERT INTO qsos (
               logbook_id, qso_utc, call, rst_sent, rst_rcvd, grid_square, name, comment,
-              sat_name, mode, mode_rx, freq_hz, freq_rx_hz, band, band_rx, prop_mode, created_utc)
+              sat_name, mode, mode_rx, freq_hz, freq_rx_hz, band, band_rx, prop_mode, created_utc,
+              cloudlog_upload_status)
             VALUES (
               $logbookId, $qsoUtc, $call, $rstSent, $rstRcvd, $gridSquare, $name, $comment,
-              $satName, $mode, $modeRx, $freqHz, $freqRxHz, $band, $bandRx, $propMode, $createdUtc);
+              $satName, $mode, $modeRx, $freqHz, $freqRxHz, $band, $bandRx, $propMode, $createdUtc,
+              $cloudlogUploadStatus);
             SELECT last_insert_rowid();
             """;
         command.Parameters.AddWithValue("$logbookId", request.LogbookId);
@@ -276,6 +293,7 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         command.Parameters.AddWithValue("$bandRx", request.BandRx.Trim());
         command.Parameters.AddWithValue("$propMode", string.IsNullOrWhiteSpace(request.PropMode) ? "SAT" : request.PropMode.Trim());
         command.Parameters.AddWithValue("$createdUtc", FormatUtc(createdUtc));
+        command.Parameters.AddWithValue("$cloudlogUploadStatus", CloudlogUploadStatusCodec.ToStorage(request.CloudlogUploadStatus));
 
         var id = (long)(await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false) ?? 0L);
         return new QsoRecord
@@ -297,7 +315,8 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
             Band = request.Band.Trim(),
             BandRx = request.BandRx.Trim(),
             PropMode = string.IsNullOrWhiteSpace(request.PropMode) ? "SAT" : request.PropMode.Trim(),
-            CreatedUtc = createdUtc
+            CreatedUtc = createdUtc,
+            CloudlogUploadStatus = request.CloudlogUploadStatus
         };
     }
 
@@ -352,9 +371,8 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
             throw new InvalidOperationException($"QSO {request.Id} was not found.");
 
         await using var read = connection.CreateCommand();
-        read.CommandText = """
-            SELECT id, logbook_id, qso_utc, call, rst_sent, rst_rcvd, grid_square, name, comment,
-                   sat_name, mode, mode_rx, freq_hz, freq_rx_hz, band, band_rx, prop_mode, created_utc
+        read.CommandText = $"""
+            SELECT {QsoSelectColumns}
             FROM qsos WHERE id = $id
             """;
         read.Parameters.AddWithValue("$id", request.Id);
@@ -369,6 +387,127 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         await using var command = connection.CreateCommand();
         command.CommandText = "DELETE FROM qsos WHERE id = $id";
         command.Parameters.AddWithValue("$id", qsoId);
+        await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<QsoLogbook?> GetLogbookByIdAsync(long logbookId, CancellationToken cancellationToken = default)
+    {
+        await EnsureInitializedAsync(cancellationToken).ConfigureAwait(false);
+        await using var connection = OpenConnection();
+        await using var command = connection.CreateCommand();
+        command.CommandText = $"""
+            SELECT {LogbookSelectColumns}
+            FROM logbooks
+            WHERE id = $id
+            """;
+        command.Parameters.AddWithValue("$id", logbookId);
+        var logbooks = await ReadLogbooksAsync(command, cancellationToken).ConfigureAwait(false);
+        return logbooks.FirstOrDefault();
+    }
+
+    public async Task<QsoRecord?> GetQsoByIdAsync(long qsoId, CancellationToken cancellationToken = default)
+    {
+        await EnsureInitializedAsync(cancellationToken).ConfigureAwait(false);
+        await using var connection = OpenConnection();
+        await using var command = connection.CreateCommand();
+        command.CommandText = $"""
+            SELECT {QsoSelectColumns}
+            FROM qsos
+            WHERE id = $id
+            """;
+        command.Parameters.AddWithValue("$id", qsoId);
+        var rows = await ReadQsosAsync(command, cancellationToken).ConfigureAwait(false);
+        return rows.FirstOrDefault();
+    }
+
+    public async Task<QsoLogbook> UpdateLogbookCloudlogSettingsAsync(
+        QsoLogbookCloudlogSettingsRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        await EnsureInitializedAsync(cancellationToken).ConfigureAwait(false);
+        await using var connection = OpenConnection();
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            UPDATE logbooks
+            SET cloudlog_auto_upload = $autoUpload,
+                cloudlog_station_profile_id = $stationProfileId
+            WHERE id = $id
+            """;
+        command.Parameters.AddWithValue("$id", request.Id);
+        command.Parameters.AddWithValue("$autoUpload", request.CloudlogAutoUpload ? 1 : 0);
+        command.Parameters.AddWithValue(
+            "$stationProfileId",
+            request.CloudlogStationProfileId.HasValue ? request.CloudlogStationProfileId.Value : DBNull.Value);
+        var rows = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        if (rows == 0)
+            throw new InvalidOperationException($"Logbook {request.Id} was not found.");
+
+        return (await GetLogbookByIdAsync(request.Id, cancellationToken).ConfigureAwait(false))!;
+    }
+
+    public async Task UpdateQsoCloudlogUploadStateAsync(
+        long qsoId,
+        CloudlogUploadStatus status,
+        int attempts,
+        string? lastError,
+        DateTime? sentUtc,
+        CancellationToken cancellationToken = default)
+    {
+        await EnsureInitializedAsync(cancellationToken).ConfigureAwait(false);
+        await using var connection = OpenConnection();
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            UPDATE qsos
+            SET cloudlog_upload_status = $status,
+                cloudlog_upload_attempts = $attempts,
+                cloudlog_upload_last_error = $lastError,
+                cloudlog_upload_sent_utc = $sentUtc
+            WHERE id = $id
+            """;
+        command.Parameters.AddWithValue("$id", qsoId);
+        command.Parameters.AddWithValue("$status", CloudlogUploadStatusCodec.ToStorage(status));
+        command.Parameters.AddWithValue("$attempts", attempts);
+        command.Parameters.AddWithValue("$lastError", lastError?.Trim() ?? "");
+        command.Parameters.AddWithValue("$sentUtc", (object?)FormatNullableUtc(sentUtc) ?? DBNull.Value);
+        await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<QsoRecord>> ListQsosPendingCloudlogUploadAsync(
+        int limit = 25,
+        CancellationToken cancellationToken = default)
+    {
+        await EnsureInitializedAsync(cancellationToken).ConfigureAwait(false);
+        await using var connection = OpenConnection();
+        await using var command = connection.CreateCommand();
+        command.CommandText = $"""
+            SELECT {QsoSelectColumnsFromAlias}
+            FROM qsos q
+            INNER JOIN logbooks l ON l.id = q.logbook_id
+            WHERE l.cloudlog_auto_upload = 1
+              AND l.cloudlog_station_profile_id IS NOT NULL
+              AND q.cloudlog_upload_status IN ('pending', 'failed')
+              AND q.cloudlog_upload_attempts < 10
+            ORDER BY datetime(q.qso_utc) ASC, q.id ASC
+            LIMIT $limit
+            """;
+        command.Parameters.AddWithValue("$limit", Math.Clamp(limit, 1, 100));
+        return await ReadQsosAsync(command, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task ResetFailedCloudlogUploadsAsync(long logbookId, CancellationToken cancellationToken = default)
+    {
+        await EnsureInitializedAsync(cancellationToken).ConfigureAwait(false);
+        await using var connection = OpenConnection();
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            UPDATE qsos
+            SET cloudlog_upload_status = 'pending',
+                cloudlog_upload_attempts = 0,
+                cloudlog_upload_last_error = ''
+            WHERE logbook_id = $logbookId
+              AND cloudlog_upload_status = 'failed'
+            """;
+        command.Parameters.AddWithValue("$logbookId", logbookId);
         await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
     }
 
@@ -407,7 +546,9 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
                 EndedUtc = ParseNullableUtc(reader.IsDBNull(4) ? null : reader.GetString(4)),
                 MyCallsign = reader.GetString(5),
                 MyGridSquare = reader.GetString(6),
-                Notes = reader.GetString(7)
+                Notes = reader.GetString(7),
+                CloudlogAutoUpload = !reader.IsDBNull(8) && reader.GetInt64(8) != 0,
+                CloudlogStationProfileId = reader.IsDBNull(9) ? null : reader.GetInt32(9)
             });
         }
 
@@ -441,7 +582,12 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
                 Band = reader.GetString(14),
                 BandRx = reader.GetString(15),
                 PropMode = reader.GetString(16),
-                CreatedUtc = ParseUtc(reader.GetString(17))
+                CreatedUtc = ParseUtc(reader.GetString(17)),
+                CloudlogUploadStatus = CloudlogUploadStatusCodec.FromStorage(
+                    reader.IsDBNull(18) ? null : reader.GetString(18)),
+                CloudlogUploadAttempts = reader.IsDBNull(19) ? 0 : reader.GetInt32(19),
+                CloudlogUploadLastError = reader.IsDBNull(20) ? "" : reader.GetString(20),
+                CloudlogUploadSentUtc = ParseNullableUtc(reader.IsDBNull(21) ? null : reader.GetString(21))
             });
         }
 
@@ -464,4 +610,32 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         value.Replace("\\", "\\\\", StringComparison.Ordinal)
             .Replace("%", "\\%", StringComparison.Ordinal)
             .Replace("_", "\\_", StringComparison.Ordinal);
+
+    private static async Task ApplyMigrationsAsync(SqliteConnection connection, CancellationToken cancellationToken)
+    {
+        await TryAddColumnAsync(connection, "logbooks", "cloudlog_auto_upload", "INTEGER NOT NULL DEFAULT 0", cancellationToken).ConfigureAwait(false);
+        await TryAddColumnAsync(connection, "logbooks", "cloudlog_station_profile_id", "INTEGER", cancellationToken).ConfigureAwait(false);
+        await TryAddColumnAsync(connection, "qsos", "cloudlog_upload_status", "TEXT NOT NULL DEFAULT 'none'", cancellationToken).ConfigureAwait(false);
+        await TryAddColumnAsync(connection, "qsos", "cloudlog_upload_attempts", "INTEGER NOT NULL DEFAULT 0", cancellationToken).ConfigureAwait(false);
+        await TryAddColumnAsync(connection, "qsos", "cloudlog_upload_last_error", "TEXT NOT NULL DEFAULT ''", cancellationToken).ConfigureAwait(false);
+        await TryAddColumnAsync(connection, "qsos", "cloudlog_upload_sent_utc", "TEXT", cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task TryAddColumnAsync(
+        SqliteConnection connection,
+        string table,
+        string column,
+        string definition,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await using var command = connection.CreateCommand();
+            command.CommandText = $"ALTER TABLE {table} ADD COLUMN {column} {definition}";
+            await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (SqliteException ex) when (ex.Message.Contains("duplicate column", StringComparison.OrdinalIgnoreCase))
+        {
+        }
+    }
 }

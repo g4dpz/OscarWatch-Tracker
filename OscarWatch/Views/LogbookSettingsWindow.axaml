@@ -1,0 +1,91 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:models="using:OscarWatch.Core.Models"
+        xmlns:loc="using:OscarWatch.Localization"
+        x:Class="OscarWatch.Views.LogbookSettingsWindow"
+        x:DataType="vm:LogbookSettingsViewModel"
+        Title="{loc:Localize Key=Window.LogbookSettings.Title}"
+        Width="520"
+        SizeToContent="Height"
+        MinWidth="480"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="16">
+    <StackPanel DockPanel.Dock="Bottom" Spacing="8" Margin="0,16,0,0">
+      <TextBlock Text="{Binding ErrorText}"
+                 TextWrapping="Wrap"
+                 Foreground="#FFC07070"
+                 IsVisible="{Binding HasError}" />
+      <TextBlock Text="{Binding StatusText}"
+                 TextWrapping="Wrap"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                 IsVisible="{Binding HasStatus}" />
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+        <Button Content="{loc:Localize Key=Common.Cancel}"
+                Classes="dialog-footer"
+                Click="OnCancelClick"
+                IsCancel="True" />
+        <Button Content="{loc:Localize Key=Common.Save}"
+                Classes="dialog-footer accent"
+                Click="OnSaveClick"
+                IsDefault="True"
+                IsEnabled="{Binding CanSaveStationProfile}" />
+      </StackPanel>
+    </StackPanel>
+
+    <TabControl>
+      <TabItem Header="{loc:Localize Key=Settings.Tab.Cloudlog}">
+        <StackPanel Spacing="12" Margin="0,12,0,0">
+          <TextBlock Text="{loc:Localize Key=Logbook.Settings.Cloudlog.Intro}"
+                     TextWrapping="Wrap"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+          <StackPanel Spacing="4">
+            <TextBlock Text="{loc:Localize Key=Logbook.Settings.Cloudlog.UrlLabel}"
+                       FontSize="12"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <TextBox Text="{Binding CloudlogUrlSummary}"
+                     IsReadOnly="True" />
+            <TextBlock Text="{loc:Localize Key=Logbook.Settings.Cloudlog.UrlNote}"
+                       TextWrapping="Wrap"
+                       FontSize="11"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+          </StackPanel>
+          <CheckBox Content="{loc:Localize Key=Logbook.Settings.Cloudlog.AutoUpload}"
+                    IsChecked="{Binding CloudlogAutoUpload, Mode=TwoWay}"
+                    IsEnabled="{Binding CloudlogConfigured}" />
+          <StackPanel Spacing="4" IsEnabled="{Binding CloudlogConfigured}">
+            <TextBlock Text="{loc:Localize Key=Logbook.Settings.Cloudlog.StationProfile}"
+                       FontSize="12"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <Grid ColumnDefinitions="*,Auto">
+              <ComboBox Grid.Column="0"
+                        ItemsSource="{Binding StationProfiles}"
+                        SelectedItem="{Binding SelectedStationProfile, Mode=TwoWay}"
+                        HorizontalAlignment="Stretch"
+                        IsEnabled="{Binding !IsLoadingProfiles}">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate DataType="models:CloudlogStationProfile">
+                    <TextBlock Text="{Binding DisplayLabel}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <Button Grid.Column="1"
+                      Margin="8,0,0,0"
+                      Content="{loc:Localize Key=Logbook.Settings.Cloudlog.RefreshProfiles}"
+                      Command="{Binding RefreshStationProfilesCommand}"
+                      IsEnabled="{Binding !IsLoadingProfiles}" />
+            </Grid>
+            <TextBlock Text="{loc:Localize Key=Logbook.Settings.Cloudlog.StationProfileNote}"
+                       TextWrapping="Wrap"
+                       FontSize="11"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+          </StackPanel>
+          <Button Content="{loc:Localize Key=Logbook.Settings.Cloudlog.RetryFailed}"
+                  Command="{Binding RetryFailedUploadsCommand}"
+                  HorizontalAlignment="Left"
+                  IsEnabled="{Binding CloudlogConfigured}" />
+        </StackPanel>
+      </TabItem>
+    </TabControl>
+  </DockPanel>
+</Window>

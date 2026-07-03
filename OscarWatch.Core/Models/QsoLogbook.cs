@@ -10,6 +10,8 @@ public sealed class QsoLogbook
     public string MyCallsign { get; init; } = "";
     public string MyGridSquare { get; init; } = "";
     public string Notes { get; init; } = "";
+    public bool CloudlogAutoUpload { get; init; }
+    public int? CloudlogStationProfileId { get; init; }
 }
 
 public sealed class QsoLogbookCreateRequest
@@ -28,6 +30,13 @@ public sealed class QsoLogbookUpdateRequest
     public required string Name { get; init; }
     public string MyCallsign { get; init; } = "";
     public string MyGridSquare { get; init; } = "";
+}
+
+public sealed class QsoLogbookCloudlogSettingsRequest
+{
+    public required long Id { get; init; }
+    public bool CloudlogAutoUpload { get; init; }
+    public int? CloudlogStationProfileId { get; init; }
 }
 
 /// <summary>Result from the new/edit logbook dialogue.</summary>

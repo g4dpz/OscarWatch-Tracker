@@ -49,6 +49,47 @@ public sealed class CloudlogLookupServiceTests
     }
 
     [Fact]
+    public async Task FetchStationProfilesAsync_deserializes_string_station_ids()
+    {
+        const string stationInfoJson = """
+            [
+              {
+                "station_id": "1",
+                "station_profile_name": "Home / 2M0SQL",
+                "station_gridsquare": "IO87IP",
+                "station_callsign": "2M0SQL",
+                "station_active": "1"
+              },
+              {
+                "station_id": "2",
+                "station_profile_name": "Portable",
+                "station_gridsquare": "IO77",
+                "station_callsign": "2M0SQL/P",
+                "station_active": null
+              }
+            ]
+            """;
+
+        var handler = new StubHandler(stationInfoJson);
+        var service = new CloudlogLookupService(new HttpClient(handler));
+        var settings = new CloudlogSettings
+        {
+            BaseUrl = "https://cloudlog.example",
+            ApiKey = "test-key"
+        };
+
+        var result = await service.FetchStationProfilesAsync(settings);
+
+        Assert.True(result.Ok);
+        Assert.Equal(2, result.Profiles.Count);
+        Assert.Equal(1, result.Profiles[0].StationId);
+        Assert.Equal("Home / 2M0SQL", result.Profiles[0].ProfileName);
+        Assert.True(result.Profiles[0].IsActive);
+        Assert.Equal(2, result.Profiles[1].StationId);
+        Assert.False(result.Profiles[1].IsActive);
+    }
+
+    [Fact]
     public async Task CheckGridWorkedAsync_maps_found_and_not_found()
     {
         var handler = new GridCheckStubHandler(

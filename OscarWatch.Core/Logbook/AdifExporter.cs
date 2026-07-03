@@ -17,6 +17,13 @@ public static class AdifExporter
         return sb.ToString();
     }
 
+    public static string ExportRecord(QsoLogbook logbook, QsoRecord qso)
+    {
+        var sb = new StringBuilder();
+        AppendRecord(sb, logbook, qso);
+        return sb.ToString();
+    }
+
     private static void AppendHeader(StringBuilder sb, QsoLogbook logbook)
     {
         AppendField(sb, "PROGRAMID", "OscarWatch");

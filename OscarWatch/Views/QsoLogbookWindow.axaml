@@ -45,6 +45,9 @@
                   Click="OnExportAdifClick"
                   IsEnabled="{Binding CanExport}" />
       </MenuItem>
+      <MenuItem Header="{loc:Localize Key=Logbook.Menu.Settings}"
+                Click="OnSettingsClick"
+                IsEnabled="{Binding CanEditLogbook}" />
     </Menu>
 
     <Border DockPanel.Dock="Bottom"

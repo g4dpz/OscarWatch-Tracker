@@ -37,6 +37,61 @@ public sealed class CloudlogLookupService : ICloudlogLookupService
         && !string.IsNullOrWhiteSpace(settings.ApiKey)
         && !string.IsNullOrWhiteSpace(settings.LogbookPublicSlug);
 
+    public bool CanUploadQsos(CloudlogSettings settings) =>
+        !string.IsNullOrWhiteSpace(settings.BaseUrl)
+        && !string.IsNullOrWhiteSpace(settings.ApiKey?.Trim());
+
+    public async Task<CloudlogStationProfilesResult> FetchStationProfilesAsync(
+        CloudlogSettings settings,
+        CancellationToken cancellationToken = default)
+    {
+        var apiKey = settings.ApiKey?.Trim() ?? "";
+        if (string.IsNullOrWhiteSpace(settings.BaseUrl) || string.IsNullOrEmpty(apiKey))
+            return CloudlogStationProfilesResult.Failed("Enter your Cloudlog URL and API key in Settings → Integrations first.");
+
+        var endpoint = CloudlogApiEndpoints.BuildStationInfoEndpoint(settings.BaseUrl, apiKey);
+        if (endpoint is null)
+            return CloudlogStationProfilesResult.Failed("Cloudlog URL is not configured.");
+
+        try
+        {
+            using var response = await _httpClient.GetAsync(endpoint, cancellationToken).ConfigureAwait(false);
+            var body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+                return CloudlogStationProfilesResult.Failed(
+                    CloudlogApiErrorHelper.DescribeFailure((int)response.StatusCode, body, apiKey.Length));
+
+            var payload = JsonSerializer.Deserialize<List<StationProfileDto>>(body, JsonOptions);
+            if (payload is null)
+                return CloudlogStationProfilesResult.Failed("Unexpected response from Cloudlog.");
+
+            var profiles = payload
+                .Select(p => new CloudlogStationProfile
+                {
+                    StationId = ParseStationId(p.StationId),
+                    ProfileName = p.StationProfileName?.Trim() ?? "",
+                    Callsign = p.StationCallsign?.Trim().ToUpperInvariant() ?? "",
+                    GridSquare = p.StationGridsquare?.Trim().ToUpperInvariant() ?? "",
+                    IsActive = string.Equals(p.StationActive, "1", StringComparison.Ordinal)
+                })
+                .Where(p => p.StationId > 0)
+                .OrderByDescending(p => p.IsActive)
+                .ThenBy(p => p.ProfileName, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
+            return CloudlogStationProfilesResult.Success(profiles);
+        }
+        catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return CloudlogStationProfilesResult.Failed("Request timed out.");
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            return CloudlogStationProfilesResult.Failed(ex.Message);
+        }
+    }
+
     public async Task<CloudlogLogbooksResult> FetchLogbooksAsync(
         CloudlogSettings settings,
         CancellationToken cancellationToken = default)
@@ -235,5 +290,33 @@ public sealed class CloudlogLookupService : ICloudlogLookupService
 
         [JsonPropertyName("result")]
         public string? Result { get; init; }
+    }
+
+    private static int ParseStationId(JsonElement stationId)
+    {
+        return stationId.ValueKind switch
+        {
+            JsonValueKind.Number when stationId.TryGetInt32(out var number) => number,
+            JsonValueKind.String when int.TryParse(stationId.GetString(), out var parsed) => parsed,
+            _ => 0
+        };
+    }
+
+    private sealed class StationProfileDto
+    {
+        [JsonPropertyName("station_id")]
+        public JsonElement StationId { get; init; }
+
+        [JsonPropertyName("station_profile_name")]
+        public string? StationProfileName { get; init; }
+
+        [JsonPropertyName("station_gridsquare")]
+        public string? StationGridsquare { get; init; }
+
+        [JsonPropertyName("station_callsign")]
+        public string? StationCallsign { get; init; }
+
+        [JsonPropertyName("station_active")]
+        public string? StationActive { get; init; }
     }
 }

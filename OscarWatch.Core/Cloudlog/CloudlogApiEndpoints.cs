@@ -11,6 +11,12 @@ public static class CloudlogApiEndpoints
     public static string? BuildLogbookCheckGridEndpoint(string? baseUrl) =>
         TryBuild(baseUrl, "logbook_check_grid");
 
+    public static string? BuildStationInfoEndpoint(string? baseUrl, string apiKey) =>
+        TryBuild(baseUrl, $"station_info/{Uri.EscapeDataString(apiKey.Trim())}");
+
+    public static string? BuildQsoEndpoint(string? baseUrl) =>
+        TryBuild(baseUrl, "qso");
+
     private static string? TryBuild(string? baseUrl, string path)
     {
         var normalized = CloudlogUrlHelper.NormalizeBaseUrl(baseUrl);

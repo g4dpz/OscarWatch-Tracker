@@ -14,4 +14,10 @@ public interface ICloudlogLookupService
         CloudlogSettings settings,
         string grid,
         CancellationToken cancellationToken = default);
+
+    bool CanUploadQsos(CloudlogSettings settings);
+
+    Task<CloudlogStationProfilesResult> FetchStationProfilesAsync(
+        CloudlogSettings settings,
+        CancellationToken cancellationToken = default);
 }

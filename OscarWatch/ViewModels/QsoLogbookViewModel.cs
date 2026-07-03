@@ -15,6 +15,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
     private readonly IQsoLogbookRepository _repository;
     private readonly ILiveTrackerSnapshotProvider _tracker;
     private readonly ISettingsService _settings;
+    private readonly ICloudlogQsoUploadService _cloudlogUpload;
     private readonly ILocalizationService _l;
     private readonly DispatcherTimer _liveTimer;
     private string _lastStationMode = "";
@@ -27,11 +28,13 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         IQsoLogbookRepository repository,
         ILiveTrackerSnapshotProvider tracker,
         ISettingsService settings,
+        ICloudlogQsoUploadService cloudlogUpload,
         ILocalizationService localization)
     {
         _repository = repository;
         _tracker = tracker;
         _settings = settings;
+        _cloudlogUpload = cloudlogUpload;
         _l = localization;
         StatusText = _l.Get("Logbook.Status.Ready");
         StationStatusText = _l.Get("Logbook.Station.Unavailable");
@@ -181,6 +184,16 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
 
         _liveTimer.Start();
         RefreshStationPanel();
+        _ = _cloudlogUpload.ProcessRetryQueueAsync();
+    }
+
+    public async Task ApplyCloudlogSettingsAsync(QsoLogbookCloudlogSettingsRequest request)
+    {
+        var updated = await _repository.UpdateLogbookCloudlogSettingsAsync(request).ConfigureAwait(true);
+        await ReloadLogbooksAsync().ConfigureAwait(true);
+        SelectedLogbook = Logbooks.FirstOrDefault(l => l.Id == updated.Id);
+        StatusText = _l.Get("Logbook.Settings.Saved");
+        _ = _cloudlogUpload.ProcessRetryQueueAsync();
     }
 
     public async Task CreateLogbookAsync(LogbookDetailsDialogResult result)
@@ -282,6 +295,9 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
 
         var snapshot = _tracker.GetCurrent();
         var qsoUtc = DateTime.UtcNow;
+        var cloudlogUpload = SelectedLogbook.CloudlogAutoUpload && SelectedLogbook.CloudlogStationProfileId.HasValue
+            ? CloudlogUploadStatus.Pending
+            : CloudlogUploadStatus.None;
         var record = await _repository.AddQsoAsync(new QsoRecordCreateRequest
         {
             LogbookId = SelectedLogbook.Id,
@@ -298,8 +314,12 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
             FreqHz = snapshot.UplinkHz,
             FreqRxHz = snapshot.DownlinkHz,
             Band = snapshot.Band,
-            BandRx = snapshot.BandRx
+            BandRx = snapshot.BandRx,
+            CloudlogUploadStatus = cloudlogUpload
         }).ConfigureAwait(true);
+
+        if (cloudlogUpload == CloudlogUploadStatus.Pending)
+            await _cloudlogUpload.QueueUploadIfEnabledAsync(record.Id).ConfigureAwait(true);
 
         await ReloadQsosAsync().ConfigureAwait(true);
         StatusText = _l.Get("Logbook.Status.Added", record.Call, FormatQsoUtcTime(record.QsoUtc));

@@ -115,6 +115,23 @@ public partial class QsoLogbookWindow : Window
         await vm.UpdateLogbookAsync(result).ConfigureAwait(true);
     }
 
+    private async void OnSettingsClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not QsoLogbookViewModel vm || vm.SelectedLogbook is null)
+            return;
+
+        var settingsVm = App.Services.GetRequiredService<LogbookSettingsViewModel>();
+        settingsVm.LoadForLogbook(vm.SelectedLogbook);
+        var result = await new LogbookSettingsWindow { DataContext = settingsVm }
+            .ShowDialog<QsoLogbookCloudlogSettingsRequest?>(this)
+            .ConfigureAwait(true);
+
+        if (result is null)
+            return;
+
+        await vm.ApplyCloudlogSettingsAsync(result).ConfigureAwait(true);
+    }
+
     private async void OnDeleteLogbookClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not QsoLogbookViewModel vm || vm.SelectedLogbook is null)
