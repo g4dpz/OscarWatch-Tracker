@@ -233,15 +233,16 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
     }
 
     [RelayCommand]
-    private void ClearQsoFields()
+    private async Task ClearQsoFields()
     {
         if (IsEditingQso)
-            CancelEditQsoCommand.Execute(null);
+            await CancelEditQso().ConfigureAwait(true);
 
         ClearEntryForm();
         RstSent = "59";
         RstRcvd = "59";
         StatusText = _l.Get("Logbook.Status.Ready");
+        await ReloadQsosAsync().ConfigureAwait(true);
         CommitQsoCommand.NotifyCanExecuteChanged();
     }
 
