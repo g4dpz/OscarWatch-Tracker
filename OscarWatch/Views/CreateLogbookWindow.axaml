@@ -1,0 +1,74 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:loc="using:OscarWatch.Localization"
+        xmlns:ctrl="using:OscarWatch.Controls"
+        x:Class="OscarWatch.Views.CreateLogbookWindow"
+        x:DataType="vm:CreateLogbookViewModel"
+        Title="{loc:Localize Key=Window.CreateLogbook.Title}"
+        Width="440"
+        SizeToContent="Height"
+        MinWidth="400"
+        WindowStartupLocation="CenterOwner">
+  <Window.Styles>
+    <Style Selector="TextBox.grid-entry.grid-valid">
+      <Setter Property="BorderBrush" Value="{DynamicResource GpsOkBrush}" />
+      <Setter Property="BorderThickness" Value="2" />
+    </Style>
+    <Style Selector="TextBox.grid-entry.grid-invalid">
+      <Setter Property="BorderBrush" Value="{DynamicResource PassRecordingBadgeBackgroundBrush}" />
+      <Setter Property="BorderThickness" Value="2" />
+    </Style>
+  </Window.Styles>
+  <DockPanel Margin="16">
+    <StackPanel DockPanel.Dock="Bottom" Spacing="8" Margin="0,16,0,0">
+      <TextBlock Text="{Binding ErrorText}"
+                 TextWrapping="Wrap"
+                 Foreground="#FFC07070"
+                 IsVisible="{Binding HasError}" />
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+        <Button Content="{loc:Localize Key=Common.Cancel}"
+                Classes="dialog-footer"
+                Click="OnCancelClick"
+                IsCancel="True" />
+        <Button Content="{loc:Localize Key=Common.Add}"
+                Classes="dialog-footer accent"
+                Click="OnCreateClick"
+                IsDefault="True" />
+      </StackPanel>
+    </StackPanel>
+
+    <StackPanel Spacing="12">
+      <TextBlock Text="{loc:Localize Key=Logbook.CreateLogbook.Intro}"
+                 TextWrapping="Wrap"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+      <StackPanel Spacing="4">
+        <TextBlock Text="{loc:Localize Key=Logbook.NewName}"
+                   FontSize="12"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+        <TextBox x:Name="NameTextBox"
+                 Text="{Binding Name, Mode=TwoWay}"
+                 Watermark="{loc:Localize Key=Logbook.NewNameWatermark}" />
+      </StackPanel>
+      <StackPanel Spacing="4">
+        <TextBlock Text="{loc:Localize Key=Logbook.MyCallsign}"
+                   FontSize="12"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+        <TextBox ctrl:UppercaseTextInput.IsEnabled="True"
+                 Text="{Binding MyCallsign, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 MaxLength="16" />
+      </StackPanel>
+      <StackPanel Spacing="4">
+        <TextBlock Text="{loc:Localize Key=Logbook.MyGrid}"
+                   FontSize="12"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+        <TextBox Classes="grid-entry"
+                 Classes.grid-valid="{Binding GridValidationIsValid}"
+                 Classes.grid-invalid="{Binding GridValidationIsInvalid}"
+                 ctrl:UppercaseTextInput.IsEnabled="True"
+                 Text="{Binding MyGridSquare, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 MaxLength="40" />
+      </StackPanel>
+    </StackPanel>
+  </DockPanel>
+</Window>

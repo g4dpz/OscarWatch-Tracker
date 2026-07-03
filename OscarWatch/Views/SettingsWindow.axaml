@@ -67,7 +67,11 @@
               </StackPanel>
             </Grid>
             <TextBlock Text="{loc:Localize Key=Settings.Station.GridSquare}" />
-            <TextBox Text="{Binding GridSquare, Mode=TwoWay}" MaxLength="8" />
+            <TextBox Text="{Binding GridSquare, Mode=TwoWay}" MaxLength="40" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="{loc:Localize Key=Settings.Station.GridSquareNote}" />
             <TextBlock Text="{loc:Localize Key=Settings.Station.Altitude}" />
             <NumericUpDown Value="{Binding AltitudeMeters, Mode=TwoWay}"
                            Minimum="0" Maximum="9000"

@@ -45,6 +45,9 @@
       <MenuItem Header="{loc:Localize Key=Menu.Rotator}"
                 Command="{Binding OpenRotatorManualCommand}"
                 IsVisible="{Binding ShowRotatorMenuItem}" />
+      <MenuItem Header="{loc:Localize Key=Menu.Tools}">
+        <MenuItem Header="{loc:Localize Key=Menu.Tools.QsoLogbook}" Command="{Binding OpenQsoLogbookCommand}" />
+      </MenuItem>
       <MenuItem Header="{loc:Localize Key=Menu.Settings}" Command="{Binding OpenSettingsCommand}" />
       <MenuItem Header="{loc:Localize Key=Menu.Help}">
         <MenuItem Header="{loc:Localize Key=Menu.Help.OperatorGuide}" Command="{Binding OpenHelpCommand}" />

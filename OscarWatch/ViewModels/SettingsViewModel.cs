@@ -1558,7 +1558,7 @@ public partial class SettingsViewModel : ViewModelBase
     }
 
     private static string NormalizeGridSquare(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? "" : value.Trim().ToUpperInvariant();
+        MaidenheadLocator.NormalizeGrids(value);
 
     private void SyncGridFromDraftLatLon()
     {
@@ -1568,6 +1568,14 @@ public partial class SettingsViewModel : ViewModelBase
         var updated = _draft.GridSquare;
         if (!string.Equals(GridSquare, updated, StringComparison.Ordinal))
             GridSquare = updated;
+    }
+
+    partial void OnDisplayNameChanged(string value)
+    {
+        if (_isSynchronizing)
+            return;
+
+        _draft.DisplayName = value;
     }
 
     partial void OnLatitudeDegChanged(double value)
@@ -1705,13 +1713,16 @@ public partial class SettingsViewModel : ViewModelBase
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(normalized) || normalized.Length < 4)
+        if (string.IsNullOrWhiteSpace(normalized))
             return;
 
         _isSynchronizing = true;
         try
         {
             _draft.GridSquare = normalized;
+            if (normalized.Contains(',', StringComparison.Ordinal) || normalized.Length < 4)
+                return;
+
             var (lat, lon) = MaidenheadGrid.ToLatLonCenter(_draft.GridSquare);
             _draft.LatitudeDeg = lat;
             _draft.LongitudeDeg = lon;

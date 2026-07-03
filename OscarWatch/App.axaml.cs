@@ -5,6 +5,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
+using OscarWatch.Core.Logbook;
 using OscarWatch.Core.Net;
 using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Services;
@@ -15,6 +16,7 @@ using OscarWatch.Recording;
 using OscarWatch.Gps;
 using OscarWatch.Rig;
 using OscarWatch.Rotator;
+using OscarWatch.Services;
 using OscarWatch.Speech;
 using OscarWatch.Theme;
 using OscarWatch.Diagnostics;
@@ -66,6 +68,9 @@ public partial class App : Application
         services.AddSingleton<IGitHubReleaseService, GitHubReleaseService>();
         services.AddSingleton<IHamsAtRovesService, HamsAtRovesService>();
         services.AddSingleton<ILocalizationService>(LocalizationService.Instance);
+        services.AddSingleton<LiveTrackerSnapshotProvider>();
+        services.AddSingleton<ILiveTrackerSnapshotProvider>(sp => sp.GetRequiredService<LiveTrackerSnapshotProvider>());
+        services.AddSingleton<IQsoLogbookRepository, QsoLogbookRepository>();
         services.AddSingleton<FrequencyOverlayViewModel>();
         services.AddSingleton<DxStationOverlayViewModel>();
         services.AddSingleton<ITrackingDiagnostics, SerilogTrackingDiagnostics>();
@@ -87,6 +92,8 @@ public partial class App : Application
         services.AddTransient<SunlightPredictionViewModel>();
         services.AddTransient<SatelliteDatabaseEditorViewModel>();
         services.AddTransient<RotatorManualViewModel>();
+        services.AddTransient<QsoLogbookViewModel>();
+        services.AddTransient<CreateLogbookViewModel>();
 
         Services = services.BuildServiceProvider();
 

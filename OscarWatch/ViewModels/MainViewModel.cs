@@ -41,6 +41,7 @@ public partial class MainViewModel : ViewModelBase
     private readonly IGitHubReleaseService _githubRelease;
     private readonly IHamsAtRovesService _hamsAtRoves;
     private readonly ILocalizationService _l;
+    private readonly LiveTrackerSnapshotProvider _trackerSnapshot;
     private readonly DispatcherTimer _timer;
     private DispatcherTimer? _appUpdateCheckTimer;
     private static readonly TimeSpan AppUpdateCheckInterval = TimeSpan.FromHours(24);
@@ -310,9 +311,11 @@ public partial class MainViewModel : ViewModelBase
         IHamsAtRovesService hamsAtRoves,
         ILocalizationService localization,
         FrequencyOverlayViewModel frequencies,
-        DxStationOverlayViewModel dxStation)
+        DxStationOverlayViewModel dxStation,
+        LiveTrackerSnapshotProvider trackerSnapshot)
     {
         _l = localization;
+        _trackerSnapshot = trackerSnapshot;
         _statusText = _l.Get("Status.LoadingSettings");
         _settings = settings;
         _tleService = tleService;
@@ -1446,6 +1449,7 @@ public partial class MainViewModel : ViewModelBase
     partial void OnFocusedNoradIdChanged(string? value)
     {
         _liveTracking.FocusedNoradId = value;
+        _trackerSnapshot.FocusedNoradId = value;
 
         if (string.IsNullOrEmpty(value))
         {
@@ -1610,6 +1614,28 @@ public partial class MainViewModel : ViewModelBase
             return;
 
         await window.ShowDialog(App.MainWindow);
+    }
+
+    private static QsoLogbookWindow? _openLogbookWindow;
+
+    [RelayCommand]
+    private void OpenQsoLogbook()
+    {
+        _trackerSnapshot.FocusedNoradId = FocusedNoradId;
+        if (_openLogbookWindow is { IsVisible: true })
+        {
+            _openLogbookWindow.Activate();
+            return;
+        }
+
+        var vm = App.Services.GetRequiredService<QsoLogbookViewModel>();
+        var window = new QsoLogbookWindow { DataContext = vm };
+        window.Closed += (_, _) => _openLogbookWindow = null;
+        _openLogbookWindow = window;
+        if (App.MainWindow is null)
+            return;
+
+        window.Show(App.MainWindow);
     }
 
     [RelayCommand]

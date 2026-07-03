@@ -420,6 +420,12 @@ Continue?</value>
   <data name="Menu.Rotator">
     <value>_Rotator</value>
   </data>
+  <data name="Menu.Tools">
+    <value>_Tools</value>
+  </data>
+  <data name="Menu.Tools.QsoLogbook">
+    <value>_QSO Logbook</value>
+  </data>
   <data name="Menu.Satellites">
     <value>_Satellites</value>
   </data>
@@ -686,6 +692,207 @@ Continue?</value>
   </data>
   <data name="Window.PassPlanner.Title">
     <value>Pass planner</value>
+  </data>
+  <data name="Window.Logbook.Title">
+    <value>QSO logbook</value>
+  </data>
+  <data name="Window.CreateLogbook.Title">
+    <value>New logbook</value>
+  </data>
+  <data name="Logbook.CreateLogbook.Intro">
+    <value>Create a separate logbook for portable activations, contests, or other operating sessions.</value>
+  </data>
+  <data name="Logbook.DeleteLogbook.ConfirmTitle">
+    <value>Delete logbook</value>
+  </data>
+  <data name="Logbook.DeleteLogbook.ConfirmMessage">
+    <value>Delete “{0}” and all QSOs in it? This cannot be undone.</value>
+  </data>
+  <data name="Logbook.DeleteQso.ConfirmTitle">
+    <value>Delete QSO</value>
+  </data>
+  <data name="Logbook.DeleteQso.ConfirmMessage">
+    <value>Delete the QSO with {0} on {1}? This cannot be undone.</value>
+  </data>
+  <data name="Logbook.LogbookLabel">
+    <value>Logbook</value>
+  </data>
+  <data name="Logbook.Menu.Logbook">
+    <value>Logbook</value>
+  </data>
+  <data name="Logbook.Menu.DeleteLogbook">
+    <value>Delete logbook</value>
+  </data>
+  <data name="Logbook.Menu.NoLogbook">
+    <value>No logbook selected</value>
+  </data>
+  <data name="Logbook.Menu.Edit">
+    <value>Edit</value>
+  </data>
+  <data name="Logbook.Menu.Export">
+    <value>Export</value>
+  </data>
+  <data name="Logbook.Menu.Settings">
+    <value>Settings</value>
+  </data>
+  <data name="Logbook.Menu.SettingsComingSoon">
+    <value>Logbook settings</value>
+  </data>
+  <data name="Logbook.NewLogbook">
+    <value>New logbook</value>
+  </data>
+  <data name="Logbook.NewName">
+    <value>Name</value>
+  </data>
+  <data name="Logbook.NewNameWatermark">
+    <value>Portable activation, contest, etc.</value>
+  </data>
+  <data name="Logbook.MyCallsign">
+    <value>My callsign</value>
+  </data>
+  <data name="Logbook.MyGrid">
+    <value>My grid</value>
+  </data>
+  <data name="Logbook.Call">
+    <value>Callsign</value>
+  </data>
+  <data name="Logbook.RstSent">
+    <value>Sent</value>
+  </data>
+  <data name="Logbook.RstRcvd">
+    <value>Recv</value>
+  </data>
+  <data name="Logbook.Grid">
+    <value>Gridsquare</value>
+  </data>
+  <data name="Logbook.GridHint">
+    <value>2/4/6/8 characters; comma-separate when on a grid line (e.g. IO77,IO87).</value>
+  </data>
+  <data name="Logbook.Name">
+    <value>Name</value>
+  </data>
+  <data name="Logbook.Comment">
+    <value>Comment</value>
+  </data>
+  <data name="Logbook.ClearFieldsHint">
+    <value>Alt+W clears the entry fields</value>
+  </data>
+  <data name="Logbook.AddQso">
+    <value>Add</value>
+  </data>
+  <data name="Logbook.SaveQso">
+    <value>Save</value>
+  </data>
+  <data name="Logbook.EditQso">
+    <value>Edit QSO</value>
+  </data>
+  <data name="Logbook.CancelEdit">
+    <value>Cancel</value>
+  </data>
+  <data name="Logbook.EditingStatus">
+    <value>Editing QSO logged at {0} UTC.</value>
+  </data>
+  <data name="Logbook.DeleteQso">
+    <value>Delete QSO</value>
+  </data>
+  <data name="Logbook.History">
+    <value>Recent QSOs</value>
+  </data>
+  <data name="Logbook.StationControl">
+    <value>Station control</value>
+  </data>
+  <data name="Logbook.Station.Satellite">
+    <value>Satellite</value>
+  </data>
+  <data name="Logbook.Station.Mode">
+    <value>Mode</value>
+  </data>
+  <data name="Logbook.Station.Frequencies">
+    <value>Uplink / downlink (MHz)</value>
+  </data>
+  <data name="Logbook.Station.Note">
+    <value>Values are taken from OscarWatch tracking when you add a QSO.</value>
+  </data>
+  <data name="Logbook.Station.Tracking">
+    <value>Tracking {0}</value>
+  </data>
+  <data name="Logbook.Station.Unavailable">
+    <value>No satellite selected or no mode synced</value>
+  </data>
+  <data name="Logbook.ExportAdif">
+    <value>Export ADIF</value>
+  </data>
+  <data name="Logbook.ExportPicker.Title">
+    <value>Export ADIF</value>
+  </data>
+  <data name="Logbook.DefaultName">
+    <value>Main logbook</value>
+  </data>
+  <data name="Logbook.Status.Ready">
+    <value>Ready</value>
+  </data>
+  <data name="Logbook.Status.Created">
+    <value>Created logbook “{0}”.</value>
+  </data>
+  <data name="Logbook.Status.Deleted">
+    <value>Deleted logbook “{0}”.</value>
+  </data>
+  <data name="Logbook.Status.Added">
+    <value>Logged {0} at {1} UTC.</value>
+  </data>
+  <data name="Logbook.Status.Updated">
+    <value>Updated {0} at {1} UTC.</value>
+  </data>
+  <data name="Logbook.Status.Removed">
+    <value>Removed {0}.</value>
+  </data>
+  <data name="Logbook.Error.GridTooMany">
+    <value>At most {0} grid squares are supported.</value>
+  </data>
+  <data name="Logbook.Error.GridInvalidSegment">
+    <value>Invalid locator “{0}”. Use 2, 4, 6, or 8 Maidenhead characters.</value>
+  </data>
+  <data name="Logbook.Error.NameRequired">
+    <value>Enter a logbook name.</value>
+  </data>
+  <data name="Logbook.CallHint.Previous">
+    <value>Previous QSO found in this logbook.</value>
+  </data>
+  <data name="Logbook.CallHint.PreviousWithGrid">
+    <value>Previous QSO: grid {0}.</value>
+  </data>
+  <data name="Logbook.CallStatus.Worked">
+    <value>Worked</value>
+  </data>
+  <data name="Logbook.CallStatus.NotWorked">
+    <value>Not worked</value>
+  </data>
+  <data name="Logbook.Column.DateTime">
+    <value>Date/time (UTC)</value>
+  </data>
+  <data name="Logbook.UtcClockLabel">
+    <value>QSO time (UTC)</value>
+  </data>
+  <data name="Logbook.Column.Call">
+    <value>Call</value>
+  </data>
+  <data name="Logbook.Column.Grid">
+    <value>Grid</value>
+  </data>
+  <data name="Logbook.Column.Satellite">
+    <value>SAT</value>
+  </data>
+  <data name="Logbook.Column.Mode">
+    <value>Mode</value>
+  </data>
+  <data name="Logbook.Column.RstSent">
+    <value>Sent</value>
+  </data>
+  <data name="Logbook.Column.RstRcvd">
+    <value>Recv</value>
+  </data>
+  <data name="Logbook.Column.Comment">
+    <value>Comment</value>
   </data>
   <data name="Window.MutualPass.Title">
     <value>Mutual pass finder</value>
@@ -1391,6 +1598,9 @@ Continue?</value>
   </data>
   <data name="Settings.Station.GridSquare">
     <value>Maidenhead grid square</value>
+  </data>
+  <data name="Settings.Station.GridSquareNote">
+    <value>Uppercase locator from the field (IO) up to 8 characters. On a grid line, separate squares with commas (e.g. IO77,IO87).</value>
   </data>
   <data name="Settings.Station.Altitude">
     <value>Altitude ASL (m)</value>

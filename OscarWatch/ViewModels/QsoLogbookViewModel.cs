@@ -1,0 +1,705 @@
+using System.Collections.ObjectModel;
+using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using OscarWatch.Core.Geo;
+using OscarWatch.Core.Logbook;
+using OscarWatch.Core.Models;
+using OscarWatch.Core.Services;
+using OscarWatch.Localization;
+
+namespace OscarWatch.ViewModels;
+
+public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
+{
+    private readonly IQsoLogbookRepository _repository;
+    private readonly ILiveTrackerSnapshotProvider _tracker;
+    private readonly ISettingsService _settings;
+    private readonly ILocalizationService _l;
+    private readonly DispatcherTimer _liveTimer;
+    private string _lastStationMode = "";
+    private bool _suppressCallLookup;
+    private bool _suppressFieldCoercion;
+    private QsoRecord? _editingSource;
+    private int _callLookupGeneration;
+
+    public QsoLogbookViewModel(
+        IQsoLogbookRepository repository,
+        ILiveTrackerSnapshotProvider tracker,
+        ISettingsService settings,
+        ILocalizationService localization)
+    {
+        _repository = repository;
+        _tracker = tracker;
+        _settings = settings;
+        _l = localization;
+        StatusText = _l.Get("Logbook.Status.Ready");
+        StationStatusText = _l.Get("Logbook.Station.Unavailable");
+
+        _liveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+        _liveTimer.Tick += (_, _) => RefreshStationPanel();
+    }
+
+    public IReadOnlyList<string> RstOptions { get; } = ["59", "599", "55", "559", "57", "579", "53", "539"];
+
+    public ObservableCollection<QsoLogbook> Logbooks { get; } = [];
+
+    public ObservableCollection<LogbookSwitchMenuItemViewModel> LogbookSwitchItems { get; } = [];
+
+    public ObservableCollection<QsoRowViewModel> QsoRows { get; } = [];
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(DeleteSelectedQsoCommand))]
+    [NotifyCanExecuteChangedFor(nameof(BeginEditSelectedQsoCommand))]
+    private QsoRowViewModel? _selectedQso;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(EntryCommitLabel))]
+    [NotifyPropertyChangedFor(nameof(ShowCancelEdit))]
+    [NotifyPropertyChangedFor(nameof(EditingStatusText))]
+    private bool _isEditingQso;
+
+    [ObservableProperty]
+    private QsoLogbook? _selectedLogbook;
+
+    [ObservableProperty]
+    private string _call = "";
+
+    [ObservableProperty]
+    private string _rstSent = "59";
+
+    [ObservableProperty]
+    private string _rstRcvd = "59";
+
+    [ObservableProperty]
+    private string _grid = "";
+
+    [ObservableProperty]
+    private string _name = "";
+
+    [ObservableProperty]
+    private string _comment = "";
+
+    [ObservableProperty]
+    private string _callHint = "";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowCallWorkStatus))]
+    [NotifyPropertyChangedFor(nameof(CallWorkStatusText))]
+    [NotifyPropertyChangedFor(nameof(CallIsPreviouslyWorked))]
+    [NotifyPropertyChangedFor(nameof(CallIsNewToLogbook))]
+    private bool? _callPreviouslyWorked;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(GridValidationIsValid))]
+    [NotifyPropertyChangedFor(nameof(GridValidationIsInvalid))]
+    [NotifyCanExecuteChangedFor(nameof(CommitQsoCommand))]
+    private bool? _gridIsValid;
+
+    [ObservableProperty]
+    private string _statusText = "";
+
+    [ObservableProperty]
+    private string _utcClock = "";
+
+    [ObservableProperty]
+    private string _stationSatellite = "—";
+
+    [ObservableProperty]
+    private string _stationMode = "—";
+
+    [ObservableProperty]
+    private string _stationFrequencies = "—";
+
+    [ObservableProperty]
+    private string _stationStatusText = "";
+
+    [ObservableProperty]
+    private bool _stationAvailable;
+
+    public bool CanAddQso =>
+        SelectedLogbook is not null && !string.IsNullOrWhiteSpace(Call);
+
+    public bool CanCommitQso => CanAddQso && GridIsValid != false;
+
+    public bool CanDeleteLogbook => SelectedLogbook is not null;
+
+    public bool CanExport => SelectedLogbook is not null && QsoRows.Count > 0;
+
+    public bool CanDeleteQso => SelectedQso is not null && !IsEditingQso;
+
+    public bool CanEditQso => SelectedQso is not null && !IsEditingQso;
+
+    public bool ShowCancelEdit => IsEditingQso;
+
+    public string EntryCommitLabel =>
+        IsEditingQso ? _l.Get("Logbook.SaveQso") : _l.Get("Logbook.AddQso");
+
+    public string EditingStatusText =>
+        IsEditingQso && _editingSource is not null
+            ? _l.Get("Logbook.EditingStatus", FormatQsoUtcTime(_editingSource.QsoUtc))
+            : "";
+
+    public string CurrentLogbookDisplayName =>
+        SelectedLogbook?.Name ?? _l.Get("Logbook.Menu.NoLogbook");
+
+    public bool ShowCallWorkStatus => CallPreviouslyWorked.HasValue;
+
+    public bool CallIsPreviouslyWorked => CallPreviouslyWorked == true;
+
+    public bool CallIsNewToLogbook => CallPreviouslyWorked == false;
+
+    public string CallWorkStatusText =>
+        CallPreviouslyWorked switch
+        {
+            true => _l.Get("Logbook.CallStatus.Worked"),
+            false => _l.Get("Logbook.CallStatus.NotWorked"),
+            _ => ""
+        };
+
+    public bool GridValidationIsValid => GridIsValid == true;
+
+    public bool GridValidationIsInvalid => GridIsValid == false;
+
+    public async Task InitializeAsync()
+    {
+        await _repository.InitializeAsync().ConfigureAwait(true);
+        await ReloadLogbooksAsync().ConfigureAwait(true);
+
+        if (Logbooks.Count == 0)
+        {
+            var gs = _settings.Current.GroundStation;
+            await CreateLogbookInternalAsync(new QsoLogbookCreateRequest
+            {
+                Name = _l.Get("Logbook.DefaultName"),
+                MyCallsign = "",
+                MyGridSquare = gs.GridSquare
+            }).ConfigureAwait(true);
+        }
+
+        _liveTimer.Start();
+        RefreshStationPanel();
+    }
+
+    public async Task CreateLogbookAsync(QsoLogbookCreateRequest request)
+    {
+        await CreateLogbookInternalAsync(request).ConfigureAwait(true);
+        StatusText = _l.Get("Logbook.Status.Created", request.Name);
+    }
+
+    public async Task DeleteSelectedLogbookAsync()
+    {
+        if (SelectedLogbook is null)
+            return;
+
+        var name = SelectedLogbook.Name;
+        await _repository.DeleteLogbookAsync(SelectedLogbook.Id).ConfigureAwait(true);
+        SelectedLogbook = null;
+        await ReloadLogbooksAsync().ConfigureAwait(true);
+        StatusText = _l.Get("Logbook.Status.Deleted", name);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanCommitQso))]
+    private async Task CommitQsoAsync()
+    {
+        if (IsEditingQso)
+            await SaveEditedQsoAsync().ConfigureAwait(true);
+        else
+            await AddQsoAsync().ConfigureAwait(true);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanEditQso))]
+    private void BeginEditSelectedQso()
+    {
+        if (SelectedQso is null)
+            return;
+
+        _editingSource = SelectedQso.Record;
+        IsEditingQso = true;
+        LoadEntryFromRecord(_editingSource);
+        StatusText = EditingStatusText;
+        _ = LookupCallAsync(Call);
+    }
+
+    [RelayCommand]
+    private async Task CancelEditQso()
+    {
+        ++_callLookupGeneration;
+        ClearEntryForm();
+        IsEditingQso = false;
+        _editingSource = null;
+        StatusText = _l.Get("Logbook.Status.Ready");
+        await ReloadQsosAsync().ConfigureAwait(true);
+    }
+
+    [RelayCommand]
+    private void ClearQsoFields()
+    {
+        if (IsEditingQso)
+            CancelEditQsoCommand.Execute(null);
+
+        ClearEntryForm();
+        RstSent = "59";
+        RstRcvd = "59";
+        StatusText = _l.Get("Logbook.Status.Ready");
+        CommitQsoCommand.NotifyCanExecuteChanged();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanAddQso))]
+    private async Task AddQsoAsync()
+    {
+        if (SelectedLogbook is null || string.IsNullOrWhiteSpace(Call))
+            return;
+
+        if (!TryNormalizeWorkedGrid(Grid, out var workedGrid))
+            return;
+
+        var snapshot = _tracker.GetCurrent();
+        var qsoUtc = DateTime.UtcNow;
+        var record = await _repository.AddQsoAsync(new QsoRecordCreateRequest
+        {
+            LogbookId = SelectedLogbook.Id,
+            QsoUtc = qsoUtc,
+            Call = Call,
+            RstSent = RstSent,
+            RstRcvd = RstRcvd,
+            GridSquare = workedGrid,
+            Name = Name,
+            Comment = Comment,
+            SatName = snapshot.SatelliteName,
+            Mode = snapshot.Mode,
+            ModeRx = snapshot.ModeRx,
+            FreqHz = snapshot.UplinkHz,
+            FreqRxHz = snapshot.DownlinkHz,
+            Band = snapshot.Band,
+            BandRx = snapshot.BandRx
+        }).ConfigureAwait(true);
+
+        await ReloadQsosAsync().ConfigureAwait(true);
+        StatusText = _l.Get("Logbook.Status.Added", record.Call, FormatQsoUtcTime(record.QsoUtc));
+        ClearEntryForm();
+        CommitQsoCommand.NotifyCanExecuteChanged();
+    }
+
+    private async Task SaveEditedQsoAsync()
+    {
+        if (_editingSource is null || string.IsNullOrWhiteSpace(Call))
+            return;
+
+        if (!TryNormalizeWorkedGrid(Grid, out var workedGrid))
+            return;
+
+        ++_callLookupGeneration;
+
+        var record = await _repository.UpdateQsoAsync(new QsoRecordUpdateRequest
+        {
+            Id = _editingSource.Id,
+            QsoUtc = _editingSource.QsoUtc,
+            Call = Call,
+            RstSent = RstSent,
+            RstRcvd = RstRcvd,
+            GridSquare = workedGrid,
+            Name = Name,
+            Comment = Comment,
+            SatName = _editingSource.SatName,
+            Mode = _editingSource.Mode,
+            ModeRx = _editingSource.ModeRx,
+            FreqHz = _editingSource.FreqHz,
+            FreqRxHz = _editingSource.FreqRxHz,
+            Band = _editingSource.Band,
+            BandRx = _editingSource.BandRx,
+            PropMode = _editingSource.PropMode
+        }).ConfigureAwait(true);
+
+        var editedId = record.Id;
+        await ReloadQsosAsync().ConfigureAwait(true);
+        SelectedQso = QsoRows.FirstOrDefault(r => r.Id == editedId);
+        IsEditingQso = false;
+        _editingSource = null;
+        ClearEntryForm();
+        StatusText = _l.Get("Logbook.Status.Updated", record.Call, FormatQsoUtcTime(record.QsoUtc));
+        CommitQsoCommand.NotifyCanExecuteChanged();
+    }
+
+    private void ClearEntryForm()
+    {
+        _suppressCallLookup = true;
+        ++_callLookupGeneration;
+        Call = "";
+        Grid = "";
+        Name = "";
+        Comment = "";
+        CallHint = "";
+        CallPreviouslyWorked = null;
+        GridIsValid = null;
+        _suppressCallLookup = false;
+    }
+
+    private void LoadEntryFromRecord(QsoRecord record)
+    {
+        _suppressCallLookup = true;
+        _suppressFieldCoercion = true;
+        Call = record.Call;
+        RstSent = record.RstSent;
+        RstRcvd = record.RstRcvd;
+        Grid = record.GridSquare;
+        Name = record.Name;
+        Comment = record.Comment;
+        CallHint = "";
+        CallPreviouslyWorked = null;
+        GridIsValid = MaidenheadLocator.GetLiveValidationState(record.GridSquare);
+        _suppressFieldCoercion = false;
+        _suppressCallLookup = false;
+        CommitQsoCommand.NotifyCanExecuteChanged();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanExport))]
+    public async Task<string?> ExportAdifAsync()
+    {
+        if (SelectedLogbook is null)
+            return null;
+
+        var qsos = await _repository.ListQsosAsync(SelectedLogbook.Id).ConfigureAwait(true);
+        if (qsos.Count == 0)
+            return null;
+
+        return AdifExporter.ExportLogbook(SelectedLogbook, qsos);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanDeleteQso))]
+    private async Task DeleteSelectedQsoAsync()
+    {
+        if (SelectedQso is null)
+            return;
+
+        var id = SelectedQso.Id;
+        var call = SelectedQso.Call;
+        var wasEditing = _editingSource?.Id == id;
+        await _repository.DeleteQsoAsync(id).ConfigureAwait(true);
+        if (wasEditing)
+            CancelEditQso();
+        SelectedQso = null;
+        await ReloadQsosAsync().ConfigureAwait(true);
+        StatusText = _l.Get("Logbook.Status.Removed", call);
+    }
+
+    partial void OnSelectedLogbookChanged(QsoLogbook? value)
+    {
+        CancelEditQso();
+        _ = ReloadQsosAsync();
+        CommitQsoCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanExport));
+        OnPropertyChanged(nameof(CurrentLogbookDisplayName));
+        RefreshLogbookSwitchItems();
+    }
+
+    partial void OnIsEditingQsoChanged(bool value)
+    {
+        CommitQsoCommand.NotifyCanExecuteChanged();
+        BeginEditSelectedQsoCommand.NotifyCanExecuteChanged();
+        DeleteSelectedQsoCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(EntryCommitLabel));
+        OnPropertyChanged(nameof(ShowCancelEdit));
+        OnPropertyChanged(nameof(EditingStatusText));
+    }
+
+    partial void OnSelectedQsoChanged(QsoRowViewModel? value)
+    {
+        BeginEditSelectedQsoCommand.NotifyCanExecuteChanged();
+        DeleteSelectedQsoCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnCallChanged(string value)
+    {
+        CoerceCallsign(value);
+        CommitQsoCommand.NotifyCanExecuteChanged();
+        if (_suppressCallLookup)
+            return;
+
+        _ = LookupCallAsync(Call);
+    }
+
+    partial void OnGridChanged(string value)
+    {
+        CoerceWorkedGrid(value);
+        UpdateGridValidationState();
+    }
+
+    private void UpdateGridValidationState() =>
+        GridIsValid = MaidenheadLocator.GetLiveValidationState(Grid);
+
+    partial void OnRstSentChanged(string value) => CommitQsoCommand.NotifyCanExecuteChanged();
+
+    partial void OnRstRcvdChanged(string value) => CommitQsoCommand.NotifyCanExecuteChanged();
+
+    private void CoerceCallsign(string value)
+    {
+        if (_suppressFieldCoercion)
+            return;
+
+        var normalized = MaidenheadLocator.NormalizeCallsign(value);
+        if (string.Equals(normalized, value, StringComparison.Ordinal))
+            return;
+
+        _suppressFieldCoercion = true;
+        Call = normalized;
+        _suppressFieldCoercion = false;
+    }
+
+    private void CoerceWorkedGrid(string value)
+    {
+        if (_suppressFieldCoercion)
+            return;
+
+        var normalized = MaidenheadLocator.UppercaseGridEntry(value);
+        if (string.Equals(normalized, value, StringComparison.Ordinal))
+            return;
+
+        _suppressFieldCoercion = true;
+        Grid = normalized;
+        _suppressFieldCoercion = false;
+    }
+
+    private bool TryNormalizeWorkedGrid(string value, out string normalized)
+    {
+        if (MaidenheadLocator.TryValidateGrids(value, out normalized, out var error, out var invalidSegment))
+            return true;
+
+        StatusText = FormatGridValidationError(error, invalidSegment);
+        return false;
+    }
+
+    private string FormatGridValidationError(GridValidationError error, string? invalidSegment) =>
+        error switch
+        {
+            GridValidationError.TooManyGrids =>
+                _l.Get("Logbook.Error.GridTooMany", MaidenheadLocator.MaxGridCount),
+            GridValidationError.InvalidSegment =>
+                _l.Get("Logbook.Error.GridInvalidSegment", invalidSegment ?? ""),
+            _ => ""
+        };
+
+    private async Task LookupCallAsync(string value)
+    {
+        if (SelectedLogbook is null)
+            return;
+
+        var generation = ++_callLookupGeneration;
+        var trimmed = value.Trim();
+        if (trimmed.Length < 3)
+        {
+            CallHint = "";
+            CallPreviouslyWorked = null;
+            if (!IsEditingQso)
+            {
+                await ReloadQsosAsync().ConfigureAwait(true);
+                if (generation != _callLookupGeneration)
+                    return;
+            }
+
+            return;
+        }
+
+        if (!IsEditingQso)
+        {
+            await ReloadQsosAsync(trimmed).ConfigureAwait(true);
+            if (generation != _callLookupGeneration)
+                return;
+        }
+
+        var previous = await _repository.FindLatestQsoForCallAsync(SelectedLogbook.Id, trimmed).ConfigureAwait(true);
+        if (generation != _callLookupGeneration)
+            return;
+
+        if (!string.Equals(trimmed, Call.Trim(), StringComparison.OrdinalIgnoreCase))
+            return;
+
+        CallPreviouslyWorked = previous is not null;
+
+        if (previous is null)
+        {
+            CallHint = "";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(Grid) && !string.IsNullOrWhiteSpace(previous.GridSquare))
+            Grid = previous.GridSquare;
+        if (string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(previous.Name))
+            Name = previous.Name;
+
+        CallHint = string.IsNullOrWhiteSpace(previous.GridSquare)
+            ? _l.Get("Logbook.CallHint.Previous")
+            : _l.Get("Logbook.CallHint.PreviousWithGrid", previous.GridSquare);
+    }
+
+    private async Task CreateLogbookInternalAsync(QsoLogbookCreateRequest request)
+    {
+        var created = await _repository.CreateLogbookAsync(request).ConfigureAwait(true);
+        await ReloadLogbooksAsync().ConfigureAwait(true);
+        SelectedLogbook = Logbooks.FirstOrDefault(l => l.Id == created.Id);
+    }
+
+    private async Task ReloadLogbooksAsync()
+    {
+        var items = await _repository.ListLogbooksAsync().ConfigureAwait(true);
+        Logbooks.Clear();
+        foreach (var item in items)
+            Logbooks.Add(item);
+
+        if (SelectedLogbook is null && Logbooks.Count > 0)
+            SelectedLogbook = Logbooks[0];
+        else if (SelectedLogbook is not null)
+            SelectedLogbook = Logbooks.FirstOrDefault(l => l.Id == SelectedLogbook.Id);
+
+        RefreshLogbookSwitchItems();
+        OnPropertyChanged(nameof(CurrentLogbookDisplayName));
+    }
+
+    private void RefreshLogbookSwitchItems()
+    {
+        LogbookSwitchItems.Clear();
+        foreach (var logbook in Logbooks)
+        {
+            LogbookSwitchItems.Add(new LogbookSwitchMenuItemViewModel(
+                logbook,
+                SelectedLogbook?.Id == logbook.Id,
+                lb => SelectedLogbook = lb));
+        }
+    }
+
+    private async Task ReloadQsosAsync(string? callFilter = null)
+    {
+        QsoRows.Clear();
+        if (SelectedLogbook is null)
+        {
+            ExportAdifCommand.NotifyCanExecuteChanged();
+            return;
+        }
+
+        var qsos = string.IsNullOrWhiteSpace(callFilter)
+            ? await _repository.ListQsosAsync(SelectedLogbook.Id).ConfigureAwait(true)
+            : await _repository.SearchQsosByCallAsync(SelectedLogbook.Id, callFilter).ConfigureAwait(true);
+
+        foreach (var qso in qsos)
+            QsoRows.Add(QsoRowViewModel.From(qso, _settings.Current.Use24HourClock));
+
+        OnPropertyChanged(nameof(CanExport));
+        ExportAdifCommand.NotifyCanExecuteChanged();
+    }
+
+    private void RefreshStationPanel()
+    {
+        UtcClock = QsoLogbookTime.FormatLiveUtcClock(
+            DateTime.UtcNow,
+            _settings.Current.Use24HourClock,
+            System.Globalization.CultureInfo.CurrentCulture);
+        var snapshot = _tracker.GetCurrent();
+        StationAvailable = snapshot.IsAvailable;
+        StationSatellite = snapshot.IsAvailable ? snapshot.SatelliteName : "—";
+        StationMode = snapshot.IsAvailable && !string.IsNullOrWhiteSpace(snapshot.Mode)
+            ? FormatMode(snapshot)
+            : "—";
+        StationFrequencies = snapshot.IsAvailable ? snapshot.FrequencySummary : "—";
+        StationStatusText = snapshot.IsAvailable
+            ? _l.Get("Logbook.Station.Tracking", snapshot.SatelliteName)
+            : _l.Get("Logbook.Station.Unavailable");
+
+        ApplyDefaultRstForMode(snapshot.Mode);
+    }
+
+    private void ApplyDefaultRstForMode(string mode)
+    {
+        if (IsEditingQso)
+            return;
+
+        var normalized = mode.Trim().ToUpperInvariant();
+        if (string.Equals(normalized, _lastStationMode, StringComparison.Ordinal))
+            return;
+
+        _lastStationMode = normalized;
+        if (normalized is "FM" or "PKT" or "FT4" or "FT8")
+        {
+            RstSent = "59";
+            RstRcvd = "59";
+        }
+        else if (!string.IsNullOrWhiteSpace(normalized))
+        {
+            RstSent = "599";
+            RstRcvd = "599";
+        }
+    }
+
+    private static string FormatMode(LiveTrackerSnapshot snapshot)
+    {
+        if (string.Equals(snapshot.Mode, snapshot.ModeRx, StringComparison.OrdinalIgnoreCase))
+            return snapshot.Mode;
+
+        return $"{snapshot.Mode} / {snapshot.ModeRx}";
+    }
+
+    private string FormatQsoUtcTime(DateTime utc) =>
+        QsoLogbookTime.FormatQsoUtc(utc, _settings.Current.Use24HourClock);
+
+    public void Dispose()
+    {
+        _liveTimer.Stop();
+    }
+}
+
+public sealed partial class LogbookSwitchMenuItemViewModel : ObservableObject
+{
+    private readonly Action<QsoLogbook> _select;
+
+    public LogbookSwitchMenuItemViewModel(QsoLogbook logbook, bool isChecked, Action<QsoLogbook> select)
+    {
+        Logbook = logbook;
+        IsChecked = isChecked;
+        _select = select;
+    }
+
+    public QsoLogbook Logbook { get; }
+
+    public string Name => Logbook.Name;
+
+    [ObservableProperty]
+    private bool _isChecked;
+
+    [RelayCommand]
+    private void Select() => _select(Logbook);
+}
+
+public sealed class QsoRowViewModel
+{
+    public required QsoRecord Record { get; init; }
+
+    public long Id => Record.Id;
+    public string DateTimeText { get; init; } = "";
+    public string Call { get; init; } = "";
+    public string Grid { get; init; } = "";
+    public string Satellite { get; init; } = "";
+    public string Mode { get; init; } = "";
+    public string RstSent { get; init; } = "";
+    public string RstRcvd { get; init; } = "";
+    public string Comment { get; init; } = "";
+
+    public static QsoRowViewModel From(QsoRecord record, bool use24Hour)
+    {
+        var dateTimeText = QsoLogbookTime.FormatQsoUtc(record.QsoUtc, use24Hour);
+        var mode = string.Equals(record.Mode, record.ModeRx, StringComparison.OrdinalIgnoreCase)
+            ? record.Mode
+            : $"{record.Mode}/{record.ModeRx}";
+
+        return new QsoRowViewModel
+        {
+            Record = record,
+            DateTimeText = dateTimeText,
+            Call = record.Call,
+            Grid = record.GridSquare,
+            Satellite = record.SatName,
+            Mode = mode,
+            RstSent = record.RstSent,
+            RstRcvd = record.RstRcvd,
+            Comment = record.Comment
+        };
+    }
+}

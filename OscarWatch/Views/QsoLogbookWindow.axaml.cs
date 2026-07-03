@@ -1,0 +1,201 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
+using Microsoft.Extensions.DependencyInjection;
+using OscarWatch.Core.Models;
+using OscarWatch.Core.Services;
+using OscarWatch.Localization;
+using OscarWatch.ViewModels;
+
+namespace OscarWatch.Views;
+
+public partial class QsoLogbookWindow : Window
+{
+    public QsoLogbookWindow()
+    {
+        InitializeComponent();
+        var settings = App.Services.GetRequiredService<ISettingsService>();
+        QsoLogbookWindowBounds.Apply(this, settings.Current.QsoLogbook);
+        Opened += OnOpened;
+        Closed += OnClosed;
+    }
+
+    private async void OnOpened(object? sender, EventArgs e)
+    {
+        var settings = App.Services.GetRequiredService<ISettingsService>();
+        if (QsoLogbookWindowDefaults.TryGetSavedPosition(settings.Current.QsoLogbook, out _, out _))
+        {
+            WindowStartupLocation = WindowStartupLocation.Manual;
+            Position = QsoLogbookWindowBounds.ClampToVisibleArea(this, Position);
+        }
+
+        QsoLogbookHistoryGridLayout.Apply(QsoHistoryGrid, settings.Current.QsoLogbook);
+
+        if (DataContext is QsoLogbookViewModel vm)
+            await vm.InitializeAsync().ConfigureAwait(true);
+
+        await Dispatcher.UIThread.InvokeAsync(() => CallTextBox?.Focus());
+    }
+
+    private void OnClosed(object? sender, EventArgs e)
+    {
+        var settings = App.Services.GetRequiredService<ISettingsService>();
+        QsoLogbookHistoryGridLayout.Capture(QsoHistoryGrid, settings.Current.QsoLogbook);
+        QsoLogbookWindowBounds.Capture(this, settings.Current.QsoLogbook);
+        settings.RequestSave();
+
+        if (DataContext is QsoLogbookViewModel vm)
+            vm.Dispose();
+    }
+
+    private async void OnCommitQsoClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not QsoLogbookViewModel vm)
+            return;
+
+        await vm.CommitQsoCommand.ExecuteAsync(null).ConfigureAwait(true);
+        if (!vm.IsEditingQso)
+            CallTextBox?.Focus();
+    }
+
+    private void OnCancelEditClick(object? sender, RoutedEventArgs e) => CallTextBox?.Focus();
+
+    private void OnQsoHistoryPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (!e.GetCurrentPoint(QsoHistoryGrid).Properties.IsRightButtonPressed)
+            return;
+
+        for (var node = e.Source as Visual; node is not null; node = node.GetVisualParent() as Visual)
+        {
+            if (node is DataGridRow row && row.DataContext is QsoRowViewModel qsoRow)
+            {
+                QsoHistoryGrid.SelectedItem = qsoRow;
+                break;
+            }
+        }
+    }
+
+    private async void OnNewLogbookClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not QsoLogbookViewModel vm)
+            return;
+
+        var createVm = App.Services.GetRequiredService<CreateLogbookViewModel>();
+        createVm.Reset(vm.SelectedLogbook);
+        var request = await new CreateLogbookWindow { DataContext = createVm }
+            .ShowDialog<QsoLogbookCreateRequest?>(this)
+            .ConfigureAwait(true);
+
+        if (request is null)
+            return;
+
+        await vm.CreateLogbookAsync(request).ConfigureAwait(true);
+    }
+
+    private async void OnDeleteLogbookClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not QsoLogbookViewModel vm || vm.SelectedLogbook is null)
+            return;
+
+        var l = LocalizationService.Instance;
+        var name = vm.SelectedLogbook.Name;
+        var confirmed = await SimpleConfirmDialog.ShowAsync(
+            this,
+            l.Get("Logbook.DeleteLogbook.ConfirmTitle"),
+            l.Get("Logbook.DeleteLogbook.ConfirmMessage", name)).ConfigureAwait(true);
+
+        if (!confirmed)
+            return;
+
+        await vm.DeleteSelectedLogbookAsync().ConfigureAwait(true);
+    }
+
+    private async void OnDeleteQsoClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not QsoLogbookViewModel vm || vm.SelectedQso is null)
+            return;
+
+        var l = LocalizationService.Instance;
+        var qso = vm.SelectedQso;
+        var confirmed = await SimpleConfirmDialog.ShowAsync(
+            this,
+            l.Get("Logbook.DeleteQso.ConfirmTitle"),
+            l.Get("Logbook.DeleteQso.ConfirmMessage", qso.Call, qso.DateTimeText)).ConfigureAwait(true);
+
+        if (!confirmed)
+            return;
+
+        await vm.DeleteSelectedQsoCommand.ExecuteAsync(null).ConfigureAwait(true);
+    }
+
+    private void OnEntryKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (DataContext is not QsoLogbookViewModel vm)
+            return;
+
+        if (e.Key == Key.W && e.KeyModifiers.HasFlag(KeyModifiers.Alt))
+        {
+            vm.ClearQsoFieldsCommand.Execute(null);
+            e.Handled = true;
+            CallTextBox?.Focus();
+            return;
+        }
+
+        if (e.Key != Key.Enter)
+            return;
+
+        if (!vm.CommitQsoCommand.CanExecute(null))
+            return;
+
+        e.Handled = true;
+        _ = CommitFromEntryAsync(vm);
+    }
+
+    private async Task CommitFromEntryAsync(QsoLogbookViewModel vm)
+    {
+        await vm.CommitQsoCommand.ExecuteAsync(null).ConfigureAwait(true);
+        if (!vm.IsEditingQso)
+            CallTextBox?.Focus();
+    }
+
+    private async void OnExportAdifClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not QsoLogbookViewModel vm || vm.SelectedLogbook is null)
+            return;
+
+        var adif = await vm.ExportAdifAsync().ConfigureAwait(true);
+        if (string.IsNullOrWhiteSpace(adif))
+            return;
+
+        var safeName = SanitizeFileName(vm.SelectedLogbook.Name);
+        var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = LocalizationService.Instance.Get("Logbook.ExportPicker.Title"),
+            SuggestedFileName = $"{safeName}.adi",
+            DefaultExtension = "adi",
+            FileTypeChoices =
+            [
+                new FilePickerFileType("ADIF files") { Patterns = ["*.adi", "*.adif"] }
+            ]
+        });
+
+        if (file is null)
+            return;
+
+        await using var stream = await file.OpenWriteAsync().ConfigureAwait(true);
+        await using var writer = new StreamWriter(stream);
+        await writer.WriteAsync(adif).ConfigureAwait(true);
+    }
+
+    private static string SanitizeFileName(string name)
+    {
+        var invalid = Path.GetInvalidFileNameChars();
+        var chars = name.Trim().Select(ch => invalid.Contains(ch) ? '_' : ch).ToArray();
+        var result = new string(chars).Trim();
+        return string.IsNullOrWhiteSpace(result) ? "logbook" : result;
+    }
+}

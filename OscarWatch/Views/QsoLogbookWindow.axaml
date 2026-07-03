@@ -1,0 +1,341 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:loc="using:OscarWatch.Localization"
+        xmlns:ctrl="using:OscarWatch.Controls"
+        x:Class="OscarWatch.Views.QsoLogbookWindow"
+        x:DataType="vm:QsoLogbookViewModel"
+        Title="{loc:Localize Key=Window.Logbook.Title}"
+        Width="980" Height="640"
+        MinWidth="760" MinHeight="480"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="12">
+    <Menu DockPanel.Dock="Top">
+      <MenuItem Header="{loc:Localize Key=Logbook.Menu.Logbook}">
+        <MenuItem Header="{Binding CurrentLogbookDisplayName}" IsEnabled="False" />
+        <Separator />
+        <MenuItem Header="{loc:Localize Key=Logbook.NewLogbook}"
+                  Click="OnNewLogbookClick" />
+        <MenuItem Header="{loc:Localize Key=Logbook.Menu.DeleteLogbook}"
+                  Click="OnDeleteLogbookClick"
+                  IsEnabled="{Binding CanDeleteLogbook}" />
+        <Separator />
+        <MenuItem ItemsSource="{Binding LogbookSwitchItems}">
+          <MenuItem.DataTemplates>
+            <DataTemplate DataType="vm:LogbookSwitchMenuItemViewModel">
+              <MenuItem Header="{Binding Name}"
+                        Command="{Binding SelectCommand}"
+                        ToggleType="Radio"
+                        IsChecked="{Binding IsChecked}" />
+            </DataTemplate>
+          </MenuItem.DataTemplates>
+        </MenuItem>
+      </MenuItem>
+      <MenuItem Header="{loc:Localize Key=Logbook.Menu.Edit}">
+        <MenuItem Header="{loc:Localize Key=Logbook.EditQso}"
+                  Command="{Binding BeginEditSelectedQsoCommand}" />
+        <MenuItem Header="{loc:Localize Key=Logbook.DeleteQso}"
+                  Click="OnDeleteQsoClick" />
+      </MenuItem>
+      <MenuItem Header="{loc:Localize Key=Logbook.Menu.Export}">
+        <MenuItem Header="{loc:Localize Key=Logbook.ExportAdif}"
+                  Click="OnExportAdifClick"
+                  IsEnabled="{Binding CanExport}" />
+      </MenuItem>
+      <MenuItem Header="{loc:Localize Key=Logbook.Menu.Settings}">
+        <MenuItem Header="{loc:Localize Key=Logbook.Menu.SettingsComingSoon}"
+                  IsEnabled="False" />
+      </MenuItem>
+    </Menu>
+
+    <Border DockPanel.Dock="Bottom"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="0,1,0,0"
+            Padding="0,8,0,0"
+            Margin="0,10,0,0">
+      <StackPanel Spacing="4">
+        <TextBlock Text="{Binding StatusText}"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+        <TextBlock Text="{Binding StationStatusText}"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+      </StackPanel>
+    </Border>
+
+    <Grid RowDefinitions="Auto,*" RowSpacing="10" Margin="0,10,0,0">
+      <Border Grid.Row="0"
+              BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+              BorderThickness="1"
+              Padding="10"
+              CornerRadius="4">
+        <Border.Styles>
+          <Style Selector="TextBox">
+            <Setter Property="MinHeight" Value="32" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+          </Style>
+          <Style Selector="TextBox.grid-entry.grid-valid">
+            <Setter Property="BorderBrush" Value="{DynamicResource GpsOkBrush}" />
+            <Setter Property="BorderThickness" Value="2" />
+          </Style>
+          <Style Selector="TextBox.grid-entry.grid-invalid">
+            <Setter Property="BorderBrush" Value="{DynamicResource PassRecordingBadgeBackgroundBrush}" />
+            <Setter Property="BorderThickness" Value="2" />
+          </Style>
+          <Style Selector="TextBox.call-entry.worked">
+            <Setter Property="BorderBrush" Value="{DynamicResource PassRecordingBadgeBackgroundBrush}" />
+            <Setter Property="BorderThickness" Value="2" />
+          </Style>
+          <Style Selector="TextBox.call-entry.not-worked">
+            <Setter Property="BorderBrush" Value="{DynamicResource GpsOkBrush}" />
+            <Setter Property="BorderThickness" Value="2" />
+          </Style>
+          <Style Selector="ComboBox">
+            <Setter Property="MinHeight" Value="32" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+          </Style>
+          <Style Selector="ComboBox.rst-entry">
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+          </Style>
+          <Style Selector="ComboBox.rst-entry /template/ TextBox#PART_EditableTextBox">
+            <Setter Property="TextAlignment" Value="Center" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+          </Style>
+          <Style Selector="ComboBox.rst-entry /template/ TextBox#PART_EditableTextBox /template/ TextPresenter#PART_TextPresenter">
+            <Setter Property="TextAlignment" Value="Center" />
+          </Style>
+          <Style Selector="Button">
+            <Setter Property="MinHeight" Value="32" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+          </Style>
+          <Style Selector="Border.call-status-badge TextBlock">
+            <Setter Property="Foreground" Value="#FFFFFFFF" />
+          </Style>
+          <Style Selector="Border.call-status-badge.worked">
+            <Setter Property="Background" Value="{DynamicResource PassRecordingBadgeBackgroundBrush}" />
+          </Style>
+          <Style Selector="Border.call-status-badge.not-worked">
+            <Setter Property="Background" Value="{DynamicResource GpsOkBrush}" />
+          </Style>
+        </Border.Styles>
+        <StackPanel Spacing="10">
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <TextBlock Grid.Column="0"
+                       Text="{loc:Localize Key=Logbook.UtcClockLabel}"
+                       VerticalAlignment="Center"
+                       FontSize="12"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <TextBlock Grid.Column="1"
+                       Text="{Binding UtcClock}"
+                       VerticalAlignment="Center"
+                       FontSize="12"
+                       FontFamily="Consolas,Courier New,monospace" />
+          </Grid>
+          <TextBlock Text="{Binding EditingStatusText}"
+                     IsVisible="{Binding IsEditingQso}"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                     FontStyle="Italic" />
+          <Grid ColumnDefinitions="*,72,72,*,*,*,Auto,Auto"
+                RowDefinitions="Auto,Auto"
+                ColumnSpacing="8"
+                RowSpacing="4">
+            <TextBlock Grid.Row="0" Grid.Column="0"
+                       Text="{loc:Localize Key=Logbook.Call}" FontSize="12"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <TextBlock Grid.Row="0" Grid.Column="1"
+                       Text="{loc:Localize Key=Logbook.RstSent}" FontSize="12"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <TextBlock Grid.Row="0" Grid.Column="2"
+                       Text="{loc:Localize Key=Logbook.RstRcvd}" FontSize="12"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <TextBlock Grid.Row="0" Grid.Column="3"
+                       Text="{loc:Localize Key=Logbook.Grid}" FontSize="12"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <TextBlock Grid.Row="0" Grid.Column="4"
+                       Text="{loc:Localize Key=Logbook.Name}" FontSize="12"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <TextBlock Grid.Row="0" Grid.Column="5"
+                       Text="{loc:Localize Key=Logbook.Comment}" FontSize="12"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <TextBlock Grid.Row="0" Grid.Column="6"
+                       Text="&#160;" FontSize="12"
+                       IsVisible="{Binding !ShowCancelEdit}" />
+            <TextBlock Grid.Row="0" Grid.Column="7"
+                       Text="&#160;" FontSize="12"
+                       IsVisible="{Binding ShowCancelEdit}" />
+
+            <TextBox Grid.Row="1" Grid.Column="0"
+                     x:Name="CallTextBox"
+                     Classes="call-entry"
+                     Classes.worked="{Binding CallIsPreviouslyWorked}"
+                     Classes.not-worked="{Binding CallIsNewToLogbook}"
+                     ctrl:UppercaseTextInput.IsEnabled="True"
+                     Text="{Binding Call, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     MaxLength="16"
+                     KeyDown="OnEntryKeyDown" />
+            <ComboBox Grid.Row="1" Grid.Column="1"
+                      Classes="rst-entry"
+                      ItemsSource="{Binding RstOptions}"
+                      SelectedItem="{Binding RstSent, Mode=TwoWay}"
+                      IsEditable="True"
+                      KeyDown="OnEntryKeyDown">
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding}"
+                             TextAlignment="Center"
+                             HorizontalAlignment="Stretch" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <ComboBox Grid.Row="1" Grid.Column="2"
+                      Classes="rst-entry"
+                      ItemsSource="{Binding RstOptions}"
+                      SelectedItem="{Binding RstRcvd, Mode=TwoWay}"
+                      IsEditable="True"
+                      KeyDown="OnEntryKeyDown">
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding}"
+                             TextAlignment="Center"
+                             HorizontalAlignment="Stretch" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBox Grid.Row="1" Grid.Column="3"
+                     Classes="grid-entry"
+                     Classes.grid-valid="{Binding GridValidationIsValid}"
+                     Classes.grid-invalid="{Binding GridValidationIsInvalid}"
+                     ctrl:UppercaseTextInput.IsEnabled="True"
+                     Text="{Binding Grid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     MaxLength="40"
+                     KeyDown="OnEntryKeyDown" />
+            <TextBox Grid.Row="1" Grid.Column="4"
+                     Text="{Binding Name, Mode=TwoWay}"
+                     KeyDown="OnEntryKeyDown" />
+            <TextBox Grid.Row="1" Grid.Column="5"
+                     Text="{Binding Comment, Mode=TwoWay}"
+                     KeyDown="OnEntryKeyDown" />
+
+            <Button Grid.Row="1" Grid.Column="6"
+                    Content="{Binding EntryCommitLabel}"
+                    Command="{Binding CommitQsoCommand}"
+                    Classes="accent"
+                    MinWidth="88"
+                    Click="OnCommitQsoClick" />
+            <Button Grid.Row="1" Grid.Column="7"
+                    Content="{loc:Localize Key=Logbook.CancelEdit}"
+                    Command="{Binding CancelEditQsoCommand}"
+                    IsVisible="{Binding ShowCancelEdit}"
+                    MinWidth="88"
+                    Click="OnCancelEditClick" />
+          </Grid>
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Border Classes="call-status-badge"
+                    Classes.worked="{Binding CallIsPreviouslyWorked}"
+                    Classes.not-worked="{Binding CallIsNewToLogbook}"
+                    IsVisible="{Binding ShowCallWorkStatus}"
+                    Padding="8,3"
+                    CornerRadius="4"
+                    VerticalAlignment="Center">
+              <TextBlock Text="{Binding CallWorkStatusText}"
+                         FontSize="11"
+                         FontWeight="SemiBold" />
+            </Border>
+            <TextBlock Text="{Binding CallHint}"
+                       VerticalAlignment="Center"
+                       FontSize="11"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+
+      <Grid Grid.Row="1" ColumnDefinitions="*,260" ColumnSpacing="10">
+        <Border Grid.Column="0"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="1"
+                Padding="4"
+                CornerRadius="4">
+          <DockPanel>
+            <TextBlock DockPanel.Dock="Top"
+                       Text="{loc:Localize Key=Logbook.History}"
+                       Margin="6,2,6,8"
+                       FontWeight="SemiBold" />
+            <DataGrid x:Name="QsoHistoryGrid"
+                      ItemsSource="{Binding QsoRows}"
+                      SelectedItem="{Binding SelectedQso, Mode=TwoWay}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      CanUserReorderColumns="False"
+                      CanUserResizeColumns="True"
+                      GridLinesVisibility="Horizontal"
+                      HeadersVisibility="Column"
+                      PointerPressed="OnQsoHistoryPointerPressed">
+              <DataGrid.ContextMenu>
+                <ContextMenu>
+                  <MenuItem Header="{loc:Localize Key=Logbook.EditQso}"
+                            Command="{Binding BeginEditSelectedQsoCommand}" />
+                  <MenuItem Header="{loc:Localize Key=Logbook.DeleteQso}"
+                            Click="OnDeleteQsoClick" />
+                </ContextMenu>
+              </DataGrid.ContextMenu>
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="{loc:Localize Key=Logbook.Column.DateTime}"
+                                    Binding="{Binding DateTimeText}"
+                                    Width="168" />
+                <DataGridTextColumn Header="{loc:Localize Key=Logbook.Column.Call}"
+                                    Binding="{Binding Call}"
+                                    Width="90" />
+                <DataGridTextColumn Header="{loc:Localize Key=Logbook.Column.Grid}"
+                                    Binding="{Binding Grid}"
+                                    Width="70" />
+                <DataGridTextColumn Header="{loc:Localize Key=Logbook.Column.Satellite}"
+                                    Binding="{Binding Satellite}"
+                                    Width="80" />
+                <DataGridTextColumn Header="{loc:Localize Key=Logbook.Column.Mode}"
+                                    Binding="{Binding Mode}"
+                                    Width="70" />
+                <DataGridTextColumn Header="{loc:Localize Key=Logbook.Column.RstSent}"
+                                    Binding="{Binding RstSent}"
+                                    Width="52" />
+                <DataGridTextColumn Header="{loc:Localize Key=Logbook.Column.RstRcvd}"
+                                    Binding="{Binding RstRcvd}"
+                                    Width="52" />
+                <DataGridTextColumn Header="{loc:Localize Key=Logbook.Column.Comment}"
+                                    Binding="{Binding Comment}"
+                                    Width="*" />
+              </DataGrid.Columns>
+            </DataGrid>
+          </DockPanel>
+        </Border>
+
+        <Border Grid.Column="1"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="1"
+                Padding="10"
+                CornerRadius="4">
+          <StackPanel Spacing="10">
+            <TextBlock Text="{loc:Localize Key=Logbook.StationControl}"
+                       FontWeight="SemiBold" />
+            <StackPanel Spacing="4">
+              <TextBlock Text="{loc:Localize Key=Logbook.Station.Satellite}" FontSize="12"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+              <TextBlock Text="{Binding StationSatellite}" FontFamily="Consolas,Courier New,monospace" />
+            </StackPanel>
+            <StackPanel Spacing="4">
+              <TextBlock Text="{loc:Localize Key=Logbook.Station.Mode}" FontSize="12"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+              <TextBlock Text="{Binding StationMode}" FontFamily="Consolas,Courier New,monospace" />
+            </StackPanel>
+            <StackPanel Spacing="4">
+              <TextBlock Text="{loc:Localize Key=Logbook.Station.Frequencies}" FontSize="12"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+              <TextBlock Text="{Binding StationFrequencies}" FontFamily="Consolas,Courier New,monospace" />
+            </StackPanel>
+            <TextBlock Text="{loc:Localize Key=Logbook.Station.Note}"
+                       TextWrapping="Wrap"
+                       FontSize="11"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</Window>

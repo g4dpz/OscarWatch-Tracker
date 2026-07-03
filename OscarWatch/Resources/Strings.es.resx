@@ -672,6 +672,210 @@
   <data name="Rig.DualRadioSamePort">
     <value>Las radios de bajada y subida usan el mismo puerto serie. Usa puertos distintos para cada radio.</value>
   </data>
+  <data name="Menu.Tools.QsoLogbook">
+    <value>_Libro de QSO</value>
+  </data>
+  <data name="Window.Logbook.Title">
+    <value>Libro de QSO</value>
+  </data>
+  <data name="Window.CreateLogbook.Title">
+    <value>Nuevo libro</value>
+  </data>
+  <data name="Logbook.CreateLogbook.Intro">
+    <value>Cree un libro separado para activaciones portátiles, concursos u otras sesiones.</value>
+  </data>
+  <data name="Logbook.DeleteLogbook.ConfirmTitle">
+    <value>Eliminar libro</value>
+  </data>
+  <data name="Logbook.DeleteLogbook.ConfirmMessage">
+    <value>¿Eliminar “{0}” y todos los QSO que contiene? Esta acción no se puede deshacer.</value>
+  </data>
+  <data name="Logbook.DeleteQso.ConfirmTitle">
+    <value>Eliminar QSO</value>
+  </data>
+  <data name="Logbook.DeleteQso.ConfirmMessage">
+    <value>¿Eliminar el QSO con {0} el {1}? Esta acción no se puede deshacer.</value>
+  </data>
+  <data name="Logbook.LogbookLabel">
+    <value>Libro</value>
+  </data>
+  <data name="Logbook.Menu.Logbook">
+    <value>Libro</value>
+  </data>
+  <data name="Logbook.Menu.DeleteLogbook">
+    <value>Eliminar libro</value>
+  </data>
+  <data name="Logbook.Menu.NoLogbook">
+    <value>Ningún libro seleccionado</value>
+  </data>
+  <data name="Logbook.Menu.Edit">
+    <value>Editar</value>
+  </data>
+  <data name="Logbook.Menu.Export">
+    <value>Exportar</value>
+  </data>
+  <data name="Logbook.Menu.Settings">
+    <value>Ajustes</value>
+  </data>
+  <data name="Logbook.Menu.SettingsComingSoon">
+    <value>Ajustes del libro</value>
+  </data>
+  <data name="Logbook.NewLogbook">
+    <value>Nuevo libro</value>
+  </data>
+  <data name="Logbook.NewName">
+    <value>Nombre</value>
+  </data>
+  <data name="Logbook.NewNameWatermark">
+    <value>Activación portátil, concurso, etc.</value>
+  </data>
+  <data name="Logbook.MyCallsign">
+    <value>Mi indicativo</value>
+  </data>
+  <data name="Logbook.MyGrid">
+    <value>Mi locator</value>
+  </data>
+  <data name="Logbook.Call">
+    <value>Indicativo</value>
+  </data>
+  <data name="Logbook.RstSent">
+    <value>Enviado</value>
+  </data>
+  <data name="Logbook.RstRcvd">
+    <value>Recibido</value>
+  </data>
+  <data name="Logbook.Grid">
+    <value>Locator</value>
+  </data>
+  <data name="Logbook.GridHint">
+    <value>2/4/6/8 caracteres; sepárelos con comas en una línea de locator (p. ej. IO77,IO87).</value>
+  </data>
+  <data name="Logbook.Name">
+    <value>Nombre</value>
+  </data>
+  <data name="Logbook.Comment">
+    <value>Comentario</value>
+  </data>
+  <data name="Logbook.ClearFieldsHint">
+    <value>Alt+W borra los campos de entrada</value>
+  </data>
+  <data name="Logbook.AddQso">
+    <value>Añadir</value>
+  </data>
+  <data name="Logbook.SaveQso">
+    <value>Guardar</value>
+  </data>
+  <data name="Logbook.EditQso">
+    <value>Editar QSO</value>
+  </data>
+  <data name="Logbook.CancelEdit">
+    <value>Cancelar</value>
+  </data>
+  <data name="Logbook.EditingStatus">
+    <value>Editando QSO registrado a las {0} UTC.</value>
+  </data>
+  <data name="Logbook.DeleteQso">
+    <value>Eliminar QSO</value>
+  </data>
+  <data name="Logbook.History">
+    <value>QSO recientes</value>
+  </data>
+  <data name="Logbook.StationControl">
+    <value>Control de estación</value>
+  </data>
+  <data name="Logbook.Station.Satellite">
+    <value>Satélite</value>
+  </data>
+  <data name="Logbook.Station.Mode">
+    <value>Modo</value>
+  </data>
+  <data name="Logbook.Station.Frequencies">
+    <value>Subida / bajada (MHz)</value>
+  </data>
+  <data name="Logbook.Station.Note">
+    <value>Los valores se toman del seguimiento de OscarWatch al añadir un QSO.</value>
+  </data>
+  <data name="Logbook.Station.Tracking">
+    <value>Siguiendo {0}</value>
+  </data>
+  <data name="Logbook.Station.Unavailable">
+    <value>Ningún satélite seleccionado o modo no sincronizado</value>
+  </data>
+  <data name="Logbook.ExportAdif">
+    <value>Exportar ADIF</value>
+  </data>
+  <data name="Logbook.ExportPicker.Title">
+    <value>Exportar ADIF</value>
+  </data>
+  <data name="Logbook.DefaultName">
+    <value>Libro principal</value>
+  </data>
+  <data name="Logbook.Status.Ready">
+    <value>Listo</value>
+  </data>
+  <data name="Logbook.Status.Created">
+    <value>Libro “{0}” creado.</value>
+  </data>
+  <data name="Logbook.Status.Deleted">
+    <value>Libro “{0}” eliminado.</value>
+  </data>
+  <data name="Logbook.Status.Added">
+    <value>{0} registrado a las {1} UTC.</value>
+  </data>
+  <data name="Logbook.Status.Updated">
+    <value>{0} actualizado a las {1} UTC.</value>
+  </data>
+  <data name="Logbook.Status.Removed">
+    <value>{0} eliminado.</value>
+  </data>
+  <data name="Logbook.Error.GridTooMany">
+    <value>Se admiten como máximo {0} locators.</value>
+  </data>
+  <data name="Logbook.Error.GridInvalidSegment">
+    <value>Locator “{0}” no válido. Use 2, 4, 6 u 8 caracteres Maidenhead.</value>
+  </data>
+  <data name="Logbook.Error.NameRequired">
+    <value>Introduzca un nombre para el libro.</value>
+  </data>
+  <data name="Logbook.CallHint.Previous">
+    <value>QSO anterior encontrado en este libro.</value>
+  </data>
+  <data name="Logbook.CallHint.PreviousWithGrid">
+    <value>QSO anterior: locator {0}.</value>
+  </data>
+  <data name="Logbook.CallStatus.Worked">
+    <value>Trabajado</value>
+  </data>
+  <data name="Logbook.CallStatus.NotWorked">
+    <value>No trabajado</value>
+  </data>
+  <data name="Logbook.Column.DateTime">
+    <value>Fecha/hora (UTC)</value>
+  </data>
+  <data name="Logbook.UtcClockLabel">
+    <value>Hora del QSO (UTC)</value>
+  </data>
+  <data name="Logbook.Column.Call">
+    <value>Call</value>
+  </data>
+  <data name="Logbook.Column.Grid">
+    <value>Grid</value>
+  </data>
+  <data name="Logbook.Column.Satellite">
+    <value>SAT</value>
+  </data>
+  <data name="Logbook.Column.Mode">
+    <value>Modo</value>
+  </data>
+  <data name="Logbook.Column.RstSent">
+    <value>Enviado</value>
+  </data>
+  <data name="Logbook.Column.RstRcvd">
+    <value>Recibido</value>
+  </data>
+  <data name="Logbook.Column.Comment">
+    <value>Comentario</value>
+  </data>
   <data name="Window.PassPlanner.Title">
     <value>Planificador de pases</value>
   </data>

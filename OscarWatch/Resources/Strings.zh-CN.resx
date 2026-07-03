@@ -648,6 +648,210 @@
   <data name="Rig.DualRadioSamePort">
     <value>下行和上行电台使用同一串口。请为每台电台选择不同端口。</value>
   </data>
+  <data name="Menu.Tools.QsoLogbook">
+    <value>_QSO 日志</value>
+  </data>
+  <data name="Window.Logbook.Title">
+    <value>QSO 日志</value>
+  </data>
+  <data name="Window.CreateLogbook.Title">
+    <value>新建日志</value>
+  </data>
+  <data name="Logbook.CreateLogbook.Intro">
+    <value>为便携操作、比赛或其他操作时段创建单独的日志。</value>
+  </data>
+  <data name="Logbook.DeleteLogbook.ConfirmTitle">
+    <value>删除日志</value>
+  </data>
+  <data name="Logbook.DeleteLogbook.ConfirmMessage">
+    <value>删除“{0}”及其中的所有 QSO？此操作无法撤销。</value>
+  </data>
+  <data name="Logbook.DeleteQso.ConfirmTitle">
+    <value>删除 QSO</value>
+  </data>
+  <data name="Logbook.DeleteQso.ConfirmMessage">
+    <value>删除与 {0} 在 {1} 的 QSO？此操作无法撤销。</value>
+  </data>
+  <data name="Logbook.LogbookLabel">
+    <value>日志</value>
+  </data>
+  <data name="Logbook.Menu.Logbook">
+    <value>日志</value>
+  </data>
+  <data name="Logbook.Menu.DeleteLogbook">
+    <value>删除日志</value>
+  </data>
+  <data name="Logbook.Menu.NoLogbook">
+    <value>未选择日志</value>
+  </data>
+  <data name="Logbook.Menu.Edit">
+    <value>编辑</value>
+  </data>
+  <data name="Logbook.Menu.Export">
+    <value>导出</value>
+  </data>
+  <data name="Logbook.Menu.Settings">
+    <value>设置</value>
+  </data>
+  <data name="Logbook.Menu.SettingsComingSoon">
+    <value>日志设置</value>
+  </data>
+  <data name="Logbook.NewLogbook">
+    <value>新建日志</value>
+  </data>
+  <data name="Logbook.NewName">
+    <value>名称</value>
+  </data>
+  <data name="Logbook.NewNameWatermark">
+    <value>便携操作、比赛等</value>
+  </data>
+  <data name="Logbook.MyCallsign">
+    <value>本台呼号</value>
+  </data>
+  <data name="Logbook.MyGrid">
+    <value>本台网格</value>
+  </data>
+  <data name="Logbook.Call">
+    <value>呼号</value>
+  </data>
+  <data name="Logbook.RstSent">
+    <value>发送</value>
+  </data>
+  <data name="Logbook.RstRcvd">
+    <value>接收</value>
+  </data>
+  <data name="Logbook.Grid">
+    <value>网格</value>
+  </data>
+  <data name="Logbook.GridHint">
+    <value>2/4/6/8 位字符；位于网格线上时用逗号分隔（例如 IO77,IO87）。</value>
+  </data>
+  <data name="Logbook.Name">
+    <value>姓名</value>
+  </data>
+  <data name="Logbook.Comment">
+    <value>备注</value>
+  </data>
+  <data name="Logbook.ClearFieldsHint">
+    <value>Alt+W 清除输入字段</value>
+  </data>
+  <data name="Logbook.AddQso">
+    <value>添加</value>
+  </data>
+  <data name="Logbook.SaveQso">
+    <value>保存</value>
+  </data>
+  <data name="Logbook.EditQso">
+    <value>编辑 QSO</value>
+  </data>
+  <data name="Logbook.CancelEdit">
+    <value>取消</value>
+  </data>
+  <data name="Logbook.EditingStatus">
+    <value>正在编辑于 {0} UTC 记录的 QSO。</value>
+  </data>
+  <data name="Logbook.DeleteQso">
+    <value>删除 QSO</value>
+  </data>
+  <data name="Logbook.History">
+    <value>最近 QSO</value>
+  </data>
+  <data name="Logbook.StationControl">
+    <value>台站控制</value>
+  </data>
+  <data name="Logbook.Station.Satellite">
+    <value>卫星</value>
+  </data>
+  <data name="Logbook.Station.Mode">
+    <value>模式</value>
+  </data>
+  <data name="Logbook.Station.Frequencies">
+    <value>上行 / 下行 (MHz)</value>
+  </data>
+  <data name="Logbook.Station.Note">
+    <value>添加 QSO 时从 OscarWatch 跟踪获取数值。</value>
+  </data>
+  <data name="Logbook.Station.Tracking">
+    <value>正在跟踪 {0}</value>
+  </data>
+  <data name="Logbook.Station.Unavailable">
+    <value>未选择卫星或未同步模式</value>
+  </data>
+  <data name="Logbook.ExportAdif">
+    <value>导出 ADIF</value>
+  </data>
+  <data name="Logbook.ExportPicker.Title">
+    <value>导出 ADIF</value>
+  </data>
+  <data name="Logbook.DefaultName">
+    <value>主日志</value>
+  </data>
+  <data name="Logbook.Status.Ready">
+    <value>就绪</value>
+  </data>
+  <data name="Logbook.Status.Created">
+    <value>已创建日志“{0}”。</value>
+  </data>
+  <data name="Logbook.Status.Deleted">
+    <value>已删除日志“{0}”。</value>
+  </data>
+  <data name="Logbook.Status.Added">
+    <value>已于 {1} UTC 记录 {0}。</value>
+  </data>
+  <data name="Logbook.Status.Updated">
+    <value>已于 {1} UTC 更新 {0}。</value>
+  </data>
+  <data name="Logbook.Status.Removed">
+    <value>已删除 {0}。</value>
+  </data>
+  <data name="Logbook.Error.GridTooMany">
+    <value>最多支持 {0} 个网格。</value>
+  </data>
+  <data name="Logbook.Error.GridInvalidSegment">
+    <value>网格“{0}”无效。请使用 2、4、6 或 8 位 Maidenhead 字符。</value>
+  </data>
+  <data name="Logbook.Error.NameRequired">
+    <value>请输入日志名称。</value>
+  </data>
+  <data name="Logbook.CallHint.Previous">
+    <value>在此日志中找到之前的 QSO。</value>
+  </data>
+  <data name="Logbook.CallHint.PreviousWithGrid">
+    <value>之前的 QSO：网格 {0}。</value>
+  </data>
+  <data name="Logbook.CallStatus.Worked">
+    <value>已通联</value>
+  </data>
+  <data name="Logbook.CallStatus.NotWorked">
+    <value>未通联</value>
+  </data>
+  <data name="Logbook.Column.DateTime">
+    <value>日期/时间 (UTC)</value>
+  </data>
+  <data name="Logbook.UtcClockLabel">
+    <value>QSO 时间 (UTC)</value>
+  </data>
+  <data name="Logbook.Column.Call">
+    <value>呼号</value>
+  </data>
+  <data name="Logbook.Column.Grid">
+    <value>网格</value>
+  </data>
+  <data name="Logbook.Column.Satellite">
+    <value>SAT</value>
+  </data>
+  <data name="Logbook.Column.Mode">
+    <value>模式</value>
+  </data>
+  <data name="Logbook.Column.RstSent">
+    <value>发送</value>
+  </data>
+  <data name="Logbook.Column.RstRcvd">
+    <value>接收</value>
+  </data>
+  <data name="Logbook.Column.Comment">
+    <value>备注</value>
+  </data>
   <data name="Window.PassPlanner.Title">
     <value>过境规划器</value>
   </data>

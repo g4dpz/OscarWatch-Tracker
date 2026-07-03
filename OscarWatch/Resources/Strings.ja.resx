@@ -1392,6 +1392,210 @@
   <data name="Settings.SaveFailed.Title">
     <value>設定を保存できませんでした</value>
   </data>
+  <data name="Menu.Tools.QsoLogbook">
+    <value>_QSOログブック</value>
+  </data>
+  <data name="Window.Logbook.Title">
+    <value>QSOログブック</value>
+  </data>
+  <data name="Window.CreateLogbook.Title">
+    <value>新規ログブック</value>
+  </data>
+  <data name="Logbook.CreateLogbook.Intro">
+    <value>ポータブル運用、コンテスト、その他のオペレーション用に別のログブックを作成します。</value>
+  </data>
+  <data name="Logbook.DeleteLogbook.ConfirmTitle">
+    <value>ログブックを削除</value>
+  </data>
+  <data name="Logbook.DeleteLogbook.ConfirmMessage">
+    <value>「{0}」とその中のすべてのQSOを削除しますか？元に戻せません。</value>
+  </data>
+  <data name="Logbook.DeleteQso.ConfirmTitle">
+    <value>QSOを削除</value>
+  </data>
+  <data name="Logbook.DeleteQso.ConfirmMessage">
+    <value>{0} との {1} のQSOを削除しますか？元に戻せません。</value>
+  </data>
+  <data name="Logbook.LogbookLabel">
+    <value>ログブック</value>
+  </data>
+  <data name="Logbook.Menu.Logbook">
+    <value>ログブック</value>
+  </data>
+  <data name="Logbook.Menu.DeleteLogbook">
+    <value>ログブックを削除</value>
+  </data>
+  <data name="Logbook.Menu.NoLogbook">
+    <value>ログブック未選択</value>
+  </data>
+  <data name="Logbook.Menu.Edit">
+    <value>編集</value>
+  </data>
+  <data name="Logbook.Menu.Export">
+    <value>エクスポート</value>
+  </data>
+  <data name="Logbook.Menu.Settings">
+    <value>設定</value>
+  </data>
+  <data name="Logbook.Menu.SettingsComingSoon">
+    <value>ログブック設定</value>
+  </data>
+  <data name="Logbook.NewLogbook">
+    <value>新規ログブック</value>
+  </data>
+  <data name="Logbook.NewName">
+    <value>名前</value>
+  </data>
+  <data name="Logbook.NewNameWatermark">
+    <value>ポータブル運用、コンテストなど</value>
+  </data>
+  <data name="Logbook.MyCallsign">
+    <value>自局コール</value>
+  </data>
+  <data name="Logbook.MyGrid">
+    <value>自局グリッド</value>
+  </data>
+  <data name="Logbook.Call">
+    <value>コールサイン</value>
+  </data>
+  <data name="Logbook.RstSent">
+    <value>送信</value>
+  </data>
+  <data name="Logbook.RstRcvd">
+    <value>受信</value>
+  </data>
+  <data name="Logbook.Grid">
+    <value>グリッド</value>
+  </data>
+  <data name="Logbook.GridHint">
+    <value>2/4/6/8文字。グリッドライン上はカンマ区切り（例: IO77,IO87）。</value>
+  </data>
+  <data name="Logbook.Name">
+    <value>名前</value>
+  </data>
+  <data name="Logbook.Comment">
+    <value>コメント</value>
+  </data>
+  <data name="Logbook.ClearFieldsHint">
+    <value>Alt+W で入力欄をクリア</value>
+  </data>
+  <data name="Logbook.AddQso">
+    <value>追加</value>
+  </data>
+  <data name="Logbook.SaveQso">
+    <value>保存</value>
+  </data>
+  <data name="Logbook.EditQso">
+    <value>QSOを編集</value>
+  </data>
+  <data name="Logbook.CancelEdit">
+    <value>キャンセル</value>
+  </data>
+  <data name="Logbook.EditingStatus">
+    <value>{0} UTC に記録したQSOを編集中。</value>
+  </data>
+  <data name="Logbook.DeleteQso">
+    <value>QSOを削除</value>
+  </data>
+  <data name="Logbook.History">
+    <value>最近のQSO</value>
+  </data>
+  <data name="Logbook.StationControl">
+    <value>ステーション制御</value>
+  </data>
+  <data name="Logbook.Station.Satellite">
+    <value>衛星</value>
+  </data>
+  <data name="Logbook.Station.Mode">
+    <value>モード</value>
+  </data>
+  <data name="Logbook.Station.Frequencies">
+    <value>アップリンク / ダウンリンク (MHz)</value>
+  </data>
+  <data name="Logbook.Station.Note">
+    <value>QSO追加時にOscarWatchのトラッキングから取得されます。</value>
+  </data>
+  <data name="Logbook.Station.Tracking">
+    <value>{0} をトラッキング中</value>
+  </data>
+  <data name="Logbook.Station.Unavailable">
+    <value>衛星未選択またはモード未同期</value>
+  </data>
+  <data name="Logbook.ExportAdif">
+    <value>ADIFをエクスポート</value>
+  </data>
+  <data name="Logbook.ExportPicker.Title">
+    <value>ADIFをエクスポート</value>
+  </data>
+  <data name="Logbook.DefaultName">
+    <value>メインログブック</value>
+  </data>
+  <data name="Logbook.Status.Ready">
+    <value>準備完了</value>
+  </data>
+  <data name="Logbook.Status.Created">
+    <value>ログブック「{0}」を作成しました。</value>
+  </data>
+  <data name="Logbook.Status.Deleted">
+    <value>ログブック「{0}」を削除しました。</value>
+  </data>
+  <data name="Logbook.Status.Added">
+    <value>{0} を {1} UTC に記録しました。</value>
+  </data>
+  <data name="Logbook.Status.Updated">
+    <value>{0} を {1} UTC に更新しました。</value>
+  </data>
+  <data name="Logbook.Status.Removed">
+    <value>{0} を削除しました。</value>
+  </data>
+  <data name="Logbook.Error.GridTooMany">
+    <value>グリッドは最大 {0} 件までです。</value>
+  </data>
+  <data name="Logbook.Error.GridInvalidSegment">
+    <value>ロケーター「{0}」が無効です。2、4、6、8文字のMaidenhead表記を使用してください。</value>
+  </data>
+  <data name="Logbook.Error.NameRequired">
+    <value>ログブック名を入力してください。</value>
+  </data>
+  <data name="Logbook.CallHint.Previous">
+    <value>このログブックに以前のQSOがあります。</value>
+  </data>
+  <data name="Logbook.CallHint.PreviousWithGrid">
+    <value>以前のQSO: グリッド {0}。</value>
+  </data>
+  <data name="Logbook.CallStatus.Worked">
+    <value>交信済</value>
+  </data>
+  <data name="Logbook.CallStatus.NotWorked">
+    <value>未交信</value>
+  </data>
+  <data name="Logbook.Column.DateTime">
+    <value>日時 (UTC)</value>
+  </data>
+  <data name="Logbook.UtcClockLabel">
+    <value>QSO時刻 (UTC)</value>
+  </data>
+  <data name="Logbook.Column.Call">
+    <value>コール</value>
+  </data>
+  <data name="Logbook.Column.Grid">
+    <value>グリッド</value>
+  </data>
+  <data name="Logbook.Column.Satellite">
+    <value>SAT</value>
+  </data>
+  <data name="Logbook.Column.Mode">
+    <value>モード</value>
+  </data>
+  <data name="Logbook.Column.RstSent">
+    <value>送信</value>
+  </data>
+  <data name="Logbook.Column.RstRcvd">
+    <value>受信</value>
+  </data>
+  <data name="Logbook.Column.Comment">
+    <value>コメント</value>
+  </data>
   <data name="Window.PassPlanner.Title">
     <value>パスプランナー</value>
   </data>
