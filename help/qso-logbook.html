@@ -139,6 +139,11 @@
       <h2>Export ADIF</h2>
       <p>
         Choose <strong>Export → Export ADIF</strong> to save the current logbook as a <code>.adi</code> file.
+        A dialogue asks whether the export is for <strong>Logbook of the World (LoTW)</strong>. When enabled,
+        satellite names are remapped to the identifiers LoTW expects (for example <code>ISS</code> → <code>ARISS</code>).
+        Leave the option unchecked for Cloudlog, Log4OM, and other loggers that use common satellite names.
+      </p>
+      <p>
         Records include satellite name, mode, bands, frequencies, propagation mode <strong>SAT</strong>,
         your station callsign and grid from the logbook, and comma-separated grids when used.
         Special characters in comments are escaped for safe ADIF import.

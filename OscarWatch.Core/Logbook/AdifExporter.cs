@@ -7,20 +7,20 @@ namespace OscarWatch.Core.Logbook;
 
 public static class AdifExporter
 {
-    public static string ExportLogbook(QsoLogbook logbook, IReadOnlyList<QsoRecord> qsos)
+    public static string ExportLogbook(QsoLogbook logbook, IReadOnlyList<QsoRecord> qsos, bool forLotw = false)
     {
         var sb = new StringBuilder();
         AppendHeader(sb);
         foreach (var qso in qsos.OrderBy(q => q.QsoUtc))
-            AppendRecord(sb, logbook, qso);
+            AppendRecord(sb, logbook, qso, forLotw);
 
         return sb.ToString();
     }
 
-    public static string ExportRecord(QsoLogbook logbook, QsoRecord qso)
+    public static string ExportRecord(QsoLogbook logbook, QsoRecord qso, bool forLotw = false)
     {
         var sb = new StringBuilder();
-        AppendRecord(sb, logbook, qso);
+        AppendRecord(sb, logbook, qso, forLotw);
         return sb.ToString();
     }
 
@@ -31,7 +31,7 @@ public static class AdifExporter
         sb.AppendLine("<EOH>");
     }
 
-    private static void AppendRecord(StringBuilder sb, QsoLogbook logbook, QsoRecord qso)
+    private static void AppendRecord(StringBuilder sb, QsoLogbook logbook, QsoRecord qso, bool forLotw)
     {
         AppendField(sb, "CALL", MaidenheadLocator.NormalizeCallsign(qso.Call));
         AppendField(sb, "QSO_DATE", QsoLogbookTime.NormalizeToUtc(qso.QsoUtc).ToString("yyyyMMdd", CultureInfo.InvariantCulture));
@@ -54,7 +54,11 @@ public static class AdifExporter
             AppendField(sb, "MY_GRIDSQUARE", MaidenheadLocator.NormalizeGrids(logbook.MyGridSquare));
 
         if (!string.IsNullOrWhiteSpace(qso.SatName))
-            AppendField(sb, "SAT_NAME", qso.SatName.Trim());
+        {
+            var satName = LotwSatelliteNameMapper.MapForExport(qso.SatName, forLotw);
+            if (!string.IsNullOrWhiteSpace(satName))
+                AppendField(sb, "SAT_NAME", satName);
+        }
         AppendField(sb, "PROP_MODE", string.IsNullOrWhiteSpace(qso.PropMode) ? "SAT" : qso.PropMode.Trim());
 
         if (qso.FreqHz > 0)

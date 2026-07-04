@@ -400,7 +400,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
     }
 
     [RelayCommand(CanExecute = nameof(CanExport))]
-    public async Task<string?> ExportAdifAsync()
+    public async Task<string?> ExportAdifAsync(bool forLotw = false)
     {
         if (SelectedLogbook is null)
             return null;
@@ -409,7 +409,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         if (qsos.Count == 0)
             return null;
 
-        return AdifExporter.ExportLogbook(SelectedLogbook, qsos);
+        return AdifExporter.ExportLogbook(SelectedLogbook, qsos, forLotw);
     }
 
     [RelayCommand(CanExecute = nameof(CanDeleteQso))]

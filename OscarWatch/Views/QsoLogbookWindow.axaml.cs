@@ -203,7 +203,11 @@ public partial class QsoLogbookWindow : Window
         if (DataContext is not QsoLogbookViewModel vm || vm.SelectedLogbook is null)
             return;
 
-        var adif = await vm.ExportAdifAsync().ConfigureAwait(true);
+        var forLotw = await ExportAdifDialog.ShowAsync(this).ConfigureAwait(true);
+        if (forLotw is null)
+            return;
+
+        var adif = await vm.ExportAdifAsync(forLotw.Value).ConfigureAwait(true);
         if (string.IsNullOrWhiteSpace(adif))
             return;
 

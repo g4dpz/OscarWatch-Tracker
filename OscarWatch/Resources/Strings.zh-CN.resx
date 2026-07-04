@@ -843,6 +843,18 @@
   <data name="Logbook.ExportPicker.Title">
     <value>导出 ADIF</value>
   </data>
+  <data name="Logbook.ExportAdif.Dialog.Title">
+    <value>导出 ADIF</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Intro">
+    <value>选择此文件是否用于上传到 Logbook of the World。LoTW 对部分卫星使用不同的名称。</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.ForLotw">
+    <value>为 LoTW 重新映射卫星名称</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Export">
+    <value>导出</value>
+  </data>
   <data name="Logbook.DefaultName">
     <value>主日志</value>
   </data>

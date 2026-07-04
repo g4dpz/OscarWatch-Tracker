@@ -154,6 +154,47 @@ public class AdifExporterTests
         Assert.DoesNotContain("<CALL:3>ABC<EOR>", adif, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void ExportLogbook_remaps_satellite_names_for_lotw()
+    {
+        var logbook = new QsoLogbook
+        {
+            Id = 1,
+            Name = "Portable",
+            CreatedUtc = DateTime.UtcNow,
+            MyCallsign = "2M0SQL",
+            MyGridSquare = "IO87IP"
+        };
+        var qso = new QsoRecord
+        {
+            Id = 1,
+            LogbookId = 1,
+            QsoUtc = new DateTime(2020, 2, 12, 17, 10, 0, DateTimeKind.Utc),
+            Call = "G0ABC",
+            SatName = "ISS",
+            PropMode = "SAT",
+            CreatedUtc = DateTime.UtcNow
+        };
+
+        var standard = AdifExporter.ExportLogbook(logbook, [qso], forLotw: false);
+        var lotw = AdifExporter.ExportLogbook(logbook, [qso], forLotw: true);
+
+        Assert.Contains("<SAT_NAME:3>ISS", standard, StringComparison.Ordinal);
+        Assert.Contains("<SAT_NAME:5>ARISS", lotw, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("ISS", "ARISS")]
+    [InlineData("GREENCUBE", "IO-117")]
+    [InlineData("TEVEL2-4", "TEV2-4")]
+    [InlineData("SO-50", "SO-50")]
+    public void LotwSatelliteNameMapper_maps_known_names_and_preserves_unknown(string source, string expected) =>
+        Assert.Equal(expected, LotwSatelliteNameMapper.MapForExport(source, forLotw: true));
+
+    [Fact]
+    public void LotwSatelliteNameMapper_leaves_name_unchanged_when_not_for_lotw() =>
+        Assert.Equal("ISS", LotwSatelliteNameMapper.MapForExport("ISS", forLotw: false));
+
     [Theory]
     [InlineData(@"back\slash", @"back\\slash")]
     [InlineData("line\nbreak", "line\\nbreak")]

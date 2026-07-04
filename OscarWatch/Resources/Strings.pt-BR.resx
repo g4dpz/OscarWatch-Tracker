@@ -843,6 +843,18 @@ Continuar?</value>
   <data name="Logbook.ExportPicker.Title">
     <value>Exportar ADIF</value>
   </data>
+  <data name="Logbook.ExportAdif.Dialog.Title">
+    <value>Exportar ADIF</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Intro">
+    <value>Escolha se este ficheiro é para envio ao Logbook of the World. O LoTW usa nomes de satélite diferentes em algumas espaçonaves.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.ForLotw">
+    <value>Remapear nomes de satélite para LoTW</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Export">
+    <value>Exportar</value>
+  </data>
   <data name="Logbook.DefaultName">
     <value>Livro principal</value>
   </data>

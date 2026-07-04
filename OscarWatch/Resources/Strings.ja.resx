@@ -1587,6 +1587,18 @@
   <data name="Logbook.ExportPicker.Title">
     <value>ADIFをエクスポート</value>
   </data>
+  <data name="Logbook.ExportAdif.Dialog.Title">
+    <value>ADIFをエクスポート</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Intro">
+    <value>Logbook of the World へのアップロード用かどうかを選択してください。LoTW では一部の衛星で異なる名称を使用します。</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.ForLotw">
+    <value>LoTW 用に衛星名を変換する</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Export">
+    <value>エクスポート</value>
+  </data>
   <data name="Logbook.DefaultName">
     <value>メインログブック</value>
   </data>
