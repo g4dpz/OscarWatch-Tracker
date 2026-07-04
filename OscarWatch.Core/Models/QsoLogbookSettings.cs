@@ -74,8 +74,8 @@ public static class QsoLogbookHistoryColumns
         Mode,
         RstSent,
         RstRcvd,
-        Cloudlog,
-        Comment
+        Comment,
+        Cloudlog
     ];
 
     public static bool UsesStarWidthByDefault(string key) =>

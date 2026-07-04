@@ -28,6 +28,8 @@ public static class AccessibilityThemeResources
     public const string EclipseStatusKey = "EclipseStatusBrush";
     public const string GpsOkKey = "GpsOkBrush";
     public const string GpsWarnKey = "GpsWarnBrush";
+    public const string ThemeSubtlePanelBackgroundKey = "ThemeSubtlePanelBackgroundBrush";
+    public const string ThemeInsetBackgroundKey = "ThemeInsetBackgroundBrush";
 
     public static void Install()
     {
@@ -83,5 +85,9 @@ public static class AccessibilityThemeResources
             isDark ? Color.Parse("#9CA3AF") : Color.Parse("#5C6370"));
         resources[GpsOkKey] = resources[PassHighlightKey];
         resources[GpsWarnKey] = resources[PassRecordingBadgeBackgroundKey];
+        resources[ThemeSubtlePanelBackgroundKey] = new SolidColorBrush(
+            isDark ? Color.Parse("#26282C") : Color.Parse("#F6F7F8"));
+        resources[ThemeInsetBackgroundKey] = new SolidColorBrush(
+            isDark ? Color.Parse("#1C1E22") : Color.Parse("#ECEEF0"));
     }
 }

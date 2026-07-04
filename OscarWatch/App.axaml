@@ -54,5 +54,7 @@
         <SolidColorBrush x:Key="EclipseStatusBrush" Color="#5C6370" />
         <SolidColorBrush x:Key="GpsOkBrush" Color="#2B6E1F" />
         <SolidColorBrush x:Key="GpsWarnBrush" Color="#DC2626" />
+        <SolidColorBrush x:Key="ThemeSubtlePanelBackgroundBrush" Color="#F6F7F8" />
+        <SolidColorBrush x:Key="ThemeInsetBackgroundBrush" Color="#ECEEF0" />
     </Application.Resources>
 </Application>

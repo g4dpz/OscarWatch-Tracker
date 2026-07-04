@@ -9,6 +9,40 @@
         Width="980" Height="640"
         MinWidth="760" MinHeight="480"
         WindowStartupLocation="CenterOwner">
+  <Window.Styles>
+    <Style Selector="Border.logbook-panel">
+      <Setter Property="Background" Value="{DynamicResource ThemeSubtlePanelBackgroundBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="6" />
+    </Style>
+    <Style Selector="Border.logbook-entry">
+      <Setter Property="Padding" Value="12" />
+    </Style>
+    <Style Selector="Border.logbook-entry.station-live">
+      <Setter Property="BorderBrush" Value="{DynamicResource GpsOkBrush}" />
+      <Setter Property="BorderThickness" Value="2,1,1,1" />
+    </Style>
+    <Style Selector="Border.logbook-station.station-live">
+      <Setter Property="BorderBrush" Value="{DynamicResource GpsOkBrush}" />
+      <Setter Property="BorderThickness" Value="0,0,0,2" />
+    </Style>
+    <Style Selector="Border.call-status-badge.worked TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource PassRecordingBadgeForegroundBrush}" />
+    </Style>
+    <Style Selector="Border.call-status-badge.not-worked TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource PassInProgressBadgeForegroundBrush}" />
+    </Style>
+    <Style Selector="Border.call-status-badge.worked">
+      <Setter Property="Background" Value="{DynamicResource PassRecordingBadgeBackgroundBrush}" />
+    </Style>
+    <Style Selector="Border.call-status-badge.not-worked">
+      <Setter Property="Background" Value="{DynamicResource GpsOkBrush}" />
+    </Style>
+    <Style Selector="DataGridRow:nth-child(2n)">
+      <Setter Property="Background" Value="{DynamicResource ThemeInsetBackgroundBrush}" />
+    </Style>
+  </Window.Styles>
   <DockPanel Margin="12">
     <Menu DockPanel.Dock="Top">
       <MenuItem Header="{loc:Localize Key=Logbook.Menu.Logbook}">
@@ -55,23 +89,29 @@
             BorderThickness="0,1,0,0"
             Padding="0,8,0,0"
             Margin="0,10,0,0">
-      <StackPanel Spacing="4">
-        <TextBlock Text="{Binding QsoCountText}"
+      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+        <TextBlock Grid.Column="0"
+                   Text="{Binding QsoCountText}"
                    FontWeight="SemiBold"
+                   VerticalAlignment="Center"
                    IsVisible="{Binding ShowQsoCountText}" />
-        <TextBlock Text="{Binding StatusText}"
-                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-        <TextBlock Text="{Binding StationStatusText}"
-                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-      </StackPanel>
+        <TextBlock Grid.Column="1"
+                   Text="{Binding StatusText}"
+                   VerticalAlignment="Center"
+                   TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+        <TextBlock Grid.Column="2"
+                   Text="{Binding StationStatusText}"
+                   VerticalAlignment="Center"
+                   TextAlignment="Right"
+                   Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+      </Grid>
     </Border>
 
     <Grid RowDefinitions="Auto,*" RowSpacing="10" Margin="0,10,0,0">
       <Border Grid.Row="0"
-              BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-              BorderThickness="1"
-              Padding="10"
-              CornerRadius="4">
+              Classes="logbook-panel logbook-entry"
+              Classes.station-live="{Binding StationAvailable}">
         <Border.Styles>
           <Style Selector="TextBox">
             <Setter Property="MinHeight" Value="32" />
@@ -111,32 +151,28 @@
             <Setter Property="MinHeight" Value="32" />
             <Setter Property="VerticalAlignment" Value="Bottom" />
           </Style>
-          <Style Selector="Border.call-status-badge TextBlock">
-            <Setter Property="Foreground" Value="#FFFFFFFF" />
-          </Style>
-          <Style Selector="Border.call-status-badge.worked">
-            <Setter Property="Background" Value="{DynamicResource PassRecordingBadgeBackgroundBrush}" />
-          </Style>
-          <Style Selector="Border.call-status-badge.not-worked">
-            <Setter Property="Background" Value="{DynamicResource GpsOkBrush}" />
-          </Style>
         </Border.Styles>
         <StackPanel Spacing="10">
-          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-            <TextBlock Grid.Column="0"
-                       Text="{loc:Localize Key=Logbook.UtcClockLabel}"
-                       VerticalAlignment="Center"
-                       FontSize="12"
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-            <TextBlock Grid.Column="1"
-                       Text="{Binding UtcClock}"
-                       VerticalAlignment="Center"
-                       FontSize="12"
-                       FontFamily="Consolas,Courier New,monospace" />
-          </Grid>
+          <Border Background="{DynamicResource ThemeInsetBackgroundBrush}"
+                  CornerRadius="4"
+                  Padding="8,6">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+              <TextBlock Grid.Column="0"
+                         Text="{loc:Localize Key=Logbook.UtcClockLabel}"
+                         VerticalAlignment="Center"
+                         FontSize="12"
+                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+              <TextBlock Grid.Column="1"
+                         Text="{Binding UtcClock}"
+                         VerticalAlignment="Center"
+                         FontSize="12"
+                         FontWeight="SemiBold"
+                         FontFamily="Consolas,Courier New,monospace" />
+            </Grid>
+          </Border>
           <TextBlock Text="{Binding EditingStatusText}"
                      IsVisible="{Binding IsEditingQso}"
-                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                     Foreground="{DynamicResource ThemeSecondaryForegroundBrush}"
                      FontStyle="Italic" />
           <Grid ColumnDefinitions="*,72,72,*,*,*,Auto,Auto"
                 RowDefinitions="Auto,Auto"
@@ -144,22 +180,22 @@
                 RowSpacing="4">
             <TextBlock Grid.Row="0" Grid.Column="0"
                        Text="{loc:Localize Key=Logbook.Call}" FontSize="12"
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
             <TextBlock Grid.Row="0" Grid.Column="1"
                        Text="{loc:Localize Key=Logbook.RstSent}" FontSize="12"
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
             <TextBlock Grid.Row="0" Grid.Column="2"
                        Text="{loc:Localize Key=Logbook.RstRcvd}" FontSize="12"
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
             <TextBlock Grid.Row="0" Grid.Column="3"
                        Text="{loc:Localize Key=Logbook.Grid}" FontSize="12"
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
             <TextBlock Grid.Row="0" Grid.Column="4"
                        Text="{loc:Localize Key=Logbook.Name}" FontSize="12"
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
             <TextBlock Grid.Row="0" Grid.Column="5"
                        Text="{loc:Localize Key=Logbook.Comment}" FontSize="12"
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
             <TextBlock Grid.Row="0" Grid.Column="6"
                        Text="&#160;" FontSize="12"
                        IsVisible="{Binding !ShowCancelEdit}" />
@@ -247,23 +283,22 @@
             <TextBlock Text="{Binding CallHint}"
                        VerticalAlignment="Center"
                        FontSize="11"
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
           </StackPanel>
         </StackPanel>
       </Border>
 
       <Grid Grid.Row="1" ColumnDefinitions="*,260" ColumnSpacing="10">
         <Border Grid.Column="0"
-                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-                BorderThickness="1"
-                Padding="4"
-                CornerRadius="4">
+                Classes="logbook-panel"
+                Padding="4,4,4,6">
           <DockPanel>
             <TextBlock DockPanel.Dock="Top"
                        Text="{loc:Localize Key=Logbook.History}"
-                       Margin="6,2,6,8"
+                       Margin="8,4,8,8"
                        FontWeight="SemiBold" />
             <DataGrid x:Name="QsoHistoryGrid"
+                      Background="Transparent"
                       ItemsSource="{Binding QsoRows}"
                       SelectedItem="{Binding SelectedQso, Mode=TwoWay}"
                       AutoGenerateColumns="False"
@@ -278,7 +313,7 @@
                   <Setter Property="Foreground" Value="{DynamicResource GpsOkBrush}" />
                 </Style>
                 <Style Selector="TextBlock.cloudlog-pending">
-                  <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                  <Setter Property="Foreground" Value="{DynamicResource ThemeSecondaryForegroundBrush}" />
                 </Style>
                 <Style Selector="TextBlock.cloudlog-failed">
                   <Setter Property="Foreground" Value="{DynamicResource PassRecordingBadgeBackgroundBrush}" />
@@ -314,6 +349,9 @@
                 <DataGridTextColumn Header="{loc:Localize Key=Logbook.Column.RstRcvd}"
                                     Binding="{Binding RstRcvd}"
                                     Width="52" />
+                <DataGridTextColumn Header="{loc:Localize Key=Logbook.Column.Comment}"
+                                    Binding="{Binding Comment}"
+                                    Width="*" />
                 <DataGridTemplateColumn Header="{loc:Localize Key=Logbook.Column.Cloudlog}"
                                         Width="58">
                   <DataGridTemplateColumn.CellTemplate>
@@ -327,41 +365,39 @@
                     </DataTemplate>
                   </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="{loc:Localize Key=Logbook.Column.Comment}"
-                                    Binding="{Binding Comment}"
-                                    Width="*" />
               </DataGrid.Columns>
             </DataGrid>
           </DockPanel>
         </Border>
 
         <Border Grid.Column="1"
-                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-                BorderThickness="1"
-                Padding="10"
-                CornerRadius="4">
+                Classes="logbook-panel logbook-station"
+                Classes.station-live="{Binding StationAvailable}"
+                Padding="12">
           <StackPanel Spacing="10">
             <TextBlock Text="{loc:Localize Key=Logbook.StationControl}"
                        FontWeight="SemiBold" />
             <StackPanel Spacing="4">
               <TextBlock Text="{loc:Localize Key=Logbook.Station.Satellite}" FontSize="12"
-                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-              <TextBlock Text="{Binding StationSatellite}" FontFamily="Consolas,Courier New,monospace" />
+                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+              <TextBlock Text="{Binding StationSatellite}"
+                         FontWeight="SemiBold"
+                         FontFamily="Consolas,Courier New,monospace" />
             </StackPanel>
             <StackPanel Spacing="4">
               <TextBlock Text="{loc:Localize Key=Logbook.Station.Mode}" FontSize="12"
-                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
               <TextBlock Text="{Binding StationMode}" FontFamily="Consolas,Courier New,monospace" />
             </StackPanel>
             <StackPanel Spacing="4">
               <TextBlock Text="{loc:Localize Key=Logbook.Station.Frequencies}" FontSize="12"
-                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
               <TextBlock Text="{Binding StationFrequencies}" FontFamily="Consolas,Courier New,monospace" />
             </StackPanel>
             <TextBlock Text="{loc:Localize Key=Logbook.Station.Note}"
                        TextWrapping="Wrap"
                        FontSize="11"
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
           </StackPanel>
         </Border>
       </Grid>
