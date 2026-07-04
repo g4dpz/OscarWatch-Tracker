@@ -94,6 +94,36 @@ public class AdifExporterTests
     }
 
     [Fact]
+    public void ExportLogbook_header_uses_program_metadata_only()
+    {
+        var logbook = new QsoLogbook
+        {
+            Id = 1,
+            Name = "Main logbook",
+            CreatedUtc = DateTime.UtcNow,
+            MyCallsign = "2M0SQL",
+            MyGridSquare = "IO87IP"
+        };
+        var qso = new QsoRecord
+        {
+            Id = 1,
+            LogbookId = 1,
+            QsoUtc = new DateTime(2020, 2, 12, 17, 10, 0, DateTimeKind.Utc),
+            Call = "G0ABC",
+            PropMode = "SAT",
+            CreatedUtc = DateTime.UtcNow
+        };
+
+        var adif = AdifExporter.ExportLogbook(logbook, [qso]);
+        var eohIndex = adif.IndexOf("<EOH>", StringComparison.Ordinal);
+        Assert.True(eohIndex > 0);
+
+        var header = adif[..eohIndex];
+        Assert.Contains("<PROGRAMID:10>OscarWatch", header, StringComparison.Ordinal);
+        Assert.DoesNotContain("<COMMENT:", header, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ExportLogbook_escapes_special_characters_in_field_data()
     {
         var logbook = new QsoLogbook

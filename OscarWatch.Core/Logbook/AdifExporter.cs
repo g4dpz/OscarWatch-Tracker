@@ -10,7 +10,7 @@ public static class AdifExporter
     public static string ExportLogbook(QsoLogbook logbook, IReadOnlyList<QsoRecord> qsos)
     {
         var sb = new StringBuilder();
-        AppendHeader(sb, logbook);
+        AppendHeader(sb);
         foreach (var qso in qsos.OrderBy(q => q.QsoUtc))
             AppendRecord(sb, logbook, qso);
 
@@ -24,12 +24,10 @@ public static class AdifExporter
         return sb.ToString();
     }
 
-    private static void AppendHeader(StringBuilder sb, QsoLogbook logbook)
+    private static void AppendHeader(StringBuilder sb)
     {
         AppendField(sb, "PROGRAMID", "OscarWatch");
         AppendField(sb, "PROGRAMVERSION", typeof(AdifExporter).Assembly.GetName().Version?.ToString(3) ?? "1.0");
-        if (!string.IsNullOrWhiteSpace(logbook.Name))
-            AppendField(sb, "COMMENT", $"Logbook: {logbook.Name.Trim()}");
         sb.AppendLine("<EOH>");
     }
 

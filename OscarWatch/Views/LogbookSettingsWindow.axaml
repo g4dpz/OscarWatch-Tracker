@@ -10,7 +10,7 @@
         SizeToContent="Height"
         MinWidth="480"
         WindowStartupLocation="CenterOwner">
-  <DockPanel Margin="16">
+  <DockPanel Margin="12">
     <StackPanel DockPanel.Dock="Bottom" Spacing="8" Margin="0,16,0,0">
       <TextBlock Text="{Binding ErrorText}"
                  TextWrapping="Wrap"
@@ -33,58 +33,82 @@
       </StackPanel>
     </StackPanel>
 
-    <TabControl>
+    <TabControl Margin="0,0,0,4">
+      <TabControl.Styles>
+        <Style Selector="TabItem">
+          <Setter Property="FontSize" Value="14" />
+          <Setter Property="FontWeight" Value="SemiBold" />
+          <Setter Property="Padding" Value="10,7" />
+        </Style>
+        <Style Selector="TabItem TextBlock">
+          <Setter Property="FontSize" Value="14" />
+          <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style Selector="TabItem ScrollViewer StackPanel > TextBlock">
+          <Setter Property="FontSize" Value="12" />
+          <Setter Property="FontWeight" Value="Normal" />
+        </Style>
+        <Style Selector="TabItem ScrollViewer > TextBlock">
+          <Setter Property="FontSize" Value="11" />
+          <Setter Property="FontWeight" Value="Normal" />
+        </Style>
+        <Style Selector="TabItem ScrollViewer > StackPanel">
+          <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+      </TabControl.Styles>
       <TabItem Header="{loc:Localize Key=Settings.Tab.Cloudlog}">
-        <StackPanel Spacing="12" Margin="0,12,0,0">
-          <TextBlock Text="{loc:Localize Key=Logbook.Settings.Cloudlog.Intro}"
-                     TextWrapping="Wrap"
-                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-          <StackPanel Spacing="4">
-            <TextBlock Text="{loc:Localize Key=Logbook.Settings.Cloudlog.UrlLabel}"
-                       FontSize="12"
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-            <TextBox Text="{Binding CloudlogUrlSummary}"
-                     IsReadOnly="True" />
-            <TextBlock Text="{loc:Localize Key=Logbook.Settings.Cloudlog.UrlNote}"
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
+          <StackPanel Spacing="14" MaxWidth="480">
+            <TextBlock Text="{loc:Localize Key=Settings.Cloudlog.Section}"
+                       FontWeight="SemiBold"
+                       FontSize="13" />
+            <TextBlock Text="{loc:Localize Key=Logbook.Settings.Cloudlog.Intro}"
                        TextWrapping="Wrap"
                        FontSize="11"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-          </StackPanel>
-          <CheckBox Content="{loc:Localize Key=Logbook.Settings.Cloudlog.AutoUpload}"
-                    IsChecked="{Binding CloudlogAutoUpload, Mode=TwoWay}"
+            <StackPanel Spacing="4">
+              <TextBlock Text="{loc:Localize Key=Logbook.Settings.Cloudlog.UrlLabel}" />
+              <TextBox Text="{Binding CloudlogUrlSummary}"
+                       IsReadOnly="True" />
+              <TextBlock Text="{loc:Localize Key=Logbook.Settings.Cloudlog.UrlNote}"
+                         TextWrapping="Wrap"
+                         FontSize="11"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            </StackPanel>
+            <CheckBox Content="{loc:Localize Key=Logbook.Settings.Cloudlog.AutoUpload}"
+                      IsChecked="{Binding CloudlogAutoUpload, Mode=TwoWay}"
+                      IsEnabled="{Binding CloudlogConfigured}" />
+            <StackPanel Spacing="4" IsEnabled="{Binding CloudlogConfigured}">
+              <TextBlock Text="{loc:Localize Key=Logbook.Settings.Cloudlog.StationProfile}" />
+              <Grid ColumnDefinitions="*,Auto">
+                <ComboBox Grid.Column="0"
+                          ItemsSource="{Binding StationProfiles}"
+                          SelectedItem="{Binding SelectedStationProfile, Mode=TwoWay}"
+                          HorizontalAlignment="Stretch"
+                          IsEnabled="{Binding !IsLoadingProfiles}">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate DataType="models:CloudlogStationProfile">
+                      <TextBlock Text="{Binding DisplayLabel}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button Grid.Column="1"
+                        Margin="8,0,0,0"
+                        Content="{loc:Localize Key=Logbook.Settings.Cloudlog.RefreshProfiles}"
+                        Command="{Binding RefreshStationProfilesCommand}"
+                        IsEnabled="{Binding !IsLoadingProfiles}" />
+              </Grid>
+              <TextBlock Text="{loc:Localize Key=Logbook.Settings.Cloudlog.StationProfileNote}"
+                         TextWrapping="Wrap"
+                         FontSize="11"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            </StackPanel>
+            <Button Content="{loc:Localize Key=Logbook.Settings.Cloudlog.RetryFailed}"
+                    Command="{Binding RetryFailedUploadsCommand}"
+                    HorizontalAlignment="Left"
                     IsEnabled="{Binding CloudlogConfigured}" />
-          <StackPanel Spacing="4" IsEnabled="{Binding CloudlogConfigured}">
-            <TextBlock Text="{loc:Localize Key=Logbook.Settings.Cloudlog.StationProfile}"
-                       FontSize="12"
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-            <Grid ColumnDefinitions="*,Auto">
-              <ComboBox Grid.Column="0"
-                        ItemsSource="{Binding StationProfiles}"
-                        SelectedItem="{Binding SelectedStationProfile, Mode=TwoWay}"
-                        HorizontalAlignment="Stretch"
-                        IsEnabled="{Binding !IsLoadingProfiles}">
-                <ComboBox.ItemTemplate>
-                  <DataTemplate DataType="models:CloudlogStationProfile">
-                    <TextBlock Text="{Binding DisplayLabel}" />
-                  </DataTemplate>
-                </ComboBox.ItemTemplate>
-              </ComboBox>
-              <Button Grid.Column="1"
-                      Margin="8,0,0,0"
-                      Content="{loc:Localize Key=Logbook.Settings.Cloudlog.RefreshProfiles}"
-                      Command="{Binding RefreshStationProfilesCommand}"
-                      IsEnabled="{Binding !IsLoadingProfiles}" />
-            </Grid>
-            <TextBlock Text="{loc:Localize Key=Logbook.Settings.Cloudlog.StationProfileNote}"
-                       TextWrapping="Wrap"
-                       FontSize="11"
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
           </StackPanel>
-          <Button Content="{loc:Localize Key=Logbook.Settings.Cloudlog.RetryFailed}"
-                  Command="{Binding RetryFailedUploadsCommand}"
-                  HorizontalAlignment="Left"
-                  IsEnabled="{Binding CloudlogConfigured}" />
-        </StackPanel>
+        </ScrollViewer>
       </TabItem>
     </TabControl>
   </DockPanel>
