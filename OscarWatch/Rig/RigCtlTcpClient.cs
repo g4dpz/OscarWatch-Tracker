@@ -9,10 +9,12 @@ namespace OscarWatch.Rig;
 internal sealed class RigCtlTcpClient : IDisposable
 {
     private const int DefaultCommandTimeoutMs = 500;
+    private const int DefaultConnectTimeoutMs = 3000;
 
     private readonly string _host;
     private readonly int _port;
     private readonly int _commandTimeoutMs;
+    private readonly int _connectTimeoutMs;
     private readonly object _gate = new();
     private TcpClient? _client;
     private NetworkStream? _stream;
@@ -22,6 +24,7 @@ internal sealed class RigCtlTcpClient : IDisposable
         _host = string.IsNullOrWhiteSpace(host) ? RigEndpointSettings.SdrRigCtlDefaultHost : host.Trim();
         _port = port;
         _commandTimeoutMs = commandTimeoutMs > 0 ? commandTimeoutMs : DefaultCommandTimeoutMs;
+        _connectTimeoutMs = Math.Max(_commandTimeoutMs, DefaultConnectTimeoutMs);
     }
 
     public bool IsConnected
@@ -41,8 +44,7 @@ internal sealed class RigCtlTcpClient : IDisposable
             _client = new TcpClient();
             _client.ReceiveTimeout = _commandTimeoutMs;
             _client.SendTimeout = _commandTimeoutMs;
-            if (!_client.ConnectAsync(_host, _port).Wait(_commandTimeoutMs))
-                throw new TimeoutException($"rigctl connect to {_host}:{_port} timed out.");
+            ConnectWithTimeout(_client, _host, _port, _connectTimeoutMs);
 
             _stream = _client.GetStream();
             _stream.ReadTimeout = _commandTimeoutMs;
@@ -98,8 +100,7 @@ internal sealed class RigCtlTcpClient : IDisposable
         _client = new TcpClient();
         _client.ReceiveTimeout = _commandTimeoutMs;
         _client.SendTimeout = _commandTimeoutMs;
-        if (!_client.ConnectAsync(_host, _port).Wait(_commandTimeoutMs))
-            throw new TimeoutException($"rigctl reconnect to {_host}:{_port} timed out.");
+        ConnectWithTimeout(_client, _host, _port, _connectTimeoutMs);
 
         _stream = _client.GetStream();
         _stream.ReadTimeout = _commandTimeoutMs;
@@ -114,21 +115,22 @@ internal sealed class RigCtlTcpClient : IDisposable
         var builder = new StringBuilder();
         var buffer = new byte[256];
         var savedTimeout = _stream.ReadTimeout;
+        var deadline = DateTime.UtcNow.AddMilliseconds(_commandTimeoutMs);
+
         try
         {
-            // Blocking read — DataAvailable is unreliable on Linux and caused empty responses in CI.
-            _stream.ReadTimeout = _commandTimeoutMs;
-            var read = _stream.Read(buffer, 0, buffer.Length);
-            if (read > 0)
-                builder.Append(Encoding.ASCII.GetString(buffer, 0, read));
-
-            // Hamlib often sends a value line then "RPRT 0"; drain trailing lines with a short idle timeout.
-            _stream.ReadTimeout = 50;
-            while (true)
+            while (DateTime.UtcNow < deadline)
             {
+                var text = builder.ToString();
+                if (!string.IsNullOrEmpty(text) && RigCtlResponseParser.LooksComplete(text))
+                    break;
+
+                var remainingMs = (int)Math.Max(1, (deadline - DateTime.UtcNow).TotalMilliseconds);
+                _stream.ReadTimeout = remainingMs;
+
                 try
                 {
-                    read = _stream.Read(buffer, 0, buffer.Length);
+                    var read = _stream.Read(buffer, 0, buffer.Length);
                     if (read <= 0)
                         break;
 
@@ -136,6 +138,12 @@ internal sealed class RigCtlTcpClient : IDisposable
                 }
                 catch (IOException)
                 {
+                    if (builder.Length > 0 && RigCtlResponseParser.LooksComplete(builder.ToString()))
+                        break;
+
+                    if (builder.Length == 0)
+                        return string.Empty;
+
                     break;
                 }
             }
@@ -168,6 +176,19 @@ internal sealed class RigCtlTcpClient : IDisposable
 
         _stream = null;
         _client = null;
+    }
+
+    private static void ConnectWithTimeout(TcpClient client, string host, int port, int timeoutMs)
+    {
+        using var cts = new CancellationTokenSource(timeoutMs);
+        try
+        {
+            client.ConnectAsync(host, port, cts.Token).GetAwaiter().GetResult();
+        }
+        catch (OperationCanceledException)
+        {
+            throw new TimeoutException($"rigctl connect to {host}:{port} timed out.");
+        }
     }
 }
 

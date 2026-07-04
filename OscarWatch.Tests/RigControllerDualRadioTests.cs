@@ -376,6 +376,7 @@ public sealed class RigControllerDualRadioTests
     public void Dual_sdr_downlink_writes_rx_frequency_on_pass_init()
     {
         using var sdrServer = new RigCtlTcpStubServer();
+        sdrServer.WaitUntilReady();
         var upRig = new RecordingRigDriver();
         var controller = new RigController(
             endpointFactory: ep => ep.Type == RigType.SdrRigCtlTcp
@@ -429,7 +430,8 @@ public sealed class RigControllerDualRadioTests
 
         var expectedRx = (long)(DopplerFrequencyCalculator.Compute(mode, 0, 0).RadioReceiveKHz * 1000);
         var initCompleted = false;
-        for (var attempt = 0; attempt < 20; attempt++)
+        // Allow time for connect backoff (3 s) plus rigctl round-trips on slower CI hosts.
+        for (var attempt = 0; attempt < 120; attempt++)
         {
             controller.Update(settings, context);
             if (sdrServer.FrequencyHz >= expectedRx - 5

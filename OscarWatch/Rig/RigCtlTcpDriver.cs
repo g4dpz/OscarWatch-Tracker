@@ -11,8 +11,7 @@ public sealed class RigCtlTcpDriver : IRigDriver
 
     public RigCtlTcpDriver(string host, int port, int catDelayMs = 50)
     {
-        _ = catDelayMs;
-        _client = new RigCtlTcpClient(host, port);
+        _client = new RigCtlTcpClient(host, port, catDelayMs);
     }
 
     internal RigCtlTcpDriver(RigCtlTcpClient client)

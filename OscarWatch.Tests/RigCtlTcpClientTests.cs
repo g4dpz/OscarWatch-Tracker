@@ -3,27 +3,27 @@ using OscarWatch.Rig;
 
 namespace OscarWatch.Tests;
 
-public sealed class RigCtlTcpClientTests : IDisposable
+public sealed class RigCtlTcpClientTests
 {
-    private readonly RigCtlTcpStubServer _server = new();
-
-    public void Dispose() => _server.Dispose();
-
     [Fact]
     public void Set_and_read_frequency_round_trip()
     {
-        using var client = new RigCtlTcpClient("127.0.0.1", _server.Port);
+        using var server = new RigCtlTcpStubServer();
+        server.WaitUntilReady();
+        using var client = new RigCtlTcpClient("127.0.0.1", server.Port);
         client.Open();
 
         Assert.True(client.SetFrequencyHz(435_800_000));
         Assert.Equal(435_800_000, client.ReadFrequencyHz());
-        Assert.Equal(435_800_000, _server.FrequencyHz);
+        Assert.Equal(435_800_000, server.FrequencyHz);
     }
 
     [Fact]
     public void Set_mode_accepts_hamlib_response()
     {
-        using var client = new RigCtlTcpClient("127.0.0.1", _server.Port);
+        using var server = new RigCtlTcpStubServer();
+        server.WaitUntilReady();
+        using var client = new RigCtlTcpClient("127.0.0.1", server.Port);
         client.Open();
 
         Assert.True(client.SetMode("USB"));
@@ -32,7 +32,9 @@ public sealed class RigCtlTcpClientTests : IDisposable
     [Fact]
     public void RigCtlTcpDriver_implements_read_and_write()
     {
-        using var driver = new RigCtlTcpDriver("127.0.0.1", _server.Port);
+        using var server = new RigCtlTcpStubServer();
+        server.WaitUntilReady();
+        using var driver = new RigCtlTcpDriver("127.0.0.1", server.Port);
         driver.Open();
 
         Assert.True(driver.SetFrequencyHz(145_920_000));
@@ -42,11 +44,13 @@ public sealed class RigCtlTcpClientTests : IDisposable
     [Fact]
     public void RigDriverFactory_creates_sdr_downlink_driver()
     {
-        var driver = RigDriverFactory.Create(new RigEndpointSettings
+        using var server = new RigCtlTcpStubServer();
+        server.WaitUntilReady();
+        using var driver = RigDriverFactory.Create(new RigEndpointSettings
         {
             Type = RigType.SdrRigCtlTcp,
             NetworkHost = "127.0.0.1",
-            NetworkPort = _server.Port,
+            NetworkPort = server.Port,
             CatDelayMs = 0
         });
 
