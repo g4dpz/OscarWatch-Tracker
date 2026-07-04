@@ -96,6 +96,10 @@
         <li>Typing three or more characters in the callsign box filters the recent QSO list to matching calls (cleared when you finish logging or clear the field).</li>
         <li><strong>Alt+W</strong> clears the entry fields (and cancels an edit in progress), then returns focus to the callsign box — similar to contest loggers such as N1MM.</li>
       </ul>
+      <p>
+        Keyboard shortcuts are listed in <a href="keyboard-shortcuts.html">Keyboard shortcuts</a>
+        (<strong>Alt+W</strong> to clear fields, <strong>Enter</strong> to add or save).
+      </p>
 
       <h2>Grid squares on a line</h2>
       <p>
@@ -108,7 +112,8 @@
       <h2>Recent QSOs</h2>
       <p>
         The history grid lists contacts for the selected logbook (newest first). Columns include date/time,
-        call, grid, satellite, mode, RST sent, RST received, and comment. Click a row to select it,
+        call, grid, satellite, mode, RST sent, RST received, Cloudlog upload status (when automatic upload is enabled),
+        and comment. Click a row to select it,
         or right-click a row for <strong>Edit QSO</strong> and <strong>Delete QSO</strong>.
         Drag column borders to change widths, and resize or move the window — OscarWatch remembers your layout when you close the logbook.
       </p>
@@ -116,6 +121,12 @@
         <li><strong>Edit → Edit QSO</strong> — loads the selected contact into the entry fields so you can correct it and press <strong>Save</strong>.</li>
         <li><strong>Edit → Delete QSO</strong> — asks for confirmation, then removes the selected contact.</li>
       </ul>
+      <p>
+        The status bar shows the current logbook name and total QSO count (for example <strong>Main logbook — 12 QSOs</strong>),
+        then action messages and station tracking status. The Cloudlog column shows <strong>Pending</strong>,
+        <strong>Sent</strong>, or <strong>Failed</strong> when automatic upload is enabled for that logbook; it updates
+        when uploads complete.
+      </p>
 
       <h2>Logbook settings — Cloudlog upload</h2>
       <p>

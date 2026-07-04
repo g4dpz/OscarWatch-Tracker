@@ -62,6 +62,7 @@ public static class QsoLogbookHistoryColumns
     public const string Mode = "mode";
     public const string RstSent = "rstSent";
     public const string RstRcvd = "rstRcvd";
+    public const string Cloudlog = "cloudlog";
     public const string Comment = "comment";
 
     public static IReadOnlyList<string> All { get; } =
@@ -73,6 +74,7 @@ public static class QsoLogbookHistoryColumns
         Mode,
         RstSent,
         RstRcvd,
+        Cloudlog,
         Comment
     ];
 
@@ -88,6 +90,7 @@ public static class QsoLogbookHistoryColumns
         Mode => 70,
         RstSent => 52,
         RstRcvd => 52,
+        Cloudlog => 58,
         Comment => 0,
         _ => 80
     };

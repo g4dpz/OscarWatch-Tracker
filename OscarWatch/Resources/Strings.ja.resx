@@ -1623,6 +1623,21 @@
   <data name="Logbook.Status.Removed">
     <value>{0} を削除しました。</value>
   </data>
+  <data name="Logbook.Status.QsoCountOne">
+    <value>{0} — QSO 1件</value>
+  </data>
+  <data name="Logbook.Status.QsoCountMany">
+    <value>{0} — QSO {1}件</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Pending">
+    <value>保留</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Sent">
+    <value>送信済</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Failed">
+    <value>失敗</value>
+  </data>
   <data name="Logbook.Error.GridTooMany">
     <value>グリッドは最大 {0} 件までです。</value>
   </data>
@@ -1667,6 +1682,9 @@
   </data>
   <data name="Logbook.Column.RstRcvd">
     <value>受信</value>
+  </data>
+  <data name="Logbook.Column.Cloudlog">
+    <value>Cloudlog</value>
   </data>
   <data name="Logbook.Column.Comment">
     <value>コメント</value>

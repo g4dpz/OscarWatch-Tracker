@@ -903,6 +903,21 @@
   <data name="Logbook.Status.Removed">
     <value>{0} eliminado.</value>
   </data>
+  <data name="Logbook.Status.QsoCountOne">
+    <value>{0} — 1 QSO</value>
+  </data>
+  <data name="Logbook.Status.QsoCountMany">
+    <value>{0} — {1} QSOs</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Pending">
+    <value>Pendiente</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Sent">
+    <value>Enviado</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Failed">
+    <value>Fallido</value>
+  </data>
   <data name="Logbook.Error.GridTooMany">
     <value>Se admiten como máximo {0} locators.</value>
   </data>
@@ -947,6 +962,9 @@
   </data>
   <data name="Logbook.Column.RstRcvd">
     <value>Recibido</value>
+  </data>
+  <data name="Logbook.Column.Cloudlog">
+    <value>Cloudlog</value>
   </data>
   <data name="Logbook.Column.Comment">
     <value>Comentario</value>

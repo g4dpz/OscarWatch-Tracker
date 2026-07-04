@@ -41,7 +41,22 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
 
         _liveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
         _liveTimer.Tick += (_, _) => RefreshStationPanel();
+        _cloudlogUpload.UploadStateChanged += OnCloudlogUploadStateChanged;
     }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(QsoCountText))]
+    [NotifyPropertyChangedFor(nameof(ShowQsoCountText))]
+    private int _qsoCount;
+
+    public string QsoCountText =>
+        SelectedLogbook is null
+            ? ""
+            : QsoCount == 1
+                ? _l.Get("Logbook.Status.QsoCountOne", SelectedLogbook.Name)
+                : _l.Get("Logbook.Status.QsoCountMany", SelectedLogbook.Name, QsoCount);
+
+    public bool ShowQsoCountText => SelectedLogbook is not null;
 
     public IReadOnlyList<string> RstOptions { get; } = ["59", "599", "55", "559", "57", "579", "53", "539"];
 
@@ -438,6 +453,8 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(CanDeleteLogbook));
         OnPropertyChanged(nameof(CanExport));
         OnPropertyChanged(nameof(CurrentLogbookDisplayName));
+        OnPropertyChanged(nameof(QsoCountText));
+        OnPropertyChanged(nameof(ShowQsoCountText));
         RefreshLogbookSwitchItems();
     }
 
@@ -620,6 +637,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         QsoRows.Clear();
         if (SelectedLogbook is null)
         {
+            QsoCount = 0;
             ExportAdifCommand.NotifyCanExecuteChanged();
             return;
         }
@@ -629,10 +647,35 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
             : await _repository.SearchQsosByCallAsync(SelectedLogbook.Id, callFilter).ConfigureAwait(true);
 
         foreach (var qso in qsos)
-            QsoRows.Add(QsoRowViewModel.From(qso, _settings.Current.Use24HourClock));
+            QsoRows.Add(QsoRowViewModel.From(qso, _settings.Current.Use24HourClock, _l));
+
+        if (string.IsNullOrWhiteSpace(callFilter))
+            QsoCount = qsos.Count;
 
         OnPropertyChanged(nameof(CanExport));
         ExportAdifCommand.NotifyCanExecuteChanged();
+    }
+
+    private void OnCloudlogUploadStateChanged(long qsoId) =>
+        Dispatcher.UIThread.Post(() => _ = RefreshQsoRowAsync(qsoId));
+
+    private async Task RefreshQsoRowAsync(long qsoId)
+    {
+        if (SelectedLogbook is null)
+            return;
+
+        var updated = await _repository.GetQsoByIdAsync(qsoId).ConfigureAwait(true);
+        if (updated is null || updated.LogbookId != SelectedLogbook.Id)
+            return;
+
+        for (var i = 0; i < QsoRows.Count; i++)
+        {
+            if (QsoRows[i].Id != qsoId)
+                continue;
+
+            QsoRows[i] = QsoRowViewModel.From(updated, _settings.Current.Use24HourClock, _l);
+            break;
+        }
     }
 
     private void RefreshStationPanel()
@@ -690,6 +733,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
 
     public void Dispose()
     {
+        _cloudlogUpload.UploadStateChanged -= OnCloudlogUploadStateChanged;
         _liveTimer.Stop();
     }
 }
@@ -729,8 +773,13 @@ public sealed class QsoRowViewModel
     public string RstSent { get; init; } = "";
     public string RstRcvd { get; init; } = "";
     public string Comment { get; init; } = "";
+    public CloudlogUploadStatus CloudlogUploadStatus { get; init; }
+    public string CloudlogStatusText { get; init; } = "";
+    public bool CloudlogStatusIsSent => CloudlogUploadStatus == CloudlogUploadStatus.Sent;
+    public bool CloudlogStatusIsPending => CloudlogUploadStatus == CloudlogUploadStatus.Pending;
+    public bool CloudlogStatusIsFailed => CloudlogUploadStatus == CloudlogUploadStatus.Failed;
 
-    public static QsoRowViewModel From(QsoRecord record, bool use24Hour)
+    public static QsoRowViewModel From(QsoRecord record, bool use24Hour, ILocalizationService localization)
     {
         var dateTimeText = QsoLogbookTime.FormatQsoUtc(record.QsoUtc, use24Hour);
         var mode = string.Equals(record.Mode, record.ModeRx, StringComparison.OrdinalIgnoreCase)
@@ -747,7 +796,18 @@ public sealed class QsoRowViewModel
             Mode = mode,
             RstSent = record.RstSent,
             RstRcvd = record.RstRcvd,
-            Comment = record.Comment
+            Comment = record.Comment,
+            CloudlogUploadStatus = record.CloudlogUploadStatus,
+            CloudlogStatusText = FormatCloudlogStatus(record.CloudlogUploadStatus, localization)
         };
     }
+
+    private static string FormatCloudlogStatus(CloudlogUploadStatus status, ILocalizationService localization) =>
+        status switch
+        {
+            CloudlogUploadStatus.Pending => localization.Get("Logbook.CloudlogStatus.Pending"),
+            CloudlogUploadStatus.Sent => localization.Get("Logbook.CloudlogStatus.Sent"),
+            CloudlogUploadStatus.Failed => localization.Get("Logbook.CloudlogStatus.Failed"),
+            _ => ""
+        };
 }

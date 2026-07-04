@@ -879,6 +879,21 @@
   <data name="Logbook.Status.Removed">
     <value>已删除 {0}。</value>
   </data>
+  <data name="Logbook.Status.QsoCountOne">
+    <value>{0} — 1 条 QSO</value>
+  </data>
+  <data name="Logbook.Status.QsoCountMany">
+    <value>{0} — {1} 条 QSO</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Pending">
+    <value>待上传</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Sent">
+    <value>已发送</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Failed">
+    <value>失败</value>
+  </data>
   <data name="Logbook.Error.GridTooMany">
     <value>最多支持 {0} 个网格。</value>
   </data>
@@ -923,6 +938,9 @@
   </data>
   <data name="Logbook.Column.RstRcvd">
     <value>接收</value>
+  </data>
+  <data name="Logbook.Column.Cloudlog">
+    <value>Cloudlog</value>
   </data>
   <data name="Logbook.Column.Comment">
     <value>备注</value>

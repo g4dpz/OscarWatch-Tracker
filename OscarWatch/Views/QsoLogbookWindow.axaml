@@ -56,6 +56,9 @@
             Padding="0,8,0,0"
             Margin="0,10,0,0">
       <StackPanel Spacing="4">
+        <TextBlock Text="{Binding QsoCountText}"
+                   FontWeight="SemiBold"
+                   IsVisible="{Binding ShowQsoCountText}" />
         <TextBlock Text="{Binding StatusText}"
                    Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
         <TextBlock Text="{Binding StationStatusText}"
@@ -270,6 +273,17 @@
                       GridLinesVisibility="Horizontal"
                       HeadersVisibility="Column"
                       PointerPressed="OnQsoHistoryPointerPressed">
+              <DataGrid.Styles>
+                <Style Selector="TextBlock.cloudlog-sent">
+                  <Setter Property="Foreground" Value="{DynamicResource GpsOkBrush}" />
+                </Style>
+                <Style Selector="TextBlock.cloudlog-pending">
+                  <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                </Style>
+                <Style Selector="TextBlock.cloudlog-failed">
+                  <Setter Property="Foreground" Value="{DynamicResource PassRecordingBadgeBackgroundBrush}" />
+                </Style>
+              </DataGrid.Styles>
               <DataGrid.ContextMenu>
                 <ContextMenu>
                   <MenuItem Header="{loc:Localize Key=Logbook.EditQso}"
@@ -300,6 +314,19 @@
                 <DataGridTextColumn Header="{loc:Localize Key=Logbook.Column.RstRcvd}"
                                     Binding="{Binding RstRcvd}"
                                     Width="52" />
+                <DataGridTemplateColumn Header="{loc:Localize Key=Logbook.Column.Cloudlog}"
+                                        Width="58">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate DataType="vm:QsoRowViewModel">
+                      <TextBlock Text="{Binding CloudlogStatusText}"
+                                 VerticalAlignment="Center"
+                                 Margin="4,0"
+                                 Classes.cloudlog-sent="{Binding CloudlogStatusIsSent}"
+                                 Classes.cloudlog-pending="{Binding CloudlogStatusIsPending}"
+                                 Classes.cloudlog-failed="{Binding CloudlogStatusIsFailed}" />
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="{loc:Localize Key=Logbook.Column.Comment}"
                                     Binding="{Binding Comment}"
                                     Width="*" />

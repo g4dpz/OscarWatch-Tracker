@@ -921,6 +921,21 @@ Continue?</value>
   <data name="Logbook.Status.Removed">
     <value>Removed {0}.</value>
   </data>
+  <data name="Logbook.Status.QsoCountOne">
+    <value>{0} — 1 QSO</value>
+  </data>
+  <data name="Logbook.Status.QsoCountMany">
+    <value>{0} — {1} QSOs</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Pending">
+    <value>Pending</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Sent">
+    <value>Sent</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Failed">
+    <value>Failed</value>
+  </data>
   <data name="Logbook.Error.GridTooMany">
     <value>At most {0} grid squares are supported.</value>
   </data>
@@ -965,6 +980,9 @@ Continue?</value>
   </data>
   <data name="Logbook.Column.RstRcvd">
     <value>Recv</value>
+  </data>
+  <data name="Logbook.Column.Cloudlog">
+    <value>Cloudlog</value>
   </data>
   <data name="Logbook.Column.Comment">
     <value>Comment</value>

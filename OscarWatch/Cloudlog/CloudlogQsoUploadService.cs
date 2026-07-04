@@ -6,6 +6,8 @@ namespace OscarWatch.Cloudlog;
 
 public sealed class CloudlogQsoUploadService : ICloudlogQsoUploadService
 {
+    public event Action<long>? UploadStateChanged;
+
     private readonly IQsoLogbookRepository _repository;
     private readonly ISettingsService _settings;
     private readonly ICloudlogLookupService _lookup;
@@ -123,6 +125,7 @@ public sealed class CloudlogQsoUploadService : ICloudlogQsoUploadService
                 qso.CloudlogUploadAttempts + 1,
                 "Enter your Cloudlog URL and API key in Settings → Integrations first.",
                 cancellationToken).ConfigureAwait(false);
+            NotifyUploadStateChanged(qsoId);
             return;
         }
 
@@ -143,6 +146,7 @@ public sealed class CloudlogQsoUploadService : ICloudlogQsoUploadService
                 null,
                 DateTime.UtcNow,
                 cancellationToken).ConfigureAwait(false);
+            NotifyUploadStateChanged(qsoId);
             return;
         }
 
@@ -151,7 +155,11 @@ public sealed class CloudlogQsoUploadService : ICloudlogQsoUploadService
             qso.CloudlogUploadAttempts + 1,
             error ?? "Upload failed.",
             cancellationToken).ConfigureAwait(false);
+        NotifyUploadStateChanged(qsoId);
     }
+
+    private void NotifyUploadStateChanged(long qsoId) =>
+        UploadStateChanged?.Invoke(qsoId);
 
     private Task MarkFailedAsync(QsoRecord qso, int attempts, string error, CancellationToken cancellationToken) =>
         _repository.UpdateQsoCloudlogUploadStateAsync(
