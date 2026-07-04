@@ -437,17 +437,17 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         var call = SelectedQso.Call;
         var wasEditing = _editingSource?.Id == id;
         await _repository.DeleteQsoAsync(id).ConfigureAwait(true);
-        if (wasEditing)
-            CancelEditQso();
         SelectedQso = null;
-        await ReloadQsosAsync().ConfigureAwait(true);
+        if (wasEditing)
+            await CancelEditQso().ConfigureAwait(true);
+        else
+            await ReloadQsosAsync().ConfigureAwait(true);
         StatusText = _l.Get("Logbook.Status.Removed", call);
     }
 
     partial void OnSelectedLogbookChanged(QsoLogbook? value)
     {
-        CancelEditQso();
-        _ = ReloadQsosAsync();
+        _ = ApplySelectedLogbookChangeAsync();
         CommitQsoCommand.NotifyCanExecuteChanged();
         OnPropertyChanged(nameof(CanEditLogbook));
         OnPropertyChanged(nameof(CanDeleteLogbook));
@@ -456,6 +456,11 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(QsoCountText));
         OnPropertyChanged(nameof(ShowQsoCountText));
         RefreshLogbookSwitchItems();
+    }
+
+    private async Task ApplySelectedLogbookChangeAsync()
+    {
+        await CancelEditQso().ConfigureAwait(true);
     }
 
     partial void OnIsEditingQsoChanged(bool value)
