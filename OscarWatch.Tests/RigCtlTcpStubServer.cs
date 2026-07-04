@@ -88,6 +88,7 @@ internal sealed class RigCtlTcpStubServer : IDisposable
             if (string.Equals(line, "f", StringComparison.Ordinal))
             {
                 await writer.WriteLineAsync(FrequencyHz.ToString(CultureInfo.InvariantCulture)).ConfigureAwait(false);
+                await writer.WriteLineAsync("RPRT 0").ConfigureAwait(false);
                 continue;
             }
 

@@ -113,25 +113,36 @@ internal sealed class RigCtlTcpClient : IDisposable
 
         var builder = new StringBuilder();
         var buffer = new byte[256];
-        var deadline = DateTime.UtcNow.AddMilliseconds(_commandTimeoutMs);
-
-        while (DateTime.UtcNow < deadline)
+        var savedTimeout = _stream.ReadTimeout;
+        try
         {
-            if (!_stream.DataAvailable)
-            {
-                Thread.Sleep(5);
-                if (builder.Length > 0 && RigCtlResponseParser.LooksComplete(builder.ToString()))
-                    break;
-                continue;
-            }
-
+            // Blocking read — DataAvailable is unreliable on Linux and caused empty responses in CI.
+            _stream.ReadTimeout = _commandTimeoutMs;
             var read = _stream.Read(buffer, 0, buffer.Length);
-            if (read <= 0)
-                break;
+            if (read > 0)
+                builder.Append(Encoding.ASCII.GetString(buffer, 0, read));
 
-            builder.Append(Encoding.ASCII.GetString(buffer, 0, read));
-            if (RigCtlResponseParser.LooksComplete(builder.ToString()))
-                break;
+            // Hamlib often sends a value line then "RPRT 0"; drain trailing lines with a short idle timeout.
+            _stream.ReadTimeout = 50;
+            while (true)
+            {
+                try
+                {
+                    read = _stream.Read(buffer, 0, buffer.Length);
+                    if (read <= 0)
+                        break;
+
+                    builder.Append(Encoding.ASCII.GetString(buffer, 0, read));
+                }
+                catch (IOException)
+                {
+                    break;
+                }
+            }
+        }
+        finally
+        {
+            _stream.ReadTimeout = savedTimeout;
         }
 
         return builder.ToString();
