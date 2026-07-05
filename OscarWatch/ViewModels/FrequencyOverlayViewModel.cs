@@ -288,7 +288,16 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         var x = Math.Clamp(OverlayX, edge, maxX);
         var y = Math.Clamp(OverlayY, edge, maxY);
         if (Math.Abs(x - OverlayX) > 0.5 || Math.Abs(y - OverlayY) > 0.5)
-            SetOverlayPosition(x, y, persist: true);
+            SetOverlayPosition(x, y);
+    }
+
+    public void ReloadLayoutFromSettings()
+    {
+        OverlayX = _settings.Current.FrequencyOverlayX;
+        OverlayY = _settings.Current.FrequencyOverlayY;
+        IsCollapsed = _settings.Current.FrequencyOverlayCollapsed;
+        OnPropertyChanged(nameof(OverlayMargin));
+        RequestOverlayReclamp();
     }
 
     public void ReloadFromDatabase()
@@ -465,17 +474,24 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         OverlayX = x;
         OverlayY = y;
         OnPropertyChanged(nameof(OverlayMargin));
+        if (!persist)
+            return;
+
         _settings.Current.FrequencyOverlayX = x;
         _settings.Current.FrequencyOverlayY = y;
-        if (persist)
-            _settings.RequestSave();
+        _settings.RequestSave();
     }
 
     partial void OnOverlayXChanged(double value) => OnPropertyChanged(nameof(OverlayMargin));
 
     partial void OnOverlayYChanged(double value) => OnPropertyChanged(nameof(OverlayMargin));
 
-    public void PersistOverlayPosition() => _settings.RequestSave();
+    public void PersistOverlayPosition()
+    {
+        _settings.Current.FrequencyOverlayX = OverlayX;
+        _settings.Current.FrequencyOverlayY = OverlayY;
+        _settings.RequestSave();
+    }
 
     /// <summary>Height may change when modes load; view reclamps on next layout pass.</summary>
     public event EventHandler? OverlayLayoutChanged;

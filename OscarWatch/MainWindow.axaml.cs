@@ -65,6 +65,9 @@ public partial class MainWindow : Window
         if (DataContext is not MainViewModel vm)
             return;
 
+        vm.Frequencies.PersistOverlayPosition();
+        vm.DxStation.PersistOverlayPosition();
+
         if (vm.PrepareForShutdown())
             await vm.SaveSettingsAsync();
     }

@@ -474,6 +474,8 @@ public partial class MainViewModel : ViewModelBase
             IsPassesExpanded = _settings.Current.PassesExpanded;
             ApplyHamsAtSidebarSettings();
             RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
+            Frequencies.ReloadLayoutFromSettings();
+            DxStation.ReloadLayoutFromSettings();
         }
 
         Log.Information("Startup phase 2 (apply settings to UI) completed in {ElapsedMs} ms", phase2Stopwatch.ElapsedMilliseconds);

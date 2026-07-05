@@ -176,7 +176,12 @@ public partial class DxStationOverlayViewModel : ViewModelBase
         }
     }
 
-    public void PersistOverlayPosition() => _settings.RequestSave();
+    public void PersistOverlayPosition()
+    {
+        _settings.Current.DxOverlayX = OverlayX;
+        _settings.Current.DxOverlayY = OverlayY;
+        _settings.RequestSave();
+    }
 
     public void EnsureOverlayWithinHost(double hostWidth, double hostHeight, double overlayWidth, double overlayHeight)
     {
@@ -189,7 +194,16 @@ public partial class DxStationOverlayViewModel : ViewModelBase
         var x = Math.Clamp(OverlayX, edge, maxX);
         var y = Math.Clamp(OverlayY, edge, maxY);
         if (Math.Abs(x - OverlayX) > 0.5 || Math.Abs(y - OverlayY) > 0.5)
-            SetOverlayPosition(x, y, persist: true);
+            SetOverlayPosition(x, y);
+    }
+
+    public void ReloadLayoutFromSettings()
+    {
+        OverlayX = _settings.Current.DxOverlayX;
+        OverlayY = _settings.Current.DxOverlayY;
+        IsCollapsed = _settings.Current.DxOverlayCollapsed;
+        OnPropertyChanged(nameof(OverlayMargin));
+        RequestOverlayReclamp();
     }
 
     private void ApplyGridSquare(string value, bool persist)

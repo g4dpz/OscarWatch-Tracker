@@ -147,6 +147,40 @@ public class FrequencyOverlayViewModelTests
         Assert.InRange(vm.OverlayY, 8, 600 - 300 - 8);
         Assert.Equal(392, vm.OverlayX, precision: 0);
         Assert.Equal(292, vm.OverlayY, precision: 0);
+        Assert.Equal(500, settings.Current.FrequencyOverlayX);
+        Assert.Equal(900, settings.Current.FrequencyOverlayY);
+    }
+
+    [Fact]
+    public void PersistOverlayPosition_writes_current_display_coordinates()
+    {
+        var settings = new TestSettingsService();
+        var database = new TestSatelliteDatabaseService([]);
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
+
+        vm.SetOverlayPosition(240, 180);
+        vm.PersistOverlayPosition();
+
+        Assert.Equal(240, settings.Current.FrequencyOverlayX);
+        Assert.Equal(180, settings.Current.FrequencyOverlayY);
+    }
+
+    [Fact]
+    public void ReloadLayoutFromSettings_restores_saved_overlay_layout()
+    {
+        var settings = new TestSettingsService();
+        settings.Current.FrequencyOverlayX = 320;
+        settings.Current.FrequencyOverlayY = 140;
+        settings.Current.FrequencyOverlayCollapsed = true;
+        var database = new TestSatelliteDatabaseService([]);
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
+
+        vm.SetOverlayPosition(12, 12);
+        vm.ReloadLayoutFromSettings();
+
+        Assert.Equal(320, vm.OverlayX);
+        Assert.Equal(140, vm.OverlayY);
+        Assert.True(vm.IsCollapsed);
     }
 
     [Fact]
