@@ -22,6 +22,7 @@ using OscarWatch.Theme;
 using OscarWatch.Diagnostics;
 using OscarWatch.Localization;
 using OscarWatch.ViewModels;
+using OscarWatch.Views;
 using Serilog;
 
 namespace OscarWatch;
@@ -100,8 +101,9 @@ public partial class App : Application
 
         Services = services.BuildServiceProvider();
 
-        // Avoid full settings service load before the first window is created.
-        // MainViewModel.InitializeAsync loads settings shortly after the window opens.
+        var settingsService = Services.GetRequiredService<ISettingsService>();
+        settingsService.Load();
+
         var startupLanguage = LocalizationCulture.ReadUiLanguageFromDisk();
         LocalizationCulture.Apply(startupLanguage);
         AppThemeManager.Apply(AppThemeManager.ReadPreferenceFromDisk());
@@ -117,6 +119,7 @@ public partial class App : Application
             var startupStopwatch = Stopwatch.StartNew();
             var mainVm = Services.GetRequiredService<MainViewModel>();
             MainWindow = new MainWindow { DataContext = mainVm };
+            MainWindowBounds.Apply(MainWindow, settingsService.Current);
             desktop.MainWindow = MainWindow;
             desktop.ShutdownRequested += OnDesktopShutdownRequested;
             Log.Information("Main window created in {ElapsedMs} ms", startupStopwatch.ElapsedMilliseconds);

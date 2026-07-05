@@ -7,6 +7,9 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using Microsoft.Extensions.DependencyInjection;
+using OscarWatch.Core.Models;
+using OscarWatch.Core.Services;
 using OscarWatch.ViewModels;
 using OscarWatch.Views;
 
@@ -54,6 +57,10 @@ public partial class MainWindow : Window
     {
         _passListScrollResetTimer?.Stop();
         DetachPassListScrollViewer();
+
+        var settings = App.Services.GetRequiredService<ISettingsService>();
+        MainWindowBounds.Capture(this, settings.Current);
+        settings.RequestSave();
 
         if (DataContext is not MainViewModel vm)
             return;
@@ -317,6 +324,17 @@ public partial class MainWindow : Window
     protected override async void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
+
+        var settings = App.Services.GetRequiredService<ISettingsService>();
+        if (MainWindowLayoutDefaults.TryGetSavedPosition(settings.Current, out _, out _))
+        {
+            WindowStartupLocation = WindowStartupLocation.Manual;
+            Position = QsoLogbookWindowBounds.ClampToVisibleArea(this, Position);
+        }
+
+        if (settings.Current.MainWindowMaximized)
+            WindowState = WindowState.Maximized;
+
         if (DataContext is MainViewModel vm)
         {
             var initStopwatch = Stopwatch.StartNew();

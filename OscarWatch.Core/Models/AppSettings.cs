@@ -49,6 +49,11 @@ public sealed class AppSettings
     public bool HamsAtRovesExpanded { get; set; } = true;
     /// <summary>Height in pixels of the hams.at roves list when expanded.</summary>
     public int HamsAtRovesPanelHeightPx { get; set; } = 180;
+    public int? MainWindowWidth { get; set; }
+    public int? MainWindowHeight { get; set; }
+    public int? MainWindowX { get; set; }
+    public int? MainWindowY { get; set; }
+    public bool MainWindowMaximized { get; set; }
     public HamsAtSettings HamsAt { get; set; } = new();
     public RotatorSettings Rotator { get; set; } = new();
     public GpsSettings Gps { get; set; } = new();
