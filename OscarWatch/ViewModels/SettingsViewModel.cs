@@ -696,6 +696,8 @@ public partial class SettingsViewModel : ViewModelBase
 
     public async Task<bool> SaveAsync()
     {
+        LanguageChangedOnLastSave = false;
+
         var rigDraft = BuildRigSettingsForConflictCheck();
         if (DualRadioConfigHelper.IsIncomplete(rigDraft))
         {
@@ -848,8 +850,11 @@ public partial class SettingsViewModel : ViewModelBase
         if (languageChanged)
             _uiLanguageAtOpen = newLanguage;
 
+        LanguageChangedOnLastSave = languageChanged;
         return languageChanged;
     }
+
+    public bool LanguageChangedOnLastSave { get; private set; }
 
     [RelayCommand(CanExecute = nameof(CanTestVoiceAnnouncement))]
     private async Task TestVoiceAnnouncementAsync()
