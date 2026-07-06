@@ -24,6 +24,17 @@ public sealed class CloudlogResponseParserTests
         Assert.True(success);
     }
 
+    [Fact]
+    public void Valid_json_with_status_created_sets_success_to_true()
+    {
+        const string json = """{"status":"created","imported_count":1}""";
+
+        var result = CloudlogResponseParser.TryParse(json, out var success, out _);
+
+        Assert.True(result);
+        Assert.True(success);
+    }
+
     /// <summary>
     /// Response containing a "reason" field populates the reason output with a trimmed value.
     /// </summary>

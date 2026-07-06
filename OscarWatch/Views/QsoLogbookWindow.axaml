@@ -353,15 +353,21 @@
                                     Binding="{Binding Comment}"
                                     Width="*" />
                 <DataGridTemplateColumn Header="{loc:Localize Key=Logbook.Column.Cloudlog}"
-                                        Width="58">
+                                        Width="40">
                   <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate DataType="vm:QsoRowViewModel">
-                      <TextBlock Text="{Binding CloudlogStatusText}"
-                                 VerticalAlignment="Center"
-                                 Margin="4,0"
-                                 Classes.cloudlog-sent="{Binding CloudlogStatusIsSent}"
-                                 Classes.cloudlog-pending="{Binding CloudlogStatusIsPending}"
-                                 Classes.cloudlog-failed="{Binding CloudlogStatusIsFailed}" />
+                      <Border MinWidth="20"
+                              HorizontalAlignment="Center"
+                              ToolTip.Tip="{Binding CloudlogStatusToolTip}">
+                        <TextBlock Text="{Binding CloudlogStatusGlyph}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Classes.cloudlog-sent="{Binding CloudlogStatusIsSent}"
+                                   Classes.cloudlog-pending="{Binding CloudlogStatusIsPending}"
+                                   Classes.cloudlog-failed="{Binding CloudlogStatusIsFailed}" />
+                      </Border>
                     </DataTemplate>
                   </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

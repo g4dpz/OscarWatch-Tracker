@@ -23,7 +23,7 @@ public static class CloudlogResponseParser
                 return false;
 
             reason = doc.Reason?.Trim();
-            success = string.Equals(doc.Status, "success", StringComparison.OrdinalIgnoreCase);
+            success = IsSuccessStatus(doc.Status);
             return true;
         }
         catch
@@ -34,4 +34,8 @@ public static class CloudlogResponseParser
 
     public static string? TryParseReason(string? body) =>
         TryParse(body, out _, out var reason) ? reason : null;
+
+    internal static bool IsSuccessStatus(string? status) =>
+        string.Equals(status, "success", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(status, "created", StringComparison.OrdinalIgnoreCase);
 }

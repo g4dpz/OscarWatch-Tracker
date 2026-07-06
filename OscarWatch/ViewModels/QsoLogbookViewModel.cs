@@ -779,7 +779,8 @@ public sealed class QsoRowViewModel
     public string RstRcvd { get; init; } = "";
     public string Comment { get; init; } = "";
     public CloudlogUploadStatus CloudlogUploadStatus { get; init; }
-    public string CloudlogStatusText { get; init; } = "";
+    public string CloudlogStatusGlyph { get; init; } = "";
+    public string CloudlogStatusToolTip { get; init; } = "";
     public bool CloudlogStatusIsSent => CloudlogUploadStatus == CloudlogUploadStatus.Sent;
     public bool CloudlogStatusIsPending => CloudlogUploadStatus == CloudlogUploadStatus.Pending;
     public bool CloudlogStatusIsFailed => CloudlogUploadStatus == CloudlogUploadStatus.Failed;
@@ -803,9 +804,18 @@ public sealed class QsoRowViewModel
             RstRcvd = record.RstRcvd,
             Comment = record.Comment,
             CloudlogUploadStatus = record.CloudlogUploadStatus,
-            CloudlogStatusText = FormatCloudlogStatus(record.CloudlogUploadStatus, localization)
+            CloudlogStatusGlyph = FormatCloudlogGlyph(record.CloudlogUploadStatus),
+            CloudlogStatusToolTip = FormatCloudlogStatus(record.CloudlogUploadStatus, localization)
         };
     }
+
+    private static string FormatCloudlogGlyph(CloudlogUploadStatus status) =>
+        status switch
+        {
+            CloudlogUploadStatus.Sent => "✓",
+            CloudlogUploadStatus.Failed => "✗",
+            _ => ""
+        };
 
     private static string FormatCloudlogStatus(CloudlogUploadStatus status, ILocalizationService localization) =>
         status switch

@@ -90,7 +90,7 @@ public static class QsoLogbookHistoryColumns
         Mode => 70,
         RstSent => 52,
         RstRcvd => 52,
-        Cloudlog => 58,
+        Cloudlog => 40,
         Comment => 0,
         _ => 80
     };
