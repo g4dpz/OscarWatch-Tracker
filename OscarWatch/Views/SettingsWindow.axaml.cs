@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using OscarWatch.Localization;
+using OscarWatch.Services;
 using OscarWatch.ViewModels;
 
 namespace OscarWatch.Views;
@@ -24,7 +25,15 @@ public partial class SettingsWindow : Window
             TopLevel.GetTopLevel(this)?.FocusManager?.ClearFocus();
 
             if (DataContext is SettingsViewModel vm)
-                await vm.SaveAsync();
+            {
+                var languageChanged = await vm.SaveAsync();
+                Close(true);
+
+                if (languageChanged && await LanguageRestartDialog.ShowAsync(this))
+                    AppRestart.Request();
+
+                return;
+            }
 
             Close(true);
         }

@@ -478,7 +478,19 @@
     <value>Español</value>
   </data>
   <data name="Settings.Language.RestartNote">
-    <value>El cambio de idioma se aplicará después de reiniciar OscarWatch.</value>
+    <value>Debe reiniciar OscarWatch para que el cambio de idioma surta efecto.</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Title">
+    <value>Reinicio necesario</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Message">
+    <value>OscarWatch debe reiniciarse para aplicar el nuevo idioma. ¿Reiniciar ahora?</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.RestartNow">
+    <value>Reiniciar ahora</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Later">
+    <value>Más tarde</value>
   </data>
   <data name="Settings.Tab.Appearance">
     <value>Apariencia</value>

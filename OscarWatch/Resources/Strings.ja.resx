@@ -364,7 +364,19 @@
     <value>スペイン語</value>
   </data>
   <data name="Settings.Language.RestartNote">
-    <value>言語の変更はOscarWatchの再起動後に反映されます。</value>
+    <value>言語を変更した場合は、OscarWatchを再起動してください。</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Title">
+    <value>再起動が必要です</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Message">
+    <value>新しい言語を反映するにはOscarWatchの再起動が必要です。今すぐ再起動しますか？</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.RestartNow">
+    <value>今すぐ再起動</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Later">
+    <value>後で</value>
   </data>
   <data name="Settings.Tab.Appearance">
     <value>外観</value>
