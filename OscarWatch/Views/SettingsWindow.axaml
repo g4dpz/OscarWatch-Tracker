@@ -172,6 +172,7 @@
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
+                       IsVisible="{Binding ShowLanguageRestartNote}"
                        Text="{loc:Localize Key=Settings.Language.RestartNote}" />
             <TextBlock Text="{loc:Localize Key=Settings.ClockFormat}" Margin="0,8,0,0" />
             <ComboBox ItemsSource="{Binding ClockFormatLabels}"

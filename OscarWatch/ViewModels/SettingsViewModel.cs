@@ -29,6 +29,7 @@ public partial class SettingsViewModel : ViewModelBase
     private readonly IGpsService _gps;
     private readonly GroundStation _draft = new();
     private bool _isSynchronizing;
+    private string _uiLanguageAtOpen = LocalizationCulture.DefaultLanguage;
 
     [ObservableProperty]
     private string _displayName = "";
@@ -71,7 +72,14 @@ public partial class SettingsViewModel : ViewModelBase
     public IReadOnlyList<string> TimeDisplayLabels { get; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowLanguageRestartNote))]
     private LanguageOption? _selectedLanguage;
+
+    public bool ShowLanguageRestartNote =>
+        !string.Equals(
+            LocalizationCulture.NormalizeLanguageCode(SelectedLanguage?.Code),
+            _uiLanguageAtOpen,
+            StringComparison.OrdinalIgnoreCase);
 
     public IReadOnlyList<LanguageOption> LanguageOptions { get; }
 
@@ -686,14 +694,20 @@ public partial class SettingsViewModel : ViewModelBase
             AvailableComPorts.Add(SelectedGpsComPort);
     }
 
-    public async Task SaveAsync()
+    public async Task<bool> SaveAsync()
     {
+        LanguageChangedOnLastSave = false;
+
         var rigDraft = BuildRigSettingsForConflictCheck();
         if (DualRadioConfigHelper.IsIncomplete(rigDraft))
         {
             throw new InvalidOperationException(
                 DualRadioConfigLocalizer.Localize(DualRadioConfigHelper.IncompleteCode(rigDraft), _l));
         }
+
+        var newLanguage = LocalizationCulture.NormalizeLanguageCode(
+            SelectedLanguage?.Code ?? LocalizationCulture.DefaultLanguage);
+        var languageChanged = !string.Equals(newLanguage, _uiLanguageAtOpen, StringComparison.OrdinalIgnoreCase);
 
         _settings.Current.GroundStation = new GroundStation
         {
@@ -706,8 +720,7 @@ public partial class SettingsViewModel : ViewModelBase
         _settings.Current.MinimumElevationDeg = MinimumElevationDeg;
         _settings.Current.PassPredictionHours = PassPredictionHours;
         _settings.Current.Theme = ThemePreference;
-        _settings.Current.UiLanguage = LocalizationCulture.NormalizeLanguageCode(
-            SelectedLanguage?.Code ?? LocalizationCulture.DefaultLanguage);
+        _settings.Current.UiLanguage = newLanguage;
         _settings.Current.ShowFootprintMotionArrows = ShowFootprintMotionArrows;
         _settings.Current.ShowGreylineOverlay = ShowGreylineOverlay;
         _settings.Current.Use24HourClock = Use24HourClock;
@@ -834,7 +847,14 @@ public partial class SettingsViewModel : ViewModelBase
         _settings.SyncActiveStationFromGroundStation();
         AppThemeManager.Apply(ThemePreference);
         await _settings.SaveAsync().ConfigureAwait(true);
+        if (languageChanged)
+            _uiLanguageAtOpen = newLanguage;
+
+        LanguageChangedOnLastSave = languageChanged;
+        return languageChanged;
     }
+
+    public bool LanguageChangedOnLastSave { get; private set; }
 
     [RelayCommand(CanExecute = nameof(CanTestVoiceAnnouncement))]
     private async Task TestVoiceAnnouncementAsync()
@@ -867,6 +887,7 @@ public partial class SettingsViewModel : ViewModelBase
             Use24HourClock = _settings.Current.Use24HourClock;
             DisplayTimesInUtc = _settings.Current.DisplayTimesInUtc;
             var langCode = LocalizationCulture.NormalizeLanguageCode(_settings.Current.UiLanguage);
+            _uiLanguageAtOpen = langCode;
             SelectedLanguage = LanguageOptions.FirstOrDefault(o =>
                 string.Equals(o.Code, langCode, StringComparison.OrdinalIgnoreCase))
                 ?? LanguageOptions[0];

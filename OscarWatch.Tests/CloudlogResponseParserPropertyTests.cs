@@ -48,8 +48,8 @@ public class CloudlogResponseParserPropertyTests
         if (rawStatus is null)
             return true;
 
-        // Skip values that are "success" case-insensitively
-        if (string.Equals(rawStatus, "success", System.StringComparison.OrdinalIgnoreCase))
+        // Skip values that Cloudlog uses for successful responses
+        if (CloudlogResponseParser.IsSuccessStatus(rawStatus))
             return true;
 
         // Build valid JSON with the given status field

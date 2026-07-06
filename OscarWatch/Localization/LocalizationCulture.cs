@@ -63,26 +63,19 @@ public static class LocalizationCulture
     }
 
     /// <summary>Reads <see cref="AppSettings.UiLanguage"/> before DI is available (fonts in Program).</summary>
-    public static string ReadUiLanguageFromDisk()
+    public static string ReadUiLanguageFromDisk() =>
+        ReadUiLanguageFromFile(GetDefaultSettingsPath());
+
+    internal static string ReadUiLanguageFromFile(string settingsPath)
     {
         try
         {
-            var path = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "OscarWatch",
-                "settings.json");
-
-            if (!File.Exists(path))
+            if (!File.Exists(settingsPath))
                 return DefaultLanguage;
 
-            using var doc = JsonDocument.Parse(File.ReadAllText(path));
-            if (doc.RootElement.TryGetProperty(nameof(AppSettings.UiLanguage), out var lang)
-                && lang.ValueKind == JsonValueKind.String)
-            {
-                var value = lang.GetString();
-                if (!string.IsNullOrWhiteSpace(value))
-                    return NormalizeLanguageCode(value);
-            }
+            using var doc = JsonDocument.Parse(File.ReadAllText(settingsPath));
+            if (TryReadUiLanguageProperty(doc.RootElement, out var value))
+                return NormalizeLanguageCode(value);
         }
         catch
         {
@@ -90,5 +83,31 @@ public static class LocalizationCulture
         }
 
         return DefaultLanguage;
+    }
+
+    private static string GetDefaultSettingsPath() =>
+        Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "OscarWatch",
+            "settings.json");
+
+    private static bool TryReadUiLanguageProperty(JsonElement root, out string value)
+    {
+        value = "";
+        if (root.TryGetProperty("uiLanguage", out var lang)
+            || root.TryGetProperty(nameof(AppSettings.UiLanguage), out lang))
+        {
+            if (lang.ValueKind == JsonValueKind.String)
+            {
+                var text = lang.GetString();
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    value = text;
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
