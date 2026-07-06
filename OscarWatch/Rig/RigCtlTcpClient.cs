@@ -16,6 +16,8 @@ internal sealed class RigCtlTcpClient : IDisposable
     private readonly int _commandTimeoutMs;
     private readonly int _connectTimeoutMs;
     private readonly object _gate = new();
+    private readonly byte[] _readBuffer = new byte[256];
+    private readonly StringBuilder _responseBuilder = new();
     private TcpClient? _client;
     private NetworkStream? _stream;
 
@@ -41,7 +43,7 @@ internal sealed class RigCtlTcpClient : IDisposable
         lock (_gate)
         {
             DisconnectUnlocked();
-            _client = new TcpClient();
+            _client = new TcpClient { NoDelay = true };
             _client.ReceiveTimeout = _commandTimeoutMs;
             _client.SendTimeout = _commandTimeoutMs;
             ConnectWithTimeout(_client, _host, _port, _connectTimeoutMs);
@@ -97,7 +99,7 @@ internal sealed class RigCtlTcpClient : IDisposable
             return;
 
         DisconnectUnlocked();
-        _client = new TcpClient();
+        _client = new TcpClient { NoDelay = true };
         _client.ReceiveTimeout = _commandTimeoutMs;
         _client.SendTimeout = _commandTimeoutMs;
         ConnectWithTimeout(_client, _host, _port, _connectTimeoutMs);
@@ -112,8 +114,7 @@ internal sealed class RigCtlTcpClient : IDisposable
         if (_stream is null)
             return "";
 
-        var builder = new StringBuilder();
-        var buffer = new byte[256];
+        _responseBuilder.Clear();
         var savedTimeout = _stream.ReadTimeout;
         var deadline = DateTime.UtcNow.AddMilliseconds(_commandTimeoutMs);
 
@@ -121,27 +122,38 @@ internal sealed class RigCtlTcpClient : IDisposable
         {
             while (DateTime.UtcNow < deadline)
             {
-                var text = builder.ToString();
-                if (!string.IsNullOrEmpty(text) && RigCtlResponseParser.LooksComplete(text))
-                    break;
+                if (_responseBuilder.Length > 0 && LooksCompleteSpan(_responseBuilder))
+                {
+                    var text = _responseBuilder.ToString();
+                    if (RigCtlResponseParser.LooksComplete(text))
+                        break;
+                }
 
                 var remainingMs = (int)Math.Max(1, (deadline - DateTime.UtcNow).TotalMilliseconds);
                 _stream.ReadTimeout = remainingMs;
 
                 try
                 {
-                    var read = _stream.Read(buffer, 0, buffer.Length);
+                    var read = _stream.Read(_readBuffer, 0, _readBuffer.Length);
                     if (read <= 0)
                         break;
 
-                    builder.Append(Encoding.ASCII.GetString(buffer, 0, read));
+                    _responseBuilder.Append(Encoding.ASCII.GetString(_readBuffer, 0, read));
+
+                    // Only check completeness if we received a newline (saves ToString allocations)
+                    if (ContainsNewline(_readBuffer, read))
+                    {
+                        var text = _responseBuilder.ToString();
+                        if (RigCtlResponseParser.LooksComplete(text))
+                            break;
+                    }
                 }
                 catch (IOException)
                 {
-                    if (builder.Length > 0 && RigCtlResponseParser.LooksComplete(builder.ToString()))
+                    if (_responseBuilder.Length > 0 && RigCtlResponseParser.LooksComplete(_responseBuilder.ToString()))
                         break;
 
-                    if (builder.Length == 0)
+                    if (_responseBuilder.Length == 0)
                         return string.Empty;
 
                     break;
@@ -153,7 +165,21 @@ internal sealed class RigCtlTcpClient : IDisposable
             _stream.ReadTimeout = savedTimeout;
         }
 
-        return builder.ToString();
+        return _responseBuilder.ToString();
+    }
+
+    private static bool LooksCompleteSpan(StringBuilder sb)
+    {
+        if (sb.Length == 0) return false;
+        return sb[sb.Length - 1] == '\n';
+    }
+
+    private static bool ContainsNewline(byte[] buffer, int count)
+    {
+        for (var i = 0; i < count; i++)
+            if (buffer[i] == (byte)'\n')
+                return true;
+        return false;
     }
 
     private void DisconnectUnlocked()
@@ -196,7 +222,7 @@ internal static class RigCtlResponseParser
 {
     public static bool IsSuccess(string response)
     {
-        foreach (var line in SplitLines(response))
+        foreach (var line in EnumerateLines(response))
         {
             if (!line.StartsWith("RPRT ", StringComparison.Ordinal))
                 continue;
@@ -210,15 +236,16 @@ internal static class RigCtlResponseParser
 
     public static long? TryParseFrequencyHz(string response)
     {
-        foreach (var line in SplitLines(response))
+        foreach (var line in EnumerateLines(response))
         {
             if (line.StartsWith("RPRT ", StringComparison.Ordinal))
                 continue;
 
-            if (long.TryParse(line.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var hz))
+            var span = line.AsSpan();
+            if (long.TryParse(span, NumberStyles.Integer, CultureInfo.InvariantCulture, out var hz))
                 return hz;
 
-            if (double.TryParse(line.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out var hzFloat))
+            if (double.TryParse(span, NumberStyles.Float, CultureInfo.InvariantCulture, out var hzFloat))
                 return (long)Math.Round(hzFloat);
         }
 
@@ -230,25 +257,51 @@ internal static class RigCtlResponseParser
         if (string.IsNullOrEmpty(response))
             return false;
 
-        var trimmed = response.TrimEnd('\r', '\n');
-        if (!trimmed.Contains('\n', StringComparison.Ordinal))
+        var trimmed = response.AsSpan().TrimEnd("\r\n".AsSpan());
+        if (!trimmed.Contains('\n'))
+        {
             return trimmed.StartsWith("RPRT ", StringComparison.Ordinal)
                 || long.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out _)
                 || double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out _);
+        }
 
-        foreach (var line in SplitLines(response))
+        foreach (var line in EnumerateLines(response))
         {
             if (line.StartsWith("RPRT ", StringComparison.Ordinal)
-                || long.TryParse(line.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out _)
-                || double.TryParse(line.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out _))
+                || long.TryParse(line.AsSpan(), NumberStyles.Integer, CultureInfo.InvariantCulture, out _)
+                || double.TryParse(line.AsSpan(), NumberStyles.Float, CultureInfo.InvariantCulture, out _))
                 return true;
         }
 
         return false;
     }
 
-    private static IEnumerable<string> SplitLines(string response) =>
-        response.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    /// <summary>
+    /// Splits response into lines without allocating intermediate trimmed strings.
+    /// Uses span-based trimming where possible; returns the non-empty trimmed lines.
+    /// </summary>
+    private static IEnumerable<string> EnumerateLines(string response)
+    {
+        var start = 0;
+        var length = response.Length;
+
+        while (start < length)
+        {
+            var end = response.IndexOfAny(['\r', '\n'], start);
+            if (end < 0)
+                end = length;
+
+            var segment = response.AsSpan(start, end - start).Trim();
+            if (segment.Length > 0)
+                yield return segment.ToString();
+
+            // Skip \r\n or single \r or \n
+            if (end < length && response[end] == '\r' && end + 1 < length && response[end + 1] == '\n')
+                start = end + 2;
+            else
+                start = end + 1;
+        }
+    }
 }
 
 internal static class RigCtlModeMapper
