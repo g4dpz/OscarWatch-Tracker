@@ -104,8 +104,7 @@ public partial class App : Application
         var settingsService = Services.GetRequiredService<ISettingsService>();
         settingsService.Load();
 
-        var startupLanguage = LocalizationCulture.ReadUiLanguageFromDisk();
-        LocalizationCulture.Apply(startupLanguage);
+        LocalizationCulture.ApplyFromSettings(settingsService);
         AppThemeManager.Apply(AppThemeManager.ReadPreferenceFromDisk());
         AccessibilityThemeResources.Install();
 

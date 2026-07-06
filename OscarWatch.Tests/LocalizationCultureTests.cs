@@ -41,4 +41,16 @@ public sealed class LocalizationCultureTests
         Assert.Equal("en-GB", CultureInfo.CurrentUICulture.Name);
         Assert.Equal("en-GB", CultureInfo.CurrentCulture.Name);
     }
+
+    [Fact]
+    public void ReadUiLanguageFromFile_reads_camelCase_uiLanguage_from_settings_json()
+    {
+        var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"), "settings.json");
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        File.WriteAllText(path, """{"uiLanguage":"es"}""");
+
+        var language = LocalizationCulture.ReadUiLanguageFromFile(path);
+
+        Assert.Equal("es", language);
+    }
 }
