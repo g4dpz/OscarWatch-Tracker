@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
@@ -17,6 +18,7 @@ public sealed class TrackingOrchestrator
     private readonly HashSet<string> _loggedLookAngleSkips = new(StringComparer.Ordinal);
     private readonly HashSet<string> _loggedStateSkips = new(StringComparer.Ordinal);
     private IReadOnlyList<SatelliteCatalogEntry> _cachedEnabledSats = Array.Empty<SatelliteCatalogEntry>();
+    private int _lastNonFocusedRecomputeIndex;
 
     private List<SatelliteTrackState> _bufferA = new(32);
     private List<SatelliteTrackState> _bufferB = new(32);
@@ -126,16 +128,45 @@ public sealed class TrackingOrchestrator
                 var altKm = TleAltitude.ResolveAltitudeKm(subpoint.AltitudeKm, sat);
 
                 IReadOnlyList<GeoCoordinate> groundTrack = [];
-                if (ShouldBuildGroundTrack(sat.NoradId, groundTrackNoradId))
+                IReadOnlyList<GeoCoordinate> nextOrbitGroundTrack = [];
+                var isFocusedTrack = string.Equals(sat.NoradId, groundTrackNoradId, StringComparison.OrdinalIgnoreCase)
+                    && !string.IsNullOrWhiteSpace(groundTrackNoradId);
+                if (!_visualCache.TryGetFreshGroundTrack(sat.NoradId, utc, isFocusedTrack, out groundTrack))
                 {
-                    if (!_visualCache.TryGetFreshGroundTrack(sat.NoradId, utc, out groundTrack))
+                    if (isFocusedTrack)
                     {
+                        // Focused satellite: always recompute immediately
                         var periodMin = EstimatePeriodMinutes(sat);
                         var halfPeriod = TimeSpan.FromMinutes(periodMin / 2.0);
                         groundTrack = _groundGeometry.GetGroundTrack(
                             sat, utc - halfPeriod, utc + halfPeriod, TimeSpan.FromSeconds(60));
                         cache.GroundTrack = groundTrack;
                         cache.GroundTrackUtc = utc;
+
+                        // Compute next orbit track (one period ahead) for overlay
+                        var period = TimeSpan.FromMinutes(periodMin);
+                        nextOrbitGroundTrack = _groundGeometry.GetGroundTrack(
+                            sat, utc + halfPeriod, utc + halfPeriod + period, TimeSpan.FromSeconds(120));
+                        cache.NextOrbitGroundTrack = nextOrbitGroundTrack;
+                    }
+                    else
+                    {
+                        // Non-focused: use stale cache as placeholder; recompute below with stagger
+                        groundTrack = cache.GroundTrack;
+                    }
+                }
+                else if (isFocusedTrack)
+                {
+                    nextOrbitGroundTrack = cache.NextOrbitGroundTrack;
+                    if (nextOrbitGroundTrack.Count < 2)
+                    {
+                        // Next orbit not yet computed — compute it now
+                        var periodMin = EstimatePeriodMinutes(sat);
+                        var halfPeriod = TimeSpan.FromMinutes(periodMin / 2.0);
+                        var period = TimeSpan.FromMinutes(periodMin);
+                        nextOrbitGroundTrack = _groundGeometry.GetGroundTrack(
+                            sat, utc + halfPeriod, utc + halfPeriod + period, TimeSpan.FromSeconds(120));
+                        cache.NextOrbitGroundTrack = nextOrbitGroundTrack;
                     }
                 }
 
@@ -165,6 +196,7 @@ public sealed class TrackingOrchestrator
                     LookAngles = look,
                     MotionHeadingDeg = motionHeadingDeg,
                     GroundTrack = groundTrack,
+                    NextOrbitGroundTrack = nextOrbitGroundTrack,
                     Footprint = footprint,
                     FootprintRadiusDeg = footprintRadiusDeg,
                     IsSunlit = isSunlit
@@ -177,13 +209,74 @@ public sealed class TrackingOrchestrator
             }
         }
 
+        // Staggered non-focused ground track recomputation: max 2 per tick, 20ms timeout
+        var nonFocusedStale = new List<(SatelliteCatalogEntry Sat, SatelliteVisualCache.Entry Cache)>();
+        foreach (var sat in sats)
+        {
+            if (!_propagator.HasSatellite(sat.NoradId))
+                continue;
+            if (string.Equals(sat.NoradId, groundTrackNoradId, StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(groundTrackNoradId))
+                continue;
+            if (!_visualCache.TryGetFreshGroundTrack(sat.NoradId, utc, isFocused: false, out _))
+                nonFocusedStale.Add((sat, _visualCache.GetOrAdd(sat.NoradId)));
+        }
+
+        if (nonFocusedStale.Count > 0)
+        {
+            var sw = Stopwatch.StartNew();
+            var recomputedCount = 0;
+            var startIndex = _lastNonFocusedRecomputeIndex % nonFocusedStale.Count;
+
+            for (var i = 0; i < nonFocusedStale.Count && recomputedCount < 2; i++)
+            {
+                if (sw.ElapsedMilliseconds >= 20)
+                    break;
+
+                var idx = (startIndex + i) % nonFocusedStale.Count;
+                var (staleSat, staleCache) = nonFocusedStale[idx];
+
+                var periodMin = EstimatePeriodMinutes(staleSat);
+                var halfPeriod = TimeSpan.FromMinutes(periodMin / 2.0);
+                var track = _groundGeometry.GetGroundTrack(
+                    staleSat, utc - halfPeriod, utc + halfPeriod, TimeSpan.FromSeconds(120));
+                staleCache.GroundTrack = track;
+                staleCache.GroundTrackUtc = utc;
+
+                // Update the corresponding state in the buffer
+                for (var si = 0; si < states.Count; si++)
+                {
+                    if (states[si].NoradId == staleSat.NoradId)
+                    {
+                        var s = states[si];
+                        states[si] = new SatelliteTrackState
+                        {
+                            Name = s.Name,
+                            NoradId = s.NoradId,
+                            Subpoint = s.Subpoint,
+                            LookAngles = s.LookAngles,
+                            MotionHeadingDeg = s.MotionHeadingDeg,
+                            GroundTrack = track,
+                            Footprint = s.Footprint,
+                            FootprintRadiusDeg = s.FootprintRadiusDeg,
+                            IsSunlit = s.IsSunlit
+                        };
+                        break;
+                    }
+                }
+
+                recomputedCount++;
+            }
+
+            _lastNonFocusedRecomputeIndex = (startIndex + recomputedCount) % Math.Max(1, nonFocusedStale.Count);
+        }
+
         _useBufferA = !_useBufferA;
         return states;
     }
 
     private static bool ShouldBuildGroundTrack(string noradId, string? groundTrackNoradId) =>
-        !string.IsNullOrWhiteSpace(groundTrackNoradId)
-        && string.Equals(noradId, groundTrackNoradId, StringComparison.OrdinalIgnoreCase);
+        true; // Always build ground tracks for all satellites (was: only for focused)
 
     private double? TryEstimateMotionHeadingDeg(string noradId, DateTime utc, GeoCoordinate subpoint)
     {

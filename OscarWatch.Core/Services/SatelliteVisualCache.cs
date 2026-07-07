@@ -8,6 +8,7 @@ namespace OscarWatch.Core.Services;
 internal sealed class SatelliteVisualCache
 {
     private static readonly TimeSpan GroundTrackRefreshInterval = TimeSpan.FromSeconds(45);
+    internal static readonly TimeSpan NonFocusedGroundTrackRefreshInterval = TimeSpan.FromSeconds(90);
     private static readonly TimeSpan FootprintRefreshInterval = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan MotionHeadingRefreshInterval = TimeSpan.FromSeconds(8);
 
@@ -29,6 +30,20 @@ internal sealed class SatelliteVisualCache
             return false;
 
         if (IsStale(utc, entry.GroundTrackUtc, GroundTrackRefreshInterval))
+            return false;
+
+        track = entry.GroundTrack;
+        return track.Count >= 2;
+    }
+
+    public bool TryGetFreshGroundTrack(string noradId, DateTime utc, bool isFocused, out IReadOnlyList<GeoCoordinate> track)
+    {
+        track = [];
+        if (!_entries.TryGetValue(noradId, out var entry))
+            return false;
+
+        var maxAge = isFocused ? GroundTrackRefreshInterval : NonFocusedGroundTrackRefreshInterval;
+        if (IsStale(utc, entry.GroundTrackUtc, maxAge))
             return false;
 
         track = entry.GroundTrack;
@@ -72,6 +87,7 @@ internal sealed class SatelliteVisualCache
     {
         public IReadOnlyList<GeoCoordinate> GroundTrack { get; set; } = [];
         public DateTime GroundTrackUtc;
+        public IReadOnlyList<GeoCoordinate> NextOrbitGroundTrack { get; set; } = [];
         public IReadOnlyList<GeoCoordinate> Footprint { get; set; } = [];
         public DateTime FootprintUtc;
         public double FootprintRadiusDeg;

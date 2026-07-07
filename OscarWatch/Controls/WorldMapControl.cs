@@ -42,6 +42,9 @@ public class WorldMapControl : ThemeAwareControl
     public static readonly StyledProperty<bool> ShowGreylineOverlayProperty =
         AvaloniaProperty.Register<WorldMapControl, bool>(nameof(ShowGreylineOverlay));
 
+    public static readonly StyledProperty<bool> ShowMultiTrackOverlayProperty =
+        AvaloniaProperty.Register<WorldMapControl, bool>(nameof(ShowMultiTrackOverlay), true);
+
     public static readonly StyledProperty<DateTime> MapDisplayUtcProperty =
         AvaloniaProperty.Register<WorldMapControl, DateTime>(
             nameof(MapDisplayUtc),
@@ -78,6 +81,7 @@ public class WorldMapControl : ThemeAwareControl
             RemoteStationProperty,
             SoloFocusedSatelliteProperty,
             ShowGreylineOverlayProperty,
+            ShowMultiTrackOverlayProperty,
             MapDisplayUtcProperty);
     }
 
@@ -123,6 +127,12 @@ public class WorldMapControl : ThemeAwareControl
     {
         get => GetValue(ShowGreylineOverlayProperty);
         set => SetValue(ShowGreylineOverlayProperty, value);
+    }
+
+    public bool ShowMultiTrackOverlay
+    {
+        get => GetValue(ShowMultiTrackOverlayProperty);
+        set => SetValue(ShowMultiTrackOverlayProperty, value);
     }
 
     public DateTime MapDisplayUtc
@@ -357,6 +367,24 @@ public class WorldMapControl : ThemeAwareControl
         }
 
         // Pass 1: tracks, footprints, and subpoints (no labels yet).
+        // Sub-pass 1a: Next-orbit ground track for focused satellite (faded, behind current track)
+        if (ShowMultiTrackOverlay)
+        {
+            for (var i = 0; i < states.Count; i++)
+            {
+                var state = states[i];
+                if (state.NoradId != FocusedNoradId)
+                    continue;
+                if (state.NextOrbitGroundTrack.Count < 2)
+                    continue;
+
+                var color = PlotColors.ForIndex(i);
+                var fadedColor = Color.FromArgb(138, color.R, color.G, color.B);
+                DrawCachedGroundTrack(context, state.NoradId + "_next", state.NextOrbitGroundTrack, w, h, fadedColor, 1);
+            }
+        }
+
+        // Sub-pass 1b: Focused ground track (on top), footprints, and subpoints.
         for (var i = 0; i < states.Count; i++)
         {
             var state = states[i];
