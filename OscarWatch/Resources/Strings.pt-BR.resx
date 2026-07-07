@@ -1765,7 +1765,7 @@ Continuar?</value>
     <value>Banco de dados TLE</value>
   </data>
   <data name="Settings.Tle.SourceNote">
-    <value>OscarWatch é o banco de dados orientado para AMSAT. AMSAT.org usa o conjunto nasabare.txt publicado. Use uma URL personalizada ou arquivo local se você mantiver seu próprio conjunto TLE.</value>
+    <value>As fontes integradas OscarWatch e AMSAT.org usam conjuntos GP em JSON. URLs personalizadas e arquivos locais podem ser JSON ou TLE clássico de três linhas.</value>
   </data>
   <data name="Settings.Tle.DownloadUrl">
     <value>URL de download</value>
@@ -1774,7 +1774,7 @@ Continuar?</value>
     <value>Arquivo TLE local</value>
   </data>
   <data name="Settings.Tle.LocalFileWatermark">
-    <value>Caminho para arquivo .txt ou .tle</value>
+    <value>Caminho para arquivo .json, .txt ou .tle</value>
   </data>
   <data name="Settings.Tle.Updates">
     <value>Atualizações de TLE</value>
@@ -1786,7 +1786,7 @@ Continuar?</value>
     <value>OscarWatch (tle.oscarwatch.org)</value>
   </data>
   <data name="Settings.Tle.Source.Amsat">
-    <value>AMSAT.org (nasabare.txt)</value>
+    <value>AMSAT.org (boletim GP JSON)</value>
   </data>
   <data name="Settings.Tle.Source.CustomUrl">
     <value>URL personalizada</value>

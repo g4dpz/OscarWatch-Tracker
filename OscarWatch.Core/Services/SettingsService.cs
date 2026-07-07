@@ -253,6 +253,7 @@ public sealed class SettingsService : ISettingsService, IDisposable
         settings.QsoLogbook.HistoryColumnWidthsPx ??=
             new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         settings.TleSource ??= new TleSourceSettings();
+        settings.TleSource = TleSourceResolver.NormalizeLegacyCustomUrl(settings.TleSource);
         settings.TransponderConflictAcknowledgments ??= [];
     }
 

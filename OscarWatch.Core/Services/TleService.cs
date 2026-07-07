@@ -6,7 +6,7 @@ namespace OscarWatch.Core.Services;
 
 public sealed class TleService : ITleService
 {
-    public const string DefaultTleUrl = "https://tle.oscarwatch.org/";
+    public const string DefaultTleUrl = TleSourceResolver.OscarWatchGpJsonUrl;
 
     private readonly ISettingsService? _settings;
     private readonly HttpClient _httpClient;
@@ -53,8 +53,22 @@ public sealed class TleService : ITleService
         if (File.Exists(CachePath))
         {
             var cached = await File.ReadAllTextAsync(CachePath, cancellationToken);
-            _catalog = TleParser.ParseCatalog(cached).ToList();
-            LastFetchedUtc = File.GetLastWriteTimeUtc(CachePath);
+            if (!ShouldDiscardBuiltInTextCache(settings, cached))
+            {
+                _catalog = TleCatalogParser.ParseCatalog(cached).ToList();
+                LastFetchedUtc = File.GetLastWriteTimeUtc(CachePath);
+            }
+            else
+            {
+                try
+                {
+                    File.Delete(CachePath);
+                }
+                catch
+                {
+                    // best effort — next refresh will overwrite
+                }
+            }
         }
 
         if (_catalog.Count > 0)
@@ -125,7 +139,7 @@ public sealed class TleService : ITleService
 
     private void ApplyCatalog(string text, bool fromNetwork)
     {
-        _catalog = TleParser.ParseCatalog(text).ToList();
+        _catalog = TleCatalogParser.ParseCatalog(text).ToList();
         _loadedSourceKey = TleSourceResolver.GetSourceKey(EffectiveSettings);
         LastFetchedUtc = fromNetwork ? DateTime.UtcNow : File.Exists(CachePath)
             ? File.GetLastWriteTimeUtc(CachePath)
@@ -138,9 +152,18 @@ public sealed class TleService : ITleService
             return;
 
         var text = File.ReadAllText(path);
-        _catalog = TleParser.ParseCatalog(text).ToList();
+        _catalog = TleCatalogParser.ParseCatalog(text).ToList();
         if (_catalog.Count > 0)
             LastFetchedUtc = File.GetLastWriteTimeUtc(path);
+    }
+
+    private static bool ShouldDiscardBuiltInTextCache(TleSourceSettings settings, string cached)
+    {
+        if (settings.Mode is not (TleSourceMode.OscarWatch or TleSourceMode.AmsatOrg))
+            return false;
+
+        var trimmed = cached.TrimStart();
+        return !trimmed.StartsWith("[", StringComparison.Ordinal) && !trimmed.StartsWith("{", StringComparison.Ordinal);
     }
 
     private void TryLoadBundledSeed()
@@ -149,7 +172,7 @@ public sealed class TleService : ITleService
             return;
 
         var text = File.ReadAllText(BundledSeedPath);
-        _catalog = TleParser.ParseCatalog(text).ToList();
+        _catalog = TleCatalogParser.ParseCatalog(text).ToList();
         if (_catalog.Count > 0)
             LastFetchedUtc = null;
     }

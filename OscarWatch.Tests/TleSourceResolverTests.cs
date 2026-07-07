@@ -19,7 +19,7 @@ public sealed class TleSourceResolverTests
         {
             Mode = TleSourceMode.AmsatOrg
         });
-        Assert.Equal(TleSourceResolver.AmsatNasabareUrl, url);
+        Assert.Equal(TleSourceResolver.AmsatGpJsonUrl, url);
     }
 
     [Fact]
@@ -31,6 +31,32 @@ public sealed class TleSourceResolverTests
             CustomUrl = "https://example.com/tle.txt"
         });
         Assert.Equal("https://example.com/tle.txt", url);
+    }
+
+    [Fact]
+    public void NormalizeLegacyCustomUrl_maps_old_oscarwatch_text_url_to_mode()
+    {
+        var normalized = TleSourceResolver.NormalizeLegacyCustomUrl(new TleSourceSettings
+        {
+            Mode = TleSourceMode.CustomUrl,
+            CustomUrl = "https://tle.oscarwatch.org/"
+        });
+
+        Assert.Equal(TleSourceMode.OscarWatch, normalized.Mode);
+        Assert.Equal("", normalized.CustomUrl);
+    }
+
+    [Fact]
+    public void NormalizeLegacyCustomUrl_maps_old_amsat_text_url_to_mode()
+    {
+        var normalized = TleSourceResolver.NormalizeLegacyCustomUrl(new TleSourceSettings
+        {
+            Mode = TleSourceMode.CustomUrl,
+            CustomUrl = TleSourceResolver.LegacyAmsatNasabareUrl
+        });
+
+        Assert.Equal(TleSourceMode.AmsatOrg, normalized.Mode);
+        Assert.Equal("", normalized.CustomUrl);
     }
 
     [Fact]

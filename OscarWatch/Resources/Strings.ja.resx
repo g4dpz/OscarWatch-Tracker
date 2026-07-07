@@ -901,7 +901,7 @@
     <value>TLEカタログソース</value>
   </data>
   <data name="Settings.Tle.SourceNote">
-    <value>OscarWatchはAMSAT向けの既定カタログです。AMSAT.orgは公開のnasabare.txtを使用します。独自のTLEセットがある場合はカスタムURLまたはローカルファイルを使用してください。</value>
+    <value>組み込みのOscarWatchとAMSAT.orgソースはJSON GP要素セットを使用します。カスタムURLとローカルファイルはJSONまたは従来の3行TLEに対応します。</value>
   </data>
   <data name="Settings.Tle.DownloadUrl">
     <value>ダウンロードURL</value>
@@ -910,7 +910,7 @@
     <value>ローカルTLEファイル</value>
   </data>
   <data name="Settings.Tle.LocalFileWatermark">
-    <value>.txt または .tle ファイルのパス</value>
+    <value>.json、.txt、または .tle ファイルのパス</value>
   </data>
   <data name="Settings.Tle.Updates">
     <value>TLE更新</value>
@@ -922,7 +922,7 @@
     <value>OscarWatch (tle.oscarwatch.org)</value>
   </data>
   <data name="Settings.Tle.Source.Amsat">
-    <value>AMSAT.org (nasabare.txt)</value>
+    <value>AMSAT.org (JSON GP 速報)</value>
   </data>
   <data name="Settings.Tle.Source.CustomUrl">
     <value>カスタムURL</value>

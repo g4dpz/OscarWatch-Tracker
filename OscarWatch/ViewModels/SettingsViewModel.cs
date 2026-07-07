@@ -105,7 +105,7 @@ public partial class SettingsViewModel : ViewModelBase
 
     public IReadOnlyList<TleSourceOption> TleSourceOptions { get; }
 
-    public string TleCustomUrlWatermark { get; } = TleSourceResolver.CelestrakAmsatExampleUrl;
+    public string TleCustomUrlWatermark { get; } = TleSourceResolver.CelestrakAmsatJsonExampleUrl;
 
     public bool ShowTleCustomUrl => TleSourceOption?.Mode == TleSourceMode.CustomUrl;
 

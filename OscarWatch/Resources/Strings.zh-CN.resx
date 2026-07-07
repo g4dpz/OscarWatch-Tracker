@@ -1765,7 +1765,7 @@
     <value>TLE 来源</value>
   </data>
   <data name="Settings.Tle.SourceNote">
-    <value>OscarWatch 是默认的面向 AMSAT 的目录。AMSAT.org 使用已发布的 nasabare.txt 集合。如果您维护自己的 TLE 集合，请使用自定义 URL 或本地文件。</value>
+    <value>OscarWatch 和 AMSAT.org 内置源使用 JSON GP 元素集。自定义 URL 和本地文件支持 JSON 或经典三行 TLE 文本。</value>
   </data>
   <data name="Settings.Tle.DownloadUrl">
     <value>下载 URL</value>
@@ -1774,7 +1774,7 @@
     <value>本地 TLE 文件</value>
   </data>
   <data name="Settings.Tle.LocalFileWatermark">
-    <value>.txt 或 .tle 文件的路径</value>
+    <value>.json、.txt 或 .tle 文件的路径</value>
   </data>
   <data name="Settings.Tle.Updates">
     <value>TLE 更新</value>
@@ -1786,7 +1786,7 @@
     <value>OscarWatch (tle.oscarwatch.org)</value>
   </data>
   <data name="Settings.Tle.Source.Amsat">
-    <value>AMSAT.org (nasabare.txt)</value>
+    <value>AMSAT.org（JSON GP 公报）</value>
   </data>
   <data name="Settings.Tle.Source.CustomUrl">
     <value>自定义 URL</value>

@@ -7,6 +7,6 @@ public sealed class TleSourceSettings
     /// <summary>HTTP(S) URL when <see cref="Mode"/> is <see cref="TleSourceMode.CustomUrl"/>.</summary>
     public string CustomUrl { get; set; } = "";
 
-    /// <summary>Path to a local two-line TLE file when <see cref="Mode"/> is <see cref="TleSourceMode.LocalFile"/>.</summary>
+    /// <summary>Path to a local JSON GP or three-line TLE file when <see cref="Mode"/> is <see cref="TleSourceMode.LocalFile"/>.</summary>
     public string LocalFilePath { get; set; } = "";
 }
