@@ -86,6 +86,12 @@ public sealed class SatelliteLinkBroadcastService : ISatelliteLinkBroadcastServi
             AllowLanClients = settings.AllowLanClients
         };
 
+        var wasListening = _host.IsListening;
+        var resumeSettings = _settings;
+
+        if (wasListening)
+            await _host.StopAsync().ConfigureAwait(false);
+
         await using var host = new SatelliteLinkWebSocketHost();
         try
         {
@@ -95,7 +101,7 @@ public sealed class SatelliteLinkBroadcastService : ISatelliteLinkBroadcastServi
         catch (Exception ex)
         {
             lock (_gate)
-                _lastError = ex.Message;
+                _lastError = SatelliteLinkListenPrefixBuilder.DescribeBindFailure(ex);
             StateChanged?.Invoke();
             Log.Debug(ex, "Satellite link bind test failed");
             return false;
@@ -103,6 +109,21 @@ public sealed class SatelliteLinkBroadcastService : ISatelliteLinkBroadcastServi
         finally
         {
             await host.StopAsync().ConfigureAwait(false);
+
+            if (wasListening && resumeSettings.Enabled)
+            {
+                try
+                {
+                    await _host.StartAsync(resumeSettings, cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    lock (_gate)
+                        _lastError = SatelliteLinkListenPrefixBuilder.DescribeBindFailure(ex);
+                    Log.Warning(ex, "Satellite link failed to resume after bind test");
+                    StateChanged?.Invoke();
+                }
+            }
         }
     }
 
@@ -132,7 +153,7 @@ public sealed class SatelliteLinkBroadcastService : ISatelliteLinkBroadcastServi
         catch (Exception ex)
         {
             lock (_gate)
-                _lastError = ex.Message;
+                _lastError = SatelliteLinkListenPrefixBuilder.DescribeBindFailure(ex);
             Log.Warning(ex, "Satellite link failed to start");
         }
 

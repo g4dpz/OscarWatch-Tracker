@@ -115,6 +115,30 @@
   <data name="Main.Gps.TimeTooltip.Inactive">
     <value>Hora GPS ativa — aguardando fix</value>
   </data>
+  <data name="Main.SatelliteLink.Waiting">
+    <value>Sat Link • aguardando</value>
+  </data>
+  <data name="Main.SatelliteLink.Clients">
+    <value>Sat Link • {0} clientes</value>
+  </data>
+  <data name="Main.SatelliteLink.Error">
+    <value>Sat Link • erro</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Waiting">
+    <value>O WebSocket do Satellite link está ouvindo na porta {0} ({1}). Aguardando clientes.</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Clients">
+    <value>WebSocket do Satellite link na porta {0} ({1}). {2} cliente(s) conectado(s).</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Error">
+    <value>Satellite link falhou: {0}</value>
+  </data>
+  <data name="Main.SatelliteLink.Bind.Local">
+    <value>apenas este PC</value>
+  </data>
+  <data name="Main.SatelliteLink.Bind.Lan">
+    <value>rede local</value>
+  </data>
   <data name="Main.Pass.AosIn">
     <value>{0} AOS em {1}</value>
   </data>
@@ -2186,6 +2210,57 @@ Continuar?</value>
   </data>
   <data name="Settings.HamsAt.ConnectionFailed">
     <value>Falha na conexão — {0}</value>
+  </data>
+  <data name="Settings.SatelliteLink.Section">
+    <value>Satellite link</value>
+  </data>
+  <data name="Settings.SatelliteLink.Intro">
+    <value>Transmite nome do satélite, frequências, modos e dados de rastreamento para aplicativos de log por WebSocket local (sucessor do SatPC32 DDE). Consulte a ajuda para a API.</value>
+  </data>
+  <data name="Settings.SatelliteLink.Enable">
+    <value>Habilitar servidor WebSocket do Satellite link</value>
+  </data>
+  <data name="Settings.SatelliteLink.Port">
+    <value>Porta</value>
+  </data>
+  <data name="Settings.SatelliteLink.AllowLan">
+    <value>Permitir conexões da rede local</value>
+  </data>
+  <data name="Settings.SatelliteLink.AllowLanNote">
+    <value>Desativado = apenas programas neste PC (127.0.0.1). Ativado = OscarWatch escuta nos endereços IP da sua LAN. No Windows, permita o OscarWatch quando o aviso do firewall do sistema aparecer. No macOS ou Linux, permita a porta no firewall se clientes da LAN não conseguirem conectar.</value>
+  </data>
+  <data name="Settings.SatelliteLink.OnlyWhenInRange">
+    <value>Transmitir apenas quando o satélite estiver acima do horizonte</value>
+  </data>
+  <data name="Settings.SatelliteLink.UpdateInterval">
+    <value>Intervalo de atualização (ms)</value>
+  </data>
+  <data name="Settings.SatelliteLink.UpdateIntervalNote">
+    <value>Tempo mínimo entre cargas idênticas. Mudanças de foco e modo são enviadas imediatamente.</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlPreview">
+    <value>URL de conexão</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlLocal">
+    <value>ws://127.0.0.1:{0}/</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlLan">
+    <value>ws://&lt;IP deste PC&gt;:{0}/ (todas as interfaces)</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestConnection">
+    <value>Testar porta</value>
+  </data>
+  <data name="Settings.SatelliteLink.OpenHelp">
+    <value>Abrir ajuda</value>
+  </data>
+  <data name="Settings.SatelliteLink.Testing">
+    <value>Testando porta…</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestOk">
+    <value>A porta {0} está disponível nas interfaces selecionadas.</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestFailed">
+    <value>Não foi possível escutar na porta {0} — {1}</value>
   </data>
   <data name="Settings.Cloudlog.Section">
     <value>Cloudlog</value>

@@ -25,7 +25,6 @@
           <li><a href="passes.html">Pass planning</a></li>
           <li><a href="radio-rotator.html">Radio &amp; rotator</a></li>
           <li><a href="settings.html">Settings</a></li>
-          <li><a href="satellite-link.html">Satellite link</a></li>
           <li><a href="keyboard-shortcuts.html">Shortcuts</a></li>
           <li><a href="troubleshooting.html">Problems?</a></li>
         </ul>
@@ -186,8 +185,9 @@
         a <strong>Sat link</strong> label appears in the same area:
       </p>
       <ul>
-        <li><strong>amber</strong> — WebSocket server listening, no clients yet (or an error starting the server)</li>
+        <li><strong>amber</strong> — waiting for clients (port open, none connected yet)</li>
         <li><strong>green</strong> — one or more logging clients connected</li>
+        <li><strong>red</strong> — could not start (port in use, permissions, etc.)</li>
       </ul>
       <p>
         See <a href="satellite-link.html">Satellite link</a> for setup and the developer API.

@@ -55,6 +55,30 @@
   <data name="Main.Gps.TimeTooltip.Inactive">
     <value>GPS時刻有効 — 測位待ち</value>
   </data>
+  <data name="Main.SatelliteLink.Waiting">
+    <value>Sat Link • 待機中</value>
+  </data>
+  <data name="Main.SatelliteLink.Clients">
+    <value>Sat Link • {0} クライアント</value>
+  </data>
+  <data name="Main.SatelliteLink.Error">
+    <value>Sat Link • エラー</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Waiting">
+    <value>Satellite link WebSocketはポート {0} ({1}) で待機中です。クライアントの接続を待っています。</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Clients">
+    <value>Satellite link WebSocket ポート {0} ({1})。{2} 件のクライアントが接続中。</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Error">
+    <value>Satellite link に失敗しました: {0}</value>
+  </data>
+  <data name="Main.SatelliteLink.Bind.Local">
+    <value>このPCのみ</value>
+  </data>
+  <data name="Main.SatelliteLink.Bind.Lan">
+    <value>ローカルネットワーク</value>
+  </data>
   <data name="Main.Pass.AosIn">
     <value>{0} AOSまで {1}</value>
   </data>
@@ -1325,6 +1349,57 @@
   </data>
   <data name="Settings.HamsAt.ConnectionFailed">
     <value>接続失敗 — {0}</value>
+  </data>
+  <data name="Settings.SatelliteLink.Section">
+    <value>Satellite link</value>
+  </data>
+  <data name="Settings.SatelliteLink.Intro">
+    <value>衛星名、周波数、モード、追跡データをローカルWebSocketでロギングアプリへ配信します（SatPC32 DDEの後継）。APIはヘルプを参照してください。</value>
+  </data>
+  <data name="Settings.SatelliteLink.Enable">
+    <value>Satellite link WebSocketサーバーを有効化</value>
+  </data>
+  <data name="Settings.SatelliteLink.Port">
+    <value>ポート</value>
+  </data>
+  <data name="Settings.SatelliteLink.AllowLan">
+    <value>ローカルネットワークからの接続を許可</value>
+  </data>
+  <data name="Settings.SatelliteLink.AllowLanNote">
+    <value>オフ = このPC上のプログラムのみ (127.0.0.1)。オン = OscarWatchはLANのIPアドレスで待機します。Windowsではシステムのファイアウォール確認でOscarWatchを許可してください。macOS/LinuxではLANクライアントが接続できない場合、ファイアウォールでポートを許可してください。</value>
+  </data>
+  <data name="Settings.SatelliteLink.OnlyWhenInRange">
+    <value>衛星が地平線上にあるときのみ配信</value>
+  </data>
+  <data name="Settings.SatelliteLink.UpdateInterval">
+    <value>更新間隔 (ms)</value>
+  </data>
+  <data name="Settings.SatelliteLink.UpdateIntervalNote">
+    <value>同一ペイロードの最小送信間隔。フォーカスやモードの変更は即時送信されます。</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlPreview">
+    <value>接続URL</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlLocal">
+    <value>ws://127.0.0.1:{0}/</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlLan">
+    <value>ws://&lt;このPCのIP&gt;:{0}/ (すべてのインターフェース)</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestConnection">
+    <value>ポートをテスト</value>
+  </data>
+  <data name="Settings.SatelliteLink.OpenHelp">
+    <value>ヘルプを開く</value>
+  </data>
+  <data name="Settings.SatelliteLink.Testing">
+    <value>ポートをテスト中…</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestOk">
+    <value>ポート {0} は選択したインターフェースで利用可能です。</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestFailed">
+    <value>ポート {0} で待機できませんでした — {1}</value>
   </data>
   <data name="Settings.Cloudlog.Section">
     <value>Cloudlog</value>

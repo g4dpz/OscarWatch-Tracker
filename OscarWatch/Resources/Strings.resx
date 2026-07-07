@@ -115,23 +115,23 @@
   <data name="Main.Gps.TimeTooltip.Inactive">
     <value>GPS time enabled — waiting for fix</value>
   </data>
-  <data name="Main.SatelliteLink.Listening">
-    <value>Sat link • listening</value>
+  <data name="Main.SatelliteLink.Waiting">
+    <value>Sat Link • waiting</value>
   </data>
   <data name="Main.SatelliteLink.Clients">
-    <value>Sat link • {0} clients</value>
+    <value>Sat Link • {0} clients</value>
   </data>
   <data name="Main.SatelliteLink.Error">
-    <value>Sat link • error</value>
+    <value>Sat Link • error</value>
   </data>
-  <data name="Main.SatelliteLink.Tooltip.Listening">
-    <value>Satellite link WebSocket is listening on port {0} ({1}). No clients connected.</value>
+  <data name="Main.SatelliteLink.Tooltip.Waiting">
+    <value>Satellite link WebSocket is listening on port {0} ({1}). Waiting for clients.</value>
   </data>
   <data name="Main.SatelliteLink.Tooltip.Clients">
     <value>Satellite link WebSocket on port {0} ({1}). {2} client(s) connected.</value>
   </data>
   <data name="Main.SatelliteLink.Tooltip.Error">
-    <value>Satellite link failed: {0}</value>
+    <value>Satellite Link Failed: {0}</value>
   </data>
   <data name="Main.SatelliteLink.Bind.Local">
     <value>this PC only</value>
@@ -2269,7 +2269,7 @@ Continue?</value>
     <value>Allow connections from local network</value>
   </data>
   <data name="Settings.SatelliteLink.AllowLanNote">
-    <value>When off, only programs on this PC can connect (127.0.0.1). When on, any device on your LAN may connect — ensure your firewall rules are appropriate.</value>
+    <value>When off, only programs on this PC can connect (127.0.0.1). When on, OscarWatch listens on your LAN IP addresses. On Windows, allow OscarWatch when the system firewall prompt appears. On macOS or Linux, allow the port in your firewall if LAN clients cannot connect.</value>
   </data>
   <data name="Settings.SatelliteLink.OnlyWhenInRange">
     <value>Only broadcast when satellite is above horizon</value>
@@ -2299,7 +2299,7 @@ Continue?</value>
     <value>Testing port…</value>
   </data>
   <data name="Settings.SatelliteLink.TestOk">
-    <value>Port {0} is available.</value>
+    <value>Port {0} is available on the selected interfaces.</value>
   </data>
   <data name="Settings.SatelliteLink.TestFailed">
     <value>Could not listen on port {0} — {1}</value>

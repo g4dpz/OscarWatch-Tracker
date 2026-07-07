@@ -115,6 +115,30 @@
   <data name="Main.Gps.TimeTooltip.Inactive">
     <value>GPS 时间已启用 — 等待定位</value>
   </data>
+  <data name="Main.SatelliteLink.Waiting">
+    <value>Sat Link • 等待中</value>
+  </data>
+  <data name="Main.SatelliteLink.Clients">
+    <value>Sat Link • {0} 个客户端</value>
+  </data>
+  <data name="Main.SatelliteLink.Error">
+    <value>Sat Link • 错误</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Waiting">
+    <value>Satellite link WebSocket 正在端口 {0} ({1}) 上监听。等待客户端连接。</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Clients">
+    <value>Satellite link WebSocket 端口 {0} ({1})。已连接 {2} 个客户端。</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Error">
+    <value>Satellite link 失败：{0}</value>
+  </data>
+  <data name="Main.SatelliteLink.Bind.Local">
+    <value>仅本机</value>
+  </data>
+  <data name="Main.SatelliteLink.Bind.Lan">
+    <value>本地网络</value>
+  </data>
   <data name="Main.Pass.AosIn">
     <value>{0} 将在 {1} 后升起</value>
   </data>
@@ -2186,6 +2210,57 @@
   </data>
   <data name="Settings.HamsAt.ConnectionFailed">
     <value>连接失败 — {0}</value>
+  </data>
+  <data name="Settings.SatelliteLink.Section">
+    <value>Satellite link</value>
+  </data>
+  <data name="Settings.SatelliteLink.Intro">
+    <value>通过本地 WebSocket 向日志应用广播卫星名称、频率、模式和跟踪数据（SatPC32 DDE 的继任）。API 请参阅帮助。</value>
+  </data>
+  <data name="Settings.SatelliteLink.Enable">
+    <value>启用 Satellite link WebSocket 服务器</value>
+  </data>
+  <data name="Settings.SatelliteLink.Port">
+    <value>端口</value>
+  </data>
+  <data name="Settings.SatelliteLink.AllowLan">
+    <value>允许来自本地网络的连接</value>
+  </data>
+  <data name="Settings.SatelliteLink.AllowLanNote">
+    <value>关闭 = 仅本机程序可连接 (127.0.0.1)。开启 = OscarWatch 在 LAN IP 地址上监听。Windows 上请在系统防火墙提示时允许 OscarWatch。macOS 或 Linux 上若 LAN 客户端无法连接，请在防火墙中放行该端口。</value>
+  </data>
+  <data name="Settings.SatelliteLink.OnlyWhenInRange">
+    <value>仅在卫星高于地平线时广播</value>
+  </data>
+  <data name="Settings.SatelliteLink.UpdateInterval">
+    <value>更新间隔（毫秒）</value>
+  </data>
+  <data name="Settings.SatelliteLink.UpdateIntervalNote">
+    <value>相同负载的最小发送间隔。焦点和模式变更会立即发送。</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlPreview">
+    <value>连接 URL</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlLocal">
+    <value>ws://127.0.0.1:{0}/</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlLan">
+    <value>ws://&lt;本机 IP&gt;:{0}/（所有接口）</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestConnection">
+    <value>测试端口</value>
+  </data>
+  <data name="Settings.SatelliteLink.OpenHelp">
+    <value>打开帮助</value>
+  </data>
+  <data name="Settings.SatelliteLink.Testing">
+    <value>正在测试端口…</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestOk">
+    <value>端口 {0} 在所选接口上可用。</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestFailed">
+    <value>无法在端口 {0} 上监听 — {1}</value>
   </data>
   <data name="Settings.Cloudlog.Section">
     <value>Cloudlog</value>

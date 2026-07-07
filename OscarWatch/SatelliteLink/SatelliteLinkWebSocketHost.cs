@@ -1,8 +1,11 @@
 using System.Collections.Concurrent;
 using System.Net;
+using System.Net.Sockets;
 using System.Net.WebSockets;
+using System.Security.Cryptography;
 using System.Text;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.SatelliteLink;
 using Serilog;
 
 namespace OscarWatch.SatelliteLink;
@@ -10,9 +13,11 @@ namespace OscarWatch.SatelliteLink;
 public sealed class SatelliteLinkWebSocketHost : IAsyncDisposable
 {
     private static readonly ILogger Log = Serilog.Log.ForContext<SatelliteLinkWebSocketHost>();
+    private const int HandshakeTimeoutMs = 5000;
+
     private readonly object _gate = new();
     private readonly ConcurrentDictionary<Guid, WebSocket> _clients = new();
-    private HttpListener? _listener;
+    private TcpListener? _listener;
     private CancellationTokenSource? _cts;
     private Task? _acceptLoop;
     private string? _lastError;
@@ -22,7 +27,7 @@ public sealed class SatelliteLinkWebSocketHost : IAsyncDisposable
 
     public bool IsListening
     {
-        get { lock (_gate) return _listener?.IsListening == true; }
+        get { lock (_gate) return _listener is not null; }
     }
 
     public int ClientCount => _clients.Count;
@@ -37,12 +42,9 @@ public sealed class SatelliteLinkWebSocketHost : IAsyncDisposable
         await StopAsync().ConfigureAwait(false);
 
         var port = SatelliteLinkSettings.NormalizePort(settings.Port);
-        var prefix = settings.AllowLanClients
-            ? $"http://+:{port}/"
-            : $"http://127.0.0.1:{port}/";
-
-        var listener = new HttpListener();
-        listener.Prefixes.Add(prefix);
+        var listener = settings.AllowLanClients
+            ? new TcpListener(IPAddress.Any, port)
+            : new TcpListener(IPAddress.Loopback, port);
 
         try
         {
@@ -50,9 +52,9 @@ public sealed class SatelliteLinkWebSocketHost : IAsyncDisposable
         }
         catch (Exception ex)
         {
-            SetError(ex.Message);
-            listener.Close();
-            throw;
+            var detail = SatelliteLinkListenPrefixBuilder.DescribeBindFailure(ex);
+            SetError(detail);
+            throw new InvalidOperationException(detail, ex);
         }
 
         lock (_gate)
@@ -64,14 +66,17 @@ public sealed class SatelliteLinkWebSocketHost : IAsyncDisposable
 
         _acceptLoop = Task.Run(() => AcceptLoopAsync(_cts.Token), CancellationToken.None);
         NotifyStateChanged();
-        Log.Information("Satellite link WebSocket listening on {Prefix}", prefix);
+        Log.Information(
+            "Satellite link WebSocket listening on TCP {BindAddress}:{Port}",
+            settings.AllowLanClients ? "0.0.0.0" : "127.0.0.1",
+            port);
     }
 
     public async Task StopAsync()
     {
         Task? loop;
         CancellationTokenSource? cts;
-        HttpListener? listener;
+        TcpListener? listener;
 
         lock (_gate)
         {
@@ -90,7 +95,6 @@ public sealed class SatelliteLinkWebSocketHost : IAsyncDisposable
             try
             {
                 listener.Stop();
-                listener.Close();
             }
             catch (Exception ex)
             {
@@ -164,24 +168,29 @@ public sealed class SatelliteLinkWebSocketHost : IAsyncDisposable
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            HttpListener? listener;
+            TcpListener? listener;
             lock (_gate)
                 listener = _listener;
 
-            if (listener is null || !listener.IsListening)
+            if (listener is null)
                 break;
 
-            HttpListenerContext context;
+            TcpClient client;
             try
             {
-                context = await listener.GetContextAsync().ConfigureAwait(false);
+                client = await listener.AcceptTcpClientAsync(cancellationToken).ConfigureAwait(false);
             }
-            catch (HttpListenerException) when (cancellationToken.IsCancellationRequested)
+            catch (OperationCanceledException)
             {
                 break;
             }
             catch (ObjectDisposedException)
             {
+                break;
+            }
+            catch (SocketException ex) when (cancellationToken.IsCancellationRequested)
+            {
+                Log.Debug(ex, "Satellite link accept cancelled");
                 break;
             }
             catch (Exception ex)
@@ -195,58 +204,45 @@ public sealed class SatelliteLinkWebSocketHost : IAsyncDisposable
                 continue;
             }
 
-            _ = Task.Run(() => HandleRequestAsync(context, cancellationToken), CancellationToken.None);
+            _ = Task.Run(() => HandleClientAsync(client, cancellationToken), CancellationToken.None);
         }
     }
 
-    private async Task HandleRequestAsync(HttpListenerContext context, CancellationToken cancellationToken)
+    private async Task HandleClientAsync(TcpClient tcpClient, CancellationToken cancellationToken)
     {
-        var request = context.Request;
-        if (!request.IsWebSocketRequest)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            context.Response.Close();
-            return;
-        }
-
-        HttpListenerWebSocketContext? wsContext;
+        WebSocket? socket = null;
         try
         {
-            wsContext = await context.AcceptWebSocketAsync(subProtocol: null).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Log.Debug(ex, "Satellite link WebSocket handshake failed");
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            context.Response.Close();
-            return;
-        }
+            await using var networkStream = tcpClient.GetStream();
+            networkStream.ReadTimeout = HandshakeTimeoutMs;
+            networkStream.WriteTimeout = HandshakeTimeoutMs;
 
-        var socket = wsContext.WebSocket;
-        var id = Guid.NewGuid();
-        _clients[id] = socket;
-        NotifyStateChanged();
+            socket = await AcceptWebSocketAsync(networkStream, cancellationToken).ConfigureAwait(false);
+            if (socket is null)
+                return;
 
-        if (!string.IsNullOrEmpty(_latestPayload))
-        {
-            try
+            var id = Guid.NewGuid();
+            _clients[id] = socket;
+            NotifyStateChanged();
+
+            if (!string.IsNullOrEmpty(_latestPayload))
             {
-                var bytes = Encoding.UTF8.GetBytes(_latestPayload);
-                await socket.SendAsync(
-                        new ArraySegment<byte>(bytes),
-                        WebSocketMessageType.Text,
-                        endOfMessage: true,
-                        cancellationToken)
-                    .ConfigureAwait(false);
+                try
+                {
+                    var bytes = Encoding.UTF8.GetBytes(_latestPayload);
+                    await socket.SendAsync(
+                            new ArraySegment<byte>(bytes),
+                            WebSocketMessageType.Text,
+                            endOfMessage: true,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Log.Debug(ex, "Satellite link initial snapshot failed");
+                }
             }
-            catch (Exception ex)
-            {
-                Log.Debug(ex, "Satellite link initial snapshot failed");
-            }
-        }
 
-        try
-        {
             var buffer = new byte[256];
             while (socket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
             {
@@ -265,14 +261,73 @@ public sealed class SatelliteLinkWebSocketHost : IAsyncDisposable
         }
         catch (Exception ex)
         {
-            Log.Debug(ex, "Satellite link client receive loop ended");
+            Log.Debug(ex, "Satellite link client session ended");
         }
         finally
         {
-            _clients.TryRemove(id, out _);
-            await CloseSocketAsync(socket).ConfigureAwait(false);
-            NotifyStateChanged();
+            if (socket is not null)
+            {
+                foreach (var entry in _clients.Where(pair => ReferenceEquals(pair.Value, socket)).ToArray())
+                    _clients.TryRemove(entry.Key, out _);
+
+                await CloseSocketAsync(socket).ConfigureAwait(false);
+                NotifyStateChanged();
+            }
+
+            tcpClient.Dispose();
         }
+    }
+
+    private static async Task<WebSocket?> AcceptWebSocketAsync(Stream stream, CancellationToken cancellationToken)
+    {
+        using var reader = new StreamReader(stream, Encoding.ASCII, detectEncodingFromByteOrderMarks: false, leaveOpen: true);
+        var requestLine = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+        if (requestLine is null
+            || !requestLine.StartsWith("GET ", StringComparison.Ordinal)
+            || !requestLine.Contains('/', StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        string? webSocketKey = null;
+        while (true)
+        {
+            var headerLine = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+            if (string.IsNullOrEmpty(headerLine))
+                break;
+
+            if (headerLine.StartsWith("Sec-WebSocket-Key:", StringComparison.OrdinalIgnoreCase))
+                webSocketKey = headerLine["Sec-WebSocket-Key:".Length..].Trim();
+        }
+
+        if (string.IsNullOrWhiteSpace(webSocketKey))
+            return null;
+
+        var acceptKey = ComputeWebSocketAcceptKey(webSocketKey);
+        var response =
+            "HTTP/1.1 101 Switching Protocols\r\n" +
+            "Connection: Upgrade\r\n" +
+            "Upgrade: websocket\r\n" +
+            $"Sec-WebSocket-Accept: {acceptKey}\r\n\r\n";
+        var responseBytes = Encoding.ASCII.GetBytes(response);
+        await stream.WriteAsync(responseBytes, cancellationToken).ConfigureAwait(false);
+        await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+
+        return WebSocket.CreateFromStream(
+            stream,
+            new WebSocketCreationOptions
+            {
+                IsServer = true,
+                KeepAliveInterval = TimeSpan.FromSeconds(30)
+            });
+    }
+
+    private static string ComputeWebSocketAcceptKey(string webSocketKey)
+    {
+        const string magic = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+        var combined = Encoding.UTF8.GetBytes(webSocketKey.Trim() + magic);
+        var hash = SHA1.HashData(combined);
+        return Convert.ToBase64String(hash);
     }
 
     private static async Task CloseSocketAsync(WebSocket socket)

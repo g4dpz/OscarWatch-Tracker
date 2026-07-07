@@ -209,8 +209,9 @@ public partial class MainViewModel : ViewModelBase
     private string _gpsStatusText = "";
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(SatelliteLinkWarn))]
     [NotifyPropertyChangedFor(nameof(ShowSatelliteLinkOk))]
+    [NotifyPropertyChangedFor(nameof(ShowSatelliteLinkWaiting))]
+    [NotifyPropertyChangedFor(nameof(ShowSatelliteLinkError))]
     private bool _showSatelliteLinkStatus;
 
     [ObservableProperty]
@@ -220,13 +221,13 @@ public partial class MainViewModel : ViewModelBase
     private string _satelliteLinkStatusTooltip = "";
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(SatelliteLinkWarn))]
-    [NotifyPropertyChangedFor(nameof(ShowSatelliteLinkOk))]
-    private bool _satelliteLinkOk;
+    private bool _showSatelliteLinkOk;
 
-    public bool SatelliteLinkWarn => ShowSatelliteLinkStatus && !SatelliteLinkOk;
+    [ObservableProperty]
+    private bool _showSatelliteLinkWaiting;
 
-    public bool ShowSatelliteLinkOk => ShowSatelliteLinkStatus && SatelliteLinkOk;
+    [ObservableProperty]
+    private bool _showSatelliteLinkError;
 
     public bool GpsNoFix => ShowGpsStatus && !GpsHasFix;
 
@@ -833,9 +834,13 @@ public partial class MainViewModel : ViewModelBase
             : _l.Get("Main.SatelliteLink.Bind.Local");
         var error = _satelliteLink.LastError;
 
+        ShowSatelliteLinkOk = false;
+        ShowSatelliteLinkWaiting = false;
+        ShowSatelliteLinkError = false;
+
         if (!string.IsNullOrWhiteSpace(error) && !_satelliteLink.IsListening)
         {
-            SatelliteLinkOk = false;
+            ShowSatelliteLinkError = true;
             SatelliteLinkStatusText = _l.Get("Main.SatelliteLink.Error");
             SatelliteLinkStatusTooltip = _l.Get("Main.SatelliteLink.Tooltip.Error", error);
             return;
@@ -844,7 +849,7 @@ public partial class MainViewModel : ViewModelBase
         var clients = _satelliteLink.ClientCount;
         if (clients > 0)
         {
-            SatelliteLinkOk = true;
+            ShowSatelliteLinkOk = true;
             SatelliteLinkStatusText = _l.Get("Main.SatelliteLink.Clients", clients);
             SatelliteLinkStatusTooltip = _l.Get(
                 "Main.SatelliteLink.Tooltip.Clients",
@@ -854,9 +859,9 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
 
-        SatelliteLinkOk = false;
-        SatelliteLinkStatusText = _l.Get("Main.SatelliteLink.Listening");
-        SatelliteLinkStatusTooltip = _l.Get("Main.SatelliteLink.Tooltip.Listening", port, bindScope);
+        ShowSatelliteLinkWaiting = true;
+        SatelliteLinkStatusText = _l.Get("Main.SatelliteLink.Waiting");
+        SatelliteLinkStatusTooltip = _l.Get("Main.SatelliteLink.Tooltip.Waiting", port, bindScope);
     }
 
     private void OnCloudlogStateChanged()

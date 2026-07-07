@@ -25,7 +25,6 @@
           <li><a href="passes.html">Pass planning</a></li>
           <li><a href="radio-rotator.html">Radio &amp; rotator</a></li>
           <li><a href="settings.html">Settings</a></li>
-          <li><a href="satellite-link.html" aria-current="page">Satellite link</a></li>
           <li><a href="keyboard-shortcuts.html">Shortcuts</a></li>
           <li><a href="troubleshooting.html">Problems?</a></li>
         </ul>
@@ -53,7 +52,7 @@
       <ul>
         <li><strong>Enable Satellite link WebSocket server</strong> — master switch.</li>
         <li><strong>Port</strong> — default <strong>7373</strong> (1024–65535).</li>
-        <li><strong>Allow connections from local network</strong> — when off, only programs on this PC can connect (<code>127.0.0.1</code>). When on, any device on your LAN may connect; check your firewall.</li>
+        <li><strong>Allow connections from local network</strong> — when off, only this PC (<code>127.0.0.1</code>). When on, OscarWatch listens on your LAN IP addresses (shown in the connection URL box). On Windows, allow OscarWatch when the system firewall prompt appears.</li>
         <li><strong>Only broadcast when satellite is above horizon</strong> — when on, payloads below 0° elevation send <code>** NO SATELLITE **</code> (SatPC32-style).</li>
         <li><strong>Update interval (ms)</strong> — minimum time between identical payloads (default 1000). Focus and mode changes are sent immediately.</li>
         <li><strong>Test port</strong> — checks that OscarWatch can bind to the port (no client required).</li>
@@ -66,9 +65,9 @@
         shows a <strong>Sat link</strong> label to the left of the map-time buttons:
       </p>
       <ul>
-        <li><strong>amber</strong> — listening, no clients connected yet</li>
+        <li><strong>amber</strong> — waiting for clients (port open, none connected yet)</li>
         <li><strong>green</strong> — one or more clients connected (hover for port and client count)</li>
-        <li><strong>amber / error</strong> — could not start (port in use, permissions, etc.)</li>
+        <li><strong>red</strong> — could not start (port in use, permissions, etc.)</li>
       </ul>
       <p>The indicator is hidden when Satellite link is disabled in Settings.</p>
 
@@ -175,10 +174,11 @@ while (ws.State == WebSocketState.Open)
 
       <h2>Troubleshooting</h2>
       <ul>
+        <li><strong>Windows Firewall</strong> — when LAN access is first enabled, Windows should prompt to allow OscarWatch. Choose <strong>Allow access</strong> on private networks. If you previously blocked it, open <strong>Windows Security → Firewall &amp; network protection → Allow an app through firewall</strong> and enable OscarWatch for Private.</li>
         <li><strong>Port in use</strong> — another program (or a second OscarWatch instance) may already use the port. Change the port or stop the other program. Use <strong>Test port</strong> in Settings.</li>
         <li><strong>LAN clients cannot connect</strong> — enable <strong>Allow connections from local network</strong>, allow the port in Windows Firewall, and use this PC’s LAN IP address.</li>
         <li><strong>Always <code>** NO SATELLITE **</code></strong> — check <strong>Only broadcast when satellite is above horizon</strong>, focus a satellite on the map, and ensure a transponder mode is selected in the frequency panel.</li>
-        <li><strong>No clients shown in status bar</strong> — the server can be listening with zero clients; connect your logging app and the label should turn green.</li>
+        <li><strong>No clients shown in status bar</strong> — the server can be waiting (amber) with zero clients; connect your logging app and the label should turn green.</li>
       </ul>
     </main>
 

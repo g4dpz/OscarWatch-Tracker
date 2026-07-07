@@ -1122,6 +1122,9 @@
                 <TextBlock Text="{loc:Localize Key=Settings.SatelliteLink.UrlPreview}" />
                 <TextBox Text="{Binding SatelliteLinkUrlPreview}"
                          IsReadOnly="True"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         MinHeight="44"
                          HorizontalAlignment="Stretch" />
                 <StackPanel Orientation="Horizontal" Spacing="8">
                   <Button Content="{loc:Localize Key=Settings.SatelliteLink.TestConnection}"

@@ -9,6 +9,7 @@ using OscarWatch.Core.Geo;
 using OscarWatch.Core.Hardware;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Radio;
+using OscarWatch.Core.SatelliteLink;
 using OscarWatch.Core.Services;
 using OscarWatch.Localization;
 using OscarWatch.Rig;
@@ -433,9 +434,11 @@ public partial class SettingsViewModel : ViewModelBase
     private string _satelliteLinkTestStatus = "";
 
     public string SatelliteLinkUrlPreview =>
-        SatelliteLinkAllowLanClients
-            ? _l.Get("Settings.SatelliteLink.UrlLan", SatelliteLinkPort)
-            : _l.Get("Settings.SatelliteLink.UrlLocal", SatelliteLinkPort);
+        SatelliteLinkListenPrefixBuilder.FormatEndpointPreview(new SatelliteLinkSettings
+        {
+            Port = SatelliteLinkPort,
+            AllowLanClients = SatelliteLinkAllowLanClients
+        });
 
     [ObservableProperty]
     private bool _hamsAtEnabled;
