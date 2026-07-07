@@ -116,13 +116,13 @@
     <value>GPS time enabled — waiting for fix</value>
   </data>
   <data name="Main.SatelliteLink.Waiting">
-    <value>Sat Link • waiting</value>
+    <value>Sat Link • Waiting</value>
   </data>
   <data name="Main.SatelliteLink.Clients">
-    <value>Sat Link • {0} clients</value>
+    <value>Sat Link • {0} Clients</value>
   </data>
   <data name="Main.SatelliteLink.Error">
-    <value>Sat Link • error</value>
+    <value>Sat Link • Error</value>
   </data>
   <data name="Main.SatelliteLink.Tooltip.Waiting">
     <value>Satellite link WebSocket is listening on port {0} ({1}). Waiting for clients.</value>
@@ -2254,13 +2254,13 @@ Continue?</value>
     <value>Connection failed — {0}</value>
   </data>
   <data name="Settings.SatelliteLink.Section">
-    <value>Satellite link</value>
+    <value>Satellite Link</value>
   </data>
   <data name="Settings.SatelliteLink.Intro">
     <value>Broadcast focused satellite name, frequencies, modes, and tracking data to logging applications over a local WebSocket (successor to SatPC32 DDE). See help for the API.</value>
   </data>
   <data name="Settings.SatelliteLink.Enable">
-    <value>Enable Satellite link WebSocket server</value>
+    <value>Enable Satellite Link WebSocket server</value>
   </data>
   <data name="Settings.SatelliteLink.Port">
     <value>Port</value>
@@ -2290,13 +2290,13 @@ Continue?</value>
     <value>ws://&lt;this PC IP&gt;:{0}/ (all interfaces)</value>
   </data>
   <data name="Settings.SatelliteLink.TestConnection">
-    <value>Test port</value>
+    <value>Test Port</value>
   </data>
   <data name="Settings.SatelliteLink.OpenHelp">
-    <value>Open help</value>
+    <value>Open Help</value>
   </data>
   <data name="Settings.SatelliteLink.Testing">
-    <value>Testing port…</value>
+    <value>Testing port</value>
   </data>
   <data name="Settings.SatelliteLink.TestOk">
     <value>Port {0} is available on the selected interfaces.</value>
