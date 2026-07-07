@@ -244,6 +244,10 @@ public sealed class SettingsService : ISettingsService, IDisposable
             settings.Rig.DopplerCatLeadGainPercent = RigSettings.DefaultDopplerCatLeadGainPercent;
         settings.Rig.DopplerCatLeadMs = Math.Clamp(settings.Rig.DopplerCatLeadMs, 0, DopplerCatLead.UserLeadMsMax);
         settings.Cloudlog ??= new CloudlogSettings();
+        settings.SatelliteLink ??= new SatelliteLinkSettings();
+        settings.SatelliteLink.Port = SatelliteLinkSettings.NormalizePort(settings.SatelliteLink.Port);
+        settings.SatelliteLink.UpdateIntervalMs =
+            SatelliteLinkSettings.NormalizeUpdateIntervalMs(settings.SatelliteLink.UpdateIntervalMs);
         settings.PassRecording ??= new PassRecordingSettings();
         settings.QsoLogbook ??= new QsoLogbookSettings();
         settings.QsoLogbook.HistoryColumnWidthsPx ??=

@@ -908,6 +908,8 @@
                            Content="{loc:Localize Key=Settings.Cloudlog.Section}" />
               <ListBoxItem Tag="GpsIntegrationSection"
                            Content="{loc:Localize Key=Settings.Gps.Title}" />
+              <ListBoxItem Tag="SatelliteLinkIntegrationSection"
+                           Content="{loc:Localize Key=Settings.SatelliteLink.Section}" />
             </ListBox>
           </Border>
 
@@ -1083,6 +1085,57 @@
                 <NumericUpDown Value="{Binding GpsMinSatellites, Mode=TwoWay}"
                                Minimum="1" Maximum="20"
                                Increment="1" FormatString="F0" />
+              </StackPanel>
+
+              <StackPanel x:Name="SatelliteLinkIntegrationSection"
+                          Spacing="14"
+                          IsVisible="False">
+                <TextBlock Text="{loc:Localize Key=Settings.SatelliteLink.Section}"
+                           FontWeight="SemiBold"
+                           FontSize="13" />
+                <TextBlock TextWrapping="Wrap"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           FontSize="11"
+                           Text="{loc:Localize Key=Settings.SatelliteLink.Intro}" />
+                <CheckBox Content="{loc:Localize Key=Settings.SatelliteLink.Enable}"
+                          IsChecked="{Binding SatelliteLinkEnabled, Mode=TwoWay}" />
+                <TextBlock Text="{loc:Localize Key=Settings.SatelliteLink.Port}" />
+                <NumericUpDown Value="{Binding SatelliteLinkPort, Mode=TwoWay}"
+                               Minimum="1024" Maximum="65535"
+                               Increment="1" FormatString="F0" />
+                <CheckBox Content="{loc:Localize Key=Settings.SatelliteLink.AllowLan}"
+                          IsChecked="{Binding SatelliteLinkAllowLanClients, Mode=TwoWay}" />
+                <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           FontSize="11"
+                           TextWrapping="Wrap"
+                           Text="{loc:Localize Key=Settings.SatelliteLink.AllowLanNote}" />
+                <CheckBox Content="{loc:Localize Key=Settings.SatelliteLink.OnlyWhenInRange}"
+                          IsChecked="{Binding SatelliteLinkOnlyWhenInRange, Mode=TwoWay}" />
+                <TextBlock Text="{loc:Localize Key=Settings.SatelliteLink.UpdateInterval}" />
+                <NumericUpDown Value="{Binding SatelliteLinkUpdateIntervalMs, Mode=TwoWay}"
+                               Minimum="250" Maximum="60000"
+                               Increment="250" FormatString="F0" />
+                <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           FontSize="11"
+                           TextWrapping="Wrap"
+                           Text="{loc:Localize Key=Settings.SatelliteLink.UpdateIntervalNote}" />
+                <TextBlock Text="{loc:Localize Key=Settings.SatelliteLink.UrlPreview}" />
+                <TextBox Text="{Binding SatelliteLinkUrlPreview}"
+                         IsReadOnly="True"
+                         HorizontalAlignment="Stretch" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <Button Content="{loc:Localize Key=Settings.SatelliteLink.TestConnection}"
+                          Click="OnTestSatelliteLinkClick"
+                          HorizontalAlignment="Left" />
+                  <Button Content="{loc:Localize Key=Settings.SatelliteLink.OpenHelp}"
+                          Click="OnOpenSatelliteLinkHelpClick"
+                          HorizontalAlignment="Left" />
+                </StackPanel>
+                <TextBlock Text="{Binding SatelliteLinkTestStatus}"
+                           TextWrapping="Wrap"
+                           FontSize="12"
+                           MinHeight="20"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
               </StackPanel>
             </StackPanel>
           </ScrollViewer>

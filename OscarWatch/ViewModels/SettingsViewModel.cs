@@ -27,6 +27,7 @@ public partial class SettingsViewModel : ViewModelBase
     private readonly ICloudlogLookupService _cloudlogLookup;
     private readonly IHamsAtRovesService _hamsAtRoves;
     private readonly IGpsService _gps;
+    private readonly ISatelliteLinkBroadcastService _satelliteLink;
     private readonly GroundStation _draft = new();
     private bool _isSynchronizing;
     private string _uiLanguageAtOpen = LocalizationCulture.DefaultLanguage;
@@ -412,6 +413,31 @@ public partial class SettingsViewModel : ViewModelBase
     public bool ShowCloudlogLogbookPicker => CloudlogLogbooks.Count > 0;
 
     [ObservableProperty]
+    private bool _satelliteLinkEnabled;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SatelliteLinkUrlPreview))]
+    private int _satelliteLinkPort = SatelliteLinkSettings.DefaultPort;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SatelliteLinkUrlPreview))]
+    private bool _satelliteLinkAllowLanClients;
+
+    [ObservableProperty]
+    private bool _satelliteLinkOnlyWhenInRange;
+
+    [ObservableProperty]
+    private int _satelliteLinkUpdateIntervalMs = SatelliteLinkSettings.DefaultUpdateIntervalMs;
+
+    [ObservableProperty]
+    private string _satelliteLinkTestStatus = "";
+
+    public string SatelliteLinkUrlPreview =>
+        SatelliteLinkAllowLanClients
+            ? _l.Get("Settings.SatelliteLink.UrlLan", SatelliteLinkPort)
+            : _l.Get("Settings.SatelliteLink.UrlLocal", SatelliteLinkPort);
+
+    [ObservableProperty]
     private bool _hamsAtEnabled;
 
     [ObservableProperty]
@@ -536,12 +562,14 @@ public partial class SettingsViewModel : ViewModelBase
         ICloudlogRadioSyncService cloudlog,
         ICloudlogLookupService cloudlogLookup,
         IHamsAtRovesService hamsAtRoves,
-        IGpsService gps)
+        IGpsService gps,
+        ISatelliteLinkBroadcastService satelliteLink)
     {
         _l = localization;
         _cloudlogLookup = cloudlogLookup;
         _hamsAtRoves = hamsAtRoves;
         _gps = gps;
+        _satelliteLink = satelliteLink;
         LanguageOptions =
         [
             new LanguageOption(LocalizationCulture.DefaultLanguage, _l.Get("Settings.Language.English")),
@@ -843,6 +871,14 @@ public partial class SettingsViewModel : ViewModelBase
             MinSatellites = Math.Clamp(GpsMinSatellites, 1, 20)
         };
         _gps.Update(_settings.Current.Gps);
+        _settings.Current.SatelliteLink = new SatelliteLinkSettings
+        {
+            Enabled = SatelliteLinkEnabled,
+            Port = SatelliteLinkSettings.NormalizePort(SatelliteLinkPort),
+            AllowLanClients = SatelliteLinkAllowLanClients,
+            OnlyWhenInRange = SatelliteLinkOnlyWhenInRange,
+            UpdateIntervalMs = SatelliteLinkSettings.NormalizeUpdateIntervalMs(SatelliteLinkUpdateIntervalMs)
+        };
         _cloudlog.ResetThrottle();
         _settings.SyncActiveStationFromGroundStation();
         AppThemeManager.Apply(ThemePreference);
@@ -1015,6 +1051,16 @@ public partial class SettingsViewModel : ViewModelBase
                 SelectedCloudlogLogbook = null;
             }
 
+            var satelliteLink = _settings.Current.SatelliteLink ?? new SatelliteLinkSettings();
+            SatelliteLinkEnabled = satelliteLink.Enabled;
+            SatelliteLinkPort = satelliteLink.Port > 0 ? satelliteLink.Port : SatelliteLinkSettings.DefaultPort;
+            SatelliteLinkAllowLanClients = satelliteLink.AllowLanClients;
+            SatelliteLinkOnlyWhenInRange = satelliteLink.OnlyWhenInRange;
+            SatelliteLinkUpdateIntervalMs = satelliteLink.UpdateIntervalMs > 0
+                ? satelliteLink.UpdateIntervalMs
+                : SatelliteLinkSettings.DefaultUpdateIntervalMs;
+            SatelliteLinkTestStatus = "";
+
             var hamsAt = _settings.Current.HamsAt ?? new HamsAtSettings();
             HamsAtEnabled = hamsAt.Enabled;
             HamsAtApiKey = hamsAt.ApiKey;
@@ -1178,6 +1224,31 @@ public partial class SettingsViewModel : ViewModelBase
             DownlinkSdrTestStatus = _l.Get("Settings.Radio.SdrConnectionFailed", ex.Message);
         }
     }
+
+    public async Task TestSatelliteLinkAsync()
+    {
+        try
+        {
+            SatelliteLinkTestStatus = _l.Get("Settings.SatelliteLink.Testing");
+            var settings = new SatelliteLinkSettings
+            {
+                Enabled = true,
+                Port = SatelliteLinkSettings.NormalizePort(SatelliteLinkPort),
+                AllowLanClients = SatelliteLinkAllowLanClients
+            };
+
+            var ok = await _satelliteLink.TestBindAsync(settings).ConfigureAwait(true);
+            SatelliteLinkTestStatus = ok
+                ? _l.Get("Settings.SatelliteLink.TestOk", settings.Port)
+                : _l.Get("Settings.SatelliteLink.TestFailed", settings.Port, _satelliteLink.LastError ?? "");
+        }
+        catch (Exception ex)
+        {
+            SatelliteLinkTestStatus = ex.Message;
+        }
+    }
+
+    public void OpenSatelliteLinkHelp() => Help.HelpLauncher.TryOpenHelp("satellite-link.html");
 
     public async Task TestHamsAtAsync()
     {

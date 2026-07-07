@@ -92,6 +92,7 @@ public partial class SettingsWindow : Window
         HamsAtIntegrationSection.IsVisible = tag == "HamsAtIntegrationSection";
         CloudlogIntegrationSection.IsVisible = tag == "CloudlogIntegrationSection";
         GpsIntegrationSection.IsVisible = tag == "GpsIntegrationSection";
+        SatelliteLinkIntegrationSection.IsVisible = tag == "SatelliteLinkIntegrationSection";
 
         if (IntegrationsContentScrollViewer is not null)
             IntegrationsContentScrollViewer.Offset = new Vector(0, 0);
@@ -115,5 +116,31 @@ public partial class SettingsWindow : Window
             if (testButton is not null)
                 testButton.IsEnabled = true;
         }
+    }
+
+    private async void OnTestSatelliteLinkClick(object? sender, RoutedEventArgs e)
+    {
+        var testButton = sender as Button;
+        if (testButton is not null)
+            testButton.IsEnabled = false;
+
+        try
+        {
+            TopLevel.GetTopLevel(this)?.FocusManager?.ClearFocus();
+
+            if (DataContext is SettingsViewModel vm)
+                await vm.TestSatelliteLinkAsync().ConfigureAwait(true);
+        }
+        finally
+        {
+            if (testButton is not null)
+                testButton.IsEnabled = true;
+        }
+    }
+
+    private void OnOpenSatelliteLinkHelpClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is SettingsViewModel vm)
+            vm.OpenSatelliteLinkHelp();
     }
 }

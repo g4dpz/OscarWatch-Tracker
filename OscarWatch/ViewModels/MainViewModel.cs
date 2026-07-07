@@ -37,6 +37,7 @@ public partial class MainViewModel : ViewModelBase
     private readonly IGpsService _gps;
     private readonly ICloudlogRadioSyncService _cloudlog;
     private readonly ICloudlogLookupService _cloudlogLookup;
+    private readonly ISatelliteLinkBroadcastService _satelliteLink;
     private readonly ISatelliteDatabaseSyncService _transponderDatabaseSync;
     private readonly IGitHubReleaseService _githubRelease;
     private readonly IHamsAtRovesService _hamsAtRoves;
@@ -207,6 +208,26 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private string _gpsStatusText = "";
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SatelliteLinkWarn))]
+    [NotifyPropertyChangedFor(nameof(ShowSatelliteLinkOk))]
+    private bool _showSatelliteLinkStatus;
+
+    [ObservableProperty]
+    private string _satelliteLinkStatusText = "";
+
+    [ObservableProperty]
+    private string _satelliteLinkStatusTooltip = "";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SatelliteLinkWarn))]
+    [NotifyPropertyChangedFor(nameof(ShowSatelliteLinkOk))]
+    private bool _satelliteLinkOk;
+
+    public bool SatelliteLinkWarn => ShowSatelliteLinkStatus && !SatelliteLinkOk;
+
+    public bool ShowSatelliteLinkOk => ShowSatelliteLinkStatus && SatelliteLinkOk;
+
     public bool GpsNoFix => ShowGpsStatus && !GpsHasFix;
 
     public bool GpsTimeInactive => ShowGpsTimeStatus && !GpsTimeActive;
@@ -306,6 +327,7 @@ public partial class MainViewModel : ViewModelBase
         IGpsService gps,
         ICloudlogRadioSyncService cloudlog,
         ICloudlogLookupService cloudlogLookup,
+        ISatelliteLinkBroadcastService satelliteLink,
         ISatelliteDatabaseSyncService transponderDatabaseSync,
         IGitHubReleaseService githubRelease,
         IHamsAtRovesService hamsAtRoves,
@@ -331,7 +353,9 @@ public partial class MainViewModel : ViewModelBase
         _gps = gps;
         _cloudlog = cloudlog;
         _cloudlogLookup = cloudlogLookup;
+        _satelliteLink = satelliteLink;
         _cloudlog.StateChanged += OnCloudlogStateChanged;
+        _satelliteLink.StateChanged += OnSatelliteLinkStateChanged;
         _transponderDatabaseSync = transponderDatabaseSync;
         _githubRelease = githubRelease;
         _hamsAtRoves = hamsAtRoves;
@@ -439,6 +463,7 @@ public partial class MainViewModel : ViewModelBase
         SyncOverlayPassbandFromRig();
         UpdateRigDisplay(rigStatus);
         PushCloudlogRadio(focused);
+        PushSatelliteLink(focused);
     }
 
     public async Task InitializeAsync()
@@ -499,6 +524,7 @@ public partial class MainViewModel : ViewModelBase
         }
 
         _gps.Update(_settings.Current.Gps);
+        ApplySatelliteLinkSettings();
         _liveTracking.Start();
         _liveTracking.RequestReload();
         Tick();
@@ -645,6 +671,8 @@ public partial class MainViewModel : ViewModelBase
         {
             PublishRigTrackingContext(focusedForDisplay);
         }
+
+        PushSatelliteLink(focusedForDisplay);
     }
 
     private void UpdateUtcClockDisplay()
@@ -773,6 +801,62 @@ public partial class MainViewModel : ViewModelBase
     {
         var update = Frequencies.TryBuildCloudlogUpdate(focused);
         _cloudlog.Publish(_settings.Current.Cloudlog, update);
+    }
+
+    private void PushSatelliteLink(SatelliteTrackState? focused, bool force = false)
+    {
+        var context = Frequencies.TryBuildRigTrackingContext(focused);
+        _satelliteLink.Publish(focused, context, force);
+    }
+
+    private void ApplySatelliteLinkSettings()
+    {
+        _satelliteLink.ApplySettings(_settings.Current.SatelliteLink ?? new SatelliteLinkSettings());
+        UpdateSatelliteLinkStatusDisplay();
+    }
+
+    private void OnSatelliteLinkStateChanged()
+    {
+        Dispatcher.UIThread.Post(UpdateSatelliteLinkStatusDisplay, DispatcherPriority.Normal);
+    }
+
+    private void UpdateSatelliteLinkStatusDisplay()
+    {
+        var settings = _settings.Current.SatelliteLink ?? new SatelliteLinkSettings();
+        ShowSatelliteLinkStatus = settings.Enabled;
+        if (!settings.Enabled)
+            return;
+
+        var port = SatelliteLinkSettings.NormalizePort(settings.Port);
+        var bindScope = settings.AllowLanClients
+            ? _l.Get("Main.SatelliteLink.Bind.Lan")
+            : _l.Get("Main.SatelliteLink.Bind.Local");
+        var error = _satelliteLink.LastError;
+
+        if (!string.IsNullOrWhiteSpace(error) && !_satelliteLink.IsListening)
+        {
+            SatelliteLinkOk = false;
+            SatelliteLinkStatusText = _l.Get("Main.SatelliteLink.Error");
+            SatelliteLinkStatusTooltip = _l.Get("Main.SatelliteLink.Tooltip.Error", error);
+            return;
+        }
+
+        var clients = _satelliteLink.ClientCount;
+        if (clients > 0)
+        {
+            SatelliteLinkOk = true;
+            SatelliteLinkStatusText = _l.Get("Main.SatelliteLink.Clients", clients);
+            SatelliteLinkStatusTooltip = _l.Get(
+                "Main.SatelliteLink.Tooltip.Clients",
+                port,
+                bindScope,
+                clients);
+            return;
+        }
+
+        SatelliteLinkOk = false;
+        SatelliteLinkStatusText = _l.Get("Main.SatelliteLink.Listening");
+        SatelliteLinkStatusTooltip = _l.Get("Main.SatelliteLink.Tooltip.Listening", port, bindScope);
     }
 
     private void OnCloudlogStateChanged()
@@ -1477,6 +1561,7 @@ public partial class MainViewModel : ViewModelBase
         Frequencies.Update(focused);
         DxStation.Update(focused);
         PushCloudlogRadio(focused);
+        PushSatelliteLink(focused, force: true);
         RefreshRigFromOverlay(reinitializePass: true);
     }
 
@@ -1739,6 +1824,7 @@ public partial class MainViewModel : ViewModelBase
         _rig.Disconnect();
         _gps.Disconnect();
         _gps.Update(_settings.Current.Gps);
+        ApplySatelliteLinkSettings();
         _cloudlog.ResetThrottle();
         if (!_settings.Current.PassRecording.Enabled && _recording.IsRecording)
             await _recording.StopAsync();

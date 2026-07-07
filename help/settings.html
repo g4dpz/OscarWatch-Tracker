@@ -25,6 +25,7 @@
           <li><a href="passes.html">Pass planning</a></li>
           <li><a href="radio-rotator.html">Radio &amp; rotator</a></li>
           <li><a href="settings.html" aria-current="page">Settings</a></li>
+          <li><a href="satellite-link.html">Satellite link</a></li>
           <li><a href="keyboard-shortcuts.html">Shortcuts</a></li>
           <li><a href="troubleshooting.html">Problems?</a></li>
         </ul>
@@ -113,7 +114,8 @@
       <h2>Integrations</h2>
       <p>
         The <strong>Integrations</strong> tab groups optional hardware and external services:
-        <strong>GPS</strong>, <strong>hams.at</strong> Upcoming Roves, and <strong>Cloudlog</strong>.
+        <strong>GPS</strong>, <strong>hams.at</strong> Upcoming Roves, <strong>Cloudlog</strong>, and
+        <strong>Satellite link</strong>.
         Pick a section from the list on the left.
       </p>
 
@@ -169,6 +171,23 @@
         checks each rove grid against that logbook using Cloudlog’s <code>logbook_check_grid</code> API with
         <code>band: SAT</code>, so only satellite QSOs count. Grid badges on rove rows are described in
         <a href="map-and-sidebar.html#rove-grid-badges">Map &amp; sidebar → Rove grid badges</a>.
+      </p>
+
+      <h3 id="satellite-link">Satellite link</h3>
+      <p>
+        Broadcast focused satellite name, frequencies, modes, and tracking data to logging applications over a local WebSocket.
+        This replaces the legacy SatPC32 DDE interface for third-party software.
+        Full operator and developer documentation is in <a href="satellite-link.html">Satellite link</a>.
+      </p>
+      <ul>
+        <li><strong>Enable</strong> — starts the WebSocket server (default port <strong>7373</strong>).</li>
+        <li><strong>Allow connections from local network</strong> — off = this PC only; on = any LAN client (firewall permitting).</li>
+        <li><strong>Only broadcast when satellite is above horizon</strong> — sends <code>** NO SATELLITE **</code> when elevation ≤ 0°.</li>
+        <li><strong>Update interval</strong> — throttle for unchanged payloads (default 1 s); focus/mode changes are immediate.</li>
+      </ul>
+      <p>
+        The <a href="map-and-sidebar.html#status-bar">status bar</a> shows <strong>Sat link</strong> when enabled
+        (listening, client count, or error).
       </p>
     </main>
 

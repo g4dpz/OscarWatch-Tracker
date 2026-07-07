@@ -5,12 +5,14 @@ namespace OscarWatch.Tests;
 
 public sealed class RigCtlTcpClientTests
 {
+    private const int TestCommandTimeoutMs = 2000;
+
     [Fact]
     public void Set_and_read_frequency_round_trip()
     {
         using var server = new RigCtlTcpStubServer();
         server.WaitUntilReady();
-        using var client = new RigCtlTcpClient("127.0.0.1", server.Port);
+        using var client = new RigCtlTcpClient("127.0.0.1", server.Port, TestCommandTimeoutMs);
         client.Open();
 
         Assert.True(client.SetFrequencyHz(435_800_000));
@@ -23,7 +25,7 @@ public sealed class RigCtlTcpClientTests
     {
         using var server = new RigCtlTcpStubServer();
         server.WaitUntilReady();
-        using var client = new RigCtlTcpClient("127.0.0.1", server.Port);
+        using var client = new RigCtlTcpClient("127.0.0.1", server.Port, TestCommandTimeoutMs);
         client.Open();
 
         Assert.True(client.SetMode("USB"));
@@ -34,7 +36,7 @@ public sealed class RigCtlTcpClientTests
     {
         using var server = new RigCtlTcpStubServer();
         server.WaitUntilReady();
-        using var driver = new RigCtlTcpDriver("127.0.0.1", server.Port);
+        using var driver = new RigCtlTcpDriver("127.0.0.1", server.Port, TestCommandTimeoutMs);
         driver.Open();
 
         Assert.True(driver.SetFrequencyHz(145_920_000));
@@ -51,7 +53,7 @@ public sealed class RigCtlTcpClientTests
             Type = RigType.SdrRigCtlTcp,
             NetworkHost = "127.0.0.1",
             NetworkPort = server.Port,
-            CatDelayMs = 0
+            CatDelayMs = TestCommandTimeoutMs
         });
 
         Assert.IsType<RigCtlTcpDriver>(driver);

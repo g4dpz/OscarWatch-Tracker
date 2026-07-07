@@ -53,13 +53,13 @@ internal sealed class RigCtlTcpStubServer : IDisposable
 
     private async Task RunServerAsync()
     {
+        _acceptLoopReady.TrySetResult();
         while (!_cts.IsCancellationRequested)
         {
             try
             {
-                _acceptLoopReady.TrySetResult();
                 var client = await _listener.AcceptTcpClientAsync(_cts.Token).ConfigureAwait(false);
-                _ = HandleClientAsync(client);
+                await HandleClientAsync(client).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {

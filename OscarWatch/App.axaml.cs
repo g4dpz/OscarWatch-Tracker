@@ -16,6 +16,7 @@ using OscarWatch.Recording;
 using OscarWatch.Gps;
 using OscarWatch.Rig;
 using OscarWatch.Rotator;
+using OscarWatch.SatelliteLink;
 using OscarWatch.Services;
 using OscarWatch.Speech;
 using OscarWatch.Theme;
@@ -57,6 +58,7 @@ public partial class App : Application
             dopplerPassLogger: sp.GetRequiredService<IDopplerPassLogger>()));
         services.AddSingleton<IGpsService, GpsService>();
         services.AddSingleton<ICloudlogRadioSyncService, CloudlogRadioSyncService>();
+        services.AddSingleton<ISatelliteLinkBroadcastService, SatelliteLinkBroadcastService>();
         services.AddSingleton<ICloudlogLookupService, CloudlogLookupService>();
         services.AddSingleton<CloudlogQsoClient>();
         services.AddSingleton<ICloudlogQsoUploadService, CloudlogQsoUploadService>();
@@ -153,6 +155,8 @@ public partial class App : Application
 
     private static void OnDesktopShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
     {
+        Services?.GetService<ISatelliteLinkBroadcastService>()?.StopAsync().GetAwaiter().GetResult();
+
         // Flush pending settings save on shutdown
         var settings = Services?.GetService<ISettingsService>();
         settings?.FlushAsync().GetAwaiter().GetResult();
