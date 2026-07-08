@@ -8,6 +8,7 @@ using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Microsoft.Extensions.DependencyInjection;
+using OscarWatch.Controls;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
 using OscarWatch.ViewModels;
@@ -46,11 +47,18 @@ public partial class MainWindow : Window
         PassesListBox.ContainerPrepared += OnPassListContainerPrepared;
         PassesListBox.ContainerClearing += OnPassListContainerClearing;
         PassesListBox.AttachedToVisualTree += (_, _) => TryAttachPassListScrollViewer();
+        TimelineControl.SatelliteFocusRequested += OnTimelineSatelliteFocusRequested;
         Closing += OnClosing;
 
         _passListScrollResetTimer = new DispatcherTimer { Interval = PassListScrollResetCheckInterval };
         _passListScrollResetTimer.Tick += OnPassListScrollResetTick;
         _passListScrollResetTimer.Start();
+    }
+
+    private void OnTimelineSatelliteFocusRequested(object? sender, string noradId)
+    {
+        if (DataContext is MainViewModel vm)
+            vm.FocusedNoradId = noradId;
     }
 
     private async void OnClosing(object? sender, WindowClosingEventArgs e)

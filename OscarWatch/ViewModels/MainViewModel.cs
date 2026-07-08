@@ -222,6 +222,9 @@ public partial class MainViewModel : ViewModelBase
     public ObservableCollection<IPassListItem> Passes { get; } = [];
 
     [ObservableProperty]
+    private IReadOnlyList<PassInfo>? _timelinePasses;
+
+    [ObservableProperty]
     private IPassListItem? _selectedListItem;
     [ObservableProperty]
     private IReadOnlyList<SatelliteTrackState> _liveStates = [];
@@ -246,6 +249,12 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private bool _isPassesExpanded = true;
+
+    [ObservableProperty]
+    private bool _isTimelineExpanded = true;
+
+    [ObservableProperty]
+    private int _timelineWindowMinutes = 120;
 
     [ObservableProperty]
     private bool _isHamsAtRovesExpanded = true;
@@ -385,6 +394,18 @@ public partial class MainViewModel : ViewModelBase
         SidebarLayoutInvalidated?.Invoke();
     }
 
+    partial void OnIsTimelineExpandedChanged(bool value)
+    {
+        _settings.Current.IsTimelineExpanded = value;
+        _settings.RequestSave();
+    }
+
+    partial void OnTimelineWindowMinutesChanged(int value)
+    {
+        _settings.Current.TimelineWindowMinutes = value;
+        _settings.RequestSave();
+    }
+
     partial void OnIsHamsAtRovesExpandedChanged(bool value)
     {
         _settings.Current.HamsAtRovesExpanded = value;
@@ -472,6 +493,8 @@ public partial class MainViewModel : ViewModelBase
             ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
             IsSkyPlotExpanded = _settings.Current.SkyPlotExpanded;
             IsPassesExpanded = _settings.Current.PassesExpanded;
+            IsTimelineExpanded = _settings.Current.IsTimelineExpanded;
+            TimelineWindowMinutes = _settings.Current.TimelineWindowMinutes;
             ApplyHamsAtSidebarSettings();
             RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
             Frequencies.ReloadLayoutFromSettings();
@@ -2154,6 +2177,9 @@ public partial class MainViewModel : ViewModelBase
                     SelectedListItem = Passes.OfType<PassRowViewModel>().FirstOrDefault(p => p.NoradId == selectedNorad);
 
                 UpdatePassHighlightState();
+
+                // Update the timeline passes for the elevation timeline control
+                TimelinePasses = merged.Take(50).ToList();
             }
 
             if (Dispatcher.UIThread.CheckAccess())

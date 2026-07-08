@@ -150,8 +150,9 @@
       <!-- Map and freq overlay are not siblings: the map repaints every second and was drawing over the overlay. -->
       <Grid x:Name="MapColumn"
             Grid.Column="0"
+            RowDefinitions="*,Auto"
             ClipToBounds="True">
-        <Grid x:Name="MapHost">
+        <Grid x:Name="MapHost" Grid.Row="0">
           <ctrl:WorldMapControl TabIndex="1"
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Stretch"
@@ -183,6 +184,17 @@
                                           VerticalAlignment="Top"
                                           Margin="0,8,8,0"
                                           IsHitTestVisible="True" />
+
+        <!-- Pass Elevation Timeline ("Mountain Chart") below the map -->
+        <ctrl:PassElevationTimelineControl x:Name="TimelineControl"
+                                           Grid.Row="1"
+                                           Height="100"
+                                           HorizontalAlignment="Stretch"
+                                           Passes="{Binding TimelinePasses}"
+                                           TimeWindowMinutes="{Binding TimelineWindowMinutes}"
+                                           FocusedNoradId="{Binding FocusedNoradId}"
+                                           IsVisible="{Binding IsTimelineExpanded}"
+                                           AutomationProperties.Name="Pass Elevation Timeline" />
       </Grid>
 
       <Border Grid.Column="1"
