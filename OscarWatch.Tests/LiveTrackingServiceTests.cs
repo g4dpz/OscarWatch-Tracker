@@ -95,6 +95,31 @@ public sealed class LiveTrackingServiceTests
     }
 
     [Fact]
+    public void TrackingUtc_falls_back_to_system_clock_when_gps_time_runs_too_fast()
+    {
+        var orchestrator = CreateMinimalOrchestrator();
+        var gps = new StubGpsService
+        {
+            TrackingUtc = DateTime.UtcNow
+        };
+        using var service = new LiveTrackingService(orchestrator, gps, _ => []);
+        service.Start();
+
+        service.RefreshSnapshotSynchronously();
+        var firstSnapshotUtc = service.SnapshotUtc;
+
+        gps.TrackingUtc = gps.TrackingUtc!.Value.AddSeconds(20);
+        Thread.Sleep(40);
+        var beforeSecond = DateTime.UtcNow;
+        service.RefreshSnapshotSynchronously();
+        var secondSnapshotUtc = service.SnapshotUtc;
+        var afterSecond = DateTime.UtcNow;
+
+        Assert.True((secondSnapshotUtc - firstSnapshotUtc) < TimeSpan.FromSeconds(2));
+        Assert.InRange(secondSnapshotUtc, beforeSecond.AddSeconds(-1), afterSecond.AddSeconds(1));
+    }
+
+    [Fact]
     public void Published_snapshot_survives_orchestrator_buffer_reuse()
     {
         var satellites = new[]
@@ -272,5 +297,15 @@ public sealed class LiveTrackingServiceTests
             double minimumElevationDeg,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<PassInfo>>([]);
+    }
+
+    private sealed class StubGpsService : IGpsService
+    {
+        public DateTime? TrackingUtc { get; set; }
+        public void Update(GpsSettings settings) { }
+        public void Disconnect() { }
+        public GpsConnectionStatus GetStatus() => new(false, false, null, null, null, null, null, null);
+        public DateTime? GetTrackingUtc() => TrackingUtc;
+        public void Dispose() { }
     }
 }

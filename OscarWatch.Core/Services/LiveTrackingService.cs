@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using OscarWatch.Core.Models;
 
 namespace OscarWatch.Core.Services;
@@ -10,6 +11,7 @@ public sealed class LiveTrackingService : ILiveTrackingService
 {
     private static readonly TimeSpan LoopInterval = TimeSpan.FromMilliseconds(250);
     private static readonly TimeSpan CommandWaitTimeout = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan GpsJumpWarningInterval = TimeSpan.FromSeconds(10);
 
     private readonly TrackingOrchestrator _orchestrator;
     private readonly IGpsService? _gps;
@@ -26,6 +28,9 @@ public sealed class LiveTrackingService : ILiveTrackingService
     private DateTime _snapshotUtc = DateTime.MinValue;
     private IReadOnlyList<SatelliteTrackState> _liveNowSnapshot = Array.Empty<SatelliteTrackState>();
     private DateTime _liveNowSnapshotUtc = DateTime.MinValue;
+    private DateTime? _lastTrackingUtc;
+    private DateTime? _lastWallUtc;
+    private DateTime _lastGpsJumpWarningUtc = DateTime.MinValue;
     private long _mapTimeOffsetTicks;
     private string? _focusedNoradId;
 
@@ -235,7 +240,8 @@ public sealed class LiveTrackingService : ILiveTrackingService
 
     private void RefreshSnapshot()
     {
-        var trackingUtc = _gps?.GetTrackingUtc() ?? DateTime.UtcNow;
+        var wallUtc = DateTime.UtcNow;
+        var trackingUtc = ResolveTrackingUtc(wallUtc);
         var offset = MapTimeOffset;
         var displayUtc = trackingUtc + offset;
 
@@ -261,6 +267,33 @@ public sealed class LiveTrackingService : ILiveTrackingService
             _liveNowSnapshot = publishedLiveNow;
             _liveNowSnapshotUtc = trackingUtc;
         }
+    }
+
+    private DateTime ResolveTrackingUtc(DateTime wallUtc)
+    {
+        var candidate = _gps?.GetTrackingUtc() ?? wallUtc;
+        if (_lastTrackingUtc is { } previousTrackingUtc && _lastWallUtc is { } previousWallUtc)
+        {
+            var wallDelta = wallUtc - previousWallUtc;
+            var trackingDelta = candidate - previousTrackingUtc;
+            var maxTrackingDelta = TimeSpan.FromSeconds(1) + TimeSpan.FromTicks(wallDelta.Ticks * 2);
+            if (trackingDelta < TimeSpan.FromSeconds(-1) || trackingDelta > maxTrackingDelta)
+            {
+                if (wallUtc - _lastGpsJumpWarningUtc >= GpsJumpWarningInterval)
+                {
+                    Trace.TraceWarning(
+                        "GPS tracking UTC jump ignored; falling back to system UTC (trackingDelta={0} ms, wallDelta={1} ms).",
+                        trackingDelta.TotalMilliseconds,
+                        wallDelta.TotalMilliseconds);
+                    _lastGpsJumpWarningUtc = wallUtc;
+                }
+                candidate = wallUtc;
+            }
+        }
+
+        _lastTrackingUtc = candidate;
+        _lastWallUtc = wallUtc;
+        return candidate;
     }
 
     private static IReadOnlyList<SatelliteTrackState> PublishSnapshot(IReadOnlyList<SatelliteTrackState> states) =>
