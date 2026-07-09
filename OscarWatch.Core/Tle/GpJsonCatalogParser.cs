@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using OscarWatch.Core.Json;
 using OscarWatch.Core.Models;
 
 namespace OscarWatch.Core.Tle;
@@ -8,7 +9,12 @@ public static class GpJsonCatalogParser
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        PropertyNameCaseInsensitive = false
+        PropertyNameCaseInsensitive = false,
+        Converters =
+        {
+            new FlexibleDoubleJsonConverter(),
+            new FlexibleIntJsonConverter()
+        }
     };
 
     public static IReadOnlyList<SatelliteCatalogEntry> ParseCatalog(string json)
@@ -37,7 +43,8 @@ public static class GpJsonCatalogParser
     {
         entry = null!;
         var name = ResolveName(record);
-        if (string.IsNullOrWhiteSpace(name) || record.NoradCatId <= 0)
+        // AMSAT sometimes publishes name-only placeholders (all orbital fields null).
+        if (string.IsNullOrWhiteSpace(name) || record.NoradCatId <= 0 || record.MeanMotion <= 0)
             return false;
 
         if (!TryParseEpoch(record.Epoch, out var epochUtc))

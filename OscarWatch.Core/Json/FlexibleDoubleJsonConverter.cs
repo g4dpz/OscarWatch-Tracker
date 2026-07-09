@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace OscarWatch.Core.Json;
 
-/// <summary>Accepts JSON numbers or numeric strings (published database may mix both).</summary>
+/// <summary>Accepts JSON numbers, numeric strings, or null (published catalogues may mix or omit fields).</summary>
 public sealed class FlexibleDoubleJsonConverter : JsonConverter<double>
 {
     public override double Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
