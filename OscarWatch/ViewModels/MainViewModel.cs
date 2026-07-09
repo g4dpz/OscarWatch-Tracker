@@ -264,6 +264,9 @@ public partial class MainViewModel : ViewModelBase
     private bool _showGreylineOverlay;
 
     [ObservableProperty]
+    private bool _showMultiTrackOverlay = true;
+
+    [ObservableProperty]
     private DateTime _mapDisplayUtc = DateTime.UtcNow;
 
     [ObservableProperty]
@@ -539,6 +542,7 @@ public partial class MainViewModel : ViewModelBase
             RefreshGroundStationFromSettings();
             ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
             ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
+            ShowMultiTrackOverlay = _settings.Current.ShowMultiTrackOverlay;
             IsSkyPlotExpanded = _settings.Current.SkyPlotExpanded;
             IsPassesExpanded = _settings.Current.PassesExpanded;
             IsTimelineExpanded = _settings.Current.IsTimelineExpanded;
@@ -1904,6 +1908,7 @@ public partial class MainViewModel : ViewModelBase
         RefreshGroundStationFromSettings();
         ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
         ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
+        ShowMultiTrackOverlay = _settings.Current.ShowMultiTrackOverlay;
         RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
         _liveDisplayTimer?.Start();
         Tick();

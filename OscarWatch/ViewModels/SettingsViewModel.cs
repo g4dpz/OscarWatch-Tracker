@@ -64,6 +64,9 @@ public partial class SettingsViewModel : ViewModelBase
     private bool _showGreylineOverlay;
 
     [ObservableProperty]
+    private bool _showMultiTrackOverlay = true;
+
+    [ObservableProperty]
     private bool _use24HourClock;
 
     [ObservableProperty]
@@ -754,6 +757,7 @@ public partial class SettingsViewModel : ViewModelBase
         _settings.Current.UiLanguage = newLanguage;
         _settings.Current.ShowFootprintMotionArrows = ShowFootprintMotionArrows;
         _settings.Current.ShowGreylineOverlay = ShowGreylineOverlay;
+        _settings.Current.ShowMultiTrackOverlay = ShowMultiTrackOverlay;
         _settings.Current.Use24HourClock = Use24HourClock;
         _settings.Current.DisplayTimesInUtc = DisplayTimesInUtc;
         _settings.Current.TleSource = new TleSourceSettings
@@ -923,6 +927,7 @@ public partial class SettingsViewModel : ViewModelBase
                 ?? ThemeOptions[0];
             ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
             ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
+            ShowMultiTrackOverlay = _settings.Current.ShowMultiTrackOverlay;
             Use24HourClock = _settings.Current.Use24HourClock;
             DisplayTimesInUtc = _settings.Current.DisplayTimesInUtc;
             var langCode = LocalizationCulture.NormalizeLanguageCode(_settings.Current.UiLanguage);
@@ -1741,6 +1746,15 @@ public partial class SettingsViewModel : ViewModelBase
 
         if (App.MainWindow?.DataContext is MainViewModel main)
             main.ShowGreylineOverlay = value;
+    }
+
+    partial void OnShowMultiTrackOverlayChanged(bool value)
+    {
+        if (_isSynchronizing)
+            return;
+
+        if (App.MainWindow?.DataContext is MainViewModel main)
+            main.ShowMultiTrackOverlay = value;
     }
 
     public int ClockFormatIndex

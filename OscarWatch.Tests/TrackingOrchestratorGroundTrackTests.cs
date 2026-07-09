@@ -6,7 +6,7 @@ namespace OscarWatch.Tests;
 public sealed class TrackingOrchestratorGroundTrackTests
 {
     [Fact]
-    public void GetLiveStates_builds_ground_track_only_for_focused_norad()
+    public void GetLiveStates_builds_ground_track_for_all_satellites()
     {
         var geometry = new CountingGroundGeometry();
         var satellites = new[]
@@ -27,15 +27,17 @@ public sealed class TrackingOrchestratorGroundTrackTests
         var states = orchestrator.GetLiveStates(DateTime.UtcNow, groundTrackNoradId: "27607");
 
         Assert.Equal(2, states.Count);
-        Assert.Empty(states.First(s => s.NoradId == "25544").GroundTrack);
+        // Both satellites now get ground tracks (multi-track overlay)
+        Assert.True(states.First(s => s.NoradId == "25544").GroundTrack.Count >= 2);
         Assert.NotNull(states.First(s => s.NoradId == "25544").MotionHeadingDeg);
         Assert.Equal(2, states.First(s => s.NoradId == "27607").GroundTrack.Count);
         Assert.NotNull(states.First(s => s.NoradId == "27607").MotionHeadingDeg);
-        Assert.Equal(1, geometry.GroundTrackCallCount);
+        // Both get computed (focused immediately, non-focused via stagger)
+        Assert.True(geometry.GroundTrackCallCount >= 2);
     }
 
     [Fact]
-    public void GetLiveStates_skips_ground_track_when_focus_is_unset()
+    public void GetLiveStates_builds_ground_track_when_focus_is_unset()
     {
         var geometry = new CountingGroundGeometry();
         var satellites = new[] { SampleSatellite("ISS", "25544") };
@@ -49,7 +51,8 @@ public sealed class TrackingOrchestratorGroundTrackTests
         orchestrator.ReloadEnabledSatellites();
         var states = orchestrator.GetLiveStates(DateTime.UtcNow);
 
-        Assert.Equal(0, geometry.GroundTrackCallCount);
+        // Non-focused satellites still get ground tracks computed via stagger
+        Assert.True(geometry.GroundTrackCallCount >= 1);
         Assert.NotNull(states[0].MotionHeadingDeg);
     }
 

@@ -11,6 +11,8 @@ public sealed class SatelliteTrackState
     /// <summary>Ground-track direction at the subpoint (degrees clockwise from north) for map footprint arrows.</summary>
     public double? MotionHeadingDeg { get; init; }
     public IReadOnlyList<GeoCoordinate> GroundTrack { get; init; } = [];
+    /// <summary>Ground track for the next orbit (one period ahead), used for the multi-track overlay.</summary>
+    public IReadOnlyList<GeoCoordinate> NextOrbitGroundTrack { get; init; } = [];
     public IReadOnlyList<GeoCoordinate> Footprint { get; init; } = [];
     /// <summary>Angular radius of the 0°-elevation footprint on Earth (degrees).</summary>
     public double FootprintRadiusDeg { get; init; }

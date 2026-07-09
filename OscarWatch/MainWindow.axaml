@@ -190,6 +190,7 @@
                                 SoloFocusedSatellite="{Binding SoloFocusedSatellite}"
                                 ShowFootprintMotionArrows="{Binding ShowFootprintMotionArrows}"
                                 ShowGreylineOverlay="{Binding ShowGreylineOverlay}"
+                                ShowMultiTrackOverlay="{Binding ShowMultiTrackOverlay}"
                                 MapDisplayUtc="{Binding MapDisplayUtc}" />
         </Grid>
         <ctrl:FrequencyOverlayControl DataContext="{Binding Frequencies}"
