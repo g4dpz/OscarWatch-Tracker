@@ -7,6 +7,8 @@ using Avalonia.Threading;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Services;
+using OscarWatch.Localization;
+using System.Globalization;
 
 namespace OscarWatch.Controls;
 
@@ -17,6 +19,18 @@ namespace OscarWatch.Controls;
 /// </summary>
 public sealed class PassElevationTimelineControl : ThemeAwareControl
 {
+    /// <summary>Reserved space at the top so peak satellite labels do not touch the panel edge.</summary>
+    internal const double LabelTopPadding = 18;
+
+    /// <summary>Reserved space at the bottom for the UTC time axis.</summary>
+    internal const double TimeAxisBottomPadding = 16;
+
+    /// <summary>Reserved space on the left for the elevation scale.</summary>
+    internal const double ElevationScaleLeftPadding = 34;
+
+    private const double LiveWindowAlignmentMinutes = 0.5;
+    private const double ElevationLabelMinSpacing = 11;
+
     // --- Styled Properties ---
 
     public static readonly StyledProperty<IReadOnlyList<PassInfo>?> PassesProperty =
@@ -28,16 +42,27 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     public static readonly StyledProperty<string?> FocusedNoradIdProperty =
         AvaloniaProperty.Register<PassElevationTimelineControl, string?>(nameof(FocusedNoradId));
 
+    public static readonly StyledProperty<GroundStation?> GroundStationProperty =
+        AvaloniaProperty.Register<PassElevationTimelineControl, GroundStation?>(nameof(GroundStation));
+
+    public static readonly StyledProperty<DateTime> MapDisplayUtcProperty =
+        AvaloniaProperty.Register<PassElevationTimelineControl, DateTime>(nameof(MapDisplayUtc));
+
     static PassElevationTimelineControl()
     {
-        AffectsRender<PassElevationTimelineControl>(PassesProperty, TimeWindowMinutesProperty);
+        AffectsRender<PassElevationTimelineControl>(
+            PassesProperty,
+            TimeWindowMinutesProperty,
+            FocusedNoradIdProperty,
+            GroundStationProperty,
+            MapDisplayUtcProperty);
         ClipToBoundsProperty.OverrideDefaultValue<PassElevationTimelineControl>(true);
         MinHeightProperty.OverrideDefaultValue<PassElevationTimelineControl>(80);
     }
 
     public PassElevationTimelineControl()
     {
-        _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _refreshTimer.Tick += (_, _) => InvalidateVisual();
     }
 
@@ -83,6 +108,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     {
         _propagator = propagator;
         _site = site;
+        RecomputeProfiles();
     }
 
     // --- Properties ---
@@ -105,6 +131,18 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         set => SetValue(FocusedNoradIdProperty, value);
     }
 
+    public GroundStation? GroundStation
+    {
+        get => GetValue(GroundStationProperty);
+        set => SetValue(GroundStationProperty, value);
+    }
+
+    public DateTime MapDisplayUtc
+    {
+        get => GetValue(MapDisplayUtcProperty);
+        set => SetValue(MapDisplayUtcProperty, value);
+    }
+
     // --- Render ---
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -113,6 +151,11 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
 
         if (change.Property == PassesProperty)
         {
+            RecomputeProfiles();
+        }
+        else if (change.Property == GroundStationProperty)
+        {
+            _site = GroundStation;
             RecomputeProfiles();
         }
         else if (change.Property == BoundsProperty)
@@ -128,7 +171,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     {
         var passes = Passes;
         var propagator = _propagator;
-        var site = _site;
+        var site = _site ?? GroundStation;
 
         if (passes is null || passes.Count == 0)
         {
@@ -237,7 +280,8 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
                 return geometry;
             }
 
-            var baselineY = height;
+            var (plotLeft, plotTop, plotBottom, plotWidth, plotHeight) = GetPlotLayout(width, height);
+            var baselineY = plotBottom;
 
             // Start at baseline at first sample X
             var x0 = TimeToX(profile[0].MinutesFromNow, width, windowMinutes);
@@ -248,7 +292,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
             {
                 var sample = profile[i];
                 var x = TimeToX(sample.MinutesFromNow, width, windowMinutes);
-                var y = ElevToY(sample.ElevationDeg, height);
+                var y = ElevToYInPlot(sample.ElevationDeg, plotHeight, plotTop);
                 ctx.LineTo(new Point(x, y));
             }
 
@@ -279,6 +323,49 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     internal static double ElevToY(double elevDeg, double height)
         => height - (elevDeg / 90.0) * height;
 
+    internal static (double plotLeft, double plotTop, double plotBottom, double plotWidth, double plotHeight) GetPlotLayout(
+        double totalWidth,
+        double totalHeight)
+    {
+        var plotLeft = Math.Min(ElevationScaleLeftPadding, totalWidth / 6);
+        var reservedTop = Math.Min(LabelTopPadding, totalHeight / 4);
+        var reservedBottom = Math.Min(TimeAxisBottomPadding, totalHeight / 4);
+        var plotTop = reservedTop;
+        var plotBottom = Math.Max(plotTop + 1, totalHeight - reservedBottom);
+        var plotWidth = Math.Max(1, totalWidth - plotLeft);
+        var plotHeight = plotBottom - plotTop;
+        return (plotLeft, plotTop, plotBottom, plotWidth, plotHeight);
+    }
+
+    internal static double GetMinutesFromWindowStart(DateTime utc, DateTime windowStartUtc)
+        => (utc - windowStartUtc).TotalMinutes;
+
+    internal static bool IsPassInProgress(PassInfo pass, DateTime activeUtc)
+        => pass.AosUtc <= activeUtc && activeUtc < pass.LosUtc;
+
+    internal static bool IsWindowAlignedToLiveUtc(DateTime windowStartUtc, DateTime liveUtc)
+        => Math.Abs(GetMinutesFromWindowStart(liveUtc, windowStartUtc)) < LiveWindowAlignmentMinutes;
+
+    internal static string FormatTimeAxisClockLabel(DateTime windowStartUtc, int minutesFromStart)
+        => windowStartUtc.AddMinutes(minutesFromStart).ToString("HH:mm", CultureInfo.InvariantCulture);
+
+    internal static string FormatElevationLabel(int elevationDeg)
+        => string.Create(CultureInfo.InvariantCulture, $"{elevationDeg}°");
+
+    internal static int[] GetElevationScaleTicks(double plotHeight)
+    {
+        if (plotHeight < 55)
+            return [0, 45, 90];
+
+        if (plotHeight < 80)
+            return [0, 30, 60, 90];
+
+        return [0, 30, 45, 60, 90];
+    }
+
+    internal static double ElevToYInPlot(double elevDeg, double plotHeight, double plotTop)
+        => plotTop + ElevToY(elevDeg, plotHeight);
+
     public override void Render(DrawingContext context)
     {
         var w = Bounds.Width;
@@ -292,18 +379,39 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
             new Rect(0, 0, w, h));
 
         var windowMinutes = Math.Clamp(TimeWindowMinutes, 30, 360);
+        var (plotLeft, plotTop, plotBottom, plotWidth, plotHeight) = GetPlotLayout(w, h);
+        var windowStartUtc = MapDisplayUtc;
+        var liveUtc = DateTime.UtcNow;
+
+        if (ShouldShowEmptyState(windowMinutes, windowStartUtc))
+        {
+            DrawEmptyState(context, w, h, palette);
+            return;
+        }
 
         // --- Grid lines ---
-        DrawGrid(context, w, h, windowMinutes, palette);
+        DrawGrid(context, w, h, plotLeft, plotTop, plotBottom, plotWidth, plotHeight, windowMinutes, windowStartUtc, liveUtc, palette);
 
         // --- Mountain shapes ---
-        DrawMountains(context, w, h, windowMinutes, palette);
+        DrawMountains(context, w, h, plotLeft, plotTop, plotBottom, plotWidth, plotHeight, windowMinutes, windowStartUtc, palette);
 
-        // --- Now indicator ---
-        DrawNowIndicator(context, h, palette);
+        // --- Live "now" indicator (wall-clock time vs map window) ---
+        DrawLiveNowIndicator(context, plotLeft, plotTop, plotBottom, plotWidth, windowMinutes, windowStartUtc, liveUtc, palette);
     }
 
-    private void DrawGrid(DrawingContext context, double w, double h, int windowMinutes, UiPalette palette)
+    private void DrawGrid(
+        DrawingContext context,
+        double w,
+        double h,
+        double plotLeft,
+        double plotTop,
+        double plotBottom,
+        double plotWidth,
+        double plotHeight,
+        int windowMinutes,
+        DateTime windowStartUtc,
+        DateTime liveUtc,
+        UiPalette palette)
     {
         var gridColor = Color.FromArgb(64, palette.SkyPlotBorder.R, palette.SkyPlotBorder.G, palette.SkyPlotBorder.B);
         var gridPen = _renderCache.GetPen(gridColor, 1);
@@ -312,98 +420,281 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         var intervalMinutes = 30;
         for (var mins = intervalMinutes; mins < windowMinutes; mins += intervalMinutes)
         {
-            var x = (double)mins / windowMinutes * w;
-            context.DrawLine(gridPen, new Point(x, 0), new Point(x, h));
-
-            // Time label
-            var label = mins.ToString("D3");
-            var text = _labelCache.Get(label, 9, palette);
-            context.DrawText(text, new Point(x + 2, h - text.Height - 2));
+            var x = plotLeft + (double)mins / windowMinutes * plotWidth;
+            context.DrawLine(gridPen, new Point(x, plotTop), new Point(x, plotBottom));
         }
 
-        // "000" label at left
-        var zeroLabel = _labelCache.Get("000", 9, palette);
-        context.DrawText(zeroLabel, new Point(2, h - zeroLabel.Height - 2));
-
-        // Horizontal reference line at 45° elevation
-        var refY = ElevToY(45, h);
-        var refColor = Color.FromArgb(64, palette.SkyPlotBorder.R, palette.SkyPlotBorder.G, palette.SkyPlotBorder.B);
-        var refPen = _renderCache.GetDashedPen(refColor, 1);
-        context.DrawLine(refPen, new Point(0, refY), new Point(w, refY));
+        DrawTimeAxisLabels(context, w, h, plotLeft, plotBottom, plotWidth, windowMinutes, windowStartUtc, liveUtc, palette);
+        DrawElevationScale(context, w, plotLeft, plotTop, plotBottom, plotHeight, palette);
     }
 
-    private void DrawMountains(DrawingContext context, double w, double h, int windowMinutes, UiPalette palette)
+    private void DrawElevationScale(
+        DrawingContext context,
+        double width,
+        double plotLeft,
+        double plotTop,
+        double plotBottom,
+        double plotHeight,
+        UiPalette palette)
+    {
+        var gridColor = Color.FromArgb(64, palette.SkyPlotBorder.R, palette.SkyPlotBorder.G, palette.SkyPlotBorder.B);
+        var gridPen = _renderCache.GetPen(gridColor, 1);
+        var dashedPen = _renderCache.GetDashedPen(gridColor, 1);
+        var axisColor = Color.FromArgb(120, palette.SkyPlotBorder.R, palette.SkyPlotBorder.G, palette.SkyPlotBorder.B);
+        var axisPen = _renderCache.GetPen(axisColor, 1);
+
+        context.DrawLine(axisPen, new Point(plotLeft, plotTop), new Point(plotLeft, plotBottom));
+
+        var ticks = GetElevationScaleTicks(plotHeight);
+        var lastLabelY = double.NegativeInfinity;
+
+        foreach (var elevationDeg in ticks)
+        {
+            var y = ElevToYInPlot(elevationDeg, plotHeight, plotTop);
+
+            if (elevationDeg == 0)
+            {
+                context.DrawLine(gridPen, new Point(plotLeft, y), new Point(width, y));
+            }
+            else
+            {
+                var linePen = elevationDeg == 45 ? dashedPen : gridPen;
+                context.DrawLine(linePen, new Point(plotLeft, y), new Point(width, y));
+            }
+
+            var label = _labelCache.Get(FormatElevationLabel(elevationDeg), 8, palette);
+            var labelY = y - label.Height / 2;
+
+            if (elevationDeg == 0)
+                labelY = Math.Min(labelY, plotBottom - label.Height - 1);
+            else if (elevationDeg == 90)
+                labelY = Math.Max(labelY, plotTop + 1);
+
+            if (elevationDeg is not (0 or 90)
+                && Math.Abs(labelY - lastLabelY) < ElevationLabelMinSpacing)
+            {
+                continue;
+            }
+
+            lastLabelY = labelY;
+            context.DrawText(label, new Point(Math.Max(2, plotLeft - label.Width - 4), labelY));
+        }
+    }
+
+    private void DrawTimeAxisLabels(
+        DrawingContext context,
+        double width,
+        double totalHeight,
+        double plotLeft,
+        double plotBottom,
+        double plotWidth,
+        int windowMinutes,
+        DateTime windowStartUtc,
+        DateTime liveUtc,
+        UiPalette palette)
+    {
+        var leftLabel = IsWindowAlignedToLiveUtc(windowStartUtc, liveUtc)
+            ? LocalizationService.Instance.Get("Common.Now")
+            : FormatTimeAxisClockLabel(windowStartUtc, 0);
+        var leftText = _labelCache.Get(leftLabel, 9, palette);
+        var axisLabelY = plotBottom + Math.Max(0, (totalHeight - plotBottom - leftText.Height) / 2);
+        context.DrawText(leftText, new Point(plotLeft + 2, axisLabelY));
+
+        var intervalMinutes = 30;
+        for (var mins = intervalMinutes; mins < windowMinutes; mins += intervalMinutes)
+        {
+            var x = plotLeft + (double)mins / windowMinutes * plotWidth;
+            var timeLabel = FormatTimeAxisClockLabel(windowStartUtc, mins);
+            var text = _labelCache.Get(timeLabel, 9, palette);
+            var labelX = Math.Clamp(x - text.Width / 2, plotLeft, Math.Max(plotLeft, width - text.Width));
+            context.DrawText(text, new Point(labelX, axisLabelY));
+        }
+
+        var utcLabel = LocalizationService.Instance.Get("Main.Timeline.TimeAxisUtc");
+        var utcText = _labelCache.Get(utcLabel, 8, palette);
+        context.DrawText(utcText, new Point(Math.Max(0, width - utcText.Width - 2), axisLabelY));
+    }
+
+    private void DrawMountains(
+        DrawingContext context,
+        double w,
+        double h,
+        double plotLeft,
+        double plotTop,
+        double plotBottom,
+        double plotWidth,
+        double plotHeight,
+        int windowMinutes,
+        DateTime windowStartUtc,
+        UiPalette palette)
     {
         if (_passEntries.Count == 0)
             return;
 
-        var now = DateTime.UtcNow;
+        var activeUtc = windowStartUtc;
+        var focusedId = FocusedNoradId;
 
-        // Sort by AOS (earlier passes render first / behind)
         var sorted = _passEntries.Values
             .OrderBy(e => e.Pass.AosUtc)
             .ToList();
 
-        for (var i = 0; i < sorted.Count; i++)
+        foreach (var entry in sorted)
         {
-            var entry = sorted[i];
-            var profile = entry.Profile;
-            if (profile.Count < 2)
-                continue;
-
-            // Check if any part is within the visible window
-            var firstMin = profile[0].MinutesFromNow;
-            var lastMin = profile[^1].MinutesFromNow;
-
-            // Recompute minutes from current now (profiles were built at a reference time)
-            var passAosMinutes = (entry.Pass.AosUtc - now).TotalMinutes;
-            var passLosMinutes = (entry.Pass.LosUtc - now).TotalMinutes;
-
-            if (passLosMinutes < 0 || passAosMinutes > windowMinutes)
-                continue;
-
-            // Build geometry using profile's stored minutes-from-reference
-            // We need to rebuild with current time reference for scrolling
-            var currentProfile = new List<ElevationSample>();
-            foreach (var sample in profile)
-            {
-                // Adjust: original MinutesFromNow was relative to computation time
-                // We need to use pass-relative offsets and recompute from current now
-                var sampleUtc = entry.Pass.AosUtc + TimeSpan.FromMinutes(
-                    (sample.MinutesFromNow - profile[0].MinutesFromNow));
-                var minutesFromNow = (sampleUtc - now).TotalMinutes;
-                currentProfile.Add(new ElevationSample(minutesFromNow, sample.ElevationDeg));
-            }
-
-            // Build inline geometry for this render (using current time reference)
-            var geo = BuildInlineGeometry(currentProfile, w, h, windowMinutes);
-
-            // Opacity fade: 128 for passes at now, fading to 64 for passes at end of window
-            var distanceFraction = Math.Clamp(passAosMinutes / windowMinutes, 0, 1);
-            var fillOpacity = (byte)(128 - (int)(64 * distanceFraction));
-
-            var satColor = PlotColors.ForIndex(entry.PaletteIndex);
-            var fillColor = Color.FromArgb(fillOpacity, satColor.R, satColor.G, satColor.B);
-            var strokeColor = Color.FromArgb(255, satColor.R, satColor.G, satColor.B);
-
-            var fillBrush = _renderCache.GetBrush(fillColor);
-            var strokePen = _renderCache.GetPen(strokeColor, 1);
-
-            // Clip at left edge for in-progress passes
-            using (context.PushClip(new Rect(0, 0, w, h)))
-            {
-                context.DrawGeometry(fillBrush, strokePen, geo);
-            }
-
-            // Peak label: satellite name above peak
-            DrawPeakLabel(context, entry, currentProfile, w, h, windowMinutes, palette);
+            if (!IsFocusedPass(entry.Pass, focusedId))
+                DrawMountain(context, entry, w, h, plotLeft, plotTop, plotBottom, plotWidth, plotHeight, windowMinutes, windowStartUtc, activeUtc, palette, isFocused: false);
         }
+
+        if (!string.IsNullOrWhiteSpace(focusedId))
+        {
+            foreach (var entry in sorted)
+            {
+                if (IsFocusedPass(entry.Pass, focusedId))
+                    DrawMountain(context, entry, w, h, plotLeft, plotTop, plotBottom, plotWidth, plotHeight, windowMinutes, windowStartUtc, activeUtc, palette, isFocused: true);
+            }
+        }
+    }
+
+    private void DrawMountain(
+        DrawingContext context,
+        TimelinePassEntry entry,
+        double w,
+        double h,
+        double plotLeft,
+        double plotTop,
+        double plotBottom,
+        double plotWidth,
+        double plotHeight,
+        int windowMinutes,
+        DateTime windowStartUtc,
+        DateTime activeUtc,
+        UiPalette palette,
+        bool isFocused)
+    {
+        var profile = entry.Profile;
+        if (profile.Count < 2)
+            return;
+
+        var passAosMinutes = GetMinutesFromWindowStart(entry.Pass.AosUtc, windowStartUtc);
+        var passLosMinutes = GetMinutesFromWindowStart(entry.Pass.LosUtc, windowStartUtc);
+
+        if (passLosMinutes < 0 || passAosMinutes > windowMinutes)
+            return;
+
+        if (isFocused && !IsFocusedPass(entry.Pass, FocusedNoradId))
+            return;
+
+        var currentProfile = new List<ElevationSample>();
+        foreach (var sample in profile)
+        {
+            var sampleUtc = entry.Pass.AosUtc + TimeSpan.FromMinutes(
+                (sample.MinutesFromNow - profile[0].MinutesFromNow));
+            var minutesFromWindowStart = GetMinutesFromWindowStart(sampleUtc, windowStartUtc);
+            currentProfile.Add(new ElevationSample(minutesFromWindowStart, sample.ElevationDeg));
+        }
+
+        var geo = BuildInlineGeometry(currentProfile, plotWidth, plotTop, plotBottom, plotHeight, windowMinutes);
+
+        var distanceFraction = Math.Clamp(Math.Max(0, passAosMinutes) / windowMinutes, 0, 1);
+        var fillOpacity = isFocused
+            ? (byte)220
+            : (byte)(128 - (int)(64 * distanceFraction));
+        var strokeWidth = isFocused ? 2.0 : 1.0;
+
+        var satColor = PlotColors.ForIndex(entry.PaletteIndex);
+        var fillColor = Color.FromArgb(fillOpacity, satColor.R, satColor.G, satColor.B);
+        var strokeColor = Color.FromArgb(255, satColor.R, satColor.G, satColor.B);
+
+        var fillBrush = _renderCache.GetBrush(fillColor);
+        var strokePen = _renderCache.GetPen(strokeColor, strokeWidth);
+
+        using (context.PushTransform(new Matrix(1, 0, 0, 1, plotLeft, 0)))
+        using (context.PushClip(new Rect(0, 0, plotWidth, h)))
+        {
+            context.DrawGeometry(fillBrush, strokePen, geo);
+            DrawInProgressHighlight(
+                context,
+                entry.Pass,
+                geo,
+                plotTop,
+                plotBottom,
+                plotWidth,
+                plotHeight,
+                windowMinutes,
+                windowStartUtc,
+                activeUtc,
+                satColor,
+                strokePen);
+        }
+
+        DrawPeakLabel(context, entry, currentProfile, plotLeft, plotWidth, plotTop, plotHeight, windowMinutes, palette, isFocused);
+    }
+
+    private void DrawInProgressHighlight(
+        DrawingContext context,
+        PassInfo pass,
+        StreamGeometry geometry,
+        double plotTop,
+        double plotBottom,
+        double plotWidth,
+        double plotHeight,
+        int windowMinutes,
+        DateTime windowStartUtc,
+        DateTime activeUtc,
+        Color satColor,
+        Pen strokePen)
+    {
+        if (!IsPassInProgress(pass, activeUtc))
+            return;
+
+        var aosMinutes = GetMinutesFromWindowStart(pass.AosUtc, windowStartUtc);
+        var activeMinutes = GetMinutesFromWindowStart(activeUtc, windowStartUtc);
+        var x0 = TimeToX(aosMinutes, plotWidth, windowMinutes);
+        var x1 = TimeToX(activeMinutes, plotWidth, windowMinutes);
+        if (x1 <= x0)
+            return;
+
+        var highlightFill = _renderCache.GetBrush(Color.FromArgb(210, satColor.R, satColor.G, satColor.B));
+        using (context.PushClip(new Rect(x0, plotTop, x1 - x0, plotBottom - plotTop)))
+        {
+            context.DrawGeometry(highlightFill, strokePen, geometry);
+        }
+    }
+
+    private static bool IsFocusedPass(PassInfo pass, string? focusedNoradId) =>
+        !string.IsNullOrWhiteSpace(focusedNoradId)
+        && string.Equals(pass.NoradId, focusedNoradId, StringComparison.Ordinal);
+
+    private bool ShouldShowEmptyState(int windowMinutes, DateTime windowStartUtc)
+    {
+        if (Passes is null || Passes.Count == 0)
+            return true;
+
+        if (_passEntries.Count == 0)
+            return false;
+
+        return !_passEntries.Values.Any(entry =>
+        {
+            var passAosMinutes = GetMinutesFromWindowStart(entry.Pass.AosUtc, windowStartUtc);
+            var passLosMinutes = GetMinutesFromWindowStart(entry.Pass.LosUtc, windowStartUtc);
+            return passLosMinutes > 0 && passAosMinutes < windowMinutes;
+        });
+    }
+
+    private void DrawEmptyState(DrawingContext context, double width, double height, UiPalette palette)
+    {
+        var message = LocalizationService.Instance.Get("Main.Pass.None");
+        var text = _labelCache.Get(message, 11, palette);
+        context.DrawText(
+            text,
+            new Point(Math.Max(0, (width - text.Width) / 2), Math.Max(0, (height - text.Height) / 2)));
     }
 
     private static StreamGeometry BuildInlineGeometry(
         List<ElevationSample> profile,
         double width,
-        double height,
+        double plotTop,
+        double plotBottom,
+        double plotHeight,
         double windowMinutes)
     {
         var geometry = new StreamGeometry();
@@ -412,7 +703,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
             if (profile.Count == 0)
                 return geometry;
 
-            var baselineY = height;
+            var baselineY = plotBottom;
             var x0 = TimeToX(profile[0].MinutesFromNow, width, windowMinutes);
             ctx.BeginFigure(new Point(x0, baselineY), true);
 
@@ -420,7 +711,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
             {
                 var sample = profile[i];
                 var x = TimeToX(sample.MinutesFromNow, width, windowMinutes);
-                var y = ElevToY(sample.ElevationDeg, height);
+                var y = ElevToYInPlot(sample.ElevationDeg, plotHeight, plotTop);
                 ctx.LineTo(new Point(x, y));
             }
 
@@ -436,10 +727,13 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         DrawingContext context,
         TimelinePassEntry entry,
         List<ElevationSample> profile,
-        double w,
-        double h,
+        double plotLeft,
+        double plotWidth,
+        double plotTop,
+        double plotHeight,
         double windowMinutes,
-        UiPalette palette)
+        UiPalette palette,
+        bool isFocused)
     {
         // Find peak sample
         var peakSample = profile[0];
@@ -449,29 +743,47 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
                 peakSample = profile[i];
         }
 
-        var peakX = TimeToX(peakSample.MinutesFromNow, w, windowMinutes);
-        var peakY = ElevToY(peakSample.ElevationDeg, h);
+        var peakX = plotLeft + TimeToX(peakSample.MinutesFromNow, plotWidth, windowMinutes);
+        var peakY = ElevToYInPlot(peakSample.ElevationDeg, plotHeight, plotTop);
 
         // Only draw if peak is within visible area
-        if (peakX < 0 || peakX > w)
+        if (peakX < plotLeft || peakX > plotLeft + plotWidth)
             return;
 
-        var text = _labelCache.Get(entry.Pass.SatelliteName, 9, palette);
+        var text = _labelCache.Get(entry.Pass.SatelliteName, isFocused ? 10 : 9, palette);
         var labelX = peakX - text.Width / 2;
         var labelY = peakY - text.Height - 2;
 
-        // Clamp to visible area
-        labelX = Math.Clamp(labelX, 0, Math.Max(0, w - text.Width));
-        labelY = Math.Max(0, labelY);
+        labelX = Math.Clamp(labelX, plotLeft, Math.Max(plotLeft, plotLeft + plotWidth - text.Width));
+        labelY = Math.Max(2, labelY);
 
+        var bg = new Rect(labelX - 3, labelY - 1, text.Width + 6, text.Height + 2);
+        context.FillRectangle(_labelCache.GetBackgroundBrush(palette), bg);
         context.DrawText(text, new Point(labelX, labelY));
     }
 
-    private void DrawNowIndicator(DrawingContext context, double h, UiPalette palette)
+    private void DrawLiveNowIndicator(
+        DrawingContext context,
+        double plotLeft,
+        double plotTop,
+        double plotBottom,
+        double plotWidth,
+        int windowMinutes,
+        DateTime windowStartUtc,
+        DateTime liveUtc,
+        UiPalette palette)
     {
-        var nowColor = Color.FromArgb(180, palette.SkyPlotLabel.R, palette.SkyPlotLabel.G, palette.SkyPlotLabel.B);
-        var nowPen = _renderCache.GetPen(nowColor, 2);
-        context.DrawLine(nowPen, new Point(0, 0), new Point(0, h));
+        var liveMinutes = GetMinutesFromWindowStart(liveUtc, windowStartUtc);
+        if (liveMinutes < 0 || liveMinutes > windowMinutes)
+            return;
+
+        var x = plotLeft + TimeToX(liveMinutes, plotWidth, windowMinutes);
+        var isAligned = IsWindowAlignedToLiveUtc(windowStartUtc, liveUtc);
+        var nowColor = Color.FromArgb(isAligned ? (byte)180 : (byte)220, palette.SkyPlotLabel.R, palette.SkyPlotLabel.G, palette.SkyPlotLabel.B);
+        var nowPen = isAligned
+            ? _renderCache.GetPen(nowColor, 2)
+            : _renderCache.GetDashedPen(nowColor, 2);
+        context.DrawLine(nowPen, new Point(x, plotTop), new Point(x, plotBottom));
     }
 
     // --- Pointer interaction ---
@@ -497,13 +809,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         var hit = HitTest(pos.X);
         if (hit is not null)
         {
-            var duration = hit.Duration;
-            var tip = $"{hit.SatelliteName}\n" +
-                      $"AOS: {hit.AosUtc:HH:mm:ss} UTC\n" +
-                      $"LOS: {hit.LosUtc:HH:mm:ss} UTC\n" +
-                      $"Max El: {hit.MaxElevationDeg:F1}°\n" +
-                      $"Duration: {duration.Minutes}m {duration.Seconds}s";
-            ToolTip.SetTip(this, tip);
+            ToolTip.SetTip(this, BuildPassToolTip(hit));
             ToolTip.SetIsOpen(this, true);
         }
         else
@@ -527,12 +833,17 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     internal PassInfo? HitTest(double clickX)
     {
         var w = Bounds.Width;
+        var h = Bounds.Height;
         if (w <= 0 || _passEntries.Count == 0)
             return null;
 
         var windowMinutes = Math.Clamp(TimeWindowMinutes, 30, 360);
-        var clickMinutes = clickX / w * windowMinutes;
-        var now = DateTime.UtcNow;
+        var (plotLeft, _, _, plotWidth, _) = GetPlotLayout(w, h);
+        if (clickX < plotLeft || clickX > plotLeft + plotWidth)
+            return null;
+
+        var clickMinutes = (clickX - plotLeft) / plotWidth * windowMinutes;
+        var windowStartUtc = MapDisplayUtc;
 
         PassInfo? bestPass = null;
         double bestElev = -1;
@@ -540,14 +851,13 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         foreach (var entry in _passEntries.Values)
         {
             var pass = entry.Pass;
-            var passAosMin = (pass.AosUtc - now).TotalMinutes;
-            var passLosMin = (pass.LosUtc - now).TotalMinutes;
+            var passAosMin = GetMinutesFromWindowStart(pass.AosUtc, windowStartUtc);
+            var passLosMin = GetMinutesFromWindowStart(pass.LosUtc, windowStartUtc);
 
             if (clickMinutes < passAosMin || clickMinutes > passLosMin)
                 continue;
 
-            // Interpolate elevation at click time from the profile
-            var elev = InterpolateElevation(entry.Profile, clickMinutes, pass, now);
+            var elev = InterpolateElevation(entry.Profile, clickMinutes, pass, windowStartUtc);
             if (elev > 0 && elev > bestElev)
             {
                 bestElev = elev;
@@ -565,14 +875,13 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         IReadOnlyList<ElevationSample> profile,
         double targetMinutes,
         PassInfo pass,
-        DateTime now)
+        DateTime windowStartUtc)
     {
         if (profile.Count == 0)
             return 0;
 
-        // Convert profile samples to current-time-relative minutes
-        var firstSampleMin = (pass.AosUtc - now).TotalMinutes;
-        var lastSampleMin = (pass.LosUtc - now).TotalMinutes;
+        var firstSampleMin = GetMinutesFromWindowStart(pass.AosUtc, windowStartUtc);
+        var lastSampleMin = GetMinutesFromWindowStart(pass.LosUtc, windowStartUtc);
 
         if (targetMinutes < firstSampleMin || targetMinutes > lastSampleMin)
             return 0;
@@ -585,8 +894,8 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
             var sampleUtcNext = pass.AosUtc + TimeSpan.FromMinutes(
                 profile[i + 1].MinutesFromNow - profile[0].MinutesFromNow);
 
-            var minI = (sampleUtcI - now).TotalMinutes;
-            var minNext = (sampleUtcNext - now).TotalMinutes;
+            var minI = GetMinutesFromWindowStart(sampleUtcI, windowStartUtc);
+            var minNext = GetMinutesFromWindowStart(sampleUtcNext, windowStartUtc);
 
             if (targetMinutes >= minI && targetMinutes <= minNext)
             {
@@ -600,10 +909,29 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         return 0;
     }
 
-    // --- Internal helpers (used by later tasks) ---
+    // --- Internal helpers ---
 
     internal void RaiseSatelliteFocusRequested(string noradId)
         => SatelliteFocusRequested?.Invoke(this, noradId);
+
+    private static string BuildPassToolTip(PassInfo pass)
+    {
+        var duration = pass.Duration;
+        var minutes = duration.TotalSeconds < 30
+            ? 0
+            : (int)Math.Round(duration.TotalMinutes, MidpointRounding.AwayFromZero);
+        var durationText = minutes == 1
+            ? LocalizationService.Instance.Get("Pass.DurationOneMinute")
+            : LocalizationService.Instance.Get("Pass.DurationMinutes", minutes);
+
+        return LocalizationService.Instance.Get(
+            "Main.Timeline.PassTooltip",
+            pass.SatelliteName,
+            pass.AosUtc.ToString("HH:mm:ss", CultureInfo.InvariantCulture),
+            pass.LosUtc.ToString("HH:mm:ss", CultureInfo.InvariantCulture),
+            $"{pass.MaxElevationDeg:F1}°",
+            durationText);
+    }
 
     // --- Accessibility ---
 
@@ -616,18 +944,19 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     internal string GetAccessiblePassSummary()
     {
         if (_passEntries.Count == 0)
-            return "No upcoming passes";
+            return LocalizationService.Instance.Get("Main.Pass.None");
 
-        var now = DateTime.UtcNow;
         var windowMinutes = Math.Clamp(TimeWindowMinutes, 30, 360);
+        var windowStartUtc = MapDisplayUtc;
         var visible = _passEntries.Values
-            .Where(e => (e.Pass.LosUtc - now).TotalMinutes > 0 && (e.Pass.AosUtc - now).TotalMinutes < windowMinutes)
+            .Where(e => GetMinutesFromWindowStart(e.Pass.LosUtc, windowStartUtc) > 0
+                        && GetMinutesFromWindowStart(e.Pass.AosUtc, windowStartUtc) < windowMinutes)
             .OrderBy(e => e.Pass.AosUtc)
             .Take(10)
             .ToList();
 
         if (visible.Count == 0)
-            return "No upcoming passes";
+            return LocalizationService.Instance.Get("Main.Pass.None");
 
         var parts = visible.Select(e =>
         {

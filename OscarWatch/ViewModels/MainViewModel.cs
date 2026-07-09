@@ -257,6 +257,9 @@ public partial class MainViewModel : ViewModelBase
     private int _timelineWindowMinutes = 120;
 
     [ObservableProperty]
+    private double _timelinePanelHeight = 110;
+
+    [ObservableProperty]
     private bool _isHamsAtRovesExpanded = true;
 
     [ObservableProperty]
@@ -400,9 +403,28 @@ public partial class MainViewModel : ViewModelBase
         _settings.RequestSave();
     }
 
+    [RelayCommand]
+    private void HidePassElevationTimeline() => IsTimelineExpanded = false;
+
     partial void OnTimelineWindowMinutesChanged(int value)
     {
         _settings.Current.TimelineWindowMinutes = value;
+        _settings.RequestSave();
+    }
+
+    public const double TimelineMinPanelHeight = 80;
+    public const double TimelineMaxPanelHeight = 280;
+    public const double TimelineDefaultPanelHeight = 110;
+
+    public void SetTimelinePanelHeight(double height, double? maxHeight = null)
+    {
+        var max = maxHeight ?? TimelineMaxPanelHeight;
+        TimelinePanelHeight = Math.Clamp(height, TimelineMinPanelHeight, max);
+    }
+
+    public void PersistTimelinePanelHeight()
+    {
+        _settings.Current.TimelinePanelHeightPx = (int)Math.Round(TimelinePanelHeight);
         _settings.RequestSave();
     }
 
@@ -495,6 +517,10 @@ public partial class MainViewModel : ViewModelBase
             IsPassesExpanded = _settings.Current.PassesExpanded;
             IsTimelineExpanded = _settings.Current.IsTimelineExpanded;
             TimelineWindowMinutes = _settings.Current.TimelineWindowMinutes;
+            TimelinePanelHeight = Math.Clamp(
+                _settings.Current.TimelinePanelHeightPx,
+                TimelineMinPanelHeight,
+                TimelineMaxPanelHeight);
             ApplyHamsAtSidebarSettings();
             RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
             Frequencies.ReloadLayoutFromSettings();

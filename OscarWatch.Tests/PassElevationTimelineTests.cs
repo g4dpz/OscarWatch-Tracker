@@ -56,6 +56,92 @@ public class PassElevationTimelineTests
         return Math.Abs(y) < 0.001;
     }
 
+    [Fact]
+    public void Peak_elevation_maps_below_label_reserve()
+    {
+        const double totalHeight = 100;
+        var (_, plotTop, _, _, plotHeight) = PassElevationTimelineControl.GetPlotLayout(400, totalHeight);
+        var peakY = PassElevationTimelineControl.ElevToYInPlot(90, plotHeight, plotTop);
+
+        Assert.Equal(plotTop, peakY, precision: 3);
+        Assert.True(plotTop >= PassElevationTimelineControl.LabelTopPadding - 0.001);
+    }
+
+    [Fact]
+    public void FormatTimeAxisClockLabel_uses_utc_hh_mm()
+    {
+        var start = new DateTime(2026, 1, 15, 14, 0, 0, DateTimeKind.Utc);
+        Assert.Equal("14:30", PassElevationTimelineControl.FormatTimeAxisClockLabel(start, 30));
+        Assert.Equal("16:00", PassElevationTimelineControl.FormatTimeAxisClockLabel(start, 120));
+    }
+
+    [Fact]
+    public void GetPlotLayout_reserves_bottom_band_for_time_axis()
+    {
+        const double totalHeight = 100;
+        var (_, _, plotBottom, _, _) = PassElevationTimelineControl.GetPlotLayout(400, totalHeight);
+
+        Assert.True(plotBottom <= totalHeight - PassElevationTimelineControl.TimeAxisBottomPadding + 0.001);
+    }
+
+    [Fact]
+    public void GetPlotLayout_reserves_left_band_for_elevation_scale()
+    {
+        const double totalWidth = 400;
+        var (plotLeft, _, _, plotWidth, _) = PassElevationTimelineControl.GetPlotLayout(totalWidth, 100);
+
+        Assert.True(plotLeft >= PassElevationTimelineControl.ElevationScaleLeftPadding - 0.001);
+        Assert.Equal(totalWidth - plotLeft, plotWidth, precision: 3);
+    }
+
+    [Fact]
+    public void GetMinutesFromWindowStart_is_negative_when_live_is_before_window_start()
+    {
+        var live = new DateTime(2026, 1, 15, 14, 0, 0, DateTimeKind.Utc);
+        var windowStart = live.AddMinutes(30);
+        Assert.Equal(-30, PassElevationTimelineControl.GetMinutesFromWindowStart(live, windowStart), precision: 3);
+    }
+
+    [Fact]
+    public void IsPassInProgress_when_active_utc_is_between_aos_and_los()
+    {
+        var aos = new DateTime(2026, 1, 15, 14, 0, 0, DateTimeKind.Utc);
+        var pass = new PassInfo
+        {
+            SatelliteName = "TEST",
+            NoradId = "99999",
+            AosUtc = aos,
+            LosUtc = aos.AddMinutes(10),
+            MaxElevationUtc = aos.AddMinutes(5),
+        };
+
+        Assert.True(PassElevationTimelineControl.IsPassInProgress(pass, aos.AddMinutes(3)));
+        Assert.False(PassElevationTimelineControl.IsPassInProgress(pass, aos.AddMinutes(-1)));
+        Assert.False(PassElevationTimelineControl.IsPassInProgress(pass, aos.AddMinutes(10)));
+    }
+
+    [Fact]
+    public void GetElevationScaleTicks_adapts_to_plot_height()
+    {
+        Assert.Equal(new[] { 0, 45, 90 }, PassElevationTimelineControl.GetElevationScaleTicks(50));
+        Assert.Equal(new[] { 0, 30, 60, 90 }, PassElevationTimelineControl.GetElevationScaleTicks(70));
+        Assert.Equal(new[] { 0, 30, 45, 60, 90 }, PassElevationTimelineControl.GetElevationScaleTicks(90));
+    }
+
+    [Fact]
+    public void FormatElevationLabel_uses_degree_symbol()
+    {
+        Assert.Equal("45°", PassElevationTimelineControl.FormatElevationLabel(45));
+    }
+
+    [Fact]
+    public void IsWindowAlignedToLiveUtc_when_offsets_match()
+    {
+        var live = new DateTime(2026, 1, 15, 14, 0, 0, DateTimeKind.Utc);
+        Assert.True(PassElevationTimelineControl.IsWindowAlignedToLiveUtc(live, live));
+        Assert.False(PassElevationTimelineControl.IsWindowAlignedToLiveUtc(live.AddMinutes(5), live));
+    }
+
     // ================================================================
     // Property 2: Time-to-X mapping correctness
     // For any time within the window, X pixel is in [0, width].

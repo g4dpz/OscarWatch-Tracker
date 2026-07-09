@@ -127,6 +127,24 @@
   <data name="Main.Passes">
     <value>Próximas passagens</value>
   </data>
+  <data name="Main.Timeline.Close">
+    <value>Ocultar linha do tempo de elevação de passagens</value>
+  </data>
+  <data name="Main.Timeline.ResizeGrip">
+    <value>Arraste para redimensionar a linha do tempo de elevação de passagens</value>
+  </data>
+  <data name="Main.Timeline.Description">
+    <value>Próximas passagens por elevação. Clique numa passagem para focar esse satélite no mapa. Acompanha a hora do mapa ao avançar ou retroceder.</value>
+  </data>
+  <data name="Main.Timeline.Elevation45">
+    <value>45°</value>
+  </data>
+  <data name="Main.Timeline.PassTooltip">
+    <value>{0}&#10;AOS: {1} UTC&#10;LOS: {2} UTC&#10;Elevação máx.: {3}&#10;Duração: {4}</value>
+  </data>
+  <data name="Main.Timeline.TimeAxisUtc">
+    <value>UTC</value>
+  </data>
   <data name="Main.HamsAtRoves">
     <value>Próximas roves</value>
   </data>
@@ -410,6 +428,12 @@ Continuar?</value>
   </data>
   <data name="Menu.Settings">
     <value>_Configurações</value>
+  </data>
+  <data name="Menu.Window">
+    <value>_Janela</value>
+  </data>
+  <data name="Menu.Window.PassElevationTimeline">
+    <value>Linha do tempo de _elevação de passagens</value>
   </data>
   <data name="Picker.SelectAll">
     <value>Selecionar Todos</value>

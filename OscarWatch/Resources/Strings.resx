@@ -127,6 +127,24 @@
   <data name="Main.Passes">
     <value>Upcoming Passes</value>
   </data>
+  <data name="Main.Timeline.Close">
+    <value>Hide pass elevation timeline</value>
+  </data>
+  <data name="Main.Timeline.ResizeGrip">
+    <value>Drag to resize the pass elevation timeline</value>
+  </data>
+  <data name="Main.Timeline.Description">
+    <value>Upcoming passes by elevation. Click a pass to focus that satellite on the map. Follows map time when you scrub forward or back.</value>
+  </data>
+  <data name="Main.Timeline.Elevation45">
+    <value>45°</value>
+  </data>
+  <data name="Main.Timeline.PassTooltip">
+    <value>{0}&#10;AOS: {1} UTC&#10;LOS: {2} UTC&#10;Max elevation: {3}&#10;Duration: {4}</value>
+  </data>
+  <data name="Main.Timeline.TimeAxisUtc">
+    <value>UTC</value>
+  </data>
   <data name="Main.HamsAtRoves">
     <value>Upcoming Roves</value>
   </data>
@@ -443,6 +461,12 @@ Continue?</value>
   </data>
   <data name="Menu.Settings">
     <value>_Settings</value>
+  </data>
+  <data name="Menu.Window">
+    <value>_Window</value>
+  </data>
+  <data name="Menu.Window.PassElevationTimeline">
+    <value>Pass _elevation timeline</value>
   </data>
   <data name="Picker.SelectAll">
     <value>Select All</value>

@@ -49,6 +49,8 @@ public sealed class AppSettings
     public bool IsTimelineExpanded { get; set; } = true;
     /// <summary>Lookahead duration in minutes for the pass elevation timeline.</summary>
     public int TimelineWindowMinutes { get; set; } = 120;
+    /// <summary>Height in pixels of the pass elevation timeline when expanded.</summary>
+    public int TimelinePanelHeightPx { get; set; } = 110;
     /// <summary>Whether the sidebar hams.at roves expander is open.</summary>
     public bool HamsAtRovesExpanded { get; set; } = true;
     /// <summary>Height in pixels of the hams.at roves list when expanded.</summary>
