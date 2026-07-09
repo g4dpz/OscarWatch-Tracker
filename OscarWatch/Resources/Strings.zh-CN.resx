@@ -483,6 +483,12 @@
   <data name="Settings.GreylineOverlay.Note">
     <value>夜区着色并绘制晨昏线。卫星轨迹显示在其上方，并随时间而更新。</value>
   </data>
+  <data name="Settings.MultiTrackOverlay">
+    <value>显示下一轨地面轨迹</value>
+  </data>
+  <data name="Settings.MultiTrackOverlay.Note">
+    <value>在世界地图上，以淡化线条显示当前选中卫星下一轨的地面轨迹，绘制在当前轨迹之后。</value>
+  </data>
   <data name="Settings.Language">
     <value>语言</value>
   </data>

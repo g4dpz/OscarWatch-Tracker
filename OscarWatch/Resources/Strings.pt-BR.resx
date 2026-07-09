@@ -483,6 +483,12 @@ Continuar?</value>
   <data name="Settings.GreylineOverlay.Note">
     <value>Sombreia o lado noturno da Terra e desenha o terminador. As footprints dos satélites ficam por cima e seguem o tempo do mapa ao avançar/retroceder.</value>
   </data>
+  <data name="Settings.MultiTrackOverlay">
+    <value>Mostrar trajetória terrestre da próxima órbita</value>
+  </data>
+  <data name="Settings.MultiTrackOverlay.Note">
+    <value>Desenha uma trajetória terrestre esmaecida da próxima órbita do satélite em foco atrás da trajetória atual no mapa-múndi.</value>
+  </data>
   <data name="Settings.Language">
     <value>Idioma</value>
   </data>

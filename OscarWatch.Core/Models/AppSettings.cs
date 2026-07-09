@@ -32,7 +32,7 @@ public sealed class AppSettings
     public bool ShowFootprintMotionArrows { get; set; } = true;
     /// <summary>Show day/night greyline shading on the world map.</summary>
     public bool ShowGreylineOverlay { get; set; }
-    /// <summary>Show ground tracks for all enabled satellites (non-focused shown at reduced opacity).</summary>
+    /// <summary>Show a faded next-orbit ground track for the focused satellite on the world map.</summary>
     public bool ShowMultiTrackOverlay { get; set; } = true;
     public VoiceAnnouncementSettings VoiceAnnouncements { get; set; } = new();
     public Dictionary<string, SatelliteFrequencySelection> FrequencySelections { get; set; } = new(StringComparer.OrdinalIgnoreCase);

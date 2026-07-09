@@ -507,6 +507,12 @@
   <data name="Settings.GreylineOverlay.Note">
     <value>Sombrea el lado nocturno de la Tierra y dibuja el terminador. Las huellas de los satélites permanecen visibles por encima. Sigue el tiempo del mapa al desplazarse.</value>
   </data>
+  <data name="Settings.MultiTrackOverlay">
+    <value>Mostrar trayectoria terrestre de la siguiente órbita</value>
+  </data>
+  <data name="Settings.MultiTrackOverlay.Note">
+    <value>Dibuja una trayectoria terrestre atenuada de la siguiente órbita del satélite seleccionado detrás de la trayectoria actual en el mapa mundial.</value>
+  </data>
   <data name="Settings.Language">
     <value>Idioma</value>
   </data>

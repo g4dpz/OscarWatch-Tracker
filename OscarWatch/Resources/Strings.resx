@@ -516,6 +516,12 @@ Continue?</value>
   <data name="Settings.GreylineOverlay.Note">
     <value>Shades the night side of Earth and draws the terminator. Satellite footprints stay on top. Follows map time when you scrub.</value>
   </data>
+  <data name="Settings.MultiTrackOverlay">
+    <value>Show next-orbit ground track</value>
+  </data>
+  <data name="Settings.MultiTrackOverlay.Note">
+    <value>Draws a faded ground track for the focused satellite's next orbit behind the current track on the world map.</value>
+  </data>
   <data name="Settings.Language">
     <value>Language</value>
   </data>

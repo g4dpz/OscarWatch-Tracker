@@ -393,6 +393,12 @@
   <data name="Settings.GreylineOverlay.Note">
     <value>地球の夜側をシェードし、ターミネーター線を描画します。衛星フットプリントはその上に表示され、マップ時間のスクラブに追従します。</value>
   </data>
+  <data name="Settings.MultiTrackOverlay">
+    <value>次の軌道の地上軌道を表示</value>
+  </data>
+  <data name="Settings.MultiTrackOverlay.Note">
+    <value>世界地図で、選択中の衛星の次の軌道の地上軌道を、現在の軌道の後ろに薄く表示します。</value>
+  </data>
   <data name="Settings.Language">
     <value>言語</value>
   </data>

@@ -218,13 +218,13 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="{loc:Localize Key=Settings.GreylineOverlay.Note}" />
-            <CheckBox Content="Show multi-satellite ground tracks"
+            <CheckBox Content="{loc:Localize Key=Settings.MultiTrackOverlay}"
                       IsChecked="{Binding ShowMultiTrackOverlay, Mode=TwoWay}"
                       Margin="0,8,0,0" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Display faded ground track lines for all enabled satellites on the world map." />
+                       Text="{loc:Localize Key=Settings.MultiTrackOverlay.Note}" />
             <CheckBox Content="{loc:Localize Key=Settings.AppUpdate.Enabled}"
                       IsChecked="{Binding AppUpdateCheckEnabled, Mode=TwoWay}"
                       Margin="0,8,0,0" />
