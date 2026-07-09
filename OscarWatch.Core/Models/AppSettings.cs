@@ -45,6 +45,12 @@ public sealed class AppSettings
     public bool SkyPlotExpanded { get; set; } = true;
     /// <summary>Whether the sidebar upcoming passes expander is open.</summary>
     public bool PassesExpanded { get; set; } = true;
+    /// <summary>Whether the pass elevation timeline panel below the map is expanded.</summary>
+    public bool IsTimelineExpanded { get; set; } = true;
+    /// <summary>Lookahead duration in minutes for the pass elevation timeline.</summary>
+    public int TimelineWindowMinutes { get; set; } = 120;
+    /// <summary>Height in pixels of the pass elevation timeline when expanded.</summary>
+    public int TimelinePanelHeightPx { get; set; } = 110;
     /// <summary>Whether the sidebar hams.at roves expander is open.</summary>
     public bool HamsAtRovesExpanded { get; set; } = true;
     /// <summary>Height in pixels of the hams.at roves list when expanded.</summary>

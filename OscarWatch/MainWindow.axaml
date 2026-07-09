@@ -48,6 +48,11 @@
       <MenuItem Header="{loc:Localize Key=Menu.Tools}">
         <MenuItem Header="{loc:Localize Key=Menu.Tools.QsoLogbook}" Command="{Binding OpenQsoLogbookCommand}" />
       </MenuItem>
+      <MenuItem Header="{loc:Localize Key=Menu.Window}">
+        <MenuItem Header="{loc:Localize Key=Menu.Window.PassElevationTimeline}"
+                  ToggleType="CheckBox"
+                  IsChecked="{Binding IsTimelineExpanded, Mode=TwoWay}" />
+      </MenuItem>
       <MenuItem Header="{loc:Localize Key=Menu.Settings}" Command="{Binding OpenSettingsCommand}" />
       <MenuItem Header="{loc:Localize Key=Menu.Help}">
         <MenuItem Header="{loc:Localize Key=Menu.Help.OperatorGuide}" Command="{Binding OpenHelpCommand}" />
@@ -171,8 +176,9 @@
       <!-- Map and freq overlay are not siblings: the map repaints every second and was drawing over the overlay. -->
       <Grid x:Name="MapColumn"
             Grid.Column="0"
+            RowDefinitions="*,Auto"
             ClipToBounds="True">
-        <Grid x:Name="MapHost">
+        <Grid x:Name="MapHost" Grid.Row="0">
           <ctrl:WorldMapControl TabIndex="1"
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Stretch"
@@ -204,6 +210,65 @@
                                           VerticalAlignment="Top"
                                           Margin="0,8,8,0"
                                           IsHitTestVisible="True" />
+
+        <!-- Pass Elevation Timeline ("Mountain Chart") below the map -->
+        <Border Grid.Row="1"
+                Height="{Binding TimelinePanelHeight}"
+                IsVisible="{Binding IsTimelineExpanded}"
+                ClipToBounds="True"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="0,1,0,0">
+          <Grid RowDefinitions="Auto,*" ClipToBounds="True">
+          <Border x:Name="TimelineResizeGrip"
+                  Grid.Row="0"
+                  Height="10"
+                  Margin="0,0,0,0"
+                  Background="Transparent"
+                  Cursor="SizeNorthSouth"
+                  PointerPressed="OnTimelineResizePointerPressed"
+                  HorizontalAlignment="Stretch"
+                  ToolTip.Tip="{loc:Localize Key=Main.Timeline.ResizeGrip}">
+            <Border Height="4"
+                    Width="36"
+                    CornerRadius="2"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Background="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+          </Border>
+          <Grid Grid.Row="1" ClipToBounds="True">
+          <ctrl:PassElevationTimelineControl x:Name="TimelineControl"
+                                             HorizontalAlignment="Stretch"
+                                             VerticalAlignment="Stretch"
+                                             Passes="{Binding TimelinePasses}"
+                                             TimeWindowMinutes="{Binding TimelineWindowMinutes}"
+                                             FocusedNoradId="{Binding FocusedNoradId}"
+                                             GroundStation="{Binding GroundStation}"
+                                             MapDisplayUtc="{Binding MapDisplayUtc}"
+                                             ToolTip.Tip="{loc:Localize Key=Main.Timeline.Description}"
+                                             AutomationProperties.Name="Pass Elevation Timeline" />
+          <Button HorizontalAlignment="Right"
+                  VerticalAlignment="Top"
+                  Margin="2,2,4,0"
+                  Padding="6,2"
+                  MinWidth="22"
+                  MinHeight="22"
+                  Background="#CC1E1E1E"
+                  BorderBrush="#FF505050"
+                  BorderThickness="1"
+                  CornerRadius="4"
+                  Command="{Binding HidePassElevationTimelineCommand}"
+                  ToolTip.Tip="{loc:Localize Key=Main.Timeline.Close}"
+                  ZIndex="1">
+            <TextBlock Text="✕"
+                       FontSize="11"
+                       LineHeight="14"
+                       Foreground="#FFB0B0B0"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center" />
+          </Button>
+          </Grid>
+          </Grid>
+        </Border>
       </Grid>
 
       <Border Grid.Column="1"

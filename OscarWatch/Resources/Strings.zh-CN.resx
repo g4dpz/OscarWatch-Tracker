@@ -151,6 +151,24 @@
   <data name="Main.Passes">
     <value>即将过境</value>
   </data>
+  <data name="Main.Timeline.Close">
+    <value>隐藏过境仰角时间线</value>
+  </data>
+  <data name="Main.Timeline.ResizeGrip">
+    <value>拖动以调整过境仰角时间线高度</value>
+  </data>
+  <data name="Main.Timeline.Description">
+    <value>按仰角显示即将过境。点击某次过境可在地图上聚焦该卫星。随地图时间前进或后退而同步。</value>
+  </data>
+  <data name="Main.Timeline.Elevation45">
+    <value>45°</value>
+  </data>
+  <data name="Main.Timeline.PassTooltip">
+    <value>{0}&#10;升起：{1} UTC&#10;落下：{2} UTC&#10;最大仰角：{3}&#10;持续时间：{4}</value>
+  </data>
+  <data name="Main.Timeline.TimeAxisUtc">
+    <value>UTC</value>
+  </data>
   <data name="Main.HamsAtRoves">
     <value>即将进行的 rove</value>
   </data>
@@ -434,6 +452,12 @@
   </data>
   <data name="Menu.Settings">
     <value>_设置</value>
+  </data>
+  <data name="Menu.Window">
+    <value>_窗口</value>
+  </data>
+  <data name="Menu.Window.PassElevationTimeline">
+    <value>过境仰角_时间线</value>
   </data>
   <data name="Picker.SelectAll">
     <value>全选</value>

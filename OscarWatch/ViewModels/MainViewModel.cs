@@ -244,6 +244,9 @@ public partial class MainViewModel : ViewModelBase
     public ObservableCollection<IPassListItem> Passes { get; } = [];
 
     [ObservableProperty]
+    private IReadOnlyList<PassInfo>? _timelinePasses;
+
+    [ObservableProperty]
     private IPassListItem? _selectedListItem;
     [ObservableProperty]
     private IReadOnlyList<SatelliteTrackState> _liveStates = [];
@@ -268,6 +271,15 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private bool _isPassesExpanded = true;
+
+    [ObservableProperty]
+    private bool _isTimelineExpanded = true;
+
+    [ObservableProperty]
+    private int _timelineWindowMinutes = 120;
+
+    [ObservableProperty]
+    private double _timelinePanelHeight = 110;
 
     [ObservableProperty]
     private bool _isHamsAtRovesExpanded = true;
@@ -410,6 +422,37 @@ public partial class MainViewModel : ViewModelBase
         SidebarLayoutInvalidated?.Invoke();
     }
 
+    partial void OnIsTimelineExpandedChanged(bool value)
+    {
+        _settings.Current.IsTimelineExpanded = value;
+        _settings.RequestSave();
+    }
+
+    [RelayCommand]
+    private void HidePassElevationTimeline() => IsTimelineExpanded = false;
+
+    partial void OnTimelineWindowMinutesChanged(int value)
+    {
+        _settings.Current.TimelineWindowMinutes = value;
+        _settings.RequestSave();
+    }
+
+    public const double TimelineMinPanelHeight = 80;
+    public const double TimelineMaxPanelHeight = 280;
+    public const double TimelineDefaultPanelHeight = 110;
+
+    public void SetTimelinePanelHeight(double height, double? maxHeight = null)
+    {
+        var max = maxHeight ?? TimelineMaxPanelHeight;
+        TimelinePanelHeight = Math.Clamp(height, TimelineMinPanelHeight, max);
+    }
+
+    public void PersistTimelinePanelHeight()
+    {
+        _settings.Current.TimelinePanelHeightPx = (int)Math.Round(TimelinePanelHeight);
+        _settings.RequestSave();
+    }
+
     partial void OnIsHamsAtRovesExpandedChanged(bool value)
     {
         _settings.Current.HamsAtRovesExpanded = value;
@@ -498,6 +541,12 @@ public partial class MainViewModel : ViewModelBase
             ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
             IsSkyPlotExpanded = _settings.Current.SkyPlotExpanded;
             IsPassesExpanded = _settings.Current.PassesExpanded;
+            IsTimelineExpanded = _settings.Current.IsTimelineExpanded;
+            TimelineWindowMinutes = _settings.Current.TimelineWindowMinutes;
+            TimelinePanelHeight = Math.Clamp(
+                _settings.Current.TimelinePanelHeightPx,
+                TimelineMinPanelHeight,
+                TimelineMaxPanelHeight);
             ApplyHamsAtSidebarSettings();
             RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
             Frequencies.ReloadLayoutFromSettings();
@@ -2263,6 +2312,9 @@ public partial class MainViewModel : ViewModelBase
                     SelectedListItem = Passes.OfType<PassRowViewModel>().FirstOrDefault(p => p.NoradId == selectedNorad);
 
                 UpdatePassHighlightState();
+
+                // Update the timeline passes for the elevation timeline control
+                TimelinePasses = merged.Take(50).ToList();
             }
 
             if (Dispatcher.UIThread.CheckAccess())

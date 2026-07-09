@@ -91,6 +91,24 @@
   <data name="Main.Passes">
     <value>今後のパス</value>
   </data>
+  <data name="Main.Timeline.Close">
+    <value>パス仰角タイムラインを非表示</value>
+  </data>
+  <data name="Main.Timeline.ResizeGrip">
+    <value>ドラッグしてパス仰角タイムラインの高さを変更</value>
+  </data>
+  <data name="Main.Timeline.Description">
+    <value>仰角別の今後のパスです。パスをクリックすると地図上でその衛星にフォーカスします。地図の時刻に合わせて前後にスクロールします。</value>
+  </data>
+  <data name="Main.Timeline.Elevation45">
+    <value>45°</value>
+  </data>
+  <data name="Main.Timeline.PassTooltip">
+    <value>{0}&#10;AOS: {1} UTC&#10;LOS: {2} UTC&#10;最大仰角: {3}&#10;継続時間: {4}</value>
+  </data>
+  <data name="Main.Timeline.TimeAxisUtc">
+    <value>UTC</value>
+  </data>
   <data name="Main.HamsAtRoves">
     <value>今後のローブ</value>
   </data>
@@ -356,6 +374,12 @@
   </data>
   <data name="Menu.Settings">
     <value>設定(_S)</value>
+  </data>
+  <data name="Menu.Window">
+    <value>ウィンドウ(_W)</value>
+  </data>
+  <data name="Menu.Window.PassElevationTimeline">
+    <value>パス仰角タイムライン(_E)</value>
   </data>
   <data name="Settings.FootprintArrows">
     <value>フットプリントの移動矢印を表示</value>

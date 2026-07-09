@@ -8,7 +8,9 @@ using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Microsoft.Extensions.DependencyInjection;
+using OscarWatch.Controls;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Services;
 using OscarWatch.ViewModels;
 using OscarWatch.Views;
@@ -24,6 +26,8 @@ public partial class MainWindow : Window
     private const double HamsAtRovesMinPanelHeight = 80;
     private const double HamsAtRovesMaxPanelHeight = 400;
     private const double HamsAtRovesResizeGripHeight = 10;
+    private const double TimelineResizeGripHeight = 10;
+    private const double MapMinHeightForTimelineResize = 200;
 
     private ScrollViewer? _passListScrollViewer;
     private DispatcherTimer? _passListScrollResetTimer;
@@ -33,6 +37,10 @@ public partial class MainWindow : Window
     private double _hamsAtRovesResizeStartY;
     private double _hamsAtRovesResizeStartHeight;
     private IPointer? _hamsAtRovesResizePointer;
+    private bool _isResizingTimeline;
+    private double _timelineResizeStartY;
+    private double _timelineResizeStartHeight;
+    private IPointer? _timelineResizePointer;
     private PassRowViewModel? _passListContextRow;
 
     public MainWindow()
@@ -40,17 +48,24 @@ public partial class MainWindow : Window
         InitializeComponent();
         PassesListBox.AddHandler(PointerPressedEvent, OnPassesListRightClickTunnel, RoutingStrategies.Tunnel);
         AddHandler(KeyDownEvent, OnGlobalKeyDown, RoutingStrategies.Tunnel);
-        AddHandler(PointerMovedEvent, OnHamsAtRovesResizePointerMoved, RoutingStrategies.Tunnel);
-        AddHandler(PointerReleasedEvent, OnHamsAtRovesResizePointerReleased, RoutingStrategies.Tunnel);
-        AddHandler(PointerCaptureLostEvent, OnHamsAtRovesResizeCaptureLost, RoutingStrategies.Tunnel);
+        AddHandler(PointerMovedEvent, OnResizePointerMoved, RoutingStrategies.Tunnel);
+        AddHandler(PointerReleasedEvent, OnResizePointerReleased, RoutingStrategies.Tunnel);
+        AddHandler(PointerCaptureLostEvent, OnResizePointerCaptureLost, RoutingStrategies.Tunnel);
         PassesListBox.ContainerPrepared += OnPassListContainerPrepared;
         PassesListBox.ContainerClearing += OnPassListContainerClearing;
         PassesListBox.AttachedToVisualTree += (_, _) => TryAttachPassListScrollViewer();
+        TimelineControl.SatelliteFocusRequested += OnTimelineSatelliteFocusRequested;
         Closing += OnClosing;
 
         _passListScrollResetTimer = new DispatcherTimer { Interval = PassListScrollResetCheckInterval };
         _passListScrollResetTimer.Tick += OnPassListScrollResetTick;
         _passListScrollResetTimer.Start();
+    }
+
+    private void OnTimelineSatelliteFocusRequested(object? sender, string noradId)
+    {
+        if (DataContext is MainViewModel vm)
+            vm.FocusedNoradId = noradId;
     }
 
     private async void OnClosing(object? sender, WindowClosingEventArgs e)
@@ -251,41 +266,75 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
-    private void OnHamsAtRovesResizePointerMoved(object? sender, PointerEventArgs e)
+    private void OnResizePointerMoved(object? sender, PointerEventArgs e)
     {
-        if (!_isResizingHamsAtRoves || DataContext is not MainViewModel vm)
+        if (DataContext is not MainViewModel vm)
             return;
 
-        if (_hamsAtRovesResizePointer is not null && !ReferenceEquals(e.Pointer, _hamsAtRovesResizePointer))
+        if (_isResizingHamsAtRoves)
+        {
+            if (_hamsAtRovesResizePointer is not null && !ReferenceEquals(e.Pointer, _hamsAtRovesResizePointer))
+                return;
+
+            var deltaY = e.GetPosition(this).Y - _hamsAtRovesResizeStartY;
+            var nextHeight = _hamsAtRovesResizeStartHeight - deltaY;
+            vm.SetHamsAtRovesPanelHeight(nextHeight, GetMaxHamsAtRovesPanelHeight());
+            e.Handled = true;
+            return;
+        }
+
+        if (!_isResizingTimeline)
             return;
 
-        var deltaY = e.GetPosition(this).Y - _hamsAtRovesResizeStartY;
-        var nextHeight = _hamsAtRovesResizeStartHeight - deltaY;
-        vm.SetHamsAtRovesPanelHeight(nextHeight, GetMaxHamsAtRovesPanelHeight());
+        if (_timelineResizePointer is not null && !ReferenceEquals(e.Pointer, _timelineResizePointer))
+            return;
+
+        var timelineDeltaY = e.GetPosition(this).Y - _timelineResizeStartY;
+        var nextTimelineHeight = _timelineResizeStartHeight - timelineDeltaY;
+        vm.SetTimelinePanelHeight(nextTimelineHeight, GetMaxTimelinePanelHeight());
         e.Handled = true;
     }
 
-    private void OnHamsAtRovesResizePointerReleased(object? sender, PointerReleasedEventArgs e)
+    private void OnResizePointerReleased(object? sender, PointerReleasedEventArgs e)
     {
-        if (!_isResizingHamsAtRoves)
+        if (_isResizingHamsAtRoves)
+        {
+            if (_hamsAtRovesResizePointer is not null && !ReferenceEquals(e.Pointer, _hamsAtRovesResizePointer))
+                return;
+
+            EndHamsAtRovesResize(persist: true);
+            e.Handled = true;
+            return;
+        }
+
+        if (!_isResizingTimeline)
             return;
 
-        if (_hamsAtRovesResizePointer is not null && !ReferenceEquals(e.Pointer, _hamsAtRovesResizePointer))
+        if (_timelineResizePointer is not null && !ReferenceEquals(e.Pointer, _timelineResizePointer))
             return;
 
-        EndHamsAtRovesResize(persist: true);
+        EndTimelineResize(persist: true);
         e.Handled = true;
     }
 
-    private void OnHamsAtRovesResizeCaptureLost(object? sender, PointerCaptureLostEventArgs e)
+    private void OnResizePointerCaptureLost(object? sender, PointerCaptureLostEventArgs e)
     {
-        if (!_isResizingHamsAtRoves)
+        if (_isResizingHamsAtRoves)
+        {
+            if (_hamsAtRovesResizePointer is not null && !ReferenceEquals(e.Pointer, _hamsAtRovesResizePointer))
+                return;
+
+            EndHamsAtRovesResize(persist: true);
+            return;
+        }
+
+        if (!_isResizingTimeline)
             return;
 
-        if (_hamsAtRovesResizePointer is not null && !ReferenceEquals(e.Pointer, _hamsAtRovesResizePointer))
+        if (_timelineResizePointer is not null && !ReferenceEquals(e.Pointer, _timelineResizePointer))
             return;
 
-        EndHamsAtRovesResize(persist: true);
+        EndTimelineResize(persist: true);
     }
 
     private void EndHamsAtRovesResize(bool persist)
@@ -295,6 +344,40 @@ public partial class MainWindow : Window
 
         if (persist && DataContext is MainViewModel vm)
             vm.PersistHamsAtRovesPanelHeight();
+    }
+
+    private void OnTimelineResizePointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm || !vm.IsTimelineExpanded)
+            return;
+
+        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+            return;
+
+        _isResizingTimeline = true;
+        _timelineResizePointer = e.Pointer;
+        _timelineResizeStartY = e.GetPosition(this).Y;
+        _timelineResizeStartHeight = vm.TimelinePanelHeight;
+        e.Pointer.Capture((IInputElement)sender!);
+        e.Handled = true;
+    }
+
+    private void EndTimelineResize(bool persist)
+    {
+        _isResizingTimeline = false;
+        _timelineResizePointer = null;
+
+        if (persist && DataContext is MainViewModel vm)
+            vm.PersistTimelinePanelHeight();
+    }
+
+    private double GetMaxTimelinePanelHeight()
+    {
+        if (MapColumn is null)
+            return MainViewModel.TimelineMaxPanelHeight;
+
+        var computed = MapColumn.Bounds.Height - MapMinHeightForTimelineResize - TimelineResizeGripHeight;
+        return Math.Clamp(computed, MainViewModel.TimelineMinPanelHeight, MainViewModel.TimelineMaxPanelHeight);
     }
 
     private double GetMaxHamsAtRovesPanelHeight()
@@ -343,6 +426,9 @@ public partial class MainWindow : Window
             var initStopwatch = Stopwatch.StartNew();
             vm.SidebarLayoutInvalidated += OnSidebarLayoutInvalidated;
             await vm.InitializeAsync();
+            TimelineControl.SetPropagator(
+                App.Services.GetRequiredService<IOrbitPropagator>(),
+                vm.GroundStation);
             Serilog.Log.Information("MainWindow.OnOpened initialization completed in {ElapsedMs} ms", initStopwatch.ElapsedMilliseconds);
             if (SidebarLayoutGrid is not null)
                 UpdateSidebarTopMaxHeight(SidebarLayoutGrid.Bounds.Height);
