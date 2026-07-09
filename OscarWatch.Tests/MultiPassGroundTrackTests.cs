@@ -9,10 +9,10 @@ namespace OscarWatch.Tests;
 
 /// <summary>
 /// Property-based and unit tests verifying the multi-pass ground track overlay feature:
-/// - Non-focused tracks use coarser sampling (120s step vs 60s)
+/// - Focused satellite: current orbit at 60s step, next orbit at 120s step
 /// - Stagger limits recomputation to max 2 non-focused per tick
 /// - Visual cache uses differentiated refresh intervals (45s focused, 90s non-focused)
-/// - Toggle disables non-focused rendering
+/// - Toggle controls next-orbit overlay rendering in the UI
 /// </summary>
 public sealed class MultiPassGroundTrackTests
 {
@@ -20,8 +20,8 @@ public sealed class MultiPassGroundTrackTests
     // **Validates: Requirements 1.2, 4.1**
 
     /// <summary>
-    /// Property 1: Non-focused satellites use 120s step (coarser) while focused uses 60s step.
-    /// The ground geometry records the step used for each call.
+    /// Property 1: Focused satellite uses 60s step for the current orbit and 120s for the next orbit;
+    /// non-focused satellites use 120s step. The ground geometry records the step used for each call.
     /// </summary>
     [Fact]
     public void Non_focused_tracks_use_120s_step_focused_uses_60s()
@@ -44,18 +44,17 @@ public sealed class MultiPassGroundTrackTests
         orchestrator.ReloadEnabledSatellites();
         orchestrator.GetLiveStates(DateTime.UtcNow, groundTrackNoradId: "25544");
 
-        // Focused satellite (ISS/25544) should use 60s step
         var focusedCalls = geometry.Calls.Where(c => c.NoradId == "25544").ToList();
-        Assert.All(focusedCalls, c => Assert.Equal(TimeSpan.FromSeconds(60), c.Step));
+        Assert.Contains(focusedCalls, c => c.Step == TimeSpan.FromSeconds(60));
+        Assert.Contains(focusedCalls, c => c.Step == TimeSpan.FromSeconds(120));
 
-        // Non-focused satellites should use 120s step
         var nonFocusedCalls = geometry.Calls.Where(c => c.NoradId != "25544").ToList();
         Assert.All(nonFocusedCalls, c => Assert.Equal(TimeSpan.FromSeconds(120), c.Step));
     }
 
     /// <summary>
     /// Property 1 (property-based): For any number of satellites (2-8), the focused satellite
-    /// always gets a 60s step and non-focused always get 120s step.
+    /// always gets a 60s current-orbit step; all other calls use 120s.
     /// </summary>
     [Property(MaxTest = 50)]
     public bool Non_focused_step_is_always_double_focused_step(int seed)
@@ -79,17 +78,14 @@ public sealed class MultiPassGroundTrackTests
         orchestrator.ReloadEnabledSatellites();
         orchestrator.GetLiveStates(DateTime.UtcNow, groundTrackNoradId: focusedId);
 
-        var focusedStep = geometry.Calls
-            .Where(c => c.NoradId == focusedId)
-            .Select(c => c.Step)
-            .FirstOrDefault();
-
+        var focusedCalls = geometry.Calls.Where(c => c.NoradId == focusedId).ToList();
         var nonFocusedSteps = geometry.Calls
             .Where(c => c.NoradId != focusedId)
             .Select(c => c.Step)
             .ToList();
 
-        return focusedStep == TimeSpan.FromSeconds(60)
+        return focusedCalls.Any(c => c.Step == TimeSpan.FromSeconds(60))
+            && focusedCalls.Where(c => c.Step != TimeSpan.FromSeconds(60)).All(c => c.Step == TimeSpan.FromSeconds(120))
             && nonFocusedSteps.All(s => s == TimeSpan.FromSeconds(120));
     }
 
@@ -411,6 +407,7 @@ public sealed class MultiPassGroundTrackTests
         public DateTime? LastFetchedUtc => DateTime.UtcNow;
         public string CachePath => Path.Combine(Path.GetTempPath(), "multi-track-test");
         public string ActiveSourceLabel => "test";
+        public TleCatalogLoadDiagnostics? LastLoadDiagnostics => null;
         public IReadOnlyList<SatelliteCatalogEntry> GetEnabledSatellites(AppSettings settings) => satellites;
         public Task EnsureLoadedAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task RefreshAsync(bool force = false, CancellationToken cancellationToken = default) => Task.CompletedTask;
