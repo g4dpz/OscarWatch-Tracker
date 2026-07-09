@@ -48,6 +48,42 @@
         <li>Press <kbd class="kbd">S</kbd> to show only the selected satellite on the map and sky plot; press <kbd class="kbd">S</kbd> again to restore all (<a href="keyboard-shortcuts.html">shortcuts</a>).</li>
       </ul>
 
+      <h2 id="pass-elevation-timeline">Pass elevation timeline</h2>
+      <p>
+        Below the world map, a collapsible <strong>pass elevation timeline</strong> shows upcoming passes
+        as filled elevation shapes on a horizontal <strong>UTC</strong> time axis — sometimes called a
+        “mountain chart”. Each shape is one pass: height is elevation (0–90° on the left scale), width is
+        pass duration, and the satellite name sits at the peak.
+      </p>
+      <ul>
+        <li><strong>Click</strong> a pass to focus that satellite on the map, sky plot, and sidebar (same as clicking a pass row).</li>
+        <li><strong>Hover</strong> a pass for AOS, LOS, max elevation, and duration.</li>
+        <li>The <strong>focused</strong> satellite’s pass is drawn on top with a stronger colour.</li>
+        <li>During a pass in progress, the fill is brighter from <strong>AOS</strong> up to the current time.</li>
+        <li>A vertical line marks <strong>now</strong> (solid when map time is live; dashed when you are previewing another time).</li>
+        <li>A dashed <strong>45°</strong> grid line helps you spot high passes at a glance.</li>
+        <li>Only passes above your minimum elevation (<strong>Settings → Tracking</strong>) are shown — the same filter as the sidebar pass list.</li>
+        <li>Up to <strong>50</strong> passes are drawn within the lookahead window (default <strong>120 minutes</strong>).</li>
+      </ul>
+      <p>
+        The timeline follows <strong>map time</strong> when you scrub with the status-bar
+        <strong>−15m</strong> / <strong>−5m</strong> / <strong>Now</strong> / <strong>+5m</strong> / <strong>+15m</strong>
+        buttons, so you can preview how passes line up later in the day. Rotator, radio CAT, pass recording,
+        and voice announcements stay on live time.
+      </p>
+      <p>
+        Use <strong>Window → Pass elevation timeline</strong> to show or hide the panel, or press the small
+        <strong>✕</strong> at the top-right of the chart. Drag the grip at the <strong>top</strong> of the panel
+        to make it taller or shorter (about 80–280 pixels). OscarWatch remembers whether the panel is open
+        and how tall you left it.
+      </p>
+      <p class="tip">
+        <strong>Advanced:</strong> the lookahead window (default 120 minutes), panel height, and open/closed
+        state are stored in <code>settings.json</code> as <code>TimelineWindowMinutes</code> (30–360),
+        <code>TimelinePanelHeightPx</code>, and <code>IsTimelineExpanded</code>. There is no Settings tab
+        for the window length yet — edit the file only while OscarWatch is closed.
+      </p>
+
       <h2 id="dx-station">DX station monitor</h2>
       <p>
         Use this when you are working a contact at another location — for example a rover in a different

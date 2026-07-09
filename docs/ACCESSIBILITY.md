@@ -68,7 +68,7 @@ Custom controls should expose:
 - **Name:** e.g. “World map, 3 satellites”
 - **Focus:** selected satellite name and live az/el when available
 
-Implementation: Avalonia `AutomationProperties` on `WorldMapControl` and `SkyPlotControl` (incremental).
+Implementation: Avalonia `AutomationProperties` on `WorldMapControl` and `SkyPlotControl` (incremental). `PassElevationTimelineControl` exposes a summary name via `PassElevationTimelineAutomationPeer` (pass count and AOS–LOS ranges for visible passes).
 
 ## What we are not (yet)
 
@@ -87,6 +87,7 @@ Before release or after UI changes:
 - [ ] Dark theme: same
 - [ ] Simulate deuteranopia: still tell satellites apart on map + sky plot
 - [ ] Keyboard-only: select satellite, open Settings, close with Escape
+- [ ] Pass elevation timeline: click to focus; resize grip; hide/show via Window menu
 - [ ] 125% OS display scaling: no clipped pass rows
 
 ## References

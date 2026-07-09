@@ -16,7 +16,7 @@ You do **not** need to be a programmer to use published builds.
 
 ## What OscarWatch does
 
-- **Map and sky plot**: subpoint, ground track, footprint, and a polar view from your QTH; optional **DX station** marker and live Az/El at a remote grid for the focused satellite; status-bar **map time** buttons (−15m / −5m / Now / +5m / +15m) to preview footprints (rotator and CAT stay on live time)
+- **Map and sky plot**: subpoint, ground track, footprint, and a polar view from your QTH; optional **pass elevation timeline** below the map (upcoming passes as elevation profiles over UTC time — click to focus); optional **DX station** marker and live Az/El at a remote grid for the focused satellite; status-bar **map time** buttons (−15m / −5m / Now / +5m / +15m) to preview footprints (rotator and CAT stay on live time)
 - **Pass list**: upcoming passes with max elevation and time-to-AOS; right-click a row for a polar **pass plot** at your QTH; sidebar scrolls on smaller windows
 - **Frequency panel**: transponder modes from a built-in database, live uplink/downlink with Doppler, RX offsets (separate for Voice and CW on linear SSB), and CTCSS (access/arm tones). Keyboard shortcuts: [help/keyboard-shortcuts.html](help/keyboard-shortcuts.html) (**Ctrl+W**, numpad **+** / **−** for RX offset, **S** for solo map view, map arrows, etc.)
 - **Optional automation**: serial **rotator** tracking and **radio CAT** (Doppler, satellite/split layout, tones) during a pass
@@ -62,13 +62,14 @@ Press **Standby** in the sidebar when you are only planning or browsing: the rot
 
 ### Operator guide
 
-Plain-language help ships with the app: **Help → Operator guide** (also in the `[help/](help/)` folder). The guide is **English only**; the app UI can be switched under **Settings → Appearance → Language** (restart required). Topics include quick start, frequencies, TLEs, pass planning, radio/rotator setup, recording, QSO logbook, and troubleshooting.
+Plain-language help ships with the app: **Help → Operator guide** (also in the `[help/](help/)` folder). The guide is **English only**; the app UI can be switched under **Settings → Appearance → Language** (restart required). Topics include quick start, map and pass elevation timeline, frequencies, TLEs, pass planning, radio/rotator setup, recording, QSO logbook, and troubleshooting.
 
 ---
 
 ## Features
 
 - **World map**: equirectangular Earth texture with satellite subpoint, ground track, footprint overlays (optional motion arrows), your QTH, and an optional remote **DX station** grid marker; **map time** scrubbing from the status bar (hardware tracking stays live)
+- **Pass elevation timeline**: collapsible panel below the map showing up to 50 upcoming passes as filled elevation profiles on a UTC time axis; click a pass to focus that satellite; hover for AOS/LOS and max elevation; in-progress passes are highlighted from AOS to now; follows map-time scrubbing (vertical **now** line stays on wall-clock time); show/hide via **Window → Pass elevation timeline** or the panel **✕**; drag the top grip to resize (height remembered)
 - **Sky plot**: polar view of satellite azimuth/elevation relative to your station; click to focus; expand/collapse state is remembered
 - **TLE catalog**: fetched from `https://tle.oscarwatch.org/`, cached under `%AppData%/OscarWatch/`
 - **TLE auto-update**: manual refresh, on startup (if stale), or every 6 hours while running (Settings → Tracking)
@@ -157,6 +158,8 @@ Open **Settings** from the menu. Tabs:
 
 
 Settings are stored in `%AppData%/OscarWatch/settings.json`.
+
+The pass elevation timeline also reads persisted keys in that file: `IsTimelineExpanded`, `TimelinePanelHeightPx`, and `TimelineWindowMinutes` (lookahead 30–360 minutes, default 120). Only panel show/hide and height are adjustable in the UI; edit `TimelineWindowMinutes` manually if you need a longer or shorter window.
 
 ### GPS (serial or gpsd)
 
@@ -330,7 +333,7 @@ Publish profiles are under `OscarWatch/Properties/PublishProfiles/` (e.g. `dotne
 
 - [documents/](documents/): how to add **radio** and **rotator** drivers (`IRigDriver`, `IRotatorDriver`); [satellite transponder database](documents/satellite-database.md) (remote updates, merge policy, schema)
 - [help/](help/): operator HTML help (bundled with the app)
-- [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md): UI contrast, colour-blind-safe tracking colours, keyboard
+- [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md): UI contrast, colour-blind-safe tracking colours, keyboard, pass elevation timeline automation
 
 ### Orbit propagation
 
