@@ -44,7 +44,14 @@ public static class GpJsonCatalogParser
         entry = null!;
         var name = ResolveName(record);
         // AMSAT sometimes publishes name-only placeholders (all orbital fields null).
-        if (string.IsNullOrWhiteSpace(name) || record.NoradCatId <= 0 || record.MeanMotion <= 0)
+        if (string.IsNullOrWhiteSpace(name)
+            || record.NoradCatId is null or <= 0
+            || record.MeanMotion is null or <= 0
+            || record.Inclination is null
+            || record.Eccentricity is null
+            || record.RaOfAscNode is null
+            || record.ArgOfPericenter is null
+            || record.MeanAnomaly is null)
             return false;
 
         if (!TryParseEpoch(record.Epoch, out var epochUtc))
@@ -54,7 +61,7 @@ public static class GpJsonCatalogParser
         entry = new SatelliteCatalogEntry
         {
             Name = name,
-            NoradId = record.NoradCatId.ToString(CultureInfo.InvariantCulture),
+            NoradId = record.NoradCatId.Value.ToString(CultureInfo.InvariantCulture),
             Line1 = line1,
             Line2 = line2,
             EpochUtc = epochUtc

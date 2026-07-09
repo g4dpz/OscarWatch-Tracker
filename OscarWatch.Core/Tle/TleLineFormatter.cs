@@ -9,26 +9,26 @@ public static class TleLineFormatter
 {
     public static (string Line1, string Line2) FormatLines(GpElementRecord record, DateTime epochUtc)
     {
-        var noradId = record.NoradCatId.ToString("D5", CultureInfo.InvariantCulture);
+        var noradId = record.NoradCatId.GetValueOrDefault().ToString("D5", CultureInfo.InvariantCulture);
         var classification = string.IsNullOrWhiteSpace(record.ClassificationType)
             ? "U"
             : record.ClassificationType.Trim()[0].ToString();
         var intlDesignator = FormatInternationalDesignator(record.ObjectId);
         var epochField = FormatEpochField(epochUtc);
-        var meanMotionDotHalf = FormatMeanMotionDotHalf(record.MeanMotionDot);
-        var meanMotionDdot = FormatScientificField(record.MeanMotionDdot);
-        var bstar = FormatScientificField(record.Bstar);
-        var ephemerisType = Math.Clamp(record.EphemerisType, 0, 9);
-        var elementSetNo = Math.Clamp(record.ElementSetNo, 0, 9999);
+        var meanMotionDotHalf = FormatMeanMotionDotHalf(record.MeanMotionDot.GetValueOrDefault());
+        var meanMotionDdot = FormatScientificField(record.MeanMotionDdot.GetValueOrDefault());
+        var bstar = FormatScientificField(record.Bstar.GetValueOrDefault());
+        var ephemerisType = Math.Clamp(record.EphemerisType.GetValueOrDefault(), 0, 9);
+        var elementSetNo = Math.Clamp(record.ElementSetNo.GetValueOrDefault(), 0, 9999);
 
         var line1Body =
             $"1 {noradId}{classification} {intlDesignator} {epochField} {meanMotionDotHalf} {meanMotionDdot} {bstar} {ephemerisType} {elementSetNo:D4}";
         var line1 = PadAndChecksum(line1Body, 69);
 
-        var eccentricityField = FormatEccentricity(record.Eccentricity);
-        var revolutionNumber = Math.Clamp(record.RevAtEpoch, 0, 99999);
+        var eccentricityField = FormatEccentricity(record.Eccentricity.GetValueOrDefault());
+        var revolutionNumber = Math.Clamp(record.RevAtEpoch.GetValueOrDefault(), 0, 99999);
         var line2Body =
-            $"2 {noradId} {record.Inclination,8:F4} {record.RaOfAscNode,8:F4} {eccentricityField} {record.ArgOfPericenter,8:F4} {record.MeanAnomaly,8:F4} {record.MeanMotion,11:F8}{revolutionNumber,5:D5}";
+            $"2 {noradId} {record.Inclination.GetValueOrDefault(),8:F4} {record.RaOfAscNode.GetValueOrDefault(),8:F4} {eccentricityField} {record.ArgOfPericenter.GetValueOrDefault(),8:F4} {record.MeanAnomaly.GetValueOrDefault(),8:F4} {record.MeanMotion.GetValueOrDefault(),11:F8}{revolutionNumber,5:D5}";
         var line2 = PadAndChecksum(line2Body, 69);
 
         return (line1, line2);
