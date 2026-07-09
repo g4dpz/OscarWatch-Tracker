@@ -4,10 +4,14 @@ namespace OscarWatch.Core.Tle;
 
 public static class TleParser
 {
-    public static IReadOnlyList<SatelliteCatalogEntry> ParseCatalog(string text)
+    public static IReadOnlyList<SatelliteCatalogEntry> ParseCatalog(string text) =>
+        ParseCatalogWithDiagnostics(text).Entries;
+
+    public static TleCatalogParseResult ParseCatalogWithDiagnostics(string text)
     {
         var lines = text.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         var entries = new List<SatelliteCatalogEntry>();
+        var skippedOrbitalSanity = 0;
 
         for (var i = 0; i < lines.Length; i++)
         {
@@ -47,19 +51,29 @@ public static class TleParser
                 }
             }
 
-            entries.Add(new SatelliteCatalogEntry
+            var entry = new SatelliteCatalogEntry
             {
                 Name = name,
                 NoradId = norad,
                 Line1 = line1,
                 Line2 = line2,
                 EpochUtc = epoch
-            });
+            };
 
+            if (!TleOrbitalSanity.IsEntryPlausible(entry))
+            {
+                skippedOrbitalSanity++;
+                i++;
+                continue;
+            }
+
+            entries.Add(entry);
             i++;
         }
 
-        return entries;
+        return new TleCatalogParseResult(
+            entries,
+            new TleCatalogParseDiagnostics(entries.Count, 0, skippedOrbitalSanity));
     }
 
     public static string SerializeCatalog(IEnumerable<SatelliteCatalogEntry> entries)

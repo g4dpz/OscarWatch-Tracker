@@ -581,6 +581,7 @@ public partial class MainViewModel : ViewModelBase
         try
         {
             await _tleService.EnsureLoadedAsync().ConfigureAwait(false);
+            LogTleLoadDiagnostics();
             return true;
         }
         catch (Exception ex)
@@ -588,6 +589,21 @@ public partial class MainViewModel : ViewModelBase
             Log.Error(ex, "TLE load failed during startup");
             return false;
         }
+    }
+
+    private void LogTleLoadDiagnostics()
+    {
+        if (_tleService.LastLoadDiagnostics is not { } diagnostics)
+            return;
+
+        Log.Information(
+            "TLE catalog loaded: source={Source}, origin={Origin}, parsed={ParsedCount}, skippedIncomplete={SkippedIncomplete}, skippedSanity={SkippedOrbitalSanity}, total={TotalRecords}",
+            _tleService.ActiveSourceLabel,
+            diagnostics.Origin,
+            diagnostics.ParsedCount,
+            diagnostics.SkippedIncomplete,
+            diagnostics.SkippedOrbitalSanity,
+            diagnostics.TotalRecords);
     }
 
     private async Task RunStartupAppUpdateCheckAsync()
@@ -1875,6 +1891,8 @@ public partial class MainViewModel : ViewModelBase
                 StatusText = _l.Get("Status.RefreshingTle");
                 await _tleService.RefreshAsync().ConfigureAwait(true);
             }
+
+            LogTleLoadDiagnostics();
         }
         catch (Exception ex)
         {

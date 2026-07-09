@@ -131,5 +131,8 @@ public sealed class GpJsonCatalogParserTests
 
         Assert.Single(entries);
         Assert.Equal("AO-07", entries[0].Name);
+
+        var diagnostics = GpJsonCatalogParser.ParseCatalogWithDiagnostics(catalog).Diagnostics;
+        Assert.Equal(1, diagnostics.SkippedIncomplete);
     }
 }

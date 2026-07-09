@@ -199,6 +199,7 @@ public sealed class LiveTrackingServiceTests
         public IReadOnlyList<SatelliteCatalogEntry> Catalog => satellites;
         public DateTime? LastFetchedUtc => DateTime.UtcNow;
         public string CachePath => Path.Combine(Path.GetTempPath(), "live-tracking-tle-test");
+        public TleCatalogLoadDiagnostics? LastLoadDiagnostics => null;
         public string ActiveSourceLabel => "test";
         public IReadOnlyList<SatelliteCatalogEntry> GetEnabledSatellites(AppSettings settings) => satellites;
         public Task EnsureLoadedAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;

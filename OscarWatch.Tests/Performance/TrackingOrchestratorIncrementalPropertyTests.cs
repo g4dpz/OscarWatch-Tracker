@@ -281,6 +281,7 @@ public class TrackingOrchestratorIncrementalPropertyTests
         public IReadOnlyList<SatelliteCatalogEntry> Catalog => _enabled;
         public DateTime? LastFetchedUtc => DateTime.UtcNow;
         public string CachePath => "";
+        public TleCatalogLoadDiagnostics? LastLoadDiagnostics => null;
         public bool IsStale(int staleHours) => false;
         public Task RefreshAsync(bool force = false, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task EnsureLoadedAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;

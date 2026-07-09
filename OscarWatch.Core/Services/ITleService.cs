@@ -7,6 +7,7 @@ public interface ITleService
     IReadOnlyList<SatelliteCatalogEntry> Catalog { get; }
     DateTime? LastFetchedUtc { get; }
     string CachePath { get; }
+    TleCatalogLoadDiagnostics? LastLoadDiagnostics { get; }
     bool IsStale(int staleHours);
     Task RefreshAsync(bool force = false, CancellationToken cancellationToken = default);
     Task EnsureLoadedAsync(CancellationToken cancellationToken = default);

@@ -17,10 +17,13 @@ public static class GpJsonCatalogParser
         }
     };
 
-    public static IReadOnlyList<SatelliteCatalogEntry> ParseCatalog(string json)
+    public static IReadOnlyList<SatelliteCatalogEntry> ParseCatalog(string json) =>
+        ParseCatalogWithDiagnostics(json).Entries;
+
+    public static TleCatalogParseResult ParseCatalogWithDiagnostics(string json)
     {
         if (string.IsNullOrWhiteSpace(json))
-            return [];
+            return new TleCatalogParseResult([], TleCatalogParseDiagnostics.Empty);
 
         var trimmed = json.TrimStart();
         List<GpElementRecord> records = trimmed.StartsWith("[", StringComparison.Ordinal)
@@ -30,30 +33,53 @@ public static class GpJsonCatalogParser
                 : [];
 
         var entries = new List<SatelliteCatalogEntry>(records.Count);
+        var skippedIncomplete = 0;
+        var skippedOrbitalSanity = 0;
         foreach (var record in records)
         {
-            if (TryMapRecord(record, out var entry))
-                entries.Add(entry);
+            if (!HasRequiredFields(record))
+            {
+                skippedIncomplete++;
+                continue;
+            }
+
+            if (!TleOrbitalSanity.IsGpRecordPlausible(record))
+            {
+                skippedOrbitalSanity++;
+                continue;
+            }
+
+            if (!TryMapRecord(record, out var entry))
+            {
+                skippedIncomplete++;
+                continue;
+            }
+
+            entries.Add(entry);
         }
 
-        return entries;
+        return new TleCatalogParseResult(
+            entries,
+            new TleCatalogParseDiagnostics(entries.Count, skippedIncomplete, skippedOrbitalSanity));
+    }
+
+    private static bool HasRequiredFields(GpElementRecord record)
+    {
+        var name = ResolveName(record);
+        return !string.IsNullOrWhiteSpace(name)
+               && record.NoradCatId is > 0
+               && record.MeanMotion is > 0
+               && record.Inclination is not null
+               && record.Eccentricity is not null
+               && record.RaOfAscNode is not null
+               && record.ArgOfPericenter is not null
+               && record.MeanAnomaly is not null;
     }
 
     private static bool TryMapRecord(GpElementRecord record, out SatelliteCatalogEntry entry)
     {
         entry = null!;
-        var name = ResolveName(record);
-        // AMSAT sometimes publishes name-only placeholders (all orbital fields null).
-        if (string.IsNullOrWhiteSpace(name)
-            || record.NoradCatId is null or <= 0
-            || record.MeanMotion is null or <= 0
-            || record.Inclination is null
-            || record.Eccentricity is null
-            || record.RaOfAscNode is null
-            || record.ArgOfPericenter is null
-            || record.MeanAnomaly is null)
-            return false;
-
+        var name = ResolveName(record)!;
         if (!TryParseEpoch(record.Epoch, out var epochUtc))
             return false;
 
@@ -61,7 +87,7 @@ public static class GpJsonCatalogParser
         entry = new SatelliteCatalogEntry
         {
             Name = name,
-            NoradId = record.NoradCatId.Value.ToString(CultureInfo.InvariantCulture),
+            NoradId = record.NoradCatId.GetValueOrDefault().ToString(CultureInfo.InvariantCulture),
             Line1 = line1,
             Line2 = line2,
             EpochUtc = epochUtc
