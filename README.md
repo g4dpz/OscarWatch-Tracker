@@ -289,6 +289,7 @@ dotnet run -c Release --project OscarWatch/OscarWatch.csproj
 | Artifact                 | Runtime                              |
 | ------------------------ | ------------------------------------ |
 | `OscarWatch-win-x64`     | Windows x64                          |
+| `OscarWatch-win-arm64`   | Windows ARM64 (Snapdragon / ARM PCs)   |
 | `OscarWatch-osx-arm64`   | macOS Apple Silicon                  |
 | `OscarWatch-osx-x64`     | macOS Intel                          |
 | `OscarWatch-linux-x64`   | Linux x64                            |
@@ -301,8 +302,11 @@ dotnet run -c Release --project OscarWatch/OscarWatch.csproj
 ### Local publish
 
 ```bash
-# Windows
+# Windows x64
 dotnet publish OscarWatch/OscarWatch.csproj -c Release -r win-x64 --self-contained
+
+# Windows ARM64
+dotnet publish OscarWatch/OscarWatch.csproj -c Release -r win-arm64 --self-contained
 
 # macOS (Apple Silicon)
 dotnet publish OscarWatch/OscarWatch.csproj -c Release -r osx-arm64 --self-contained

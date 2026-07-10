@@ -44,6 +44,11 @@ jobs:
             display_name: Windows x64
             archive_ext: zip
             publish_single_file: true
+          - rid: win-arm64
+            os: windows-latest
+            display_name: Windows ARM64
+            archive_ext: zip
+            publish_single_file: true
           - rid: osx-arm64
             os: macos-latest
             display_name: macOS Apple Silicon
