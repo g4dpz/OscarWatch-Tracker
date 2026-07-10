@@ -184,7 +184,7 @@ Planned work is listed in [TODO.md](TODO.md). Transponder database merge/sync is
 | ----------- | ------------------------------------------------------- |
 | **Windows** | Built-in (`System.Speech`)                              |
 | **macOS**   | Built-in (`/usr/bin/say`)                               |
-| **Linux**   | Requires `espeak-ng` (preferred) or `spd-say` on `PATH` |
+| **Linux**   | Requires `espeak-ng` (preferred), legacy `espeak`, or `spd-say` on `PATH` |
 
 
 If TTS is unavailable, the Voice tab shows a notice and announcements are skipped.

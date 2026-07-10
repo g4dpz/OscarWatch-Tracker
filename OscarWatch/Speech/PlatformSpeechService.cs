@@ -2,14 +2,16 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using OscarWatch.Core.Services;
+using Serilog;
 
 namespace OscarWatch.Speech;
 
 public sealed class PlatformSpeechService : ISpeechService
 {
+    private static readonly ILogger Log = Serilog.Log.ForContext<PlatformSpeechService>();
     private static readonly SpeechVoiceOption SystemDefault = new("", "System default");
     private readonly SemaphoreSlim _speakLock = new(1, 1);
-    private readonly Lazy<LinuxBackend?> _linuxBackend = new(DetectLinuxBackend);
+    private readonly Lazy<LinuxSpeechBackend?> _linuxBackend = new(DetectLinuxBackend);
 
     public bool IsAvailable
     {
@@ -35,7 +37,7 @@ public sealed class PlatformSpeechService : ISpeechService
 
         var voices = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? GetWindowsVoices()
             : RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? GetMacVoices()
-            : RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? GetLinuxVoices()
+            : RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? GetLinuxVoices(_linuxBackend.Value)
             : [];
 
         return voices.Count == 0 ? [SystemDefault] : PrependDefault(voices);
@@ -55,7 +57,7 @@ public sealed class PlatformSpeechService : ISpeechService
                 await RunSpeechProcessAsync("/usr/bin/say", BuildMacArgs(voiceName, text), cancellationToken)
                     .ConfigureAwait(false);
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                await SpeakLinuxAsync(text, voiceName, cancellationToken).ConfigureAwait(false);
+                await SpeakLinuxAsync(_linuxBackend.Value, text, voiceName, cancellationToken).ConfigureAwait(false);
         }
         finally
         {
@@ -160,67 +162,126 @@ public sealed class PlatformSpeechService : ISpeechService
         return args;
     }
 
-    private static IReadOnlyList<SpeechVoiceOption> GetLinuxVoices()
+    private static IReadOnlyList<SpeechVoiceOption> GetLinuxVoices(LinuxSpeechBackend? backend)
     {
-        var backend = DetectLinuxBackend();
-        if (backend == LinuxBackend.EspeakNg)
+        if (backend is null)
+            return [];
+
+        return backend.Kind switch
         {
-            try
+            LinuxBackendKind.Espeak => GetEspeakVoices(backend.Executable),
+            LinuxBackendKind.SpeechDispatcher => GetSpeechDispatcherVoices(),
+            _ => []
+        };
+    }
+
+    private static IReadOnlyList<SpeechVoiceOption> GetEspeakVoices(string executable)
+    {
+        try
+        {
+            using var process = Process.Start(new ProcessStartInfo
             {
-                using var process = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "espeak-ng",
-                    Arguments = "--voices",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                });
+                FileName = executable,
+                Arguments = "--voices",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            });
 
-                if (process is null)
-                    return [];
-
-                var output = process.StandardOutput.ReadToEnd();
-                process.WaitForExit();
-
-                return output
-                    .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                    .Skip(1)
-                    .Select(ParseEspeakVoiceLine)
-                    .Where(v => v is not null)
-                    .Cast<SpeechVoiceOption>()
-                    .DistinctBy(v => v.Id, StringComparer.OrdinalIgnoreCase)
-                    .OrderBy(v => v.DisplayName, StringComparer.OrdinalIgnoreCase)
-                    .ToList();
-            }
-            catch
-            {
+            if (process is null)
                 return [];
-            }
+
+            var output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+            if (process.ExitCode != 0)
+                return [];
+
+            return output
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(EspeakVoiceParser.ParseVoiceLine)
+                .Where(v => v is not null)
+                .Cast<SpeechVoiceOption>()
+                .DistinctBy(v => v.Id, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(v => v.DisplayName, StringComparer.OrdinalIgnoreCase)
+                .ToList();
         }
-
-        return [];
-    }
-
-    private static SpeechVoiceOption? ParseEspeakVoiceLine(string line)
-    {
-        var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        if (parts.Length < 4)
-            return null;
-
-        var language = parts[1];
-        var name = parts[3];
-        if (string.IsNullOrWhiteSpace(name))
-            return null;
-
-        return new SpeechVoiceOption(name, $"{name} ({language})");
-    }
-
-    private async Task SpeakLinuxAsync(string text, string? voiceName, CancellationToken cancellationToken)
-    {
-        switch (_linuxBackend.Value)
+        catch (Exception ex)
         {
-            case LinuxBackend.EspeakNg:
+            Log.Debug(ex, "Failed to list {Executable} voices", executable);
+            return [];
+        }
+    }
+
+    private static IReadOnlyList<SpeechVoiceOption> GetSpeechDispatcherVoices()
+    {
+        try
+        {
+            using var process = Process.Start(new ProcessStartInfo
+            {
+                FileName = "spd-say",
+                Arguments = "-L",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            });
+
+            if (process is null)
+                return [];
+
+            var output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+            if (process.ExitCode != 0)
+                return [];
+
+            return output
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(ParseSpeechDispatcherVoiceLine)
+                .Where(v => v is not null)
+                .Cast<SpeechVoiceOption>()
+                .DistinctBy(v => v.Id, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(v => v.DisplayName, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            Log.Debug(ex, "Failed to list speech-dispatcher voices");
+            return [];
+        }
+    }
+
+    internal static SpeechVoiceOption? ParseSpeechDispatcherVoiceLine(string line)
+    {
+        if (string.IsNullOrWhiteSpace(line)
+            || line.StartsWith("Voice", StringComparison.OrdinalIgnoreCase)
+            || line.StartsWith("NAME", StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (parts.Length == 0)
+            return null;
+
+        var name = parts[0];
+        if (string.Equals(name, "Voice", StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        var display = parts.Length > 1 ? string.Join(' ', parts) : name;
+        return new SpeechVoiceOption(name, display);
+    }
+
+    private static async Task SpeakLinuxAsync(
+        LinuxSpeechBackend? backend,
+        string text,
+        string? voiceName,
+        CancellationToken cancellationToken)
+    {
+        if (backend is null)
+            return;
+
+        switch (backend.Kind)
+        {
+            case LinuxBackendKind.Espeak:
             {
                 var args = new List<string> { "-s", "150" };
                 if (!string.IsNullOrWhiteSpace(voiceName))
@@ -230,12 +291,22 @@ public sealed class PlatformSpeechService : ISpeechService
                 }
 
                 args.Add(text);
-                await RunSpeechProcessAsync("espeak-ng", args, cancellationToken).ConfigureAwait(false);
+                await RunSpeechProcessAsync(backend.Executable, args, cancellationToken).ConfigureAwait(false);
                 break;
             }
-            case LinuxBackend.SpeechDispatcher:
-                await RunSpeechProcessAsync("spd-say", [text], cancellationToken).ConfigureAwait(false);
+            case LinuxBackendKind.SpeechDispatcher:
+            {
+                var args = new List<string>();
+                if (!string.IsNullOrWhiteSpace(voiceName))
+                {
+                    args.Add("-y");
+                    args.Add(voiceName);
+                }
+
+                args.Add(text);
+                await RunSpeechProcessAsync(backend.Executable, args, cancellationToken).ConfigureAwait(false);
                 break;
+            }
         }
     }
 
@@ -258,15 +329,20 @@ public sealed class PlatformSpeechService : ISpeechService
             ?? throw new InvalidOperationException($"Could not start {fileName}.");
 
         await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+        if (process.ExitCode != 0)
+            throw new InvalidOperationException($"{fileName} exited with code {process.ExitCode}.");
     }
 
-    private static LinuxBackend? DetectLinuxBackend()
+    private static LinuxSpeechBackend? DetectLinuxBackend()
     {
         if (CommandExists("espeak-ng"))
-            return LinuxBackend.EspeakNg;
+            return new LinuxSpeechBackend("espeak-ng", LinuxBackendKind.Espeak);
+
+        if (CommandExists("espeak"))
+            return new LinuxSpeechBackend("espeak", LinuxBackendKind.Espeak);
 
         if (CommandExists("spd-say"))
-            return LinuxBackend.SpeechDispatcher;
+            return new LinuxSpeechBackend("spd-say", LinuxBackendKind.SpeechDispatcher);
 
         return null;
     }
@@ -298,9 +374,11 @@ public sealed class PlatformSpeechService : ISpeechService
         }
     }
 
-    private enum LinuxBackend
+    private sealed record LinuxSpeechBackend(string Executable, LinuxBackendKind Kind);
+
+    private enum LinuxBackendKind
     {
-        EspeakNg,
+        Espeak,
         SpeechDispatcher
     }
 }
