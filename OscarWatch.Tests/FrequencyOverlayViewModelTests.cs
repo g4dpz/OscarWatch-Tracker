@@ -789,14 +789,17 @@ public class FrequencyOverlayViewModelTests
         vm.Update(state);
         vm.ReceiveOffsetKHz = -1.2;
         vm.TransmitOffsetKHz = -1.5;
+        // First satellite focus suspends passband sync until the rig reports a cleared trim.
+        vm.SyncRigPassbandAdjustments(0, 0);
         vm.SyncRigPassbandAdjustments(-10.222, 10.222);
 
+        var utc = DateTime.UtcNow;
         var lead = DopplerCatLead.ResolveRangeRates(
             propagator,
             settings.Current.Rig,
             settings.Current.GroundStation,
             state,
-            DateTime.UtcNow);
+            utc);
         var expected = DopplerFrequencyCalculator.Compute(
             vm.SelectedMode!,
             lead.RxRangeRateKmPerSec,
