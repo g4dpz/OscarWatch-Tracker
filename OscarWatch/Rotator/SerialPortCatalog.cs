@@ -117,23 +117,17 @@ public static class SerialPortCatalog
 
     private static IEnumerable<string> EnumerateLinuxUdevAliases()
     {
-        string[] entries;
-        try
-        {
-            entries = Directory.GetFileSystemEntries("/dev");
-        }
-        catch
-        {
+        if (!Directory.Exists("/dev"))
             yield break;
-        }
 
-        foreach (var entry in entries.OrderBy(path => path, StringComparer.OrdinalIgnoreCase))
+        var yielded = 0;
+        foreach (var entry in Directory.EnumerateFileSystemEntries("/dev"))
         {
-            var name = Path.GetFileName(entry);
-            if (string.IsNullOrEmpty(name))
-                continue;
+            if (yielded >= 64)
+                yield break;
 
-            if (!IsCandidateUdevAliasName(name))
+            var name = Path.GetFileName(entry);
+            if (!IsLikelyCustomUdevAliasName(name))
                 continue;
 
             if (Directory.Exists(entry))
@@ -156,8 +150,24 @@ public static class SerialPortCatalog
             if (resolved is null || !IsSerialDevicePath(resolved))
                 continue;
 
+            yielded++;
             yield return entry;
         }
+    }
+
+    private static bool IsLikelyCustomUdevAliasName(string name)
+    {
+        if (name.Length is < 3 or > 24)
+            return false;
+
+        if (!IsCandidateUdevAliasName(name))
+            return false;
+
+        // Typical udev SYMLINK names (USB821H, ic910-civ) — skip standard device nodes like null, random, vcs0.
+        if (!name.Any(char.IsLetter))
+            return false;
+
+        return name.All(static c => char.IsLetterOrDigit(c) || c is '_' or '-');
     }
 
     private static bool IsCandidateUdevAliasName(string name)

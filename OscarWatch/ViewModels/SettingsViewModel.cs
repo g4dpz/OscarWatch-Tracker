@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OscarWatch.Core.Cloudlog;
@@ -687,9 +688,25 @@ public partial class SettingsViewModel : ViewModelBase
         SpeechAvailable = speech.IsAvailable;
         SpeechVoiceOptions = speech.GetAvailableVoices();
         CopyGroundStation(settings.Current.GroundStation, _draft);
-        RefreshComPorts();
         RefreshRecordingDevices();
         LoadFromDraft();
+        SeedSavedComPorts();
+        Dispatcher.UIThread.Post(MergeDiscoveredComPorts, DispatcherPriority.Background);
+    }
+
+    private void SeedSavedComPorts()
+    {
+        EnsureSavedPortListed(SelectedComPort);
+        EnsureSavedPortListed(SelectedRigComPort);
+        EnsureSavedPortListed(SelectedDownlinkComPort);
+        EnsureSavedPortListed(SelectedUplinkComPort);
+        EnsureSavedPortListed(SelectedGpsComPort);
+    }
+
+    private void MergeDiscoveredComPorts()
+    {
+        foreach (var port in SerialPortDiscovery.GetAvailablePorts())
+            EnsureSavedPortListed(port);
     }
 
     [RelayCommand]
@@ -715,14 +732,10 @@ public partial class SettingsViewModel : ViewModelBase
     private void RefreshComPorts()
     {
         AvailableComPorts.Clear();
-        foreach (var port in SerialPortDiscovery.GetAvailablePorts())
+        foreach (var port in SerialPortDiscovery.GetAvailablePorts(forceRefresh: true))
             AvailableComPorts.Add(port);
 
-        EnsureSavedPortListed(SelectedComPort);
-        EnsureSavedPortListed(SelectedRigComPort);
-        EnsureSavedPortListed(SelectedDownlinkComPort);
-        EnsureSavedPortListed(SelectedUplinkComPort);
-        EnsureSavedPortListed(SelectedGpsComPort);
+        SeedSavedComPorts();
     }
 
     private void EnsureSavedPortListed(string? port)
