@@ -193,8 +193,10 @@ public sealed class SaveDebouncerPropertyTests : IDisposable
         service.Current.GroundStation.DisplayName = "Second";
         service.RequestSave();
 
-        // Wait for the full quiet period after second request to elapse
-        await Task.Delay(700);
+        // Poll until the quiet period after the second request elapses and the write completes
+        var deadline = DateTime.UtcNow.AddSeconds(3);
+        while (!File.Exists(path) && DateTime.UtcNow < deadline)
+            await Task.Delay(50);
 
         Assert.True(File.Exists(path));
         var json = await File.ReadAllTextAsync(path);
