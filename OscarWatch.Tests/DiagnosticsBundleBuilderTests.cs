@@ -109,6 +109,7 @@ public sealed class DiagnosticsBundleBuilderTests
         public void Update(RigSettings settings, RigTrackingContext? context) { }
         public void ApplySelectedCtcss(RigSettings settings, RigTrackingContext? context) { }
         public void Disconnect() { }
+        public void DisconnectAndWait() { }
     }
 
     private sealed class StubRotatorController(RotatorPositionStatus status) : IRotatorController

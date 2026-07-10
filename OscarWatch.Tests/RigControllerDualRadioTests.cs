@@ -252,6 +252,60 @@ public sealed class RigControllerDualRadioTests
     }
 
     [Fact]
+    public void Disconnect_clears_passband_trim()
+    {
+        var downRig = new RecordingRigDriver();
+        var upRig = new RecordingRigDriver();
+        var controller = new RigController(
+            endpointFactory: ep => ep.Port == "COM_DL" ? downRig : upRig);
+
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            DualRadioEnabled = true,
+            DopplerThresholdLinearHz = 50,
+            Downlink = new RigEndpointSettings { Type = RigType.YaesuFt817, Port = "COM_DL", CatDelayMs = 0 },
+            Uplink = new RigEndpointSettings { Type = RigType.YaesuFt818, Port = "COM_UL", CatDelayMs = 0 }
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 145_960,
+            UplinkKHz = 435_250,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "RS-44",
+                NoradId = "44909",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 30, 800, 0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            DopplerStrategy = DopplerStrategy.Full
+        });
+        Thread.Sleep(650);
+
+        downRig.MainHz += 2_000;
+        for (var i = 0; i < 10; i++)
+            controller.RunTrackingLoopOnce();
+
+        Assert.InRange(controller.GetStatus().ManualReceiveAdjustKHz, 1.9, 2.1);
+
+        controller.DisconnectAndWait();
+
+        var status = controller.GetStatus();
+        Assert.InRange(status.ManualReceiveAdjustKHz, -0.001, 0.001);
+        Assert.InRange(status.ManualTransmitAdjustKHz, -0.001, 0.001);
+    }
+
+    [Fact]
     public void Mixed_ic705_downlink_and_ft818_uplink_pass_init_writes_both_legs()
     {
         var downTransport = new RecordingIcomCivTransport();
@@ -448,6 +502,90 @@ public sealed class RigControllerDualRadioTests
         Assert.True(initCompleted);
         Assert.InRange(sdrServer.FrequencyHz, expectedRx - 5, expectedRx + 5);
         Assert.True(upRig.MainHz > 0);
+    }
+
+    [Fact]
+    public void Dual_sdr_downlink_ft991a_uplink_pass_init_writes_both_legs()
+    {
+        using var sdrServer = new RigCtlTcpStubServer();
+        sdrServer.WaitUntilReady();
+        var upTransport = new RecordingYaesuNewCatTransport();
+        var controller = new RigController(
+            endpointFactory: ep => ep.Type == RigType.SdrRigCtlTcp
+                ? new RigCtlTcpDriver("127.0.0.1", sdrServer.Port)
+                : new YaesuFt991aDriver(upTransport));
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "Voice U/V",
+            DownlinkKHz = 145_960,
+            UplinkKHz = 435_250,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "NOR"
+        };
+
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            DualRadioEnabled = true,
+            DopplerThresholdLinearHz = 50,
+            Downlink = new RigEndpointSettings
+            {
+                Type = RigType.SdrRigCtlTcp,
+                NetworkHost = "127.0.0.1",
+                NetworkPort = sdrServer.Port,
+                CatDelayMs = 0
+            },
+            Uplink = new RigEndpointSettings
+            {
+                Type = RigType.YaesuFt991a,
+                Port = "COM_UL",
+                BaudRate = 38400,
+                CatDelayMs = 0
+            }
+        };
+
+        var context = new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "RS-44",
+                NoradId = "44909",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 30, 800, 0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            DopplerStrategy = DopplerStrategy.Full
+        };
+
+        var expected = DopplerFrequencyCalculator.Compute(mode, 0, 0);
+        var expectedRx = (long)(expected.RadioReceiveKHz * 1000);
+        var expectedTx = (long)(expected.RadioTransmitKHz * 1000);
+        var initCompleted = false;
+        for (var attempt = 0; attempt < 120; attempt++)
+        {
+            controller.Update(settings, context);
+            var faSet = upTransport.SentCommands.Find(c =>
+                c.StartsWith("FA", StringComparison.Ordinal)
+                && c.Length >= 11
+                && long.TryParse(c.AsSpan(2, 9), out var hz)
+                && Math.Abs(hz - expectedTx) <= 5);
+            if (sdrServer.FrequencyHz >= expectedRx - 5
+                && sdrServer.FrequencyHz <= expectedRx + 5
+                && faSet is not null)
+            {
+                initCompleted = true;
+                break;
+            }
+
+            Thread.Sleep(50);
+        }
+
+        Assert.True(initCompleted);
+        Assert.InRange(sdrServer.FrequencyHz, expectedRx - 5, expectedRx + 5);
+        Assert.Contains(upTransport.SentCommands, c => c.StartsWith("FA", StringComparison.Ordinal));
     }
 
     [Fact]

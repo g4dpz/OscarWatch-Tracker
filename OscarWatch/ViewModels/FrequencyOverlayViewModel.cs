@@ -30,6 +30,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private SatelliteTrackState? _lastTrackState;
     private double _rigPassbandDownlinkAdjustKHz;
     private double _rigPassbandUplinkAdjustKHz;
+    private bool _passbandSyncSuspended;
     private bool _dopplerLeadActiveLatched;
 
     [ObservableProperty]
@@ -320,6 +321,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             _currentNoradId = null;
             _currentSatelliteName = null;
             _currentStorageKey = null;
+            _passbandSyncSuspended = false;
             HasTransponderData = false;
             EmptyStateMessage = _l.Get("Freq.SelectSatelliteHint");
             ClearFrequencyDisplay();
@@ -336,6 +338,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             _currentStorageKey = ResolveStorageKey(state.Name);
             _rigPassbandDownlinkAdjustKHz = 0;
             _rigPassbandUplinkAdjustKHz = 0;
+            _passbandSyncSuspended = true;
             LoadModesForSatellite(state.Name);
             RequestOverlayReclamp();
         }
@@ -700,6 +703,14 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     /// <summary>Main-dial passband trim from rig while tracking (updates downlink/uplink nominals).</summary>
     public void SyncRigPassbandAdjustments(double downlinkAdjustKHz, double uplinkAdjustKHz)
     {
+        if (_passbandSyncSuspended)
+        {
+            if (Math.Abs(downlinkAdjustKHz) > 0.0001 || Math.Abs(uplinkAdjustKHz) > 0.0001)
+                return;
+
+            _passbandSyncSuspended = false;
+        }
+
         if (Math.Abs(_rigPassbandDownlinkAdjustKHz - downlinkAdjustKHz) < 0.0001
             && Math.Abs(_rigPassbandUplinkAdjustKHz - uplinkAdjustKHz) < 0.0001)
             return;

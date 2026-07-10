@@ -145,6 +145,10 @@ public sealed class RigController : IRigController, IDisposable
     public void Disconnect() =>
         Enqueue(new RigCommand(RigCommandKind.Disconnect));
 
+    /// <summary>Disconnect and block until the rig worker has torn down drivers and cleared tracking state.</summary>
+    public void DisconnectAndWait() =>
+        EnqueueAndWait(new RigCommand(RigCommandKind.Disconnect));
+
     /// <summary>Blocks until queued commands are processed (unit tests).</summary>
     internal void DrainCommandQueueForTests() =>
         EnqueueAndWait(new RigCommand(RigCommandKind.Drain));
@@ -270,6 +274,7 @@ public sealed class RigController : IRigController, IDisposable
                     _cachedContext = null;
                     TearDownRig();
                     ResetTrackingState();
+                    _suspendConnectUntilUtc = DateTime.MinValue;
                     break;
 
                 case RigCommandKind.Drain:
@@ -468,6 +473,8 @@ public sealed class RigController : IRigController, IDisposable
         EndDopplerPassLog("tracking_reset");
         _passKey = null;
         _wasAboveHorizon = null;
+        _passbandDownlinkAdjustKHz = 0;
+        _passbandUplinkAdjustKHz = 0;
         _lastRigRxHz = 0;
         _lastRigTxHz = 0;
         _displayRxHz = 0;

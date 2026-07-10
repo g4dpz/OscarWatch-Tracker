@@ -18,4 +18,7 @@ public interface IRigController
     void ApplySelectedCtcss(RigSettings settings, RigTrackingContext? context);
 
     void Disconnect();
+
+    /// <summary>Disconnect and block until the rig worker has torn down drivers and cleared tracking state.</summary>
+    void DisconnectAndWait();
 }

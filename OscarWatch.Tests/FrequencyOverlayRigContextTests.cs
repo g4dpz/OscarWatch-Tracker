@@ -73,6 +73,74 @@ public class FrequencyOverlayRigContextTests
     }
 
     [Fact]
+    public void SyncRigPassband_ignores_stale_rig_trim_after_satellite_change()
+    {
+        var settings = new TestSettingsService();
+        var database = new TestSatelliteDatabaseService(
+        [
+            new SatelliteRadioEntry
+            {
+                Name = "FO-29",
+                Modes =
+                [
+                    new SatelliteTransponderMode
+                    {
+                        Type = "SSB Transponder",
+                        DownlinkKHz = 435_850.45,
+                        UplinkKHz = 145_952.65,
+                        DownlinkMode = "USB",
+                        UplinkMode = "LSB",
+                        Doppler = "REV"
+                    }
+                ]
+            },
+            new SatelliteRadioEntry
+            {
+                Name = "JO-97",
+                Modes =
+                [
+                    new SatelliteTransponderMode
+                    {
+                        Type = "SSB Transponder",
+                        DownlinkKHz = 145_865,
+                        UplinkKHz = 435_110.1,
+                        DownlinkMode = "USB",
+                        UplinkMode = "LSB",
+                        Doppler = "REV"
+                    }
+                ]
+            }
+        ]);
+
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
+        vm.Update(new SatelliteTrackState
+        {
+            Name = "FO-29",
+            NoradId = "11111",
+            Subpoint = new GeoCoordinate(57, 18),
+            LookAngles = new LookAngles(180, 25, 800, 2.5)
+        });
+        vm.SyncRigPassbandAdjustments(3.0, 0);
+        var trimmedFo29 = vm.RadioReceiveText;
+
+        vm.Update(new SatelliteTrackState
+        {
+            Name = "JO-97",
+            NoradId = "22222",
+            Subpoint = new GeoCoordinate(57, 18),
+            LookAngles = new LookAngles(180, 25, 800, 2.5)
+        });
+        var jo97Baseline = vm.RadioReceiveText;
+        Assert.NotEqual(trimmedFo29, jo97Baseline);
+
+        vm.SyncRigPassbandAdjustments(3.0, 0);
+        Assert.Equal(jo97Baseline, vm.RadioReceiveText);
+
+        vm.SyncRigPassbandAdjustments(0, 0);
+        Assert.Equal(jo97Baseline, vm.RadioReceiveText);
+    }
+
+    [Fact]
     public void TryBuildRigTrackingContext_includes_receive_offset_on_radio_and_sat_rows()
     {
         var settings = new TestSettingsService();

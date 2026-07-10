@@ -724,13 +724,16 @@ public partial class MainViewModel : ViewModelBase
             ProcessVoiceAnnouncements(mapStates);
 
         var focusedForDisplay = GetFocusedTrackState(mapStates, FocusedNoradId);
-        Frequencies.Update(focusedForDisplay);
         DxStation.Update(focusedForDisplay);
 
         if (ShowComPortConflict || !_settings.Current.Rig.Enabled)
+        {
+            Frequencies.Update(focusedForDisplay);
             return;
+        }
 
         SyncOverlayPassbandFromRig();
+        Frequencies.Update(focusedForDisplay);
         UpdateRigDisplay();
         if (IsMapTimeScrubbing)
         {
@@ -1895,7 +1898,7 @@ public partial class MainViewModel : ViewModelBase
         await ReloadTleCatalogAfterSettingsAsync().ConfigureAwait(true);
         _liveTracking.RequestReload();
         _rotator.Disconnect();
-        _rig.Disconnect();
+        _rig.DisconnectAndWait();
         _gps.Disconnect();
         _gps.Update(_settings.Current.Gps);
         ApplySatelliteLinkSettings();
@@ -1912,6 +1915,8 @@ public partial class MainViewModel : ViewModelBase
         RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
         _liveDisplayTimer?.Start();
         Tick();
+        if (_settings.Current.Rig.Enabled && !ShowComPortConflict)
+            RefreshRigFromOverlay(reinitializePass: true);
     }
 
     private void ConfigureTleAutoUpdateTimer()
