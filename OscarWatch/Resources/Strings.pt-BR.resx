@@ -1912,7 +1912,10 @@ Continuar?</value>
     <value>Porta serial</value>
   </data>
   <data name="Settings.Radio.SelectComPort">
-    <value>Selecionar porta COM</value>
+    <value>Selecionar ou digitar porta serial</value>
+  </data>
+  <data name="Settings.Radio.SerialPortLinuxHint">
+    <value>No Linux, escolha um alias udev ou uma entrada /dev/serial/by-id/… para que a porta permaneça a mesma após reiniciar. Também pode digitar um caminho personalizado como /dev/USB821H.</value>
   </data>
   <data name="Settings.Radio.BaudRate">
     <value>baud rate</value>

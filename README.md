@@ -91,7 +91,7 @@ Plain-language help ships with the app: **Help → Operator guide** (also in the
 
 ## Supported hardware
 
-OscarWatch talks to rigs and rotators over **serial CAT** (COM port on Windows, device path on Linux/macOS). Rig and rotator must use **different** ports.
+OscarWatch talks to rigs and rotators over **serial CAT** (COM port on Windows, device path on Linux/macOS). Rig and rotator must use **different** ports. On Linux, use a stable `by-id` or udev alias so `ttyUSB` numbers do not swap after reboot — see [help/linux-serial.html](help/linux-serial.html).
 
 ### Radios
 

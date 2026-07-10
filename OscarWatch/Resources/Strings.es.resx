@@ -1936,7 +1936,10 @@
     <value>Puerto serie</value>
   </data>
   <data name="Settings.Radio.SelectComPort">
-    <value>Seleccionar puerto COM</value>
+    <value>Seleccionar o escribir puerto serie</value>
+  </data>
+  <data name="Settings.Radio.SerialPortLinuxHint">
+    <value>En Linux, elija un alias udev o una entrada /dev/serial/by-id/… para que el puerto no cambie tras reiniciar. También puede escribir una ruta personalizada como /dev/USB821H.</value>
   </data>
   <data name="Settings.Radio.BaudRate">
     <value>Velocidad en baudios</value>

@@ -1954,7 +1954,10 @@ Continue?</value>
     <value>Serial port</value>
   </data>
   <data name="Settings.Radio.SelectComPort">
-    <value>Select COM port</value>
+    <value>Select or type serial port</value>
+  </data>
+  <data name="Settings.Radio.SerialPortLinuxHint">
+    <value>On Linux, choose a udev alias or /dev/serial/by-id/… entry so the port stays the same after reboot. You can also type a custom path such as /dev/USB821H.</value>
   </data>
   <data name="Settings.Radio.BaudRate">
     <value>Baud rate</value>

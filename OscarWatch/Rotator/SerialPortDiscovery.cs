@@ -8,9 +8,12 @@ public static class SerialPortDiscovery
     {
         try
         {
-            return SerialPort.GetPortNames()
-                .OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
-                .ToArray();
+            var systemPorts = SerialPort.GetPortNames();
+            var extraPaths = OperatingSystem.IsLinux()
+                ? SerialPortCatalog.EnumerateLinuxStablePaths()
+                : [];
+
+            return SerialPortCatalog.BuildDisplayList(systemPorts, extraPaths);
         }
         catch
         {

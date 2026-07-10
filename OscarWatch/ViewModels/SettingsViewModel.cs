@@ -187,6 +187,8 @@ public partial class SettingsViewModel : ViewModelBase
 
     public ObservableCollection<string> AvailableComPorts { get; } = [];
 
+    public bool ShowLinuxSerialPortHint => OperatingSystem.IsLinux();
+
     public bool SpeechAvailable { get; }
 
     public bool SpeechUnavailable => !SpeechAvailable;
@@ -716,16 +718,23 @@ public partial class SettingsViewModel : ViewModelBase
         foreach (var port in SerialPortDiscovery.GetAvailablePorts())
             AvailableComPorts.Add(port);
 
-        if (SelectedComPort is not null && !AvailableComPorts.Contains(SelectedComPort))
-            AvailableComPorts.Add(SelectedComPort);
-        if (SelectedRigComPort is not null && !AvailableComPorts.Contains(SelectedRigComPort))
-            AvailableComPorts.Add(SelectedRigComPort);
-        if (SelectedDownlinkComPort is not null && !AvailableComPorts.Contains(SelectedDownlinkComPort))
-            AvailableComPorts.Add(SelectedDownlinkComPort);
-        if (SelectedUplinkComPort is not null && !AvailableComPorts.Contains(SelectedUplinkComPort))
-            AvailableComPorts.Add(SelectedUplinkComPort);
-        if (SelectedGpsComPort is not null && !AvailableComPorts.Contains(SelectedGpsComPort))
-            AvailableComPorts.Add(SelectedGpsComPort);
+        EnsureSavedPortListed(SelectedComPort);
+        EnsureSavedPortListed(SelectedRigComPort);
+        EnsureSavedPortListed(SelectedDownlinkComPort);
+        EnsureSavedPortListed(SelectedUplinkComPort);
+        EnsureSavedPortListed(SelectedGpsComPort);
+    }
+
+    private void EnsureSavedPortListed(string? port)
+    {
+        if (string.IsNullOrWhiteSpace(port))
+            return;
+
+        if (AvailableComPorts.Any(existing =>
+                string.Equals(existing, port, StringComparison.OrdinalIgnoreCase)))
+            return;
+
+        AvailableComPorts.Add(port.Trim());
     }
 
     public async Task<bool> SaveAsync()

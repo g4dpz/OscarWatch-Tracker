@@ -39,6 +39,7 @@
       <a href="radio-sdr-dual.html">SDR dual</a> ·
       <a href="radio-offsets.html">RX/TX offsets</a> ·
       <a href="radio-doppler-tuning.html">Doppler tuning</a> ·
+      <a href="linux-serial.html">Linux serial</a> ·
       <a href="rotators.html">Rotators</a>
     </nav>
 
@@ -51,7 +52,7 @@
       <h2>Before you plug in</h2>
       <ul>
         <li>Use a <strong>USB serial</strong> lead (or proper interface) to the radio and rotator.</li>
-        <li>Radio and rotator need <strong>different COM ports</strong> — and a third port if you use GPS.</li>
+        <li>Radio and rotator need <strong>different serial ports</strong> — and a third port if you use GPS. On Linux, use a stable <code>by-id</code> or udev path so numbers do not swap after reboot — see <a href="linux-serial.html">Linux serial ports</a>.</li>
         <li><strong>Close other programs</strong> that might hold the port (HRD, WSJT-X rig control, Hamlib, etc.).</li>
         <li>For normal <strong>cross-band</strong> satellites, your radio should be in <strong>satellite mode</strong> when tracking starts (OscarWatch usually sets this), except the <strong>Kenwood TS-2000</strong> — you must select SAT yourself first.</li>
         <li>For <strong>receive-only</strong> modes (ISS SSTV, beacons — uplink <strong>0</strong> in the database), you do <strong>not</strong> need satellite mode; OscarWatch tunes the downlink only.</li>
@@ -72,7 +73,8 @@
         </tbody>
       </table>
       <p>
-        Everything is configured under <strong>Settings → Radio</strong>: rig type, COM port, and (for ICOM) CI-V address.
+        Everything is configured under <strong>Settings → Radio</strong>: rig type, serial port (COM port on Windows,
+        device path on Linux/macOS), and (for ICOM) CI-V address.
         Use <strong>Pause CAT</strong> if you want to tune by hand without OscarWatch fighting the dial.
       </p>
 
@@ -181,7 +183,8 @@
       <p>Configure under <strong>Settings → Rotator</strong>.</p>
 
       <div class="tip">
-        <strong>Stuck?</strong> See <a href="troubleshooting.html">Problems?</a> for COM ports, dual radio, and CAT not updating.
+        <strong>Stuck?</strong> See <a href="troubleshooting.html">Problems?</a> for serial ports, dual radio, and CAT not updating.
+        On Linux, see <a href="linux-serial.html">Linux serial ports</a> when <code>ttyUSB</code> names change after reboot.
       </div>
     </main>
 

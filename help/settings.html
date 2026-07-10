@@ -32,7 +32,7 @@
     </header>
 
     <main>
-      <p>Open from the menu: <strong>Settings</strong>. Press <strong>Save</strong> when finished. Settings are stored in <code>%AppData%\OscarWatch\settings.json</code>.</p>
+      <p>Open from the menu: <strong>Settings</strong>. Press <strong>Save</strong> when finished. Settings are stored in <code>%AppData%\OscarWatch\settings.json</code> on Windows, or <code>~/.config/OscarWatch/settings.json</code> on Linux and macOS.</p>
 
       <h2>Station</h2>
       <p>Your operating position: display name (for labels in pass tools), latitude, longitude, Maidenhead grid, and height above sea level in metres. The grid square is normalised to uppercase as you type. Accurate height helps slightly with geometry; position is essential for passes and az/el.</p>
@@ -101,10 +101,17 @@
 
       <h2>Rotator &amp; Radio</h2>
       <p>
-        See <a href="radio-rotator.html">Radio &amp; rotator overview</a> for COM ports and rig type;
+        See <a href="radio-rotator.html">Radio &amp; rotator overview</a> for rig type and wiring;
+        <a href="linux-serial.html">Linux serial ports</a> if <code>ttyUSB</code> numbers change after reboot;
         <a href="radio-doppler-tuning.html#doppler-cat-thresholds">Doppler thresholds</a> (FM vs SSB/CW ballpark values),
         <a href="radio-doppler-tuning.html">adaptive and lead</a>, and
         <a href="rotators.html">rotator options</a>.
+      </p>
+      <p>
+        <strong>Serial port</strong> — on Windows, pick the COM port from Device Manager. On Linux and macOS, pick or
+        type the device path (for example <code>/dev/serial/by-id/…</code> or a udev alias such as
+        <code>/dev/USB821H</code>). Press <strong>Refresh</strong> after plugging in USB. Each radio, rotator, and
+        serial GPS must use a <strong>different</strong> port.
       </p>
       <p>
         Under <strong>Radio</strong>, <strong>Linear CW: keep receive in USB/LSB (transmit CW only)</strong> controls how CAT and Cloudlog
@@ -128,7 +135,7 @@
       <ul>
         <li><strong>Enable GPS</strong> — turn GPS integration on or off.</li>
         <li><strong>Connection</strong> — <strong>Serial</strong> reads NMEA <strong>GGA</strong> / <strong>RMC</strong> sentences; <strong>gpsd</strong> uses the JSON watch stream on TCP port <strong>2947</strong> (host + port configurable).</li>
-        <li><strong>Serial port / baud rate</strong> — when using serial, match the GPS (often <strong>4800</strong> or <strong>9600</strong> 8N1). Press <strong>Refresh</strong> if the port list is stale.</li>
+        <li><strong>Serial port / baud rate</strong> — when using serial, match the GPS (often <strong>4800</strong> or <strong>9600</strong> 8N1). Press <strong>Refresh</strong> if the port list is stale. On Linux, prefer a stable <code>by-id</code> or udev path — see <a href="linux-serial.html">Linux serial ports</a>.</li>
         <li><strong>gpsd host / port</strong> — hostname or IP of the machine running gpsd (often <code>127.0.0.1</code> on the same PC, or your Pi’s LAN address).</li>
         <li><strong>Refresh status</strong> — shows connected / waiting for fix / fix with lat/lon and satellite count.</li>
         <li><strong>Apply fix to station</strong> — copies the current fix into <strong>Settings → Station</strong> (latitude, longitude, grid, and optionally altitude).</li>

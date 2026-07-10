@@ -1912,7 +1912,10 @@
     <value>串口</value>
   </data>
   <data name="Settings.Radio.SelectComPort">
-    <value>选择 COM 端口</value>
+    <value>选择或输入串口</value>
+  </data>
+  <data name="Settings.Radio.SerialPortLinuxHint">
+    <value>在 Linux 上，请选择 udev 别名或 /dev/serial/by-id/… 条目，以便重启后端口保持不变。您也可以输入自定义路径，例如 /dev/USB821H。</value>
   </data>
   <data name="Settings.Radio.BaudRate">
     <value>波特率</value>

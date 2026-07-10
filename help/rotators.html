@@ -39,13 +39,15 @@
       <a href="radio-sdr-dual.html">SDR dual</a> ·
       <a href="radio-offsets.html">RX/TX offsets</a> ·
       <a href="radio-doppler-tuning.html">Doppler tuning</a> ·
+      <a href="linux-serial.html">Linux serial</a> ·
       <a href="rotators.html" aria-current="page">Rotators</a>
     </nav>
 
     <main>
       <p class="lead">
         OscarWatch can point your antenna during a pass. Configure the rotator under
-        <strong>Settings → Rotator</strong> — use a COM port different from the radio.
+        <strong>Settings → Rotator</strong> — use a serial port different from the radio. On Linux, prefer a stable
+        <code>by-id</code> or udev path — <a href="linux-serial.html">Linux serial ports</a>.
       </p>
 
       <h2>Supported controllers</h2>
@@ -62,7 +64,7 @@
 
       <h2>Main settings</h2>
       <ul>
-        <li><strong>COM port</strong> and rotator type.</li>
+        <li><strong>Serial port</strong> and rotator type. On Linux, see <a href="linux-serial.html">Linux serial ports</a> for stable paths after reboot.</li>
         <li><strong>SPID native mode:</strong> set the controller to <strong>SP</strong> protocol and <strong>Auto (A)</strong> on the front panel before connecting.</li>
         <li><strong>Azimuth range</strong> — <strong>360°</strong> or <strong>450°</strong> (G-5500 style).</li>
         <li><strong>Smart azimuth (450°)</strong> — shortest path across north when useful (only shown for 450°).</li>

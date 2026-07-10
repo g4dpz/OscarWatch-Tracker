@@ -1051,7 +1051,10 @@
     <value>シリアルポート</value>
   </data>
   <data name="Settings.Radio.SelectComPort">
-    <value>COMポートを選択</value>
+    <value>COMポートを選択または入力</value>
+  </data>
+  <data name="Settings.Radio.SerialPortLinuxHint">
+    <value>Linux では、再起動後もポートが変わらないよう udev エイリアスまたは /dev/serial/by-id/… を選んでください。/dev/USB821H のようなカスタムパスを直接入力することもできます。</value>
   </data>
   <data name="Settings.Radio.BaudRate">
     <value>ボーレート</value>

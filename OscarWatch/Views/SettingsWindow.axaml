@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:OscarWatch.ViewModels"
         xmlns:loc="using:OscarWatch.Localization"
+        xmlns:theme="using:OscarWatch.Theme"
         xmlns:models="using:OscarWatch.Core.Models"
         xmlns:services="using:OscarWatch.Core.Services"
         x:Class="OscarWatch.Views.SettingsWindow"
@@ -290,6 +291,11 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        IsVisible="{Binding ShowComPortConflict}" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding ShowLinuxSerialPortHint}"
+                       Text="{loc:Localize Key=Settings.Radio.SerialPortLinuxHint}" />
             <CheckBox Content="{loc:Localize Key=Settings.Radio.Enable}"
                       IsChecked="{Binding RigEnabled, Mode=TwoWay}" />
             <CheckBox Content="{loc:Localize Key=Settings.Radio.DualEnable}"
@@ -310,9 +316,17 @@
               <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                 <ComboBox Grid.Column="0"
                           ItemsSource="{Binding AvailableComPorts}"
-                          SelectedItem="{Binding SelectedRigComPort, Mode=TwoWay}"
+                          Text="{Binding SelectedRigComPort, Mode=TwoWay}"
                           PlaceholderText="{loc:Localize Key=Settings.Radio.SelectComPort}"
-                          HorizontalAlignment="Stretch" />
+                          HorizontalAlignment="Stretch"
+                          IsEditable="True">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Converter={x:Static theme:SerialPortDisplayConverter.Instance}}"
+                                 ToolTip.Tip="{Binding}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
                 <Button Grid.Column="1"
                         Content="{loc:Localize Key=Common.Refresh}"
                         Command="{Binding RefreshComPortsCommand}"
@@ -389,9 +403,17 @@
                   <StackPanel Spacing="8" IsVisible="{Binding ShowDownlinkSerialFields}">
                   <TextBlock Text="{loc:Localize Key=Settings.Radio.SerialPort}" />
                   <ComboBox ItemsSource="{Binding AvailableComPorts}"
-                            SelectedItem="{Binding SelectedDownlinkComPort, Mode=TwoWay}"
+                            Text="{Binding SelectedDownlinkComPort, Mode=TwoWay}"
                             PlaceholderText="{loc:Localize Key=Settings.Radio.SelectComPort}"
-                            HorizontalAlignment="Stretch" />
+                            HorizontalAlignment="Stretch"
+                            IsEditable="True">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding Converter={x:Static theme:SerialPortDisplayConverter.Instance}}"
+                                   ToolTip.Tip="{Binding}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
                   <TextBlock Text="{loc:Localize Key=Settings.Radio.BaudRate}" />
                   <ComboBox ItemsSource="{Binding RigBaudRateOptions}"
                             SelectedItem="{Binding DownlinkBaudRate, Mode=TwoWay}"
@@ -482,9 +504,17 @@
                   <StackPanel Spacing="8" IsVisible="{Binding ShowUplinkSerialFields}">
                     <TextBlock Text="{loc:Localize Key=Settings.Radio.SerialPort}" />
                     <ComboBox ItemsSource="{Binding AvailableComPorts}"
-                              SelectedItem="{Binding SelectedUplinkComPort, Mode=TwoWay}"
+                              Text="{Binding SelectedUplinkComPort, Mode=TwoWay}"
                               PlaceholderText="{loc:Localize Key=Settings.Radio.SelectComPort}"
-                              HorizontalAlignment="Stretch" />
+                              HorizontalAlignment="Stretch"
+                              IsEditable="True">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <TextBlock Text="{Binding Converter={x:Static theme:SerialPortDisplayConverter.Instance}}"
+                                     ToolTip.Tip="{Binding}" />
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
                     <TextBlock Text="{loc:Localize Key=Settings.Radio.BaudRate}" />
                     <ComboBox ItemsSource="{Binding RigBaudRateOptions}"
                               SelectedItem="{Binding UplinkBaudRate, Mode=TwoWay}"
@@ -655,6 +685,11 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        IsVisible="{Binding ShowComPortConflict}" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding ShowLinuxSerialPortHint}"
+                       Text="{loc:Localize Key=Settings.Radio.SerialPortLinuxHint}" />
             <CheckBox Content="{loc:Localize Key=Settings.Rotator.Enable}"
                       IsChecked="{Binding RotatorEnabled, Mode=TwoWay}" />
             <TextBlock Text="{loc:Localize Key=Settings.Rotator.Type}" />
@@ -675,9 +710,17 @@
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
               <ComboBox Grid.Column="0"
                         ItemsSource="{Binding AvailableComPorts}"
-                        SelectedItem="{Binding SelectedComPort, Mode=TwoWay}"
+                        Text="{Binding SelectedComPort, Mode=TwoWay}"
                         PlaceholderText="{loc:Localize Key=Settings.Radio.SelectComPort}"
-                        HorizontalAlignment="Stretch" />
+                        HorizontalAlignment="Stretch"
+                        IsEditable="True">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Converter={x:Static theme:SerialPortDisplayConverter.Instance}}"
+                               ToolTip.Tip="{Binding}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
               <Button Grid.Column="1"
                       Content="{loc:Localize Key=Common.Refresh}"
                       Command="{Binding RefreshComPortsCommand}"
@@ -1033,13 +1076,26 @@
                   </ComboBox.ItemTemplate>
                 </ComboBox>
                 <StackPanel IsVisible="{Binding ShowGpsSerialFields}" Spacing="14">
+                  <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                             FontSize="11"
+                             TextWrapping="Wrap"
+                             IsVisible="{Binding ShowLinuxSerialPortHint}"
+                             Text="{loc:Localize Key=Settings.Radio.SerialPortLinuxHint}" />
                   <TextBlock Text="{loc:Localize Key=Settings.Radio.SerialPort}" />
                   <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                     <ComboBox Grid.Column="0"
                               ItemsSource="{Binding AvailableComPorts}"
-                              SelectedItem="{Binding SelectedGpsComPort, Mode=TwoWay}"
+                              Text="{Binding SelectedGpsComPort, Mode=TwoWay}"
                               PlaceholderText="{loc:Localize Key=Settings.Radio.SelectComPort}"
-                              HorizontalAlignment="Stretch" />
+                              HorizontalAlignment="Stretch"
+                              IsEditable="True">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <TextBlock Text="{Binding Converter={x:Static theme:SerialPortDisplayConverter.Instance}}"
+                                     ToolTip.Tip="{Binding}" />
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
                     <Button Grid.Column="1"
                             Content="{loc:Localize Key=Common.Refresh}"
                             Command="{Binding RefreshComPortsCommand}"
