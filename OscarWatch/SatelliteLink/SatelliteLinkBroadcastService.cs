@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.SatelliteLink;
 using OscarWatch.Core.Services;
@@ -9,7 +10,11 @@ namespace OscarWatch.SatelliteLink;
 public sealed class SatelliteLinkBroadcastService : ISatelliteLinkBroadcastService
 {
     private static readonly ILogger Log = Serilog.Log.ForContext<SatelliteLinkBroadcastService>();
-    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
 
     private readonly SatelliteLinkWebSocketHost _host = new();
     private readonly object _gate = new();
@@ -73,6 +78,20 @@ public sealed class SatelliteLinkBroadcastService : ISatelliteLinkBroadcastServi
             _lastBroadcastUtc = now;
         }
 
+        var json = JsonSerializer.Serialize(message, JsonOptions);
+        _ = BroadcastAsync(json);
+    }
+
+    public void PublishQso(
+        QsoRecord record,
+        QsoLogbook logbook,
+        SatelliteLinkQsoEventKind kind,
+        string? noradId = null)
+    {
+        if (!_settings.Enabled || !_host.IsListening)
+            return;
+
+        var message = SatelliteLinkQsoMessageBuilder.Build(record, logbook, kind, DateTime.UtcNow, noradId);
         var json = JsonSerializer.Serialize(message, JsonOptions);
         _ = BroadcastAsync(json);
     }

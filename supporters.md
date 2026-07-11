@@ -11,5 +11,7 @@ Thank you to everyone who has donated to support OscarWatch development.
 | Nitin | VU2JEK |
 | Mike | DL2AMB |
 | Michael | DK1MI |
+| Dave | WA3YDZ |
+| Steve | AG2J |
 
 If you donate and would like to be listed here, let Peter know your name and callsign.

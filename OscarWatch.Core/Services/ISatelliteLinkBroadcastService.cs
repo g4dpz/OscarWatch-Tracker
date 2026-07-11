@@ -16,6 +16,8 @@ public interface ISatelliteLinkBroadcastService
 
     void Publish(SatelliteTrackState? track, RigTrackingContext? context, bool force = false);
 
+    void PublishQso(QsoRecord record, QsoLogbook logbook, SatelliteLinkQsoEventKind kind, string? noradId = null);
+
     Task<bool> TestBindAsync(SatelliteLinkSettings settings, CancellationToken cancellationToken = default);
 
     Task StopAsync();

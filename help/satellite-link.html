@@ -38,6 +38,9 @@
         When enabled, OscarWatch runs a small WebSocket server on your PC that sends JSON messages about the
         <strong>focused</strong> satellite: name, NORAD ID, uplink and downlink frequencies and modes, ADIF bands,
         azimuth, elevation, range, and more. Logging applications can subscribe and pre-fill QSO fields automatically.
+        When you log a QSO in <strong>QSO Logbook</strong>, OscarWatch also broadcasts a <code>qsoLogged</code> event
+        (and <code>qsoUpdated</code> / <code>qsoDeleted</code> when you edit or remove entries) so external tools can
+        mirror your log in real time.
       </p>
       <p>
         Each message also includes a <code>wispDde</code> string in the old Wisp32/GSC format for adapters that
@@ -80,12 +83,13 @@
       <p><code>ws://&lt;this PC IP&gt;:&lt;port&gt;/</code></p>
       <p>
         There is no authentication in v1 — use localhost or a trusted LAN only.
-        On connect, OscarWatch sends the latest snapshot immediately, then broadcasts updates when focus,
-        mode, frequencies, or tracking data change (throttled by the update interval).
+        On connect, OscarWatch sends the latest satellite snapshot immediately, then broadcasts updates when focus,
+        mode, frequencies, or tracking data change (throttled by the update interval). QSO events are sent
+        immediately when you add, edit, or delete a contact in QSO Logbook (not replayed to new clients on connect).
       </p>
 
-      <h3>Message format</h3>
-      <p>One UTF-8 JSON object per WebSocket text frame:</p>
+      <h3>Satellite status messages</h3>
+      <p>Live tracking payloads use <code>type: "satelliteStatus"</code>:</p>
       <pre><code>{
   "type": "satelliteStatus",
   "version": 1,
@@ -127,7 +131,85 @@
   "wispDde": "** NO SATELLITE **"
 }</code></pre>
 
-      <h3>Field notes</h3>
+      <h3>QSO logbook messages</h3>
+      <p>
+        When a contact is saved in <a href="qso-logbook.html">QSO Logbook</a>, OscarWatch broadcasts a separate JSON
+        frame to all connected clients. These events are independent of satellite status updates and are always sent
+        immediately (not throttled). Clients that connect later do <strong>not</strong> receive a backlog — only
+        events that occur while they are connected.
+      </p>
+
+      <h4><code>qsoLogged</code></h4>
+      <p>Emitted when a new QSO is added:</p>
+      <pre><code>{
+  "type": "qsoLogged",
+  "version": 1,
+  "timestampUtc": "2026-07-11T14:30:05.000Z",
+  "logbook": {
+    "id": 3,
+    "name": "Field day",
+    "myCallsign": "G0ABC",
+    "myGridSquare": "IO91"
+  },
+  "qso": {
+    "id": 42,
+    "qsoUtc": "2026-07-11T14:30:00.000Z",
+    "call": "DL1ABC",
+    "rstSent": "59",
+    "rstRcvd": "59",
+    "gridSquare": "JO62",
+    "name": "",
+    "comment": "",
+    "satellite": {
+      "name": "SO-50",
+      "noradId": "27607"
+    },
+    "frequencies": {
+      "uplinkHz": 435300000,
+      "downlinkHz": 145850000,
+      "uplinkMode": "FM",
+      "downlinkMode": "FM"
+    },
+    "bands": { "tx": "70cm", "rx": "2m" },
+    "propMode": "SAT"
+  }
+}</code></pre>
+
+      <h4><code>qsoUpdated</code></h4>
+      <p>Same shape as <code>qsoLogged</code>, emitted when an existing QSO is saved after editing.</p>
+
+      <h4><code>qsoDeleted</code></h4>
+      <p>Emitted when a QSO is removed from the logbook:</p>
+      <pre><code>{
+  "type": "qsoDeleted",
+  "version": 1,
+  "timestampUtc": "2026-07-11T14:35:00.000Z",
+  "logbook": {
+    "id": 3,
+    "name": "Field day",
+    "myCallsign": "G0ABC",
+    "myGridSquare": "IO91"
+  },
+  "qso": {
+    "id": 42,
+    "call": "DL1ABC"
+  }
+}</code></pre>
+
+      <h4>QSO field notes</h4>
+      <ul>
+        <li><code>logbook</code> — the active logbook at the time of the event.</li>
+        <li><code>qso.id</code> — stable OscarWatch database ID; use for deduplication across <code>qsoUpdated</code> / <code>qsoDeleted</code>.</li>
+        <li><code>qso.qsoUtc</code> — contact time in UTC (ISO-8601), matching ADIF <code>QSO_DATE</code> + <code>TIME_ON</code>.</li>
+        <li><code>qso.satellite.name</code> — LoTW-style name captured at log time (same as ADIF <code>SAT_NAME</code>).</li>
+        <li><code>qso.satellite.noradId</code> — focused satellite NORAD ID when logged; omitted on edit/delete if unknown.</li>
+        <li><code>qso.frequencies.uplinkHz</code> / <code>downlinkHz</code> — TX/RX at log time (Hz). Omitted when zero.</li>
+        <li><code>qso.bands.tx</code> / <code>rx</code> — ADIF band labels (e.g. <code>70cm</code>, <code>2m</code>).</li>
+        <li><code>qso.propMode</code> — always <code>SAT</code> for satellite QSOs in OscarWatch.</li>
+        <li>Empty optional strings are omitted (<code>null</code> absent from JSON) rather than sent as <code>""</code>.</li>
+      </ul>
+
+      <h3>Field notes (satellite status)</h3>
       <ul>
         <li><code>satellite.name</code> — OscarWatch / LoTW naming (same as Cloudlog <code>sat_name</code>).</li>
         <li><code>frequencies.uplinkHz</code> / <code>downlinkHz</code> — radio-corrected Hz (what CAT uses), not raw catalogue nominals.</li>
@@ -145,12 +227,21 @@ async def main():
     async with websockets.connect("ws://127.0.0.1:7373/") as ws:
         while True:
             msg = json.loads(await ws.recv())
-            if msg.get("inRange"):
-                sat = msg["satellite"]["name"]
-                rx = msg["frequencies"]["downlinkHz"]
-                print(f"{sat} RX {rx} Hz")
-            else:
-                print("No satellite")
+            kind = msg.get("type")
+            if kind == "satelliteStatus":
+                if msg.get("inRange"):
+                    sat = msg["satellite"]["name"]
+                    rx = msg["frequencies"]["downlinkHz"]
+                    print(f"{sat} RX {rx} Hz")
+                else:
+                    print("No satellite")
+            elif kind == "qsoLogged":
+                qso = msg["qso"]
+                print(f"Logged {qso['call']} on {qso['satellite']['name']}")
+            elif kind == "qsoUpdated":
+                print(f"Updated QSO {msg['qso']['id']}")
+            elif kind == "qsoDeleted":
+                print(f"Deleted QSO {msg['qso']['id']}")
 
 asyncio.run(main())</code></pre>
 
@@ -168,8 +259,15 @@ while (ws.State == WebSocketState.Open)
     var json = Encoding.UTF8.GetString(buffer, 0, result.Count);
     using var doc = JsonDocument.Parse(json);
     var root = doc.RootElement;
-    if (root.GetProperty("inRange").GetBoolean())
-        Console.WriteLine(root.GetProperty("satellite").GetProperty("name").GetString());
+    switch (root.GetProperty("type").GetString())
+    {
+        case "satelliteStatus" when root.GetProperty("inRange").GetBoolean():
+            Console.WriteLine(root.GetProperty("satellite").GetProperty("name").GetString());
+            break;
+        case "qsoLogged":
+            Console.WriteLine($"Logged {root.GetProperty("qso").GetProperty("call").GetString()}");
+            break;
+    }
 }</code></pre>
 
       <h2>Troubleshooting</h2>

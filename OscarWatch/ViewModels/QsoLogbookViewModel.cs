@@ -16,6 +16,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
     private readonly ILiveTrackerSnapshotProvider _tracker;
     private readonly ISettingsService _settings;
     private readonly ICloudlogQsoUploadService _cloudlogUpload;
+    private readonly ISatelliteLinkBroadcastService _satelliteLink;
     private readonly ILocalizationService _l;
     private readonly DispatcherTimer _liveTimer;
     private string _lastStationMode = "";
@@ -29,12 +30,14 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         ILiveTrackerSnapshotProvider tracker,
         ISettingsService settings,
         ICloudlogQsoUploadService cloudlogUpload,
+        ISatelliteLinkBroadcastService satelliteLink,
         ILocalizationService localization)
     {
         _repository = repository;
         _tracker = tracker;
         _settings = settings;
         _cloudlogUpload = cloudlogUpload;
+        _satelliteLink = satelliteLink;
         _l = localization;
         StatusText = _l.Get("Logbook.Status.Ready");
         StationStatusText = _l.Get("Logbook.Station.Unavailable");
@@ -336,6 +339,8 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         if (cloudlogUpload == CloudlogUploadStatus.Pending)
             await _cloudlogUpload.QueueUploadIfEnabledAsync(record.Id).ConfigureAwait(true);
 
+        PublishQsoEvent(record, SatelliteLinkQsoEventKind.Logged);
+
         await ReloadQsosAsync().ConfigureAwait(true);
         StatusText = _l.Get("Logbook.Status.Added", record.Call, FormatQsoUtcTime(record.QsoUtc));
         ClearEntryForm();
@@ -373,6 +378,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         }).ConfigureAwait(true);
 
         var editedId = record.Id;
+        PublishQsoEvent(record, SatelliteLinkQsoEventKind.Updated);
         await ReloadQsosAsync().ConfigureAwait(true);
         SelectedQso = QsoRows.FirstOrDefault(r => r.Id == editedId);
         IsEditingQso = false;
@@ -435,8 +441,17 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
 
         var id = SelectedQso.Id;
         var call = SelectedQso.Call;
+        var logbook = SelectedLogbook;
         var wasEditing = _editingSource?.Id == id;
         await _repository.DeleteQsoAsync(id).ConfigureAwait(true);
+        if (logbook is not null)
+        {
+            PublishQsoEvent(
+                new QsoRecord { Id = id, LogbookId = logbook.Id, Call = call },
+                SatelliteLinkQsoEventKind.Deleted,
+                logbook);
+        }
+
         SelectedQso = null;
         if (wasEditing)
             await CancelEditQso().ConfigureAwait(true);
@@ -735,6 +750,22 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
 
     private string FormatQsoUtcTime(DateTime utc) =>
         QsoLogbookTime.FormatQsoUtc(utc, _settings.Current.Use24HourClock);
+
+    private void PublishQsoEvent(
+        QsoRecord record,
+        SatelliteLinkQsoEventKind kind,
+        QsoLogbook? logbook = null)
+    {
+        logbook ??= SelectedLogbook;
+        if (logbook is null)
+            return;
+
+        _satelliteLink.PublishQso(
+            record,
+            logbook,
+            kind,
+            kind == SatelliteLinkQsoEventKind.Deleted ? null : _tracker.FocusedNoradId);
+    }
 
     public void Dispose()
     {

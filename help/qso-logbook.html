@@ -172,7 +172,15 @@
       </p>
       <p>
         Back up the database file if you rely on OscarWatch as your only copy of a field log.
-        ADIF export is the recommended way to merge contacts into your main log.
+        ADIF export is the recommended way to merge contacts into your main logging program.
+      </p>
+
+      <h2>Satellite link</h2>
+      <p>
+        If <a href="satellite-link.html">Satellite link</a> is enabled, each QSO you add, edit, or delete
+        is broadcast to connected WebSocket clients as a <code>qsoLogged</code>, <code>qsoUpdated</code>, or
+        <code>qsoDeleted</code> message. External logging tools can mirror your OscarWatch log in real time.
+        See the <a href="satellite-link.html#api">developer API</a> for the full JSON schema.
       </p>
 
       <div class="tip">
