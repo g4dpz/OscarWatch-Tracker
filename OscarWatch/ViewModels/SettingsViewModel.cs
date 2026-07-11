@@ -1446,6 +1446,8 @@ public partial class SettingsViewModel : ViewModelBase
 
         if (value.Value == RotatorType.Spid)
             RotatorBaudRate = 600;
+        else if (value.Value == RotatorType.EasyComm)
+            RotatorBaudRate = 9600;
     }
 
     partial void OnSelectedAzimuthRangeChoiceChanged(RotatorAzimuthOption? value)

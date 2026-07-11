@@ -7,6 +7,8 @@ namespace OscarWatch.Rotator;
 /// <summary>EasyComm II rotator driver (combined AZ/EL commands).</summary>
 public sealed class EasyCommRotator : IRotatorDriver
 {
+    private const string LineEnding = "\n";
+
     private readonly SerialPort _port;
     private readonly SemaphoreSlim _gate = new(1, 1);
 
@@ -17,7 +19,7 @@ public sealed class EasyCommRotator : IRotatorDriver
             Handshake = Handshake.None,
             ReadTimeout = 1000,
             WriteTimeout = 1000,
-            NewLine = "\r"
+            NewLine = LineEnding
         };
     }
 
@@ -27,21 +29,25 @@ public sealed class EasyCommRotator : IRotatorDriver
     {
         var az = Math.Clamp(azimuthDeg, 0, settings.MaxAzimuthDeg);
         var el = Math.Clamp(elevationDeg, 0, settings.MaxElevationDeg);
-        var azText = az.ToString("000.0", CultureInfo.InvariantCulture);
-        var elText = el.ToString("00.0", CultureInfo.InvariantCulture);
-        SendCommand($"AZ{azText} EL{elText}");
+        var command = string.Create(CultureInfo.InvariantCulture, $"AZ{az:F1} EL{el:F1}");
+        SendCommand(command);
     }
 
-    public void Stop()
-    {
-        // EasyComm has no standard stop command.
-    }
+    public void Stop() => SendCommand("SA SE");
 
     public (int? Azimuth, int? Elevation) GetPosition()
     {
-        var az = QueryAngle("AZ");
-        var el = QueryAngle("EL");
-        return (az, el);
+        _gate.Wait();
+        try
+        {
+            var az = QueryAxis("AZ");
+            var el = QueryAxis("EL");
+            return (az, el);
+        }
+        finally
+        {
+            _gate.Release();
+        }
     }
 
     public void Dispose()
@@ -49,7 +55,10 @@ public sealed class EasyCommRotator : IRotatorDriver
         try
         {
             if (_port.IsOpen)
+            {
+                try { Stop(); } catch { /* ignore */ }
                 _port.Close();
+            }
         }
         catch
         {
@@ -60,24 +69,11 @@ public sealed class EasyCommRotator : IRotatorDriver
         _gate.Dispose();
     }
 
-    private int? QueryAngle(string axis)
+    private int? QueryAxis(string axis)
     {
-        _gate.Wait();
-        try
-        {
-            _port.DiscardInBuffer();
-            _port.Write(axis + "\r");
-            Thread.Sleep(100);
-            return ParseAngle(_port.ReadLine(), axis);
-        }
-        catch
-        {
-            return null;
-        }
-        finally
-        {
-            _gate.Release();
-        }
+        _port.DiscardInBuffer();
+        _port.Write(axis + LineEnding);
+        return EasyCommPositionParser.TryParseAxis(ReadLineResponse(), axis);
     }
 
     private void SendCommand(string command)
@@ -85,8 +81,10 @@ public sealed class EasyCommRotator : IRotatorDriver
         _gate.Wait();
         try
         {
-            _port.Write(command + "\r");
-            Thread.Sleep(100);
+            _port.DiscardInBuffer();
+            _port.Write(command + LineEnding);
+            Thread.Sleep(150);
+            _port.DiscardInBuffer();
         }
         finally
         {
@@ -94,22 +92,34 @@ public sealed class EasyCommRotator : IRotatorDriver
         }
     }
 
-    private static int? ParseAngle(string response, string axis)
+    private string? ReadLineResponse()
     {
-        if (string.IsNullOrWhiteSpace(response))
+        try
+        {
+            Thread.Sleep(150);
+            var line = _port.ReadLine().Trim();
+            return string.IsNullOrWhiteSpace(line) ? null : line;
+        }
+        catch (TimeoutException)
+        {
+            return ReadExistingLine();
+        }
+        catch
+        {
             return null;
+        }
+    }
 
-        var token = response.Trim();
-        if (token.StartsWith(axis, StringComparison.OrdinalIgnoreCase))
-            token = token[axis.Length..].Trim();
-
-        if (token.EndsWith(';'))
-            token = token[..^1];
-
-        if (!double.TryParse(token, NumberStyles.Float, CultureInfo.InvariantCulture, out var angle)
-            && !double.TryParse(token, NumberStyles.Float, CultureInfo.CurrentCulture, out angle))
+    private string? ReadExistingLine()
+    {
+        try
+        {
+            var text = _port.ReadExisting().Trim('\r', '\n', ' ');
+            return string.IsNullOrWhiteSpace(text) ? null : text;
+        }
+        catch
+        {
             return null;
-
-        return (int)Math.Round(angle);
+        }
     }
 }
