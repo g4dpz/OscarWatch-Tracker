@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:OscarWatch.Localization"
+        x:Class="OscarWatch.Views.LanguageRestartWindow"
+        Title="{loc:Localize Key=Settings.Language.RestartPrompt.Title}"
+        Width="420"
+        SizeToContent="Height"
+        MinWidth="360"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="20">
+    <StackPanel DockPanel.Dock="Bottom"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Spacing="8"
+                Margin="0,16,0,0">
+      <Button x:Name="LaterButton"
+              Content="{loc:Localize Key=Settings.Language.RestartPrompt.Later}"
+              Classes="dialog-footer"
+              Click="OnLaterClick"
+              IsCancel="True" />
+      <Button x:Name="RestartButton"
+              Content="{loc:Localize Key=Settings.Language.RestartPrompt.RestartNow}"
+              Classes="dialog-footer accent"
+              Click="OnRestartClick"
+              IsDefault="True" />
+    </StackPanel>
+    <TextBlock Text="{loc:Localize Key=Settings.Language.RestartPrompt.Message}"
+               TextWrapping="Wrap"
+               FontSize="13"
+               LineHeight="20" />
+  </DockPanel>
+</Window>

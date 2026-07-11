@@ -1817,7 +1817,7 @@ public partial class MainViewModel : ViewModelBase
             await ApplyPersistedSettingsAsync().ConfigureAwait(true);
 
             if (vm.LanguageChangedOnLastSave
-                && await LanguageRestartDialog.ShowAsync(App.MainWindow).ConfigureAwait(true))
+                && await LanguageRestartWindow.ShowAsync(App.MainWindow).ConfigureAwait(true))
             {
                 AppRestart.Request();
             }
