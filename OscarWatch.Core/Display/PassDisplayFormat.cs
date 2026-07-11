@@ -12,7 +12,7 @@ public static class PassDisplayFormat
         bool includeSeconds = false,
         CultureInfo? culture = null)
     {
-        culture ??= CultureInfo.CurrentCulture;
+        culture ??= CultureInfo.CurrentUICulture;
         if (Use24Hour(format))
             return includeSeconds ? "HH:mm:ss" : "HH:mm";
 
@@ -46,7 +46,7 @@ public static class PassDisplayFormat
         ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour,
         CultureInfo? culture = null)
     {
-        culture ??= CultureInfo.CurrentCulture;
+        culture ??= CultureInfo.CurrentUICulture;
         var datePattern = culture.DateTimeFormat.ShortDatePattern;
         var timePattern = GetTimePattern(clockFormat, culture: culture);
 
@@ -66,7 +66,7 @@ public static class PassDisplayFormat
         CultureInfo? culture = null,
         bool useUtc = false)
     {
-        culture ??= CultureInfo.CurrentCulture;
+        culture ??= CultureInfo.CurrentUICulture;
         var datePattern = culture.DateTimeFormat.ShortDatePattern;
         var timePattern = GetTimePattern(clockFormat, culture: culture);
         return ToDisplayTime(utc, useUtc).ToString($"{datePattern} {timePattern}", culture);
@@ -91,13 +91,13 @@ public static class PassDisplayFormat
 
     public static string FormatMonthYear(DateTime utc, CultureInfo? culture = null, bool useUtc = false)
     {
-        culture ??= CultureInfo.CurrentCulture;
+        culture ??= CultureInfo.CurrentUICulture;
         return ToDisplayTime(utc, useUtc).ToString("MMMM yyyy", culture);
     }
 
     public static string FormatDayHeader(DateTime utc, CultureInfo? culture = null, bool useUtc = false)
     {
-        culture ??= CultureInfo.CurrentCulture;
+        culture ??= CultureInfo.CurrentUICulture;
         return ToDisplayTime(utc, useUtc).ToString("D", culture);
     }
 
@@ -108,7 +108,7 @@ public static class PassDisplayFormat
         bool useUtc = false,
         ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour)
     {
-        culture ??= CultureInfo.CurrentCulture;
+        culture ??= CultureInfo.CurrentUICulture;
         var timePattern = GetTimePattern(clockFormat, culture: culture);
         var aos = ToDisplayTime(aosUtc, useUtc).ToString(timePattern, culture);
         var los = ToDisplayTime(losUtc, useUtc).ToString(timePattern, culture);
@@ -146,7 +146,7 @@ public static class PassDisplayFormat
         bool useUtc = false,
         ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour)
     {
-        culture ??= CultureInfo.CurrentCulture;
+        culture ??= CultureInfo.CurrentUICulture;
         var timePattern = GetTimePattern(clockFormat, culture: culture);
         var aos = ToDisplayTime(aosUtc, useUtc);
         var los = ToDisplayTime(losUtc, useUtc);
@@ -165,7 +165,7 @@ public static class PassDisplayFormat
         bool useUtc = false,
         ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour)
     {
-        culture ??= CultureInfo.CurrentCulture;
+        culture ??= CultureInfo.CurrentUICulture;
         var timePattern = GetTimePattern(clockFormat, culture: culture);
         var tca = ToDisplayTime(tcaUtc, useUtc);
         if (tca.Date == ToDisplayTime(aosUtc, useUtc).Date)
@@ -221,7 +221,7 @@ public static class PassDisplayFormat
         ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour,
         CultureInfo? culture = null)
     {
-        culture ??= CultureInfo.CurrentCulture;
+        culture ??= CultureInfo.CurrentUICulture;
         var start = ToDisplayTime(startUtc, useUtc);
         var date = start.ToString(culture.DateTimeFormat.ShortDatePattern, culture);
         var time = start.ToString(GetTimePattern(clockFormat, includeSeconds: true, culture), culture);
@@ -255,7 +255,7 @@ public static class PassDisplayFormat
         bool useUtc = false,
         ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour)
     {
-        culture ??= CultureInfo.CurrentCulture;
+        culture ??= CultureInfo.CurrentUICulture;
         var timePattern = GetTimePattern(clockFormat, culture: culture);
         var start = ToDisplayTime(startUtc, useUtc);
         var end = ToDisplayTime(endUtc, useUtc);
@@ -272,7 +272,7 @@ public static class PassDisplayFormat
         bool useUtc,
         CultureInfo? culture = null)
     {
-        culture ??= CultureInfo.CurrentCulture;
+        culture ??= CultureInfo.CurrentUICulture;
         var timePattern = GetTimePattern(clockFormat, includeSeconds: true, culture: culture);
         return ToDisplayTime(utc, useUtc).ToString($"yyyy-MM-dd {timePattern}", culture);
     }
@@ -286,7 +286,7 @@ public static class PassDisplayFormat
         ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour,
         CultureInfo? culture = null)
     {
-        culture ??= CultureInfo.CurrentCulture;
+        culture ??= CultureInfo.CurrentUICulture;
         return ToDisplayTime(utc, useUtc).ToString(GetTimePattern(clockFormat, includeSeconds: true, culture), culture);
     }
 

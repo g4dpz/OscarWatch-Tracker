@@ -411,18 +411,10 @@ public sealed class TrackingOrchestrator
 
     private static double EstimatePeriodMinutes(SatelliteCatalogEntry sat)
     {
-        if (sat.Line2.Length < 52)
+        if (!TleOrbitalSanity.TryReadLine2Elements(sat.Line2, out _, out _, out var meanMotion)
+            || meanMotion <= 0)
             return 90;
-        try
-        {
-            var meanMotion = double.Parse(sat.Line2.AsSpan(52, 11));
-            if (meanMotion > 0)
-                return 1440.0 / meanMotion;
-        }
-        catch
-        {
-            // ignore
-        }
-        return 90;
+
+        return 1440.0 / meanMotion;
     }
 }

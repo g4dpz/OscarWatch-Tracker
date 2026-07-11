@@ -20,11 +20,12 @@ public static class LocalizationCulture
 
     public static void Apply(string? uiLanguage)
     {
-        var culture = ResolveCulture(uiLanguage);
-        CultureInfo.DefaultThreadCurrentUICulture = culture;
-        CultureInfo.DefaultThreadCurrentCulture = culture;
-        CultureInfo.CurrentUICulture = culture;
-        CultureInfo.CurrentCulture = culture;
+        var uiCulture = ResolveCulture(uiLanguage);
+        var formattingCulture = CultureInfo.GetCultureInfo(DefaultLanguage);
+        CultureInfo.DefaultThreadCurrentUICulture = uiCulture;
+        CultureInfo.DefaultThreadCurrentCulture = formattingCulture;
+        CultureInfo.CurrentUICulture = uiCulture;
+        CultureInfo.CurrentCulture = formattingCulture;
     }
 
     public static CultureInfo ResolveCulture(string? uiLanguage)

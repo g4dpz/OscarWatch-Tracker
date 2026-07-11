@@ -1,3 +1,4 @@
+using System.Globalization;
 using OscarWatch.Core.Models;
 
 namespace OscarWatch.Core.Tle;
@@ -39,8 +40,8 @@ public static class TleParser
             {
                 try
                 {
-                    var epochYear = int.Parse(line1.AsSpan(18, 2));
-                    var epochDay = double.Parse(line1.AsSpan(20, 12));
+                    var epochYear = int.Parse(line1.AsSpan(18, 2), CultureInfo.InvariantCulture);
+                    var epochDay = double.Parse(line1.AsSpan(20, 12), CultureInfo.InvariantCulture);
                     var year = epochYear < 57 ? 2000 + epochYear : 1900 + epochYear;
                     epoch = new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc)
                         .AddDays(epochDay - 1);

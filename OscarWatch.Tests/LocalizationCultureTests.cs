@@ -35,7 +35,15 @@ public sealed class LocalizationCultureTests
     }
 
     [Fact]
-    public void Apply_sets_thread_cultures_to_en_GB_for_english()
+    public void Apply_sets_ui_culture_from_language_and_keeps_en_GB_formatting_culture()
+    {
+        using var _ = TestUiCulture.Apply("es");
+        Assert.Equal("es", CultureInfo.CurrentUICulture.Name);
+        Assert.Equal("en-GB", CultureInfo.CurrentCulture.Name);
+    }
+
+    [Fact]
+    public void Apply_sets_both_cultures_to_en_GB_for_english()
     {
         using var _ = TestUiCulture.Apply("en");
         Assert.Equal("en-GB", CultureInfo.CurrentUICulture.Name);

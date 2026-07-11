@@ -1,5 +1,7 @@
+using System.Globalization;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Tle;
+using OscarWatch.Localization;
 
 namespace OscarWatch.Tests;
 
@@ -89,22 +91,40 @@ public sealed class TleAltitudeTests
     }
 
     /// <summary>
+    /// TLE mean motion uses a dot decimal separator; Spanish UI culture must not break parsing.
+    /// </summary>
+    [Fact]
+    public void EstimateFromMeanMotion_parses_iss_tle_under_spanish_ui_culture()
+    {
+        using var _ = TestUiCulture.Apply("es");
+
+        var entry = new SatelliteCatalogEntry
+        {
+            Name = "ISS",
+            NoradId = "25544",
+            Line1 = new string('0', 69),
+            Line2 = "2 25544  51.6400 247.4627 0006703 130.5360 325.0288 15.49519779439320"
+        };
+
+        var altitude = TleAltitude.EstimateFromMeanMotion(entry);
+
+        Assert.InRange(altitude, 360.0, 460.0);
+    }
+
+    /// <summary>
     /// Creates a minimal SatelliteCatalogEntry with a valid 69-character line 2
     /// containing the specified mean motion value at positions 52–62.
     /// </summary>
     private static SatelliteCatalogEntry MakeEntryWithMeanMotion(double meanMotion)
     {
-        // Format mean motion as 11 characters right-aligned (positions 52–62 of line 2)
-        var meanMotionStr = meanMotion.ToString("00.00000000");
-        // Pad or truncate to exactly 11 characters
+        var meanMotionStr = meanMotion.ToString("00.00000000", CultureInfo.InvariantCulture);
         if (meanMotionStr.Length > 11)
             meanMotionStr = meanMotionStr[..11];
         else
             meanMotionStr = meanMotionStr.PadLeft(11);
 
-        // Build a 69-character line 2 with the mean motion at the correct position
-        // Positions 0–51: padding, positions 52–62: mean motion, positions 63–68: remaining
-        var line2 = new string('0', 52) + meanMotionStr + "000000";
+        const string line2Template = "2 25544  51.6400 247.4627 0006703 130.5360 325.0288 15.49519779439320";
+        var line2 = string.Concat(line2Template.AsSpan(0, 52), meanMotionStr, line2Template.AsSpan(63));
 
         return new SatelliteCatalogEntry
         {

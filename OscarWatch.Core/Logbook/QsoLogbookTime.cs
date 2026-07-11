@@ -15,7 +15,7 @@ public static class QsoLogbookTime
 
     public static string FormatQsoUtc(DateTime utc, bool use24HourClock, CultureInfo? culture = null)
     {
-        culture ??= CultureInfo.CurrentCulture;
+        culture ??= CultureInfo.CurrentUICulture;
         var instant = NormalizeToUtc(utc);
         var clockFormat = PassDisplayFormat.FromSettings(use24HourClock);
         var datePattern = culture.DateTimeFormat.ShortDatePattern;
@@ -25,7 +25,7 @@ public static class QsoLogbookTime
 
     public static string FormatLiveUtcClock(DateTime utc, bool use24HourClock, CultureInfo? culture = null)
     {
-        culture ??= CultureInfo.CurrentCulture;
+        culture ??= CultureInfo.CurrentUICulture;
         var instant = NormalizeToUtc(utc);
         var clockFormat = PassDisplayFormat.FromSettings(use24HourClock);
         var datePattern = culture.DateTimeFormat.ShortDatePattern;
