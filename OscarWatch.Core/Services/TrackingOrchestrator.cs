@@ -296,6 +296,14 @@ public sealed class TrackingOrchestrator
     }
 
     /// <summary>Compass azimuth a few seconds ahead for rotator north-wrap lookahead.</summary>
+    public IReadOnlyList<SkyPlotPathPoint> BuildSkyPlotPassPath(PassInfo pass, GroundStation site)
+    {
+        if (!_propagator.HasSatellite(pass.NoradId))
+            return [];
+
+        return SkyPlotPathBuilder.Build(pass, _propagator, site);
+    }
+
     public double? TryGetAheadAzimuthDeg(string noradId, double secondsAhead = 3.0)
     {
         if (!_propagator.HasSatellite(noradId))

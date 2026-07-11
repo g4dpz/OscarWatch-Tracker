@@ -170,6 +170,26 @@ internal static class PlotMarkerDrawing
         context.DrawGeometry(null, cache.GetPen(Colors.White, 1.5), geometry);
     }
 
+    public static void DrawRotatorMarker(
+        DrawingContext context,
+        double x,
+        double y,
+        UiPalette palette,
+        RenderResourceCache cache)
+    {
+        const double arm = 8;
+        var color = palette.SkyPlotMinElRing;
+        var pen = cache.GetPen(color, 2.5);
+        context.DrawLine(pen, new Point(x - arm, y), new Point(x + arm, y));
+        context.DrawLine(pen, new Point(x, y - arm), new Point(x, y + arm));
+
+        const double radius = 3.5;
+        context.DrawEllipse(
+            cache.GetBrush(color),
+            cache.GetPen(OutlineDark, 2),
+            new Rect(x - radius, y - radius, radius * 2, radius * 2));
+    }
+
     public static void DrawMutualWindowEndMarker(DrawingContext context, double x, double y, RenderResourceCache cache)
     {
         const double radius = 7;

@@ -35,12 +35,24 @@ public class SkyPlotControl : ThemeAwareControl
     public static readonly StyledProperty<bool> SoloFocusedSatelliteProperty =
         AvaloniaProperty.Register<SkyPlotControl, bool>(nameof(SoloFocusedSatellite));
 
+    public static readonly StyledProperty<IReadOnlyList<SkyPlotPathPoint>?> PassPathProperty =
+        AvaloniaProperty.Register<SkyPlotControl, IReadOnlyList<SkyPlotPathPoint>?>(nameof(PassPath));
+
+    public static readonly StyledProperty<double?> RotatorAzimuthDegProperty =
+        AvaloniaProperty.Register<SkyPlotControl, double?>(nameof(RotatorAzimuthDeg));
+
+    public static readonly StyledProperty<double?> RotatorElevationDegProperty =
+        AvaloniaProperty.Register<SkyPlotControl, double?>(nameof(RotatorElevationDeg));
+
     static SkyPlotControl()
     {
         AffectsRender<SkyPlotControl>(
             FocusedNoradIdProperty,
             MinimumElevationDegProperty,
-            SoloFocusedSatelliteProperty);
+            SoloFocusedSatelliteProperty,
+            PassPathProperty,
+            RotatorAzimuthDegProperty,
+            RotatorElevationDegProperty);
     }
 
     public SkyPlotControl()
@@ -50,7 +62,7 @@ public class SkyPlotControl : ThemeAwareControl
         HorizontalAlignment = HorizontalAlignment.Stretch;
         MinWidth = 0;
         Cursor = new Cursor(StandardCursorType.Hand);
-        ToolTip.SetTip(this, LocalizationService.Instance.Get("A11y.SkyPlot.TabHint"));
+        ToolTip.SetTip(this, LocalizationService.Instance.Get("Main.SkyPlot.Hint"));
     }
 
     public IReadOnlyList<SatelliteTrackState>? TrackStates
@@ -75,6 +87,24 @@ public class SkyPlotControl : ThemeAwareControl
     {
         get => GetValue(SoloFocusedSatelliteProperty);
         set => SetValue(SoloFocusedSatelliteProperty, value);
+    }
+
+    public IReadOnlyList<SkyPlotPathPoint>? PassPath
+    {
+        get => GetValue(PassPathProperty);
+        set => SetValue(PassPathProperty, value);
+    }
+
+    public double? RotatorAzimuthDeg
+    {
+        get => GetValue(RotatorAzimuthDegProperty);
+        set => SetValue(RotatorAzimuthDegProperty, value);
+    }
+
+    public double? RotatorElevationDeg
+    {
+        get => GetValue(RotatorElevationDegProperty);
+        set => SetValue(RotatorElevationDegProperty, value);
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -302,6 +332,9 @@ public class SkyPlotControl : ThemeAwareControl
         if (states is null)
             return;
 
+        DrawFocusedPassPath(context, cx, cy, plotRadius, states);
+        DrawRotatorPosition(context, cx, cy, plotRadius, palette);
+
         var visibleCount = 0;
         for (var i = 0; i < states.Count; i++)
         {
@@ -482,5 +515,61 @@ public class SkyPlotControl : ThemeAwareControl
     {
         var ft = _labelCache.Get(text, 12, palette);
         context.DrawText(ft, new Point(cx - ft.Width / 2, cy - ft.Height / 2));
+    }
+
+    private void DrawFocusedPassPath(
+        DrawingContext context,
+        double cx,
+        double cy,
+        double plotRadius,
+        IReadOnlyList<SatelliteTrackState> states)
+    {
+        var path = PassPath;
+        if (path is not { Count: >= 2 } || string.IsNullOrEmpty(FocusedNoradId))
+            return;
+
+        Color? pathColor = null;
+        for (var i = 0; i < states.Count; i++)
+        {
+            if (states[i].NoradId != FocusedNoradId)
+                continue;
+
+            pathColor = PlotColors.ForIndex(i);
+            break;
+        }
+
+        if (pathColor is null)
+            return;
+
+        var color = Color.FromArgb(170, pathColor.Value.R, pathColor.Value.G, pathColor.Value.B);
+        var pen = _renderCache.GetPen(color, 2.5);
+        if (!TryAzElToPoint(cx, cy, plotRadius, path[0].AzimuthDeg, path[0].ElevationDeg, out var prev))
+            return;
+
+        for (var i = 1; i < path.Count; i++)
+        {
+            var point = path[i];
+            if (!TryAzElToPoint(cx, cy, plotRadius, point.AzimuthDeg, point.ElevationDeg, out var next))
+                continue;
+
+            context.DrawLine(pen, new Point(prev.X, prev.Y), new Point(next.X, next.Y));
+            prev = next;
+        }
+    }
+
+    private void DrawRotatorPosition(
+        DrawingContext context,
+        double cx,
+        double cy,
+        double plotRadius,
+        UiPalette palette)
+    {
+        if (RotatorAzimuthDeg is not { } az || RotatorElevationDeg is not { } el)
+            return;
+
+        if (!TryAzElToPoint(cx, cy, plotRadius, az, el, out var point))
+            return;
+
+        PlotMarkerDrawing.DrawRotatorMarker(context, point.X, point.Y, palette, _renderCache);
     }
 }

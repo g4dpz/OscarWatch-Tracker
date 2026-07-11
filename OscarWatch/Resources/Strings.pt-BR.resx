@@ -290,7 +290,7 @@
     <value>Rosa dos ventos</value>
   </data>
   <data name="Main.SkyPlot.Hint">
-    <value>Clique em um satélite no mapa ou na rosa dos ventos, ou use as teclas seta.</value>
+    <value>Clique em um satélite para selecioná-lo, ou use as teclas seta quando focado. A linha mostra a trajetória da passagem; a cruz marca a orientação do rotador quando conectado.</value>
   </data>
   <data name="Main.Standby.Hint">
     <value>Apenas navegando — rotor estacionado, CAT pausado</value>

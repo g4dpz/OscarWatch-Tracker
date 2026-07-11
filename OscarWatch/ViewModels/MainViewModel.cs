@@ -9,6 +9,7 @@ using OscarWatch.Core.Display;
 using OscarWatch.Core.Hardware;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Radio;
+using OscarWatch.Core.Rotator;
 using OscarWatch.Core.Services;
 using OscarWatch.Theme;
 using OscarWatch.Diagnostics;
@@ -256,6 +257,15 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private double _minimumElevationDeg = 5;
+
+    [ObservableProperty]
+    private IReadOnlyList<SkyPlotPathPoint> _skyPlotPassPath = [];
+
+    [ObservableProperty]
+    private double? _skyPlotRotatorAzimuthDeg;
+
+    [ObservableProperty]
+    private double? _skyPlotRotatorElevationDeg;
 
     [ObservableProperty]
     private bool _showFootprintMotionArrows = true;
@@ -1070,6 +1080,8 @@ public partial class MainViewModel : ViewModelBase
         if (!_settings.Current.Rotator.Enabled)
         {
             ShowRotatorStatus = false;
+            SkyPlotRotatorAzimuthDeg = null;
+            SkyPlotRotatorElevationDeg = null;
             return;
         }
 
@@ -1085,6 +1097,65 @@ public partial class MainViewModel : ViewModelBase
         IsRotatorTrackingHeld = status.IsTrackingHeld;
         IsKeyholeAvoidanceActive = status.IsKeyholeAvoidanceActive;
         IsPrePositioning = status.IsPrePositioning;
+        UpdateSkyPlotRotatorPosition(status);
+    }
+
+    private void UpdateSkyPlotRotatorPosition(RotatorPositionStatus status)
+    {
+        if (!status.IsConnected || status.ElevationDeg is not { } elevation)
+        {
+            SkyPlotRotatorAzimuthDeg = null;
+            SkyPlotRotatorElevationDeg = null;
+            return;
+        }
+
+        var settings = _settings.Current.Rotator;
+        var compassAz = status.CompassAzimuthDeg
+            ?? (status.AzimuthDeg is { } mechanical
+                ? (int)Math.Round(RotatorAzimuthPlanner.Normalize360(mechanical - settings.AzimuthOffsetDeg))
+                : (int?)null);
+
+        if (compassAz is null)
+        {
+            SkyPlotRotatorAzimuthDeg = null;
+            SkyPlotRotatorElevationDeg = null;
+            return;
+        }
+
+        SkyPlotRotatorAzimuthDeg = compassAz.Value;
+        SkyPlotRotatorElevationDeg = Math.Max(0, elevation);
+    }
+
+    private void UpdateSkyPlotPassPath()
+    {
+        var pass = FindSkyPlotPass(FocusedNoradId);
+        SkyPlotPassPath = pass is null
+            ? []
+            : _tracking.BuildSkyPlotPassPath(pass, GroundStation);
+    }
+
+    internal static PassInfo? FindSkyPlotPass(string? noradId, IReadOnlyList<PassInfo> candidates, DateTime utcNow)
+    {
+        if (string.IsNullOrEmpty(noradId) || candidates.Count == 0)
+            return null;
+
+        var inProgress = candidates.FirstOrDefault(p =>
+            string.Equals(p.NoradId, noradId, StringComparison.Ordinal)
+            && p.AosUtc <= utcNow
+            && utcNow < p.LosUtc);
+        if (inProgress is not null)
+            return inProgress;
+
+        return candidates.FirstOrDefault(p =>
+            string.Equals(p.NoradId, noradId, StringComparison.Ordinal)
+            && p.LosUtc > utcNow);
+    }
+
+    private PassInfo? FindSkyPlotPass(string? noradId)
+    {
+        var candidates = TimelinePasses
+            ?? Passes.OfType<PassRowViewModel>().Select(p => p.Source).ToList();
+        return FindSkyPlotPass(noradId, candidates, DateTime.UtcNow);
     }
 
     internal static string FormatRotatorAzimuthText(RotatorPositionStatus status)
@@ -1617,10 +1688,12 @@ public partial class MainViewModel : ViewModelBase
         if (string.IsNullOrEmpty(value))
         {
             SoloFocusedSatellite = false;
+            SkyPlotPassPath = [];
             return;
         }
 
         ApplySatelliteFocus(value);
+        UpdateSkyPlotPassPath();
 
         var pass = Passes.OfType<PassRowViewModel>().FirstOrDefault(p => p.NoradId == value);
         if (pass is not null && !ReferenceEquals(SelectedListItem, pass))
@@ -2325,6 +2398,7 @@ public partial class MainViewModel : ViewModelBase
 
                 // Update the timeline passes for the elevation timeline control
                 TimelinePasses = merged.Take(50).ToList();
+                UpdateSkyPlotPassPath();
             }
 
             if (Dispatcher.UIThread.CheckAccess())

@@ -290,7 +290,7 @@
     <value>天空图</value>
   </data>
   <data name="Main.SkyPlot.Hint">
-    <value>单击地图或天空图上的卫星，或在聚焦时使用方向键。</value>
+    <value>单击卫星进行选择，或在聚焦时使用方向键。线条显示其过境路径；连接时十字标记表示旋翼器指向。</value>
   </data>
   <data name="Main.Standby.Hint">
     <value>浏览模式 — 旋转器已停靠，CAT 已暂停</value>

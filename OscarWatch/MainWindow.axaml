@@ -537,21 +537,17 @@
                     IsExpanded="{Binding IsSkyPlotExpanded, Mode=TwoWay}"
                     Margin="0,0,0,10"
                     Padding="0">
-            <StackPanel Spacing="4"
-                        HorizontalAlignment="Stretch"
-                        MinWidth="0">
-              <TextBlock FontSize="11"
-                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                         Text="{loc:Localize Key=Main.SkyPlot.Hint}" />
-              <ctrl:SkyPlotControl Height="220"
-                                   TabIndex="2"
-                                   MinWidth="0"
-                                   HorizontalAlignment="Stretch"
-                                   TrackStates="{Binding LiveStates}"
-                                   FocusedNoradId="{Binding FocusedNoradId, Mode=TwoWay}"
-                                   SoloFocusedSatellite="{Binding SoloFocusedSatellite}"
-                                   MinimumElevationDeg="{Binding MinimumElevationDeg}" />
-            </StackPanel>
+            <ctrl:SkyPlotControl Height="220"
+                                 TabIndex="2"
+                                 MinWidth="0"
+                                 HorizontalAlignment="Stretch"
+                                 TrackStates="{Binding LiveStates}"
+                                 FocusedNoradId="{Binding FocusedNoradId, Mode=TwoWay}"
+                                 SoloFocusedSatellite="{Binding SoloFocusedSatellite}"
+                                 MinimumElevationDeg="{Binding MinimumElevationDeg}"
+                                 PassPath="{Binding SkyPlotPassPath}"
+                                 RotatorAzimuthDeg="{Binding SkyPlotRotatorAzimuthDeg}"
+                                 RotatorElevationDeg="{Binding SkyPlotRotatorElevationDeg}" />
           </Expander>
             </StackPanel>
           </ScrollViewer>

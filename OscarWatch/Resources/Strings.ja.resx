@@ -212,7 +212,7 @@
     <value>スカイプロット</value>
   </data>
   <data name="Main.SkyPlot.Hint">
-    <value>地図またはスカイプロットで衛星をクリックするか、フォーカス時に矢印キーを使用。</value>
+    <value>衛星をクリックして選択するか、フォーカス時に矢印キーを使用します。線はパス経路、十字は接続時のローテーター向きを示します。</value>
   </data>
   <data name="Main.Standby.Hint">
     <value>閲覧のみ — ローテーター停止、CAT一時停止</value>

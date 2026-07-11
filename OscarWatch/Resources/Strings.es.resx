@@ -314,7 +314,7 @@
     <value>Gráfico del cielo</value>
   </data>
   <data name="Main.SkyPlot.Hint">
-    <value>Haz clic en un satélite en el mapa o en el gráfico del cielo, o usa las flechas cuando esté enfocado.</value>
+    <value>Haz clic en un satélite para seleccionarlo, o usa las flechas cuando esté enfocado. La línea muestra su trayectoria de paso; la cruz marca la orientación del rotador cuando está conectado.</value>
   </data>
   <data name="Main.Standby.Hint">
     <value>Solo consulta — rotor estacionado, CAT en pausa</value>

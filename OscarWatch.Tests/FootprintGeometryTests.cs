@@ -1,5 +1,7 @@
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Tle;
+using OscarWatch.Localization;
 
 namespace OscarWatch.Tests;
 
@@ -65,5 +67,33 @@ public sealed class FootprintGeometryTests
         Assert.Empty(resultZeroHeight);
         Assert.Empty(resultNegativeWidth);
         Assert.Empty(resultNegativeHeight);
+    }
+
+    /// <summary>
+    /// Regression: Spanish UI culture must not inflate TLE-derived altitude or footprint radius.
+    /// </summary>
+    [Fact]
+    public void Iss_footprint_radius_under_spanish_ui_culture_stays_in_leo_range()
+    {
+        using var cultureScope = TestUiCulture.Apply("es");
+
+        var entry = new SatelliteCatalogEntry
+        {
+            Name = "ISS",
+            NoradId = "25544",
+            Line1 = new string('0', 69),
+            Line2 = "2 25544  51.6400 247.4627 0006703 130.5360 325.0288 15.49519779439320"
+        };
+
+        // Same path as map tracking when subpoint altitude is below 100 km.
+        var altKm = TleAltitude.ResolveAltitudeKm(50.0, entry);
+        var radiusDeg = FootprintGeometry.HorizonRadiusDeg(altKm, minimumElevationDeg: 0);
+
+        Assert.InRange(altKm, 360.0, 460.0);
+        Assert.InRange(radiusDeg, 15.0, 35.0);
+
+        Assert.True(TleOrbitalSanity.TryReadLine2Elements(entry.Line2, out _, out _, out var meanMotion));
+        var periodMin = 1440.0 / meanMotion;
+        Assert.InRange(periodMin, 85.0, 100.0);
     }
 }

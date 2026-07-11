@@ -314,7 +314,7 @@
     <value>Sky plot</value>
   </data>
   <data name="Main.SkyPlot.Hint">
-    <value>Click a satellite on the map or sky plot, or use arrow keys when focused.</value>
+    <value>Click a satellite to select it, or use arrow keys when focused. The line shows its pass path; the crosshair marks rotator aim when connected.</value>
   </data>
   <data name="Main.Standby.Hint">
     <value>Browsing only — rotator parked, CAT paused</value>
