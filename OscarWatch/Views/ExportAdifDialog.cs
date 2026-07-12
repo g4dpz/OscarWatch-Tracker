@@ -39,31 +39,27 @@ public static class ExportAdifDialog
         {
             SelectedDate = defaults.FromUtcDate,
             IsEnabled = false,
-            HorizontalAlignment = HorizontalAlignment.Stretch
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            MinWidth = 280
         };
 
         var toDatePicker = new DatePicker
         {
             SelectedDate = defaults.ToUtcDate,
             IsEnabled = false,
-            HorizontalAlignment = HorizontalAlignment.Stretch
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            MinWidth = 280
         };
 
-        var dateRangePanel = new Grid
+        var dateRangePanel = new StackPanel
         {
-            ColumnDefinitions =
-            [
-                new ColumnDefinition(GridLength.Star),
-                new ColumnDefinition(GridLength.Star)
-            ],
-            ColumnSpacing = 12,
             Margin = new Thickness(24, 0, 0, 0),
             IsEnabled = false,
+            Spacing = 10,
             Children =
             {
                 new StackPanel
                 {
-                    [Grid.ColumnProperty] = 0,
                     Spacing = 4,
                     Children =
                     {
@@ -78,7 +74,6 @@ public static class ExportAdifDialog
                 },
                 new StackPanel
                 {
-                    [Grid.ColumnProperty] = 1,
                     Spacing = 4,
                     Children =
                     {
@@ -125,7 +120,8 @@ public static class ExportAdifDialog
         var window = new Window
         {
             Title = l.Get("Logbook.ExportAdif.Dialog.Title"),
-            Width = 500,
+            Width = 520,
+            MinWidth = 400,
             MinHeight = 220,
             SizeToContent = SizeToContent.Height,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
