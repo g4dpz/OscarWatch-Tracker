@@ -13,6 +13,7 @@ public class SatelliteDatabaseFileSerializeTests
             new()
             {
                 Name = "TEST-1",
+                NoradId = "99999",
                 Modes =
                 [
                     new SatelliteTransponderMode
@@ -33,6 +34,7 @@ public class SatelliteDatabaseFileSerializeTests
 
         Assert.Single(parsed);
         Assert.Equal("TEST-1", parsed[0].Name);
+        Assert.Equal("99999", parsed[0].NoradId);
         Assert.Equal("FM", parsed[0].Modes[0].Type);
     }
 }

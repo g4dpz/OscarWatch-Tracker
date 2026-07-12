@@ -1,6 +1,7 @@
 [
   {
     "name": "AO-07",
+    "norad_id": "07530",
     "modes": [
       {
         "type": "Mode B",
@@ -30,6 +31,7 @@
   },
   {
     "name": "AO-27",
+    "norad_id": "22825",
     "modes": [
       {
         "type": "FM",
@@ -43,6 +45,7 @@
   },
   {
     "name": "AO-73",
+    "norad_id": "39444",
     "modes": [
       {
         "type": "Voice U/V",
@@ -64,6 +67,7 @@
   },
   {
     "name": "AO-91",
+    "norad_id": "43017",
     "modes": [
       {
         "type": "Voice U/V",
@@ -77,6 +81,7 @@
   },
   {
     "name": "ISS",
+    "norad_id": "25544",
     "modes": [
       {
         "type": "Cross band repeater",
@@ -123,6 +128,7 @@
   },
   {
     "name": "PO-101",
+    "norad_id": "43678",
     "modes": [
       {
         "type": "FM",
@@ -136,6 +142,7 @@
   },
   {
     "name": "FO-29",
+    "norad_id": "24278",
     "modes": [
       {
         "type": "SSB Transponder",
@@ -149,6 +156,7 @@
   },
   {
     "name": "IO-117",
+    "norad_id": "53106",
     "modes": [
       {
         "type": "Digipeater",
@@ -162,6 +170,7 @@
   },
   {
     "name": "JO-97",
+    "norad_id": "43803",
     "modes": [
       {
         "type": "SSB Transponder",
@@ -191,6 +200,7 @@
   },
   {
     "name": "RADFXSAT (FOX-1B)",
+    "norad_id": "43017",
     "modes": [
       {
         "type": "Voice U/V",
@@ -204,6 +214,7 @@
   },
   {
     "name": "RS-44",
+    "norad_id": "44909",
     "modes": [
       {
         "type": "SSB Transponder",
@@ -233,13 +244,14 @@
   },
   {
     "name": "SO-50",
+    "norad_id": "27607",
     "modes": [
       {
         "type": "FM VOICE",
         "downlink": 436795,
         "uplink": 145850,
-        "downlink_mode": "FMN",
-        "uplink_mode": "FMN",
+        "downlink_mode": "FM",
+        "uplink_mode": "FM",
         "doppler": "NOR",
         "ctcss": 67.0,
         "ctcss_arm": 74.4
@@ -248,6 +260,7 @@
   },
   {
     "name": "CSS",
+    "norad_id": "48274",
     "modes": [
       {
         "type": "Cross Band Repeater V/U",
@@ -269,6 +282,7 @@
   },
   {
     "name": "MO-122",
+    "norad_id": "60209",
     "modes": [
       {
         "type": "SSB Transponder",
@@ -282,6 +296,7 @@
   },
   {
     "name": "AO-123",
+    "norad_id": "61781",
     "modes": [
       {
         "type": "FM Voice",
@@ -296,6 +311,7 @@
   },
   {
     "name": "SO-124",
+    "norad_id": "62690",
     "modes": [
       {
         "type": "FM Voice",
@@ -309,6 +325,7 @@
   },
   {
     "name": "SO-125",
+    "norad_id": "63492",
     "modes": [
       {
         "type": "FM Voice",
@@ -322,6 +339,7 @@
   },
   {
     "name": "SONATE-2",
+    "norad_id": "59112",
     "modes": [
       {
         "type": "SSTV",
@@ -359,6 +377,7 @@
   },
   {
     "name": "TEVEL2-1",
+    "norad_id": "63217",
     "modes": [
       {
         "type": "Voice",
@@ -372,6 +391,7 @@
   },
   {
     "name": "TEVEL2-2",
+    "norad_id": "63219",
     "modes": [
       {
         "type": "Voice",
@@ -385,6 +405,7 @@
   },
   {
     "name": "TEVEL2-3",
+    "norad_id": "63218",
     "modes": [
       {
         "type": "Voice",
@@ -398,6 +419,7 @@
   },
   {
     "name": "TEVEL2-4",
+    "norad_id": "63213",
     "modes": [
       {
         "type": "Voice",
@@ -411,6 +433,7 @@
   },
   {
     "name": "TEVEL2-5",
+    "norad_id": "63214",
     "modes": [
       {
         "type": "Voice",
@@ -424,6 +447,7 @@
   },
   {
     "name": "TEVEL2-6",
+    "norad_id": "63215",
     "modes": [
       {
         "type": "Voice",
@@ -437,6 +461,35 @@
   },
   {
     "name": "TEVEL2-7",
+    "norad_id": "63238",
+    "modes": [
+      {
+        "type": "Voice",
+        "downlink": 436400,
+        "uplink": 145970,
+        "downlink_mode": "FM",
+        "uplink_mode": "FM",
+        "doppler": "NOR"
+      }
+    ]
+  },
+  {
+    "name": "TEVEL2-8",
+    "norad_id": "63239",
+    "modes": [
+      {
+        "type": "Voice",
+        "downlink": 436400,
+        "uplink": 145970,
+        "downlink_mode": "FM",
+        "uplink_mode": "FM",
+        "doppler": "NOR"
+      }
+    ]
+  },
+  {
+    "name": "TEVEL2-9",
+    "norad_id": "63237",
     "modes": [
       {
         "type": "Voice",
@@ -450,6 +503,7 @@
   },
   {
     "name": "PARUS-T2",
+    "norad_id": "64560",
     "modes": [
       {
         "type": "Voice",
@@ -463,6 +517,7 @@
   },
   {
     "name": "QMR-KWT-2",
+    "norad_id": "67291",
     "modes": [
       {
         "type": "FM VOICE",
@@ -484,6 +539,7 @@
   },
   {
     "name": "Lobachevsky",
+    "norad_id": "67284",
     "modes": [
       {
         "type": "FM VOICE",
@@ -505,6 +561,7 @@
   },
   {
     "name": "BOTAN",
+    "norad_id": "65942",
     "modes": [
       {
         "type": "Packet",
@@ -518,6 +575,7 @@
   },
   {
     "name": "TEN-KOH2",
+    "norad_id": "88780",
     "modes": [
       {
         "type": "SSB Transponder",
@@ -531,6 +589,7 @@
   },
   {
     "name": "ArcticSat-1",
+    "norad_id": "61762",
     "modes": [
       {
         "type": "SSTV",
@@ -544,6 +603,7 @@
   },
   {
     "name": "Monitor-3",
+    "norad_id": "57180",
     "modes": [
       {
         "type": "SSTV",
@@ -557,6 +617,7 @@
   },
   {
     "name": "Monitor-4",
+    "norad_id": "57182",
     "modes": [
       {
         "type": "SSTV",
@@ -570,6 +631,7 @@
   },
   {
     "name": "UmKA-1",
+    "norad_id": "57172",
     "modes": [
       {
         "type": "SSTV",
@@ -583,6 +645,7 @@
   },
   {
     "name": "VIZARD-meteo",
+    "norad_id": "57189",
     "modes": [
       {
         "type": "SSTV",
@@ -596,6 +659,7 @@
   },
   {
     "name": "SAKHACUBE-CHOLBON",
+    "norad_id": "67290",
     "modes": [
       {
         "type": "SSTV",
@@ -609,6 +673,7 @@
   },
   {
     "name": "GALAPAGOS-UTE-SWSU",
+    "norad_id": "67279",
     "modes": [
       {
         "type": "SSTV",
@@ -622,6 +687,7 @@
   },
   {
     "name": "NO-44",
+    "norad_id": "26931",
     "modes": [
       {
         "type": "APRS",
@@ -635,6 +701,7 @@
   },
   {
     "name": "LASARsat",
+    "norad_id": "62391",
     "modes": [
       {
         "type": "Packet (9k6 GFSK/G3RUH)",
@@ -648,6 +715,7 @@
   },
   {
     "name": "KNACKSAT-2",
+    "norad_id": "67683",
     "modes": [
       {
         "type": "Packet (9k6 APRS)",
@@ -661,6 +729,7 @@
   },
   {
     "name": "IO-86",
+    "norad_id": "40931",
     "modes": [
       {
         "type": "Voice FM",
@@ -682,6 +751,7 @@
   },
   {
     "name": "GRBBeta",
+    "norad_id": "60237",
     "modes": [
       {
         "type": "Packet (9k6 GMSK/Skylink)",
@@ -695,6 +765,7 @@
   },
   {
     "name": "CroCube",
+    "norad_id": "62394",
     "modes": [
       {
         "type": "Packet (9k6 GFSK/G3RUH)",

@@ -29,6 +29,7 @@ The app loads **user → bundled** (see `SatelliteDatabaseService`).
 ```json
 {
   "name": "SO-50",
+  "norad_id": "27607",
   "modes": [
     {
       "type": "FM VOICE",
@@ -47,6 +48,7 @@ The app loads **user → bundled** (see `SatelliteDatabaseService`).
 | Field | Notes |
 |-------|--------|
 | `name` | Must match the TLE catalogue name closely enough for lookup (see aliases in `SatelliteDatabaseService`) |
+| `norad_id` | Optional. NORAD catalogue number as a string (e.g. `"27607"`), matching [tle.oscarwatch.org](https://tle.oscarwatch.org/). Use when the display name differs from the TLE name (e.g. `RADFXSAT (FOX-1B)` → `43017` for AO-91). |
 | `type` | Label shown in the frequency panel mode list; unique per satellite |
 | `downlink` / `uplink` | kHz; use **`0` uplink** for beacon-only / receive-only (SSTV, telemetry, CW beacon). OscarWatch treats these as receive-only for CAT (no uplink doppler; ICOM rigs exit satellite mode and tune Main on the downlink band). |
 | `downlink_mode` / `uplink_mode` | Rig mode strings: `FM`, `FMN`, `USB`, `LSB`, `CW`, `DATA-USB`, `DATA-LSB`, `DATA-FM` (`FM-DATA` is accepted and stored as `DATA-FM`) |
@@ -61,7 +63,7 @@ The app loads **user → bundled** (see `SatelliteDatabaseService`).
 
 ## Name matching and TLEs
 
-The transponder database is keyed by **satellite name**, not NORAD ID. Names should align with [tle.oscarwatch.org](https://tle.oscarwatch.org/) TLE entries. OscarWatch registers common aliases (e.g. `AO-7` → `AO-07`, `ISS (ZARYA)` → `ISS`). If a spacecraft has TLEs but no database entry, the frequency panel stays empty until a entry exists locally or via sync.
+The transponder database is keyed by **satellite name**. Names should align with [tle.oscarwatch.org](https://tle.oscarwatch.org/) TLE entries. OscarWatch registers common aliases (e.g. `AO-7` → `AO-07`, `ISS (ZARYA)` → `ISS`, `FOX-1B` → `RADFXSAT (FOX-1B)`). Optional `norad_id` stores the catalogue number for cross-reference and tooling; lookup still uses `name` and aliases. If a spacecraft has TLEs but no database entry, the frequency panel stays empty until a entry exists locally or via sync.
 
 ## Contributing updates
 
