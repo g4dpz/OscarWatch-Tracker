@@ -428,6 +428,70 @@ public class QsoLogbookRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task ListQsosAsync_filters_by_utc_date_range()
+    {
+        await _repository.InitializeAsync();
+
+        var logbook = await _repository.CreateLogbookAsync(new QsoLogbookCreateRequest
+        {
+            Name = "Range test",
+            MyCallsign = "2M0SQL",
+            MyGridSquare = "IO87IP"
+        });
+
+        await _repository.AddQsoAsync(new QsoRecordCreateRequest
+        {
+            LogbookId = logbook.Id,
+            QsoUtc = new DateTime(2026, 7, 11, 18, 0, 0, DateTimeKind.Utc),
+            Call = "G1AAA"
+        });
+        await _repository.AddQsoAsync(new QsoRecordCreateRequest
+        {
+            LogbookId = logbook.Id,
+            QsoUtc = new DateTime(2026, 7, 12, 12, 30, 0, DateTimeKind.Utc),
+            Call = "G2BBB"
+        });
+        await _repository.AddQsoAsync(new QsoRecordCreateRequest
+        {
+            LogbookId = logbook.Id,
+            QsoUtc = new DateTime(2026, 7, 13, 9, 15, 0, DateTimeKind.Utc),
+            Call = "G3CCC"
+        });
+
+        var july12 = await _repository.ListQsosAsync(
+            logbook.Id,
+            new DateTime(2026, 7, 12, 0, 0, 0, DateTimeKind.Utc),
+            new DateTime(2026, 7, 13, 0, 0, 0, DateTimeKind.Utc));
+        Assert.Single(july12);
+        Assert.Equal("G2BBB", july12[0].Call);
+
+        Assert.Equal(3, await _repository.CountQsosAsync(logbook.Id));
+        Assert.Equal(1, await _repository.CountQsosAsync(
+            logbook.Id,
+            new DateTime(2026, 7, 12, 0, 0, 0, DateTimeKind.Utc),
+            new DateTime(2026, 7, 13, 0, 0, 0, DateTimeKind.Utc)));
+    }
+
+    [Fact]
+    public void QsoLogbookExportRange_normalizes_swapped_dates_and_builds_query_bounds()
+    {
+        var (from, to) = QsoLogbookExportRange.NormalizeUtcDates(
+            new DateTime(2026, 7, 15, 0, 0, 0, DateTimeKind.Utc),
+            new DateTime(2026, 7, 12, 0, 0, 0, DateTimeKind.Utc));
+        Assert.Equal(new DateTime(2026, 7, 12, 0, 0, 0, DateTimeKind.Utc), from);
+        Assert.Equal(new DateTime(2026, 7, 15, 0, 0, 0, DateTimeKind.Utc), to);
+
+        var (fromInclusive, toExclusive) = QsoLogbookExportRange.ToQueryBounds(new QsoAdifExportOptions
+        {
+            Scope = QsoAdifExportScope.DateRange,
+            FromUtcDate = from,
+            ToUtcDate = to
+        });
+        Assert.Equal(from, fromInclusive);
+        Assert.Equal(new DateTime(2026, 7, 16, 0, 0, 0, DateTimeKind.Utc), toExclusive);
+    }
+
+    [Fact]
     public async Task UpdateLogbookAsync_updates_name_callsign_and_grid()
     {
         await _repository.InitializeAsync();

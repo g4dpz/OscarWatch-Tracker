@@ -955,7 +955,28 @@ Continue?</value>
     <value>Export ADIF</value>
   </data>
   <data name="Logbook.ExportAdif.Dialog.Intro">
-    <value>Choose whether this file is for upload to Logbook of the World. LoTW uses different satellite names for some spacecraft.</value>
+    <value>Choose which QSOs to include and whether satellite names should be remapped for Logbook of the World.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Scope.All">
+    <value>All QSOs in logbook</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Scope.DateRange">
+    <value>QSOs in UTC date range</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.FromUtc">
+    <value>From (UTC)</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.ToUtc">
+    <value>To (UTC)</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountOne">
+    <value>1 QSO will be exported.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountMany">
+    <value>{0} QSOs will be exported.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountNone">
+    <value>No QSOs match this export range.</value>
   </data>
   <data name="Logbook.ExportAdif.Dialog.ForLotw">
     <value>Remap satellite names for LoTW</value>
@@ -992,6 +1013,18 @@ Continue?</value>
   </data>
   <data name="Logbook.Status.QsoCountMany">
     <value>{0} — {1} QSOs</value>
+  </data>
+  <data name="Logbook.Status.ExportedOne">
+    <value>Exported 1 QSO to ADIF.</value>
+  </data>
+  <data name="Logbook.Status.ExportedMany">
+    <value>Exported {0} QSOs to ADIF.</value>
+  </data>
+  <data name="Logbook.Status.ExportedOneRange">
+    <value>Exported 1 QSO to ADIF ({0} UTC).</value>
+  </data>
+  <data name="Logbook.Status.ExportedManyRange">
+    <value>Exported {0} QSOs to ADIF ({1} UTC).</value>
   </data>
   <data name="Logbook.CloudlogStatus.Pending">
     <value>Pending</value>

@@ -516,6 +516,52 @@
     ]
   },
   {
+    "name": "QO-100",
+    "norad_id": "43700",
+    "modes": [
+      {
+        "type": "Narrowband Transponder",
+        "downlink": 10489745,
+        "uplink": 2400245,
+        "downlink_mode": "USB",
+        "uplink_mode": "USB",
+        "doppler": "NOR"
+      },
+      {
+        "type": "Wideband DATV",
+        "downlink": 10495000,
+        "uplink": 2405500,
+        "downlink_mode": "DATA-USB",
+        "uplink_mode": "DATA-USB",
+        "doppler": "NOR"
+      },
+      {
+        "type": "Lower CW Beacon",
+        "downlink": 10489500,
+        "uplink": 0,
+        "downlink_mode": "CW",
+        "uplink_mode": "CW",
+        "doppler": "NOR"
+      },
+      {
+        "type": "BPSK Beacon",
+        "downlink": 10489750,
+        "uplink": 0,
+        "downlink_mode": "DATA-USB",
+        "uplink_mode": "DATA-USB",
+        "doppler": "NOR"
+      },
+      {
+        "type": "Upper CW Beacon",
+        "downlink": 10490000,
+        "uplink": 0,
+        "downlink_mode": "CW",
+        "uplink_mode": "CW",
+        "doppler": "NOR"
+      }
+    ]
+  },
+  {
     "name": "QMR-KWT-2",
     "norad_id": "67291",
     "modes": [

@@ -203,19 +203,23 @@ public partial class QsoLogbookWindow : Window
         if (DataContext is not QsoLogbookViewModel vm || vm.SelectedLogbook is null)
             return;
 
-        var forLotw = await ExportAdifDialog.ShowAsync(this).ConfigureAwait(true);
-        if (forLotw is null)
+        var dialogResult = await ExportAdifDialog.ShowAsync(
+            this,
+            vm.GetExportDialogDefaults(),
+            vm.CountQsosForExportAsync).ConfigureAwait(true);
+        if (dialogResult is null)
             return;
 
-        var adif = await vm.ExportAdifAsync(forLotw.Value).ConfigureAwait(true);
+        var options = dialogResult.Options;
+        var exportCount = await vm.CountQsosForExportAsync(options).ConfigureAwait(true);
+        var adif = await vm.ExportAdifAsync(options).ConfigureAwait(true);
         if (string.IsNullOrWhiteSpace(adif))
             return;
 
-        var safeName = SanitizeFileName(vm.SelectedLogbook.Name);
         var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
             Title = LocalizationService.Instance.Get("Logbook.ExportPicker.Title"),
-            SuggestedFileName = $"{safeName}.adi",
+            SuggestedFileName = QsoLogbookViewModel.BuildSuggestedExportFileName(vm.SelectedLogbook.Name, options),
             DefaultExtension = "adi",
             FileTypeChoices =
             [
@@ -229,13 +233,6 @@ public partial class QsoLogbookWindow : Window
         await using var stream = await file.OpenWriteAsync().ConfigureAwait(true);
         await using var writer = new StreamWriter(stream);
         await writer.WriteAsync(adif).ConfigureAwait(true);
-    }
-
-    private static string SanitizeFileName(string name)
-    {
-        var invalid = Path.GetInvalidFileNameChars();
-        var chars = name.Trim().Select(ch => invalid.Contains(ch) ? '_' : ch).ToArray();
-        var result = new string(chars).Trim();
-        return string.IsNullOrWhiteSpace(result) ? "logbook" : result;
+        vm.StatusText = vm.FormatExportStatusText(options, exportCount);
     }
 }

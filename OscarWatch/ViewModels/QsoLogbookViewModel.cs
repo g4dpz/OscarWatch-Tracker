@@ -421,16 +421,81 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
     }
 
     [RelayCommand(CanExecute = nameof(CanExport))]
-    public async Task<string?> ExportAdifAsync(bool forLotw = false)
+    public async Task<int> CountQsosForExportAsync(QsoAdifExportOptions options)
+    {
+        if (SelectedLogbook is null)
+            return 0;
+
+        var (fromInclusive, toExclusive) = QsoLogbookExportRange.ToQueryBounds(options);
+        return await _repository.CountQsosAsync(
+            SelectedLogbook.Id,
+            fromInclusive,
+            toExclusive).ConfigureAwait(true);
+    }
+
+    public QsoAdifExportDialogDefaults GetExportDialogDefaults()
+    {
+        var utcDates = QsoRows.Select(row => row.Record.QsoUtc).ToList();
+        var (from, to) = QsoLogbookExportRange.DefaultUtcDates(utcDates);
+        return new QsoAdifExportDialogDefaults(
+            new DateTimeOffset(from, TimeSpan.Zero),
+            new DateTimeOffset(to, TimeSpan.Zero));
+    }
+
+    public async Task<string?> ExportAdifAsync(QsoAdifExportOptions options)
     {
         if (SelectedLogbook is null)
             return null;
 
-        var qsos = await _repository.ListQsosAsync(SelectedLogbook.Id).ConfigureAwait(true);
+        var (fromInclusive, toExclusive) = QsoLogbookExportRange.ToQueryBounds(options);
+        var qsos = await _repository.ListQsosAsync(
+            SelectedLogbook.Id,
+            fromInclusive,
+            toExclusive).ConfigureAwait(true);
         if (qsos.Count == 0)
             return null;
 
-        return AdifExporter.ExportLogbook(SelectedLogbook, qsos, forLotw);
+        return AdifExporter.ExportLogbook(SelectedLogbook, qsos, options.ForLotw);
+    }
+
+    public string FormatExportStatusText(QsoAdifExportOptions options, int exportedCount)
+    {
+        if (options.Scope == QsoAdifExportScope.DateRange)
+        {
+            var (from, to) = QsoLogbookExportRange.NormalizeUtcDates(options.FromUtcDate, options.ToUtcDate);
+            var rangeLabel = from == to
+                ? from.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)
+                : $"{from:yyyy-MM-dd}–{to:yyyy-MM-dd}";
+            return exportedCount == 1
+                ? _l.Get("Logbook.Status.ExportedOneRange", rangeLabel)
+                : _l.Get("Logbook.Status.ExportedManyRange", exportedCount, rangeLabel);
+        }
+
+        return exportedCount == 1
+            ? _l.Get("Logbook.Status.ExportedOne")
+            : _l.Get("Logbook.Status.ExportedMany", exportedCount);
+    }
+
+    public static string BuildSuggestedExportFileName(string logbookName, QsoAdifExportOptions options)
+    {
+        var safeName = SanitizeExportFileName(logbookName);
+        if (options.Scope != QsoAdifExportScope.DateRange)
+            return $"{safeName}.adi";
+
+        var (from, to) = QsoLogbookExportRange.NormalizeUtcDates(options.FromUtcDate, options.ToUtcDate);
+        var fromToken = from.ToString("yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
+        var toToken = to.ToString("yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
+        return from == to
+            ? $"{safeName}_{fromToken}.adi"
+            : $"{safeName}_{fromToken}-{toToken}.adi";
+    }
+
+    private static string SanitizeExportFileName(string name)
+    {
+        var invalid = Path.GetInvalidFileNameChars();
+        var chars = name.Trim().Select(ch => invalid.Contains(ch) ? '_' : ch).ToArray();
+        var result = new string(chars).Trim();
+        return string.IsNullOrWhiteSpace(result) ? "logbook" : result;
     }
 
     [RelayCommand(CanExecute = nameof(CanDeleteQso))]
@@ -658,7 +723,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         if (SelectedLogbook is null)
         {
             QsoCount = 0;
-            ExportAdifCommand.NotifyCanExecuteChanged();
+            OnPropertyChanged(nameof(CanExport));
             return;
         }
 
@@ -673,7 +738,6 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
             QsoCount = qsos.Count;
 
         OnPropertyChanged(nameof(CanExport));
-        ExportAdifCommand.NotifyCanExecuteChanged();
     }
 
     private void OnCloudlogUploadStateChanged(long qsoId) =>

@@ -2,17 +2,109 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
+using OscarWatch.Core.Logbook;
 using OscarWatch.Localization;
 
 namespace OscarWatch.Views;
 
+public sealed class ExportAdifDialogResult
+{
+    public required QsoAdifExportOptions Options { get; init; }
+}
+
 public static class ExportAdifDialog
 {
-    /// <summary>Returns null when cancelled; otherwise whether satellite names should be remapped for LoTW.</summary>
-    public static async Task<bool?> ShowAsync(Window owner)
+    public static async Task<ExportAdifDialogResult?> ShowAsync(
+        Window owner,
+        QsoAdifExportDialogDefaults defaults,
+        Func<QsoAdifExportOptions, Task<int>> countExportQsosAsync)
     {
         var l = LocalizationService.Instance;
-        bool? result = null;
+        ExportAdifDialogResult? result = null;
+
+        var allScopeRadio = new RadioButton
+        {
+            Content = l.Get("Logbook.ExportAdif.Dialog.Scope.All"),
+            IsChecked = true,
+            GroupName = "ExportScope"
+        };
+
+        var dateRangeRadio = new RadioButton
+        {
+            Content = l.Get("Logbook.ExportAdif.Dialog.Scope.DateRange"),
+            GroupName = "ExportScope"
+        };
+
+        var fromDatePicker = new DatePicker
+        {
+            SelectedDate = defaults.FromUtcDate,
+            IsEnabled = false,
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+
+        var toDatePicker = new DatePicker
+        {
+            SelectedDate = defaults.ToUtcDate,
+            IsEnabled = false,
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+
+        var dateRangePanel = new Grid
+        {
+            ColumnDefinitions =
+            [
+                new ColumnDefinition(GridLength.Star),
+                new ColumnDefinition(GridLength.Star)
+            ],
+            ColumnSpacing = 12,
+            Margin = new Thickness(24, 0, 0, 0),
+            IsEnabled = false,
+            Children =
+            {
+                new StackPanel
+                {
+                    [Grid.ColumnProperty] = 0,
+                    Spacing = 4,
+                    Children =
+                    {
+                        new TextBlock
+                        {
+                            Text = l.Get("Logbook.ExportAdif.Dialog.FromUtc"),
+                            FontSize = 12,
+                            Foreground = Brushes.Gray
+                        },
+                        fromDatePicker
+                    }
+                },
+                new StackPanel
+                {
+                    [Grid.ColumnProperty] = 1,
+                    Spacing = 4,
+                    Children =
+                    {
+                        new TextBlock
+                        {
+                            Text = l.Get("Logbook.ExportAdif.Dialog.ToUtc"),
+                            FontSize = 12,
+                            Foreground = Brushes.Gray
+                        },
+                        toDatePicker
+                    }
+                }
+            }
+        };
+
+        var countText = new TextBlock
+        {
+            TextWrapping = TextWrapping.Wrap,
+            Foreground = Brushes.Gray
+        };
+
+        var forLotwCheckBox = new CheckBox
+        {
+            Content = l.Get("Logbook.ExportAdif.Dialog.ForLotw"),
+            IsChecked = false
+        };
 
         var exportButton = new Button
         {
@@ -30,17 +122,11 @@ public static class ExportAdifDialog
             IsCancel = true
         };
 
-        var forLotwCheckBox = new CheckBox
-        {
-            Content = l.Get("Logbook.ExportAdif.Dialog.ForLotw"),
-            IsChecked = false
-        };
-
         var window = new Window
         {
             Title = l.Get("Logbook.ExportAdif.Dialog.Title"),
-            Width = 460,
-            MinHeight = 160,
+            Width = 500,
+            MinHeight = 220,
             SizeToContent = SizeToContent.Height,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
             Content = new StackPanel
@@ -55,6 +141,10 @@ public static class ExportAdifDialog
                         TextWrapping = TextWrapping.Wrap,
                         Foreground = Brushes.Gray
                     },
+                    allScopeRadio,
+                    dateRangeRadio,
+                    dateRangePanel,
+                    countText,
                     forLotwCheckBox,
                     new StackPanel
                     {
@@ -68,14 +158,73 @@ public static class ExportAdifDialog
             }
         };
 
+        QsoAdifExportOptions BuildOptions()
+        {
+            var useDateRange = dateRangeRadio.IsChecked == true;
+            var fromDate = (fromDatePicker.SelectedDate ?? defaults.FromUtcDate).UtcDateTime.Date;
+            var toDate = (toDatePicker.SelectedDate ?? defaults.ToUtcDate).UtcDateTime.Date;
+            var (normalizedFrom, normalizedTo) = QsoLogbookExportRange.NormalizeUtcDates(fromDate, toDate);
+
+            return new QsoAdifExportOptions
+            {
+                Scope = useDateRange ? QsoAdifExportScope.DateRange : QsoAdifExportScope.All,
+                FromUtcDate = normalizedFrom,
+                ToUtcDate = normalizedTo,
+                ForLotw = forLotwCheckBox.IsChecked == true
+            };
+        }
+
+        async Task RefreshPreviewAsync()
+        {
+            var options = BuildOptions();
+            var count = await countExportQsosAsync(options).ConfigureAwait(true);
+            countText.Text = count switch
+            {
+                0 => l.Get("Logbook.ExportAdif.Dialog.CountNone"),
+                1 => l.Get("Logbook.ExportAdif.Dialog.CountOne"),
+                _ => l.Get("Logbook.ExportAdif.Dialog.CountMany", count)
+            };
+            exportButton.IsEnabled = count > 0;
+        }
+
+        void SetDateRangeEnabled(bool enabled)
+        {
+            dateRangePanel.IsEnabled = enabled;
+            fromDatePicker.IsEnabled = enabled;
+            toDatePicker.IsEnabled = enabled;
+        }
+
+        allScopeRadio.IsCheckedChanged += async (_, _) =>
+        {
+            if (allScopeRadio.IsChecked != true)
+                return;
+
+            SetDateRangeEnabled(false);
+            await RefreshPreviewAsync().ConfigureAwait(true);
+        };
+
+        dateRangeRadio.IsCheckedChanged += async (_, _) =>
+        {
+            if (dateRangeRadio.IsChecked != true)
+                return;
+
+            SetDateRangeEnabled(true);
+            await RefreshPreviewAsync().ConfigureAwait(true);
+        };
+
+        fromDatePicker.SelectedDateChanged += async (_, _) => await RefreshPreviewAsync().ConfigureAwait(true);
+        toDatePicker.SelectedDateChanged += async (_, _) => await RefreshPreviewAsync().ConfigureAwait(true);
+
         exportButton.Click += (_, _) =>
         {
-            result = forLotwCheckBox.IsChecked == true;
+            var options = BuildOptions();
+            result = new ExportAdifDialogResult { Options = options };
             window.Close();
         };
 
         cancelButton.Click += (_, _) => window.Close();
 
+        await RefreshPreviewAsync().ConfigureAwait(true);
         await window.ShowDialog(owner).ConfigureAwait(true);
         return result;
     }

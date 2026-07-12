@@ -188,8 +188,15 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
     }
 
+    public Task<IReadOnlyList<QsoRecord>> ListQsosAsync(
+        long logbookId,
+        CancellationToken cancellationToken = default) =>
+        ListQsosAsync(logbookId, fromUtcInclusive: null, toUtcExclusive: null, cancellationToken);
+
     public async Task<IReadOnlyList<QsoRecord>> ListQsosAsync(
         long logbookId,
+        DateTime? fromUtcInclusive,
+        DateTime? toUtcExclusive,
         CancellationToken cancellationToken = default)
     {
         await EnsureInitializedAsync(cancellationToken).ConfigureAwait(false);
@@ -199,10 +206,37 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
             SELECT {QsoSelectColumns}
             FROM qsos
             WHERE logbook_id = $logbookId
+              AND ($fromUtc IS NULL OR datetime(qso_utc) >= datetime($fromUtc))
+              AND ($toUtc IS NULL OR datetime(qso_utc) < datetime($toUtc))
             ORDER BY datetime(qso_utc) DESC, id DESC
             """;
         command.Parameters.AddWithValue("$logbookId", logbookId);
+        AddNullableUtcParameter(command, "$fromUtc", fromUtcInclusive);
+        AddNullableUtcParameter(command, "$toUtc", toUtcExclusive);
         return await ReadQsosAsync(command, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<int> CountQsosAsync(
+        long logbookId,
+        DateTime? fromUtcInclusive = null,
+        DateTime? toUtcExclusive = null,
+        CancellationToken cancellationToken = default)
+    {
+        await EnsureInitializedAsync(cancellationToken).ConfigureAwait(false);
+        await using var connection = OpenConnection();
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT COUNT(*)
+            FROM qsos
+            WHERE logbook_id = $logbookId
+              AND ($fromUtc IS NULL OR datetime(qso_utc) >= datetime($fromUtc))
+              AND ($toUtc IS NULL OR datetime(qso_utc) < datetime($toUtc))
+            """;
+        command.Parameters.AddWithValue("$logbookId", logbookId);
+        AddNullableUtcParameter(command, "$fromUtc", fromUtcInclusive);
+        AddNullableUtcParameter(command, "$toUtc", toUtcExclusive);
+        var result = await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+        return Convert.ToInt32(result, System.Globalization.CultureInfo.InvariantCulture);
     }
 
     public async Task<IReadOnlyList<QsoRecord>> SearchQsosByCallAsync(
@@ -599,6 +633,14 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
 
     private static string? FormatNullableUtc(DateTime? utc) =>
         utc is null ? null : FormatUtc(utc.Value);
+
+    private static void AddNullableUtcParameter(SqliteCommand command, string name, DateTime? utc)
+    {
+        var parameter = command.CreateParameter();
+        parameter.ParameterName = name;
+        parameter.Value = utc is null ? DBNull.Value : FormatUtc(utc.Value);
+        command.Parameters.Add(parameter);
+    }
 
     private static DateTime ParseUtc(string value) =>
         DateTime.Parse(value, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.RoundtripKind);

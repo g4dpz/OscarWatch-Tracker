@@ -16,7 +16,17 @@ public interface IQsoLogbookRepository
 
     Task DeleteLogbookAsync(long logbookId, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<QsoRecord>> ListQsosAsync(long logbookId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<QsoRecord>> ListQsosAsync(
+        long logbookId,
+        DateTime? fromUtcInclusive = null,
+        DateTime? toUtcExclusive = null,
+        CancellationToken cancellationToken = default);
+
+    Task<int> CountQsosAsync(
+        long logbookId,
+        DateTime? fromUtcInclusive = null,
+        DateTime? toUtcExclusive = null,
+        CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<QsoRecord>> SearchQsosByCallAsync(
         long logbookId,
