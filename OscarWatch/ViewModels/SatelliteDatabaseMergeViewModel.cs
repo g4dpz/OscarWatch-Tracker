@@ -23,9 +23,7 @@ public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
             ? _l.Get("DbMerge.Title.Import")
             : _l.Get("DbMerge.Title.Remote");
         SummaryText = BuildSummary(plan, presentation);
-        IntroHintText = presentation == SatelliteDatabaseMergePresentation.FileImport
-            ? _l.Get("DbMerge.Intro.Import")
-            : _l.Get("DbMerge.Intro.Remote");
+        IntroHintText = BuildIntroHint(plan, presentation);
         ConflictRemoteLabel = presentation == SatelliteDatabaseMergePresentation.FileImport
             ? _l.Get("DbMerge.UseImported")
             : _l.Get("DbMerge.UsePublished");
@@ -33,6 +31,13 @@ public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
             ? _l.Get("DbMerge.Prefix.Imported")
             : _l.Get("DbMerge.Prefix.Published");
         ConflictLocalLabel = _l.Get("DbMerge.UseLocal");
+
+        foreach (var item in plan.NoradIdBackfills.OrderBy(i => i.SatelliteName, StringComparer.OrdinalIgnoreCase))
+        {
+            NoradIdBackfills.Add(new MergeNoradIdBackfillItem(
+                item.Key,
+                _l.Get("DbMerge.Item.NoradIdLine", item.SatelliteName, item.NoradId)));
+        }
 
         foreach (var item in plan.NewSatellites)
         {
@@ -81,7 +86,9 @@ public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
     public bool HasNewSatellites => NewSatellites.Count > 0;
     public bool HasNewModes => NewModes.Count > 0;
     public bool HasConflicts => Conflicts.Count > 0;
+    public bool HasNoradIdBackfills => NoradIdBackfills.Count > 0;
 
+    public ObservableCollection<MergeNoradIdBackfillItem> NoradIdBackfills { get; } = [];
     public ObservableCollection<MergeAdditionItem> NewSatellites { get; } = [];
     public ObservableCollection<MergeAdditionItem> NewModes { get; } = [];
     public ObservableCollection<MergeConflictItem> Conflicts { get; } = [];
@@ -106,6 +113,9 @@ public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
 
     public bool HasSelectedChanges()
     {
+        if (Plan.NoradIdBackfills.Count > 0)
+            return true;
+
         if (NewSatellites.Any(i => i.IsSelected) || NewModes.Any(i => i.IsSelected))
             return true;
 
@@ -115,6 +125,13 @@ public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
     private string BuildSummary(SatelliteDatabaseMergePlan plan, SatelliteDatabaseMergePresentation presentation)
     {
         var parts = new List<string>();
+        if (plan.NoradIdBackfills.Count > 0)
+        {
+            parts.Add(plan.NoradIdBackfills.Count == 1
+                ? _l.Get("DbMerge.Summary.OneNoradId", plan.NoradIdBackfills.Count)
+                : _l.Get("DbMerge.Summary.ManyNoradIds", plan.NoradIdBackfills.Count));
+        }
+
         if (plan.NewSatellites.Count > 0)
         {
             parts.Add(plan.NewSatellites.Count == 1
@@ -143,6 +160,27 @@ public partial class SatelliteDatabaseMergeViewModel : ViewModelBase
             ? _l.Get("DbMerge.Summary.Matches", source)
             : string.Join(", ", parts) + _l.Get("DbMerge.Summary.FromSuffix", source);
     }
+
+    private string BuildIntroHint(SatelliteDatabaseMergePlan plan, SatelliteDatabaseMergePresentation presentation)
+    {
+        if (plan.NoradIdBackfills.Count > 0
+            && plan.NewSatellites.Count == 0
+            && plan.NewModes.Count == 0
+            && plan.Conflicts.Count == 0)
+        {
+            return _l.Get("DbMerge.Intro.NoradIds");
+        }
+
+        return presentation == SatelliteDatabaseMergePresentation.FileImport
+            ? _l.Get("DbMerge.Intro.Import")
+            : _l.Get("DbMerge.Intro.Remote");
+    }
+}
+
+public sealed class MergeNoradIdBackfillItem(string key, string label)
+{
+    public string Key { get; } = key;
+    public string Label { get; } = label;
 }
 
 public partial class MergeAdditionItem : ObservableObject

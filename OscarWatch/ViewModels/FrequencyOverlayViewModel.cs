@@ -307,7 +307,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         if (string.IsNullOrEmpty(_currentSatelliteName))
             return;
 
-        LoadModesForSatellite(_currentSatelliteName);
+        LoadModesForSatellite(_currentSatelliteName, _currentNoradId);
         if (_lastTrackState is not null)
             Update(_lastTrackState);
     }
@@ -335,11 +335,11 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         {
             _currentNoradId = state.NoradId;
             _currentSatelliteName = state.Name;
-            _currentStorageKey = ResolveStorageKey(state.Name);
+            _currentStorageKey = ResolveStorageKey(state.Name, state.NoradId);
             _rigPassbandDownlinkAdjustKHz = 0;
             _rigPassbandUplinkAdjustKHz = 0;
             _passbandSyncSuspended = true;
-            LoadModesForSatellite(state.Name);
+            LoadModesForSatellite(state.Name, state.NoradId);
             RequestOverlayReclamp();
         }
 
@@ -825,14 +825,14 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         RequestOverlayReclamp();
     }
 
-    private void LoadModesForSatellite(string name)
+    private void LoadModesForSatellite(string name, string? noradId = null)
     {
         _isLoadingSelection = true;
         try
         {
             AvailableModes.Clear();
             SelectedMode = null;
-            var entry = _database.TryGetEntry(name);
+            var entry = _database.TryGetEntry(name, noradId);
             if (entry is null || entry.Modes.Count == 0)
             {
                 HasTransponderData = false;
@@ -884,9 +884,9 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         return created;
     }
 
-    private string ResolveStorageKey(string tleName)
+    private string ResolveStorageKey(string tleName, string? noradId = null)
     {
-        var entry = _database.TryGetEntry(tleName);
+        var entry = _database.TryGetEntry(tleName, noradId);
         return entry?.Name ?? tleName.Trim();
     }
 

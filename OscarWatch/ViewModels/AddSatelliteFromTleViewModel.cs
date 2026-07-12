@@ -65,16 +65,18 @@ public partial class AddSatelliteFromTleViewModel : ViewModelBase
             CustomName = "";
     }
 
-    public bool TryConfirm(out string? name, out string? error)
+    public bool TryConfirm(out string? name, out string? noradId, out string? error)
     {
         name = TransponderDatabaseTlePicker.ResolveChosenName(SelectedCandidate?.Name, CustomName);
         if (name is null)
         {
+            noradId = null;
             error = _l.Get("DbAdd.Error.PickOne");
             StatusMessage = error;
             return false;
         }
 
+        noradId = SelectedCandidate?.NoradId;
         error = null;
         StatusMessage = "";
         return true;

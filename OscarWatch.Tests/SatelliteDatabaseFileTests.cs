@@ -61,4 +61,37 @@ public class SatelliteDatabaseFileTests
 
         Assert.NotNull(SatelliteDatabaseFile.ValidateEntries(entries));
     }
+
+    [Fact]
+    public void NormalizeEntry_zero_pads_norad_id()
+    {
+        var entry = new SatelliteRadioEntry
+        {
+            Name = "AO-07",
+            NoradId = "7530",
+            Modes = [new SatelliteTransponderMode { Type = "FM", DownlinkKHz = 1, UplinkKHz = 1, DownlinkMode = "FM", UplinkMode = "FM" }]
+        };
+
+        SatelliteDatabaseFile.NormalizeEntry(entry);
+
+        Assert.Equal("07530", entry.NoradId);
+    }
+
+    [Fact]
+    public void ValidateEntries_rejects_invalid_norad_id()
+    {
+        var entries = new List<SatelliteRadioEntry>
+        {
+            new()
+            {
+                Name = "TEST",
+                NoradId = "abc",
+                Modes = [new SatelliteTransponderMode { Type = "FM", DownlinkKHz = 1, UplinkKHz = 1, DownlinkMode = "FM", UplinkMode = "FM" }]
+            }
+        };
+
+        var error = SatelliteDatabaseFile.ValidateEntries(entries);
+
+        Assert.Contains("NORAD ID", error, StringComparison.Ordinal);
+    }
 }

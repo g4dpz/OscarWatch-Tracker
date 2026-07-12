@@ -7,9 +7,21 @@ public sealed class SatelliteDatabaseMergePlan
     public required List<SatelliteDatabaseNewSatellite> NewSatellites { get; init; }
     public required List<SatelliteDatabaseNewMode> NewModes { get; init; }
     public required List<SatelliteDatabaseMergeConflict> Conflicts { get; init; }
+    public required List<SatelliteDatabaseNoradIdBackfill> NoradIdBackfills { get; init; }
 
     public bool HasChanges =>
-        NewSatellites.Count > 0 || NewModes.Count > 0 || Conflicts.Count > 0;
+        NewSatellites.Count > 0
+        || NewModes.Count > 0
+        || Conflicts.Count > 0
+        || NoradIdBackfills.Count > 0;
+}
+
+public sealed class SatelliteDatabaseNoradIdBackfill
+{
+    public required string SatelliteName { get; init; }
+    public required string NoradId { get; init; }
+
+    public string Key => SatelliteName.Trim();
 }
 
 public sealed class SatelliteDatabaseNewSatellite

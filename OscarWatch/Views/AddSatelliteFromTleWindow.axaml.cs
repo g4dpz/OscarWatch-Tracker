@@ -24,10 +24,10 @@ public partial class AddSatelliteFromTleWindow : Window
             return;
         }
 
-        if (!vm.TryConfirm(out var name, out _))
+        if (!vm.TryConfirm(out var name, out var noradId, out _) || name is null)
             return;
 
-        Close(name);
+        Close(new AddSatellitePickResult(name, noradId));
     }
 
     private void OnCancelClick(object? sender, RoutedEventArgs e) => Close(null);

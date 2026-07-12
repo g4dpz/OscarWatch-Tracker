@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using OscarWatch.Core.Json;
@@ -66,6 +67,7 @@ public static class SatelliteDatabaseFile
     public static SatelliteRadioEntry NormalizeEntry(SatelliteRadioEntry entry)
     {
         entry.Name = entry.Name.Trim();
+        entry.NoradId = NormalizeNoradId(entry.NoradId);
         entry.Modes = entry.Modes
             .Where(m => !string.IsNullOrWhiteSpace(m.Type) || m.DownlinkKHz > 0 || m.UplinkKHz > 0)
             .ToList();
@@ -98,8 +100,32 @@ public static class SatelliteDatabaseFile
 
             if (entry.Modes.Count == 0)
                 return $"{entry.Name} has no transponder modes.";
+
+            if (!string.IsNullOrWhiteSpace(entry.NoradId) && !IsValidNoradId(entry.NoradId))
+                return $"{entry.Name}: NORAD ID must be a 1–5 digit catalogue number.";
         }
 
         return null;
+    }
+
+    internal static string? NormalizeNoradId(string? noradId)
+    {
+        if (string.IsNullOrWhiteSpace(noradId))
+            return null;
+
+        var trimmed = noradId.Trim();
+        if (!int.TryParse(trimmed, NumberStyles.None, CultureInfo.InvariantCulture, out var value) || value < 0)
+            return trimmed;
+
+        return value.ToString("D5", CultureInfo.InvariantCulture);
+    }
+
+    internal static bool IsValidNoradId(string noradId)
+    {
+        if (string.IsNullOrWhiteSpace(noradId))
+            return false;
+
+        return int.TryParse(noradId.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var value)
+            && value is >= 0 and <= 99999;
     }
 }

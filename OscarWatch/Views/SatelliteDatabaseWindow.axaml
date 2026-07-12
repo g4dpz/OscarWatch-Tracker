@@ -83,6 +83,10 @@
           <TextBlock Text="{loc:Localize Key=DbEditor.Satellite}" FontWeight="SemiBold" />
           <TextBox Watermark="{loc:Localize Key=DbEditor.NameWatermark}"
                    Text="{Binding SatelliteName, Mode=TwoWay}" />
+          <TextBlock Text="{loc:Localize Key=DbEditor.NoradIdLabel}" FontWeight="SemiBold" />
+          <TextBox Watermark="{loc:Localize Key=DbEditor.NoradIdWatermark}"
+                   Text="{Binding SatelliteNoradId, Mode=TwoWay}"
+                   MaxLength="5" />
 
           <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
             <TextBlock Grid.Column="0" Text="{loc:Localize Key=DbEditor.ModesHeader}" FontWeight="SemiBold" VerticalAlignment="Center" />

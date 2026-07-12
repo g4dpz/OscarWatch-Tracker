@@ -10,7 +10,7 @@ public interface ISatelliteDatabaseService
 
     bool IsUsingUserDatabase { get; }
 
-    SatelliteRadioEntry? TryGetEntry(string satelliteName);
+    SatelliteRadioEntry? TryGetEntry(string satelliteName, string? noradId = null);
 
     void Reload();
 }

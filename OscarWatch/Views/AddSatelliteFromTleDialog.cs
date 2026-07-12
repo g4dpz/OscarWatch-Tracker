@@ -1,12 +1,15 @@
 using Avalonia.Controls;
+using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
 using OscarWatch.ViewModels;
 
 namespace OscarWatch.Views;
 
+public sealed record AddSatellitePickResult(string Name, string? NoradId);
+
 public static class AddSatelliteFromTleDialog
 {
-    public static async Task<string?> TryPickAsync(
+    public static async Task<AddSatellitePickResult?> TryPickAsync(
         Window owner,
         ITleService tleService,
         IEnumerable<string> existingNames,
@@ -18,6 +21,6 @@ public static class AddSatelliteFromTleDialog
             existingNames,
             Localization.LocalizationService.Instance);
         var window = new AddSatelliteFromTleWindow { DataContext = vm };
-        return await window.ShowDialog<string?>(owner).ConfigureAwait(true);
+        return await window.ShowDialog<AddSatellitePickResult?>(owner).ConfigureAwait(true);
     }
 }

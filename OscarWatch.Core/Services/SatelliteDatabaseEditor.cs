@@ -50,6 +50,7 @@ public sealed class SatelliteDatabaseEditor : ISatelliteDatabaseEditor
         new()
         {
             Name = source.Name,
+            NoradId = source.NoradId,
             Modes = source.Modes.Select(CloneMode).ToList()
         };
 

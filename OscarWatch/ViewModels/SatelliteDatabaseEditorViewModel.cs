@@ -18,6 +18,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
     private readonly ITleService _tleService;
     private readonly ILocalizationService _l;
     private bool _syncingModeFields;
+    private bool _syncingSatelliteFields;
 
     [ObservableProperty]
     private string _searchText = "";
@@ -36,6 +37,9 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _satelliteName = "";
+
+    [ObservableProperty]
+    private string _satelliteNoradId = "";
 
     [ObservableProperty]
     private string _modeType = "";
@@ -102,7 +106,17 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
 
     partial void OnSelectedSatelliteChanged(SatelliteRadioEntry? value)
     {
-        SatelliteName = value?.Name ?? "";
+        _syncingSatelliteFields = true;
+        try
+        {
+            SatelliteName = value?.Name ?? "";
+            SatelliteNoradId = value?.NoradId ?? "";
+        }
+        finally
+        {
+            _syncingSatelliteFields = false;
+        }
+
         SelectedMode = value?.Modes.FirstOrDefault();
         OnPropertyChanged(nameof(HasSelectedSatellite));
     }
@@ -115,8 +129,18 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
 
     partial void OnSatelliteNameChanged(string value)
     {
-        if (SelectedSatellite is not null)
-            SelectedSatellite.Name = value.Trim();
+        if (_syncingSatelliteFields || SelectedSatellite is null)
+            return;
+
+        SelectedSatellite.Name = value.Trim();
+    }
+
+    partial void OnSatelliteNoradIdChanged(string value)
+    {
+        if (_syncingSatelliteFields || SelectedSatellite is null)
+            return;
+
+        SelectedSatellite.NoradId = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 
     partial void OnModeTypeChanged(string value) => ApplyModeField(m => m.Type = value.Trim());
@@ -189,16 +213,16 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
             return;
 
         var existing = Satellites.Select(s => s.Name).ToList();
-        var name = await AddSatelliteFromTleDialog.TryPickAsync(App.MainWindow, _tleService, existing)
+        var pick = await AddSatelliteFromTleDialog.TryPickAsync(App.MainWindow, _tleService, existing)
             .ConfigureAwait(true);
 
-        if (string.IsNullOrWhiteSpace(name))
+        if (pick is null)
         {
             StatusMessage = _l.Get("DbEditor.Status.AddCancelled");
             return;
         }
 
-        var trimmed = name.Trim();
+        var trimmed = pick.Name.Trim();
         if (Satellites.Any(s => s.Name.Equals(trimmed, StringComparison.OrdinalIgnoreCase)))
         {
             StatusMessage = _l.Get("DbEditor.Status.AlreadyExists", trimmed);
@@ -208,6 +232,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
         var entry = new SatelliteRadioEntry
         {
             Name = trimmed,
+            NoradId = string.IsNullOrWhiteSpace(pick.NoradId) ? null : pick.NoradId.Trim(),
             Modes =
             [
                 new SatelliteTransponderMode
@@ -302,6 +327,23 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
     {
         try
         {
+            foreach (var entry in Satellites)
+                SatelliteDatabaseFile.NormalizeEntry(entry);
+
+            if (SelectedSatellite is not null)
+            {
+                _syncingSatelliteFields = true;
+                try
+                {
+                    SatelliteName = SelectedSatellite.Name;
+                    SatelliteNoradId = SelectedSatellite.NoradId ?? "";
+                }
+                finally
+                {
+                    _syncingSatelliteFields = false;
+                }
+            }
+
             _editor.Save(Satellites.ToList());
             DatabasePathText = _l.Get("DbEditor.Path.User", _editor.UserPath);
             StatusMessage = _l.Get("DbEditor.Status.Saved");
@@ -486,6 +528,7 @@ public partial class SatelliteDatabaseEditorViewModel : ViewModelBase
         new()
         {
             Name = source.Name,
+            NoradId = source.NoradId,
             Modes = source.Modes.Select(CloneMode).ToList()
         };
 

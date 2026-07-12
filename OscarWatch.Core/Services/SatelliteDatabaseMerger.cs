@@ -16,6 +16,7 @@ public static class SatelliteDatabaseMerger
         var newSatellites = new List<SatelliteDatabaseNewSatellite>();
         var newModes = new List<SatelliteDatabaseNewMode>();
         var conflicts = new List<SatelliteDatabaseMergeConflict>();
+        var noradIdBackfills = new List<SatelliteDatabaseNoradIdBackfill>();
 
         foreach (var remoteEntry in remoteEntries)
         {
@@ -29,6 +30,15 @@ public static class SatelliteDatabaseMerger
             {
                 newSatellites.Add(new SatelliteDatabaseNewSatellite { Entry = normalizedRemote });
                 continue;
+            }
+
+            if (ShouldBackfillNoradId(localEntry.NoradId, normalizedRemote.NoradId))
+            {
+                noradIdBackfills.Add(new SatelliteDatabaseNoradIdBackfill
+                {
+                    SatelliteName = remoteName,
+                    NoradId = normalizedRemote.NoradId!.Trim()
+                });
             }
 
             var localModesByType = IndexModesByType(localEntry);
@@ -65,7 +75,8 @@ public static class SatelliteDatabaseMerger
         {
             NewSatellites = newSatellites,
             NewModes = newModes,
-            Conflicts = conflicts
+            Conflicts = conflicts,
+            NoradIdBackfills = noradIdBackfills
         };
     }
 
@@ -95,7 +106,8 @@ public static class SatelliteDatabaseMerger
         {
             NewSatellites = plan.NewSatellites,
             NewModes = plan.NewModes,
-            Conflicts = conflicts
+            Conflicts = conflicts,
+            NoradIdBackfills = plan.NoradIdBackfills
         };
     }
 
@@ -199,6 +211,15 @@ public static class SatelliteDatabaseMerger
             }
         }
 
+        foreach (var backfill in plan.NoradIdBackfills)
+        {
+            if (!byName.TryGetValue(backfill.SatelliteName.Trim(), out var entry))
+                continue;
+
+            if (ShouldBackfillNoradId(entry.NoradId, backfill.NoradId))
+                entry.NoradId = backfill.NoradId.Trim();
+        }
+
         return result
             .Select(SatelliteDatabaseFile.NormalizeEntry)
             .OrderBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
@@ -280,10 +301,14 @@ public static class SatelliteDatabaseMerger
             && string.Equals(acknowledgment.RemoteFingerprint, ModeFingerprint(conflict.RemoteMode), StringComparison.Ordinal);
     }
 
+    private static bool ShouldBackfillNoradId(string? localNoradId, string? remoteNoradId) =>
+        string.IsNullOrWhiteSpace(localNoradId) && !string.IsNullOrWhiteSpace(remoteNoradId);
+
     private static SatelliteRadioEntry CloneEntry(SatelliteRadioEntry source) =>
         new()
         {
             Name = source.Name,
+            NoradId = source.NoradId,
             Modes = source.Modes.Select(CloneMode).ToList()
         };
 

@@ -899,8 +899,12 @@ public class FrequencyOverlayViewModelTests
         public string ActiveDatabasePath { get; } = "test";
         public bool IsUsingUserDatabase => false;
 
-        public SatelliteRadioEntry? TryGetEntry(string satelliteName) =>
-            Entries.FirstOrDefault(e => e.Name.Equals(satelliteName, StringComparison.OrdinalIgnoreCase));
+        public SatelliteRadioEntry? TryGetEntry(string satelliteName, string? noradId = null) =>
+            Entries.FirstOrDefault(e => e.Name.Equals(satelliteName, StringComparison.OrdinalIgnoreCase))
+            ?? (noradId is null
+                ? null
+                : Entries.FirstOrDefault(e =>
+                    string.Equals(e.NoradId, noradId, StringComparison.OrdinalIgnoreCase)));
 
         public void Reload() { }
     }

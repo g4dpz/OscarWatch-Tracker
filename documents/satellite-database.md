@@ -63,7 +63,7 @@ The app loads **user → bundled** (see `SatelliteDatabaseService`).
 
 ## Name matching and TLEs
 
-The transponder database is keyed by **satellite name**. Names should align with [tle.oscarwatch.org](https://tle.oscarwatch.org/) TLE entries. OscarWatch registers common aliases (e.g. `AO-7` → `AO-07`, `ISS (ZARYA)` → `ISS`, `FOX-1B` → `RADFXSAT (FOX-1B)`). Optional `norad_id` stores the catalogue number for cross-reference and tooling; lookup still uses `name` and aliases. If a spacecraft has TLEs but no database entry, the frequency panel stays empty until a entry exists locally or via sync.
+The transponder database is keyed by **satellite name**, with **NORAD catalogue ID** as a fallback when TLE names differ (for example Celestrak `OBJECT_NAME` values such as `SAUDISAT 1C` matching database entry `SO-50` via NORAD ID `27607`). Names should align with [tle.oscarwatch.org](https://tle.oscarwatch.org/) TLE entries where possible. OscarWatch registers common aliases (e.g. `AO-7` → `AO-07`, `ISS (ZARYA)` → `ISS`, `FOX-1B` → `RADFXSAT (FOX-1B)`, `SAUDISAT 1C` → `SO-50`). Optional `norad_id` in the database JSON enables reliable cross-catalog matching. If a spacecraft has TLEs but no database entry, the frequency panel stays empty until an entry exists locally or via sync.
 
 ## Contributing updates
 

@@ -210,6 +210,52 @@ public class SatelliteDatabaseMergerTests
     }
 
     [Fact]
+    public void BuildPlan_backfills_missing_norad_id_from_remote()
+    {
+        var local = new List<SatelliteRadioEntry>
+        {
+            Entry("SO-50", Mode("FM VOICE", 436_795, 145_850, downlinkMode: "FM", uplinkMode: "FM"))
+        };
+
+        var remote = new List<SatelliteRadioEntry>
+        {
+            new()
+            {
+                Name = "SO-50",
+                NoradId = "27607",
+                Modes = [Mode("FM VOICE", 436_795, 145_850, downlinkMode: "FM", uplinkMode: "FM")]
+            }
+        };
+
+        var plan = SatelliteDatabaseMerger.BuildPlan(local, remote);
+
+        Assert.Single(plan.NoradIdBackfills);
+        Assert.Equal("27607", plan.NoradIdBackfills[0].NoradId);
+
+        var merged = SatelliteDatabaseMerger.Apply(local, plan, new SatelliteDatabaseMergeSelection());
+        Assert.Equal("27607", merged.Single(e => e.Name == "SO-50").NoradId);
+    }
+
+    [Fact]
+    public void Apply_new_satellite_preserves_norad_id()
+    {
+        var remoteEntry = new SatelliteRadioEntry
+        {
+            Name = "BOTAN",
+            NoradId = "65942",
+            Modes = [Mode("Packet", 145_825, 145_825, downlinkMode: "FM", uplinkMode: "FM")]
+        };
+
+        var plan = SatelliteDatabaseMerger.BuildPlan([], [remoteEntry]);
+        var merged = SatelliteDatabaseMerger.Apply(
+            [],
+            plan,
+            new SatelliteDatabaseMergeSelection { AcceptedNewSatelliteKeys = { "BOTAN" } });
+
+        Assert.Equal("65942", merged.Single().NoradId);
+    }
+
+    [Fact]
     public void WithoutAcknowledgedConflicts_hides_matching_conflict()
     {
         var local = Entry("RS-44", Mode("FT4", downlink: 435_611.6, uplink: 145_993.61));

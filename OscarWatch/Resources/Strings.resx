@@ -2781,6 +2781,12 @@ Continue?</value>
   <data name="DbEditor.NameWatermark">
     <value>Name (match TLE name when possible)</value>
   </data>
+  <data name="DbEditor.NoradIdLabel">
+    <value>NORAD ID</value>
+  </data>
+  <data name="DbEditor.NoradIdWatermark">
+    <value>Optional — match tle.oscarwatch.org (e.g. 27607)</value>
+  </data>
   <data name="DbEditor.ModesHeader">
     <value>Transponder modes</value>
   </data>
@@ -2922,6 +2928,9 @@ Continue?</value>
   <data name="DbMerge.NewSatellites">
     <value>New satellites</value>
   </data>
+  <data name="DbMerge.NoradIdBackfills">
+    <value>NORAD catalogue IDs</value>
+  </data>
   <data name="DbMerge.NewModes">
     <value>New transponder modes</value>
   </data>
@@ -2958,6 +2967,9 @@ Continue?</value>
   <data name="DbMerge.Intro.Remote">
     <value>New entries are selected by default. For conflicts, confirm your local copy or choose the published version.</value>
   </data>
+  <data name="DbMerge.Intro.NoradIds">
+    <value>These catalogue numbers will be added to satellites in your local database that do not have one yet. Click Apply selected to update.</value>
+  </data>
   <data name="DbMerge.Summary.Matches">
     <value>Your transponder database matches {0}.</value>
   </data>
@@ -2979,6 +2991,12 @@ Continue?</value>
   <data name="DbMerge.Summary.ManyConflicts">
     <value>{0} conflicts</value>
   </data>
+  <data name="DbMerge.Summary.OneNoradId">
+    <value>{0} NORAD catalogue ID</value>
+  </data>
+  <data name="DbMerge.Summary.ManyNoradIds">
+    <value>{0} NORAD catalogue IDs</value>
+  </data>
   <data name="DbMerge.Summary.FromSuffix">
     <value> from {0}.</value>
   </data>
@@ -2990,6 +3008,9 @@ Continue?</value>
   </data>
   <data name="DbMerge.Item.ModeLine">
     <value>{0} · {1}</value>
+  </data>
+  <data name="DbMerge.Item.NoradIdLine">
+    <value>{0} → {1}</value>
   </data>
   <data name="DbAdd.Title">
     <value>Add satellite</value>

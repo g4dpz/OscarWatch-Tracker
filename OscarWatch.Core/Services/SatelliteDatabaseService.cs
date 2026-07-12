@@ -15,6 +15,9 @@ public sealed class SatelliteDatabaseService : ISatelliteDatabaseService
     private Dictionary<string, SatelliteRadioEntry> _byNormalizedName =
         new(StringComparer.Ordinal);
 
+    private Dictionary<string, SatelliteRadioEntry> _byNoradId =
+        new(StringComparer.Ordinal);
+
     private List<SatelliteRadioEntry> _entries = [];
 
     public IReadOnlyList<SatelliteRadioEntry> Entries => _entries;
@@ -33,6 +36,9 @@ public sealed class SatelliteDatabaseService : ISatelliteDatabaseService
         RegisterStaticAlias("RADFXSAT", "RADFXSAT (FOX-1B)");
         RegisterStaticAlias("PO-101 (DIWATA2)", "PO-101");
         RegisterStaticAlias("DIWATA2", "PO-101");
+        RegisterStaticAlias("SAUDISAT 1C", "SO-50");
+        RegisterStaticAlias("OSCAR 7", "AO-07");
+        RegisterStaticAlias("OSCAR 50", "SO-50");
     }
 
     public SatelliteDatabaseService(string bundledPath, string? userPath = null)
@@ -61,15 +67,42 @@ public sealed class SatelliteDatabaseService : ISatelliteDatabaseService
         _byNormalizedName = new Dictionary<string, SatelliteRadioEntry>(_byName.Count, StringComparer.Ordinal);
         foreach (var (key, entry) in _byName)
             _byNormalizedName.TryAdd(NormalizeName(key), entry);
+
+        _byNoradId = new Dictionary<string, SatelliteRadioEntry>(StringComparer.Ordinal);
+        foreach (var entry in _entries)
+        {
+            var noradId = CanonicalNoradId(entry.NoradId);
+            if (noradId is not null)
+                _byNoradId.TryAdd(noradId, entry);
+        }
     }
 
-    public SatelliteRadioEntry? TryGetEntry(string satelliteName)
+    public SatelliteRadioEntry? TryGetEntry(string satelliteName, string? noradId = null)
     {
-        if (string.IsNullOrWhiteSpace(satelliteName))
+        if (!string.IsNullOrWhiteSpace(satelliteName))
+        {
+            var byName = ResolveEntry(satelliteName.Trim());
+            if (byName is not null)
+                return byName;
+        }
+
+        return TryGetEntryByNoradId(noradId);
+    }
+
+    private SatelliteRadioEntry? TryGetEntryByNoradId(string? noradId)
+    {
+        var canonical = CanonicalNoradId(noradId);
+        if (canonical is null)
             return null;
 
-        return ResolveEntry(satelliteName.Trim());
+        return _byNoradId.GetValueOrDefault(canonical);
     }
+
+    private static string? CanonicalNoradId(string? noradId) =>
+        SatelliteDatabaseFile.NormalizeNoradId(noradId) is { } normalized
+        && SatelliteDatabaseFile.IsValidNoradId(normalized)
+            ? normalized
+            : null;
 
     private static void RegisterStaticAlias(string tleName, string databaseName) =>
         StaticAliases[tleName] = databaseName;
