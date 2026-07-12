@@ -248,6 +248,12 @@ public partial class MainViewModel : ViewModelBase
     private IReadOnlyList<PassInfo>? _timelinePasses;
 
     [ObservableProperty]
+    private bool _displayTimesInUtc;
+
+    [ObservableProperty]
+    private bool _use24HourClock;
+
+    [ObservableProperty]
     private IPassListItem? _selectedListItem;
     [ObservableProperty]
     private IReadOnlyList<SatelliteTrackState> _liveStates = [];
@@ -561,6 +567,8 @@ public partial class MainViewModel : ViewModelBase
                 _settings.Current.TimelinePanelHeightPx,
                 TimelineMinPanelHeight,
                 TimelineMaxPanelHeight);
+            DisplayTimesInUtc = _settings.Current.DisplayTimesInUtc;
+            Use24HourClock = _settings.Current.Use24HourClock;
             ApplyHamsAtSidebarSettings();
             RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
             Frequencies.ReloadLayoutFromSettings();
@@ -776,6 +784,8 @@ public partial class MainViewModel : ViewModelBase
 
     public void ApplyClockFormatFromSettings()
     {
+        DisplayTimesInUtc = _settings.Current.DisplayTimesInUtc;
+        Use24HourClock = _settings.Current.Use24HourClock;
         UpdateUtcClockDisplay();
         RefreshPassTimeDisplay();
         RefreshHamsAtRoveClockDisplay();

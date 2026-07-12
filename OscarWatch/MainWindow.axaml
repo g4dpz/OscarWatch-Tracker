@@ -245,6 +245,8 @@
                                              FocusedNoradId="{Binding FocusedNoradId}"
                                              GroundStation="{Binding GroundStation}"
                                              MapDisplayUtc="{Binding MapDisplayUtc}"
+                                             DisplayTimesInUtc="{Binding DisplayTimesInUtc}"
+                                             Use24HourClock="{Binding Use24HourClock}"
                                              ToolTip.Tip="{loc:Localize Key=Main.Timeline.Description}"
                                              AutomationProperties.Name="Pass Elevation Timeline" />
           <Button HorizontalAlignment="Right"

@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
+using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Services;
@@ -22,7 +23,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     /// <summary>Reserved space at the top so peak satellite labels do not touch the panel edge.</summary>
     internal const double LabelTopPadding = 18;
 
-    /// <summary>Reserved space at the bottom for the UTC time axis.</summary>
+    /// <summary>Reserved space at the bottom for the time axis.</summary>
     internal const double TimeAxisBottomPadding = 16;
 
     /// <summary>Reserved space on the left for the elevation scale.</summary>
@@ -48,6 +49,12 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     public static readonly StyledProperty<DateTime> MapDisplayUtcProperty =
         AvaloniaProperty.Register<PassElevationTimelineControl, DateTime>(nameof(MapDisplayUtc));
 
+    public static readonly StyledProperty<bool> DisplayTimesInUtcProperty =
+        AvaloniaProperty.Register<PassElevationTimelineControl, bool>(nameof(DisplayTimesInUtc));
+
+    public static readonly StyledProperty<bool> Use24HourClockProperty =
+        AvaloniaProperty.Register<PassElevationTimelineControl, bool>(nameof(Use24HourClock));
+
     static PassElevationTimelineControl()
     {
         AffectsRender<PassElevationTimelineControl>(
@@ -55,7 +62,9 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
             TimeWindowMinutesProperty,
             FocusedNoradIdProperty,
             GroundStationProperty,
-            MapDisplayUtcProperty);
+            MapDisplayUtcProperty,
+            DisplayTimesInUtcProperty,
+            Use24HourClockProperty);
         ClipToBoundsProperty.OverrideDefaultValue<PassElevationTimelineControl>(true);
         MinHeightProperty.OverrideDefaultValue<PassElevationTimelineControl>(80);
     }
@@ -141,6 +150,18 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     {
         get => GetValue(MapDisplayUtcProperty);
         set => SetValue(MapDisplayUtcProperty, value);
+    }
+
+    public bool DisplayTimesInUtc
+    {
+        get => GetValue(DisplayTimesInUtcProperty);
+        set => SetValue(DisplayTimesInUtcProperty, value);
+    }
+
+    public bool Use24HourClock
+    {
+        get => GetValue(Use24HourClockProperty);
+        set => SetValue(Use24HourClockProperty, value);
     }
 
     // --- Render ---
@@ -346,8 +367,17 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     internal static bool IsWindowAlignedToLiveUtc(DateTime windowStartUtc, DateTime liveUtc)
         => Math.Abs(GetMinutesFromWindowStart(liveUtc, windowStartUtc)) < LiveWindowAlignmentMinutes;
 
-    internal static string FormatTimeAxisClockLabel(DateTime windowStartUtc, int minutesFromStart)
-        => windowStartUtc.AddMinutes(minutesFromStart).ToString("HH:mm", CultureInfo.InvariantCulture);
+    internal static string FormatTimeAxisClockLabel(
+        DateTime windowStartUtc,
+        int minutesFromStart,
+        ClockDisplayFormat clockFormat,
+        bool useUtc,
+        CultureInfo? culture = null)
+        => PassDisplayFormat.FormatAxisTime(
+            windowStartUtc.AddMinutes(minutesFromStart),
+            useUtc,
+            clockFormat,
+            culture);
 
     internal static string FormatElevationLabel(int elevationDeg)
         => string.Create(CultureInfo.InvariantCulture, $"{elevationDeg}°");
@@ -382,6 +412,8 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         var (plotLeft, plotTop, plotBottom, plotWidth, plotHeight) = GetPlotLayout(w, h);
         var windowStartUtc = MapDisplayUtc;
         var liveUtc = DateTime.UtcNow;
+        var clockFormat = PassDisplayFormat.FromSettings(Use24HourClock);
+        var useUtc = DisplayTimesInUtc;
 
         if (ShouldShowEmptyState(windowMinutes, windowStartUtc))
         {
@@ -390,7 +422,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         }
 
         // --- Grid lines ---
-        DrawGrid(context, w, h, plotLeft, plotTop, plotBottom, plotWidth, plotHeight, windowMinutes, windowStartUtc, liveUtc, palette);
+        DrawGrid(context, w, h, plotLeft, plotTop, plotBottom, plotWidth, plotHeight, windowMinutes, windowStartUtc, liveUtc, clockFormat, useUtc, palette);
 
         // --- Mountain shapes ---
         DrawMountains(context, w, h, plotLeft, plotTop, plotBottom, plotWidth, plotHeight, windowMinutes, windowStartUtc, palette);
@@ -411,6 +443,8 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         int windowMinutes,
         DateTime windowStartUtc,
         DateTime liveUtc,
+        ClockDisplayFormat clockFormat,
+        bool useUtc,
         UiPalette palette)
     {
         var gridColor = Color.FromArgb(64, palette.SkyPlotBorder.R, palette.SkyPlotBorder.G, palette.SkyPlotBorder.B);
@@ -424,7 +458,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
             context.DrawLine(gridPen, new Point(x, plotTop), new Point(x, plotBottom));
         }
 
-        DrawTimeAxisLabels(context, w, h, plotLeft, plotBottom, plotWidth, windowMinutes, windowStartUtc, liveUtc, palette);
+        DrawTimeAxisLabels(context, w, h, plotLeft, plotBottom, plotWidth, windowMinutes, windowStartUtc, liveUtc, clockFormat, useUtc, palette);
         DrawElevationScale(context, w, plotLeft, plotTop, plotBottom, plotHeight, palette);
     }
 
@@ -491,11 +525,13 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         int windowMinutes,
         DateTime windowStartUtc,
         DateTime liveUtc,
+        ClockDisplayFormat clockFormat,
+        bool useUtc,
         UiPalette palette)
     {
         var leftLabel = IsWindowAlignedToLiveUtc(windowStartUtc, liveUtc)
             ? LocalizationService.Instance.Get("Common.Now")
-            : FormatTimeAxisClockLabel(windowStartUtc, 0);
+            : FormatTimeAxisClockLabel(windowStartUtc, 0, clockFormat, useUtc);
         var leftText = _labelCache.Get(leftLabel, 9, palette);
         var axisLabelY = plotBottom + Math.Max(0, (totalHeight - plotBottom - leftText.Height) / 2);
         context.DrawText(leftText, new Point(plotLeft + 2, axisLabelY));
@@ -504,15 +540,15 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         for (var mins = intervalMinutes; mins < windowMinutes; mins += intervalMinutes)
         {
             var x = plotLeft + (double)mins / windowMinutes * plotWidth;
-            var timeLabel = FormatTimeAxisClockLabel(windowStartUtc, mins);
+            var timeLabel = FormatTimeAxisClockLabel(windowStartUtc, mins, clockFormat, useUtc);
             var text = _labelCache.Get(timeLabel, 9, palette);
             var labelX = Math.Clamp(x - text.Width / 2, plotLeft, Math.Max(plotLeft, width - text.Width));
             context.DrawText(text, new Point(labelX, axisLabelY));
         }
 
-        var utcLabel = LocalizationService.Instance.Get("Main.Timeline.TimeAxisUtc");
-        var utcText = _labelCache.Get(utcLabel, 8, palette);
-        context.DrawText(utcText, new Point(Math.Max(0, width - utcText.Width - 2), axisLabelY));
+        var zoneLabel = PassDisplayFormat.FormatTimeZoneLabel(useUtc);
+        var zoneText = _labelCache.Get(zoneLabel, 8, palette);
+        context.DrawText(zoneText, new Point(Math.Max(0, width - zoneText.Width - 2), axisLabelY));
     }
 
     private void DrawMountains(
@@ -914,7 +950,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     internal void RaiseSatelliteFocusRequested(string noradId)
         => SatelliteFocusRequested?.Invoke(this, noradId);
 
-    private static string BuildPassToolTip(PassInfo pass)
+    private string BuildPassToolTip(PassInfo pass)
     {
         var duration = pass.Duration;
         var minutes = duration.TotalSeconds < 30
@@ -924,11 +960,15 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
             ? LocalizationService.Instance.Get("Pass.DurationOneMinute")
             : LocalizationService.Instance.Get("Pass.DurationMinutes", minutes);
 
+        var clockFormat = PassDisplayFormat.FromSettings(Use24HourClock);
+        var aosText = PassDisplayFormat.FormatHoverTime(pass.AosUtc, DisplayTimesInUtc, clockFormat);
+        var losText = PassDisplayFormat.FormatHoverTime(pass.LosUtc, DisplayTimesInUtc, clockFormat);
+
         return LocalizationService.Instance.Get(
             "Main.Timeline.PassTooltip",
             pass.SatelliteName,
-            pass.AosUtc.ToString("HH:mm:ss", CultureInfo.InvariantCulture),
-            pass.LosUtc.ToString("HH:mm:ss", CultureInfo.InvariantCulture),
+            aosText,
+            losText,
             $"{pass.MaxElevationDeg:F1}°",
             durationText);
     }
@@ -958,10 +998,14 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         if (visible.Count == 0)
             return LocalizationService.Instance.Get("Main.Pass.None");
 
+        var clockFormat = PassDisplayFormat.FromSettings(Use24HourClock);
+        var useUtc = DisplayTimesInUtc;
         var parts = visible.Select(e =>
         {
             var p = e.Pass;
-            return $"{p.SatelliteName}: {p.AosUtc:HH:mm}-{p.LosUtc:HH:mm} UTC, max {p.MaxElevationDeg:F0}°";
+            var aosText = PassDisplayFormat.FormatHoverTime(p.AosUtc, useUtc, clockFormat);
+            var losText = PassDisplayFormat.FormatHoverTime(p.LosUtc, useUtc, clockFormat);
+            return $"{p.SatelliteName}: {aosText}-{losText}, max {p.MaxElevationDeg:F0}°";
         });
 
         return $"{visible.Count} passes: " + string.Join("; ", parts);

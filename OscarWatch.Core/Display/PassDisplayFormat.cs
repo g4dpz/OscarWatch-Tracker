@@ -290,6 +290,17 @@ public static class PassDisplayFormat
         return ToDisplayTime(utc, useUtc).ToString(GetTimePattern(clockFormat, includeSeconds: true, culture), culture);
     }
 
+    /// <summary>Compact time label for chart axes (no date or seconds).</summary>
+    public static string FormatAxisTime(
+        DateTime utc,
+        bool useUtc,
+        ClockDisplayFormat clockFormat = ClockDisplayFormat.TwelveHour,
+        CultureInfo? culture = null)
+    {
+        culture ??= CultureInfo.CurrentUICulture;
+        return ToDisplayTime(utc, useUtc).ToString(GetTimePattern(clockFormat, culture: culture), culture);
+    }
+
     /// <summary>Minutes and seconds until AOS, e.g. <c>14:05</c>.</summary>
     public static string FormatCountdownToAos(DateTime utcNow, DateTime aosUtc)
     {

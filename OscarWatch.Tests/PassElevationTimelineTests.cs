@@ -7,7 +7,9 @@
 
 using FsCheck.Xunit;
 using OscarWatch.Controls;
+using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
+using System.Globalization;
 
 namespace OscarWatch.Tests;
 
@@ -68,11 +70,20 @@ public class PassElevationTimelineTests
     }
 
     [Fact]
-    public void FormatTimeAxisClockLabel_uses_utc_hh_mm()
+    public void FormatTimeAxisClockLabel_uses_display_settings()
     {
         var start = new DateTime(2026, 1, 15, 14, 0, 0, DateTimeKind.Utc);
-        Assert.Equal("14:30", PassElevationTimelineControl.FormatTimeAxisClockLabel(start, 30));
-        Assert.Equal("16:00", PassElevationTimelineControl.FormatTimeAxisClockLabel(start, 120));
+        var culture = CultureInfo.InvariantCulture;
+
+        Assert.Equal("14:30", PassElevationTimelineControl.FormatTimeAxisClockLabel(
+            start, 30, ClockDisplayFormat.TwentyFourHour, useUtc: true, culture));
+        Assert.Equal("16:00", PassElevationTimelineControl.FormatTimeAxisClockLabel(
+            start, 120, ClockDisplayFormat.TwentyFourHour, useUtc: true, culture));
+
+        var twelveHour = PassElevationTimelineControl.FormatTimeAxisClockLabel(
+            start, 30, ClockDisplayFormat.TwelveHour, useUtc: true, new CultureInfo("en-GB"));
+        Assert.Contains("2:30", twelveHour);
+        Assert.Contains("PM", twelveHour, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

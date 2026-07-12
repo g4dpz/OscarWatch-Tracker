@@ -164,7 +164,7 @@
     <value>45°</value>
   </data>
   <data name="Main.Timeline.PassTooltip">
-    <value>{0}&#10;AOS: {1} UTC&#10;LOS: {2} UTC&#10;Max elevation: {3}&#10;Duration: {4}</value>
+    <value>{0}&#10;AOS: {1}&#10;LOS: {2}&#10;Max elevation: {3}&#10;Duration: {4}</value>
   </data>
   <data name="Main.Timeline.TimeAxisUtc">
     <value>UTC</value>
@@ -601,7 +601,7 @@ Continue?</value>
     <value>Times shown in</value>
   </data>
   <data name="Settings.TimeDisplay.Note">
-    <value>Applies to the status clock, sidebar pass list, hams.at roves, and sunlight prediction. Pass planner and mutual pass have their own local/UTC control. Satellite tracking always uses UTC internally.</value>
+    <value>Applies to the status clock, sidebar pass list, pass elevation timeline, hams.at roves, and sunlight prediction. Pass planner and mutual pass have their own local/UTC control. Satellite tracking always uses UTC internally.</value>
   </data>
   <data name="Settings.Theme">
     <value>Theme</value>

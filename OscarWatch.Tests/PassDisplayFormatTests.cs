@@ -65,6 +65,20 @@ public class PassDisplayFormatTests
     }
 
     [Fact]
+    public void FormatAxisTime_respects_12_and_24_hour()
+    {
+        var utc = new DateTime(2026, 6, 4, 15, 30, 0, DateTimeKind.Utc);
+        var culture = new CultureInfo("en-GB");
+
+        var twelve = PassDisplayFormat.FormatAxisTime(utc, useUtc: true, ClockDisplayFormat.TwelveHour, culture);
+        var twentyFour = PassDisplayFormat.FormatAxisTime(utc, useUtc: true, ClockDisplayFormat.TwentyFourHour, culture);
+
+        Assert.Contains("3:30", twelve);
+        Assert.Contains("PM", twelve, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal("15:30", twentyFour);
+    }
+
+    [Fact]
     public void FormatAlertWindow_respects_12_and_24_hour()
     {
         var aosUtc = new DateTime(2026, 6, 4, 15, 30, 0, DateTimeKind.Utc);
