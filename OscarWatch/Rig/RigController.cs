@@ -1298,19 +1298,11 @@ public sealed class RigController : IRigController, IDisposable
         _driver.SelectVfo(RigVfo.Main);
         Thread.Sleep(50);
 
-        var targetRxHz = ToHz(context.Corrected.RadioReceiveKHz);
         var mainHz = _driver.ReadFrequencyHz(RigVfo.Main);
         if (mainHz is > 0)
         {
-            if (canExchange)
-            {
-                if (mainHz.Value > 400_000_000 && targetRxHz < 400_000_000)
-                    _driver.ExchangeVfos();
-                else if (mainHz.Value < 200_000_000 && targetRxHz > 200_000_000)
-                    _driver.ExchangeVfos();
-                else if (RigSatModeHelper.NeedsMainSubBandSwap(mainHz.Value, context.Mode.DownlinkKHz))
-                    _driver.ExchangeVfos();
-            }
+            if (canExchange && RigSatModeHelper.NeedsMainSubBandSwap(mainHz.Value, context.Mode.DownlinkKHz))
+                _driver.ExchangeVfos();
 
             return;
         }

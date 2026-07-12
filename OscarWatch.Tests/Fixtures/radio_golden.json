@@ -1,11 +1,13 @@
 {
   "frequencyEncode": [
     { "hz": 145950000, "payloadHex": "050000954501" },
-    { "hz": 432146000, "payloadHex": "050060143204" }
+    { "hz": 432146000, "payloadHex": "050060143204" },
+    { "hz": 29450000, "payloadHex": "050000452900" }
   ],
   "rigSatMode": [
     { "downlinkKHz": 145950, "uplinkKHz": 432146, "useMainSub": true },
-    { "downlinkKHz": 436795, "uplinkKHz": 145850, "useMainSub": true }
+    { "downlinkKHz": 436795, "uplinkKHz": 145850, "useMainSub": true },
+    { "downlinkKHz": 29450, "uplinkKHz": 145900, "useMainSub": true }
   ],
   "setupVfos": [
     { "downlinkMode": "FMN", "thresholdHz": 200, "interactive": false },

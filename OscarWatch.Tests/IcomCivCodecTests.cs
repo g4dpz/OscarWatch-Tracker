@@ -31,6 +31,7 @@ public class IcomCivCodecTests
     [InlineData(145_950_000)]
     [InlineData(435_659_900)]
     [InlineData(432_146_000)]
+    [InlineData(29_450_000)]
     public void DecodeFrequencyFromResponse_parses_bcd_digits_as_decimal_hz(long hz)
     {
         var body = IcomCivCodec.EncodeSetFrequencyHz(hz);
@@ -114,6 +115,15 @@ public class IcomCivCodecTests
         for (var i = 0; i < expectedHex.Length; i++)
             Assert.Equal(expectedHex[i], Convert.ToHexString(commands[i]).ToLowerInvariant());
     }
+
+    [Theory]
+    [InlineData(145_950_000, true)]
+    [InlineData(29_450_000, true)]
+    [InlineData(435_659_900, true)]
+    [InlineData(100_000_000, false)]
+    [InlineData(300_000_000, false)]
+    public void IsValidSatelliteFrequencyHz_accepts_amateur_satellite_bands(long hz, bool expected) =>
+        Assert.Equal(expected, IcomCivCodec.IsValidSatelliteFrequencyHz(hz));
 
     private static byte[] BuildReadResponseFromHz(long hz)
     {

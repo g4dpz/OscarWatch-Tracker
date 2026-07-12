@@ -58,9 +58,13 @@ public static class IcomCivCodec
             : null;
     }
 
-    /// <summary>True when <paramref name="hz"/> is in an amateur satellite band (IC-910 / IC-9700).</summary>
+    /// <summary>
+    /// True when <paramref name="hz"/> is in an amateur satellite band on ICOM satellite rigs.
+    /// Includes HF (IC-9100, e.g. AO-07 Mode A on 10m) plus VHF/UHF/23cm on IC-910/9700/9100.
+    /// </summary>
     public static bool IsValidSatelliteFrequencyHz(long hz) =>
-        hz is >= 144_000_000 and <= 148_000_000
+        hz is >= 1_800_000 and <= 54_000_000
+            or >= 144_000_000 and <= 148_000_000
             or >= 430_000_000 and <= 450_000_000
             or >= 1_200_000_000 and <= 1_300_000_000;
 

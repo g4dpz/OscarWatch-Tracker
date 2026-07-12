@@ -34,8 +34,18 @@ public class RigSatModeHelperTests
     [InlineData(145_900_000, 145_865, false)]
     [InlineData(145_900_000, 435_667, true)]
     [InlineData(435_700_000, 435_667, false)]
+    [InlineData(29_450_000, 29_450, false)]
+    [InlineData(145_900_000, 29_450, true)]
+    [InlineData(435_700_000, 29_450, true)]
     public void NeedsMainSubBandSwap_detects_wrong_main_band(long mainHz, double downlinkKHz, bool expected) =>
         Assert.Equal(expected, RigSatModeHelper.NeedsMainSubBandSwap(mainHz, downlinkKHz));
+
+    [Theory]
+    [InlineData(29_450, RigSatBandRegion.Hf)]
+    [InlineData(145_865, RigSatBandRegion.Vhf)]
+    [InlineData(435_667, RigSatBandRegion.UhfAndAbove)]
+    public void GetSatBandRegion_classifies_hf_vhf_uhf(double downlinkKHz, RigSatBandRegion expected) =>
+        Assert.Equal(expected, RigSatModeHelper.GetSatBandRegion(downlinkKHz));
 }
 
 public class SetupVfosPolicyTests
