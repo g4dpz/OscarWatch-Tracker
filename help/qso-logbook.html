@@ -155,8 +155,11 @@
         Leave the option unchecked for Cloudlog, Log4OM, and other loggers that use common satellite names.
       </p>
       <p>
-        Records include satellite name, mode, bands, frequencies, propagation mode <strong>SAT</strong>,
+        Records include satellite name, ADIF mode and submode (for example LSB as <code>MODE=SSB</code> with <code>SUBMODE=LSB</code>),
+        bands, frequencies, propagation mode <strong>SAT</strong>,
         your station callsign and grid from the logbook, and comma-separated grids when used.
+        When uplink and downlink modes differ, the downlink mode is noted in <code>COMMENT</code>
+        (for example <code>RX mode USB</code>) rather than a non-standard field.
         Special characters in comments are escaped for safe ADIF import.
         Import the file into Cloudlog, Log4OM, or any ADIF-capable logger.
       </p>

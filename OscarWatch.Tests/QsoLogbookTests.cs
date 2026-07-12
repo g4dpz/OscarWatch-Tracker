@@ -201,6 +201,90 @@ public class AdifExporterTests
     [InlineData("angle<bracket", "angle\\<bracket")]
     public void EscapeAdifValue_escapes_adif_special_characters(string input, string expected) =>
         Assert.Equal(expected, AdifExporter.EscapeAdifValue(input));
+
+    [Fact]
+    public void ExportLogbook_maps_ssb_submodes_and_omits_mode_rx()
+    {
+        var logbook = new QsoLogbook
+        {
+            Id = 1,
+            Name = "Portable",
+            CreatedUtc = DateTime.UtcNow,
+            MyCallsign = "2M0SQL",
+            MyGridSquare = "IO87IP"
+        };
+        var qso = new QsoRecord
+        {
+            Id = 1,
+            LogbookId = 1,
+            QsoUtc = new DateTime(2020, 2, 12, 17, 10, 0, DateTimeKind.Utc),
+            Call = "G0ABC",
+            SatName = "AO-07",
+            Mode = "LSB",
+            ModeRx = "USB",
+            FreqHz = 145_950_000,
+            FreqRxHz = 435_850_000,
+            Band = "2m",
+            BandRx = "70cm",
+            PropMode = "SAT",
+            CreatedUtc = DateTime.UtcNow
+        };
+
+        var adif = AdifExporter.ExportLogbook(logbook, [qso]);
+
+        Assert.Contains("<MODE:3>SSB", adif, StringComparison.Ordinal);
+        Assert.Contains("<SUBMODE:3>LSB", adif, StringComparison.Ordinal);
+        Assert.Contains("<COMMENT:11>RX mode USB", adif, StringComparison.Ordinal);
+        Assert.DoesNotContain("MODE_RX", adif, StringComparison.Ordinal);
+        Assert.DoesNotContain("<MODE:3>LSB", adif, StringComparison.Ordinal);
+        Assert.DoesNotContain("<MODE:3>USB", adif, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ExportLogbook_merges_user_comment_with_rx_mode_note()
+    {
+        var logbook = new QsoLogbook
+        {
+            Id = 1,
+            Name = "Portable",
+            CreatedUtc = DateTime.UtcNow
+        };
+        var qso = new QsoRecord
+        {
+            Id = 1,
+            LogbookId = 1,
+            QsoUtc = new DateTime(2020, 2, 12, 17, 10, 0, DateTimeKind.Utc),
+            Call = "G0ABC",
+            Comment = "Portable",
+            SatName = "RS-44",
+            Mode = "LSB",
+            ModeRx = "USB",
+            FreqHz = 145_960_000,
+            FreqRxHz = 435_610_000,
+            PropMode = "SAT",
+            CreatedUtc = DateTime.UtcNow
+        };
+
+        var adif = AdifExporter.ExportLogbook(logbook, [qso]);
+
+        Assert.Contains("<COMMENT:", adif, StringComparison.Ordinal);
+        Assert.Contains("Portable · RX mode USB", adif, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("LSB", "SSB", "LSB")]
+    [InlineData("USB", "SSB", "USB")]
+    [InlineData("FM", "FM", null)]
+    [InlineData("FMN", "FM", null)]
+    [InlineData("CW", "CW", null)]
+    [InlineData("FT4", "MFSK", "FT4")]
+    [InlineData("DATA-USB", "SSB", "USB")]
+    public void AdifModeHelper_maps_operating_modes(string source, string mode, string? submode)
+    {
+        var mapped = AdifModeHelper.FromOperatingMode(source);
+        Assert.Equal(mode, mapped.Mode);
+        Assert.Equal(submode, mapped.Submode);
+    }
 }
 
 public class QsoLogbookRepositoryTests : IDisposable

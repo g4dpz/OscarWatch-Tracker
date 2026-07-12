@@ -45,8 +45,12 @@ public static class AdifExporter
             AppendField(sb, "GRIDSQUARE", MaidenheadLocator.NormalizeGrids(qso.GridSquare));
         if (!string.IsNullOrWhiteSpace(qso.Name))
             AppendField(sb, "NAME", qso.Name.Trim());
-        if (!string.IsNullOrWhiteSpace(qso.Comment))
-            AppendField(sb, "COMMENT", qso.Comment.Trim());
+
+        var comment = AdifModeHelper.MergeComment(
+            qso.Comment,
+            AdifModeHelper.BuildRxModeComment(qso.Mode, qso.ModeRx));
+        if (!string.IsNullOrWhiteSpace(comment))
+            AppendField(sb, "COMMENT", comment);
 
         if (!string.IsNullOrWhiteSpace(logbook.MyCallsign))
             AppendField(sb, "STATION_CALLSIGN", MaidenheadLocator.NormalizeCallsign(logbook.MyCallsign));
@@ -63,15 +67,19 @@ public static class AdifExporter
 
         if (qso.FreqHz > 0)
             AppendField(sb, "FREQ", FormatFreqMhz(qso.FreqHz));
-        if (!string.IsNullOrWhiteSpace(qso.Mode))
-            AppendField(sb, "MODE", qso.Mode.Trim().ToUpperInvariant());
         if (!string.IsNullOrWhiteSpace(qso.Band))
             AppendField(sb, "BAND", qso.Band.Trim());
 
+        var txMode = AdifModeHelper.FromOperatingMode(qso.Mode);
+        if (!string.IsNullOrWhiteSpace(txMode.Mode))
+        {
+            AppendField(sb, "MODE", txMode.Mode);
+            if (!string.IsNullOrWhiteSpace(txMode.Submode))
+                AppendField(sb, "SUBMODE", txMode.Submode);
+        }
+
         if (qso.FreqRxHz > 0 && qso.FreqRxHz != qso.FreqHz)
             AppendField(sb, "FREQ_RX", FormatFreqMhz(qso.FreqRxHz));
-        if (!string.IsNullOrWhiteSpace(qso.ModeRx) && !string.Equals(qso.Mode, qso.ModeRx, StringComparison.OrdinalIgnoreCase))
-            AppendField(sb, "MODE_RX", qso.ModeRx.Trim().ToUpperInvariant());
         if (!string.IsNullOrWhiteSpace(qso.BandRx) && !string.Equals(qso.Band, qso.BandRx, StringComparison.OrdinalIgnoreCase))
             AppendField(sb, "BAND_RX", qso.BandRx.Trim());
 
