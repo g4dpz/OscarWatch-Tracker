@@ -2427,6 +2427,9 @@
   <data name="Pass.CountMutual">
     <value>{0} pase(s) mutuo(s) en las próximas {1} h</value>
   </data>
+  <data name="Pass.CountMutualInRange">
+    <value>{0} pase(s) mutuo(s) de {1} a {2}</value>
+  </data>
   <data name="Pass.Failed">
     <value>Error en la predicción de pases: {0}</value>
   </data>
@@ -2550,6 +2553,27 @@
   <data name="Mutual.MinOverlap">
     <value>Solapamiento mín. (min)</value>
   </data>
+  <data name="Mutual.TimeWindow.Label">
+    <value>Ventana de búsqueda</value>
+  </data>
+  <data name="Mutual.TimeWindow.HoursAhead">
+    <value>Horas hacia adelante desde ahora</value>
+  </data>
+  <data name="Mutual.TimeWindow.DateRange">
+    <value>De / hasta fecha y hora</value>
+  </data>
+  <data name="Mutual.RangeStartDate">
+    <value>Fecha de inicio</value>
+  </data>
+  <data name="Mutual.RangeStartTime">
+    <value>Hora de inicio</value>
+  </data>
+  <data name="Mutual.RangeEndDate">
+    <value>Fecha de fin</value>
+  </data>
+  <data name="Mutual.RangeEndTime">
+    <value>Hora de fin</value>
+  </data>
   <data name="Mutual.PassesHeader">
     <value>Pases mutuos</value>
   </data>
@@ -2579,6 +2603,15 @@
   </data>
   <data name="Mutual.Status.NoPasses">
     <value>No hay pases mutuos en las próximas {0} h para {1} y {2}.</value>
+  </data>
+  <data name="Mutual.Status.NoPassesInRange">
+    <value>No hay pases mutuos de {0} a {1} para {2} y {3}.</value>
+  </data>
+  <data name="Mutual.Status.InvalidRange">
+    <value>La fecha y hora de fin deben ser posteriores al inicio.</value>
+  </data>
+  <data name="Mutual.Status.RangeTooLong">
+    <value>La ventana de búsqueda no puede superar {0} días.</value>
   </data>
   <data name="Mutual.Status.InvalidGrid">
     <value>Cuadrícula Maidenhead no válida.</value>

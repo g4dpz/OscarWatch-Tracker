@@ -82,6 +82,7 @@ public partial class MainWindow : Window
 
         vm.Frequencies.PersistOverlayPosition();
         vm.DxStation.PersistOverlayPosition();
+        vm.DisconnectHardwareForShutdown();
 
         if (vm.PrepareForShutdown())
             await vm.SaveSettingsAsync();

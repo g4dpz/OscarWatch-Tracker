@@ -2307,6 +2307,9 @@
   <data name="Pass.CountMutual">
     <value>今後 {1} 時間で相互パス {0} 件</value>
   </data>
+  <data name="Pass.CountMutualInRange">
+    <value>{1} から {2} までの相互パス {0} 件</value>
+  </data>
   <data name="Pass.Failed">
     <value>パス予測に失敗: {0}</value>
   </data>
@@ -2430,6 +2433,27 @@
   <data name="Mutual.MinOverlap">
     <value>最小重複 (分)</value>
   </data>
+  <data name="Mutual.TimeWindow.Label">
+    <value>検索期間</value>
+  </data>
+  <data name="Mutual.TimeWindow.HoursAhead">
+    <value>現在から先の時間数</value>
+  </data>
+  <data name="Mutual.TimeWindow.DateRange">
+    <value>開始/終了の日時</value>
+  </data>
+  <data name="Mutual.RangeStartDate">
+    <value>開始日</value>
+  </data>
+  <data name="Mutual.RangeStartTime">
+    <value>開始時刻</value>
+  </data>
+  <data name="Mutual.RangeEndDate">
+    <value>終了日</value>
+  </data>
+  <data name="Mutual.RangeEndTime">
+    <value>終了時刻</value>
+  </data>
   <data name="Mutual.PassesHeader">
     <value>相互パス</value>
   </data>
@@ -2459,6 +2483,15 @@
   </data>
   <data name="Mutual.Status.NoPasses">
     <value>今後 {0} 時間に {1} と {2} の相互パスはありません。</value>
+  </data>
+  <data name="Mutual.Status.NoPassesInRange">
+    <value>{0} から {1} までに {2} と {3} の相互パスはありません。</value>
+  </data>
+  <data name="Mutual.Status.InvalidRange">
+    <value>終了日時は開始日時より後である必要があります。</value>
+  </data>
+  <data name="Mutual.Status.RangeTooLong">
+    <value>検索期間は {0} 日を超えられません。</value>
   </data>
   <data name="Mutual.Status.InvalidGrid">
     <value>メイデンヘッドグリッドが無効です。</value>

@@ -89,7 +89,7 @@
                     MinWidth="130" />
           </Grid>
 
-          <Grid ColumnDefinitions="*,*,*,*"
+          <Grid ColumnDefinitions="*,*,*"
                 ColumnSpacing="8"
                 HorizontalAlignment="Stretch"
                 MinWidth="0">
@@ -117,14 +117,6 @@
                              Value="{Binding FilterMinMutualDurationMinutes, Mode=TwoWay}"
                              Minimum="0" Maximum="60" FormatString="0" />
             </StackPanel>
-            <StackPanel Grid.Column="3" Spacing="2" MinWidth="0">
-              <TextBlock Text="{loc:Localize Key=Pass.HoursAhead}"
-                         FontSize="12"
-                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
-              <NumericUpDown HorizontalAlignment="Stretch"
-                             Value="{Binding FilterPredictionHours, Mode=TwoWay}"
-                             Minimum="6" Maximum="168" FormatString="0" />
-            </StackPanel>
           </Grid>
 
           <Grid ColumnDefinitions="Auto,*"
@@ -147,6 +139,76 @@
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
+          </Grid>
+
+          <Grid ColumnDefinitions="Auto,*"
+                ColumnSpacing="8"
+                HorizontalAlignment="Stretch"
+                MinWidth="0">
+            <TextBlock Grid.Column="0"
+                       Text="{loc:Localize Key=Mutual.TimeWindow.Label}"
+                       FontSize="12"
+                       VerticalAlignment="Center"
+                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+            <ComboBox Grid.Column="1"
+                      HorizontalAlignment="Left"
+                      MinWidth="240"
+                      ItemsSource="{Binding TimeWindowModeLabels}"
+                      SelectedIndex="{Binding TimeWindowModeIndex, Mode=TwoWay}">
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </Grid>
+
+          <StackPanel Spacing="2"
+                      IsVisible="{Binding UseHoursAhead}"
+                      HorizontalAlignment="Stretch"
+                      MinWidth="0"
+                      MaxWidth="220">
+            <TextBlock Text="{loc:Localize Key=Pass.HoursAhead}"
+                       FontSize="12"
+                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+            <NumericUpDown HorizontalAlignment="Stretch"
+                           Value="{Binding FilterPredictionHours, Mode=TwoWay}"
+                           Minimum="6" Maximum="168" FormatString="0" />
+          </StackPanel>
+
+          <Grid IsVisible="{Binding UseDateRange}"
+                ColumnDefinitions="*,*,*,*"
+                ColumnSpacing="8"
+                HorizontalAlignment="Stretch"
+                MinWidth="0">
+            <StackPanel Grid.Column="0" Spacing="2" MinWidth="0">
+              <TextBlock Text="{loc:Localize Key=Mutual.RangeStartDate}"
+                         FontSize="12"
+                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+              <DatePicker HorizontalAlignment="Stretch"
+                          SelectedDate="{Binding RangeStartDate, Mode=TwoWay}" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="2" MinWidth="0">
+              <TextBlock Text="{loc:Localize Key=Mutual.RangeStartTime}"
+                         FontSize="12"
+                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+              <TimePicker HorizontalAlignment="Stretch"
+                          SelectedTime="{Binding RangeStartTime, Mode=TwoWay}" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" Spacing="2" MinWidth="0">
+              <TextBlock Text="{loc:Localize Key=Mutual.RangeEndDate}"
+                         FontSize="12"
+                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+              <DatePicker HorizontalAlignment="Stretch"
+                          SelectedDate="{Binding RangeEndDate, Mode=TwoWay}" />
+            </StackPanel>
+            <StackPanel Grid.Column="3" Spacing="2" MinWidth="0">
+              <TextBlock Text="{loc:Localize Key=Mutual.RangeEndTime}"
+                         FontSize="12"
+                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+              <TimePicker HorizontalAlignment="Stretch"
+                          SelectedTime="{Binding RangeEndTime, Mode=TwoWay}" />
+            </StackPanel>
           </Grid>
         </StackPanel>
       </Expander>

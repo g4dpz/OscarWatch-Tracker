@@ -369,7 +369,7 @@ public sealed class TrackingOrchestrator
             .ToList();
     }
 
-    public async Task<IReadOnlyList<MutualPassInfo>> GetMutualPassesAsync(
+    public Task<IReadOnlyList<MutualPassInfo>> GetMutualPassesAsync(
         GroundStation localSite,
         GroundStation remoteSite,
         double minimumElevationDeg,
@@ -379,7 +379,27 @@ public sealed class TrackingOrchestrator
         CancellationToken cancellationToken = default)
     {
         var utcStart = DateTime.UtcNow;
-        var utcEnd = utcStart.AddHours(predictionHours);
+        return GetMutualPassesAsync(
+            localSite,
+            remoteSite,
+            minimumElevationDeg,
+            utcStart,
+            utcStart.AddHours(predictionHours),
+            minimumPassDurationMinutes,
+            minimumMutualDurationMinutes,
+            cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<MutualPassInfo>> GetMutualPassesAsync(
+        GroundStation localSite,
+        GroundStation remoteSite,
+        double minimumElevationDeg,
+        DateTime utcStart,
+        DateTime utcEnd,
+        int minimumPassDurationMinutes,
+        int minimumMutualDurationMinutes,
+        CancellationToken cancellationToken = default)
+    {
         var minPassDuration = TimeSpan.FromMinutes(Math.Max(0, minimumPassDurationMinutes));
         var minMutualDuration = TimeSpan.FromMinutes(Math.Max(0, minimumMutualDurationMinutes));
 

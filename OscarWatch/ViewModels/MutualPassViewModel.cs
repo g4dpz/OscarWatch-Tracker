@@ -12,12 +12,15 @@ namespace OscarWatch.ViewModels;
 
 public partial class MutualPassViewModel : ViewModelBase
 {
+    private const int MaxDateRangeDays = 30;
+
     private readonly ISettingsService _settings;
     private readonly ITleService _tleService;
     private readonly TrackingOrchestrator _tracking;
     private readonly ILocalizationService _l;
 
     public IReadOnlyList<string> TimeDisplayLabels { get; }
+    public IReadOnlyList<string> TimeWindowModeLabels { get; }
 
     public ObservableCollection<MutualPassRow> Passes { get; } = [];
 
@@ -43,6 +46,21 @@ public partial class MutualPassViewModel : ViewModelBase
     private int _filterPredictionHours = 48;
 
     [ObservableProperty]
+    private int _timeWindowModeIndex;
+
+    [ObservableProperty]
+    private DateTimeOffset _rangeStartDate;
+
+    [ObservableProperty]
+    private TimeSpan? _rangeStartTime;
+
+    [ObservableProperty]
+    private DateTimeOffset _rangeEndDate;
+
+    [ObservableProperty]
+    private TimeSpan? _rangeEndTime;
+
+    [ObservableProperty]
     private string _statusText = "";
 
     [ObservableProperty]
@@ -52,6 +70,9 @@ public partial class MutualPassViewModel : ViewModelBase
     private string _lastRemoteLabel = "";
     private GroundStation? _lastLocalSite;
     private GroundStation? _lastRemoteSite;
+
+    public bool UseHoursAhead => TimeWindowModeIndex == 0;
+    public bool UseDateRange => TimeWindowModeIndex == 1;
 
     public MutualPassViewModel(
         ISettingsService settings,
@@ -68,6 +89,15 @@ public partial class MutualPassViewModel : ViewModelBase
             _l.Get("Pass.Time.Local"),
             _l.Get("Pass.Time.Utc")
         ];
+        TimeWindowModeLabels =
+        [
+            _l.Get("Mutual.TimeWindow.HoursAhead"),
+            _l.Get("Mutual.TimeWindow.DateRange")
+        ];
+        _rangeStartDate = DateTimeOffset.UtcNow.Date;
+        _rangeStartTime = TimeSpan.Zero;
+        _rangeEndDate = DateTimeOffset.UtcNow.Date.AddDays(2);
+        _rangeEndTime = TimeSpan.Zero;
     }
 
     public void Initialize()
@@ -80,6 +110,13 @@ public partial class MutualPassViewModel : ViewModelBase
         FilterMinMutualDurationMinutes = Math.Max(1, FilterMinPassDurationMinutes / 2);
         FilterPredictionHours = _settings.Current.PassPredictionHours;
         UseUtcTime = _settings.Current.PassPlannerUseUtcTime;
+        InitializeDateRangeDefaults();
+    }
+
+    partial void OnTimeWindowModeIndexChanged(int value)
+    {
+        OnPropertyChanged(nameof(UseHoursAhead));
+        OnPropertyChanged(nameof(UseDateRange));
     }
 
     partial void OnUseUtcTimeChanged(bool value)
@@ -87,6 +124,7 @@ public partial class MutualPassViewModel : ViewModelBase
         OnPropertyChanged(nameof(TimeDisplayIndex));
         _settings.Current.PassPlannerUseUtcTime = value;
         RefreshPassDisplayTimes();
+        InitializeDateRangeDefaults();
         _settings.RequestSave();
     }
 
@@ -100,6 +138,18 @@ public partial class MutualPassViewModel : ViewModelBase
 
             UseUtcTime = value == 1;
         }
+    }
+
+    private void InitializeDateRangeDefaults()
+    {
+        var now = UseUtcTime ? DateTimeOffset.UtcNow : DateTimeOffset.Now;
+        var start = now;
+        var end = start.AddHours(FilterPredictionHours);
+
+        RangeStartDate = start.Date;
+        RangeStartTime = new TimeSpan(start.Hour, start.Minute, 0);
+        RangeEndDate = end.Date;
+        RangeEndTime = new TimeSpan(end.Hour, end.Minute, 0);
     }
 
     private void RefreshPassDisplayTimes()
@@ -128,6 +178,14 @@ public partial class MutualPassViewModel : ViewModelBase
             return;
         }
 
+        if (!TryGetSearchWindowUtc(out var utcStart, out var utcEnd, out var rangeErrorKey, out var rangeErrorArg))
+        {
+            StatusText = rangeErrorArg is null
+                ? _l.Get(rangeErrorKey!)
+                : _l.Get(rangeErrorKey!, rangeErrorArg.Value);
+            return;
+        }
+
         StatusText = _l.Get("Pass.ComputingMutual");
 
         try
@@ -151,7 +209,8 @@ public partial class MutualPassViewModel : ViewModelBase
                 localSite,
                 remoteSite,
                 FilterMinElevationDeg,
-                FilterPredictionHours,
+                utcStart,
+                utcEnd,
                 FilterMinPassDurationMinutes,
                 FilterMinMutualDurationMinutes);
 
@@ -169,9 +228,28 @@ public partial class MutualPassViewModel : ViewModelBase
                     UseUtcTime,
                     _settings.Current.Use24HourClock));
 
-            StatusText = passes.Count == 0
-                ? _l.Get("Mutual.Status.NoPasses", FilterPredictionHours, localSite.GridSquare, remoteSite.GridSquare)
-                : _l.Get("Pass.CountMutual", passes.Count, FilterPredictionHours);
+            var clockFormat = PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock);
+            if (passes.Count == 0)
+            {
+                StatusText = UseHoursAhead
+                    ? _l.Get("Mutual.Status.NoPasses", FilterPredictionHours, localSite.GridSquare, remoteSite.GridSquare)
+                    : _l.Get(
+                        "Mutual.Status.NoPassesInRange",
+                        FormatRangePoint(utcStart, clockFormat),
+                        FormatRangePoint(utcEnd, clockFormat),
+                        localSite.GridSquare,
+                        remoteSite.GridSquare);
+            }
+            else
+            {
+                StatusText = UseHoursAhead
+                    ? _l.Get("Pass.CountMutual", passes.Count, FilterPredictionHours)
+                    : _l.Get(
+                        "Pass.CountMutualInRange",
+                        passes.Count,
+                        FormatRangePoint(utcStart, clockFormat),
+                        FormatRangePoint(utcEnd, clockFormat));
+            }
         }
         catch (ArgumentException)
         {
@@ -182,6 +260,71 @@ public partial class MutualPassViewModel : ViewModelBase
             StatusText = _l.Get("Pass.FailedMutual", ex.Message);
         }
     }
+
+    private bool TryGetSearchWindowUtc(
+        out DateTime utcStart,
+        out DateTime utcEnd,
+        out string? errorKey,
+        out int? errorArg)
+    {
+        errorKey = null;
+        errorArg = null;
+
+        if (UseHoursAhead)
+        {
+            utcStart = DateTime.UtcNow;
+            utcEnd = utcStart.AddHours(FilterPredictionHours);
+            return true;
+        }
+
+        utcStart = CombineDateAndTime(RangeStartDate, RangeStartTime ?? TimeSpan.Zero);
+        utcEnd = CombineDateAndTime(RangeEndDate, RangeEndTime ?? TimeSpan.Zero);
+
+        if (utcEnd <= utcStart)
+        {
+            errorKey = "Mutual.Status.InvalidRange";
+            return false;
+        }
+
+        if (utcEnd - utcStart > TimeSpan.FromDays(MaxDateRangeDays))
+        {
+            errorKey = "Mutual.Status.RangeTooLong";
+            errorArg = MaxDateRangeDays;
+            return false;
+        }
+
+        return true;
+    }
+
+    private DateTime CombineDateAndTime(DateTimeOffset date, TimeSpan time)
+    {
+        if (UseUtcTime)
+        {
+            var d = date.UtcDateTime.Date;
+            return new DateTime(
+                d.Year,
+                d.Month,
+                d.Day,
+                time.Hours,
+                time.Minutes,
+                time.Seconds,
+                DateTimeKind.Utc);
+        }
+
+        var localDate = date.LocalDateTime.Date;
+        var local = new DateTime(
+            localDate.Year,
+            localDate.Month,
+            localDate.Day,
+            time.Hours,
+            time.Minutes,
+            time.Seconds,
+            DateTimeKind.Local);
+        return local.ToUniversalTime();
+    }
+
+    private string FormatRangePoint(DateTime utc, ClockDisplayFormat clockFormat) =>
+        PassDisplayFormat.FormatLocal(utc, clockFormat, useUtc: UseUtcTime);
 
     public bool CanOpenVisualizer(MutualPassRow? row) =>
         row is not null && _lastLocalSite is not null && _lastRemoteSite is not null;

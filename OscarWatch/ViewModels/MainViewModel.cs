@@ -1083,6 +1083,38 @@ public partial class MainViewModel : ViewModelBase
         return true;
     }
 
+    /// <summary>Disconnect CAT hardware before process exit so rigs (e.g. TS-2000 SATL) receive cleanup commands.</summary>
+    internal void DisconnectHardwareForShutdown()
+    {
+        try
+        {
+            _rig.DisconnectAndWait();
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Rig disconnect during shutdown failed");
+        }
+
+        try
+        {
+            _rotator.Disconnect();
+            _gps.Disconnect();
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Peripheral disconnect during shutdown failed");
+        }
+
+        try
+        {
+            _liveTracking.Dispose();
+        }
+        catch (Exception ex)
+        {
+            Log.Debug(ex, "Live tracking dispose during shutdown failed");
+        }
+    }
+
     internal Task SaveSettingsAsync() => _settings.SaveAsync();
 
     private void UpdateRotatorDisplay()
@@ -2087,7 +2119,7 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private void CloseApplication()
     {
-        _liveTracking.Dispose();
+        DisconnectHardwareForShutdown();
         if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             desktop.Shutdown();
     }

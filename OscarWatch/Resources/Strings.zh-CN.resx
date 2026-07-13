@@ -2403,6 +2403,9 @@
   <data name="Pass.CountMutual">
     <value>接下来 {1} 小时内 {0} 次双向过境</value>
   </data>
+  <data name="Pass.CountMutualInRange">
+    <value>{1} 至 {2} 期间 {0} 次双向过境</value>
+  </data>
   <data name="Pass.Failed">
     <value>过境预测失败：{0}：{0}</value>
   </data>
@@ -2526,6 +2529,27 @@
   <data name="Mutual.MinOverlap">
     <value>最短重叠时间（分钟）</value>
   </data>
+  <data name="Mutual.TimeWindow.Label">
+    <value>搜索时间范围</value>
+  </data>
+  <data name="Mutual.TimeWindow.HoursAhead">
+    <value>从现在起的小时数</value>
+  </data>
+  <data name="Mutual.TimeWindow.DateRange">
+    <value>起止日期和时间</value>
+  </data>
+  <data name="Mutual.RangeStartDate">
+    <value>开始日期</value>
+  </data>
+  <data name="Mutual.RangeStartTime">
+    <value>开始时间</value>
+  </data>
+  <data name="Mutual.RangeEndDate">
+    <value>结束日期</value>
+  </data>
+  <data name="Mutual.RangeEndTime">
+    <value>结束时间</value>
+  </data>
   <data name="Mutual.PassesHeader">
     <value>双向过境</value>
   </data>
@@ -2555,6 +2579,15 @@
   </data>
   <data name="Mutual.Status.NoPasses">
     <value>{1} 和 {2} 在接下来的 {0} 小时内没有双向过境。</value>
+  </data>
+  <data name="Mutual.Status.NoPassesInRange">
+    <value>{2} 和 {3} 在 {0} 至 {1} 期间没有双向过境。</value>
+  </data>
+  <data name="Mutual.Status.InvalidRange">
+    <value>结束日期和时间必须晚于开始时间。</value>
+  </data>
+  <data name="Mutual.Status.RangeTooLong">
+    <value>搜索时间范围不能超过 {0} 天。</value>
   </data>
   <data name="Mutual.Status.InvalidGrid">
     <value>无效的梅登黑德网格。</value>
