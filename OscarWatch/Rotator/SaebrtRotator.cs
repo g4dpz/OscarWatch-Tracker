@@ -1,0 +1,128 @@
+using System.IO.Ports;
+using OscarWatch.Core.Models;
+
+namespace OscarWatch.Rotator;
+
+/// <summary>
+/// SAEBRTrack rotator driver (EasyComm I style AZ/EL with UP/DN placeholders).
+/// Used by classic BASIC Stamp trackers, PSR-100, and similar satellite rotor interfaces.
+/// </summary>
+public sealed class SaebrtRotator : IRotatorDriver
+{
+    private const string LineEnding = "\n";
+
+    private readonly SerialPort _port;
+    private readonly SemaphoreSlim _gate = new(1, 1);
+
+    public SaebrtRotator(string portName, int baudRate)
+    {
+        _port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One)
+        {
+            Handshake = Handshake.None,
+            ReadTimeout = 1000,
+            WriteTimeout = 1000,
+            NewLine = LineEnding
+        };
+    }
+
+    public void Open() => _port.Open();
+
+    public void SetPosition(double azimuthDeg, double elevationDeg, RotatorSettings settings)
+    {
+        var az = Math.Clamp(azimuthDeg, 0, settings.MaxAzimuthDeg);
+        var el = Math.Clamp(elevationDeg, 0, settings.MaxElevationDeg);
+        SendCommand(SaebrtCommandFormatter.FormatSetPosition(az, el));
+    }
+
+    public void Stop()
+    {
+        // SAEBRTrack has no standard stop command; sending SA/SE can confuse dumb controllers.
+    }
+
+    public (int? Azimuth, int? Elevation) GetPosition()
+    {
+        _gate.Wait();
+        try
+        {
+            // Optional EasyComm II style feedback on controllers that support it.
+            var az = QueryAxis("AZ");
+            var el = QueryAxis("EL");
+            return (az, el);
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    public void Dispose()
+    {
+        try
+        {
+            if (_port.IsOpen)
+                _port.Close();
+        }
+        catch
+        {
+            // ignore dispose errors
+        }
+
+        _port.Dispose();
+        _gate.Dispose();
+    }
+
+    private int? QueryAxis(string axis)
+    {
+        _port.DiscardInBuffer();
+        _port.Write(axis + LineEnding);
+        var response = ReadLineResponse();
+        return SaebrtPositionParser.TryParseAxis(response, axis);
+    }
+
+    private void SendCommand(string command)
+    {
+        _gate.Wait();
+        try
+        {
+            _port.DiscardInBuffer();
+            _port.Write(command + LineEnding);
+            Thread.Sleep(150);
+            _port.DiscardInBuffer();
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    private string? ReadLineResponse()
+    {
+        try
+        {
+            Thread.Sleep(150);
+            var line = _port.ReadLine().Trim();
+            return string.IsNullOrWhiteSpace(line) ? null : line;
+        }
+        catch (TimeoutException)
+        {
+            return ReadExistingLine();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private string? ReadExistingLine()
+    {
+        try
+        {
+            var text = _port.ReadExisting().Trim('\r', '\n', ' ');
+            return string.IsNullOrWhiteSpace(text) ? null : text;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+}

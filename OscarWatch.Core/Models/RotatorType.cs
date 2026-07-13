@@ -4,5 +4,6 @@ public enum RotatorType
 {
     YaesuGs232,
     EasyComm,
-    Spid
+    Spid,
+    Saebrt
 }

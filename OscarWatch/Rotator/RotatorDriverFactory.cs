@@ -9,6 +9,7 @@ public static class RotatorDriverFactory
         {
             RotatorType.EasyComm => new EasyCommRotator(settings.Port, settings.BaudRate),
             RotatorType.Spid => new SpidRotator(settings.Port, settings.BaudRate),
+            RotatorType.Saebrt => new SaebrtRotator(settings.Port, settings.BaudRate),
             _ => new Gs232Rotator(settings.Port, settings.BaudRate)
         };
 }

@@ -620,7 +620,8 @@ public partial class SettingsViewModel : ViewModelBase
         [
             new(RotatorType.YaesuGs232, "Yaesu GS-232"),
             new(RotatorType.Spid, "SPID (Rot1Prog / Rot2Prog)"),
-            new(RotatorType.EasyComm, "EasyComm")
+            new(RotatorType.EasyComm, "EasyComm"),
+            new(RotatorType.Saebrt, "SAEBRTrack")
         ];
         AzimuthRangeChoices =
         [
@@ -1446,7 +1447,7 @@ public partial class SettingsViewModel : ViewModelBase
 
         if (value.Value == RotatorType.Spid)
             RotatorBaudRate = 600;
-        else if (value.Value == RotatorType.EasyComm)
+        else if (value.Value is RotatorType.EasyComm or RotatorType.Saebrt)
             RotatorBaudRate = 9600;
     }
 

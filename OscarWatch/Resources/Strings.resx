@@ -2161,7 +2161,7 @@ Continue?</value>
     <value>Rotator type</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232 for Yaesu and clones. SPID for controllers in SP mode (Rot1Prog / Rot2Prog). EasyComm for EC mode — SPID, M2, and other text-protocol controllers.</value>
+    <value>GS-232 for Yaesu and clones. SPID for controllers in SP mode (Rot1Prog / Rot2Prog). EasyComm for EC mode — SPID, M2, and other text-protocol controllers. SAEBRTrack for classic satellite tracker interfaces (9600 baud).</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuth">
     <value>Smart 450° azimuth (shortest path over north)</value>
