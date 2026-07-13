@@ -18,13 +18,11 @@ public class Ts2000SatelliteModeEntryTests : Ts2000TestBase
         EnterSatelliteMode();
 
         var cmds = GetSentCommands();
+        var start = SatelliteEntryStartIndex();
 
-        // First command must be SA1010110; (enter satellite mode, fire and forget)
-        Assert.Equal("SA1010110;", cmds[0]);
-
-        // After settling delay (0ms in tests), tone-off pair follows
-        Assert.Equal("TO0;", cmds[1]);
-        Assert.Equal("TO0;", cmds[2]);
+        Assert.Equal("SA1010110;", cmds[start]);
+        Assert.Equal("TO0;", cmds[start + 1]);
+        Assert.Equal("TO0;", cmds[start + 2]);
     }
 
     /// <summary>
@@ -36,12 +34,12 @@ public class Ts2000SatelliteModeEntryTests : Ts2000TestBase
         EnterSatelliteMode();
 
         var cmds = GetSentCommands();
+        var start = SatelliteEntryStartIndex();
 
-        // After the initial SA1010110; + TO0; TO0;, the handshake begins at index 3
-        Assert.Equal("FA;", cmds[3]);
-        Assert.Equal("TS1;", cmds[4]);
-        Assert.Equal("AI2;", cmds[5]);
-        Assert.Equal("SA1010110;", cmds[6]);
+        Assert.Equal("FA;", cmds[start + 3]);
+        Assert.Equal("TS1;", cmds[start + 4]);
+        Assert.Equal("AI2;", cmds[start + 5]);
+        Assert.Equal("SA1010110;", cmds[start + 6]);
     }
 
     /// <summary>
@@ -55,20 +53,14 @@ public class Ts2000SatelliteModeEntryTests : Ts2000TestBase
         EnterSatelliteMode();
 
         var cmds = GetSentCommands();
+        var start = SatelliteEntryStartIndex();
 
-        // Second SA1010110; (index 7) precedes MD2; on main
-        Assert.Equal("SA1010110;", cmds[7]);
-        Assert.Equal("MD2;", cmds[8]);
-
-        // SA1011110; switches to sub-control before MD1;
-        Assert.Equal("SA1011110;", cmds[9]);
-        Assert.Equal("MD1;", cmds[10]);
-
-        // SA1010110; returns to main-control after sub mode set
-        Assert.Equal("SA1010110;", cmds[11]);
-
-        // TO0; finishes the handshake
-        Assert.Equal("TO0;", cmds[12]);
+        Assert.Equal("SA1010110;", cmds[start + 7]);
+        Assert.Equal("MD2;", cmds[start + 8]);
+        Assert.Equal("SA1011110;", cmds[start + 9]);
+        Assert.Equal("MD1;", cmds[start + 10]);
+        Assert.Equal("SA1010110;", cmds[start + 11]);
+        Assert.Equal("TO0;", cmds[start + 12]);
     }
 
     /// <summary>
@@ -80,9 +72,9 @@ public class Ts2000SatelliteModeEntryTests : Ts2000TestBase
         EnterSatelliteMode();
 
         var cmds = GetSentCommands();
+        var start = SatelliteEntryStartIndex();
 
-        // SA; is the verification transact after the handshake (index 13)
-        Assert.Equal("SA;", cmds[13]);
+        Assert.Equal("SA;", cmds[start + 13]);
         AssertCommandContains("SA;");
     }
 
@@ -99,22 +91,17 @@ public class Ts2000SatelliteModeEntryTests : Ts2000TestBase
         EnterSatelliteMode();
 
         var cmds = GetSentCommands();
+        var start = SatelliteEntryStartIndex();
 
-        // After SA; at index 13, the tone/CTCSS clearing begins at index 14
-        // Main path clear: SA1010110;, TO0;, DQ0;, CT0;
-        Assert.Equal("SA1010110;", cmds[14]);
-        Assert.Equal("TO0;", cmds[15]);
-        Assert.Equal("DQ0;", cmds[16]);
-        Assert.Equal("CT0;", cmds[17]);
-
-        // Sub path clear: SA1011110;, TO0;, DQ0;, CT0;
-        Assert.Equal("SA1011110;", cmds[18]);
-        Assert.Equal("TO0;", cmds[19]);
-        Assert.Equal("DQ0;", cmds[20]);
-        Assert.Equal("CT0;", cmds[21]);
-
-        // Final return to main-control
-        Assert.Equal("SA1010110;", cmds[22]);
+        Assert.Equal("SA1010110;", cmds[start + 14]);
+        Assert.Equal("TO0;", cmds[start + 15]);
+        Assert.Equal("DQ0;", cmds[start + 16]);
+        Assert.Equal("CT0;", cmds[start + 17]);
+        Assert.Equal("SA1011110;", cmds[start + 18]);
+        Assert.Equal("TO0;", cmds[start + 19]);
+        Assert.Equal("DQ0;", cmds[start + 20]);
+        Assert.Equal("CT0;", cmds[start + 21]);
+        Assert.Equal("SA1010110;", cmds[start + 22]);
     }
 
     // ─────────────────────────────────────────────────────────────────────────────

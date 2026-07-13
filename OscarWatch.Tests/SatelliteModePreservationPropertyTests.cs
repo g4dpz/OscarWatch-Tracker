@@ -23,10 +23,10 @@ public class SatelliteModePreservationPropertyTests
 
     /// <summary>
     /// For any number of SetSatelliteMode(false) calls, the exit command sequence is always
-    /// exactly: RX;, TN39;, TO0;, TN39;, SA0010000; — unchanged.
+    /// exactly: RX;, TO0;, TN39;, TN39;, SA0010000; — unchanged.
     /// </summary>
     [Property(MaxTest = 10)]
-    public bool Exit_sequence_is_always_RX_TN39_TO0_TN39_SA0010000(byte callCountByte)
+    public bool Exit_sequence_is_always_RX_TO0_TN39_TN39_SA0010000(byte callCountByte)
     {
         var callCount = (callCountByte % 5) + 1; // 1-5 exit calls
 
@@ -44,7 +44,7 @@ public class SatelliteModePreservationPropertyTests
             driver.SetSatelliteMode(false);
 
             // Assert the exact exit sequence
-            string[] expectedExit = ["RX;", "TN39;", "TO0;", "TN39;", "SA0010000;"];
+            string[] expectedExit = ["RX;", "TO0;", "TN39;", "TN39;", "SA0010000;"];
             if (transport.SentCommands.Count != expectedExit.Length)
                 return false;
 

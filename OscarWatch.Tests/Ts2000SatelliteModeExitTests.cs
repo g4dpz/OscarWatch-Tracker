@@ -11,17 +11,17 @@ public class Ts2000SatelliteModeExitTests : Ts2000TestBase
 {
     /// <summary>
     /// Requirement 3.1: SetSatelliteMode(false) sends exact exit sequence:
-    /// RX;, TN39;, TO0;, TN39;, SA0010000;
+    /// RX;, TO0;, TN39;, TN39;, SA0010000;
     /// </summary>
     [Fact]
-    public void Exit_sends_exact_sequence_RX_TN39_TO0_TN39_SA0010000()
+    public void Exit_sends_exact_sequence_RX_TO0_TN39_TN39_SA0010000()
     {
         EnterSatelliteMode();
         ClearCommandLog();
 
         Driver.SetSatelliteMode(false);
 
-        AssertCommandSequence("RX;", "TN39;", "TO0;", "TN39;", "SA0010000;");
+        AssertCommandSequence("RX;", "TO0;", "TN39;", "TN39;", "SA0010000;");
     }
 
     /// <summary>

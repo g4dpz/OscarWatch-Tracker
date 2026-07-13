@@ -36,8 +36,10 @@ public sealed class KenwoodTs2000DriverTests
         Assert.Contains("AI2;", transport.SentCommands);
         Assert.Contains("MD2;", transport.SentCommands);
         Assert.Contains("MD1;", transport.SentCommands);
-        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("DC", StringComparison.Ordinal));
-        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("FR", StringComparison.Ordinal));
+        Assert.Equal("DC00;", transport.SentCommands[0]);
+        Assert.Equal("FR;", transport.SentCommands[1]);
+        Assert.Equal("DC11;", transport.SentCommands[2]);
+        Assert.Equal("FR;", transport.SentCommands[3]);
 
         var md1Index = transport.SentCommands.IndexOf("MD1;");
         var sa1110Index = transport.SentCommands.IndexOf("SA1011110;");
@@ -214,5 +216,50 @@ public sealed class KenwoodTs2000DriverTests
 
         var hz = driver.ReadFrequencyHz(RigVfo.Main);
         Assert.Equal(435_750_000, hz);
+    }
+
+    [Fact]
+    public void Dispose_exits_satellite_mode_when_tracking_was_active()
+    {
+        var transport = new RecordingKenwoodCatTransport();
+        var driver = new KenwoodTs2000Driver(transport);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        transport.SentCommands.Clear();
+
+        driver.Dispose();
+
+        Assert.Equal(KenwoodCatCodec.SatelliteModeExitSequence, transport.SentCommands);
+        Assert.False(driver.IsSatelliteModeActive);
+    }
+
+    [Fact]
+    public void SetSatelliteMode_on_clears_memory_mode_and_exit_restores_it()
+    {
+        var transport = new RecordingKenwoodCatTransport
+        {
+            MainVfoSelect = KenwoodCatCodec.VfoSelectMemoryCode,
+            SubVfoSelect = KenwoodCatCodec.VfoSelectMemoryCode
+        };
+        var driver = new KenwoodTs2000Driver(transport, catDelayMs: 0, satModeSettlingDelayMs: 0);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        var firstSa = transport.SentCommands.IndexOf("SA1010110;");
+        Assert.True(firstSa > 0);
+        Assert.Equal("DC00;", transport.SentCommands[0]);
+        Assert.Equal("FR;", transport.SentCommands[1]);
+        Assert.Equal("FR0;", transport.SentCommands[2]);
+        Assert.Equal("DC11;", transport.SentCommands[3]);
+        Assert.Equal("FR;", transport.SentCommands[4]);
+        Assert.Equal("FR0;", transport.SentCommands[5]);
+
+        transport.SentCommands.Clear();
+        driver.SetSatelliteMode(false);
+
+        Assert.Equal("DC00;", transport.SentCommands[^4]);
+        Assert.Equal("FR2;", transport.SentCommands[^3]);
+        Assert.Equal("DC11;", transport.SentCommands[^2]);
+        Assert.Equal("FR2;", transport.SentCommands[^1]);
     }
 }

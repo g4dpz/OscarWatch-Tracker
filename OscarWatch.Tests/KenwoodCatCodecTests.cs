@@ -18,7 +18,7 @@ public sealed class KenwoodCatCodecTests
         Assert.Equal("SA0;", KenwoodCatCodec.BuildSetSatelliteModeOffCommand());
         Assert.Equal(2, KenwoodCatCodec.SatelliteModeEntryToneOffSequence.Length);
         Assert.All(KenwoodCatCodec.SatelliteModeEntryToneOffSequence, c => Assert.Equal("TO0;", c));
-        Assert.Equal(["RX;", "TN39;", "TO0;", "TN39;", "SA0010000;"], KenwoodCatCodec.SatelliteModeExitSequence);
+        Assert.Equal(["RX;", "TO0;", "TN39;", "TN39;", "SA0010000;"], KenwoodCatCodec.SatelliteModeExitSequence);
         Assert.Equal("SM10000;", KenwoodCatCodec.BuildSatelliteBandSelectMainCommand());
         Assert.Equal("SM00021;", KenwoodCatCodec.BuildSatelliteBandSelectSubCommand(145_900_000));
         Assert.Equal("SM00004;", KenwoodCatCodec.BuildSatelliteBandSelectSubCommand(435_700_000));
@@ -65,4 +65,10 @@ public sealed class KenwoodCatCodecTests
         Assert.Equal("TN01;", KenwoodCatCodec.BuildToneFrequencyCommand(index));
     }
 
+    [Fact]
+    public void TryParseVfoSelect_reads_FR_reply()
+    {
+        Assert.True(KenwoodCatCodec.TryParseVfoSelect("FR2;", out var code));
+        Assert.Equal(KenwoodCatCodec.VfoSelectMemoryCode, code);
+    }
 }

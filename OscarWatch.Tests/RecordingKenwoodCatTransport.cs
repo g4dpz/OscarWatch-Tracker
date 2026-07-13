@@ -8,8 +8,12 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
     public long FaHz { get; set; } = 435_750_000;
     public long FbHz { get; set; } = 145_900_000;
     public bool SatelliteStatusOn { get; set; } = true;
+    public char MainVfoSelect { get; set; } = '0';
+    public char SubVfoSelect { get; set; } = '0';
     public List<string> SentCommands { get; } = [];
     public bool IsOpen { get; private set; }
+
+    private bool _ctrlOnSubReceiver;
 
     public void Open() => IsOpen = true;
 
@@ -22,6 +26,8 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
         SentCommands.Add(normalized);
         ApplySatelliteModeCommand(normalized);
         ApplySetFrequency(normalized);
+        ApplyDcCommand(normalized);
+        ApplyVfoSelectCommand(normalized);
         return true;
     }
 
@@ -30,6 +36,8 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
         var normalized = Normalize(command);
         SentCommands.Add(normalized);
         ApplySatelliteModeCommand(normalized);
+        ApplyDcCommand(normalized);
+        ApplyVfoSelectCommand(normalized);
         return normalized switch
         {
             "SA1010110;" => SatelliteStatusOn ? "SA1;" : "SA0;",
@@ -38,6 +46,7 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
             "SA0;" => "SA0;",
             "RX;" => "RX0;",
             "SA;" => SatelliteStatusOn ? "SA1;" : "SA0;",
+            "FR;" => $"FR{(_ctrlOnSubReceiver ? SubVfoSelect : MainVfoSelect)};",
             "FA;" => KenwoodCatCodec.BuildSetFrequencyCommand('A', FaHz),
             "FB;" => KenwoodCatCodec.BuildSetFrequencyCommand('B', FbHz),
             _ => KenwoodCatCodec.IsReadCommand(normalized) ? null : normalized
@@ -63,6 +72,29 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
             else if (normalized.StartsWith("FB", StringComparison.OrdinalIgnoreCase))
                 FbHz = hz;
         }
+    }
+
+    private void ApplyDcCommand(string normalized)
+    {
+        if (!normalized.StartsWith("DC", StringComparison.OrdinalIgnoreCase) || normalized.Length < 5)
+            return;
+
+        _ctrlOnSubReceiver = normalized[3] == '1';
+    }
+
+    private void ApplyVfoSelectCommand(string normalized)
+    {
+        if (!normalized.StartsWith("FR", StringComparison.OrdinalIgnoreCase) || normalized.Length < 4)
+            return;
+
+        var select = normalized[2];
+        if (select is < '0' or > '9')
+            return;
+
+        if (_ctrlOnSubReceiver)
+            SubVfoSelect = select;
+        else
+            MainVfoSelect = select;
     }
 
     private static string Normalize(string command)

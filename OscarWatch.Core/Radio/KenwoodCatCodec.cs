@@ -68,7 +68,7 @@ public static class KenwoodCatCodec
 
         return body.ToUpperInvariant() switch
         {
-            "SA" or "RX" or "ID" => Math.Max(postDelayMs + 400, 600),
+            "SA" or "RX" or "FR" or "ID" => Math.Max(postDelayMs + 400, 600),
             _ => Math.Max(postDelayMs + 200, 400)
         };
     }
@@ -81,6 +81,7 @@ public static class KenwoodCatCodec
 
         return body.Equals("SA", StringComparison.OrdinalIgnoreCase)
             || body.Equals("RX", StringComparison.OrdinalIgnoreCase)
+            || body.Equals("FR", StringComparison.OrdinalIgnoreCase)
             || body.Equals("ID", StringComparison.OrdinalIgnoreCase);
     }
 
@@ -97,13 +98,13 @@ public static class KenwoodCatCodec
     public static string BuildSetSatelliteModeOffCommand() => "SA0;";
 
     /// <summary>
-    /// SATL exit: read RX status, clear encode tone, reset TN table entries, then SAT off with layout preserved.
+    /// SATL exit (SatPC32-compatible): read RX status, clear encode tone, reset TN table entries, then SAT off.
     /// </summary>
     public static readonly string[] SatelliteModeExitSequence =
     [
         "RX;",
-        "TN39;",
         "TO0;",
+        "TN39;",
         "TN39;",
         "SA0010000;"
     ];
@@ -114,6 +115,31 @@ public static class KenwoodCatCodec
     public static string BuildAutoinfoOffCommand() => "AI0;";
 
     public static string BuildSelectVfoCommand(bool vfoB) => vfoB ? "FR1;" : "FR0;";
+
+    public static string BuildReadVfoSelectCommand() => "FR;";
+
+    public static string BuildSetVfoSelectCommand(char selectCode) => $"FR{selectCode};";
+
+    /// <summary>FR/FT memory channel select (blocks SAT entry until cleared).</summary>
+    public const char VfoSelectMemoryCode = '2';
+
+    /// <summary>DC P1=1 P2=1 — TX and CTRL on sub (query/program sub receiver).</summary>
+    public static string BuildControlSubReceiverCommand() => "DC11;";
+
+    public static bool TryParseVfoSelect(ReadOnlySpan<char> response, out char selectCode)
+    {
+        selectCode = default;
+        for (var i = 0; i < response.Length - 2; i++)
+        {
+            if (response[i] is not ('F' or 'f') || response[i + 1] is not ('R' or 'r'))
+                continue;
+
+            selectCode = response[i + 2];
+            return selectCode is >= '0' and <= '9';
+        }
+
+        return false;
+    }
 
     /// <summary>CTCSS squelch (TSQL) tone frequency — Hamlib set_ctcss_sql.</summary>
     public static string BuildCtcssFrequencyCommand(int oneBasedIndex) =>

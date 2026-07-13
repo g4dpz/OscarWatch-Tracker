@@ -62,7 +62,12 @@
         <li>Receive and transmit frequencies (Doppler and your <a href="radio-offsets.html">offsets</a>).</li>
         <li>Modes where the driver supports them for the selected transponder.</li>
         <li>CTCSS on FM satellites when configured.</li>
+        <li>Satellite mode entry on pass start and <strong>exit when you quit, disconnect, or switch to receive-only</strong> (SatPC32-style cleanup).</li>
       </ul>
+      <p>
+        OscarWatch clears memory mode on VFO A/B before entering SAT if needed, and restores it on exit.
+        You should still select <strong>SAT</strong> on the radio before tracking when possible.
+      </p>
       <p>
         OscarWatch assumes you have already entered the satellite operating mode on the radio.
         If CAT updates the wrong VFO, check SAT mode and which VFO is receive vs transmit on the TS-2000 front panel.

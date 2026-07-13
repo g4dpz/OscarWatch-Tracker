@@ -63,6 +63,19 @@ public abstract class Ts2000TestBase : IDisposable
     protected void AssertNoCommandStartingWith(string prefix) =>
         Assert.DoesNotContain(GetSentCommands(), c => c.StartsWith(prefix, StringComparison.Ordinal));
 
+    protected int SatelliteEntryStartIndex()
+    {
+        var cmds = GetSentCommands();
+        for (var i = 0; i < cmds.Count; i++)
+        {
+            if (cmds[i] == "SA1010110;")
+                return i;
+        }
+
+        Assert.Fail("SA1010110; not found in command log.");
+        return -1;
+    }
+
     public void Dispose()
     {
         Transport.Dispose();

@@ -26,6 +26,8 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     private long _lastSubHz;
     private long _lastVfoAHz;
     private long _lastVfoBHz;
+    private char? _savedMainVfoSelect;
+    private char? _savedSubVfoSelect;
 
     public KenwoodTs2000Driver(string port, int baudRate, int catDelayMs = 50, int satModeSettlingDelayMs = 250, int satModeRetryCount = 3, int satModeRetryDelayMs = 200)
         : this(new KenwoodCatTransport(port, baudRate), catDelayMs, satModeSettlingDelayMs, satModeRetryCount, satModeRetryDelayMs)
@@ -237,6 +239,24 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         _satelliteLayoutConfirmed = false;
         _faFbSatelliteTracking = false;
         SendSatelliteModeExitSequence();
+        RestoreMemoryVfoIfNeeded();
+    }
+
+    public void Dispose()
+    {
+        try
+        {
+            if (_transport.IsOpen && (_satelliteMode || _faFbSatelliteTracking))
+                SetSatelliteMode(false);
+        }
+        catch (Exception ex)
+        {
+            Log.Debug(ex, "TS-2000 satellite mode exit failed during dispose");
+        }
+        finally
+        {
+            _transport.Dispose();
+        }
     }
 
     private void SendSatelliteModeExitSequence()
@@ -248,6 +268,53 @@ public sealed class KenwoodTs2000Driver : IRigDriver
             else
                 _transport.SendFireAndForget(cmd, _catDelayMs);
         }
+    }
+
+    private void RestoreMemoryVfoIfNeeded()
+    {
+        if (_savedMainVfoSelect is { } mainSelect)
+        {
+            _transport.SendFireAndForget(KenwoodCatCodec.BuildControlMainCommand(), _catDelayMs);
+            _transport.SendFireAndForget(KenwoodCatCodec.BuildSetVfoSelectCommand(mainSelect), _catDelayMs);
+            _savedMainVfoSelect = null;
+        }
+
+        if (_savedSubVfoSelect is { } subSelect)
+        {
+            _transport.SendFireAndForget(KenwoodCatCodec.BuildControlSubReceiverCommand(), _catDelayMs);
+            _transport.SendFireAndForget(KenwoodCatCodec.BuildSetVfoSelectCommand(subSelect), _catDelayMs);
+            _savedSubVfoSelect = null;
+        }
+    }
+
+    private void ExitMemoryModeIfNeeded()
+    {
+        ExitMemoryModeForReceiver(subReceiver: false);
+        ExitMemoryModeForReceiver(subReceiver: true);
+    }
+
+    private void ExitMemoryModeForReceiver(bool subReceiver)
+    {
+        _transport.SendFireAndForget(
+            subReceiver
+                ? KenwoodCatCodec.BuildControlSubReceiverCommand()
+                : KenwoodCatCodec.BuildControlMainCommand(),
+            _catDelayMs);
+
+        var reply = _transport.Transact(KenwoodCatCodec.BuildReadVfoSelectCommand(), _catDelayMs);
+        if (reply is null
+            || !KenwoodCatCodec.TryParseVfoSelect(reply, out var selectCode)
+            || selectCode != KenwoodCatCodec.VfoSelectMemoryCode)
+        {
+            return;
+        }
+
+        if (subReceiver)
+            _savedSubVfoSelect = selectCode;
+        else
+            _savedMainVfoSelect = selectCode;
+
+        _transport.SendFireAndForget(KenwoodCatCodec.BuildSetVfoSelectCommand('0'), _catDelayMs);
     }
 
     public void ExchangeVfos()
@@ -305,8 +372,6 @@ public sealed class KenwoodTs2000Driver : IRigDriver
 
         _transport.SendFireAndForget(cmd, _catDelayMs);
     }
-
-    public void Dispose() => _transport.Dispose();
 
     private void SetCtcssPath(bool on, bool squelchTone)
     {
@@ -374,6 +439,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
 
     private bool TryEnableSatelliteMode()
     {
+        ExitMemoryModeIfNeeded();
         _transport.SendFireAndForget(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
 
         // Settling delay: give the radio time to transition its internal state to SATL

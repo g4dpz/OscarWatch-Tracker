@@ -27,7 +27,7 @@ public class Ts2000GuardAndRecoveryPropertyTests
     ///
     /// Property 3: Exit Sequence Idempotence
     /// ∀ n ∈ [1,5]: calling SetSatelliteMode(false) n times after entry always produces
-    /// the same exit sequence per call: [RX;, TN39;, TO0;, TN39;, SA0010000;]
+    /// the same exit sequence per call: [RX;, TO0;, TN39;, TN39;, SA0010000;]
     ///
     /// After the first exit, the driver is no longer in satellite mode, so subsequent
     /// exits go through the "transport is open but not in sat mode" path which still
@@ -53,7 +53,7 @@ public class Ts2000GuardAndRecoveryPropertyTests
         driver.SetSatelliteMode(true);
         transport.SentCommands.Clear();
 
-        string[] expectedExitSequence = ["RX;", "TN39;", "TO0;", "TN39;", "SA0010000;"];
+        string[] expectedExitSequence = ["RX;", "TO0;", "TN39;", "TN39;", "SA0010000;"];
 
         // Call SetSatelliteMode(false) callCount times, verify each produces the same sequence
         for (var i = 0; i < callCount; i++)
