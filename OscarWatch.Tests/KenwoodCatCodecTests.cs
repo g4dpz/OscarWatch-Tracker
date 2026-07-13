@@ -25,7 +25,7 @@ public sealed class KenwoodCatCodecTests
         Assert.Equal("AI2;", KenwoodCatCodec.BuildAutoinfoExtendedCommand());
         Assert.Equal("TS1;", KenwoodCatCodec.BuildSatelliteEntryTsCommand());
         Assert.Equal("PC050;", KenwoodCatCodec.BuildSatellitePowerLevelCommand());
-        Assert.Equal(7, KenwoodCatCodec.SatelliteLinkHoldPollCount);
+        Assert.Equal(1000, KenwoodCatCodec.SatelliteLinkHoldPollIntervalMs);
         Assert.Equal(450, KenwoodCatCodec.FrequencyReadTimeoutMs);
         Assert.True(KenwoodCatCodec.IsReadCommand("FA;"));
         Assert.False(KenwoodCatCodec.IsReadCommand("FA00145900000;"));

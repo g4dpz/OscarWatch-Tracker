@@ -522,7 +522,21 @@ public sealed class RigController : IRigController, IDisposable
         else
             ProcessAutomaticDoppler(_cachedSettings, _cachedContext);
 
+        TrySendKenwoodSatelliteLinkHoldPoll();
         TryLogPeriodicSnapshot(_cachedSettings, _cachedContext);
+    }
+
+    private void TrySendKenwoodSatelliteLinkHoldPoll()
+    {
+        if (_cachedSettings.Type != RigType.KenwoodTs2000
+            || !_useMainSub
+            || _driver is not KenwoodTs2000Driver kenwood
+            || !kenwood.UsesFaFbSatelliteTracking)
+        {
+            return;
+        }
+
+        kenwood.SendSatelliteLinkHoldPollIfDue();
     }
 
     private void ProcessInteractiveLinear(RigSettings settings, RigTrackingContext context)

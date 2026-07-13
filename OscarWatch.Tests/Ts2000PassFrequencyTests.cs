@@ -103,11 +103,10 @@ public class Ts2000PassFrequencyTests : Ts2000TestBase
     }
 
     /// <summary>
-    /// Requirement 10.5: The programming sequence ends with SA1010110; then AI0; followed
-    /// by exactly 7 FA; link-hold polls.
+    /// Requirement 10.5: The programming sequence ends with SA1010110; then AI0; (no link-hold burst).
     /// </summary>
     [Fact]
-    public void PassFrequencies_ends_with_SA1010110_AI0_and_7_link_hold_polls()
+    public void PassFrequencies_ends_with_SA1010110_and_AI0_without_link_hold_burst()
     {
         EnterSatelliteMode();
         ClearCommandLog();
@@ -116,21 +115,10 @@ public class Ts2000PassFrequencyTests : Ts2000TestBase
 
         var cmds = GetSentCommands();
 
-        // The last 9 commands should be: SA1010110;, AI0;, then 7x FA;
-        var totalCount = cmds.Count;
-        Assert.True(totalCount >= 9, $"Expected at least 9 commands at end of sequence, got {totalCount} total");
-
-        // 7 FA; polls at the end
-        for (var i = totalCount - 7; i < totalCount; i++)
-        {
-            Assert.Equal("FA;", cmds[i]);
-        }
-
-        // AI0; before the polls
-        Assert.Equal("AI0;", cmds[totalCount - 8]);
-
-        // SA1010110; before AI0;
-        Assert.Equal("SA1010110;", cmds[totalCount - 9]);
+        Assert.True(cmds.Count >= 2, $"Expected at least 2 commands at end of sequence, got {cmds.Count} total");
+        Assert.Equal("AI0;", cmds[^1]);
+        Assert.Equal("SA1010110;", cmds[^2]);
+        Assert.DoesNotContain(cmds, c => c == "FA;");
     }
 
     /// <summary>

@@ -12,21 +12,17 @@ namespace OscarWatch.Tests;
 ///
 /// Property 2: Doppler Cluster Completeness
 /// ∀ valid (downlink, uplink) where both > 0: ApplySatelliteDopplerStep produces
-/// exactly 8 cluster commands + 7 link-hold polls = 15 total commands.
-///
-/// The cluster sequence is: FA, FB, SM10000, FA, SM-sub, FB, SM-sub, SM10000
-/// followed by 7 FA; link-hold polls.
+/// exactly 8 cluster commands (link-hold FA; runs on a separate ~1/s timer).
 /// </summary>
 public class Ts2000DopplerClusterPropertyTests
 {
     /// <summary>
     /// Property 2: For any valid downlink/uplink frequency pair, ApplySatelliteDopplerStep
-    /// produces exactly 15 total commands: 8 cluster + 7 link-hold polls.
-    /// The first 8 commands follow the pattern (FA, FB, SM10000, FA, SM-sub, FB, SM-sub, SM10000)
-    /// and the last 7 are all FA; (link-hold polls).
+    /// produces exactly 8 cluster commands with no FA; link-hold burst.
+    /// The commands follow the pattern (FA, FB, SM10000, FA, SM-sub, FB, SM-sub, SM10000).
     /// </summary>
     [Property(MaxTest = 100)]
-    public bool DopplerStep_produces_exactly_15_commands_with_correct_cluster_and_polls(
+    public bool DopplerStep_produces_exactly_8_cluster_commands_without_link_hold_burst(
         int downlinkSeed, int uplinkSeed)
     {
         // Generate valid frequencies in ham radio satellite bands
@@ -46,8 +42,8 @@ public class Ts2000DopplerClusterPropertyTests
 
         var cmds = transport.SentCommands;
 
-        // Total must be exactly 15: 8 cluster + 7 polls
-        if (cmds.Count != 15)
+        // Total must be exactly 8 cluster commands
+        if (cmds.Count != 8)
             return false;
 
         // Expected commands
@@ -65,14 +61,7 @@ public class Ts2000DopplerClusterPropertyTests
         if (cmds[6] != expectedSmSub) return false;
         if (cmds[7] != "SM10000;") return false;
 
-        // Last 7 are FA; link-hold polls
-        for (var i = 8; i < 15; i++)
-        {
-            if (cmds[i] != "FA;")
-                return false;
-        }
-
-        return true;
+        return !cmds.Contains("FA;");
     }
 
     // ────────────────────────────────────────────────────────────────────────────

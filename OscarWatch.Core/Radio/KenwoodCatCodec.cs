@@ -54,8 +54,8 @@ public static class KenwoodCatCodec
     /// <summary>SATL pass programming: RF power level 50 (PC P1=050).</summary>
     public static string BuildSatellitePowerLevelCommand() => "PC050;";
 
-    /// <summary>FA; polls to hold the CAT link after frequency updates.</summary>
-    public const int SatelliteLinkHoldPollCount = 7;
+    /// <summary>Minimum interval between FA; link-hold polls while SATL tracking (SatPC32 ~1/s).</summary>
+    public const int SatelliteLinkHoldPollIntervalMs = 1000;
 
     /// <summary>Read timeout for FA;/FB; (link hold waits for response).</summary>
     public const int FrequencyReadTimeoutMs = 450;

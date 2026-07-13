@@ -1,8 +1,7 @@
-// Feature: ts2000-hardware-validation, Property 6: Link-Hold Poll Count
+// Feature: ts2000-hardware-validation, Property 6: Link-hold poll rate
 
 using FsCheck;
 using FsCheck.Xunit;
-using OscarWatch.Core.Radio;
 using OscarWatch.Rig;
 
 namespace OscarWatch.Tests;
@@ -10,17 +9,12 @@ namespace OscarWatch.Tests;
 /// <summary>
 /// **Validates: Requirements 9.1**
 ///
-/// Property 6: Link-Hold Poll Count
-/// ∀ calls to SendSatelliteLinkHoldPolls in satellite mode: exactly 7 FA; commands sent via Transact.
+/// Property 6: SendSatelliteLinkHoldPollNow sends exactly one FA; per call in satellite mode.
 /// </summary>
 public class Ts2000LinkHoldPollCountPropertyTests
 {
-    /// <summary>
-    /// Property 6: For any call to SendSatelliteLinkHoldPolls when the driver is in satellite mode,
-    /// exactly 7 FA; commands are sent via Transact.
-    /// </summary>
-    [Property(MaxTest = 50)]
-    public bool SendSatelliteLinkHoldPolls_sends_exactly_7_FA_commands(byte unusedSeed)
+    [Property(MaxTest = 20)]
+    public bool SendSatelliteLinkHoldPollNow_sends_exactly_one_FA_command(byte unusedSeed)
     {
         var transport = new RecordingKenwoodCatTransport { SatelliteStatusOn = true };
         var driver = new KenwoodTs2000Driver(transport, catDelayMs: 0);
@@ -28,21 +22,12 @@ public class Ts2000LinkHoldPollCountPropertyTests
         driver.SetSatelliteMode(true);
         transport.SentCommands.Clear();
 
-        driver.SendSatelliteLinkHoldPolls();
+        driver.SendSatelliteLinkHoldPollNow();
 
         var cmds = transport.SentCommands;
-
-        // Must be exactly 7 commands
-        if (cmds.Count != 7)
+        if (cmds.Count != 1)
             return false;
 
-        // All must be "FA;"
-        for (var i = 0; i < 7; i++)
-        {
-            if (cmds[i] != "FA;")
-                return false;
-        }
-
-        return true;
+        return cmds[0] == "FA;";
     }
 }

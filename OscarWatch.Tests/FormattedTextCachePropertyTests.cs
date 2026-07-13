@@ -34,7 +34,10 @@ public class FormattedTextCachePropertyTests
         SunlightTimeline: Colors.Yellow,
         EclipseTimeline: Colors.Gray,
         GreylineNightFill: Color.FromArgb(52, 48, 58, 88),
-        GreylineTerminatorStroke: Color.FromArgb(90, 180, 190, 210));
+        GreylineTerminatorStroke: Color.FromArgb(90, 180, 190, 210),
+        MapGroundTrackStroke: Colors.Cyan,
+        MapGroundTrackOutline: Colors.DarkCyan,
+        MapNextOrbitGroundTrackStroke: Colors.LightBlue);
 
     /// <summary>
     /// Generates a satellite name (1–20 chars) from a seed byte array.

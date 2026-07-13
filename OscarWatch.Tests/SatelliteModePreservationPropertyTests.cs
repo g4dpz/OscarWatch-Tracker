@@ -152,12 +152,11 @@ public class SatelliteModePreservationPropertyTests
 
     /// <summary>
     /// For any valid downlink/uplink frequency pair, ApplySatelliteDopplerStep produces
-    /// the FA/FB/SM frequency cluster followed by 7 FA; link-hold polls.
-    /// The exact sequence pattern is: FA, FB, SM10000, FA, SM(sub), FB, SM(sub), SM10000,
-    /// then 7x FA; polls.
+    /// the FA/FB/SM frequency cluster without a link-hold burst (polls run on a ~1/s timer).
+    /// The exact sequence pattern is: FA, FB, SM10000, FA, SM(sub), FB, SM(sub), SM10000.
     /// </summary>
     [Property(MaxTest = 10)]
-    public bool DopplerStep_produces_FA_FB_SM_cluster_and_link_hold_polls(
+    public bool DopplerStep_produces_FA_FB_SM_cluster_without_link_hold_burst(
         int downlinkSeed, int uplinkSeed)
     {
         // Generate valid frequencies in ham radio satellite bands
@@ -183,9 +182,8 @@ public class SatelliteModePreservationPropertyTests
         var expectedFa = $"FA{downlinkHz:D11};";
         var expectedFb = $"FB{uplinkHz:D11};";
 
-        // The sequence should be: FA, FB, SM10000, FA, SM(sub), FB, SM(sub), SM10000, then 7x FA;
-        // Total = 8 cluster commands + 7 poll commands = 15
-        if (cmds.Count != 15)
+        // The sequence should be: FA, FB, SM10000, FA, SM(sub), FB, SM(sub), SM10000
+        if (cmds.Count != 8)
             return false;
 
         // Verify cluster pattern
@@ -201,14 +199,7 @@ public class SatelliteModePreservationPropertyTests
         if (cmds[6] != expectedSmSub) return false;
         if (cmds[7] != "SM10000;") return false;
 
-        // Verify 7 FA; link-hold polls
-        for (var i = 8; i < 15; i++)
-        {
-            if (cmds[i] != "FA;")
-                return false;
-        }
-
-        return true;
+        return !cmds.Contains("FA;");
     }
 
     // ────────────────────────────────────────────────────────────────────────────
@@ -218,11 +209,10 @@ public class SatelliteModePreservationPropertyTests
 
     /// <summary>
     /// For any valid frequency and mode-code combination, ApplySatellitePassFrequencies
-    /// produces the double FA/FB, SM, mode, PC050, and tone sequence followed by
-    /// 7 FA; link-hold polls.
+    /// produces the double FA/FB, SM, mode, PC050, and tone sequence without link-hold bursts.
     /// </summary>
     [Property(MaxTest = 10)]
-    public bool PassFrequencies_produces_programming_sequence_and_link_hold_polls(
+    public bool PassFrequencies_produces_programming_sequence_without_link_hold_burst(
         int downlinkSeed, int uplinkSeed, byte modeIndexByte)
     {
         var downlinkHz = GenerateValidFrequency(downlinkSeed, isDownlink: true);
@@ -278,31 +268,7 @@ public class SatelliteModePreservationPropertyTests
         // 7. AI0; autoinfo off at the end
         if (!cmds.Contains("AI0;")) return false;
 
-        // 8. 7 FA; link-hold polls at the end
-        var linkHoldPolls = cmds.Count(c => c == "FA;");
-        if (linkHoldPolls != 7) return false;
-
-        // 9. The link-hold polls must be at the end
-        var lastNonPollIndex = -1;
-        for (var i = cmds.Count - 1; i >= 0; i--)
-        {
-            if (cmds[i] != "FA;")
-            {
-                lastNonPollIndex = i;
-                break;
-            }
-        }
-
-        // All commands after lastNonPollIndex should be FA;
-        for (var i = lastNonPollIndex + 1; i < cmds.Count; i++)
-        {
-            if (cmds[i] != "FA;") return false;
-        }
-
-        // And there should be exactly 7 of them
-        if (cmds.Count - lastNonPollIndex - 1 != 7) return false;
-
-        return true;
+        return !cmds.Contains("FA;");
     }
 
     // ────────────────────────────────────────────────────────────────────────────

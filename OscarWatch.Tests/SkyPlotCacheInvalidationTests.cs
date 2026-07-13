@@ -36,7 +36,10 @@ public class SkyPlotCacheInvalidationTests
         SunlightTimeline: Colors.Yellow,
         EclipseTimeline: Colors.Gray,
         GreylineNightFill: Color.FromArgb(52, 48, 58, 88),
-        GreylineTerminatorStroke: Color.FromArgb(90, 180, 190, 210));
+        GreylineTerminatorStroke: Color.FromArgb(90, 180, 190, 210),
+        MapGroundTrackStroke: Colors.Cyan,
+        MapGroundTrackOutline: Colors.DarkCyan,
+        MapNextOrbitGroundTrackStroke: Colors.LightBlue);
 
     private static UiPalette CreateDarkPalette() =>
         CreatePalette(Colors.White, Color.FromArgb(220, 16, 20, 28));

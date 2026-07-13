@@ -359,6 +359,70 @@ public class RigControllerTests
         Assert.Equal(expectedTxHz, transport.FbHz);
     }
 
+    [Fact]
+    public void Ts2000_tracking_loop_sends_link_hold_poll_on_interval()
+    {
+        var transport = new RecordingKenwoodCatTransport();
+        var driver = new KenwoodTs2000Driver(
+            transport,
+            catDelayMs: 0,
+            satModeSettlingDelayMs: 0,
+            satModeRetryCount: 1,
+            satModeRetryDelayMs: 0,
+            linkHoldPollIntervalMs: 100);
+        var controller = new RigController(_ => driver);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.KenwoodTs2000,
+            Port = "COM1",
+            DopplerThresholdFmHz = 50_000,
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 436_795,
+            UplinkKHz = 145_850,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR"
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "SO-50",
+                NoradId = "27607",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 45, 600, 2.0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 2.0, 0)
+        };
+
+        controller.Update(settings, ctx);
+        controller.DrainCommandQueueForTests();
+        Thread.Sleep(150);
+        transport.SentCommands.Clear();
+
+        controller.RunTrackingLoopOnce();
+        controller.DrainCommandQueueForTests();
+        Assert.Equal(1, transport.SentCommands.Count(c => c == "FA;"));
+
+        transport.SentCommands.Clear();
+        controller.RunTrackingLoopOnce();
+        controller.DrainCommandQueueForTests();
+        Assert.Empty(transport.SentCommands);
+
+        Thread.Sleep(110);
+        controller.RunTrackingLoopOnce();
+        controller.DrainCommandQueueForTests();
+        Assert.Equal(1, transport.SentCommands.Count(c => c == "FA;"));
+    }
+
     private sealed class NonConfirmingSatelliteTransport : IKenwoodCatTransport
     {
         private readonly bool _returnNull;

@@ -44,11 +44,11 @@ public class Ts2000DopplerStepTests : Ts2000TestBase
     }
 
     /// <summary>
-    /// Requirement 5.2: After the 8-command frequency cluster, exactly 7 FA; link-hold
-    /// polls are sent via Transact. Total = 8 cluster + 7 polls = 15 commands.
+    /// Requirement 5.2: Doppler step sends only the 8-command frequency cluster (no link-hold burst).
+    /// Link-hold FA; polls run on a ~1/s timer from RigController.
     /// </summary>
     [Fact]
-    public void DopplerStep_sends_exactly_7_FA_link_hold_polls_after_cluster()
+    public void DopplerStep_sends_only_frequency_cluster_without_link_hold_burst()
     {
         long downlinkHz = 145_900_000;
         long uplinkHz = 435_700_000;
@@ -60,14 +60,8 @@ public class Ts2000DopplerStepTests : Ts2000TestBase
 
         var cmds = GetSentCommands();
 
-        // Total should be 15: 8 cluster + 7 polls
-        Assert.Equal(15, cmds.Count);
-
-        // Commands at indices 8..14 should all be "FA;" (link-hold polls)
-        for (var i = 8; i < 15; i++)
-        {
-            Assert.Equal("FA;", cmds[i]);
-        }
+        Assert.Equal(8, cmds.Count);
+        Assert.DoesNotContain(cmds, c => c == "FA;");
     }
 
     /// <summary>

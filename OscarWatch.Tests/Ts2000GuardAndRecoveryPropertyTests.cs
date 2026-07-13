@@ -147,7 +147,7 @@ public class Ts2000GuardAndRecoveryPropertyTests
                 driver.ExchangeVfos();
                 break;
             case 2:
-                driver.SendSatelliteLinkHoldPolls();
+                driver.SendSatelliteLinkHoldPollNow();
                 break;
         }
 

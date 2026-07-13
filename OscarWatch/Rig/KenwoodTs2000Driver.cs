@@ -17,6 +17,8 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     private readonly int _satModeSettlingDelayMs;
     private readonly int _satModeRetryCount;
     private readonly int _satModeRetryDelayMs;
+    private readonly int _linkHoldPollIntervalMs;
+    private DateTime _lastLinkHoldPollUtc = DateTime.MinValue;
     private bool _satelliteMode;
     private bool _satelliteLayoutConfirmed;
     /// <summary>True after <see cref="SetSatelliteMode"/>(true); FA/FB doppler works even when SA; did not confirm SATL.</summary>
@@ -34,13 +36,20 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     {
     }
 
-    internal KenwoodTs2000Driver(IKenwoodCatTransport transport, int catDelayMs = 50, int satModeSettlingDelayMs = 250, int satModeRetryCount = 3, int satModeRetryDelayMs = 200)
+    internal KenwoodTs2000Driver(
+        IKenwoodCatTransport transport,
+        int catDelayMs = 50,
+        int satModeSettlingDelayMs = 250,
+        int satModeRetryCount = 3,
+        int satModeRetryDelayMs = 200,
+        int? linkHoldPollIntervalMs = null)
     {
         _transport = transport;
         _catDelayMs = catDelayMs;
         _satModeSettlingDelayMs = satModeSettlingDelayMs;
         _satModeRetryCount = satModeRetryCount;
         _satModeRetryDelayMs = satModeRetryDelayMs;
+        _linkHoldPollIntervalMs = linkHoldPollIntervalMs ?? KenwoodCatCodec.SatelliteLinkHoldPollIntervalMs;
     }
 
     public RigType RigType => RigType.KenwoodTs2000;
@@ -91,7 +100,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     }
 
     /// <summary>
-    /// SATL doppler update: FA/FB/SM cluster plus FA; link-hold polls. Call once per RX/TX batch.
+    /// SATL doppler update: FA/FB/SM cluster. Link-hold <c>FA;</c> polls run on a timer (~1/s) from <see cref="RigController"/>.
     /// </summary>
     public bool ApplySatelliteDopplerStep(long downlinkHz, long uplinkHz)
     {
@@ -114,7 +123,6 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         _transport.SendFireAndForget(vhfSm, _catDelayMs);
         _transport.SendFireAndForget(KenwoodCatCodec.BuildSatelliteBandSelectMainCommand(), _catDelayMs);
 
-        SendSatelliteLinkHoldPolls();
         return true;
     }
 
@@ -140,8 +148,6 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         FinalizeSatelliteSubPath(uplinkModeCode, downlinkHz, uplinkHz);
         _transport.SendFireAndForget(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
         _transport.SendFireAndForget(KenwoodCatCodec.BuildAutoinfoOffCommand(), _catDelayMs);
-
-        SendSatelliteLinkHoldPolls();
     }
 
     public void SelectVfo(RigVfo vfo, bool force = false)
@@ -200,13 +206,30 @@ public sealed class KenwoodTs2000Driver : IRigDriver
             _transport.SendFireAndForget("FR0;FT0;", _catDelayMs);
     }
 
-    public void SendSatelliteLinkHoldPolls()
+    /// <summary>Send one <c>FA;</c> link-hold poll when the SatPC32-style interval has elapsed.</summary>
+    public void SendSatelliteLinkHoldPollIfDue()
     {
         if (!_faFbSatelliteTracking || !_transport.IsOpen)
             return;
 
-        for (var i = 0; i < KenwoodCatCodec.SatelliteLinkHoldPollCount; i++)
-            _transport.Transact(KenwoodCatCodec.BuildReadFrequencyCommand('A'), _catDelayMs);
+        if (_linkHoldPollIntervalMs > 0
+            && _lastLinkHoldPollUtc != DateTime.MinValue
+            && DateTime.UtcNow - _lastLinkHoldPollUtc < TimeSpan.FromMilliseconds(_linkHoldPollIntervalMs))
+        {
+            return;
+        }
+
+        SendSatelliteLinkHoldPollNow();
+    }
+
+    /// <summary>Send one <c>FA;</c> link-hold poll immediately (tests and first poll after SAT entry).</summary>
+    public void SendSatelliteLinkHoldPollNow()
+    {
+        if (!_faFbSatelliteTracking || !_transport.IsOpen)
+            return;
+
+        _transport.Transact(KenwoodCatCodec.BuildReadFrequencyCommand('A'), _catDelayMs);
+        _lastLinkHoldPollUtc = DateTime.UtcNow;
     }
 
     public void SetSatelliteMode(bool on)
@@ -238,6 +261,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         _satelliteMode = false;
         _satelliteLayoutConfirmed = false;
         _faFbSatelliteTracking = false;
+        _lastLinkHoldPollUtc = DateTime.MinValue;
         SendSatelliteModeExitSequence();
         if (_satModeSettlingDelayMs > 0)
             Thread.Sleep(_satModeSettlingDelayMs);
@@ -458,6 +482,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
 
     private bool TryEnableSatelliteMode()
     {
+        _lastLinkHoldPollUtc = DateTime.MinValue;
         ExitMemoryModeIfNeeded();
         _transport.SendFireAndForget(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
 
