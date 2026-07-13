@@ -300,6 +300,65 @@ public class RigControllerTests
         Assert.Contains($"FA{expectedRxHz:D11};", transport.SentCommands);
     }
 
+    [Fact]
+    public void Ts2000_reinitialize_pass_reaffirms_layout_without_full_sat_entry_or_vfo_exchange()
+    {
+        var transport = new RecordingKenwoodCatTransport();
+        var driver = new KenwoodTs2000Driver(transport, catDelayMs: 0, satModeSettlingDelayMs: 0, satModeRetryCount: 1, satModeRetryDelayMs: 0);
+        var controller = new RigController(_ => driver);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.KenwoodTs2000,
+            Port = "COM1",
+            DopplerThresholdFmHz = 200,
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 145_900,
+            UplinkKHz = 435_700,
+            DownlinkMode = "FMN",
+            UplinkMode = "FMN",
+            Doppler = "NOR"
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "AO-07",
+                NoradId = "07530",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 45, 600, 2.0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 2.0, 0)
+        };
+
+        controller.Update(settings, ctx);
+        controller.DrainCommandQueueForTests();
+
+        // Simulate swapped FA/FB on the radio — ICOM-style band swap must not run on Kenwood re-init.
+        transport.FaHz = 435_700_000;
+        transport.FbHz = 145_900_000;
+        transport.SentCommands.Clear();
+
+        controller.PublishContext(settings, ctx, reinitializePass: true);
+        controller.DrainCommandQueueForTests();
+
+        Assert.DoesNotContain("TS1;", transport.SentCommands);
+        Assert.Contains("SA1010110;", transport.SentCommands);
+        var expectedRxHz = (long)Math.Round(ctx.Corrected.RadioReceiveKHz * 1000.0);
+        var expectedTxHz = (long)Math.Round(ctx.Corrected.RadioTransmitKHz * 1000.0);
+        Assert.Contains($"FA{expectedRxHz:D11};", transport.SentCommands);
+        Assert.Contains($"FB{expectedTxHz:D11};", transport.SentCommands);
+        Assert.Equal(expectedRxHz, transport.FaHz);
+        Assert.Equal(expectedTxHz, transport.FbHz);
+    }
+
     private sealed class NonConfirmingSatelliteTransport : IKenwoodCatTransport
     {
         private readonly bool _returnNull;

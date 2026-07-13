@@ -317,6 +317,15 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         _transport.SendFireAndForget(KenwoodCatCodec.BuildSetVfoSelectCommand('0'), _catDelayMs);
     }
 
+    /// <summary>Re-assert SATL layout (P3 main=downlink) without the full entry handshake.</summary>
+    public void ReaffirmSatelliteLayout()
+    {
+        if (!_faFbSatelliteTracking || !_transport.IsOpen)
+            return;
+
+        _transport.SendFireAndForget(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
+    }
+
     public void ExchangeVfos()
     {
         if (!_faFbSatelliteTracking || !_transport.IsOpen)

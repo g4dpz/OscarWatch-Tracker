@@ -1146,11 +1146,23 @@ public sealed class RigController : IRigController, IDisposable
         }
         else
         {
-            _driver.SetSatelliteMode(true);
-            if (settings.Type == RigType.KenwoodTs2000 && !_driver.IsSatelliteModeActive)
+            if (settings.Type == RigType.KenwoodTs2000
+                && _driver is KenwoodTs2000Driver kenwoodDriver
+                && kenwoodDriver.UsesFaFbSatelliteTracking)
             {
-                Log.Warning(
-                    "TS-2000 SATL not confirmed via SA; — continuing FA/FB tracking (no FR/split in SAT).");
+                // Mid-pass re-init (offsets, CAT resume): keep SATL, reaffirm layout, reprogram FA/FB.
+                kenwoodDriver.ReaffirmSatelliteLayout();
+            }
+            else
+            {
+                _driver.SetSatelliteMode(true);
+                if (settings.Type == RigType.KenwoodTs2000 && !_driver.IsSatelliteModeActive)
+                {
+                    Log.Warning(
+                        "TS-2000 SATL not confirmed via SA; — continuing FA/FB tracking (no FR/split in SAT).");
+                }
+
+                Thread.Sleep(150);
             }
 
             // IC-910/9100/9700 reject split CI-V in satellite (Main/Sub) mode with NAK.
@@ -1159,10 +1171,9 @@ public sealed class RigController : IRigController, IDisposable
                 _driver.SetSplitOn(false);
             if (settings.Type == RigType.IcomIc821h && _driver is IcomIc821hDriver ic821)
                 ic821.EstablishSatelliteVfoState();
-            Thread.Sleep(150);
         }
 
-        TryBandSwap(context);
+        TryBandSwap(settings, context);
 
         var setup = SetupVfosPolicy.Evaluate(
             context.EffectiveDownlinkMode,
@@ -1280,9 +1291,13 @@ public sealed class RigController : IRigController, IDisposable
         RestoreOperatorVfo();
     }
 
-    private void TryBandSwap(RigTrackingContext context)
+    private void TryBandSwap(RigSettings settings, RigTrackingContext context)
     {
         if (_driver is null)
+            return;
+
+        // TS-2000 SATL assigns downlink/uplink via FA/FB and SA P3 — not ICOM-style Main/Sub exchange.
+        if (settings.Type == RigType.KenwoodTs2000)
             return;
 
         var canExchange = _driver.SupportsVfoExchange;
