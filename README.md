@@ -30,13 +30,20 @@ OscarWatch does **not** decode telemetry; it is a pass-tracking and station-assi
 
 Pre-built packages for Windows, macOS, and Linux are on the **[Releases](https://github.com/magicbug/OscarWatch-Tracker/releases)** page (see [Cross-platform publish](#cross-platform-publish) for platform names). Extract the archive for your OS and run `OscarWatch`.
 
-**macOS (first install):** release builds are not code-signed or notarized. macOS may block the app or bundled native libraries on first use:
+**macOS (first install):** release builds are not code-signed or notarised. Expect a few one-time security prompts — full step-by-step help is in [help/macos-install.html](help/macos-install.html) (thanks to Tim GW4VXE for the operator walkthrough).
 
-1. **OscarWatch**: if Finder says the app “cannot be opened”, right-click `OscarWatch` → **Open** once, or use **System Settings → Privacy & Security → Open Anyway**.
-2. **Pass recording**: if you use automatic WAV capture, macOS may also ask you to allow `**libportaudio.dylib`** (in `runtimes/osx-*/native/` inside the app folder). Approve it the same way when prompted.
-3. **Microphone**: allow microphone access when you first enable recording in Settings.
+1. Download **`OscarWatch-osx-arm64`** (Apple Silicon) or **`OscarWatch-osx-x64`** (Intel) from Releases.
+2. In Finder, right-click the archive → **Open With → Archive Utility**. Rename the extracted folder to `OscarWatch` if you like.
+3. In Terminal, clear quarantine (replace `xxxx` with your user name and adjust the path if needed):
 
-These prompts are usually one-time per install. Tracking, passes, and radio/rotator control work without pass recording if you skip step 2.
+   ```bash
+   xattr -d com.apple.quarantine /Users/xxxx/Downloads/OscarWatch/OscarWatch
+   ```
+
+4. Double-click the `OscarWatch` executable inside that folder (or right-click → **Open** once if Finder blocks it).
+5. If macOS complains about a `.dylib` file, open **System Settings → Privacy & Security**, scroll to **Security**, click **Allow Anyway** for each blocked library (often about three), enter your password when asked, and relaunch. Approve **microphone** access too if you use pass recording (`libportaudio.dylib` lives under `runtimes/osx-*/native/`).
+
+Tracking, passes, and radio/rotator control work without pass recording if you skip the PortAudio approval step.
 
 To build from source instead, see [Build and run](#build-and-run) below.
 
@@ -197,7 +204,7 @@ Audio capture uses [PortAudio](https://www.portaudio.com/) (via PortAudioSharp2)
 | Platform    | Notes                                                                                                                                    |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | **Windows** | Select your radio interface or sound card input in Settings → Recording                                                                  |
-| **macOS**   | Core Audio devices; see [macOS (first install)](#download) if `libportaudio.dylib` is blocked; grant microphone permission when prompted |
+| **macOS**   | Core Audio devices; see [macOS install](help/macos-install.html) if `libportaudio.dylib` is blocked; grant microphone permission when prompted |
 | **Linux**   | Requires PulseAudio or ALSA; install `libasound2` / PulseAudio as needed for your distro                                                 |
 
 
