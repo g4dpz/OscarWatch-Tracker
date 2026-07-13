@@ -5,221 +5,270 @@
         x:Class="OscarWatch.Views.MutualPassWindow"
         x:DataType="vm:MutualPassViewModel"
         Title="{loc:Localize Key=Window.MutualPass.Title}"
-        Width="920" Height="560"
-        MinWidth="720" MinHeight="420"
+        Width="480" Height="360"
+        MinWidth="440" MinHeight="300"
         WindowStartupLocation="CenterOwner">
-  <DockPanel Margin="12">
+  <DockPanel Margin="16">
     <DockPanel.Styles>
-      <Style Selector="Expander">
+      <Style Selector="TextBlock.wizard-label">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{DynamicResource ThemeSecondaryForegroundBrush}" />
+        <Setter Property="Margin" Value="0,0,0,4" />
+      </Style>
+      <Style Selector="TextBlock.wizard-heading">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Margin" Value="0,0,0,6" />
+      </Style>
+      <Style Selector="NumericUpDown.wizard-field">
+        <Setter Property="MinWidth" Value="112" />
+        <Setter Property="MinHeight" Value="32" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
-        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      </Style>
+      <Style Selector="NumericUpDown.time-digit">
+        <Setter Property="MinWidth" Value="76" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+      </Style>
+      <Style Selector="ComboBox.wizard-field">
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+      </Style>
+      <Style Selector="TextBox.wizard-field">
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+      </Style>
+      <Style Selector="Border.wizard-card">
+        <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="MaxWidth" Value="440" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
       </Style>
     </DockPanel.Styles>
+
+    <!-- Footer navigation -->
     <Border DockPanel.Dock="Bottom"
             BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
             BorderThickness="0,1,0,0"
             Padding="0,10,0,0"
-            Margin="0,10,0,0">
-      <Grid ColumnDefinitions="*,Auto">
-        <TextBlock Grid.Column="0"
+            Margin="0,12,0,0">
+      <Grid ColumnDefinitions="Auto,*,Auto,Auto"
+            ColumnSpacing="8">
+        <Button Grid.Column="0"
+                Content="{loc:Localize Key=Common.Back}"
+                Command="{Binding WizardBackCommand}"
+                IsVisible="{Binding !IsResultsStep}"
+                MinWidth="72" />
+        <Button Grid.Column="0"
+                Content="{loc:Localize Key=Mutual.Wizard.EditSearch}"
+                Command="{Binding EditSearchCommand}"
+                IsVisible="{Binding IsResultsStep}"
+                MinWidth="96" />
+        <TextBlock Grid.Column="1"
                    Text="{Binding StatusText}"
                    VerticalAlignment="Center"
                    TextWrapping="Wrap"
+                   MaxHeight="40"
                    Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
-        <Button Grid.Column="1" Content="{loc:Localize Key=Common.Close}" Click="OnCloseClick" MinWidth="80" />
+        <Button Grid.Column="2"
+                Content="{loc:Localize Key=Common.Next}"
+                Command="{Binding WizardNextCommand}"
+                IsVisible="{Binding IsWizardSetupStep}"
+                Classes="accent"
+                MinWidth="72" />
+        <Button Grid.Column="2"
+                Content="{loc:Localize Key=Mutual.FindPasses}"
+                Command="{Binding FindPassesCommand}"
+                IsVisible="{Binding IsWhenStep}"
+                Classes="accent"
+                MinWidth="120" />
+        <Button Grid.Column="3"
+                Content="{loc:Localize Key=Common.Close}"
+                Click="OnCloseClick"
+                MinWidth="72" />
       </Grid>
     </Border>
 
-    <Grid RowDefinitions="Auto,*"
-          HorizontalAlignment="Stretch">
-      <Expander Grid.Row="0"
-                Header="{loc:Localize Key=Mutual.Section.StationsFilters}"
-                IsExpanded="True"
-                Padding="0,0,0,8"
-                HorizontalAlignment="Stretch"
-                HorizontalContentAlignment="Stretch"
-                MinWidth="0">
-        <StackPanel Spacing="8"
-                    HorizontalAlignment="Stretch"
-                    MinWidth="0">
-          <Grid ColumnDefinitions="*,*"
-                ColumnSpacing="12"
-                HorizontalAlignment="Stretch"
-                MinWidth="0">
-            <StackPanel Grid.Column="0" Spacing="2" MinWidth="0">
-              <TextBlock Text="{loc:Localize Key=Mutual.YourStation}"
-                         FontSize="12"
-                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+    <!-- Step indicator -->
+    <TextBlock DockPanel.Dock="Top"
+               Text="{Binding WizardProgressText}"
+               HorizontalAlignment="Center"
+               FontSize="11"
+               Foreground="{DynamicResource ThemeSecondaryForegroundBrush}"
+               Margin="0,0,0,10" />
+
+    <Grid>
+      <!-- Wizard steps -->
+      <Border Classes="wizard-card"
+              IsVisible="{Binding !IsResultsStep}">
+        <StackPanel Spacing="12">
+          <!-- Step 1: Stations -->
+          <StackPanel IsVisible="{Binding IsStationsStep}" Spacing="12">
+            <TextBlock Classes="wizard-heading"
+                       Text="{loc:Localize Key=Mutual.Wizard.Step.Stations}" />
+            <TextBlock Text="{loc:Localize Key=Mutual.Wizard.StationsIntro}"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}"
+                       FontSize="11" />
+            <StackPanel Spacing="0">
+              <TextBlock Classes="wizard-label" Text="{loc:Localize Key=Mutual.YourStation}" />
               <TextBlock Text="{Binding LocalStationSummary}"
                          FontWeight="SemiBold"
                          TextWrapping="Wrap" />
             </StackPanel>
-            <StackPanel Grid.Column="1" Spacing="2" MinWidth="0">
-              <TextBlock Text="{loc:Localize Key=Mutual.RemoteOperator}"
-                         FontSize="12"
-                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
-              <TextBox Watermark="{loc:Localize Key=Mutual.RemoteOperatorWatermark}"
-                       Text="{Binding RemoteOperatorLabel, Mode=TwoWay}" />
-            </StackPanel>
-          </Grid>
-
-          <Grid ColumnDefinitions="*,*,Auto"
-                ColumnSpacing="8"
-                HorizontalAlignment="Stretch"
-                MinWidth="0">
-            <StackPanel Grid.Column="0" Spacing="2" MinWidth="0">
-              <TextBlock Text="{loc:Localize Key=Mutual.RemoteGrid}"
-                         FontSize="12"
-                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
-              <TextBox HorizontalAlignment="Stretch"
-                       Text="{Binding RemoteGridSquare, Mode=TwoWay}"
-                       MaxLength="8" />
-            </StackPanel>
-            <TextBlock Grid.Column="1"
-                       VerticalAlignment="Bottom"
-                       Margin="0,0,0,6"
-                       FontSize="11"
-                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}"
-                       TextWrapping="Wrap"
-                       Text="{loc:Localize Key=Mutual.Description}" />
-            <Button Grid.Column="2"
-                    Content="{loc:Localize Key=Mutual.FindPasses}"
-                    Command="{Binding RefreshPassesCommand}"
-                    VerticalAlignment="Bottom"
-                    MinWidth="130" />
-          </Grid>
-
-          <Grid ColumnDefinitions="*,*,*"
-                ColumnSpacing="8"
-                HorizontalAlignment="Stretch"
-                MinWidth="0">
-            <StackPanel Grid.Column="0" Spacing="2" MinWidth="0">
-              <TextBlock Text="{loc:Localize Key=Pass.MinElevation}"
-                         FontSize="12"
-                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
-              <NumericUpDown HorizontalAlignment="Stretch"
-                             Value="{Binding FilterMinElevationDeg, Mode=TwoWay}"
-                             Minimum="0" Maximum="90" FormatString="F1" />
-            </StackPanel>
-            <StackPanel Grid.Column="1" Spacing="2" MinWidth="0">
-              <TextBlock Text="{loc:Localize Key=Mutual.MinPassDuration}"
-                         FontSize="12"
-                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
-              <NumericUpDown HorizontalAlignment="Stretch"
-                             Value="{Binding FilterMinPassDurationMinutes, Mode=TwoWay}"
-                             Minimum="0" Maximum="60" FormatString="0" />
-            </StackPanel>
-            <StackPanel Grid.Column="2" Spacing="2" MinWidth="0">
-              <TextBlock Text="{loc:Localize Key=Mutual.MinOverlap}"
-                         FontSize="12"
-                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
-              <NumericUpDown HorizontalAlignment="Stretch"
-                             Value="{Binding FilterMinMutualDurationMinutes, Mode=TwoWay}"
-                             Minimum="0" Maximum="60" FormatString="0" />
-            </StackPanel>
-          </Grid>
-
-          <Grid ColumnDefinitions="Auto,*"
-                ColumnSpacing="8"
-                HorizontalAlignment="Stretch"
-                MinWidth="0">
-            <TextBlock Grid.Column="0"
-                       Text="{loc:Localize Key=Pass.TimesShownIn}"
-                       FontSize="12"
-                       VerticalAlignment="Center"
-                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
-            <ComboBox Grid.Column="1"
-                      HorizontalAlignment="Left"
-                      MinWidth="140"
-                      ItemsSource="{Binding TimeDisplayLabels}"
-                      SelectedIndex="{Binding TimeDisplayIndex, Mode=TwoWay}">
-              <ComboBox.ItemTemplate>
-                <DataTemplate>
-                  <TextBlock Text="{Binding}" />
-                </DataTemplate>
-              </ComboBox.ItemTemplate>
-            </ComboBox>
-          </Grid>
-
-          <Grid ColumnDefinitions="Auto,*"
-                ColumnSpacing="8"
-                HorizontalAlignment="Stretch"
-                MinWidth="0">
-            <TextBlock Grid.Column="0"
-                       Text="{loc:Localize Key=Mutual.TimeWindow.Label}"
-                       FontSize="12"
-                       VerticalAlignment="Center"
-                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
-            <ComboBox Grid.Column="1"
-                      HorizontalAlignment="Left"
-                      MinWidth="240"
-                      ItemsSource="{Binding TimeWindowModeLabels}"
-                      SelectedIndex="{Binding TimeWindowModeIndex, Mode=TwoWay}">
-              <ComboBox.ItemTemplate>
-                <DataTemplate>
-                  <TextBlock Text="{Binding}" />
-                </DataTemplate>
-              </ComboBox.ItemTemplate>
-            </ComboBox>
-          </Grid>
-
-          <StackPanel Spacing="2"
-                      IsVisible="{Binding UseHoursAhead}"
-                      HorizontalAlignment="Stretch"
-                      MinWidth="0"
-                      MaxWidth="220">
-            <TextBlock Text="{loc:Localize Key=Pass.HoursAhead}"
-                       FontSize="12"
-                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
-            <NumericUpDown HorizontalAlignment="Stretch"
-                           Value="{Binding FilterPredictionHours, Mode=TwoWay}"
-                           Minimum="6" Maximum="168" FormatString="0" />
+            <Grid ColumnDefinitions="*,100" ColumnSpacing="10">
+              <StackPanel Grid.Column="0" Spacing="0">
+                <TextBlock Classes="wizard-label" Text="{loc:Localize Key=Mutual.RemoteOperator}" />
+                <TextBox Classes="wizard-field"
+                         Watermark="{loc:Localize Key=Mutual.RemoteOperatorWatermark}"
+                         Text="{Binding RemoteOperatorLabel, Mode=TwoWay}" />
+              </StackPanel>
+              <StackPanel Grid.Column="1" Spacing="0">
+                <TextBlock Classes="wizard-label" Text="{loc:Localize Key=Mutual.RemoteGrid}" />
+                <TextBox Classes="wizard-field"
+                         Text="{Binding RemoteGridSquare, Mode=TwoWay}"
+                         MaxLength="8" />
+              </StackPanel>
+            </Grid>
           </StackPanel>
 
-          <Grid IsVisible="{Binding UseDateRange}"
-                ColumnDefinitions="*,*,*,*"
-                ColumnSpacing="8"
-                HorizontalAlignment="Stretch"
-                MinWidth="0">
-            <StackPanel Grid.Column="0" Spacing="2" MinWidth="0">
-              <TextBlock Text="{loc:Localize Key=Mutual.RangeStartDate}"
-                         FontSize="12"
-                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
-              <DatePicker HorizontalAlignment="Stretch"
-                          SelectedDate="{Binding RangeStartDate, Mode=TwoWay}" />
-            </StackPanel>
-            <StackPanel Grid.Column="1" Spacing="2" MinWidth="0">
-              <TextBlock Text="{loc:Localize Key=Mutual.RangeStartTime}"
-                         FontSize="12"
-                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
-              <TimePicker HorizontalAlignment="Stretch"
-                          SelectedTime="{Binding RangeStartTime, Mode=TwoWay}" />
-            </StackPanel>
-            <StackPanel Grid.Column="2" Spacing="2" MinWidth="0">
-              <TextBlock Text="{loc:Localize Key=Mutual.RangeEndDate}"
-                         FontSize="12"
-                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
-              <DatePicker HorizontalAlignment="Stretch"
-                          SelectedDate="{Binding RangeEndDate, Mode=TwoWay}" />
-            </StackPanel>
-            <StackPanel Grid.Column="3" Spacing="2" MinWidth="0">
-              <TextBlock Text="{loc:Localize Key=Mutual.RangeEndTime}"
-                         FontSize="12"
-                         Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
-              <TimePicker HorizontalAlignment="Stretch"
-                          SelectedTime="{Binding RangeEndTime, Mode=TwoWay}" />
-            </StackPanel>
-          </Grid>
-        </StackPanel>
-      </Expander>
+          <!-- Step 2: Pass criteria -->
+          <StackPanel IsVisible="{Binding IsCriteriaStep}" Spacing="12">
+            <TextBlock Classes="wizard-heading"
+                       Text="{loc:Localize Key=Mutual.Wizard.Step.Criteria}" />
+            <TextBlock Text="{loc:Localize Key=Mutual.Wizard.CriteriaIntro}"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}"
+                       FontSize="11" />
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+              <StackPanel Grid.Column="0" Spacing="0">
+                <TextBlock Classes="wizard-label" Text="{loc:Localize Key=Pass.MinElevation}" />
+                <NumericUpDown Classes="wizard-field"
+                               Value="{Binding FilterMinElevationDeg, Mode=TwoWay}"
+                               Minimum="0" Maximum="90" FormatString="F1" />
+              </StackPanel>
+              <StackPanel Grid.Column="1" Spacing="0">
+                <TextBlock Classes="wizard-label" Text="{loc:Localize Key=Mutual.MinPassDuration}" />
+                <NumericUpDown Classes="wizard-field"
+                               Value="{Binding FilterMinPassDurationMinutes, Mode=TwoWay}"
+                               Minimum="0" Maximum="60" FormatString="0" />
+              </StackPanel>
+              <StackPanel Grid.Column="2" Spacing="0">
+                <TextBlock Classes="wizard-label" Text="{loc:Localize Key=Mutual.MinOverlap}" />
+                <NumericUpDown Classes="wizard-field"
+                               Value="{Binding FilterMinMutualDurationMinutes, Mode=TwoWay}"
+                               Minimum="0" Maximum="60" FormatString="0" />
+              </StackPanel>
+            </Grid>
+          </StackPanel>
 
-      <DockPanel Grid.Row="1"
-                 HorizontalAlignment="Stretch"
-                 LastChildFill="True"
-                 MinWidth="0">
-        <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,4">
-          <TextBlock Text="{loc:Localize Key=Mutual.PassesHeader}"
-                     FontWeight="SemiBold" />
+          <!-- Step 3: Search period -->
+          <StackPanel IsVisible="{Binding IsWhenStep}" Spacing="12">
+            <TextBlock Classes="wizard-heading"
+                       Text="{loc:Localize Key=Mutual.Wizard.Step.When}" />
+            <StackPanel Spacing="0">
+              <TextBlock Classes="wizard-label" Text="{loc:Localize Key=Pass.TimesShownIn}" />
+              <ComboBox Classes="wizard-field"
+                        ItemsSource="{Binding TimeDisplayLabels}"
+                        SelectedIndex="{Binding TimeDisplayIndex, Mode=TwoWay}">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+            </StackPanel>
+            <StackPanel Spacing="0">
+              <TextBlock Classes="wizard-label" Text="{loc:Localize Key=Mutual.TimeWindow.Label}" />
+              <ComboBox Classes="wizard-field"
+                        ItemsSource="{Binding TimeWindowModeLabels}"
+                        SelectedIndex="{Binding TimeWindowModeIndex, Mode=TwoWay}">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+            </StackPanel>
+            <StackPanel Spacing="0"
+                        Margin="0,0,0,8"
+                        IsVisible="{Binding UseHoursAhead}">
+              <TextBlock Classes="wizard-label" Text="{loc:Localize Key=Pass.HoursAhead}" />
+              <NumericUpDown Classes="wizard-field"
+                             MaxWidth="140"
+                             HorizontalAlignment="Left"
+                             Value="{Binding FilterPredictionHours, Mode=TwoWay}"
+                             Minimum="6" Maximum="168" FormatString="0" />
+            </StackPanel>
+            <StackPanel Spacing="12"
+                        IsVisible="{Binding UseDateRange}">
+              <StackPanel Spacing="6">
+                <TextBlock Text="{loc:Localize Key=Mutual.RangeStart}"
+                           FontWeight="SemiBold"
+                           FontSize="12" />
+                <DatePicker HorizontalAlignment="Stretch"
+                            SelectedDate="{Binding RangeStartDate, Mode=TwoWay}" />
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <NumericUpDown Classes="time-digit"
+                                 Value="{Binding RangeStartHour, Mode=TwoWay}"
+                                 Minimum="0" Maximum="23"
+                                 FormatString="00"
+                                 Increment="1" />
+                  <TextBlock Text=":"
+                             VerticalAlignment="Center"
+                             FontFamily="Consolas,Courier New,monospace" />
+                  <NumericUpDown Classes="time-digit"
+                                 Value="{Binding RangeStartMinute, Mode=TwoWay}"
+                                 Minimum="0" Maximum="59"
+                                 FormatString="00"
+                                 Increment="1" />
+                </StackPanel>
+              </StackPanel>
+              <StackPanel Spacing="6">
+                <TextBlock Text="{loc:Localize Key=Mutual.RangeEnd}"
+                           FontWeight="SemiBold"
+                           FontSize="12" />
+                <DatePicker HorizontalAlignment="Stretch"
+                            SelectedDate="{Binding RangeEndDate, Mode=TwoWay}" />
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <NumericUpDown Classes="time-digit"
+                                 Value="{Binding RangeEndHour, Mode=TwoWay}"
+                                 Minimum="0" Maximum="23"
+                                 FormatString="00"
+                                 Increment="1" />
+                  <TextBlock Text=":"
+                             VerticalAlignment="Center"
+                             FontFamily="Consolas,Courier New,monospace" />
+                  <NumericUpDown Classes="time-digit"
+                                 Value="{Binding RangeEndMinute, Mode=TwoWay}"
+                                 Minimum="0" Maximum="59"
+                                 FormatString="00"
+                                 Increment="1" />
+                </StackPanel>
+              </StackPanel>
+            </StackPanel>
+          </StackPanel>
+        </StackPanel>
+      </Border>
+
+      <!-- Results -->
+      <DockPanel IsVisible="{Binding IsResultsStep}"
+                 LastChildFill="True">
+        <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,8">
+          <Grid ColumnDefinitions="Auto,*"
+                ColumnSpacing="8">
+            <TextBlock Text="{loc:Localize Key=Mutual.PassesHeader}"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center" />
+            <TextBlock Grid.Column="1"
+                       Text="{Binding ResultsContextLine}"
+                       FontSize="11"
+                       VerticalAlignment="Center"
+                       IsVisible="{Binding HasResultsContext}"
+                       Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+          </Grid>
           <TextBlock Text="{loc:Localize Key=Mutual.Visualizer.DoubleClickHint}"
                      FontSize="11"
                      Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
@@ -232,12 +281,11 @@
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
                   HorizontalScrollBarVisibility="Auto"
-                  CanUserResizeColumns="False"
+                  CanUserResizeColumns="True"
                   CanUserReorderColumns="False"
                   CanUserSortColumns="False"
                   GridLinesVisibility="Horizontal"
                   HeadersVisibility="Column"
-                  MinHeight="120"
                   BorderThickness="0">
           <DataGrid.ContextMenu>
             <ContextMenu>
@@ -266,33 +314,28 @@
                                 MinWidth="80" />
             <DataGridTextColumn Header="{loc:Localize Key=Mutual.Col.MutualWindow}"
                                 Binding="{Binding MutualWindowLine, DataType={x:Type vm:MutualPassRow}}"
-                                Width="130"
-                                MinWidth="110"
+                                Width="120"
+                                MinWidth="100"
                                 FontFamily="Consolas,Courier New,monospace" />
             <DataGridTextColumn Header="{loc:Localize Key=Mutual.Col.Overlap}"
                                 Binding="{Binding OverlapDuration, DataType={x:Type vm:MutualPassRow}}"
-                                Width="88"
-                                MinWidth="72"
+                                Width="80"
+                                MinWidth="68"
                                 FontFamily="Consolas,Courier New,monospace" />
-            <DataGridTextColumn Header="{loc:Localize Key=Mutual.Col.YourMaxEl}"
-                                Binding="{Binding LocalMaxEl, DataType={x:Type vm:MutualPassRow}}"
-                                Width="92"
+            <DataGridTextColumn Header="{loc:Localize Key=Mutual.Col.MaxElPair}"
+                                Binding="{Binding MaxElPair, DataType={x:Type vm:MutualPassRow}}"
+                                Width="96"
                                 MinWidth="84"
                                 FontFamily="Consolas,Courier New,monospace" />
-            <DataGridTextColumn Header="{loc:Localize Key=Mutual.Col.RemoteMaxEl}"
-                                Binding="{Binding RemoteMaxEl, DataType={x:Type vm:MutualPassRow}}"
-                                Width="104"
-                                MinWidth="96"
-                                FontFamily="Consolas,Courier New,monospace" />
-            <DataGridTextColumn Header="{loc:Localize Key=Mutual.Col.YourPass}"
+            <DataGridTextColumn Header="{loc:Localize Key=Mutual.Col.YourAosLos}"
                                 Binding="{Binding LocalPassLine, DataType={x:Type vm:MutualPassRow}}"
-                                Width="220"
-                                MinWidth="160"
+                                Width="*"
+                                MinWidth="150"
                                 FontFamily="Consolas,Courier New,monospace" />
-            <DataGridTextColumn Header="{loc:Localize Key=Mutual.Col.RemotePass}"
+            <DataGridTextColumn Header="{loc:Localize Key=Mutual.Col.RemoteAosLos}"
                                 Binding="{Binding RemotePassLine, DataType={x:Type vm:MutualPassRow}}"
-                                Width="220"
-                                MinWidth="160"
+                                Width="*"
+                                MinWidth="150"
                                 FontFamily="Consolas,Courier New,monospace" />
           </DataGrid.Columns>
         </DataGrid>

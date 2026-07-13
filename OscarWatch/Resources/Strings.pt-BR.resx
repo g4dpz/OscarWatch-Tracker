@@ -49,6 +49,12 @@
   <data name="Common.Cancel">
     <value>Cancelar</value>
   </data>
+  <data name="Common.Back">
+    <value>Voltar</value>
+  </data>
+  <data name="Common.Next">
+    <value>Seguinte</value>
+  </data>
   <data name="Common.Close">
     <value>Fechar</value>
   </data>
@@ -2505,6 +2511,39 @@ Continuar?</value>
   <data name="Mutual.Section.StationsFilters">
     <value>Estações &amp; filtros</value>
   </data>
+  <data name="Mutual.Section.Stations">
+    <value>Estações</value>
+  </data>
+  <data name="Mutual.Section.PassCriteria">
+    <value>Critérios da passagem</value>
+  </data>
+  <data name="Mutual.Section.SearchPeriod">
+    <value>Período de pesquisa</value>
+  </data>
+  <data name="Mutual.Wizard.Progress">
+    <value>Passo {0} de {1} — {2}</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Stations">
+    <value>Estações</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Criteria">
+    <value>Critérios da passagem</value>
+  </data>
+  <data name="Mutual.Wizard.Step.When">
+    <value>Período de pesquisa</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Results">
+    <value>Resultados</value>
+  </data>
+  <data name="Mutual.Wizard.StationsIntro">
+    <value>Insira o grid Maidenhead do operador remoto. Sua estação ativa é usada como lado local.</value>
+  </data>
+  <data name="Mutual.Wizard.CriteriaIntro">
+    <value>Defina a elevação mínima, a duração da passagem e a sobreposição necessárias para uma janela mútua.</value>
+  </data>
+  <data name="Mutual.Wizard.EditSearch">
+    <value>Editar pesquisa</value>
+  </data>
   <data name="Mutual.YourStation">
     <value>Sua estação</value>
   </data>
@@ -2536,7 +2575,13 @@ Continuar?</value>
     <value>Horas à frente a partir de agora</value>
   </data>
   <data name="Mutual.TimeWindow.DateRange">
-    <value>De / até data e hora</value>
+    <value>Intervalo personalizado</value>
+  </data>
+  <data name="Mutual.RangeStart">
+    <value>Início</value>
+  </data>
+  <data name="Mutual.RangeEnd">
+    <value>Fim</value>
   </data>
   <data name="Mutual.RangeStartDate">
     <value>Data de início</value>
@@ -2553,6 +2598,9 @@ Continuar?</value>
   <data name="Mutual.PassesHeader">
     <value>Passagens mútuas</value>
   </data>
+  <data name="Mutual.ResultsContext">
+    <value>{0} ↔ {1}</value>
+  </data>
   <data name="Mutual.Col.Satellite">
     <value>Satélite</value>
   </data>
@@ -2562,17 +2610,14 @@ Continuar?</value>
   <data name="Mutual.Col.Overlap">
     <value>Sobreposição</value>
   </data>
-  <data name="Mutual.Col.YourMaxEl">
-    <value>El máx. sua</value>
+  <data name="Mutual.Col.MaxElPair">
+    <value>El máx.°</value>
   </data>
-  <data name="Mutual.Col.RemoteMaxEl">
-    <value>El máx. remota</value>
+  <data name="Mutual.Col.YourAosLos">
+    <value>Seu AOS–LOS</value>
   </data>
-  <data name="Mutual.Col.YourPass">
-    <value>Sua passagem</value>
-  </data>
-  <data name="Mutual.Col.RemotePass">
-    <value>Passagem remota</value>
+  <data name="Mutual.Col.RemoteAosLos">
+    <value>AOS–LOS remoto</value>
   </data>
   <data name="Mutual.Status.EnterGrid">
     <value>Insira o grid do operador alvo (pelo menos 4 caracteres).</value>

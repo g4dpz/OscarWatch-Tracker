@@ -7,6 +7,12 @@
   <data name="Common.Cancel">
     <value>キャンセル</value>
   </data>
+  <data name="Common.Back">
+    <value>戻る</value>
+  </data>
+  <data name="Common.Next">
+    <value>次へ</value>
+  </data>
   <data name="Common.Close">
     <value>閉じる</value>
   </data>
@@ -2409,6 +2415,39 @@
   <data name="Mutual.Section.StationsFilters">
     <value>局とフィルター</value>
   </data>
+  <data name="Mutual.Section.Stations">
+    <value>局</value>
+  </data>
+  <data name="Mutual.Section.PassCriteria">
+    <value>パス条件</value>
+  </data>
+  <data name="Mutual.Section.SearchPeriod">
+    <value>検索期間</value>
+  </data>
+  <data name="Mutual.Wizard.Progress">
+    <value>ステップ {0}/{1} — {2}</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Stations">
+    <value>局</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Criteria">
+    <value>パス条件</value>
+  </data>
+  <data name="Mutual.Wizard.Step.When">
+    <value>検索期間</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Results">
+    <value>結果</value>
+  </data>
+  <data name="Mutual.Wizard.StationsIntro">
+    <value>リモート局のメイデンヘッドグリッドを入力してください。ローカル側にはアクティブな自局が使われます。</value>
+  </data>
+  <data name="Mutual.Wizard.CriteriaIntro">
+    <value>相互ウィンドウに必要な最小仰角、パス時間、重複時間を設定します。</value>
+  </data>
+  <data name="Mutual.Wizard.EditSearch">
+    <value>検索を編集</value>
+  </data>
   <data name="Mutual.YourStation">
     <value>あなたの局</value>
   </data>
@@ -2440,7 +2479,13 @@
     <value>現在から先の時間数</value>
   </data>
   <data name="Mutual.TimeWindow.DateRange">
-    <value>開始/終了の日時</value>
+    <value>カスタム範囲</value>
+  </data>
+  <data name="Mutual.RangeStart">
+    <value>開始</value>
+  </data>
+  <data name="Mutual.RangeEnd">
+    <value>終了</value>
   </data>
   <data name="Mutual.RangeStartDate">
     <value>開始日</value>
@@ -2457,6 +2502,9 @@
   <data name="Mutual.PassesHeader">
     <value>相互パス</value>
   </data>
+  <data name="Mutual.ResultsContext">
+    <value>{0} ↔ {1}</value>
+  </data>
   <data name="Mutual.Col.Satellite">
     <value>衛星</value>
   </data>
@@ -2466,17 +2514,14 @@
   <data name="Mutual.Col.Overlap">
     <value>重複</value>
   </data>
-  <data name="Mutual.Col.YourMaxEl">
-    <value>自局最大仰角</value>
+  <data name="Mutual.Col.MaxElPair">
+    <value>最大仰角°</value>
   </data>
-  <data name="Mutual.Col.RemoteMaxEl">
-    <value>相手最大仰角</value>
+  <data name="Mutual.Col.YourAosLos">
+    <value>自局 AOS–LOS</value>
   </data>
-  <data name="Mutual.Col.YourPass">
-    <value>自局パス</value>
-  </data>
-  <data name="Mutual.Col.RemotePass">
-    <value>相手パス</value>
+  <data name="Mutual.Col.RemoteAosLos">
+    <value>相手 AOS–LOS</value>
   </data>
   <data name="Mutual.Status.EnterGrid">
     <value>リモート局のメイデンヘッドグリッドを入力してください (4文字以上)。</value>

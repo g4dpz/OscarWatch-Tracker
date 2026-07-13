@@ -49,6 +49,12 @@
   <data name="Common.Cancel">
     <value>Cancelar</value>
   </data>
+  <data name="Common.Back">
+    <value>Atrás</value>
+  </data>
+  <data name="Common.Next">
+    <value>Siguiente</value>
+  </data>
   <data name="Common.Close">
     <value>Cerrar</value>
   </data>
@@ -2529,6 +2535,39 @@
   <data name="Mutual.Section.StationsFilters">
     <value>Estaciones &amp; filtros</value>
   </data>
+  <data name="Mutual.Section.Stations">
+    <value>Estaciones</value>
+  </data>
+  <data name="Mutual.Section.PassCriteria">
+    <value>Criterios del pase</value>
+  </data>
+  <data name="Mutual.Section.SearchPeriod">
+    <value>Período de búsqueda</value>
+  </data>
+  <data name="Mutual.Wizard.Progress">
+    <value>Paso {0} de {1} — {2}</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Stations">
+    <value>Estaciones</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Criteria">
+    <value>Criterios del pase</value>
+  </data>
+  <data name="Mutual.Wizard.Step.When">
+    <value>Período de búsqueda</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Results">
+    <value>Resultados</value>
+  </data>
+  <data name="Mutual.Wizard.StationsIntro">
+    <value>Introduzca el cuadrícula Maidenhead del operador remoto. Se usa su estación activa como lado local.</value>
+  </data>
+  <data name="Mutual.Wizard.CriteriaIntro">
+    <value>Establezca la elevación mínima, la duración del pase y el solapamiento necesarios para una ventana mutua.</value>
+  </data>
+  <data name="Mutual.Wizard.EditSearch">
+    <value>Editar búsqueda</value>
+  </data>
   <data name="Mutual.YourStation">
     <value>Tu estación</value>
   </data>
@@ -2560,7 +2599,13 @@
     <value>Horas hacia adelante desde ahora</value>
   </data>
   <data name="Mutual.TimeWindow.DateRange">
-    <value>De / hasta fecha y hora</value>
+    <value>Rango personalizado</value>
+  </data>
+  <data name="Mutual.RangeStart">
+    <value>Inicio</value>
+  </data>
+  <data name="Mutual.RangeEnd">
+    <value>Fin</value>
   </data>
   <data name="Mutual.RangeStartDate">
     <value>Fecha de inicio</value>
@@ -2577,6 +2622,9 @@
   <data name="Mutual.PassesHeader">
     <value>Pases mutuos</value>
   </data>
+  <data name="Mutual.ResultsContext">
+    <value>{0} ↔ {1}</value>
+  </data>
   <data name="Mutual.Col.Satellite">
     <value>Satélite</value>
   </data>
@@ -2586,17 +2634,14 @@
   <data name="Mutual.Col.Overlap">
     <value>Solapamiento</value>
   </data>
-  <data name="Mutual.Col.YourMaxEl">
-    <value>Tu el máx.</value>
+  <data name="Mutual.Col.MaxElPair">
+    <value>El máx.°</value>
   </data>
-  <data name="Mutual.Col.RemoteMaxEl">
-    <value>El máx. remoto</value>
+  <data name="Mutual.Col.YourAosLos">
+    <value>Tu AOS–LOS</value>
   </data>
-  <data name="Mutual.Col.YourPass">
-    <value>Tu pase</value>
-  </data>
-  <data name="Mutual.Col.RemotePass">
-    <value>Pase remoto</value>
+  <data name="Mutual.Col.RemoteAosLos">
+    <value>AOS–LOS remoto</value>
   </data>
   <data name="Mutual.Status.EnterGrid">
     <value>Introduce la cuadrícula Maidenhead del operador remoto (al menos 4 caracteres).</value>

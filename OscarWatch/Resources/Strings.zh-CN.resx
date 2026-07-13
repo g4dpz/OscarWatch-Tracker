@@ -49,6 +49,12 @@
   <data name="Common.Cancel">
     <value>取消</value>
   </data>
+  <data name="Common.Back">
+    <value>上一步</value>
+  </data>
+  <data name="Common.Next">
+    <value>下一步</value>
+  </data>
   <data name="Common.Close">
     <value>关闭</value>
   </data>
@@ -2505,6 +2511,39 @@
   <data name="Mutual.Section.StationsFilters">
     <value>台站和筛选器</value>
   </data>
+  <data name="Mutual.Section.Stations">
+    <value>台站</value>
+  </data>
+  <data name="Mutual.Section.PassCriteria">
+    <value>过境条件</value>
+  </data>
+  <data name="Mutual.Section.SearchPeriod">
+    <value>搜索时段</value>
+  </data>
+  <data name="Mutual.Wizard.Progress">
+    <value>第 {0} 步，共 {1} 步 — {2}</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Stations">
+    <value>台站</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Criteria">
+    <value>过境条件</value>
+  </data>
+  <data name="Mutual.Wizard.Step.When">
+    <value>搜索时段</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Results">
+    <value>结果</value>
+  </data>
+  <data name="Mutual.Wizard.StationsIntro">
+    <value>输入远端台站的梅登海德网格。本机使用当前活动台站。</value>
+  </data>
+  <data name="Mutual.Wizard.CriteriaIntro">
+    <value>设置双向窗口所需的最小仰角、过境时长和重叠时间。</value>
+  </data>
+  <data name="Mutual.Wizard.EditSearch">
+    <value>编辑搜索</value>
+  </data>
   <data name="Mutual.YourStation">
     <value>您的台站</value>
   </data>
@@ -2536,7 +2575,13 @@
     <value>从现在起的小时数</value>
   </data>
   <data name="Mutual.TimeWindow.DateRange">
-    <value>起止日期和时间</value>
+    <value>自定义范围</value>
+  </data>
+  <data name="Mutual.RangeStart">
+    <value>开始</value>
+  </data>
+  <data name="Mutual.RangeEnd">
+    <value>结束</value>
   </data>
   <data name="Mutual.RangeStartDate">
     <value>开始日期</value>
@@ -2553,6 +2598,9 @@
   <data name="Mutual.PassesHeader">
     <value>双向过境</value>
   </data>
+  <data name="Mutual.ResultsContext">
+    <value>{0} ↔ {1}</value>
+  </data>
   <data name="Mutual.Col.Satellite">
     <value>卫星</value>
   </data>
@@ -2562,17 +2610,14 @@
   <data name="Mutual.Col.Overlap">
     <value>重叠时长</value>
   </data>
-  <data name="Mutual.Col.YourMaxEl">
-    <value>你的最大仰角</value>
+  <data name="Mutual.Col.MaxElPair">
+    <value>最大仰角°</value>
   </data>
-  <data name="Mutual.Col.RemoteMaxEl">
-    <value>对方最大仰角</value>
+  <data name="Mutual.Col.YourAosLos">
+    <value>你的 AOS–LOS</value>
   </data>
-  <data name="Mutual.Col.YourPass">
-    <value>你的过境</value>
-  </data>
-  <data name="Mutual.Col.RemotePass">
-    <value>对方过境</value>
+  <data name="Mutual.Col.RemoteAosLos">
+    <value>对方 AOS–LOS</value>
   </data>
   <data name="Mutual.Status.EnterGrid">
     <value>输入对方操作员的梅登黑德网格（至少 4 个字符）。</value>

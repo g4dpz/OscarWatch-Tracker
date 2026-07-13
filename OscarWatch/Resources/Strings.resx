@@ -49,6 +49,12 @@
   <data name="Common.Cancel">
     <value>Cancel</value>
   </data>
+  <data name="Common.Back">
+    <value>Back</value>
+  </data>
+  <data name="Common.Next">
+    <value>Next</value>
+  </data>
   <data name="Common.Close">
     <value>Close</value>
   </data>
@@ -2580,6 +2586,39 @@ Continue?</value>
   <data name="Mutual.Section.StationsFilters">
     <value>Stations &amp; filters</value>
   </data>
+  <data name="Mutual.Section.Stations">
+    <value>Stations</value>
+  </data>
+  <data name="Mutual.Section.PassCriteria">
+    <value>Pass criteria</value>
+  </data>
+  <data name="Mutual.Section.SearchPeriod">
+    <value>Search period</value>
+  </data>
+  <data name="Mutual.Wizard.Progress">
+    <value>Step {0} of {1} — {2}</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Stations">
+    <value>Stations</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Criteria">
+    <value>Pass criteria</value>
+  </data>
+  <data name="Mutual.Wizard.Step.When">
+    <value>Search period</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Results">
+    <value>Results</value>
+  </data>
+  <data name="Mutual.Wizard.StationsIntro">
+    <value>Enter the remote operator's Maidenhead grid square. Your active station is used for the local side.</value>
+  </data>
+  <data name="Mutual.Wizard.CriteriaIntro">
+    <value>Set the minimum elevation, pass duration, and overlap required for a mutual window.</value>
+  </data>
+  <data name="Mutual.Wizard.EditSearch">
+    <value>Edit search</value>
+  </data>
   <data name="Mutual.YourStation">
     <value>Your station</value>
   </data>
@@ -2611,7 +2650,13 @@ Continue?</value>
     <value>Hours ahead from now</value>
   </data>
   <data name="Mutual.TimeWindow.DateRange">
-    <value>From / to date and time</value>
+    <value>Custom range</value>
+  </data>
+  <data name="Mutual.RangeStart">
+    <value>Start</value>
+  </data>
+  <data name="Mutual.RangeEnd">
+    <value>End</value>
   </data>
   <data name="Mutual.RangeStartDate">
     <value>Start date</value>
@@ -2628,6 +2673,9 @@ Continue?</value>
   <data name="Mutual.PassesHeader">
     <value>Mutual passes</value>
   </data>
+  <data name="Mutual.ResultsContext">
+    <value>{0} ↔ {1}</value>
+  </data>
   <data name="Mutual.Col.Satellite">
     <value>Satellite</value>
   </data>
@@ -2637,17 +2685,14 @@ Continue?</value>
   <data name="Mutual.Col.Overlap">
     <value>Overlap</value>
   </data>
-  <data name="Mutual.Col.YourMaxEl">
-    <value>Your max el</value>
+  <data name="Mutual.Col.MaxElPair">
+    <value>Max el°</value>
   </data>
-  <data name="Mutual.Col.RemoteMaxEl">
-    <value>Remote max el</value>
+  <data name="Mutual.Col.YourAosLos">
+    <value>Your AOS–LOS</value>
   </data>
-  <data name="Mutual.Col.YourPass">
-    <value>Your pass</value>
-  </data>
-  <data name="Mutual.Col.RemotePass">
-    <value>Remote pass</value>
+  <data name="Mutual.Col.RemoteAosLos">
+    <value>Remote AOS–LOS</value>
   </data>
   <data name="Mutual.Status.EnterGrid">
     <value>Enter the remote operator's Maidenhead grid square (at least 4 characters).</value>
