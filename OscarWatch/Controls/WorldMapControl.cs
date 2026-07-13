@@ -378,9 +378,14 @@ public class WorldMapControl : ThemeAwareControl
                 if (state.NextOrbitGroundTrack.Count < 2)
                     continue;
 
-                var color = PlotColors.ForIndex(i);
-                var fadedColor = Color.FromArgb(138, color.R, color.G, color.B);
-                DrawCachedGroundTrack(context, state.NoradId + "_next", state.NextOrbitGroundTrack, w, h, fadedColor, 1);
+                DrawCachedGroundTrack(
+                    context,
+                    state.NoradId + "_next",
+                    state.NextOrbitGroundTrack,
+                    w,
+                    h,
+                    palette.MapNextOrbitGroundTrackStroke,
+                    1);
             }
         }
 
@@ -395,7 +400,17 @@ public class WorldMapControl : ThemeAwareControl
             var isFocused = state.NoradId == FocusedNoradId;
 
             if (isFocused)
-                DrawCachedGroundTrack(context, state.NoradId, state.GroundTrack, w, h, color, 2);
+            {
+                DrawCachedGroundTrack(
+                    context,
+                    state.NoradId,
+                    state.GroundTrack,
+                    w,
+                    h,
+                    palette.MapGroundTrackStroke,
+                    2,
+                    palette.MapGroundTrackOutline);
+            }
 
             var (sx, sy) = EquirectangularProjection.GeoToPixel(
                 state.Subpoint.LatitudeDeg, state.Subpoint.LongitudeDeg, w, h);
@@ -1003,13 +1018,17 @@ public class WorldMapControl : ThemeAwareControl
         double w,
         double h,
         Color color,
-        double thickness)
+        double thickness,
+        Color? outlineColor = null)
     {
         if (track.Count < 2)
             return;
 
         var splitResult = GetOrComputeGroundTrackSplit(noradId, track, w, h);
-        var pen = _renderCache.GetPen(color, thickness);
+        var strokePen = _renderCache.GetPen(color, thickness);
+        var outlinePen = outlineColor is { } outline
+            ? _renderCache.GetPen(outline, thickness + 2)
+            : null;
 
         foreach (var chain in splitResult)
         {
@@ -1034,10 +1053,11 @@ public class WorldMapControl : ThemeAwareControl
                         (x0 > w + WrapEdgeMarginPx && x1 > w + WrapEdgeMarginPx))
                         continue;
 
-                    context.DrawLine(
-                        pen,
-                        new Point(x0, p0.Y),
-                        new Point(x1, p1.Y));
+                    var start = new Point(x0, p0.Y);
+                    var end = new Point(x1, p1.Y);
+                    if (outlinePen is not null)
+                        context.DrawLine(outlinePen, start, end);
+                    context.DrawLine(strokePen, start, end);
                 }
             }
         }

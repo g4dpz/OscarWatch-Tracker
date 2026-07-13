@@ -21,7 +21,10 @@ internal readonly record struct UiPalette(
     Color SunlightTimeline,
     Color EclipseTimeline,
     Color GreylineNightFill,
-    Color GreylineTerminatorStroke);
+    Color GreylineTerminatorStroke,
+    Color MapGroundTrackStroke,
+    Color MapGroundTrackOutline,
+    Color MapNextOrbitGroundTrackStroke);
 
 internal static class UiPaletteResolver
 {
@@ -42,7 +45,10 @@ internal static class UiPaletteResolver
         SunlightTimeline: Color.Parse("#D4A017"),
         EclipseTimeline: Color.Parse("#9CA3AF"),
         GreylineNightFill: Color.FromArgb(52, 48, 58, 88),
-        GreylineTerminatorStroke: Color.FromArgb(90, 180, 190, 210));
+        GreylineTerminatorStroke: Color.FromArgb(90, 180, 190, 210),
+        MapGroundTrackStroke: Colors.White,
+        MapGroundTrackOutline: Color.Parse("#1a2028"),
+        MapNextOrbitGroundTrackStroke: Color.FromArgb(138, 255, 255, 255));
 
     private static readonly UiPalette Dark = new(
         SkyPlotBackground: Color.Parse("#1c2530"),
@@ -61,7 +67,10 @@ internal static class UiPaletteResolver
         SunlightTimeline: Color.Parse("#F5C842"),
         EclipseTimeline: Color.Parse("#5C6370"),
         GreylineNightFill: Color.FromArgb(48, 28, 34, 52),
-        GreylineTerminatorStroke: Color.FromArgb(80, 140, 155, 185));
+        GreylineTerminatorStroke: Color.FromArgb(80, 140, 155, 185),
+        MapGroundTrackStroke: Colors.White,
+        MapGroundTrackOutline: Color.Parse("#1a2028"),
+        MapNextOrbitGroundTrackStroke: Color.FromArgb(138, 255, 255, 255));
 
     public static UiPalette Current =>
         Application.Current?.ActualThemeVariant == ThemeVariant.Dark ? Dark : Light;
