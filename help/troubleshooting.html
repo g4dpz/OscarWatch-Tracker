@@ -104,6 +104,15 @@
         <li>On linear SSB/CW, check <a href="radio-doppler-tuning.html#doppler-cat-thresholds">Doppler thresholds</a> — very large values can make tracking look sluggish near TCA.</li>
       </ul>
 
+      <h2>Kenwood TS-2000: no CAT replies / SATL not confirmed</h2>
+      <ul>
+        <li>The TS-2000 only sends CAT data when the PC asserts <strong>RTS</strong>. OscarWatch does this automatically — use a straight RS-232 cable or USB adapter that passes RTS through.</li>
+        <li>Match baud <strong>57600 8N1</strong> in Settings and on the radio.</li>
+        <li>Select <strong>SAT</strong> on the radio and turn <strong>memory mode off</strong> before tracking — see <a href="radio-kenwood.html">Kenwood TS-2000 help</a>.</li>
+        <li>Close any front-panel menu; the radio may reply <code>?;</code> while a menu is open.</li>
+        <li>If SATL is not confirmed, OscarWatch still tracks on <code>FA</code>/<code>FB</code> — check the status bar for a degraded-tracking warning.</li>
+      </ul>
+
       <h2>Dual radio not connecting (FT-817 / FT-818 / FT-991 / FTX-1 / IC-705 / IC-706 series)</h2>
       <ul>
         <li>Enable <strong>Settings → Radio → Dual radio</strong> and set a COM port for both downlink and uplink.</li>

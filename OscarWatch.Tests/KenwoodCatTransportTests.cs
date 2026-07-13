@@ -1,0 +1,27 @@
+using System.IO.Ports;
+using System.Reflection;
+using OscarWatch.Rig;
+
+namespace OscarWatch.Tests;
+
+public sealed class KenwoodCatTransportTests
+{
+    [Fact]
+    public void Serial_port_asserts_RTS_for_radio_replies()
+    {
+        using var transport = new KenwoodCatTransport("COM99", 57600);
+        var port = GetSerialPort(transport);
+
+        Assert.True(port.RtsEnable);
+        Assert.Equal(Handshake.RequestToSend, port.Handshake);
+        Assert.False(port.DtrEnable);
+        Assert.Equal(StopBits.One, port.StopBits);
+    }
+
+    private static SerialPort GetSerialPort(KenwoodCatTransport transport)
+    {
+        var field = typeof(KenwoodCatTransport).GetField("_port", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.NotNull(field);
+        return Assert.IsType<SerialPort>(field!.GetValue(transport));
+    }
+}
