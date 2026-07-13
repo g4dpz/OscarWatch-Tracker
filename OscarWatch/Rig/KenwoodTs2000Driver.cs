@@ -239,6 +239,8 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         _satelliteLayoutConfirmed = false;
         _faFbSatelliteTracking = false;
         SendSatelliteModeExitSequence();
+        if (_satModeSettlingDelayMs > 0)
+            Thread.Sleep(_satModeSettlingDelayMs);
         RestoreMemoryVfoIfNeeded();
     }
 
@@ -272,19 +274,27 @@ public sealed class KenwoodTs2000Driver : IRigDriver
 
     private void RestoreMemoryVfoIfNeeded()
     {
-        if (_savedMainVfoSelect is { } mainSelect)
-        {
-            _transport.SendFireAndForget(KenwoodCatCodec.BuildControlMainCommand(), _catDelayMs);
-            _transport.SendFireAndForget(KenwoodCatCodec.BuildSetVfoSelectCommand(mainSelect), _catDelayMs);
-            _savedMainVfoSelect = null;
-        }
+        var restored = false;
 
+        // Sub first, main last — on the TS-2000, restoring sub CTRL after main can clear main memory mode.
         if (_savedSubVfoSelect is { } subSelect)
         {
             _transport.SendFireAndForget(KenwoodCatCodec.BuildControlSubReceiverCommand(), _catDelayMs);
             _transport.SendFireAndForget(KenwoodCatCodec.BuildSetVfoSelectCommand(subSelect), _catDelayMs);
             _savedSubVfoSelect = null;
+            restored = true;
         }
+
+        if (_savedMainVfoSelect is { } mainSelect)
+        {
+            _transport.SendFireAndForget(KenwoodCatCodec.BuildControlMainCommand(), _catDelayMs);
+            _transport.SendFireAndForget(KenwoodCatCodec.BuildSetVfoSelectCommand(mainSelect), _catDelayMs);
+            _savedMainVfoSelect = null;
+            restored = true;
+        }
+
+        if (restored)
+            _transport.SendFireAndForget(KenwoodCatCodec.BuildControlMainCommand(), _catDelayMs);
     }
 
     private void ExitMemoryModeIfNeeded()

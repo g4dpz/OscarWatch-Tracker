@@ -257,9 +257,34 @@ public sealed class KenwoodTs2000DriverTests
         transport.SentCommands.Clear();
         driver.SetSatelliteMode(false);
 
-        Assert.Equal("DC00;", transport.SentCommands[^4]);
-        Assert.Equal("FR2;", transport.SentCommands[^3]);
-        Assert.Equal("DC11;", transport.SentCommands[^2]);
-        Assert.Equal("FR2;", transport.SentCommands[^1]);
+        Assert.Equal("DC11;", transport.SentCommands[^5]);
+        Assert.Equal("FR2;", transport.SentCommands[^4]);
+        Assert.Equal("DC00;", transport.SentCommands[^3]);
+        Assert.Equal("FR2;", transport.SentCommands[^2]);
+        Assert.Equal("DC00;", transport.SentCommands[^1]);
+        Assert.Equal(KenwoodCatCodec.VfoSelectMemoryCode, transport.MainVfoSelect);
+        Assert.Equal(KenwoodCatCodec.VfoSelectMemoryCode, transport.SubVfoSelect);
+    }
+
+    [Fact]
+    public void SetSatelliteMode_exit_restores_main_memory_only()
+    {
+        var transport = new RecordingKenwoodCatTransport
+        {
+            MainVfoSelect = KenwoodCatCodec.VfoSelectMemoryCode,
+            SubVfoSelect = '0'
+        };
+        var driver = new KenwoodTs2000Driver(transport, catDelayMs: 0, satModeSettlingDelayMs: 0);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        transport.SentCommands.Clear();
+
+        driver.SetSatelliteMode(false);
+
+        Assert.Equal("DC00;", transport.SentCommands[^3]);
+        Assert.Equal("FR2;", transport.SentCommands[^2]);
+        Assert.Equal("DC00;", transport.SentCommands[^1]);
+        Assert.Equal(KenwoodCatCodec.VfoSelectMemoryCode, transport.MainVfoSelect);
+        Assert.Equal('0', transport.SubVfoSelect);
     }
 }
