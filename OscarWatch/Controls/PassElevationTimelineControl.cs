@@ -87,6 +87,13 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         base.OnDetachedFromVisualTree(e);
     }
 
+    protected override void OnThemeChanged()
+    {
+        _renderCache.Clear();
+        _labelCache.Clear();
+        base.OnThemeChanged();
+    }
+
     // --- Events ---
 
     /// <summary>

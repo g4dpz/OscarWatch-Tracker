@@ -19,5 +19,11 @@ public abstract class ThemeAwareControl : Control
         base.OnDetachedFromVisualTree(e);
     }
 
-    private void OnAppThemeChanged(object? sender, EventArgs e) => InvalidateVisual();
+    private void OnAppThemeChanged(object? sender, EventArgs e) => OnThemeChanged();
+
+    /// <summary>
+    /// Called when the application theme variant changes. Override to clear theme-coloured caches
+    /// before the default <see cref="Control.InvalidateVisual"/> refresh.
+    /// </summary>
+    protected virtual void OnThemeChanged() => InvalidateVisual();
 }

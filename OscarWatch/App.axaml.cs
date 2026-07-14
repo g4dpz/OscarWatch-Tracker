@@ -11,6 +11,7 @@ using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Services;
 using OscarWatch.Orbit;
 using OscarWatch.Core.Models;
+using OscarWatch.ViewModels;
 using OscarWatch.Cloudlog;
 using OscarWatch.Recording;
 using OscarWatch.Gps;
@@ -22,7 +23,6 @@ using OscarWatch.Speech;
 using OscarWatch.Theme;
 using OscarWatch.Diagnostics;
 using OscarWatch.Localization;
-using OscarWatch.ViewModels;
 using OscarWatch.Views;
 using Serilog;
 
@@ -155,6 +155,7 @@ public partial class App : Application
 
     private static void OnDesktopShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
     {
+        Services?.GetService<MainViewModel>()?.DisconnectHardwareForShutdown();
         Services?.GetService<ISatelliteLinkBroadcastService>()?.StopAsync().GetAwaiter().GetResult();
 
         // Flush pending settings save on shutdown

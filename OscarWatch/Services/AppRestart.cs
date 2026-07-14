@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Microsoft.Extensions.DependencyInjection;
 using OscarWatch.Core.Services;
+using OscarWatch.ViewModels;
 
 namespace OscarWatch.Services;
 
@@ -23,6 +24,8 @@ public static class AppRestart
         {
             // proceed with restart anyway
         }
+
+        App.Services?.GetService<MainViewModel>()?.DisconnectHardwareForShutdown();
 
         Process.Start(new ProcessStartInfo(exe) { UseShellExecute = true });
 

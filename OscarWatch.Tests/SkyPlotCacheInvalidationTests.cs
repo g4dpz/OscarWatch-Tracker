@@ -184,6 +184,25 @@ public class SkyPlotCacheInvalidationTests
         Assert.NotSame(darkBrush, lightBrush);
     }
 
+    /// <summary>
+    /// Theme switch without an explicit Clear() (pass elevation timeline path): Get() with a new
+    /// palette must return FormattedText built with the new foreground, not the previous theme's.
+    /// </summary>
+    [Fact]
+    public void FormattedTextCache_Get_palette_switch_without_Clear_rebuilds_with_new_foreground()
+    {
+        var cache = new FormattedTextCache();
+        var lightPalette = CreateLightPalette();
+        var darkPalette = CreateDarkPalette();
+
+        var lightText = cache.Get("AO-91", 9, lightPalette);
+        var darkText = cache.Get("AO-91", 9, darkPalette);
+
+        Assert.NotSame(lightText, darkText);
+        Assert.Equal(Colors.White, cache.GetLabelBrush(darkPalette).Color);
+        Assert.Equal(Color.Parse("#1a2028"), cache.GetLabelBrush(lightPalette).Color);
+    }
+
     // --- Property-based tests: for any random colour, Clear + re-get produces new reference ---
 
     /// <summary>

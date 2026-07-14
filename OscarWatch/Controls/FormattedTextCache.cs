@@ -20,10 +20,12 @@ internal sealed class FormattedTextCache
 
     /// <summary>
     /// Returns a cached FormattedText for the given name and font size, creating one on first request.
-    /// Recreates brushes if the palette colours have changed.
+    /// Recreates brushes and drops stale FormattedText entries if the palette colours have changed
+    /// (e.g. light → dark) so cached glyphs do not keep the previous theme's foreground.
     /// </summary>
     public FormattedText Get(string name, double fontSize, UiPalette palette)
     {
+        var brush = GetLabelBrush(palette);
         var key = (name, fontSize);
         if (!_cache.TryGetValue(key, out var text))
         {
@@ -33,7 +35,7 @@ internal sealed class FormattedTextCache
                 FlowDirection.LeftToRight,
                 GetTypeface(),
                 fontSize,
-                GetLabelBrush(palette))
+                brush)
             {
                 MaxTextWidth = 120
             };
@@ -45,6 +47,7 @@ internal sealed class FormattedTextCache
 
     /// <summary>
     /// Returns a cached SolidColorBrush for label foreground text, recreating if colour changed.
+    /// When the colour changes, clears FormattedText entries so they are rebuilt with the new brush.
     /// </summary>
     public SolidColorBrush GetLabelBrush(UiPalette palette)
     {
@@ -52,6 +55,8 @@ internal sealed class FormattedTextCache
         {
             _cachedForegroundColor = palette.MapLabelForeground;
             _labelBrush = new SolidColorBrush(_cachedForegroundColor);
+            // FormattedText keeps the brush given at construction; drop stale entries.
+            _cache.Clear();
         }
 
         return _labelBrush;
