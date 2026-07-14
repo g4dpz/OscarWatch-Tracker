@@ -42,6 +42,7 @@ public partial class MainWindow : Window
     private double _timelineResizeStartHeight;
     private IPointer? _timelineResizePointer;
     private PassRowViewModel? _passListContextRow;
+    private bool _hardwareShutdownComplete;
 
     public MainWindow()
     {
@@ -70,6 +71,11 @@ public partial class MainWindow : Window
 
     private async void OnClosing(object? sender, WindowClosingEventArgs e)
     {
+        if (_hardwareShutdownComplete)
+            return;
+
+        // Cancel once so teardown finishes before Avalonia tears down the process.
+        e.Cancel = true;
         _passListScrollResetTimer?.Stop();
         DetachPassListScrollViewer();
 
@@ -77,15 +83,18 @@ public partial class MainWindow : Window
         MainWindowBounds.Capture(this, settings.Current);
         settings.RequestSave();
 
-        if (DataContext is not MainViewModel vm)
-            return;
+        if (DataContext is MainViewModel vm)
+        {
+            vm.Frequencies.PersistOverlayPosition();
+            vm.DxStation.PersistOverlayPosition();
+            vm.DisconnectHardwareForShutdown();
 
-        vm.Frequencies.PersistOverlayPosition();
-        vm.DxStation.PersistOverlayPosition();
-        vm.DisconnectHardwareForShutdown();
+            if (vm.PrepareForShutdown())
+                await vm.SaveSettingsAsync();
+        }
 
-        if (vm.PrepareForShutdown())
-            await vm.SaveSettingsAsync();
+        _hardwareShutdownComplete = true;
+        Close();
     }
 
     private void TryAttachPassListScrollViewer()

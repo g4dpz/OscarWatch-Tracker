@@ -188,14 +188,38 @@ internal sealed class KenwoodCatTransport : IKenwoodCatTransport
         try
         {
             if (_port.IsOpen)
+            {
+                // Drop RTS/DTR before Close so Windows releases the USB serial adapter for SatPC32/etc.
+                try
+                {
+                    _port.RtsEnable = false;
+                    _port.DtrEnable = false;
+                    _port.Handshake = Handshake.None;
+                    _port.DiscardInBuffer();
+                    _port.DiscardOutBuffer();
+                }
+                catch (Exception ex)
+                {
+                    Log.Debug(ex, "Kenwood CAT pre-close cleanup failed on {Port}", _port.PortName);
+                }
+
                 _port.Close();
+            }
         }
-        catch
+        catch (Exception ex)
         {
-            // ignore
+            Log.Debug(ex, "Kenwood CAT port close failed on {Port}", _port.PortName);
         }
 
-        _port.Dispose();
+        try
+        {
+            _port.Dispose();
+        }
+        catch (Exception ex)
+        {
+            Log.Debug(ex, "Kenwood CAT port dispose failed on {Port}", _port.PortName);
+        }
+
         _gate.Dispose();
     }
 }

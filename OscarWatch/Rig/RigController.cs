@@ -147,7 +147,7 @@ public sealed class RigController : IRigController, IDisposable
 
     /// <summary>Disconnect and block until the rig worker has torn down drivers and cleared tracking state.</summary>
     public void DisconnectAndWait() =>
-        EnqueueAndWait(new RigCommand(RigCommandKind.Disconnect));
+        EnqueueAndWait(new RigCommand(RigCommandKind.Disconnect), TimeSpan.FromSeconds(30));
 
     /// <summary>Blocks until queued commands are processed (unit tests).</summary>
     internal void DrainCommandQueueForTests() =>
