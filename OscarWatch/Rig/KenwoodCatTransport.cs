@@ -50,13 +50,31 @@ internal sealed class KenwoodCatTransport : IKenwoodCatTransport
             if (!_port.IsOpen)
                 return false;
 
+            // TS-2000 usually echoes nothing on successful sets; ?; / E; means rejection.
+            DrainInputBuffer();
             _port.Write(cmd);
             Thread.Sleep(Math.Max(postDelayMs, 0));
+
+            if (_port.BytesToRead > 0)
+            {
+                _rxBuffer.Clear();
+                var peek = ReadUntilSemicolon(Math.Min(120, Math.Max(postDelayMs, 40)));
+                if (peek is not null && IsSyntaxError(peek))
+                {
+                    Log.Warning(
+                        "Kenwood CAT set rejected on {Port}: {Cmd} → {Reply}",
+                        _port.PortName,
+                        cmd,
+                        peek);
+                    return false;
+                }
+            }
+
             return true;
         }
         catch (Exception ex)
         {
-            Log.Debug(ex, "Kenwood CAT send failed on {Port} for {Cmd}", _port.PortName, command);
+            Log.Warning(ex, "Kenwood CAT send failed on {Port} for {Cmd}", _port.PortName, command);
             return false;
         }
         finally

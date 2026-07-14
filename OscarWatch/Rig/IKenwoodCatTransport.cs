@@ -5,7 +5,10 @@ internal interface IKenwoodCatTransport : IDisposable
     bool IsOpen { get; }
     void Open();
 
-    /// <summary>Sets and similar commands that often return no CAT echo on the TS-2000.</summary>
+    /// <summary>
+    /// Sets and similar commands. TS-2000 usually sends no echo on success; implementations may
+    /// treat an immediate <c>?;</c>/<c>E;</c> as failure. Silence means success.
+    /// </summary>
     bool SendFireAndForget(string command, int postDelayMs = 50);
 
     /// <summary>Alias for <see cref="SendFireAndForget"/>.</summary>

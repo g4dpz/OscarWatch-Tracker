@@ -8,6 +8,15 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
     public long FaHz { get; set; } = 435_750_000;
     public long FbHz { get; set; } = 145_900_000;
     public bool SatelliteStatusOn { get; set; } = true;
+
+    /// <summary>
+    /// When false, <c>SA1010110;</c> does not force <see cref="SatelliteStatusOn"/> so unconfirmed SATL can be tested.
+    /// </summary>
+    public bool AutoConfirmSatelliteOnSet { get; set; } = true;
+
+    /// <summary>When true, set commands fail (simulates write / ?; rejection).</summary>
+    public bool FailSets { get; set; }
+
     public char MainVfoSelect { get; set; } = '0';
     public char SubVfoSelect { get; set; } = '0';
     public List<string> SentCommands { get; } = [];
@@ -24,6 +33,9 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
     {
         var normalized = Normalize(command);
         SentCommands.Add(normalized);
+        if (FailSets)
+            return false;
+
         ApplySatelliteModeCommand(normalized);
         ApplySetFrequency(normalized);
         ApplyDcCommand(normalized);
@@ -59,7 +71,7 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
     {
         if (normalized is "SA0010000;" or "SA0;")
             SatelliteStatusOn = false;
-        else if (normalized is "SA1010110;")
+        else if (normalized is "SA1010110;" && AutoConfirmSatelliteOnSet)
             SatelliteStatusOn = true;
     }
 

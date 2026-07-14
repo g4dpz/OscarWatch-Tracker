@@ -131,8 +131,7 @@ public class Ts2000PassFrequencyTests : Ts2000TestBase
         // Do NOT call EnterSatelliteMode() — driver is in normal VFO mode
         ClearCommandLog();
 
-        Driver.ApplySatellitePassFrequencies(DownlinkHz, UplinkHz, DownlinkModeCode, UplinkModeCode);
-
+        Assert.False(Driver.ApplySatellitePassFrequencies(DownlinkHz, UplinkHz, DownlinkModeCode, UplinkModeCode));
         Assert.Empty(GetSentCommands());
     }
 }

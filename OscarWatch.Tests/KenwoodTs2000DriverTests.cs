@@ -87,18 +87,42 @@ public sealed class KenwoodTs2000DriverTests
     [Fact]
     public void SetSatelliteMode_on_SA_unconfirmed_still_tracks_satellite_without_FR()
     {
-        var transport = new RecordingKenwoodCatTransport { SatelliteStatusOn = false };
-        var driver = new KenwoodTs2000Driver(transport);
+        var transport = new RecordingKenwoodCatTransport
+        {
+            SatelliteStatusOn = false,
+            AutoConfirmSatelliteOnSet = false
+        };
+        var driver = new KenwoodTs2000Driver(transport, catDelayMs: 0, satModeSettlingDelayMs: 0, satModeRetryCount: 2, satModeRetryDelayMs: 0);
         driver.Open();
         driver.SetSatelliteMode(true);
         transport.SentCommands.Clear();
 
-        Assert.True(driver.IsSatelliteModeActive);
+        Assert.False(driver.IsSatelliteModeActive);
+        Assert.True(driver.UsesFaFbSatelliteTracking);
+
         driver.SelectVfo(RigVfo.Sub);
-        driver.SetFrequencyHz(145_900_000);
+        driver.SetMode("USB");
+        driver.SetToneOn(true);
+        Assert.False(driver.SetFrequencyHz(145_900_000));
 
         Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("FR", StringComparison.Ordinal));
         Assert.DoesNotContain(transport.SentCommands, c => c == "FA00145900000;");
+        Assert.Contains("SA1010110;", transport.SentCommands);
+        Assert.Contains("SA1011110;", transport.SentCommands);
+        Assert.Contains("MD2;", transport.SentCommands);
+    }
+
+    [Fact]
+    public void ApplySatelliteDopplerStep_returns_false_when_set_send_fails()
+    {
+        var transport = new RecordingKenwoodCatTransport();
+        var driver = new KenwoodTs2000Driver(transport, catDelayMs: 0, satModeSettlingDelayMs: 0);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        transport.FailSets = true;
+        transport.SentCommands.Clear();
+
+        Assert.False(driver.ApplySatelliteDopplerStep(145_900_000, 435_700_000));
     }
 
     [Fact]

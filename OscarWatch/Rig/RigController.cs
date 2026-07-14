@@ -1460,8 +1460,8 @@ public sealed class RigController : IRigController, IDisposable
             return new InitialFrequencyWriteResult(false, false);
         }
 
-        kenwood.ApplySatellitePassFrequencies(downlinkHz, uplinkHz, downlinkMode, uplinkMode);
-        return new InitialFrequencyWriteResult(true, !_isBeaconOnly);
+        var ok = kenwood.ApplySatellitePassFrequencies(downlinkHz, uplinkHz, downlinkMode, uplinkMode);
+        return new InitialFrequencyWriteResult(ok, ok && !_isBeaconOnly);
     }
 
     private void ConfigureVfoModes(RigTrackingContext context)

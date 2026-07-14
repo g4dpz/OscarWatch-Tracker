@@ -116,7 +116,7 @@ OscarWatch talks to rigs and rotators over **serial CAT** (COM port on Windows, 
 | **Yaesu FT-991 / FT-991A** | Yaesu ASCII CAT (8N2) | **Dual radio only**: one or two FT-991(A)s, or mixed with other dual legs; VFO-A per radio; FM dial lock via `LK` |
 | **Yaesu FTX-1 Field / FTX-1optima** | Yaesu ASCII CAT (8N2) | **Dual radio only**: same newcat subset as FT-991; use CAT-1 (Enhanced COM) per leg; HF/50/144/430 coverage |
 | **SDR (rigctl TCP)** | Hamlib-style rigctl over TCP | **Dual radio downlink only**: SDR++, SDR Connect, or any rigctl server; bidirectional frequency for passband trim ([help](help/radio-sdr-dual.html)) |
-| **Kenwood TS-2000** | Kenwood ASCII CAT | **Beta**: before tracking: put the radio in **SAT** mode and turn **memory mode off** on the front panel; then OscarWatch uses SATL via CAT, auto `FA`/`FB` band swap, linear CW uplink in SATL, TRACE off via CAT |
+| **Kenwood TS-2000** | Kenwood ASCII CAT | **Beta**: put the radio in **SAT** and turn **memory mode off** when you can; OscarWatch enters/maintains SATL via CAT (`SA` / `FA` / `FB`), programs pass frequencies, Doppler-tracks, and exits SATL on disconnect |
 | **Dummy rig**       | n/a               | No serial I/O; for UI and doppler testing without a radio                                                  |
 
 

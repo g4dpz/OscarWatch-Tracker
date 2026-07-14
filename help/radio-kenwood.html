@@ -13,7 +13,7 @@
         <a href="index.html" class="brand-home" title="Home"><img src="oscarwatch-icon.png" alt="" class="brand-icon" width="56" height="56" /></a>
         <div class="brand-text">
           <h1>Kenwood TS-2000</h1>
-          <p class="tagline">SAT mode and CAT setup</p>
+          <p class="tagline">SATL and CAT setup (Beta)</p>
         </div>
       </div>
       <nav aria-label="Help topics">
@@ -45,32 +45,40 @@
 
     <main>
       <p class="lead">
-        The TS-2000 is supported as a <strong>single</strong> satellite radio. Unlike ICOM rigs, OscarWatch does
-        <strong>not</strong> turn satellite mode on for you — you must do that on the radio before tracking.
+        The TS-2000 is supported as a <strong>single</strong> satellite radio (Beta). OscarWatch drives
+        <strong>SATL</strong> over Kenwood ASCII CAT (SatPC32-style <code>SA</code> / <code>FA</code> / <code>FB</code>),
+        including entry on pass start and exit when you quit, disconnect, or switch to receive-only.
       </p>
 
       <h2 id="ts-2000-setup">Before each pass (or once per session)</h2>
       <ol>
-        <li>On the TS-2000, select <strong>SAT</strong> mode and the correct satellite VFO layout (VFO A / VFO B as you normally operate).</li>
-        <li>In OscarWatch: <strong>Settings → Radio</strong> — rig type <strong>TS-2000</strong>, correct COM port and baud (57600 8N1; OscarWatch asserts hardware RTS for CAT replies).</li>
+        <li>
+          Close any radio menus. Leave memory mode off on VFO A/B if you can — OscarWatch also clears memory mode
+          via CAT when needed.
+        </li>
+        <li>
+          Putting the radio in <strong>SAT</strong> on the front panel before tracking is still the most reliable start;
+          OscarWatch will then confirm and maintain SATL over CAT.
+        </li>
+        <li>
+          In OscarWatch: <strong>Settings → Radio</strong> — rig type <strong>TS-2000</strong>, correct COM port and baud
+          (57600 8N1; OscarWatch asserts hardware RTS for CAT replies).
+        </li>
         <li>Pick the satellite and transponder mode in the frequency panel.</li>
         <li>Press <strong>Resume</strong> (not Standby) and start tracking.</li>
       </ol>
 
       <h2>What OscarWatch controls</h2>
       <ul>
-        <li>Receive and transmit frequencies (Doppler and your <a href="radio-offsets.html">offsets</a>).</li>
-        <li>Modes where the driver supports them for the selected transponder.</li>
+        <li>SATL entry and layout (<code>SA</code>), then receive/transmit frequencies via <code>FA</code>/<code>FB</code> (Doppler and your <a href="radio-offsets.html">offsets</a>).</li>
+        <li>Modes where the driver supports them for the selected transponder (bracketed with SAT CTRL so uplink stays on Sub).</li>
         <li>CTCSS on FM satellites when configured.</li>
-        <li>Satellite mode entry on pass start and <strong>exit when you quit, disconnect, or switch to receive-only</strong> (SatPC32-style cleanup).</li>
+        <li>Link-hold reads (~1/s <code>FA;</code>) while tracking, matching SatPC32 habits.</li>
+        <li>Satellite mode <strong>exit when you quit, disconnect, or switch to receive-only</strong> (SatPC32-style cleanup), then COM port close with RTS/DTR dropped so USB serial adapters release cleanly.</li>
       </ul>
       <p>
-        OscarWatch clears memory mode on VFO A/B before entering SAT if needed, and restores it on exit.
-        You should still select <strong>SAT</strong> on the radio before tracking when possible.
-      </p>
-      <p>
-        OscarWatch assumes you have already entered the satellite operating mode on the radio.
-        If CAT updates the wrong VFO, check SAT mode and which VFO is receive vs transmit on the TS-2000 front panel.
+        If SATL cannot be confirmed via <code>SA;</code>, OscarWatch continues FA/FB tracking in a degraded state and
+        avoids falling back to ordinary <code>FR</code> split commands. Check the radio front panel and leave menus closed.
       </p>
 
       <h2>Tuning tips</h2>
