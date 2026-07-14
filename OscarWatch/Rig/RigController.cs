@@ -160,17 +160,24 @@ public sealed class RigController : IRigController, IDisposable
 
         try
         {
+            // Bypass Enqueue (disposed check) so Shutdown can still be delivered.
             if (_commands is not null && _worker is { IsAlive: true })
-                EnqueueAndWait(new RigCommand(RigCommandKind.Shutdown), TimeSpan.FromSeconds(3));
+            {
+                using var done = new ManualResetEventSlim(false);
+                var command = new RigCommand(RigCommandKind.Shutdown) { Completed = done };
+                _commands.Add(command);
+                if (!done.Wait(TimeSpan.FromSeconds(3)))
+                    Log.Warning("Rig worker shutdown did not complete in time");
+            }
         }
         catch (Exception ex)
         {
             Log.Warning(ex, "Rig worker shutdown did not complete cleanly");
         }
 
+        _worker?.Join(TimeSpan.FromSeconds(2));
         _commands?.Dispose();
         _commands = null;
-        _worker?.Join(TimeSpan.FromSeconds(2));
     }
 
     private void Enqueue(RigCommand command)

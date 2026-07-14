@@ -1083,9 +1083,22 @@ public partial class MainViewModel : ViewModelBase
         return true;
     }
 
-    /// <summary>Disconnect CAT hardware before process exit so rigs (e.g. TS-2000 SATL) receive cleanup commands.</summary>
+    /// <summary>Disconnect CAT/rotator/GPS hardware before process exit so COM ports are released cleanly.</summary>
     internal void DisconnectHardwareForShutdown()
     {
+        // Stop UI ticks first so they cannot re-publish Update and reopen ports after Disconnect.
+        _timer.Stop();
+        _liveDisplayTimer?.Stop();
+
+        try
+        {
+            _liveTracking.Dispose();
+        }
+        catch (Exception ex)
+        {
+            Log.Debug(ex, "Live tracking dispose during shutdown failed");
+        }
+
         try
         {
             _rig.DisconnectAndWait();
@@ -1097,21 +1110,20 @@ public partial class MainViewModel : ViewModelBase
 
         try
         {
-            _rotator.Disconnect();
-            _gps.Disconnect();
+            _rotator.DisconnectAndWait();
         }
         catch (Exception ex)
         {
-            Log.Warning(ex, "Peripheral disconnect during shutdown failed");
+            Log.Warning(ex, "Rotator disconnect during shutdown failed");
         }
 
         try
         {
-            _liveTracking.Dispose();
+            _gps.DisconnectAndWait();
         }
         catch (Exception ex)
         {
-            Log.Debug(ex, "Live tracking dispose during shutdown failed");
+            Log.Warning(ex, "GPS disconnect during shutdown failed");
         }
     }
 

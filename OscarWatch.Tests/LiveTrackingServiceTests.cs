@@ -305,6 +305,7 @@ public sealed class LiveTrackingServiceTests
         public DateTime? TrackingUtc { get; set; }
         public void Update(GpsSettings settings) { }
         public void Disconnect() { }
+        public void DisconnectAndWait() { }
         public GpsConnectionStatus GetStatus() => new(false, false, null, null, null, null, null, null);
         public DateTime? GetTrackingUtc() => TrackingUtc;
         public void Dispose() { }

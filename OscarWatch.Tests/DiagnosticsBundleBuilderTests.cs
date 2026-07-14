@@ -122,6 +122,7 @@ public sealed class DiagnosticsBundleBuilderTests
         public void ResumeTracking(RotatorSettings settings) { }
         public void SetStandby(bool active, RotatorSettings settings) { }
         public void Disconnect() { }
+        public void DisconnectAndWait() { }
         public void SetActivePass(PassInfo? pass) { }
     }
 }

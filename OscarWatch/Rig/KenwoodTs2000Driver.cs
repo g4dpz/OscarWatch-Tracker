@@ -274,11 +274,14 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         try
         {
             if (_transport.IsOpen && (_satelliteMode || _faFbSatelliteTracking))
+            {
+                Log.Information("TS-2000 disposing; exiting satellite tracking before closing CAT");
                 SetSatelliteMode(false);
+            }
         }
         catch (Exception ex)
         {
-            Log.Debug(ex, "TS-2000 satellite mode exit failed during dispose");
+            Log.Warning(ex, "TS-2000 satellite mode exit failed during dispose");
         }
         finally
         {

@@ -94,6 +94,10 @@ public sealed class RotatorController : IRotatorController, IDisposable
     public void Disconnect() =>
         Enqueue(new RotatorCommand(RotatorCommandKind.Disconnect));
 
+    /// <summary>Disconnect and block until the rotator worker has closed the COM port.</summary>
+    public void DisconnectAndWait() =>
+        EnqueueAndWait(new RotatorCommand(RotatorCommandKind.Disconnect), TimeSpan.FromSeconds(10));
+
     /// <summary>Supply the active pass for keyhole avoidance planning. Call when the pass changes or becomes known.</summary>
     public void SetActivePass(PassInfo? pass) =>
         Enqueue(new RotatorCommand(RotatorCommandKind.SetActivePass, passInfo: pass));
@@ -129,17 +133,24 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
         try
         {
+            // Bypass Enqueue (disposed check) so Shutdown can still be delivered.
             if (_commands is not null && _worker is { IsAlive: true })
-                EnqueueAndWait(new RotatorCommand(RotatorCommandKind.Shutdown), TimeSpan.FromSeconds(3));
+            {
+                using var done = new ManualResetEventSlim(false);
+                var command = new RotatorCommand(RotatorCommandKind.Shutdown) { Completed = done };
+                _commands.Add(command);
+                if (!done.Wait(TimeSpan.FromSeconds(3)))
+                    Log.Warning("Rotator worker shutdown did not complete in time");
+            }
         }
         catch (Exception ex)
         {
             Log.Warning(ex, "Rotator worker shutdown did not complete cleanly");
         }
 
+        _worker?.Join(TimeSpan.FromSeconds(2));
         _commands?.Dispose();
         _commands = null;
-        _worker?.Join(TimeSpan.FromSeconds(2));
     }
 
     private void Enqueue(RotatorCommand command)
@@ -256,6 +267,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
                     break;
 
                 case RotatorCommandKind.Disconnect:
+                    // Clear cached settings so the tracking loop does not reopen the port.
+                    _cachedSettings = new RotatorSettings();
+                    _cachedTarget = null;
                     TearDownRotator();
                     ResetTrackingState();
                     _connectionKind = RotatorConnectionKind.Disconnected;

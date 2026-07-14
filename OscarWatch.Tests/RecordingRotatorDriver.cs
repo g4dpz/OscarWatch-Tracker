@@ -12,8 +12,10 @@ internal sealed class RecordingRotatorDriver : IRotatorDriver
     public int SetPositionCallCount { get; private set; }
     public int GetPositionCallCount { get; private set; }
     public int StopCallCount { get; private set; }
+    public int OpenCallCount { get; private set; }
+    public int DisposeCallCount { get; private set; }
 
-    public void Open() { }
+    public void Open() => OpenCallCount++;
 
     public void SetPosition(double azimuthDeg, double elevationDeg, RotatorSettings settings)
     {
@@ -33,5 +35,5 @@ internal sealed class RecordingRotatorDriver : IRotatorDriver
             : (null, null);
     }
 
-    public void Dispose() { }
+    public void Dispose() => DisposeCallCount++;
 }

@@ -185,6 +185,7 @@ internal sealed class KenwoodCatTransport : IKenwoodCatTransport
 
     public void Dispose()
     {
+        var portName = _port.PortName;
         try
         {
             if (_port.IsOpen)
@@ -200,15 +201,33 @@ internal sealed class KenwoodCatTransport : IKenwoodCatTransport
                 }
                 catch (Exception ex)
                 {
-                    Log.Debug(ex, "Kenwood CAT pre-close cleanup failed on {Port}", _port.PortName);
+                    Log.Warning(ex, "Kenwood CAT pre-close cleanup failed on {Port}", portName);
                 }
 
                 _port.Close();
+                Log.Information(
+                    "Kenwood CAT closed {Port}; IsOpen={IsOpen}",
+                    portName,
+                    _port.IsOpen);
+            }
+            else
+            {
+                Log.Information("Kenwood CAT dispose on {Port}; port was already closed", portName);
             }
         }
         catch (Exception ex)
         {
-            Log.Debug(ex, "Kenwood CAT port close failed on {Port}", _port.PortName);
+            var stillOpen = true;
+            try
+            {
+                stillOpen = _port.IsOpen;
+            }
+            catch
+            {
+                // Port may already be in a bad state; report as still open for diagnostics.
+            }
+
+            Log.Warning(ex, "Kenwood CAT port close failed on {Port}; IsOpen={IsOpen}", portName, stillOpen);
         }
 
         try
@@ -217,7 +236,7 @@ internal sealed class KenwoodCatTransport : IKenwoodCatTransport
         }
         catch (Exception ex)
         {
-            Log.Debug(ex, "Kenwood CAT port dispose failed on {Port}", _port.PortName);
+            Log.Warning(ex, "Kenwood CAT port dispose failed on {Port}", portName);
         }
 
         _gate.Dispose();

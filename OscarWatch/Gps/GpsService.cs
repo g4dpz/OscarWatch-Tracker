@@ -32,6 +32,12 @@ public sealed class GpsService : IGpsService, IDisposable
         _gpsd.Disconnect();
     }
 
+    public void DisconnectAndWait()
+    {
+        _serial.DisconnectAndWait();
+        _gpsd.DisconnectAndWait();
+    }
+
     public GpsConnectionStatus GetStatus() =>
         (_active ?? _serial).GetStatus();
 

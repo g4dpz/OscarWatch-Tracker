@@ -42,6 +42,10 @@ public sealed class GpsdController : IGpsService, IDisposable
     public void Disconnect() =>
         Enqueue(new GpsCommand(GpsCommandKind.Disconnect));
 
+    /// <summary>Disconnect and block until the gpsd worker has closed the TCP connection.</summary>
+    public void DisconnectAndWait() =>
+        EnqueueAndWait(new GpsCommand(GpsCommandKind.Disconnect), TimeSpan.FromSeconds(10));
+
     public GpsConnectionStatus GetStatus()
     {
         lock (_statusLock)
@@ -69,17 +73,24 @@ public sealed class GpsdController : IGpsService, IDisposable
 
         try
         {
+            // Bypass Enqueue (disposed check) so Shutdown can still be delivered.
             if (_commands is not null && _worker is { IsAlive: true })
-                EnqueueAndWait(new GpsCommand(GpsCommandKind.Shutdown), TimeSpan.FromSeconds(3));
+            {
+                using var done = new ManualResetEventSlim(false);
+                var command = new GpsCommand(GpsCommandKind.Shutdown) { Completed = done };
+                _commands.Add(command);
+                if (!done.Wait(TimeSpan.FromSeconds(3)))
+                    Log.Warning("gpsd worker shutdown did not complete in time");
+            }
         }
         catch (Exception ex)
         {
             Log.Warning(ex, "gpsd worker shutdown did not complete cleanly");
         }
 
+        _worker?.Join(TimeSpan.FromSeconds(2));
         _commands?.Dispose();
         _commands = null;
-        _worker?.Join(TimeSpan.FromSeconds(2));
     }
 
     private void Enqueue(GpsCommand command)
@@ -184,6 +195,8 @@ public sealed class GpsdController : IGpsService, IDisposable
                     break;
 
                 case GpsCommandKind.Disconnect:
+                    // Clear cached settings so the worker loop does not reconnect to gpsd.
+                    _cachedSettings = new GpsSettings();
                     TearDownConnection();
                     SetStatus(new GpsConnectionStatus(false, false, null, null, null, null, null, null));
                     break;

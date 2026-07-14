@@ -84,6 +84,42 @@ public sealed class RotatorControllerTests
     }
 
     [Fact]
+    public void DisconnectAndWait_releases_driver_and_does_not_reconnect()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var createCount = 0;
+        var controller = new RotatorController(_ =>
+        {
+            createCount++;
+            return rotator;
+        });
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            BaudRate = 9600,
+            Type = RotatorType.YaesuGs232,
+            TrackStartElevationDeg = 5
+        };
+
+        controller.UpdateSynchronously(settings, TrackTarget("25544", 45, 20));
+        Assert.Equal(1, createCount);
+        Assert.Equal(1, rotator.OpenCallCount);
+        Assert.True(controller.GetPositionStatus().IsConnected);
+
+        // DisconnectAndWait completes after TearDown; the same loop iteration then runs
+        // RunTrackingIteration — which must not reopen when cached settings were cleared.
+        controller.DisconnectAndWait();
+
+        Assert.Equal(1, createCount);
+        Assert.Equal(1, rotator.OpenCallCount);
+        Assert.Equal(1, rotator.DisposeCallCount);
+        Assert.False(controller.GetPositionStatus().IsConnected);
+
+        controller.Dispose();
+    }
+
+    [Fact]
     public void Manual_park_still_works_when_park_after_pass_disabled()
     {
         var rotator = new RecordingRotatorDriver();
