@@ -59,8 +59,9 @@ public sealed class KenwoodTs2000DriverTests
 
         Assert.Contains("PC050;", transport.SentCommands);
         Assert.Contains("SA1011110;", transport.SentCommands);
+        Assert.Contains("DC10;", transport.SentCommands);
         Assert.DoesNotContain(transport.SentCommands, c => c == "FA;");
-        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("DC", StringComparison.Ordinal));
+        Assert.DoesNotContain(transport.SentCommands, c => c is "DC00;" or "DC11;");
     }
 
     [Fact]
@@ -80,7 +81,7 @@ public sealed class KenwoodTs2000DriverTests
         Assert.Contains("SM00021;", transport.SentCommands);
         Assert.DoesNotContain(transport.SentCommands, c => c == "FA;");
         Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("FR", StringComparison.Ordinal));
-        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("DC", StringComparison.Ordinal));
+        Assert.DoesNotContain(transport.SentCommands, c => c is "DC00;" or "DC11;");
     }
 
     [Fact]

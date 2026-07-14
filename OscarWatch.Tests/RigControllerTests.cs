@@ -357,6 +357,7 @@ public class RigControllerTests
         Assert.Contains($"FB{expectedTxHz:D11};", transport.SentCommands);
         Assert.Equal(expectedRxHz, transport.FaHz);
         Assert.Equal(expectedTxHz, transport.FbHz);
+        Assert.Contains("DC10;", transport.SentCommands);
     }
 
     [Fact]

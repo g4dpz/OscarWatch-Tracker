@@ -126,6 +126,11 @@ public static class KenwoodCatCodec
     /// <summary>DC P1=1 P2=1 — TX and CTRL on sub (query/program sub receiver).</summary>
     public static string BuildControlSubReceiverCommand() => "DC11;";
 
+    /// <summary>
+    /// DC P1=1 P2=0 — TX (PTT) on sub, CTRL on main. Best-effort after SATL entry so uplink is on SUB.
+    /// </summary>
+    public static string BuildTxSubControlMainCommand() => "DC10;";
+
     public static bool TryParseVfoSelect(ReadOnlySpan<char> response, out char selectCode)
     {
         selectCode = default;

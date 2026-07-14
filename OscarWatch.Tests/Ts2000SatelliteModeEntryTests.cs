@@ -83,7 +83,7 @@ public class Ts2000SatelliteModeEntryTests : Ts2000TestBase
     /// The SendSatelliteToneAndSquelchOff sequence is:
     ///   Main path: SA1010110;, TO0;, DQ0;, CT0;
     ///   Sub path:  SA1011110;, TO0;, DQ0;, CT0;
-    ///   Final:     SA1010110;
+    ///   Final:     SA1010110;, DC10; (TX/PTT on SUB, CTRL MAIN)
     /// </summary>
     [Fact]
     public void Entry_clears_tone_and_ctcss_on_both_paths_after_SA_confirms()
@@ -102,6 +102,7 @@ public class Ts2000SatelliteModeEntryTests : Ts2000TestBase
         Assert.Equal("DQ0;", cmds[start + 20]);
         Assert.Equal("CT0;", cmds[start + 21]);
         Assert.Equal("SA1010110;", cmds[start + 22]);
+        Assert.Equal("DC10;", cmds[start + 23]);
     }
 
     // ─────────────────────────────────────────────────────────────────────────────

@@ -265,8 +265,9 @@ public class SatelliteModePreservationPropertyTests
         // 6. TO0; tone off commands
         if (!cmds.Contains("TO0;")) return false;
 
-        // 7. AI0; autoinfo off at the end
+        // 7. AI0; autoinfo off, then DC10; pins TX/PTT to SUB
         if (!cmds.Contains("AI0;")) return false;
+        if (!cmds.Contains("DC10;")) return false;
 
         return !cmds.Contains("FA;");
     }

@@ -148,6 +148,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         FinalizeSatelliteSubPath(uplinkModeCode, downlinkHz, uplinkHz);
         _transport.SendFireAndForget(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
         _transport.SendFireAndForget(KenwoodCatCodec.BuildAutoinfoOffCommand(), _catDelayMs);
+        ForceUplinkPttOnSub();
     }
 
     public void SelectVfo(RigVfo vfo, bool force = false)
@@ -358,6 +359,19 @@ public sealed class KenwoodTs2000Driver : IRigDriver
             return;
 
         _transport.SendFireAndForget(KenwoodCatCodec.BuildSetSatelliteModeOnCommand(), _catDelayMs);
+        ForceUplinkPttOnSub();
+    }
+
+    /// <summary>
+    /// Best-effort: pin TX/PTT to SUB while leaving CTRL on MAIN (matches SATL uplink = FB).
+    /// May be ignored by some radios while in SATL.
+    /// </summary>
+    private void ForceUplinkPttOnSub()
+    {
+        if (!_transport.IsOpen)
+            return;
+
+        _transport.SendFireAndForget(KenwoodCatCodec.BuildTxSubControlMainCommand(), _catDelayMs);
     }
 
     public void ExchangeVfos()
@@ -504,6 +518,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
             if (reply is not null && KenwoodCatCodec.TryParseSatelliteOn(reply))
             {
                 SendSatelliteToneAndSquelchOff();
+                ForceUplinkPttOnSub();
                 return true;
             }
 
@@ -511,6 +526,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
                 Thread.Sleep(_satModeRetryDelayMs);
         }
 
+        ForceUplinkPttOnSub();
         return false;
     }
 

@@ -103,10 +103,10 @@ public class Ts2000PassFrequencyTests : Ts2000TestBase
     }
 
     /// <summary>
-    /// Requirement 10.5: The programming sequence ends with SA1010110; then AI0; (no link-hold burst).
+    /// Requirement 10.5: The programming sequence ends with SA1010110;, AI0;, then DC10; (TX on SUB).
     /// </summary>
     [Fact]
-    public void PassFrequencies_ends_with_SA1010110_and_AI0_without_link_hold_burst()
+    public void PassFrequencies_ends_with_SA1010110_AI0_and_DC10_without_link_hold_burst()
     {
         EnterSatelliteMode();
         ClearCommandLog();
@@ -115,9 +115,10 @@ public class Ts2000PassFrequencyTests : Ts2000TestBase
 
         var cmds = GetSentCommands();
 
-        Assert.True(cmds.Count >= 2, $"Expected at least 2 commands at end of sequence, got {cmds.Count} total");
-        Assert.Equal("AI0;", cmds[^1]);
-        Assert.Equal("SA1010110;", cmds[^2]);
+        Assert.True(cmds.Count >= 3, $"Expected at least 3 commands at end of sequence, got {cmds.Count} total");
+        Assert.Equal("DC10;", cmds[^1]);
+        Assert.Equal("AI0;", cmds[^2]);
+        Assert.Equal("SA1010110;", cmds[^3]);
         Assert.DoesNotContain(cmds, c => c == "FA;");
     }
 
