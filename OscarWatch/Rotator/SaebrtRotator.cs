@@ -4,8 +4,9 @@ using OscarWatch.Core.Models;
 namespace OscarWatch.Rotator;
 
 /// <summary>
-/// SAEBRTrack rotator driver (EasyComm I style AZ/EL with UP/DN placeholders).
-/// Used by classic BASIC Stamp trackers, PSR-100, and similar satellite rotor interfaces.
+/// SAEBRTrack rotator driver for fire-and-forget Arduino / BASIC Stamp / PSR-100 style interfaces.
+/// Sends compact whole-degree <c>AZnnnELnnn</c> gotos; does not query position
+/// (bare <c>AZ</c>/<c>EL</c> would be misread as move-to-0/0 by these controllers).
 /// </summary>
 public sealed class SaebrtRotator : IRotatorDriver
 {
@@ -41,18 +42,9 @@ public sealed class SaebrtRotator : IRotatorDriver
 
     public (int? Azimuth, int? Elevation) GetPosition()
     {
-        _gate.Wait();
-        try
-        {
-            // Optional EasyComm II style feedback on controllers that support it.
-            var az = QueryAxis("AZ");
-            var el = QueryAxis("EL");
-            return (az, el);
-        }
-        finally
-        {
-            _gate.Release();
-        }
+        // Fire-and-forget firmware treats every serial read as a goto. Sending EasyComm-style
+        // AZ/EL queries parses as az=0/el=0 and drives the rotor back to park.
+        return (null, null);
     }
 
     public void Dispose()
@@ -71,14 +63,6 @@ public sealed class SaebrtRotator : IRotatorDriver
         _gate.Dispose();
     }
 
-    private int? QueryAxis(string axis)
-    {
-        _port.DiscardInBuffer();
-        _port.Write(axis + LineEnding);
-        var response = ReadLineResponse();
-        return SaebrtPositionParser.TryParseAxis(response, axis);
-    }
-
     private void SendCommand(string command)
     {
         _gate.Wait();
@@ -92,37 +76,6 @@ public sealed class SaebrtRotator : IRotatorDriver
         finally
         {
             _gate.Release();
-        }
-    }
-
-    private string? ReadLineResponse()
-    {
-        try
-        {
-            Thread.Sleep(150);
-            var line = _port.ReadLine().Trim();
-            return string.IsNullOrWhiteSpace(line) ? null : line;
-        }
-        catch (TimeoutException)
-        {
-            return ReadExistingLine();
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    private string? ReadExistingLine()
-    {
-        try
-        {
-            var text = _port.ReadExisting().Trim('\r', '\n', ' ');
-            return string.IsNullOrWhiteSpace(text) ? null : text;
-        }
-        catch
-        {
-            return null;
         }
     }
 }
