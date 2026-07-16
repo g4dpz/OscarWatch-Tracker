@@ -53,6 +53,8 @@ public partial class RotatorManualViewModel : ViewModelBase
 
         if (status.ElevationDeg is { } el)
             ElevationDeg = el;
+        else if (status.CommandedElevationDeg is { } commandedEl)
+            ElevationDeg = commandedEl;
     }
 
     [RelayCommand(CanExecute = nameof(IsConnected))]
@@ -82,10 +84,16 @@ public partial class RotatorManualViewModel : ViewModelBase
     {
         var status = _rotator.GetPositionStatus();
         IsConnected = status.IsConnected;
-        CurrentPositionText = !status.IsConnected
-            ? "Not connected"
-            : status.ElevationDeg is { } el
-                ? $"Az {MainViewModel.FormatRotatorAzimuthText(status)} · El {el}°"
-                : "Position unknown";
+        if (!status.IsConnected)
+        {
+            CurrentPositionText = "Not connected";
+            return;
+        }
+
+        var azText = MainViewModel.FormatRotatorAzimuthText(status);
+        var elText = MainViewModel.FormatRotatorElevationText(status);
+        CurrentPositionText = azText == "—" && elText == "—"
+            ? "Position unknown"
+            : $"Az {azText} · El {elText}";
     }
 }

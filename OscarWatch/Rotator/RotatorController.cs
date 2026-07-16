@@ -42,6 +42,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private int? _displayAzimuth;
     private int? _displayElevation;
     private int? _displayCommandedAzimuth;
+    private int? _displayCommandedElevation;
     private int? _displayCompassAzimuth;
 
     private RotatorSettings _cachedSettings = new();
@@ -96,7 +97,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
     /// <summary>Disconnect and block until the rotator worker has closed the COM port.</summary>
     public void DisconnectAndWait() =>
-        EnqueueAndWait(new RotatorCommand(RotatorCommandKind.Disconnect), TimeSpan.FromSeconds(10));
+        EnqueueAndWait(new RotatorCommand(RotatorCommandKind.Disconnect), TimeSpan.FromSeconds(3));
 
     /// <summary>Supply the active pass for keyhole avoidance planning. Call when the pass changes or becomes known.</summary>
     public void SetActivePass(PassInfo? pass) =>
@@ -435,6 +436,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _standbyManualActive = true;
         _parked = false;
         _displayCommandedAzimuth = (int)Math.Round(az);
+        _displayCommandedElevation = (int)Math.Round(el);
         _displayCompassAzimuth = (int)Math.Round(RotatorAzimuthPlanner.Normalize360(az));
 
         try
@@ -532,6 +534,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _displayAzimuth = null;
         _displayElevation = null;
         _displayCommandedAzimuth = null;
+        _displayCommandedElevation = null;
         _displayCompassAzimuth = null;
         _keyholePlan = null;
         _keyholeFlippedActive = false;
@@ -552,12 +555,14 @@ public sealed class RotatorController : IRotatorController, IDisposable
                 _connectionDetail,
                 IsKeyholeAvoidanceActive: _keyholeFlippedActive,
                 IsPrePositioning: _isPrePositioning,
-                IsTrackingHeld: _trackingHoldAfterStop);
+                IsTrackingHeld: _trackingHoldAfterStop,
+                CommandedElevationDeg: _displayCommandedElevation);
     }
 
     private void ClearTrackingAzimuthDisplay()
     {
         _displayCommandedAzimuth = null;
+        _displayCommandedElevation = null;
         _displayCompassAzimuth = null;
     }
 
@@ -754,6 +759,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             : commandAzInput;
 
         _displayCommandedAzimuth = (int)Math.Round(commandAz);
+        _displayCommandedElevation = (int)Math.Round(commandEl);
         _displayCompassAzimuth = (int)Math.Round(RotatorAzimuthPlanner.Normalize360(azimuthDeg));
 
         var send = _lastAzimuth is null || _lastElevation is null

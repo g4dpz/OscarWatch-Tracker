@@ -1142,9 +1142,7 @@ public partial class MainViewModel : ViewModelBase
         ShowRotatorStatus = true;
         var status = _rotator.GetPositionStatus();
         RotatorAzimuthText = FormatRotatorAzimuthText(status);
-        RotatorElevationText = status is { IsConnected: true, ElevationDeg: not null }
-            ? $"{status.ElevationDeg.Value}°"
-            : "—";
+        RotatorElevationText = FormatRotatorElevationText(status);
         IsRotatorParked = status.IsParked;
         CanParkRotator = status.IsConnected;
         CanStopRotator = status.IsConnected;
@@ -1156,7 +1154,15 @@ public partial class MainViewModel : ViewModelBase
 
     private void UpdateSkyPlotRotatorPosition(RotatorPositionStatus status)
     {
-        if (!status.IsConnected || status.ElevationDeg is not { } elevation)
+        if (!status.IsConnected)
+        {
+            SkyPlotRotatorAzimuthDeg = null;
+            SkyPlotRotatorElevationDeg = null;
+            return;
+        }
+
+        var elevation = status.ElevationDeg ?? status.CommandedElevationDeg;
+        if (elevation is null)
         {
             SkyPlotRotatorAzimuthDeg = null;
             SkyPlotRotatorElevationDeg = null;
@@ -1167,7 +1173,7 @@ public partial class MainViewModel : ViewModelBase
         var compassAz = status.CompassAzimuthDeg
             ?? (status.AzimuthDeg is { } mechanical
                 ? (int)Math.Round(RotatorAzimuthPlanner.Normalize360(mechanical - settings.AzimuthOffsetDeg))
-                : (int?)null);
+                : status.CommandedAzimuthDeg);
 
         if (compassAz is null)
         {
@@ -1177,7 +1183,7 @@ public partial class MainViewModel : ViewModelBase
         }
 
         SkyPlotRotatorAzimuthDeg = compassAz.Value;
-        SkyPlotRotatorElevationDeg = Math.Max(0, elevation);
+        SkyPlotRotatorElevationDeg = Math.Max(0, elevation.Value);
     }
 
     private void UpdateSkyPlotPassPath()
@@ -1227,6 +1233,20 @@ public partial class MainViewModel : ViewModelBase
 
         if (status.CommandedAzimuthDeg is { } commandedOnly)
             return $"{commandedOnly}°";
+
+        return "—";
+    }
+
+    internal static string FormatRotatorElevationText(RotatorPositionStatus status)
+    {
+        if (!status.IsConnected)
+            return "—";
+
+        if (status.ElevationDeg is { } polled)
+            return $"{polled}°";
+
+        if (status.CommandedElevationDeg is { } commanded)
+            return $"{commanded}°";
 
         return "—";
     }

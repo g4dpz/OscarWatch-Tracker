@@ -11,4 +11,5 @@ public sealed record RotatorPositionStatus(
     string? ConnectionDetail = null,
     bool IsKeyholeAvoidanceActive = false,
     bool IsPrePositioning = false,
-    bool IsTrackingHeld = false);
+    bool IsTrackingHeld = false,
+    int? CommandedElevationDeg = null);

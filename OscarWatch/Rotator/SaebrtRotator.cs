@@ -20,9 +20,12 @@ public sealed class SaebrtRotator : IRotatorDriver
         _port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One)
         {
             Handshake = Handshake.None,
-            ReadTimeout = 1000,
-            WriteTimeout = 1000,
-            NewLine = LineEnding
+            // Fire-and-forget: short timeouts so Close/Dispose cannot stall shutdown for seconds.
+            ReadTimeout = 200,
+            WriteTimeout = 200,
+            NewLine = LineEnding,
+            DtrEnable = false,
+            RtsEnable = false
         };
     }
 
@@ -52,7 +55,22 @@ public sealed class SaebrtRotator : IRotatorDriver
         try
         {
             if (_port.IsOpen)
+            {
+                // Avoid a long DTR/RTS toggle hang when releasing Arduino-style adapters.
+                try
+                {
+                    _port.DtrEnable = false;
+                    _port.RtsEnable = false;
+                    _port.DiscardInBuffer();
+                    _port.DiscardOutBuffer();
+                }
+                catch
+                {
+                    // ignore pre-close cleanup
+                }
+
                 _port.Close();
+            }
         }
         catch
         {
@@ -70,8 +88,8 @@ public sealed class SaebrtRotator : IRotatorDriver
         {
             _port.DiscardInBuffer();
             _port.Write(command + LineEnding);
-            Thread.Sleep(150);
-            _port.DiscardInBuffer();
+            // No reply expected; brief yield only so the adapter can accept the next write.
+            Thread.Sleep(20);
         }
         finally
         {
