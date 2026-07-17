@@ -12,6 +12,7 @@ public class Ts2000DopplerStepTests : Ts2000TestBase
     /// <summary>
     /// Requirement 5.1: ApplySatelliteDopplerStep sends the full cluster sequence:
     /// FA, FB, SM10000, FA, SM-sub, FB, SM-sub, SM10000 in that order.
+    /// SM rejections must not abort later FA/FB in the cluster.
     /// </summary>
     [Fact]
     public void DopplerStep_sends_full_cluster_sequence()
@@ -110,5 +111,31 @@ public class Ts2000DopplerStepTests : Ts2000TestBase
 
         Assert.False(result);
         Assert.Empty(GetSentCommands());
+    }
+
+    /// <summary>
+    /// Field report: SM10000 rejected every tick. FA/FB must still complete the full cluster.
+    /// </summary>
+    [Fact]
+    public void DopplerStep_completes_FA_FB_cluster_when_SM_is_rejected()
+    {
+        const long downlinkHz = 145_900_000;
+        const long uplinkHz = 435_700_000;
+
+        EnterSatelliteMode();
+        ClearCommandLog();
+        RecordingTransport.RejectedPrefixes.Add("SM");
+
+        Assert.True(Driver.ApplySatelliteDopplerStep(downlinkHz, uplinkHz));
+
+        var cmds = GetSentCommands();
+        var expectedFa = $"FA{downlinkHz:D11};";
+        var expectedFb = $"FB{uplinkHz:D11};";
+
+        Assert.Equal(8, cmds.Count);
+        Assert.Equal(expectedFa, cmds[0]);
+        Assert.Equal(expectedFb, cmds[1]);
+        Assert.Equal(expectedFa, cmds[3]);
+        Assert.Equal(expectedFb, cmds[5]);
     }
 }

@@ -101,8 +101,9 @@ public sealed class KenwoodTs2000Driver : IRigDriver
 
     /// <summary>
     /// SATL doppler update: FA/FB/SM cluster. Link-hold <c>FA;</c> polls run on a timer (~1/s) from <see cref="RigController"/>.
-    /// Returns false if any set fails to write or the radio rejects with <c>?;</c>/<c>E;</c>
-    /// (sets still do not require a success ACK — silence is OK).
+    /// Returns false if FA/FB fail to write or the radio rejects them with <c>?;</c>/<c>E;</c>.
+    /// <c>SM</c> band-select is best-effort — some radios reject it while still accepting FA/FB.
+    /// (Sets still do not require a success ACK — silence is OK.)
     /// </summary>
     public bool ApplySatelliteDopplerStep(long downlinkHz, long uplinkHz)
     {
@@ -116,15 +117,16 @@ public sealed class KenwoodTs2000Driver : IRigDriver
 
         var vhfSm = KenwoodCatCodec.BuildSatelliteBandSelectSubCommand(downlinkHz);
 
+        // FA/FB are required; SM must not abort the rest of the cluster when rejected.
         var ok =
             SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('A', downlinkHz))
-            && SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('B', uplinkHz))
-            && SendSet(KenwoodCatCodec.BuildSatelliteBandSelectMainCommand())
-            && SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('A', downlinkHz))
-            && SendSet(vhfSm)
-            && SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('B', uplinkHz))
-            && SendSet(vhfSm)
-            && SendSet(KenwoodCatCodec.BuildSatelliteBandSelectMainCommand());
+            && SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('B', uplinkHz));
+        SendBestEffort(KenwoodCatCodec.BuildSatelliteBandSelectMainCommand());
+        ok = SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('A', downlinkHz)) && ok;
+        SendBestEffort(vhfSm);
+        ok = SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('B', uplinkHz)) && ok;
+        SendBestEffort(vhfSm);
+        SendBestEffort(KenwoodCatCodec.BuildSatelliteBandSelectMainCommand());
 
         if (!ok)
             Log.Warning("TS-2000 doppler FA/FB cluster send failed");
@@ -134,6 +136,8 @@ public sealed class KenwoodTs2000Driver : IRigDriver
 
     /// <summary>
     /// Programs pass frequencies after SAT entry: double FA/FB, SM, main/sub finalize (modes, PC050, tones).
+    /// Mode finalize always runs even when <c>SM</c>/tone clears are rejected — entry handshake leaves
+    /// USB/LSB placeholders that must be overwritten with the pass modes (e.g. FM for AO-91).
     /// </summary>
     public bool ApplySatellitePassFrequencies(
         long downlinkHz,
@@ -149,14 +153,16 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         _lastVfoAHz = downlinkHz;
         _lastVfoBHz = uplinkHz;
 
-        var ok =
-            ProgramSatelliteFrequencies(downlinkHz, uplinkHz)
-            && FinalizeSatelliteMainPath(downlinkModeCode, downlinkHz)
-            && FinalizeSatelliteSubPath(uplinkModeCode, downlinkHz, uplinkHz)
-            && SendSet(KenwoodCatCodec.BuildSetSatelliteModeOnCommand())
+        // Do not short-circuit on SM/tone failures — modes must still be applied.
+        var freqOk = ProgramSatelliteFrequencies(downlinkHz, uplinkHz);
+        var mainOk = FinalizeSatelliteMainPath(downlinkModeCode, downlinkHz);
+        var subOk = FinalizeSatelliteSubPath(uplinkModeCode, downlinkHz, uplinkHz);
+        var wrapOk =
+            SendSet(KenwoodCatCodec.BuildSetSatelliteModeOnCommand())
             && SendSet(KenwoodCatCodec.BuildAutoinfoOffCommand());
 
         ForceUplinkPttOnSub();
+        var ok = freqOk && mainOk && subOk && wrapOk;
         if (!ok)
             Log.Warning("TS-2000 pass frequency programming send failed");
 
@@ -479,6 +485,9 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     private bool SendSet(string command) =>
         _transport.SendFireAndForget(command, _catDelayMs);
 
+    /// <summary>Send a CAT set and ignore rejection (SM / tone clears must not block FA/FB or MD).</summary>
+    private void SendBestEffort(string command) => SendSet(command);
+
     private long CachedFrequencyHz(RigVfo vfo) => vfo switch
     {
         RigVfo.Main => _lastMainHz,
@@ -564,38 +573,51 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         _transport.SendFireAndForget(KenwoodCatCodec.BuildToneEnableCommand(false), _catDelayMs);
     }
 
-    private bool ProgramSatelliteFrequencies(long downlinkHz, long uplinkHz) =>
-        SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('A', downlinkHz))
-        && SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('B', uplinkHz))
-        && SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('A', downlinkHz))
-        && SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('B', uplinkHz))
-        && SendSet(KenwoodCatCodec.BuildSatelliteBandSelectMainCommand())
-        && SendSet(KenwoodCatCodec.BuildSatelliteBandSelectSubCommand(downlinkHz))
-        && SendSet(KenwoodCatCodec.BuildSetSatelliteModeOnCommand())
-        && SendSet(KenwoodCatCodec.BuildToneEnableCommand(false));
+    private bool ProgramSatelliteFrequencies(long downlinkHz, long uplinkHz)
+    {
+        var ok =
+            SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('A', downlinkHz))
+            && SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('B', uplinkHz))
+            && SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('A', downlinkHz))
+            && SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('B', uplinkHz));
+        SendBestEffort(KenwoodCatCodec.BuildSatelliteBandSelectMainCommand());
+        SendBestEffort(KenwoodCatCodec.BuildSatelliteBandSelectSubCommand(downlinkHz));
+        SendBestEffort(KenwoodCatCodec.BuildSetSatelliteModeOnCommand());
+        SendBestEffort(KenwoodCatCodec.BuildToneEnableCommand(false));
+        return ok;
+    }
 
-    private bool FinalizeSatelliteMainPath(char downlinkModeCode, long downlinkHz) =>
-        SendSet(KenwoodCatCodec.BuildSetSatelliteModeOnCommand())
-        && SendSet(KenwoodCatCodec.BuildToneEnableCommand(false))
-        && SendSet(KenwoodCatCodec.BuildCtcssEnableCommand(false))
-        && SendSet("DQ0;")
-        && SendSet(KenwoodCatCodec.BuildSetSatelliteModeOnCommand())
-        && SendSet(KenwoodCatCodec.BuildSetModeCommand(downlinkModeCode))
-        && SendSet(KenwoodCatCodec.BuildSatellitePowerLevelCommand())
-        && SendSet(KenwoodCatCodec.BuildSatelliteBandSelectSubCommand(downlinkHz))
-        && SendSet(KenwoodCatCodec.BuildSatelliteBandSelectMainCommand());
+    private bool FinalizeSatelliteMainPath(char downlinkModeCode, long downlinkHz)
+    {
+        // SatPC32 order: tone clear then MD. Tone/SM rejects must not skip the mode set.
+        SendBestEffort(KenwoodCatCodec.BuildSetSatelliteModeOnCommand());
+        SendBestEffort(KenwoodCatCodec.BuildToneEnableCommand(false));
+        SendBestEffort(KenwoodCatCodec.BuildCtcssEnableCommand(false));
+        SendBestEffort("DQ0;");
+        var ok =
+            SendSet(KenwoodCatCodec.BuildSetSatelliteModeOnCommand())
+            && SendSet(KenwoodCatCodec.BuildSetModeCommand(downlinkModeCode))
+            && SendSet(KenwoodCatCodec.BuildSatellitePowerLevelCommand());
+        SendBestEffort(KenwoodCatCodec.BuildSatelliteBandSelectSubCommand(downlinkHz));
+        SendBestEffort(KenwoodCatCodec.BuildSatelliteBandSelectMainCommand());
+        return ok;
+    }
 
-    private bool FinalizeSatelliteSubPath(char uplinkModeCode, long downlinkHz, long uplinkHz) =>
-        SendSet(KenwoodCatCodec.BuildSetSatelliteModeOnSubControlCommand())
-        && SendSet(KenwoodCatCodec.BuildSetModeCommand(uplinkModeCode))
-        && SendSet(KenwoodCatCodec.BuildSatelliteBandSelectSubCommand(downlinkHz))
-        && SendSet(KenwoodCatCodec.BuildToneEnableCommand(false))
-        && SendSet(KenwoodCatCodec.BuildCtcssEnableCommand(false))
-        && SendSet("DQ0;")
-        && SendSet(KenwoodCatCodec.BuildSatellitePowerLevelCommand())
-        && SendSet(KenwoodCatCodec.BuildSatelliteBandSelectMainCommand())
-        && SendSet(KenwoodCatCodec.BuildSatelliteBandSelectSubCommand(uplinkHz))
-        && SendSet(KenwoodCatCodec.BuildSetSatelliteModeOnCommand());
+    private bool FinalizeSatelliteSubPath(char uplinkModeCode, long downlinkHz, long uplinkHz)
+    {
+        var ok =
+            SendSet(KenwoodCatCodec.BuildSetSatelliteModeOnSubControlCommand())
+            && SendSet(KenwoodCatCodec.BuildSetModeCommand(uplinkModeCode));
+        SendBestEffort(KenwoodCatCodec.BuildSatelliteBandSelectSubCommand(downlinkHz));
+        SendBestEffort(KenwoodCatCodec.BuildToneEnableCommand(false));
+        SendBestEffort(KenwoodCatCodec.BuildCtcssEnableCommand(false));
+        SendBestEffort("DQ0;");
+        SendBestEffort(KenwoodCatCodec.BuildSatellitePowerLevelCommand());
+        SendBestEffort(KenwoodCatCodec.BuildSatelliteBandSelectMainCommand());
+        SendBestEffort(KenwoodCatCodec.BuildSatelliteBandSelectSubCommand(uplinkHz));
+        ok = SendSet(KenwoodCatCodec.BuildSetSatelliteModeOnCommand()) && ok;
+        return ok;
+    }
 
     private void SendSatelliteToneAndSquelchOff()
     {

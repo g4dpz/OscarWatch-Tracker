@@ -17,6 +17,9 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
     /// <summary>When true, set commands fail (simulates write / ?; rejection).</summary>
     public bool FailSets { get; set; }
 
+    /// <summary>Command prefixes (e.g. <c>SM</c>, <c>TO0</c>) that return false from set sends.</summary>
+    public HashSet<string> RejectedPrefixes { get; } = new(StringComparer.OrdinalIgnoreCase);
+
     public char MainVfoSelect { get; set; } = '0';
     public char SubVfoSelect { get; set; } = '0';
     public List<string> SentCommands { get; } = [];
@@ -33,7 +36,7 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
     {
         var normalized = Normalize(command);
         SentCommands.Add(normalized);
-        if (FailSets)
+        if (FailSets || IsRejected(normalized))
             return false;
 
         ApplySatelliteModeCommand(normalized);
@@ -42,6 +45,11 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
         ApplyVfoSelectCommand(normalized);
         return true;
     }
+
+    private bool IsRejected(string normalized) =>
+        RejectedPrefixes.Count > 0
+        && RejectedPrefixes.Any(prefix =>
+            normalized.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
 
     public string? Transact(string command, int postDelayMs = 50)
     {

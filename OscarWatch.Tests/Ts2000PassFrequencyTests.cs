@@ -134,4 +134,29 @@ public class Ts2000PassFrequencyTests : Ts2000TestBase
         Assert.False(Driver.ApplySatellitePassFrequencies(DownlinkHz, UplinkHz, DownlinkModeCode, UplinkModeCode));
         Assert.Empty(GetSentCommands());
     }
+
+    /// <summary>
+    /// When SM/tone clears are rejected (field report: AO-91 stayed USB), pass modes must still be applied.
+    /// Entry handshake leaves MD2/MD1 placeholders; finalize must overwrite with the pass mode codes.
+    /// </summary>
+    [Fact]
+    public void PassFrequencies_applies_modes_when_SM_and_tone_clears_are_rejected()
+    {
+        EnterSatelliteMode();
+        ClearCommandLog();
+
+        RecordingTransport.RejectedPrefixes.Add("SM");
+        RecordingTransport.RejectedPrefixes.Add("TO0");
+        RecordingTransport.RejectedPrefixes.Add("CT0");
+        RecordingTransport.RejectedPrefixes.Add("DQ0");
+
+        const char downlinkFm = '4';
+        const char uplinkFm = '4';
+        Assert.True(Driver.ApplySatellitePassFrequencies(DownlinkHz, UplinkHz, downlinkFm, uplinkFm));
+
+        var cmds = GetSentCommands();
+        Assert.Contains($"MD{downlinkFm};", cmds);
+        Assert.Contains($"MD{uplinkFm};", cmds);
+        Assert.Contains("SA1011110;", cmds);
+    }
 }

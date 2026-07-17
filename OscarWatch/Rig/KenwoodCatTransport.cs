@@ -13,6 +13,8 @@ internal sealed class KenwoodCatTransport : IKenwoodCatTransport
     private readonly SerialPort _port;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly StringBuilder _rxBuffer = new();
+    private string? _lastRejectedSetCommand;
+    private int _rejectedSetRepeatCount;
 
     public KenwoodCatTransport(string portName, int baudRate)
     {
@@ -61,11 +63,7 @@ internal sealed class KenwoodCatTransport : IKenwoodCatTransport
                 var peek = ReadUntilSemicolon(Math.Min(120, Math.Max(postDelayMs, 40)));
                 if (peek is not null && IsSyntaxError(peek))
                 {
-                    Log.Warning(
-                        "Kenwood CAT set rejected on {Port}: {Cmd} → {Reply}",
-                        _port.PortName,
-                        cmd,
-                        peek);
+                    LogSetRejection(cmd, peek);
                     return false;
                 }
             }
@@ -200,6 +198,35 @@ internal sealed class KenwoodCatTransport : IKenwoodCatTransport
 
     private static bool IsProcessingIncomplete(string reply) =>
         reply.Contains("O;", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Log the first rejection of a command, then every 100th repeat — SM can reject every Doppler tick.
+    /// </summary>
+    private void LogSetRejection(string cmd, string reply)
+    {
+        if (string.Equals(cmd, _lastRejectedSetCommand, StringComparison.Ordinal))
+        {
+            _rejectedSetRepeatCount++;
+            if (_rejectedSetRepeatCount % 100 != 0)
+                return;
+
+            Log.Warning(
+                "Kenwood CAT set rejected on {Port}: {Cmd} → {Reply} (repeated ×{Count})",
+                _port.PortName,
+                cmd,
+                reply,
+                _rejectedSetRepeatCount);
+            return;
+        }
+
+        _lastRejectedSetCommand = cmd;
+        _rejectedSetRepeatCount = 1;
+        Log.Warning(
+            "Kenwood CAT set rejected on {Port}: {Cmd} → {Reply}",
+            _port.PortName,
+            cmd,
+            reply);
+    }
 
     public void Dispose()
     {
