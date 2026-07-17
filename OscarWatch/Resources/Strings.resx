@@ -1972,7 +1972,7 @@ Continue?</value>
     <value>Enable radio control</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>Dual radio (separate downlink and uplink — FT-817/818, FT-991(A), IC-705, IC-706 series, or mixed)</value>
+    <value>Dual radio (separate downlink and uplink — FT-817/818, FT-991(A), IC-705, IC-905, IC-706 series, or mixed)</value>
   </data>
   <data name="Settings.Radio.DualIncompleteBoth">
     <value>Select COM ports for both downlink and uplink radios.</value>
@@ -2070,6 +2070,9 @@ Continue?</value>
   <data name="Settings.Radio.Ic705CivHint">
     <value>IC-705 factory default A4. Must match the radio CI-V menu.</value>
   </data>
+  <data name="Settings.Radio.Ic905CivHint">
+    <value>IC-905 factory default AC. Must match the radio CI-V Set mode.</value>
+  </data>
   <data name="Settings.Radio.Ic706CivHint">
     <value>IC-706 factory default 48H. Must match the radio CI-V address (Initial Set Mode).</value>
   </data>
@@ -2087,6 +2090,9 @@ Continue?</value>
   </data>
   <data name="Settings.Radio.Ic705Hint">
     <value>IC-705: Set Connectors → CI-V → CI-V USB Port to Link to [CI-V] (not REMOTE). Match CI-V baud in Settings (default 115200). One COM port per leg — use the port labelled CI-V when two appear.</value>
+  </data>
+  <data name="Settings.Radio.Ic905Hint">
+    <value>IC-905: Dual radio only. Match CI-V address (default AC) and baud (default 115200) in Set mode. Use the USB CI-V serial port. One COM port per leg — covers VHF/UHF/SHF including 13 cm, 6 cm, and 3 cm.</value>
   </data>
   <data name="Settings.Radio.Ic706Hint">
     <value>IC-706: CI-V via the REMOTE jack (or CT-17). 2m only (no 70cm). Set CI-V address and baud in Initial Set Mode (LOCK at power-on) to match Settings (default 48H / 19200). CI-V TRN On recommended.</value>

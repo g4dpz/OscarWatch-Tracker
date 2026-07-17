@@ -17,9 +17,26 @@ public static class IcomCivCodec
 
     public static byte[] EncodeSetFrequencyHz(long hz)
     {
-        var s = hz.ToString().PadLeft(10, '0');
-        if (s.Length > 10)
-            s = s[^10..];
+        // 5 BCD bytes cover up to 9.999 GHz; IC-905 10 GHz needs a 6th (10 GHz) digit pair.
+        var digitCount = hz >= 10_000_000_000L ? 12 : 10;
+        var s = hz.ToString().PadLeft(digitCount, '0');
+        if (s.Length > digitCount)
+            s = s[^digitCount..];
+
+        if (digitCount == 12)
+        {
+            return
+            [
+                0x05,
+                Convert.ToByte(s[10..12], 16),
+                Convert.ToByte(s[8..10], 16),
+                Convert.ToByte(s[6..8], 16),
+                Convert.ToByte(s[4..6], 16),
+                Convert.ToByte(s[2..4], 16),
+                Convert.ToByte(s[0..2], 16)
+            ];
+        }
+
         return
         [
             0x05,
@@ -34,14 +51,21 @@ public static class IcomCivCodec
     /// <summary>
     /// Decodes a 0x03 read-frequency response. Bytes are BCD digit pairs; the digit string is
     /// a decimal Hz value (ICOM BCD digit pairs), not a hexadecimal number.
+    /// Supports 5-byte (to ~10 GHz) and 6-byte (IC-905 10 GHz) payloads.
     /// </summary>
     public static long? DecodeFrequencyFromResponse(ReadOnlySpan<byte> response)
     {
         if (response.Length < 10)
             return null;
 
-        var freqBytes = response.Length >= 11 ? response.Slice(5, 5) : response[^6..^1];
-        if (freqBytes.Length < 5)
+        // FE FE addr to cmd + N BCD bytes + trailer(s). Prefer 6 BCD when present.
+        var freqLen = response.Length >= 13 ? 6 : 5;
+        ReadOnlySpan<byte> freqBytes;
+        if (response.Length >= 5 + freqLen)
+            freqBytes = response.Slice(5, freqLen);
+        else if (response.Length >= freqLen + 1)
+            freqBytes = response[^(freqLen + 1)..^1];
+        else
             return null;
 
         var digits = "";
@@ -60,13 +84,17 @@ public static class IcomCivCodec
 
     /// <summary>
     /// True when <paramref name="hz"/> is in an amateur satellite band on ICOM satellite rigs.
-    /// Includes HF (IC-9100, e.g. AO-07 Mode A on 10m) plus VHF/UHF/23cm on IC-910/9700/9100.
+    /// Includes HF (IC-9100), VHF/UHF/23cm (IC-910/9700/9100), and SHF for IC-905
+    /// (13 cm / 6 cm / 3 cm).
     /// </summary>
     public static bool IsValidSatelliteFrequencyHz(long hz) =>
         hz is >= 1_800_000 and <= 54_000_000
             or >= 144_000_000 and <= 148_000_000
             or >= 430_000_000 and <= 450_000_000
-            or >= 1_200_000_000 and <= 1_300_000_000;
+            or >= 1_200_000_000 and <= 1_300_000_000
+            or >= 2_300_000_000 and <= 2_450_000_000
+            or >= 5_650_000_000 and <= 5_850_000_000
+            or >= 10_000_000_000 and <= 10_500_000_000;
 
     public static int ParseCivAddressHex(string? hex)
     {

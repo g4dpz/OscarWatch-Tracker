@@ -42,6 +42,30 @@ public sealed class RigDriverFactoryTests
         }));
     }
 
+    [Fact]
+    public void Create_endpoint_ic905_returns_driver_with_civ_address()
+    {
+        var driver = RigDriverFactory.Create(new RigEndpointSettings
+        {
+            Type = RigType.IcomIc905,
+            Port = "COM905",
+            BaudRate = 115200,
+            CivAddress = "AC"
+        });
+
+        Assert.Equal(RigType.IcomIc905, driver.RigType);
+    }
+
+    [Fact]
+    public void Create_settings_ic905_when_not_dual_throws()
+    {
+        Assert.Throws<InvalidOperationException>(() => RigDriverFactory.Create(new RigSettings
+        {
+            Type = RigType.IcomIc905,
+            Port = "COM905"
+        }));
+    }
+
     [Theory]
     [InlineData(RigType.IcomIc706)]
     [InlineData(RigType.IcomIc706Mkii)]

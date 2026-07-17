@@ -133,14 +133,37 @@ public class IcomCivCodecTests
     [InlineData(145_950_000, true)]
     [InlineData(29_450_000, true)]
     [InlineData(435_659_900, true)]
+    [InlineData(1_269_500_000, true)]
+    [InlineData(2_400_000_000, true)]
+    [InlineData(5_760_000_000, true)]
+    [InlineData(10_368_000_000, true)]
     [InlineData(100_000_000, false)]
     [InlineData(300_000_000, false)]
+    [InlineData(2_000_000_000, false)]
     public void IsValidSatelliteFrequencyHz_accepts_amateur_satellite_bands(long hz, bool expected) =>
         Assert.Equal(expected, IcomCivCodec.IsValidSatelliteFrequencyHz(hz));
+
+    [Fact]
+    public void EncodeSetFrequencyHz_10ghz_uses_six_bcd_bytes()
+    {
+        var body = IcomCivCodec.EncodeSetFrequencyHz(10_368_000_000);
+        Assert.Equal(7, body.Length);
+        Assert.Equal(0x05, body[0]);
+        Assert.Equal("05000000680301", Convert.ToHexString(body).ToLowerInvariant());
+    }
 
     private static byte[] BuildReadResponseFromHz(long hz)
     {
         var body = IcomCivCodec.EncodeSetFrequencyHz(hz);
-        return [0xFE, 0xFE, 0x60, 0x00, 0x00, body[1], body[2], body[3], body[4], body[5], 0xFB, 0xFD];
+        var frame = new byte[4 + body.Length + 2];
+        frame[0] = 0xFE;
+        frame[1] = 0xFE;
+        frame[2] = 0x60;
+        frame[3] = 0x00;
+        frame[4] = 0x00;
+        body.AsSpan(1).CopyTo(frame.AsSpan(5));
+        frame[^2] = 0xFB;
+        frame[^1] = 0xFD;
+        return frame;
     }
 }

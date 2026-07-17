@@ -82,6 +82,7 @@ Per-radio subclasses only override what differs, usually **`SetSatelliteMode`**:
 | [`IcomIc9700Driver`](../OscarWatch/Rig/IcomIc9700Driver.cs) | `IcomIc9700` | `16 5A 01` / `00` |
 | [`IcomIc821hDriver`](../OscarWatch/Rig/IcomIc821hDriver.cs) | `IcomIc821h` | `1A 07 01` / `00`; inverted `07 D0`/`D1` in SAT; split no-op |
 | [`IcomIc705Driver`](../OscarWatch/Rig/IcomIc705Driver.cs) | `IcomIc705` | no-op (dual-radio VFO A only) |
+| [`IcomIc905Driver`](../OscarWatch/Rig/IcomIc905Driver.cs) | `IcomIc905` | no-op (dual-radio VFO A only) |
 | [`IcomIc706SeriesDriver`](../OscarWatch/Rig/IcomIc706SeriesDriver.cs) | `IcomIc706`, `IcomIc706Mkii`, `IcomIc706MkiiG` | no-op (dual-radio VFO A only) |
 
 **IC-9700 digital modes:** database `DATA-USB` / `DATA-LSB` send base SSB (`06 01` / `06 00`) then DATA on with FIL1 (`1A 06 01 01`) — USB-D / LSB-D. Command `26` is unavailable in SAT mode; IC-910/9100 keep voice SSB only for `DATA-*` strings.
@@ -164,6 +165,25 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 - OscarWatch uses **8N2** Yaesu CAT. One main VFO per radio — downlink for RX, uplink for TX + CTCSS.
 - **FM:** dial lock on via CAT while tracking. **USB/LSB/CW:** dial unlocked on downlink so you can scan the transponder; uplink doppler continues on the other radio.
 - On a real pass: both legs get doppler; CTCSS on uplink only (region selects tone vs TSQL).
+
+## Reference: ICOM IC-905 (shipped, dual radio only)
+
+| Piece | Path |
+|-------|------|
+| Driver | [`OscarWatch/Rig/IcomIc905Driver.cs`](../OscarWatch/Rig/IcomIc905Driver.cs) |
+
+- **Dual radio only** (`RigSettings.DualRadioEnabled`): IC-905 is not offered in the single-radio driver list. Each endpoint is one physical radio on VFO A (RigController uses `Main`, mapped to VFO A in the driver).
+- No dedicated satellite mode — `SetSatelliteMode` is a no-op; dual pass init sets mode and frequency directly.
+- Default CI-V address **AC**; default baud **115200** (must match radio Set mode).
+- Frequency validation includes VHF/UHF/23 cm plus SHF (13 cm / 6 cm / 3 cm) for IC-905 microwave bands.
+- Mixed pairs (e.g. IC-905 uplink + SDR downlink) need no special controller logic.
+
+### Hardware checklist (IC-905 dual)
+
+- Enable **Settings → Radio → Dual radio**; configure each leg (type, COM, baud, CI-V address for IC-905 legs).
+- Match **CI-V address** and **baud** in the radio Set mode (defaults AC / 115200).
+- One COM port per leg — use the USB CI-V serial port.
+- On a real pass: both legs get doppler; CTCSS on uplink only.
 
 ## Reference: ICOM IC-705 (shipped, dual radio only)
 

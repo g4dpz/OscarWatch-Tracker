@@ -1897,7 +1897,7 @@ Continuar?</value>
     <value>Habilitar controle de rádio</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>Dois rádios (downlink e uplink separados — FT-817/818, FT-991(A), IC-705, série IC-706 ou misto)</value>
+    <value>Dois rádios (downlink e uplink separados — FT-817/818, FT-991(A), IC-705, IC-905, série IC-706 ou misto)</value>
   </data>
   <data name="Settings.Radio.DualIncompleteBoth">
     <value>Selecione portas COM para os rádios de downlink e uplink.</value>
@@ -1995,6 +1995,9 @@ Continuar?</value>
   <data name="Settings.Radio.Ic705CivHint">
     <value>IC-705 padrão de fábrica A4. Deve corresponder ao menu CI-V do rádio.</value>
   </data>
+  <data name="Settings.Radio.Ic905CivHint">
+    <value>IC-905 padrão de fábrica AC. Deve corresponder ao modo Set CI-V do rádio.</value>
+  </data>
   <data name="Settings.Radio.Ic706CivHint">
     <value>IC-706 padrão de fábrica 48H. Deve corresponder ao endereço CI-V (Initial Set Mode).</value>
   </data>
@@ -2012,6 +2015,9 @@ Continuar?</value>
   </data>
   <data name="Settings.Radio.Ic705Hint">
     <value>IC-705: Defina Conectores → CI-V → Porta USB CI-V para Vincular a [CI-V] (não REMOTE). Combine o baud CI-V nas Configurações (padrão 115200). Uma porta COM por perna — use a porta marcada como CI-V quando duas aparecerem.</value>
+  </data>
+  <data name="Settings.Radio.Ic905Hint">
+    <value>IC-905: Apenas dual radio. Combine o endereço CI-V (padrão AC) e o baud (padrão 115200) no modo Set. Use a porta serial USB CI-V. Uma COM por perna — cobre VHF/UHF/SHF incluindo 13 cm, 6 cm e 3 cm.</value>
   </data>
   <data name="Settings.Radio.Ic706Hint">
     <value>IC-706: CI-V via jack REMOTE (ou CT-17). Apenas 2 m (sem 70 cm). Defina endereço e baud no Initial Set Mode (LOCK na ligar) para corresponder às Configurações (padrão 48H / 19200). CI-V TRN On recomendado.</value>

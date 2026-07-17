@@ -10,8 +10,6 @@ Tracked ideas and deferred work. Not a commitment order; items may be split or d
 
 See [building radio drivers](documents/building-radio-drivers.md) for adding rigs.
 
-- [ ] **ICOM IC-905** — CI-V single-radio candidate
-
 **Per new driver:** protocol client, `IRigDriver` + `RigType` + Settings list, pass init (SAT/split/VFO/mode/CTCSS), `RigController` hooks, tests + hardware smoke test.
 
 ## Rotator
@@ -20,8 +18,6 @@ See [building rotator drivers](documents/building-rotator-drivers.md).
 
 - [ ] **SPID LAN/TCP** — MD-01 and similar over Ethernet (TCP port 23); serial SPID (Rot1Prog / Rot2Prog) is implemented
 - [ ] **Slew lead / mechanical lag** — command slightly ahead of look angle
-- [ ] **Stop on park** — GS-232 `S` before park moves (stop on disconnect/exit via driver dispose today)
-- [ ] Optional: minimum move / max slew rate limits
 
 ## Operations & UX
 
@@ -60,6 +56,7 @@ See [building rotator drivers](documents/building-rotator-drivers.md).
 - [x] Dual radio support (Settings → Dual radio; e.g. FT-818 pairs)
 - [x] **Yaesu FT-817 / FT-818** — dual-radio endpoints only (one VFO per radio)
 - [x] **ICOM IC-705** — dual-radio endpoints only (CI-V; mix with FT-817/818)
+- [x] **ICOM IC-905** — dual-radio endpoints only (CI-V; VHF/UHF/SHF; default address `AC`)
 - [x] **Yaesu FT-991 / FT-991A** — dual-radio endpoints only (ASCII CAT; mix with other dual legs)
 - [x] **SDR downlink (rigctl TCP)** — dual-radio downlink via SDR++/SDR Connect rigctl server; bidirectional frequency
 - [x] ICOM IC-9100 driver (CI-V; satellite/Main/Sub/tone path as IC-9700)

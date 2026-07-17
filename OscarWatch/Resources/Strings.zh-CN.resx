@@ -1897,7 +1897,7 @@
     <value>启用电台控制</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>双电台（独立的下行和上行 - FT-817/818、FT-991(A)、IC-705、IC-706 系列或混合）</value>
+    <value>双电台（独立的下行和上行 - FT-817/818、FT-991(A)、IC-705、IC-905、IC-706 系列或混合）</value>
   </data>
   <data name="Settings.Radio.DualIncompleteBoth">
     <value>请为下行和上行电台选择 COM 端口。</value>
@@ -1995,6 +1995,9 @@
   <data name="Settings.Radio.Ic705CivHint">
     <value>IC-705 出厂默认 A4。必须与电台 CI-V 菜单匹配。</value>
   </data>
+  <data name="Settings.Radio.Ic905CivHint">
+    <value>IC-905 出厂默认 AC。必须与电台 CI-V 设置模式匹配。</value>
+  </data>
   <data name="Settings.Radio.Ic706CivHint">
     <value>IC-706 出厂默认 48H。必须与 Initial Set Mode 中的 CI-V 地址匹配。</value>
   </data>
@@ -2012,6 +2015,9 @@
   </data>
   <data name="Settings.Radio.Ic705Hint">
     <value>IC-705：设置 → 连接器 → CI-V → CI-V USB 端口 → 链接到 [CI-V]（非 REMOTE）。在设置中匹配 CI-V 波特率（默认 115200）。每台电台一个 COM 口 — 出现两个端口时，使用标记为 CI-V 的那个。</value>
+  </data>
+  <data name="Settings.Radio.Ic905Hint">
+    <value>IC-905：仅双电台。在设置模式中匹配 CI-V 地址（默认 AC）和波特率（默认 115200）。使用 USB CI-V 串口。每台电台一个 COM — 覆盖 VHF/UHF/SHF（含 13 cm、6 cm、3 cm）。</value>
   </data>
   <data name="Settings.Radio.Ic706Hint">
     <value>IC-706：通过 REMOTE 接口（或 CT-17）进行 CI-V 控制。仅 2m（无 70cm）。在 Initial Set Mode（开机时按 LOCK）中将地址/波特率与设置匹配（默认 48H / 19200）。建议 CI-V TRN 设为 On。</value>
