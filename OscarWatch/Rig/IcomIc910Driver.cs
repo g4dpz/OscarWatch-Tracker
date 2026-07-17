@@ -1,4 +1,5 @@
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Radio;
 
 namespace OscarWatch.Rig;
 
@@ -18,4 +19,7 @@ public sealed class IcomIc910Driver : IcomCivDriverBase
 
     public override void SetSatelliteMode(bool on) =>
         WriteWithRetry(on ? [0x1A, 0x07, 0x01] : [0x1A, 0x07, 0x00]);
+
+    protected override IEnumerable<byte[]> GetSetModeCommands(string mode) =>
+        IcomCivCodec.EncodeIc910SetModeCommand(mode) is { } cmd ? [cmd] : [];
 }

@@ -155,4 +155,28 @@ public sealed class IcomCivDriverTests
 
         Assert.Equal(["0601"], transport.SentCommandBodies);
     }
+
+    [Fact]
+    public void Ic910_SetMode_FMN_sends_fm_with_narrow_filter()
+    {
+        var transport = new RecordingIcomCivTransport();
+        var driver = new IcomIc910Driver(transport);
+        driver.Open();
+        transport.SentCommandBodies.Clear();
+        driver.SetMode("FMN");
+
+        Assert.Equal(["060502"], transport.SentCommandBodies);
+    }
+
+    [Fact]
+    public void Ic910_SetMode_FM_sends_fm_with_wide_filter()
+    {
+        var transport = new RecordingIcomCivTransport();
+        var driver = new IcomIc910Driver(transport);
+        driver.Open();
+        transport.SentCommandBodies.Clear();
+        driver.SetMode("FM");
+
+        Assert.Equal(["060501"], transport.SentCommandBodies);
+    }
 }

@@ -100,6 +100,19 @@ public class IcomCivCodecTests
     }
 
     [Theory]
+    [InlineData("FMN", "060502")]
+    [InlineData("FM", "060501")]
+    [InlineData("DATA-FM", "060501")]
+    [InlineData("USB", "0601")]
+    [InlineData("CW", "0603")]
+    public void EncodeIc910SetModeCommand_maps_fm_filter_width(string mode, string expectedHex)
+    {
+        var body = IcomCivCodec.EncodeIc910SetModeCommand(mode);
+        Assert.NotNull(body);
+        Assert.Equal(expectedHex, Convert.ToHexString(body).ToLowerInvariant());
+    }
+
+    [Theory]
     [InlineData("DATA-USB", new[] { "0601", "1a060101" })]
     [InlineData("DATA-LSB", new[] { "0600", "1a060101" })]
     [InlineData("USB", new[] { "0601", "1a060000" })]

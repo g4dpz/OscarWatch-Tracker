@@ -86,6 +86,8 @@ Per-radio subclasses only override what differs, usually **`SetSatelliteMode`**:
 
 **IC-9700 digital modes:** database `DATA-USB` / `DATA-LSB` send base SSB (`06 01` / `06 00`) then DATA on with FIL1 (`1A 06 01 01`) — USB-D / LSB-D. Command `26` is unavailable in SAT mode; IC-910/9100 keep voice SSB only for `DATA-*` strings.
 
+**IC-910 FM narrow:** database `FMN` sends `06 05 02` (FM + filter 2). Plain `FM` sends `06 05 01`. Generic ICOM mode encoding still maps both to `06 05` (wide); only the IC-910 driver uses the filter byte (Hamlib / SatPC32).
+
 Example new Icom model:
 
 ```csharp

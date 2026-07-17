@@ -90,6 +90,21 @@ public static class IcomCivCodec
         };
 
     /// <summary>
+    /// IC-910 SET mode: FM uses filter width byte (1 = wide, 2 = narrow).
+    /// Hamlib <c>ic910_r2i_mode</c> / SatPC32 undocumented FM-N path — plain <c>06 05</c> leaves wide FM.
+    /// </summary>
+    public static byte[]? EncodeIc910SetModeCommand(string mode)
+    {
+        var normalized = TransponderCatModes.Normalize(mode);
+        return normalized switch
+        {
+            "FMN" => [0x06, 0x05, 0x02],
+            "FM" or "DATA-FM" => [0x06, 0x05, 0x01],
+            _ => EncodeSetModeCommand(normalized)
+        };
+    }
+
+    /// <summary>
     /// IC-9700 SATL mode sequence: base mode (0x06) plus DATA on/off (0x1A/0x06).
     /// Command 0x26 is unavailable in satellite mode; Hamlib uses this fallback path.
     /// </summary>
