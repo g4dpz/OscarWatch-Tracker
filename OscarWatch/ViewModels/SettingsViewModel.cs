@@ -68,6 +68,13 @@ public partial class SettingsViewModel : ViewModelBase
     private bool _showMultiTrackOverlay = true;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsCustomMapCentreLongitudeEnabled))]
+    private MapCentreMode _mapCentreMode = MapCentreMode.Greenwich;
+
+    [ObservableProperty]
+    private double _mapCentreLongitudeDeg;
+
+    [ObservableProperty]
     private bool _use24HourClock;
 
     [ObservableProperty]
@@ -200,8 +207,13 @@ public partial class SettingsViewModel : ViewModelBase
 
     public IReadOnlyList<ThemeOption> ThemeOptions { get; }
 
+    public IReadOnlyList<MapCentreModeOption> MapCentreModeOptions { get; }
+
     [ObservableProperty]
     private ThemeOption? _selectedThemeOption;
+
+    [ObservableProperty]
+    private MapCentreModeOption? _selectedMapCentreModeOption;
 
     public IReadOnlyList<TleAutoUpdateOption> TleAutoUpdateOptions { get; }
 
@@ -617,6 +629,12 @@ public partial class SettingsViewModel : ViewModelBase
             new(AppThemePreference.Light, _l.Get("Settings.Theme.Light")),
             new(AppThemePreference.Dark, _l.Get("Settings.Theme.Dark"))
         ];
+        MapCentreModeOptions =
+        [
+            new(MapCentreMode.Greenwich, _l.Get("Settings.MapCentre.Greenwich")),
+            new(MapCentreMode.Station, _l.Get("Settings.MapCentre.Station")),
+            new(MapCentreMode.Custom, _l.Get("Settings.MapCentre.Custom"))
+        ];
         ClockFormatLabels =
         [
             _l.Get("Settings.ClockFormat.12Hour"),
@@ -793,6 +811,8 @@ public partial class SettingsViewModel : ViewModelBase
         _settings.Current.ShowFootprintMotionArrows = ShowFootprintMotionArrows;
         _settings.Current.ShowGreylineOverlay = ShowGreylineOverlay;
         _settings.Current.ShowMultiTrackOverlay = ShowMultiTrackOverlay;
+        _settings.Current.MapCentreMode = MapCentreMode;
+        _settings.Current.MapCentreLongitudeDeg = MapCentreLongitudeDeg;
         _settings.Current.Use24HourClock = Use24HourClock;
         _settings.Current.DisplayTimesInUtc = DisplayTimesInUtc;
         _settings.Current.TleSource = new TleSourceSettings
@@ -963,6 +983,10 @@ public partial class SettingsViewModel : ViewModelBase
             ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
             ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
             ShowMultiTrackOverlay = _settings.Current.ShowMultiTrackOverlay;
+            MapCentreMode = _settings.Current.MapCentreMode;
+            MapCentreLongitudeDeg = _settings.Current.MapCentreLongitudeDeg;
+            SelectedMapCentreModeOption = MapCentreModeOptions.FirstOrDefault(o => o.Value == MapCentreMode)
+                ?? MapCentreModeOptions[0];
             Use24HourClock = _settings.Current.Use24HourClock;
             DisplayTimesInUtc = _settings.Current.DisplayTimesInUtc;
             var langCode = LocalizationCulture.NormalizeLanguageCode(_settings.Current.UiLanguage);
@@ -1766,6 +1790,9 @@ public partial class SettingsViewModel : ViewModelBase
         {
             _isSynchronizing = false;
         }
+
+        if (MapCentreMode == MapCentreMode.Station)
+            PushMapCentrePreview();
     }
 
     partial void OnSelectedThemeOptionChanged(ThemeOption? value)
@@ -1813,6 +1840,39 @@ public partial class SettingsViewModel : ViewModelBase
 
         if (App.MainWindow?.DataContext is MainViewModel main)
             main.ShowMultiTrackOverlay = value;
+    }
+
+    partial void OnSelectedMapCentreModeOptionChanged(MapCentreModeOption? value)
+    {
+        if (_isSynchronizing || value is null)
+            return;
+
+        MapCentreMode = value.Value;
+    }
+
+    partial void OnMapCentreModeChanged(MapCentreMode value)
+    {
+        var option = MapCentreModeOptions.FirstOrDefault(o => o.Value == value);
+        if (option is not null && !ReferenceEquals(SelectedMapCentreModeOption, option))
+            SelectedMapCentreModeOption = option;
+
+        PushMapCentrePreview();
+    }
+
+    partial void OnMapCentreLongitudeDegChanged(double value)
+    {
+        PushMapCentrePreview();
+    }
+
+    public bool IsCustomMapCentreLongitudeEnabled => MapCentreMode == MapCentreMode.Custom;
+
+    private void PushMapCentrePreview()
+    {
+        if (_isSynchronizing)
+            return;
+
+        if (App.MainWindow?.DataContext is MainViewModel main)
+            main.PreviewMapCentre(MapCentreMode, MapCentreLongitudeDeg, LongitudeDeg);
     }
 
     public int ClockFormatIndex
@@ -1906,10 +1966,15 @@ public partial class SettingsViewModel : ViewModelBase
         {
             _isSynchronizing = false;
         }
+
+        if (MapCentreMode == MapCentreMode.Station)
+            PushMapCentrePreview();
     }
 }
 
 public sealed record ThemeOption(AppThemePreference Value, string Label);
+
+public sealed record MapCentreModeOption(MapCentreMode Value, string Label);
 
 public sealed record TleSourceOption(TleSourceMode Mode, string Label);
 

@@ -528,6 +528,24 @@ Continue?</value>
   <data name="Settings.MultiTrackOverlay.Note">
     <value>Draws a faded ground track for the focused satellite's next orbit behind the current track on the world map.</value>
   </data>
+  <data name="Settings.MapCentre">
+    <value>Map centre longitude</value>
+  </data>
+  <data name="Settings.MapCentre.Note">
+    <value>Greenwich keeps the historical mid-Atlantic view. Station centres on your gridsquare longitude. Custom lets you enter any longitude from −180° to 180°.</value>
+  </data>
+  <data name="Settings.MapCentre.Greenwich">
+    <value>Greenwich (0°)</value>
+  </data>
+  <data name="Settings.MapCentre.Station">
+    <value>Station gridsquare</value>
+  </data>
+  <data name="Settings.MapCentre.Custom">
+    <value>Custom longitude</value>
+  </data>
+  <data name="Settings.MapCentre.CustomLongitude">
+    <value>Custom centre longitude (°)</value>
+  </data>
   <data name="Settings.Language">
     <value>Language</value>
   </data>

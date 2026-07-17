@@ -285,6 +285,16 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private DateTime _mapDisplayUtc = DateTime.UtcNow;
 
+    /// <summary>Effective longitude at mid-map (0 = Greenwich). Bound to the world map control.</summary>
+    [ObservableProperty]
+    private double _mapCentreLongitude;
+
+    [ObservableProperty]
+    private MapCentreMode _mapCentreMode = MapCentreMode.Greenwich;
+
+    [ObservableProperty]
+    private double _mapCentreCustomLongitudeDeg;
+
     [ObservableProperty]
     private bool _isSkyPlotExpanded = true;
 
@@ -559,6 +569,7 @@ public partial class MainViewModel : ViewModelBase
             ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
             ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
             ShowMultiTrackOverlay = _settings.Current.ShowMultiTrackOverlay;
+            ApplyMapCentreFromSettings();
             IsSkyPlotExpanded = _settings.Current.SkyPlotExpanded;
             IsPassesExpanded = _settings.Current.PassesExpanded;
             IsTimelineExpanded = _settings.Current.IsTimelineExpanded;
@@ -2059,6 +2070,7 @@ public partial class MainViewModel : ViewModelBase
         ShowFootprintMotionArrows = _settings.Current.ShowFootprintMotionArrows;
         ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
         ShowMultiTrackOverlay = _settings.Current.ShowMultiTrackOverlay;
+        ApplyMapCentreFromSettings();
         RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
         _liveDisplayTimer?.Start();
         Tick();
@@ -2146,7 +2158,45 @@ public partial class MainViewModel : ViewModelBase
             AltitudeMetersAsl = gs.AltitudeMetersAsl,
             GridSquare = gs.GridSquare
         };
+        RefreshMapCentreLongitude();
     }
+
+    /// <summary>Applies persisted map-centre settings and recomputes the effective mid-map longitude.</summary>
+    public void ApplyMapCentreFromSettings()
+    {
+        MapCentreMode = _settings.Current.MapCentreMode;
+        MapCentreCustomLongitudeDeg = _settings.Current.MapCentreLongitudeDeg;
+        RefreshMapCentreLongitude();
+    }
+
+    /// <summary>Live preview from Settings before save.</summary>
+    public void PreviewMapCentre(MapCentreMode mode, double customLongitudeDeg, double stationLongitudeDeg)
+    {
+        MapCentreMode = mode;
+        MapCentreCustomLongitudeDeg = customLongitudeDeg;
+        MapCentreLongitude = ResolveMapCentreLongitude(mode, customLongitudeDeg, stationLongitudeDeg);
+    }
+
+    private void RefreshMapCentreLongitude()
+    {
+        var stationLon = GroundStation?.LongitudeDeg
+            ?? _settings.Current.GroundStation.LongitudeDeg;
+        MapCentreLongitude = ResolveMapCentreLongitude(
+            MapCentreMode,
+            MapCentreCustomLongitudeDeg,
+            stationLon);
+    }
+
+    internal static double ResolveMapCentreLongitude(
+        MapCentreMode mode,
+        double customLongitudeDeg,
+        double stationLongitudeDeg) =>
+        mode switch
+        {
+            MapCentreMode.Station => stationLongitudeDeg,
+            MapCentreMode.Custom => customLongitudeDeg,
+            _ => 0.0
+        };
 
     [RelayCommand]
     private void CloseApplication()

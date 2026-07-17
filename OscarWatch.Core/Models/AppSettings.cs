@@ -34,6 +34,10 @@ public sealed class AppSettings
     public bool ShowGreylineOverlay { get; set; }
     /// <summary>Show a faded next-orbit ground track for the focused satellite on the world map.</summary>
     public bool ShowMultiTrackOverlay { get; set; } = true;
+    /// <summary>How the world map chooses its centre longitude.</summary>
+    public MapCentreMode MapCentreMode { get; set; } = MapCentreMode.Greenwich;
+    /// <summary>Centre longitude when <see cref="MapCentreMode"/> is <see cref="MapCentreMode.Custom"/> (−180…180).</summary>
+    public double MapCentreLongitudeDeg { get; set; }
     public VoiceAnnouncementSettings VoiceAnnouncements { get; set; } = new();
     public Dictionary<string, SatelliteFrequencySelection> FrequencySelections { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public double FrequencyOverlayX { get; set; } = 12;

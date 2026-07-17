@@ -1,193 +1,111 @@
 using OscarWatch.Core.Models;
 
-
-
 namespace OscarWatch.Core.Geo;
 
-
-
 public static class EquirectangularProjection
-
 {
-
     private const double PoleLatitudeLimit = 89.9;
 
-
-
-    public static (double X, double Y) GeoToPixel(double latDeg, double lonDeg, double width, double height)
-
+    /// <summary>
+    /// Maps geographic coordinates to map pixels. When <paramref name="centerLongitudeDeg"/> is
+    /// non-zero, the viewport is recentred so that longitude sits at mid-width; the wrap seam
+    /// remains at the left/right edges (geographic centre ± 180°).
+    /// Out-of-range longitudes are preserved so footprint/track unwrapping may extend past ±180°.
+    /// </summary>
+    public static (double X, double Y) GeoToPixel(
+        double latDeg,
+        double lonDeg,
+        double width,
+        double height,
+        double centerLongitudeDeg = 0)
     {
-
-        var x = (lonDeg + 180.0) / 360.0 * width;
-
+        var x = (lonDeg - centerLongitudeDeg + 180.0) / 360.0 * width;
         var y = latDeg <= -PoleLatitudeLimit ? height
-
             : latDeg >= PoleLatitudeLimit ? 0.0
-
             : (90.0 - latDeg) / 180.0 * height;
-
         return (x, y);
-
     }
-
-
 
     public static IReadOnlyList<IReadOnlyList<(double X, double Y)>> SplitAtAntimeridian(
-
         IEnumerable<GeoCoordinate> points,
-
         double width,
-
-        double height)
-
+        double height,
+        double centerLongitudeDeg = 0)
     {
-
         var segments = new List<List<(double X, double Y)>>();
-
         List<(double X, double Y)>? current = null;
-
         double? prevLon = null;
 
-
-
         foreach (var p in points)
-
         {
-
-            var (x, y) = GeoToPixel(p.LatitudeDeg, p.LongitudeDeg, width, height);
-
-
+            var (x, y) = GeoToPixel(p.LatitudeDeg, p.LongitudeDeg, width, height, centerLongitudeDeg);
 
             if (prevLon.HasValue && IsAntimeridianStep(prevLon.Value, p.LongitudeDeg))
-
             {
-
                 if (current is { Count: > 0 })
-
                     segments.Add(current);
-
                 current = new List<(double X, double Y)>();
-
             }
-
-
 
             current ??= new List<(double X, double Y)>();
-
             current.Add((x, y));
-
             prevLon = p.LongitudeDeg;
-
         }
-
-
 
         if (current is { Count: > 0 })
-
             segments.Add(current);
 
-
-
         return segments;
-
     }
-
-
 
     public static bool CrossesAntimeridian(IEnumerable<GeoCoordinate> points)
-
     {
-
         double? prevLon = null;
-
         foreach (var p in points)
-
         {
-
             if (prevLon.HasValue && IsAntimeridianStep(prevLon.Value, p.LongitudeDeg))
-
                 return true;
-
             prevLon = p.LongitudeDeg;
-
         }
-
-
 
         return false;
-
     }
 
-
-
     public static IReadOnlyList<IReadOnlyList<(double X, double Y)>> SplitForMapDraw(
-
         IEnumerable<GeoCoordinate> points,
-
         double width,
-
-        double height)
-
+        double height,
+        double centerLongitudeDeg = 0)
     {
-
         var maxDx = width / 2.0;
-
         var maxDy = height / 3.0;
-
         var chains = new List<List<(double X, double Y)>>();
 
-
-
-        foreach (var segment in SplitAtAntimeridian(points, width, height))
-
+        foreach (var segment in SplitAtAntimeridian(points, width, height, centerLongitudeDeg))
         {
-
             List<(double X, double Y)>? chain = null;
-
             (double X, double Y)? prev = null;
 
-
-
             foreach (var p in segment)
-
             {
-
                 if (prev is { } last &&
-
                     (Math.Abs(p.X - last.X) > maxDx || Math.Abs(p.Y - last.Y) > maxDy))
-
                 {
-
                     if (chain is { Count: >= 2 })
-
                         chains.Add(chain);
-
                     chain = null;
-
                 }
 
-
-
                 chain ??= new List<(double X, double Y)>();
-
                 chain.Add(p);
-
                 prev = p;
-
             }
 
-
-
             if (chain is { Count: >= 2 })
-
                 chains.Add(chain);
-
         }
 
-
-
         return chains;
-
     }
 
     /// <summary>
@@ -197,7 +115,8 @@ public static class EquirectangularProjection
     public static IReadOnlyList<IReadOnlyList<(double X, double Y)>> ProjectGroundTrackForDraw(
         IReadOnlyList<GeoCoordinate> points,
         double width,
-        double height)
+        double height,
+        double centerLongitudeDeg = 0)
     {
         if (points.Count < 2)
             return [];
@@ -227,7 +146,7 @@ public static class EquirectangularProjection
             else
                 unwrappedLon = p.LongitudeDeg;
 
-            var pixel = GeoToPixel(p.LatitudeDeg, unwrappedLon, width, height);
+            var pixel = GeoToPixel(p.LatitudeDeg, unwrappedLon, width, height, centerLongitudeDeg);
             if (prevPoint is not null && current is { Count: > 0 })
             {
                 var last = current[^1];
@@ -255,71 +174,52 @@ public static class EquirectangularProjection
     }
 
     public static IReadOnlyList<GeoCoordinate> UnwrapNearLongitude(
-
         IEnumerable<GeoCoordinate> points,
-
         double centerLongitudeDeg)
-
     {
-
         var list = new List<GeoCoordinate>();
-
         foreach (var p in points)
-
         {
-
             list.Add(new GeoCoordinate(
-
                 p.LatitudeDeg,
-
                 NormalizeLongitudeNear(p.LongitudeDeg, centerLongitudeDeg),
-
                 p.AltitudeKm));
-
         }
-
-
 
         return list;
-
     }
 
-
-
     public static double NormalizeLongitudeNear(double longitudeDeg, double centerLongitudeDeg)
-
     {
-
         var lon = longitudeDeg;
-
         var delta = lon - centerLongitudeDeg;
-
         while (delta > 180)
-
         {
-
             lon -= 360;
-
             delta = lon - centerLongitudeDeg;
-
         }
-
-
 
         while (delta < -180)
-
         {
-
             lon += 360;
-
             delta = lon - centerLongitudeDeg;
-
         }
 
-
-
         return lon;
+    }
 
+    /// <summary>
+    /// Horizontal pixel shift for scrolling an equirectangular basemap so
+    /// <paramref name="centerLongitudeDeg"/> appears at mid-width.
+    /// </summary>
+    public static double BasemapScrollOffsetPx(double centerLongitudeDeg, double width)
+    {
+        if (width <= 0)
+            return 0;
+
+        var frac = centerLongitudeDeg / 360.0;
+        frac -= Math.Floor(frac);
+        return frac * width;
     }
 
     private static bool IsAntimeridianStep(double fromLongitudeDeg, double toLongitudeDeg)
@@ -339,7 +239,4 @@ public static class EquirectangularProjection
             delta += 360;
         return delta;
     }
-
 }
-
-

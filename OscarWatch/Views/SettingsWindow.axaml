@@ -226,6 +226,28 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="{loc:Localize Key=Settings.MultiTrackOverlay.Note}" />
+            <TextBlock Text="{loc:Localize Key=Settings.MapCentre}" Margin="0,8,0,0" />
+            <ComboBox ItemsSource="{Binding MapCentreModeOptions}"
+                      SelectedItem="{Binding SelectedMapCentreModeOption, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:MapCentreModeOption">
+                  <TextBlock Text="{Binding Label}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="{loc:Localize Key=Settings.MapCentre.Note}" />
+            <TextBlock Text="{loc:Localize Key=Settings.MapCentre.CustomLongitude}"
+                       Margin="0,8,0,0"
+                       IsVisible="{Binding IsCustomMapCentreLongitudeEnabled}" />
+            <NumericUpDown Value="{Binding MapCentreLongitudeDeg, Mode=TwoWay}"
+                           Minimum="-180" Maximum="180"
+                           Increment="1" FormatString="F2"
+                           IsEnabled="{Binding IsCustomMapCentreLongitudeEnabled}"
+                           IsVisible="{Binding IsCustomMapCentreLongitudeEnabled}" />
             <CheckBox Content="{loc:Localize Key=Settings.AppUpdate.Enabled}"
                       IsChecked="{Binding AppUpdateCheckEnabled, Mode=TwoWay}"
                       Margin="0,8,0,0" />

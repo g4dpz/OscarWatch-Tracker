@@ -55,7 +55,8 @@ public static class FootprintGeometry
         IReadOnlyList<GeoCoordinate> ring,
         double footprintRadiusDeg,
         double mapWidth,
-        double mapHeight)
+        double mapHeight,
+        double centerLongitudeDeg = 0)
     {
         if (ring.Count < 3 || mapWidth <= 0 || mapHeight <= 0)
             return [];
@@ -63,27 +64,29 @@ public static class FootprintGeometry
         if (footprintRadiusDeg > 0)
         {
             if (ContainsNorthPole(subpoint, footprintRadiusDeg))
-                return ProjectPolarCap(ring, mapWidth, mapHeight, southCap: false);
+                return ProjectPolarCap(ring, mapWidth, mapHeight, southCap: false, centerLongitudeDeg);
 
             if (ContainsSouthPole(subpoint, footprintRadiusDeg))
-                return ProjectPolarCap(ring, mapWidth, mapHeight, southCap: true);
+                return ProjectPolarCap(ring, mapWidth, mapHeight, southCap: true, centerLongitudeDeg);
         }
 
-        return ProjectGeographicRing(subpoint, ring, mapWidth, mapHeight);
+        return ProjectGeographicRing(subpoint, ring, mapWidth, mapHeight, centerLongitudeDeg);
     }
 
     private static List<(double X, double Y)> ProjectGeographicRing(
         GeoCoordinate subpoint,
         IReadOnlyList<GeoCoordinate> ring,
         double mapWidth,
-        double mapHeight)
+        double mapHeight,
+        double centerLongitudeDeg)
     {
         var points = new List<(double X, double Y)>(ring.Count);
         foreach (var p in ring)
         {
             var lon = EquirectangularProjection.NormalizeLongitudeNear(
                 p.LongitudeDeg, subpoint.LongitudeDeg);
-            points.Add(EquirectangularProjection.GeoToPixel(p.LatitudeDeg, lon, mapWidth, mapHeight));
+            points.Add(EquirectangularProjection.GeoToPixel(
+                p.LatitudeDeg, lon, mapWidth, mapHeight, centerLongitudeDeg));
         }
 
         return points;
@@ -91,24 +94,24 @@ public static class FootprintGeometry
 
     /// <summary>
     /// Polar-cap polygon. When the horizon ring encloses a pole, walking the ring in bearing
-    /// order sweeps every longitude exactly once, so each longitude in [-180°, +180°] maps to
-    /// a single boundary latitude. We sort the projected ring points by x (==longitude order)
-    /// to get a monotone left-to-right boundary, then close the polygon along the map's pole
-    /// rim. The two ring endpoints (at lon ≈ ±180°) are the same physical point, so the polygon
-    /// closes cleanly across the antimeridian.
+    /// order sweeps every longitude exactly once. Longitudes are wrapped relative to the map
+    /// centre so the viewport seam (centre ± 180°) maps to the left/right edges; sorting by x
+    /// then closing along the pole rim stays valid for any centre.
     /// </summary>
     private static List<(double X, double Y)> ProjectPolarCap(
         IReadOnlyList<GeoCoordinate> ring,
         double mapWidth,
         double mapHeight,
-        bool southCap)
+        bool southCap,
+        double centerLongitudeDeg)
     {
         var boundary = new List<(double X, double Y)>(ring.Count);
         foreach (var p in ring)
         {
-            var lon = WrapLongitudeToCanonical(p.LongitudeDeg);
-            var x = (lon + 180.0) / 360.0 * mapWidth;
-            var y = LatitudeToY(p.LatitudeDeg, mapHeight);
+            var lon = EquirectangularProjection.NormalizeLongitudeNear(
+                p.LongitudeDeg, centerLongitudeDeg);
+            var (x, y) = EquirectangularProjection.GeoToPixel(
+                p.LatitudeDeg, lon, mapWidth, mapHeight, centerLongitudeDeg);
             boundary.Add((x, y));
         }
 
@@ -131,21 +134,5 @@ public static class FootprintGeometry
         polygon.Add((mapWidth, rimY));
 
         return polygon;
-    }
-
-    private static double LatitudeToY(double latDeg, double height)
-    {
-        var clamped = Math.Clamp(latDeg, -90.0, 90.0);
-        return (90.0 - clamped) / 180.0 * height;
-    }
-
-    private static double WrapLongitudeToCanonical(double lonDeg)
-    {
-        var lon = lonDeg % 360.0;
-        if (lon > 180.0)
-            lon -= 360.0;
-        else if (lon < -180.0)
-            lon += 360.0;
-        return lon;
     }
 }

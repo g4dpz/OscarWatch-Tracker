@@ -191,6 +191,7 @@
                                 ShowFootprintMotionArrows="{Binding ShowFootprintMotionArrows}"
                                 ShowGreylineOverlay="{Binding ShowGreylineOverlay}"
                                 ShowMultiTrackOverlay="{Binding ShowMultiTrackOverlay}"
+                                MapCentreLongitude="{Binding MapCentreLongitude}"
                                 MapDisplayUtc="{Binding MapDisplayUtc}" />
         </Grid>
         <ctrl:FrequencyOverlayControl DataContext="{Binding Frequencies}"

@@ -89,6 +89,7 @@ internal static class PlotMarkerDrawing
         double centerY,
         double mapWidth,
         double mapHeight,
+        double mapCentreLongitudeDeg,
         Color color,
         bool isFocused,
         RenderResourceCache cache)
@@ -104,12 +105,14 @@ internal static class PlotMarkerDrawing
             subpoint.LatitudeDeg,
             subpoint.LongitudeDeg,
             mapWidth,
-            mapHeight);
+            mapHeight,
+            mapCentreLongitudeDeg);
         var (endX, endY) = EquirectangularProjection.GeoToPixel(
             endLat,
             endLon,
             mapWidth,
-            mapHeight);
+            mapHeight,
+            mapCentreLongitudeDeg);
         endX += centerX - rawX;
 
         var dx = endX - centerX;

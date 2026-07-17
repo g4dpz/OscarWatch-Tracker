@@ -50,6 +50,9 @@ public class WorldMapControl : ThemeAwareControl
             nameof(MapDisplayUtc),
             defaultValue: DateTime.UtcNow);
 
+    public static readonly StyledProperty<double> MapCentreLongitudeProperty =
+        AvaloniaProperty.Register<WorldMapControl, double>(nameof(MapCentreLongitude));
+
     private Bitmap? _mapBitmap;
     private INotifyCollectionChanged? _trackStatesSource;
     private Size _lastLayoutInvalidationSize;
@@ -82,7 +85,8 @@ public class WorldMapControl : ThemeAwareControl
             SoloFocusedSatelliteProperty,
             ShowGreylineOverlayProperty,
             ShowMultiTrackOverlayProperty,
-            MapDisplayUtcProperty);
+            MapDisplayUtcProperty,
+            MapCentreLongitudeProperty);
     }
 
     public bool ShowFootprintMotionArrows
@@ -141,6 +145,13 @@ public class WorldMapControl : ThemeAwareControl
         set => SetValue(MapDisplayUtcProperty, value);
     }
 
+    /// <summary>Longitude at mid-map (0 = Greenwich). Seam stays at the viewport edges.</summary>
+    public double MapCentreLongitude
+    {
+        get => GetValue(MapCentreLongitudeProperty);
+        set => SetValue(MapCentreLongitudeProperty, value);
+    }
+
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
@@ -164,6 +175,12 @@ public class WorldMapControl : ThemeAwareControl
         base.OnPropertyChanged(change);
         if (change.Property == TrackStatesProperty)
             BindTrackStatesSource(change.NewValue);
+
+        if (change.Property == MapCentreLongitudeProperty)
+        {
+            _footprintGeometryCache.Clear();
+            _groundTrackSplitCache.Clear();
+        }
 
         if (change.Property == TrackStatesProperty || change.Property == FocusedNoradIdProperty)
             TrackingPlotAccessibility.UpdateName(
@@ -279,12 +296,12 @@ public class WorldMapControl : ThemeAwareControl
     private void RenderMapContent(DrawingContext context, double w, double h)
     {
         var palette = UiPaletteResolver.Current;
+        var centreLon = MapCentreLongitude;
         EnsureMapLoaded();
 
         if (_mapBitmap is not null)
         {
-            var src = new Rect(0, 0, _mapBitmap.PixelSize.Width, _mapBitmap.PixelSize.Height);
-            context.DrawImage(_mapBitmap, src, new Rect(0, 0, w, h));
+            DrawBasemap(context, _mapBitmap, w, h, centreLon);
         }
         else
         {
@@ -301,17 +318,19 @@ public class WorldMapControl : ThemeAwareControl
 
         // Layer order: base map → greyline → tracks/footprints/markers → labels (footprints must stay above greyline).
         if (ShowGreylineOverlay)
-            DrawGreylineOverlay(context, MapDisplayUtc, w, h, palette);
+            DrawGreylineOverlay(context, MapDisplayUtc, w, h, palette, centreLon);
 
         if (GroundStation is { } gs)
         {
-            var (gx, gy) = EquirectangularProjection.GeoToPixel(gs.LatitudeDeg, gs.LongitudeDeg, w, h);
+            var (gx, gy) = EquirectangularProjection.GeoToPixel(
+                gs.LatitudeDeg, gs.LongitudeDeg, w, h, centreLon);
             DrawGroundStationDot(context, gx, gy, palette);
         }
 
         if (RemoteStation is { } remote)
         {
-            var (rx, ry) = EquirectangularProjection.GeoToPixel(remote.LatitudeDeg, remote.LongitudeDeg, w, h);
+            var (rx, ry) = EquirectangularProjection.GeoToPixel(
+                remote.LatitudeDeg, remote.LongitudeDeg, w, h, centreLon);
             foreach (var xOffset in GetSubpointWrapOffsets(rx, w))
                 PlotMarkerDrawing.DrawRemoteStationMarker(context, rx + xOffset, ry, _renderCache);
         }
@@ -384,6 +403,7 @@ public class WorldMapControl : ThemeAwareControl
                     state.NextOrbitGroundTrack,
                     w,
                     h,
+                    centreLon,
                     palette.MapNextOrbitGroundTrackStroke,
                     1);
             }
@@ -407,13 +427,14 @@ public class WorldMapControl : ThemeAwareControl
                     state.GroundTrack,
                     w,
                     h,
+                    centreLon,
                     palette.MapGroundTrackStroke,
                     2,
                     palette.MapGroundTrackOutline);
             }
 
             var (sx, sy) = EquirectangularProjection.GeoToPixel(
-                state.Subpoint.LatitudeDeg, state.Subpoint.LongitudeDeg, w, h);
+                state.Subpoint.LatitudeDeg, state.Subpoint.LongitudeDeg, w, h, centreLon);
 
             if (state.Footprint.Count >= 3)
             {
@@ -427,6 +448,7 @@ public class WorldMapControl : ThemeAwareControl
                     state.FootprintRadiusDeg,
                     w,
                     h,
+                    centreLon,
                     fill,
                     stroke,
                     2);
@@ -448,6 +470,7 @@ public class WorldMapControl : ThemeAwareControl
                             sy,
                             w,
                             h,
+                            centreLon,
                             color,
                             isFocused,
                             _renderCache);
@@ -474,7 +497,7 @@ public class WorldMapControl : ThemeAwareControl
             var state = states[i];
             var isFocused = string.Equals(state.NoradId, FocusedNoradId, StringComparison.Ordinal);
             var (sx, sy) = EquirectangularProjection.GeoToPixel(
-                state.Subpoint.LatitudeDeg, state.Subpoint.LongitudeDeg, w, h);
+                state.Subpoint.LatitudeDeg, state.Subpoint.LongitudeDeg, w, h, centreLon);
 
             foreach (var xOffset in GetSubpointWrapOffsets(sx, w))
             {
@@ -497,6 +520,7 @@ public class WorldMapControl : ThemeAwareControl
         if (states is null)
             return null;
 
+        var centreLon = MapCentreLongitude;
         string? bestId = null;
         var bestDist = double.MaxValue;
 
@@ -506,7 +530,7 @@ public class WorldMapControl : ThemeAwareControl
                 continue;
 
             var (sx, sy) = EquirectangularProjection.GeoToPixel(
-                state.Subpoint.LatitudeDeg, state.Subpoint.LongitudeDeg, w, h);
+                state.Subpoint.LatitudeDeg, state.Subpoint.LongitudeDeg, w, h, centreLon);
 
             foreach (var xOffset in GetSubpointWrapOffsets(sx, w))
             {
@@ -543,17 +567,60 @@ public class WorldMapControl : ThemeAwareControl
         }
     }
 
+    /// <summary>
+    /// Draws the equirectangular basemap, optionally scrolled so
+    /// <paramref name="centerLongitudeDeg"/> sits at mid-width.
+    /// Uses a source-split (not two full overlapping copies) so the wrap join
+    /// does not leave a hairline vertical seam.
+    /// </summary>
+    private static void DrawBasemap(
+        DrawingContext context,
+        Bitmap mapBitmap,
+        double w,
+        double h,
+        double centerLongitudeDeg)
+    {
+        var srcW = (double)mapBitmap.PixelSize.Width;
+        var srcH = (double)mapBitmap.PixelSize.Height;
+        var fullSrc = new Rect(0, 0, srcW, srcH);
+        var offset = EquirectangularProjection.BasemapScrollOffsetPx(centerLongitudeDeg, w);
+
+        if (offset <= 0.5 || offset >= w - 0.5)
+        {
+            context.DrawImage(mapBitmap, fullSrc, new Rect(0, 0, w, h));
+            return;
+        }
+
+        // Snap the join to whole destination pixels; left + right widths must equal w.
+        var rightDestW = Math.Clamp(Math.Round(offset), 1, w - 1);
+        var leftDestW = w - rightDestW;
+        var splitSrcX = rightDestW / w * srcW;
+
+        // Left of viewport: source from centre seam → right edge of image
+        context.DrawImage(
+            mapBitmap,
+            new Rect(splitSrcX, 0, srcW - splitSrcX, srcH),
+            new Rect(0, 0, leftDestW, h));
+        // Right of viewport: source from left edge → centre seam
+        context.DrawImage(
+            mapBitmap,
+            new Rect(0, 0, splitSrcX, srcH),
+            new Rect(leftDestW, 0, rightDestW, h));
+    }
+
     private static (double MinX, double MaxX) GetPixelXRange(
         IReadOnlyList<GeoCoordinate> points,
         double w,
-        double h)
+        double h,
+        double centerLongitudeDeg)
     {
         var minX = double.MaxValue;
         var maxX = double.MinValue;
 
         foreach (var p in points)
         {
-            var (x, _) = EquirectangularProjection.GeoToPixel(p.LatitudeDeg, p.LongitudeDeg, w, h);
+            var (x, _) = EquirectangularProjection.GeoToPixel(
+                p.LatitudeDeg, p.LongitudeDeg, w, h, centerLongitudeDeg);
             minX = Math.Min(minX, x);
             maxX = Math.Max(maxX, x);
         }
@@ -568,14 +635,15 @@ public class WorldMapControl : ThemeAwareControl
     private static IEnumerable<double> GetHorizontalWrapOffsets(
         IReadOnlyList<GeoCoordinate> points,
         double w,
-        double h)
+        double h,
+        double centerLongitudeDeg)
     {
         yield return 0;
 
         if (!EquirectangularProjection.CrossesAntimeridian(points))
             yield break;
 
-        var (minX, maxX) = GetPixelXRange(points, w, h);
+        var (minX, maxX) = GetPixelXRange(points, w, h, centerLongitudeDeg);
         if (minX < WrapEdgeMarginPx)
             yield return w;
         if (maxX > w - WrapEdgeMarginPx)
@@ -592,7 +660,8 @@ public class WorldMapControl : ThemeAwareControl
         IReadOnlyList<(double X, double Y)> pixels,
         double footprintRadiusDeg,
         double w,
-        double h)
+        double h,
+        double centerLongitudeDeg)
     {
         var minX = double.MaxValue;
         var maxX = double.MinValue;
@@ -615,7 +684,7 @@ public class WorldMapControl : ThemeAwareControl
         var offsets = new HashSet<double> { 0 };
 
         var (sx, _) = EquirectangularProjection.GeoToPixel(
-            subpoint.LatitudeDeg, subpoint.LongitudeDeg, w, h);
+            subpoint.LatitudeDeg, subpoint.LongitudeDeg, w, h, centerLongitudeDeg);
         foreach (var offset in GetSubpointWrapOffsets(sx, w))
             offsets.Add(offset);
 
@@ -661,6 +730,7 @@ public class WorldMapControl : ThemeAwareControl
         double footprintRadiusDeg,
         double w,
         double h,
+        double centerLongitudeDeg,
         Color fillColor,
         Color strokeColor,
         double strokeWidth)
@@ -682,7 +752,8 @@ public class WorldMapControl : ThemeAwareControl
         if (_footprintGeometryCache.TryGetValue(noradId, out var entry)
             && ReferenceEquals(entry.SourceFootprint, footprint)
             && entry.Width == w
-            && entry.Height == h)
+            && entry.Height == h
+            && entry.CenterLongitudeDeg == centerLongitudeDeg)
         {
             // Cache hit: reuse cached geometries
             for (var i = 0; i < entry.CachedGeometries.Count; i++)
@@ -696,7 +767,7 @@ public class WorldMapControl : ThemeAwareControl
 
         // Cache miss: compute pixels and build geometry
         var pixels = FootprintGeometry.ProjectRingToMap(
-            subpoint, footprint, radiusDeg, w, h);
+            subpoint, footprint, radiusDeg, w, h, centerLongitudeDeg);
         if (pixels.Count < 3)
             return;
 
@@ -704,11 +775,13 @@ public class WorldMapControl : ThemeAwareControl
         {
             SourceFootprint = footprint,
             Width = w,
-            Height = h
+            Height = h,
+            CenterLongitudeDeg = centerLongitudeDeg
         };
         newEntry.CachedGeometries.Clear();
 
-        foreach (var xOffset in GetFootprintWrapOffsets(subpoint, footprint, pixels, radiusDeg, w, h))
+        foreach (var xOffset in GetFootprintWrapOffsets(
+                     subpoint, footprint, pixels, radiusDeg, w, h, centerLongitudeDeg))
         {
             var geometry = BuildFootprintGeometry(pixels, xOffset);
             newEntry.CachedGeometries.Add((geometry, xOffset));
@@ -745,7 +818,8 @@ public class WorldMapControl : ThemeAwareControl
         DateTime mapUtc,
         double w,
         double h,
-        UiPalette palette)
+        UiPalette palette,
+        double centerLongitudeDeg)
     {
         if (w <= 0 || h <= 0)
             return;
@@ -754,7 +828,7 @@ public class WorldMapControl : ThemeAwareControl
             DateTime.SpecifyKind(mapUtc, DateTimeKind.Utc));
 
         var fillBrush = _renderCache.GetBrush(palette.GreylineNightFill);
-        DrawNightFillScanlines(context, geometry, w, h, fillBrush);
+        DrawNightFillScanlines(context, geometry, w, h, fillBrush, centerLongitudeDeg);
 
         if (geometry.DrawTerminatorLine && geometry.Terminator.Count >= 2)
         {
@@ -763,6 +837,7 @@ public class WorldMapControl : ThemeAwareControl
                 geometry.Terminator,
                 w,
                 h,
+                centerLongitudeDeg,
                 palette.GreylineTerminatorStroke,
                 1.0);
         }
@@ -777,7 +852,8 @@ public class WorldMapControl : ThemeAwareControl
         DayNightGeometry geometry,
         double w,
         double h,
-        IBrush fillBrush)
+        IBrush fillBrush,
+        double centerLongitudeDeg)
     {
         if (geometry.FullNightHalf)
         {
@@ -804,7 +880,10 @@ public class WorldMapControl : ThemeAwareControl
         {
             var lon = -180.0 + i * (360.0 / (columnCount - 1));
             var termLat = InterpolateTerminatorLatitude(geometry.Terminator, lon);
-            var (x, yTerm) = EquirectangularProjection.GeoToPixel(termLat, lon, w, h);
+            var (x, yTerm) = EquirectangularProjection.GeoToPixel(
+                termLat, lon, w, h, centerLongitudeDeg);
+            // Keep columns in the viewport when the map is recentred.
+            x = ((x % w) + w) % w;
 
             if (geometry.NightTowardSouth)
                 DrawNightColumnSouth(context, fillBrush, x, yTerm, h, w, stripWidth, twilightFadePx, twilightBrushes);
@@ -956,6 +1035,7 @@ public class WorldMapControl : ThemeAwareControl
         IReadOnlyList<GeoCoordinate> points,
         double w,
         double h,
+        double centerLongitudeDeg,
         Color color,
         double thickness,
         bool close = false)
@@ -965,8 +1045,8 @@ public class WorldMapControl : ThemeAwareControl
 
         var pen = _renderCache.GetPen(color, thickness);
 
-        foreach (var xOffset in GetHorizontalWrapOffsets(points, w, h))
-            DrawPolylineOffset(context, points, w, h, xOffset, pen, close);
+        foreach (var xOffset in GetHorizontalWrapOffsets(points, w, h, centerLongitudeDeg))
+            DrawPolylineOffset(context, points, w, h, centerLongitudeDeg, xOffset, pen, close);
     }
 
     private static void DrawPolylineOffset(
@@ -974,6 +1054,7 @@ public class WorldMapControl : ThemeAwareControl
         IReadOnlyList<GeoCoordinate> points,
         double w,
         double h,
+        double centerLongitudeDeg,
         double xOffset,
         Pen pen,
         bool close)
@@ -981,7 +1062,8 @@ public class WorldMapControl : ThemeAwareControl
         var maxDx = w / 2.0;
         var maxDy = h / 3.0;
 
-        foreach (var chain in EquirectangularProjection.SplitForMapDraw(points, w, h))
+        foreach (var chain in EquirectangularProjection.SplitForMapDraw(
+                     points, w, h, centerLongitudeDeg))
         {
             if (chain.Count < 2)
                 continue;
@@ -1017,6 +1099,7 @@ public class WorldMapControl : ThemeAwareControl
         IReadOnlyList<GeoCoordinate> track,
         double w,
         double h,
+        double centerLongitudeDeg,
         Color color,
         double thickness,
         Color? outlineColor = null)
@@ -1024,7 +1107,7 @@ public class WorldMapControl : ThemeAwareControl
         if (track.Count < 2)
             return;
 
-        var splitResult = GetOrComputeGroundTrackSplit(noradId, track, w, h);
+        var splitResult = GetOrComputeGroundTrackSplit(noradId, track, w, h, centerLongitudeDeg);
         var strokePen = _renderCache.GetPen(color, thickness);
         var outlinePen = outlineColor is { } outline
             ? _renderCache.GetPen(outline, thickness + 2)
@@ -1146,23 +1229,27 @@ public class WorldMapControl : ThemeAwareControl
         string noradId,
         IReadOnlyList<GeoCoordinate> track,
         double w,
-        double h)
+        double h,
+        double centerLongitudeDeg)
     {
         if (_groundTrackSplitCache.TryGetValue(noradId, out var entry)
             && ReferenceEquals(entry.SourceTrack, track)
             && entry.Width == w
-            && entry.Height == h)
+            && entry.Height == h
+            && entry.CenterLongitudeDeg == centerLongitudeDeg)
         {
             return entry.SplitResult;
         }
 
-        var splitResult = EquirectangularProjection.ProjectGroundTrackForDraw(track, w, h);
+        var splitResult = EquirectangularProjection.ProjectGroundTrackForDraw(
+            track, w, h, centerLongitudeDeg);
 
         _groundTrackSplitCache[noradId] = new GroundTrackSplitEntry
         {
             SourceTrack = track,
             Width = w,
             Height = h,
+            CenterLongitudeDeg = centerLongitudeDeg,
             SplitResult = splitResult
         };
 
@@ -1196,6 +1283,7 @@ public class WorldMapControl : ThemeAwareControl
         public IReadOnlyList<GeoCoordinate> SourceFootprint = [];
         public double Width;
         public double Height;
+        public double CenterLongitudeDeg;
         public List<(StreamGeometry Geometry, double XOffset)> CachedGeometries = new();
     }
 
@@ -1204,6 +1292,7 @@ public class WorldMapControl : ThemeAwareControl
         public IReadOnlyList<GeoCoordinate> SourceTrack = [];
         public double Width;
         public double Height;
+        public double CenterLongitudeDeg;
         public IReadOnlyList<IReadOnlyList<(double X, double Y)>> SplitResult = [];
     }
 }
