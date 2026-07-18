@@ -4,13 +4,13 @@ using OscarWatch.Core.Models;
 namespace OscarWatch.Controls;
 
 /// <summary>
-/// Caches FormattedText layout objects keyed by (name, fontSize) to eliminate
+/// Caches FormattedText layout objects keyed by (name, fontSize, foreground) to eliminate
 /// per-frame glyph shaping and measurement on the 4 Hz render path.
 /// Also caches the shared Typeface and foreground/background brushes for labels.
 /// </summary>
 internal sealed class FormattedTextCache
 {
-    private readonly Dictionary<(string Name, double FontSize), FormattedText> _cache = new();
+    private readonly Dictionary<(string Name, double FontSize, Color Foreground), FormattedText> _cache = new();
     private SolidColorBrush? _labelBrush;
     private SolidColorBrush? _backgroundBrush;
     private Typeface? _typeface;
@@ -25,8 +25,19 @@ internal sealed class FormattedTextCache
     /// </summary>
     public FormattedText Get(string name, double fontSize, UiPalette palette)
     {
-        var brush = GetLabelBrush(palette);
-        var key = (name, fontSize);
+        // Keep GetLabelBrush side-effect: when MapLabelForeground changes, Clear() drops stale entries.
+        GetLabelBrush(palette);
+        return Get(name, fontSize, palette.MapLabelForeground);
+    }
+
+    /// <summary>
+    /// Returns a cached FormattedText for the given name, font size, and explicit foreground colour.
+    /// Creates the text on first request; returns the cached instance on subsequent calls with the same key.
+    /// Foreground is part of the key so a colour change (e.g. theme switch) cannot return a stale brush.
+    /// </summary>
+    public FormattedText Get(string name, double fontSize, Color foreground)
+    {
+        var key = (name, fontSize, foreground);
         if (!_cache.TryGetValue(key, out var text))
         {
             text = new FormattedText(
@@ -35,7 +46,7 @@ internal sealed class FormattedTextCache
                 FlowDirection.LeftToRight,
                 GetTypeface(),
                 fontSize,
-                brush)
+                new SolidColorBrush(foreground))
             {
                 MaxTextWidth = 120
             };
@@ -99,7 +110,7 @@ internal sealed class FormattedTextCache
         if (_cache.Count == 0)
             return;
 
-        var keysToRemove = new List<(string Name, double FontSize)>();
+        var keysToRemove = new List<(string Name, double FontSize, Color Foreground)>();
 
         foreach (var key in _cache.Keys)
         {
