@@ -505,19 +505,19 @@
     <value>Mostrar flechas de dirección en la huella del satélite</value>
   </data>
   <data name="Settings.FootprintArrows.Note">
-    <value>Dibuja una pequeña flecha dentro de la huella de cada satélite en el mapa mundial indicando la dirección de la trayectoria sobre la Tierra.</value>
+    <value>Flecha en cada huella indicando la dirección de la trayectoria.</value>
   </data>
   <data name="Settings.GreylineOverlay">
     <value>Mostrar la línea gris día/noche en el mapa</value>
   </data>
   <data name="Settings.GreylineOverlay.Note">
-    <value>Sombrea el lado nocturno de la Tierra y dibuja el terminador. Las huellas de los satélites permanecen visibles por encima. Sigue el tiempo del mapa al desplazarse.</value>
+    <value>Sombreado nocturno y terminador; sigue el tiempo del mapa al desplazarse.</value>
   </data>
   <data name="Settings.MultiTrackOverlay">
     <value>Mostrar trayectoria terrestre de la siguiente órbita</value>
   </data>
   <data name="Settings.MultiTrackOverlay.Note">
-    <value>Dibuja una trayectoria terrestre atenuada de la siguiente órbita del satélite seleccionado detrás de la trayectoria actual en el mapa mundial.</value>
+    <value>Trayectoria atenuada de la siguiente órbita detrás del satélite seleccionado.</value>
   </data>
   <data name="Settings.Language">
     <value>Idioma</value>
@@ -551,6 +551,18 @@
   </data>
   <data name="Settings.Language.RestartPrompt.Later">
     <value>Más tarde</value>
+  </data>
+  <data name="Settings.Appearance.Section.LocaleTime">
+    <value>Idioma y hora</value>
+  </data>
+  <data name="Settings.Appearance.Section.Map">
+    <value>Mapa</value>
+  </data>
+  <data name="Settings.Appearance.Section.Theme">
+    <value>Tema</value>
+  </data>
+  <data name="Settings.Appearance.Section.Updates">
+    <value>Actualizaciones</value>
   </data>
   <data name="Settings.Tab.Appearance">
     <value>Apariencia</value>
@@ -598,13 +610,13 @@
     <value>Horas mostradas en</value>
   </data>
   <data name="Settings.TimeDisplay.Note">
-    <value>Se aplica al reloj de estado, lista de pases de la barra lateral, expediciones de hams.at y predicción de iluminación solar. El planificador de pases y los pases mutuos tienen su propio control local/UTC. El seguimiento de satélites usa siempre UTC internamente.</value>
+    <value>Hora local o UTC en la ventana principal. El planificador y los pases mutuos tienen su propio control.</value>
   </data>
   <data name="Settings.Theme">
     <value>Tema</value>
   </data>
   <data name="Settings.Theme.Note">
-    <value>El sistema sigue la configuración clara u oscura del sistema operativo. El mapa mundial permanece en modo claro en todas las modalidades.</value>
+    <value>El sistema sigue el SO. El mapa mundial permanece claro en todas las modalidades.</value>
   </data>
   <data name="Settings.Title">
     <value>Configuración</value>
@@ -1882,7 +1894,7 @@
     <value>Buscar actualizaciones de la aplicación al iniciar y diariamente</value>
   </data>
   <data name="Settings.AppUpdate.EnabledNote">
-    <value>Compara la versión instalada con la última versión publicada en GitHub. También puede comprobarse manualmente desde el menú Ayuda.</value>
+    <value>Compara con la última versión en GitHub. También desde Ayuda.</value>
   </data>
   <data name="Settings.Theme.System">
     <value>Sistema</value>

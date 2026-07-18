@@ -514,25 +514,25 @@ Continue?</value>
     <value>Show footprint motion arrows</value>
   </data>
   <data name="Settings.FootprintArrows.Note">
-    <value>Draws a small arrow inside each satellite footprint on the world map showing ground-track direction.</value>
+    <value>Arrow inside each footprint showing ground-track direction.</value>
   </data>
   <data name="Settings.GreylineOverlay">
     <value>Show day/night greyline on map</value>
   </data>
   <data name="Settings.GreylineOverlay.Note">
-    <value>Shades the night side of Earth and draws the terminator. Satellite footprints stay on top. Follows map time when you scrub.</value>
+    <value>Night shading and terminator; follows map time when you scrub.</value>
   </data>
   <data name="Settings.MultiTrackOverlay">
     <value>Show next-orbit ground track</value>
   </data>
   <data name="Settings.MultiTrackOverlay.Note">
-    <value>Draws a faded ground track for the focused satellite's next orbit behind the current track on the world map.</value>
+    <value>Faded next-orbit track behind the focused satellite's current path.</value>
   </data>
   <data name="Settings.MapCentre">
     <value>Map centre longitude</value>
   </data>
   <data name="Settings.MapCentre.Note">
-    <value>Greenwich keeps the historical mid-Atlantic view. Station centres on your gridsquare longitude. Custom lets you enter any longitude from −180° to 180°.</value>
+    <value>Greenwich (0°), station gridsquare, or a custom longitude.</value>
   </data>
   <data name="Settings.MapCentre.Greenwich">
     <value>Greenwich (0°)</value>
@@ -578,6 +578,18 @@ Continue?</value>
   </data>
   <data name="Settings.Language.RestartPrompt.Later">
     <value>Later</value>
+  </data>
+  <data name="Settings.Appearance.Section.LocaleTime">
+    <value>Locale &amp; time</value>
+  </data>
+  <data name="Settings.Appearance.Section.Map">
+    <value>Map</value>
+  </data>
+  <data name="Settings.Appearance.Section.Theme">
+    <value>Theme</value>
+  </data>
+  <data name="Settings.Appearance.Section.Updates">
+    <value>Updates</value>
   </data>
   <data name="Settings.Tab.Appearance">
     <value>Appearance</value>
@@ -625,13 +637,13 @@ Continue?</value>
     <value>Times shown in</value>
   </data>
   <data name="Settings.TimeDisplay.Note">
-    <value>Applies to the status clock, sidebar pass list, pass elevation timeline, hams.at roves, and sunlight prediction. Pass planner and mutual pass have their own local/UTC control. Satellite tracking always uses UTC internally.</value>
+    <value>Local or UTC for the main window. Pass planner and mutual pass have their own control.</value>
   </data>
   <data name="Settings.Theme">
     <value>Theme</value>
   </data>
   <data name="Settings.Theme.Note">
-    <value>System follows your OS light/dark setting. The world map image stays light in all modes for now.</value>
+    <value>System follows your OS. The world map image stays light in all modes for now.</value>
   </data>
   <data name="Settings.Title">
     <value>Settings</value>
@@ -1951,7 +1963,7 @@ Continue?</value>
     <value>Check for application updates on startup and daily while running</value>
   </data>
   <data name="Settings.AppUpdate.EnabledNote">
-    <value>Compares your version with the latest release on GitHub. You can also check manually from Help.</value>
+    <value>Compares with the latest GitHub release. You can also check from Help.</value>
   </data>
   <data name="Settings.Theme.System">
     <value>System</value>

@@ -67,13 +67,24 @@
       </ul>
 
       <h2>Appearance</h2>
-      <p>Light, dark, or follow Windows theme. The sky plot follows the theme; the world map image stays light for readability.</p>
-      <p><strong>Language</strong> — <strong>English (UK)</strong> is the default UI language (British English spelling and <code>en-GB</code> date/time formatting). Japanese, Portuguese (Brazil), and Simplified Chinese are also available. Restart is not required; the choice applies when you press <strong>Save</strong>.</p>
+      <p>Settings are grouped into <strong>Locale &amp; time</strong>, <strong>Map</strong>, <strong>Theme</strong>, and <strong>Updates</strong>.</p>
+
+      <h3>Locale &amp; time</h3>
+      <p><strong>Language</strong> — <strong>English (UK)</strong> is the default UI language (British English spelling and <code>en-GB</code> date/time formatting). Japanese, Portuguese (Brazil), Simplified Chinese, and Spanish are also available. A language change requires restarting OscarWatch.</p>
       <p><strong>Clock format</strong> — 12-hour (AM/PM) or 24-hour for times in the app.</p>
-      <p><strong>Times shown in</strong> — <strong>local time</strong> (your PC time zone) or <strong>UTC</strong> for the main window (status clock, sidebar passes, hams.at, sunlight prediction). <strong>Pass planner</strong> and <strong>mutual pass</strong> have a separate local/UTC control so you can check UTC there without changing this setting.</p>
+      <p><strong>Times shown in</strong> — <strong>local time</strong> (your PC time zone) or <strong>UTC</strong> for the main window: status clock, sidebar pass list, pass elevation timeline, hams.at roves, and sunlight prediction. <strong>Pass planner</strong> and <strong>mutual pass</strong> have their own local/UTC control so you can check UTC there without changing this setting. Satellite tracking always uses UTC internally.</p>
+
+      <h3>Map</h3>
       <p><strong>Show footprint motion arrows</strong> — optional arrows inside satellite footprints on the world map indicating ground-track direction (on by default).</p>
+      <p><strong>Show day/night greyline on map</strong> — shades the night side of Earth and draws the terminator; footprints stay on top. Follows map time when you scrub.</p>
       <p><strong>Show next-orbit ground track</strong> — faded line for the focused satellite's next orbit behind the current track on the world map (on by default).</p>
-      <p><strong>Map centre longitude</strong> — Greenwich (default), your station gridsquare, or a custom longitude. Footprints and tracks wrap at the map edges in all modes.</p>
+      <p><strong>Map centre longitude</strong> — Greenwich (default mid-Atlantic view), your station gridsquare, or a custom longitude (−180° to 180°). Footprints and tracks wrap at the map edges in all modes.</p>
+
+      <h3>Theme</h3>
+      <p>Light, dark, or follow the OS setting. The sky plot follows the theme; the world map image stays light for readability.</p>
+
+      <h3>Updates</h3>
+      <p><strong>Check for application updates</strong> — compares your version with the latest release on GitHub on startup and daily while running. You can also check manually from <strong>Help</strong>.</p>
 
       <h2>Voice</h2>
       <p>Optional spoken alert when a satellite rises above a set elevation (e.g. “Alpha Oscar Zero Seven is rising”). Choose a voice and test it. On Linux, install <code>espeak-ng</code> (recommended) or legacy <code>espeak</code>; <code>speech-dispatcher</code> with <code>spd-say</code> is also supported if eSpeak is not installed.</p>

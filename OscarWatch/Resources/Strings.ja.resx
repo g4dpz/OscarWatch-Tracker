@@ -391,19 +391,19 @@
     <value>フットプリントの移動矢印を表示</value>
   </data>
   <data name="Settings.FootprintArrows.Note">
-    <value>世界地図の各衛星フットプリント内に、地上軌道の進行方向を示す小さな矢印を描画します。</value>
+    <value>各フットプリント内に地上軌道方向の矢印を表示します。</value>
   </data>
   <data name="Settings.GreylineOverlay">
     <value>地図に昼夜のグレーラインを表示</value>
   </data>
   <data name="Settings.GreylineOverlay.Note">
-    <value>地球の夜側をシェードし、ターミネーター線を描画します。衛星フットプリントはその上に表示され、マップ時間のスクラブに追従します。</value>
+    <value>夜側のシェードとターミネーター。マップ時間のスクラブに追従します。</value>
   </data>
   <data name="Settings.MultiTrackOverlay">
     <value>次の軌道の地上軌道を表示</value>
   </data>
   <data name="Settings.MultiTrackOverlay.Note">
-    <value>世界地図で、選択中の衛星の次の軌道の地上軌道を、現在の軌道の後ろに薄く表示します。</value>
+    <value>選択中の衛星の次の軌道を、現在の軌道の後ろに薄く表示します。</value>
   </data>
   <data name="Settings.Language">
     <value>言語</value>
@@ -438,6 +438,18 @@
   <data name="Settings.Language.RestartPrompt.Later">
     <value>後で</value>
   </data>
+  <data name="Settings.Appearance.Section.LocaleTime">
+    <value>言語と時刻</value>
+  </data>
+  <data name="Settings.Appearance.Section.Map">
+    <value>地図</value>
+  </data>
+  <data name="Settings.Appearance.Section.Theme">
+    <value>テーマ</value>
+  </data>
+  <data name="Settings.Appearance.Section.Updates">
+    <value>更新</value>
+  </data>
   <data name="Settings.Tab.Appearance">
     <value>外観</value>
   </data>
@@ -457,13 +469,13 @@
     <value>時刻の表示</value>
   </data>
   <data name="Settings.TimeDisplay.Note">
-    <value>ステータス時計、サイドバーのパス一覧、hams.atローブ、日照予測に適用されます。パスプランナーと相互パスは別の現地/UTC切り替えがあります。衛星追跡の計算は常にUTCです。</value>
+    <value>メインウィンドウの現地時刻またはUTC。パスプランナーと相互パスは別の切り替えがあります。</value>
   </data>
   <data name="Settings.Theme">
     <value>テーマ</value>
   </data>
   <data name="Settings.Theme.Note">
-    <value>システムはOSのライト/ダーク設定に従います。世界地図画像は現時点ですべてのモードでライトのままです。</value>
+    <value>システムはOSに従います。世界地図画像は現時点ですべてのモードでライトのままです。</value>
   </data>
   <data name="Status.LoadingSettings">
     <value>起動中…</value>
@@ -994,7 +1006,7 @@
     <value>起動時および稼働中は1日1回、アプリの更新を確認する</value>
   </data>
   <data name="Settings.AppUpdate.EnabledNote">
-    <value>GitHub の最新リリースとバージョンを比較します。ヘルプから手動確認もできます。</value>
+    <value>GitHub の最新リリースと比較します。ヘルプから手動確認もできます。</value>
   </data>
   <data name="Settings.Theme.System">
     <value>システム</value>

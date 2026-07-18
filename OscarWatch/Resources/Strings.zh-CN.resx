@@ -481,19 +481,19 @@
     <value>显示足迹方向箭头</value>
   </data>
   <data name="Settings.FootprintArrows.Note">
-    <value>在世界地图上的每个卫星足迹内绘制一个小箭头，显示地面轨道方向。</value>
+    <value>在每个足迹内显示地面轨道方向箭头。</value>
   </data>
   <data name="Settings.GreylineOverlay">
     <value>在地图上显示晨昏线</value>
   </data>
   <data name="Settings.GreylineOverlay.Note">
-    <value>夜区着色并绘制晨昏线。卫星轨迹显示在其上方，并随时间而更新。</value>
+    <value>夜区着色与晨昏线；随地图时间拖动而更新。</value>
   </data>
   <data name="Settings.MultiTrackOverlay">
     <value>显示下一轨地面轨迹</value>
   </data>
   <data name="Settings.MultiTrackOverlay.Note">
-    <value>在世界地图上，以淡化线条显示当前选中卫星下一轨的地面轨迹，绘制在当前轨迹之后。</value>
+    <value>在当前轨迹后以淡线显示选中卫星的下一轨地面轨迹。</value>
   </data>
   <data name="Settings.Language">
     <value>语言</value>
@@ -527,6 +527,18 @@
   </data>
   <data name="Settings.Language.RestartPrompt.Later">
     <value>稍后</value>
+  </data>
+  <data name="Settings.Appearance.Section.LocaleTime">
+    <value>语言与时间</value>
+  </data>
+  <data name="Settings.Appearance.Section.Map">
+    <value>地图</value>
+  </data>
+  <data name="Settings.Appearance.Section.Theme">
+    <value>主题</value>
+  </data>
+  <data name="Settings.Appearance.Section.Updates">
+    <value>更新</value>
   </data>
   <data name="Settings.Tab.Appearance">
     <value>外观</value>
@@ -574,13 +586,13 @@
     <value>时间显示</value>
   </data>
   <data name="Settings.TimeDisplay.Note">
-    <value>适用于状态栏时钟、侧边栏过境列表、hams.at 漫游和日照预测。过境计划器和相互过境有单独的本地/UTC 切换。卫星跟踪计算始终使用 UTC。</value>
+    <value>主窗口使用本地时间或 UTC。过境计划器和相互过境有单独切换。</value>
   </data>
   <data name="Settings.Theme">
     <value>颜色主题</value>
   </data>
   <data name="Settings.Theme.Note">
-    <value>系统遵循您的操作系统 深色/浅色 设置。目前，世界地图在所有模式下都保持浅色状态。</value>
+    <value>系统跟随操作系统。目前世界地图在所有模式下保持浅色。</value>
   </data>
   <data name="Settings.Title">
     <value>设置</value>
@@ -1858,7 +1870,7 @@
     <value>启动时以及运行期间每天检查应用程序更新</value>
   </data>
   <data name="Settings.AppUpdate.EnabledNote">
-    <value>将您的版本与 GitHub 上的最新发行版进行比较。也可从“帮助”菜单手动检查。</value>
+    <value>与 GitHub 最新发行版比较。也可从“帮助”手动检查。</value>
   </data>
   <data name="Settings.Theme.System">
     <value>系统</value>
