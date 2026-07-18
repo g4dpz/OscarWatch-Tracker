@@ -14,10 +14,20 @@ public enum RotatorElevationRange
 
 public sealed class RotatorSettings
 {
+    public const string DefaultNetworkHost = "127.0.0.1";
+    public const int DefaultNetworkPort = 1111;
+
     public bool Enabled { get; set; }
     public RotatorType Type { get; set; } = RotatorType.YaesuGs232;
     public string Port { get; set; } = "";
     public int BaudRate { get; set; } = 4800;
+
+    /// <summary>TCP host for network rotators (e.g. OZ9AAR URC). Ignored for serial protocols.</summary>
+    public string NetworkHost { get; set; } = DefaultNetworkHost;
+
+    /// <summary>TCP port for network rotators. URC default is 1111.</summary>
+    public int NetworkPort { get; set; } = DefaultNetworkPort;
+
     public RotatorAzimuthRange AzimuthRange { get; set; } = RotatorAzimuthRange.Deg450;
     public RotatorElevationRange ElevationRange { get; set; } = RotatorElevationRange.Deg180;
     /// <summary>Start slewing when satellite elevation reaches this value while approaching.</summary>
@@ -81,4 +91,13 @@ public sealed class RotatorSettings
 
     public double MaxAzimuthDeg => (double)AzimuthRange;
     public double MaxElevationDeg => (double)ElevationRange;
+
+    /// <summary>True when this protocol uses TCP host/port instead of a serial COM port.</summary>
+    public bool UsesNetworkEndpoint => Type == RotatorType.UrcTcp;
+
+    /// <summary>True when the configured connection endpoint is present (serial port or host+port).</summary>
+    public bool HasConfiguredEndpoint =>
+        UsesNetworkEndpoint
+            ? !string.IsNullOrWhiteSpace(NetworkHost) && NetworkPort is > 0 and <= 65535
+            : !string.IsNullOrWhiteSpace(Port);
 }

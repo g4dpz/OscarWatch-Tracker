@@ -1231,7 +1231,19 @@
     <value>ローテータータイプ</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232はYaesuおよび互換機。SPIDはSPモード（Rot1Prog / Rot2Prog）。EasyCommはECモード — SPID、M2などのテキストプロトコルコントローラ。</value>
+    <value>GS-232はYaesuおよび互換機。SPIDはSPモード（Rot1Prog / Rot2Prog）。EasyCommはECモード — SPID、M2などのテキストプロトコルコントローラ。OZ9AAR URC (TCP) は Ultimate Rotator Controller（Ethernet、既定ポート1111、URCをREM/リモートモードに設定）。</value>
+  </data>
+  <data name="Settings.Rotator.NetworkHost">
+    <value>URCホスト</value>
+  </data>
+  <data name="Settings.Rotator.NetworkHostWatermark">
+    <value>127.0.0.1 またはホスト名</value>
+  </data>
+  <data name="Settings.Rotator.NetworkPort">
+    <value>URC TCPポート</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNote">
+    <value>OscarWatchはTCPクライアントとして接続します。URCでソケットサーバーを有効にし、リモート（REM）追跡モードを選ぶとGOTOでアンテナが動きます。既定ポートは1111です。</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuth">
     <value>スマート450°方位（北経由の最短経路）</value>

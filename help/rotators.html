@@ -46,8 +46,9 @@
     <main>
       <p class="lead">
         OscarWatch can point your antenna during a pass. Configure the rotator under
-        <strong>Settings → Rotator</strong> — use a serial port different from the radio. On Linux, prefer a stable
-        <code>by-id</code> or udev path — <a href="linux-serial.html">Linux serial ports</a>.
+        <strong>Settings → Rotator</strong>. Serial controllers need a COM port different from the radio
+        (on Linux prefer a stable <code>by-id</code> path — <a href="linux-serial.html">Linux serial ports</a>).
+        Network controllers (OZ9AAR URC) use a TCP host and port instead.
       </p>
 
       <h2>Supported controllers</h2>
@@ -60,12 +61,14 @@
           <tr><td>SPID</td><td>SPID Rot1Prog / Rot2Prog / rot2proG in <strong>SP</strong> mode (600 baud default; 1200 for Rot1Prog)</td></tr>
           <tr><td>EasyComm II</td><td>Controllers in <strong>EC</strong> mode — SPID, M2, and similar (try <strong>9600</strong> baud; some hardware uses <strong>1200</strong>)</td></tr>
           <tr><td>SAEBRTrack</td><td>Classic satellite tracker interfaces (BASIC Stamp, PSR-100, and similar) — <strong>9600</strong> baud default</td></tr>
+          <tr><td>OZ9AAR URC (TCP)</td><td>Ultimate Rotator Controller over Ethernet — default TCP port <strong>1111</strong>; set URC to <strong>REM</strong> (remote) mode so GOTO moves the antennas</td></tr>
         </tbody>
       </table>
 
       <h2>Main settings</h2>
       <ul>
-        <li><strong>Serial port</strong> and rotator type. On Linux, see <a href="linux-serial.html">Linux serial ports</a> for stable paths after reboot.</li>
+        <li><strong>Serial port</strong> and rotator type (serial protocols). On Linux, see <a href="linux-serial.html">Linux serial ports</a> for stable paths after reboot.</li>
+        <li><strong>OZ9AAR URC (TCP):</strong> enter the URC host (IP or hostname) and TCP port (default <strong>1111</strong>). On the controller, enable the socket server and select <strong>REM</strong> / remote tracking mode. OscarWatch sends JSON <code>POLL</code> and <code>GOTO</code> requests; there is no separate stop command — Stop re-issues GOTO at the current position.</li>
         <li><strong>EasyComm II:</strong> set the controller to <strong>EC</strong> (or EasyComm) mode. Default baud is <strong>9600</strong> when you pick this type in Settings; use <strong>1200</strong> if your controller manual specifies it (some SPID emulation modes).</li>
         <li><strong>SAEBRTrack:</strong> select this type for PSR-100, Arduino SAEBRTrack sketches, and similar fire-and-forget rotors. Default baud is <strong>9600</strong>. Commands are compact whole-degree <code>AZnnnELnnn</code>. There is <strong>no position feedback</strong> — OscarWatch does not send <code>AZ</code>/<code>EL</code> queries (those would be misread as move-to-zero on many controllers). The sidebar shows the last commanded az/el instead.</li>
         <li><strong>SPID native mode:</strong> set the controller to <strong>SP</strong> protocol and <strong>Auto (A)</strong> on the front panel before connecting.</li>

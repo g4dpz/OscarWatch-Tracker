@@ -30,6 +30,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private IRotatorDriver? _rotator;
     private string? _connectedPort;
     private int _connectedBaudRate;
+    private string? _connectedNetworkHost;
+    private int _connectedNetworkPort;
     private RotatorType _connectedType;
     private string? _lastTargetNoradId;
     private double? _lastAzimuth;
@@ -304,7 +306,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(settings.Port))
+        if (!settings.HasConfiguredEndpoint)
         {
             TearDownRotator();
             ResetTrackingState();
@@ -392,7 +394,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
     private void ParkOnWorker(RotatorSettings settings)
     {
-        if (!settings.Enabled || string.IsNullOrWhiteSpace(settings.Port))
+        if (!settings.Enabled || !settings.HasConfiguredEndpoint)
             return;
 
         if (!EnsureConnected(settings))
@@ -422,7 +424,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         if (!_standbyActive)
             return;
 
-        if (!settings.Enabled || string.IsNullOrWhiteSpace(settings.Port))
+        if (!settings.Enabled || !settings.HasConfiguredEndpoint)
             return;
 
         if (!EnsureConnected(settings))
@@ -456,7 +458,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
     private void StopOnWorker(RotatorSettings settings)
     {
-        if (!settings.Enabled || string.IsNullOrWhiteSpace(settings.Port))
+        if (!settings.Enabled || !settings.HasConfiguredEndpoint)
             return;
 
         if (!EnsureConnected(settings))
@@ -500,7 +502,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _manualParkActive = false;
         _standbyManualActive = false;
 
-        if (!settings.Enabled || string.IsNullOrWhiteSpace(settings.Port))
+        if (!settings.Enabled || !settings.HasConfiguredEndpoint)
             return;
 
         if (!EnsureConnected(settings))
@@ -518,6 +520,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _rotator = null;
         _connectedPort = null;
         _connectedBaudRate = 0;
+        _connectedNetworkHost = null;
+        _connectedNetworkPort = 0;
         _connectedType = default;
     }
 
@@ -708,31 +712,50 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private bool EnsureConnected(RotatorSettings settings)
     {
         if (_rotator is not null
-            && _connectedPort == settings.Port
-            && _connectedBaudRate == settings.BaudRate
-            && _connectedType == settings.Type)
+            && _connectedType == settings.Type
+            && ConnectionIdentityMatches(settings))
             return true;
 
         TearDownRotator();
 
+        var endpoint = FormatEndpoint(settings);
         try
         {
             _rotator = _driverFactory?.Invoke(settings) ?? RotatorDriverFactory.Create(settings);
             _rotator.Open();
             _connectedPort = settings.Port;
             _connectedBaudRate = settings.BaudRate;
+            _connectedNetworkHost = settings.NetworkHost;
+            _connectedNetworkPort = settings.NetworkPort;
             _connectedType = settings.Type;
             return true;
         }
         catch (Exception ex)
         {
-            Log.Warning(ex, "Rotator connect failed on {Port}", settings.Port);
+            Log.Warning(ex, "Rotator connect failed on {Endpoint}", endpoint);
             _connectionKind = RotatorConnectionKind.ConnectFailed;
             _connectionDetail = ex.Message;
             TearDownRotator();
             return false;
         }
     }
+
+    private bool ConnectionIdentityMatches(RotatorSettings settings)
+    {
+        if (settings.UsesNetworkEndpoint)
+        {
+            return string.Equals(_connectedNetworkHost, settings.NetworkHost, StringComparison.OrdinalIgnoreCase)
+                && _connectedNetworkPort == settings.NetworkPort;
+        }
+
+        return _connectedPort == settings.Port
+            && _connectedBaudRate == settings.BaudRate;
+    }
+
+    private static string FormatEndpoint(RotatorSettings settings) =>
+        settings.UsesNetworkEndpoint
+            ? $"{settings.NetworkHost.Trim()}:{settings.NetworkPort}"
+            : settings.Port;
 
     private void TryTrack(
         RotatorSettings settings,

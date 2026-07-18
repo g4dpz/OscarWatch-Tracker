@@ -5,5 +5,7 @@ public enum RotatorType
     YaesuGs232,
     EasyComm,
     Spid,
-    Saebrt
+    Saebrt,
+    /// <summary>OZ9AAR Ultimate Rotator Controller over TCP/JSON (POLL / GOTO).</summary>
+    UrcTcp
 }

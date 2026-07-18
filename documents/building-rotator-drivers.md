@@ -1,6 +1,6 @@
 # Building rotator drivers
 
-OscarWatch talks to antenna rotators over a **serial port** (COM on Windows). Each protocol is a small class that implements `IRotatorDriver`. A factory picks the class from user settings.
+OscarWatch talks to antenna rotators over a **serial port** (COM on Windows) or, for some protocols, **TCP**. Each protocol is a small class that implements `IRotatorDriver`. A factory picks the class from user settings.
 
 ## Architecture
 
@@ -18,8 +18,8 @@ flowchart LR
 ```
 
 - **`RotatorController`** ([`OscarWatch/Rotator/RotatorController.cs`](../OscarWatch/Rotator/RotatorController.cs)) — connects, tracks the focused satellite, parks, polls position. Uses [`RotatorAzimuthPlanner`](../OscarWatch.Core/Rotator/RotatorAzimuthPlanner.cs) for smart 450° paths before calling the driver.
-- **`IRotatorDriver`** — your implementation (open port, move, query, dispose).
-- **`RotatorSettings`** ([`OscarWatch.Core/Models/RotatorSettings.cs`](../OscarWatch.Core/Models/RotatorSettings.cs)) — port, baud rate, type, azimuth/elevation limits, park position.
+- **`IRotatorDriver`** — your implementation (open port or TCP, move, query, dispose).
+- **`RotatorSettings`** ([`OscarWatch.Core/Models/RotatorSettings.cs`](../OscarWatch.Core/Models/RotatorSettings.cs)) — port/baud or network host/port, type, azimuth/elevation limits, park position. Use `HasConfiguredEndpoint` / `UsesNetworkEndpoint` when checking whether a connection can be opened.
 
 The controller calls **`SetPosition(commandAz, el, settings)`** with azimuth already planned (0–450 when smart mode is on). The driver only **clamps** to `settings.MaxAzimuthDeg` / `MaxElevationDeg` and formats the wire protocol.
 
@@ -37,11 +37,11 @@ public interface IRotatorDriver : IDisposable
 
 | Method | Expectations |
 |--------|----------------|
-| `Open` | Open the serial port configured in the constructor. Throw or log on failure; controller will tear down and retry later. |
+| `Open` | Open the serial port or TCP connection configured in the constructor. Throw or log on failure; controller will tear down and retry later. |
 | `SetPosition` | Send a move command. Use `RotatorSettings` limits for clamping. Called ~1 Hz when tracking; skip heavy work if the controller already dedupes (≥1° change). |
-| `Stop` | Optional protocol stop (GS-232 `S`). No-op is fine if the protocol has no stop. |
+| `Stop` | Optional protocol stop (GS-232 `S`). No-op or GOTO-current is fine if the protocol has no stop. |
 | `GetPosition` | Poll hardware az/el for the sidebar. Return `(null, null)` on timeout or parse failure. |
-| `Dispose` | Close the port; call `Stop` if appropriate. |
+| `Dispose` | Close the port/socket; call `Stop` if appropriate. |
 
 Reference implementations:
 
@@ -51,10 +51,11 @@ Reference implementations:
 | EasyComm II | `AZ120.5 EL45.0` (LF-terminated) | [`EasyCommRotator.cs`](../OscarWatch/Rotator/EasyCommRotator.cs) |
 | SAEBRTrack | `AZ120EL045` compact whole degrees (LF-terminated); fire-and-forget — `GetPosition` returns nulls (no wire queries) | [`SaebrtRotator.cs`](../OscarWatch/Rotator/SaebrtRotator.cs) |
 | SPID Rot1Prog / Rot2Prog | 13-byte binary packets (stop/status/set) | [`SpidRotator.cs`](../OscarWatch/Rotator/SpidRotator.cs) |
+| OZ9AAR URC (TCP) | JSON `{"POLL"}` / `{"GOTO":[az,el]}` over TCP (default port 1111) | [`UrcTcpRotator.cs`](../OscarWatch/Rotator/UrcTcpRotator.cs) |
 
 ## Serial I/O patterns
 
-Existing drivers use **`System.IO.Ports.SerialPort`** with:
+Existing serial drivers use **`System.IO.Ports.SerialPort`** with:
 
 - 8N1, no handshake (unless your hardware needs RTS/CTS)
 - Line terminator `\r`
@@ -63,6 +64,8 @@ Existing drivers use **`System.IO.Ports.SerialPort`** with:
 - `DiscardInBuffer()` before queries to avoid stale data
 
 GS-232 position parsing is in [`Gs232PositionParser`](../OscarWatch/Rotator/Gs232PositionParser.cs) (unit tests in `Gs232PositionParserTests.cs`). Supports GS-232B (`AZ=`/`EL=`) and GS-232A (`+0nnn`, `+0aaa+0eee`) reply formats on the same driver.
+
+Network drivers (URC) use **`TcpClient`** with `NoDelay`, connect timeouts, and brace-matched JSON framing — see [`UrcTcpClient.cs`](../OscarWatch/Rotator/UrcTcpClient.cs) and [`UrcJsonCodec.cs`](../OscarWatch/Rotator/UrcJsonCodec.cs).
 
 ## Step-by-step: add a new rotator type
 

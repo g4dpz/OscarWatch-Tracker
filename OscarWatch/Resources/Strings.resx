@@ -2185,7 +2185,19 @@ Continue?</value>
     <value>Rotator type</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232 for Yaesu and clones. SPID for controllers in SP mode (Rot1Prog / Rot2Prog). EasyComm for EC mode — SPID, M2, and other text-protocol controllers. SAEBRTrack for classic satellite tracker interfaces (9600 baud).</value>
+    <value>GS-232 for Yaesu and clones. SPID for controllers in SP mode (Rot1Prog / Rot2Prog). EasyComm for EC mode — SPID, M2, and other text-protocol controllers. SAEBRTrack for classic satellite tracker interfaces (9600 baud). OZ9AAR URC (TCP) for the Ultimate Rotator Controller over Ethernet (default port 1111; set URC to REM/remote mode).</value>
+  </data>
+  <data name="Settings.Rotator.NetworkHost">
+    <value>URC host</value>
+  </data>
+  <data name="Settings.Rotator.NetworkHostWatermark">
+    <value>127.0.0.1 or hostname</value>
+  </data>
+  <data name="Settings.Rotator.NetworkPort">
+    <value>URC TCP port</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNote">
+    <value>OscarWatch connects as a TCP client. On the URC, enable the socket server and select remote (REM) tracking mode so GOTO commands move the antennas. Default port is 1111.</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuth">
     <value>Smart 450° azimuth (shortest path over north)</value>

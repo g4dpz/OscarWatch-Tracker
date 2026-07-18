@@ -173,6 +173,12 @@ public partial class SettingsViewModel : ViewModelBase
     private int _rotatorBaudRate = 4800;
 
     [ObservableProperty]
+    private string _rotatorNetworkHost = RotatorSettings.DefaultNetworkHost;
+
+    [ObservableProperty]
+    private int _rotatorNetworkPort = RotatorSettings.DefaultNetworkPort;
+
+    [ObservableProperty]
     private double _rotatorTrackStartElevationDeg = -3;
 
     [ObservableProperty]
@@ -244,6 +250,12 @@ public partial class SettingsViewModel : ViewModelBase
 
     public bool IsRotatorKeyholeSettingsVisible =>
         SelectedElevationRangeChoice?.Value == RotatorElevationRange.Deg180;
+
+    public bool ShowRotatorSerialFields =>
+        SelectedRotatorTypeChoice?.Value != RotatorType.UrcTcp;
+
+    public bool ShowRotatorNetworkFields =>
+        SelectedRotatorTypeChoice?.Value == RotatorType.UrcTcp;
 
     [ObservableProperty]
     private bool _rotatorKeyholeAvoidanceEnabled;
@@ -650,7 +662,8 @@ public partial class SettingsViewModel : ViewModelBase
             new(RotatorType.YaesuGs232, "Yaesu GS-232"),
             new(RotatorType.Spid, "SPID (Rot1Prog / Rot2Prog)"),
             new(RotatorType.EasyComm, "EasyComm"),
-            new(RotatorType.Saebrt, "SAEBRTrack")
+            new(RotatorType.Saebrt, "SAEBRTrack"),
+            new(RotatorType.UrcTcp, "OZ9AAR URC (TCP)")
         ];
         AzimuthRangeChoices =
         [
@@ -848,6 +861,12 @@ public partial class SettingsViewModel : ViewModelBase
             Type = SelectedRotatorTypeChoice?.Value ?? RotatorType.YaesuGs232,
             Port = SelectedComPort ?? "",
             BaudRate = RotatorBaudRate,
+            NetworkHost = string.IsNullOrWhiteSpace(RotatorNetworkHost)
+                ? RotatorSettings.DefaultNetworkHost
+                : RotatorNetworkHost.Trim(),
+            NetworkPort = RotatorNetworkPort is > 0 and <= 65535
+                ? RotatorNetworkPort
+                : RotatorSettings.DefaultNetworkPort,
             AzimuthRange = SelectedAzimuthRangeChoice?.Value ?? RotatorAzimuthRange.Deg450,
             ElevationRange = SelectedElevationRangeChoice?.Value ?? RotatorElevationRange.Deg180,
             TrackStartElevationDeg = Math.Clamp(RotatorTrackStartElevationDeg, -90, 90),
@@ -1031,6 +1050,12 @@ public partial class SettingsViewModel : ViewModelBase
                 ?? RotatorTypeChoices[0];
             SelectedComPort = string.IsNullOrWhiteSpace(rotator.Port) ? null : rotator.Port;
             RotatorBaudRate = rotator.BaudRate;
+            RotatorNetworkHost = string.IsNullOrWhiteSpace(rotator.NetworkHost)
+                ? RotatorSettings.DefaultNetworkHost
+                : rotator.NetworkHost.Trim();
+            RotatorNetworkPort = rotator.NetworkPort is > 0 and <= 65535
+                ? rotator.NetworkPort
+                : RotatorSettings.DefaultNetworkPort;
             SelectedAzimuthRangeChoice = AzimuthRangeChoices.FirstOrDefault(o => o.Value == rotator.AzimuthRange)
                 ?? AzimuthRangeChoices[1];
             SelectedElevationRangeChoice = ElevationRangeChoices.FirstOrDefault(o => o.Value == rotator.ElevationRange)
@@ -1464,6 +1489,7 @@ public partial class SettingsViewModel : ViewModelBase
         var rotator = new RotatorSettings
         {
             Enabled = RotatorEnabled,
+            Type = SelectedRotatorTypeChoice?.Value ?? RotatorType.YaesuGs232,
             Port = SelectedComPort ?? ""
         };
         var rig = BuildRigSettingsForConflictCheck();
@@ -1478,6 +1504,9 @@ public partial class SettingsViewModel : ViewModelBase
 
     partial void OnSelectedRotatorTypeChoiceChanged(RotatorTypeOption? value)
     {
+        OnPropertyChanged(nameof(ShowRotatorSerialFields));
+        OnPropertyChanged(nameof(ShowRotatorNetworkFields));
+
         if (_isSynchronizing || value is null)
             return;
 
