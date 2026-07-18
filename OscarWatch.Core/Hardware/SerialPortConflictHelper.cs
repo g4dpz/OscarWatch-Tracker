@@ -24,10 +24,10 @@ public static class SerialPortConflictHelper
             ? gps.Port?.Trim() ?? ""
             : "";
 
+        var rotatorPort = GetRotatorSerialPort(rotator);
+
         if (rig.Enabled)
         {
-            var rotatorPort = rotator.Port?.Trim() ?? "";
-
             if (rig.DualRadioEnabled)
             {
                 var downPort = rig.Downlink.Port?.Trim() ?? "";
@@ -45,7 +45,7 @@ public static class SerialPortConflictHelper
                     || TryDescribeGpsConflict(gpsPort, upPort, "uplink radio", out message))
                     return true;
 
-                if (!rotator.Enabled || rotatorPort.Length == 0)
+                if (rotatorPort.Length == 0)
                     return false;
 
                 if (downPort.Length > 0
@@ -70,14 +70,14 @@ public static class SerialPortConflictHelper
             if (TryDescribeGpsConflict(gpsPort, rig.Port?.Trim() ?? "", "radio", out message))
                 return true;
 
-            if (!rotator.Enabled)
+            if (rotatorPort.Length == 0)
                 return false;
 
             if (rig.Type == RigType.Dummy)
                 return false;
 
             var rigPort = rig.Port?.Trim() ?? "";
-            if (rotatorPort.Length == 0 || rigPort.Length == 0)
+            if (rigPort.Length == 0)
                 return false;
 
             if (!string.Equals(rotatorPort, rigPort, StringComparison.OrdinalIgnoreCase))
@@ -88,19 +88,24 @@ public static class SerialPortConflictHelper
             return true;
         }
 
-        if (gpsPort.Length == 0 || !rotator.Enabled)
+        if (gpsPort.Length == 0 || rotatorPort.Length == 0)
             return false;
 
-        var rotPort = rotator.Port?.Trim() ?? "";
-        if (rotPort.Length == 0)
-            return false;
-
-        if (!string.Equals(gpsPort, rotPort, StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(gpsPort, rotatorPort, StringComparison.OrdinalIgnoreCase))
             return false;
 
         message =
             $"GPS and rotator both use {gpsPort}. Use different COM ports or disable one device.";
         return true;
+    }
+
+    /// <summary>COM port only when the rotator is enabled and using local serial transport.</summary>
+    private static string GetRotatorSerialPort(RotatorSettings rotator)
+    {
+        if (!rotator.Enabled || !rotator.UsesSerialPort)
+            return "";
+
+        return rotator.Port?.Trim() ?? "";
     }
 
     private static bool TryDescribeGpsConflict(

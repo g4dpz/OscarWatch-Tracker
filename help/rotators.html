@@ -49,6 +49,8 @@
         <strong>Settings → Rotator</strong>. Serial controllers need a COM port different from the radio
         (on Linux prefer a stable <code>by-id</code> path — <a href="linux-serial.html">Linux serial ports</a>).
         Network controllers (OZ9AAR URC) use a TCP host and port instead.
+        Serial protocols (GS-232, EasyComm, SPID, SAEBRTrack) can also use a
+        <strong>TCP serial</strong> connection (for example ser2net) instead of a local COM port.
       </p>
 
       <h2>Supported controllers</h2>
@@ -67,7 +69,9 @@
 
       <h2>Main settings</h2>
       <ul>
-        <li><strong>Serial port</strong> and rotator type (serial protocols). On Linux, see <a href="linux-serial.html">Linux serial ports</a> for stable paths after reboot.</li>
+        <li><strong>Connection</strong> — for serial protocols, choose <strong>Serial (COM port)</strong> or <strong>TCP serial (e.g. ser2net)</strong>. Baud rate applies only to local serial; configure baud on the ser2net (or similar) server when using TCP.</li>
+        <li><strong>Serial port</strong> and rotator type (when Connection is Serial). On Linux, see <a href="linux-serial.html">Linux serial ports</a> for stable paths after reboot.</li>
+        <li><strong>TCP serial:</strong> enter host and TCP port for a raw serial tunnel. OscarWatch speaks the same protocol bytes as over COM (not URC JSON). Prefer a local network — high latency can cause timeouts.</li>
         <li><strong>OZ9AAR URC (TCP):</strong> enter the URC host (IP or hostname) and TCP port (default <strong>1111</strong>). On the controller, enable the socket server and select <strong>REM</strong> / remote tracking mode. OscarWatch sends JSON <code>POLL</code> and <code>GOTO</code> requests; there is no separate stop command — Stop re-issues GOTO at the current position.</li>
         <li><strong>EasyComm II:</strong> set the controller to <strong>EC</strong> (or EasyComm) mode. Default baud is <strong>9600</strong> when you pick this type in Settings; use <strong>1200</strong> if your controller manual specifies it (some SPID emulation modes).</li>
         <li><strong>SAEBRTrack:</strong> select this type for PSR-100, Arduino SAEBRTrack sketches, and similar fire-and-forget rotors. Default baud is <strong>9600</strong>. Commands are compact whole-degree <code>AZnnnELnnn</code>. There is <strong>no position feedback</strong> — OscarWatch does not send <code>AZ</code>/<code>EL</code> queries (those would be misread as move-to-zero on many controllers). The sidebar shows the last commanded az/el instead.</li>

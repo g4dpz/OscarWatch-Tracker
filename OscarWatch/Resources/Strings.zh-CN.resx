@@ -2092,19 +2092,31 @@
     <value>旋转器类型</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232 用于 Yaesu 及兼容型号。SPID 用于 SP 模式控制器（Rot1Prog / Rot2Prog）。EasyComm 用于 EC 模式 — SPID、M2 及其他文本协议控制器。OZ9AAR URC (TCP) 用于 Ultimate Rotator Controller（以太网，默认端口 1111；请将 URC 设为 REM/远程模式）。</value>
+    <value>GS-232 用于 Yaesu 及兼容型号。SPID 用于 SP 模式控制器（Rot1Prog / Rot2Prog）。EasyComm 用于 EC 模式 — SPID、M2 及其他文本协议控制器。SAEBRTrack 用于经典卫星跟踪接口（9600 波特）。OZ9AAR URC (TCP) 用于 Ultimate Rotator Controller（以太网，默认端口 1111；请将 URC 设为 REM/远程模式）。串口协议也可通过 TCP 串口服务器（例如 ser2net）连接，而无需本地 COM 口。</value>
+  </data>
+  <data name="Settings.Rotator.Transport">
+    <value>连接方式</value>
+  </data>
+  <data name="Settings.Rotator.Transport.Serial">
+    <value>串口（COM）</value>
+  </data>
+  <data name="Settings.Rotator.Transport.Tcp">
+    <value>TCP 串口（例如 ser2net）</value>
   </data>
   <data name="Settings.Rotator.NetworkHost">
-    <value>URC 主机</value>
+    <value>主机</value>
   </data>
   <data name="Settings.Rotator.NetworkHostWatermark">
     <value>127.0.0.1 或主机名</value>
   </data>
   <data name="Settings.Rotator.NetworkPort">
-    <value>URC TCP 端口</value>
+    <value>TCP 端口</value>
   </data>
   <data name="Settings.Rotator.NetworkNote">
     <value>OscarWatch 作为 TCP 客户端连接。请在 URC 上启用套接字服务器并选择远程（REM）跟踪模式，以便 GOTO 命令驱动天线。默认端口为 1111。</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNoteTcpSerial">
+    <value>OscarWatch 作为 TCP 客户端连接到原始串口隧道（例如 ser2net）。请在服务器端配置波特率和串口选项。建议在局域网使用——高延迟可能导致超时。</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuth">
     <value>智能 450° 方位角（经北方最短路径）</value>

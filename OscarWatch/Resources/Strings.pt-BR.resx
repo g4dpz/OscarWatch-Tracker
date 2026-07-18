@@ -2092,19 +2092,31 @@ Continuar?</value>
     <value>Tipo de rotor</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232 para Yaesu e clones. SPID para controladores em modo SP (Rot1Prog / Rot2Prog). EasyComm para modo EC — SPID, M2 e outros controladores de protocolo texto. OZ9AAR URC (TCP) para Ultimate Rotator Controller via Ethernet (porta 1111; modo REM/remoto).</value>
+    <value>GS-232 para Yaesu e clones. SPID para controladores em modo SP (Rot1Prog / Rot2Prog). EasyComm para modo EC — SPID, M2 e outros controladores de protocolo texto. SAEBRTrack para interfaces clássicas de seguimento por satélite (9600 baud). OZ9AAR URC (TCP) para Ultimate Rotator Controller via Ethernet (porta 1111; modo REM/remoto). Os protocolos série também podem usar um servidor série TCP (por exemplo ser2net) em vez de uma porta COM local.</value>
+  </data>
+  <data name="Settings.Rotator.Transport">
+    <value>Ligação</value>
+  </data>
+  <data name="Settings.Rotator.Transport.Serial">
+    <value>Série (porta COM)</value>
+  </data>
+  <data name="Settings.Rotator.Transport.Tcp">
+    <value>Série TCP (p. ex. ser2net)</value>
   </data>
   <data name="Settings.Rotator.NetworkHost">
-    <value>Host URC</value>
+    <value>Host</value>
   </data>
   <data name="Settings.Rotator.NetworkHostWatermark">
     <value>127.0.0.1 ou nome do host</value>
   </data>
   <data name="Settings.Rotator.NetworkPort">
-    <value>Porta TCP URC</value>
+    <value>Porta TCP</value>
   </data>
   <data name="Settings.Rotator.NetworkNote">
     <value>O OscarWatch liga-se como cliente TCP. No URC, active o servidor de sockets e o modo de seguimento remoto (REM) para que GOTO mova as antenas. A porta predefinida é 1111.</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNoteTcpSerial">
+    <value>O OscarWatch liga-se como cliente TCP a um túnel série em bruto (por exemplo ser2net). Configure a velocidade e as opções série no servidor. Preferível em rede local — latência elevada pode causar timeouts.</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuth">
     <value>Azimute inteligente 450° (caminho mais curto sobre o norte)</value>

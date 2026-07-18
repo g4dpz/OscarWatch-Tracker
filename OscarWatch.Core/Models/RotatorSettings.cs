@@ -19,13 +19,20 @@ public sealed class RotatorSettings
 
     public bool Enabled { get; set; }
     public RotatorType Type { get; set; } = RotatorType.YaesuGs232;
+
+    /// <summary>
+    /// Serial vs raw TCP for GS-232 / EasyComm / SPID / SAEBRTrack.
+    /// Ignored when <see cref="Type"/> is <see cref="RotatorType.UrcTcp"/> (always TCP/JSON).
+    /// </summary>
+    public RotatorTransportKind TransportKind { get; set; } = RotatorTransportKind.Serial;
+
     public string Port { get; set; } = "";
     public int BaudRate { get; set; } = 4800;
 
-    /// <summary>TCP host for network rotators (e.g. OZ9AAR URC). Ignored for serial protocols.</summary>
+    /// <summary>TCP host for URC or TCP serial (e.g. ser2net). Ignored when using a local serial port.</summary>
     public string NetworkHost { get; set; } = DefaultNetworkHost;
 
-    /// <summary>TCP port for network rotators. URC default is 1111.</summary>
+    /// <summary>TCP port for URC or TCP serial. URC default is 1111.</summary>
     public int NetworkPort { get; set; } = DefaultNetworkPort;
 
     public RotatorAzimuthRange AzimuthRange { get; set; } = RotatorAzimuthRange.Deg450;
@@ -92,8 +99,15 @@ public sealed class RotatorSettings
     public double MaxAzimuthDeg => (double)AzimuthRange;
     public double MaxElevationDeg => (double)ElevationRange;
 
-    /// <summary>True when this protocol uses TCP host/port instead of a serial COM port.</summary>
-    public bool UsesNetworkEndpoint => Type == RotatorType.UrcTcp;
+    /// <summary>True when this configuration uses TCP host/port instead of a serial COM port.</summary>
+    public bool UsesNetworkEndpoint =>
+        Type == RotatorType.UrcTcp || TransportKind == RotatorTransportKind.Tcp;
+
+    /// <summary>
+    /// True when a local serial COM port is the active endpoint (enabled device may still be checked separately).
+    /// </summary>
+    public bool UsesSerialPort =>
+        Type != RotatorType.UrcTcp && TransportKind == RotatorTransportKind.Serial;
 
     /// <summary>True when the configured connection endpoint is present (serial port or host+port).</summary>
     public bool HasConfiguredEndpoint =>

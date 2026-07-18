@@ -32,6 +32,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private int _connectedBaudRate;
     private string? _connectedNetworkHost;
     private int _connectedNetworkPort;
+    private bool _connectedUsesNetworkEndpoint;
     private RotatorType _connectedType;
     private string? _lastTargetNoradId;
     private double? _lastAzimuth;
@@ -522,6 +523,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _connectedBaudRate = 0;
         _connectedNetworkHost = null;
         _connectedNetworkPort = 0;
+        _connectedUsesNetworkEndpoint = false;
         _connectedType = default;
     }
 
@@ -713,6 +715,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
     {
         if (_rotator is not null
             && _connectedType == settings.Type
+            && _connectedUsesNetworkEndpoint == settings.UsesNetworkEndpoint
             && ConnectionIdentityMatches(settings))
             return true;
 
@@ -727,6 +730,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _connectedBaudRate = settings.BaudRate;
             _connectedNetworkHost = settings.NetworkHost;
             _connectedNetworkPort = settings.NetworkPort;
+            _connectedUsesNetworkEndpoint = settings.UsesNetworkEndpoint;
             _connectedType = settings.Type;
             return true;
         }

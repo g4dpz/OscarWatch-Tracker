@@ -1,4 +1,3 @@
-using System.IO.Ports;
 using OscarWatch.Core.Models;
 
 namespace OscarWatch.Rotator;
@@ -12,21 +11,17 @@ public sealed class SaebrtRotator : IRotatorDriver
 {
     private const string LineEnding = "\n";
 
-    private readonly SerialPort _port;
+    private readonly IRotatorSerialTransport _port;
     private readonly SemaphoreSlim _gate = new(1, 1);
 
     public SaebrtRotator(string portName, int baudRate)
+        : this(new SerialRotatorTransport(portName, baudRate, 200, 200, LineEnding, dtrEnable: false, rtsEnable: false))
     {
-        _port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One)
-        {
-            Handshake = Handshake.None,
-            // Fire-and-forget: short timeouts so Close/Dispose cannot stall shutdown for seconds.
-            ReadTimeout = 200,
-            WriteTimeout = 200,
-            NewLine = LineEnding,
-            DtrEnable = false,
-            RtsEnable = false
-        };
+    }
+
+    internal SaebrtRotator(IRotatorSerialTransport transport)
+    {
+        _port = transport;
     }
 
     public void Open() => _port.Open();
@@ -68,8 +63,6 @@ public sealed class SaebrtRotator : IRotatorDriver
                 {
                     // ignore pre-close cleanup
                 }
-
-                _port.Close();
             }
         }
         catch

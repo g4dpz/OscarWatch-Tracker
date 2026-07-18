@@ -232,6 +232,11 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty]
     private RotatorTypeOption? _selectedRotatorTypeChoice;
 
+    public IReadOnlyList<RotatorTransportOption> RotatorTransportChoices { get; }
+
+    [ObservableProperty]
+    private RotatorTransportOption? _selectedRotatorTransportChoice;
+
     public IReadOnlyList<RotatorAzimuthOption> AzimuthRangeChoices { get; }
 
     public IReadOnlyList<RotatorElevationOption> ElevationRangeChoices { get; }
@@ -251,11 +256,24 @@ public partial class SettingsViewModel : ViewModelBase
     public bool IsRotatorKeyholeSettingsVisible =>
         SelectedElevationRangeChoice?.Value == RotatorElevationRange.Deg180;
 
-    public bool ShowRotatorSerialFields =>
+    public bool ShowRotatorTransportFields =>
         SelectedRotatorTypeChoice?.Value != RotatorType.UrcTcp;
 
+    public bool ShowRotatorSerialFields =>
+        ShowRotatorTransportFields
+        && SelectedRotatorTransportChoice?.Value != RotatorTransportKind.Tcp;
+
     public bool ShowRotatorNetworkFields =>
+        SelectedRotatorTypeChoice?.Value == RotatorType.UrcTcp
+        || (ShowRotatorTransportFields
+            && SelectedRotatorTransportChoice?.Value == RotatorTransportKind.Tcp);
+
+    public bool ShowRotatorUrcNetworkNote =>
         SelectedRotatorTypeChoice?.Value == RotatorType.UrcTcp;
+
+    public bool ShowRotatorTcpSerialNetworkNote =>
+        ShowRotatorTransportFields
+        && SelectedRotatorTransportChoice?.Value == RotatorTransportKind.Tcp;
 
     [ObservableProperty]
     private bool _rotatorKeyholeAvoidanceEnabled;
@@ -665,6 +683,11 @@ public partial class SettingsViewModel : ViewModelBase
             new(RotatorType.Saebrt, "SAEBRTrack"),
             new(RotatorType.UrcTcp, "OZ9AAR URC (TCP)")
         ];
+        RotatorTransportChoices =
+        [
+            new(RotatorTransportKind.Serial, _l.Get("Settings.Rotator.Transport.Serial")),
+            new(RotatorTransportKind.Tcp, _l.Get("Settings.Rotator.Transport.Tcp"))
+        ];
         AzimuthRangeChoices =
         [
             new(RotatorAzimuthRange.Deg360, _l.Get("Settings.Rotator.AzimuthRange360")),
@@ -859,6 +882,9 @@ public partial class SettingsViewModel : ViewModelBase
         {
             Enabled = RotatorEnabled,
             Type = SelectedRotatorTypeChoice?.Value ?? RotatorType.YaesuGs232,
+            TransportKind = SelectedRotatorTypeChoice?.Value == RotatorType.UrcTcp
+                ? RotatorTransportKind.Serial
+                : SelectedRotatorTransportChoice?.Value ?? RotatorTransportKind.Serial,
             Port = SelectedComPort ?? "",
             BaudRate = RotatorBaudRate,
             NetworkHost = string.IsNullOrWhiteSpace(RotatorNetworkHost)
@@ -1048,6 +1074,8 @@ public partial class SettingsViewModel : ViewModelBase
             RotatorEnabled = rotator.Enabled;
             SelectedRotatorTypeChoice = RotatorTypeChoices.FirstOrDefault(o => o.Value == rotator.Type)
                 ?? RotatorTypeChoices[0];
+            SelectedRotatorTransportChoice = RotatorTransportChoices.FirstOrDefault(o => o.Value == rotator.TransportKind)
+                ?? RotatorTransportChoices[0];
             SelectedComPort = string.IsNullOrWhiteSpace(rotator.Port) ? null : rotator.Port;
             RotatorBaudRate = rotator.BaudRate;
             RotatorNetworkHost = string.IsNullOrWhiteSpace(rotator.NetworkHost)
@@ -1490,6 +1518,9 @@ public partial class SettingsViewModel : ViewModelBase
         {
             Enabled = RotatorEnabled,
             Type = SelectedRotatorTypeChoice?.Value ?? RotatorType.YaesuGs232,
+            TransportKind = SelectedRotatorTypeChoice?.Value == RotatorType.UrcTcp
+                ? RotatorTransportKind.Serial
+                : SelectedRotatorTransportChoice?.Value ?? RotatorTransportKind.Serial,
             Port = SelectedComPort ?? ""
         };
         var rig = BuildRigSettingsForConflictCheck();
@@ -1504,8 +1535,7 @@ public partial class SettingsViewModel : ViewModelBase
 
     partial void OnSelectedRotatorTypeChoiceChanged(RotatorTypeOption? value)
     {
-        OnPropertyChanged(nameof(ShowRotatorSerialFields));
-        OnPropertyChanged(nameof(ShowRotatorNetworkFields));
+        NotifyRotatorConnectionVisibility();
 
         if (_isSynchronizing || value is null)
             return;
@@ -1514,6 +1544,24 @@ public partial class SettingsViewModel : ViewModelBase
             RotatorBaudRate = 600;
         else if (value.Value is RotatorType.EasyComm or RotatorType.Saebrt)
             RotatorBaudRate = 9600;
+
+        RefreshComPortConflictIfReady();
+    }
+
+    partial void OnSelectedRotatorTransportChoiceChanged(RotatorTransportOption? value)
+    {
+        NotifyRotatorConnectionVisibility();
+        if (!_isSynchronizing)
+            RefreshComPortConflictIfReady();
+    }
+
+    private void NotifyRotatorConnectionVisibility()
+    {
+        OnPropertyChanged(nameof(ShowRotatorTransportFields));
+        OnPropertyChanged(nameof(ShowRotatorSerialFields));
+        OnPropertyChanged(nameof(ShowRotatorNetworkFields));
+        OnPropertyChanged(nameof(ShowRotatorUrcNetworkNote));
+        OnPropertyChanged(nameof(ShowRotatorTcpSerialNetworkNote));
     }
 
     partial void OnSelectedAzimuthRangeChoiceChanged(RotatorAzimuthOption? value)
@@ -2010,6 +2058,8 @@ public sealed record TleSourceOption(TleSourceMode Mode, string Label);
 public sealed record TleAutoUpdateOption(TleAutoUpdateMode Mode, string Label);
 
 public sealed record RotatorTypeOption(RotatorType Value, string Label);
+
+public sealed record RotatorTransportOption(RotatorTransportKind Value, string Label);
 
 public sealed record GpsConnectionOption(GpsConnectionKind Value, string Label);
 

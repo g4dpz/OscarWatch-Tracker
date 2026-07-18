@@ -96,4 +96,35 @@ public class SerialPortConflictHelperTests
         };
         Assert.False(SerialPortConflictHelper.TryDescribeConflict(rotator, rig, gps, out _));
     }
+
+    [Fact]
+    public void No_conflict_when_rotator_uses_tcp_serial()
+    {
+        var rotator = new RotatorSettings
+        {
+            Enabled = true,
+            Type = RotatorType.YaesuGs232,
+            TransportKind = RotatorTransportKind.Tcp,
+            Port = "COM3",
+            NetworkHost = "127.0.0.1",
+            NetworkPort = 4001
+        };
+        var rig = new RigSettings { Enabled = true, Type = RigType.IcomIc910, Port = "COM3" };
+        Assert.False(SerialPortConflictHelper.HasConflict(rotator, rig));
+    }
+
+    [Fact]
+    public void No_conflict_when_rotator_is_urc_tcp()
+    {
+        var rotator = new RotatorSettings
+        {
+            Enabled = true,
+            Type = RotatorType.UrcTcp,
+            Port = "COM3",
+            NetworkHost = "127.0.0.1",
+            NetworkPort = 1111
+        };
+        var rig = new RigSettings { Enabled = true, Type = RigType.IcomIc910, Port = "COM3" };
+        Assert.False(SerialPortConflictHelper.HasConflict(rotator, rig));
+    }
 }

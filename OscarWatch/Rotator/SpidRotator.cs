@@ -1,4 +1,3 @@
-using System.IO.Ports;
 using OscarWatch.Core.Models;
 
 namespace OscarWatch.Rotator;
@@ -6,7 +5,7 @@ namespace OscarWatch.Rotator;
 /// <summary>SPID Rot1Prog / Rot2Prog native binary protocol over serial.</summary>
 public sealed class SpidRotator : IRotatorDriver
 {
-    private readonly SerialPort _port;
+    private readonly IRotatorSerialTransport _port;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly byte[] _commandBuffer = new byte[SpidRotatorCodec.CommandLength];
     private readonly byte[] _responseBuffer = new byte[SpidRotatorCodec.Rot2ResponseLength];
@@ -16,13 +15,13 @@ public sealed class SpidRotator : IRotatorDriver
     private int _pulsesPerDegree = 2;
 
     public SpidRotator(string portName, int baudRate)
+        : this(new SerialRotatorTransport(portName, baudRate, 2000, 2000, "\n"))
     {
-        _port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One)
-        {
-            Handshake = Handshake.None,
-            ReadTimeout = 2000,
-            WriteTimeout = 2000
-        };
+    }
+
+    internal SpidRotator(IRotatorSerialTransport transport)
+    {
+        _port = transport;
     }
 
     public void Open()
@@ -98,7 +97,6 @@ public sealed class SpidRotator : IRotatorDriver
             if (_port.IsOpen)
             {
                 try { Stop(); } catch { /* ignore */ }
-                _port.Close();
             }
         }
         catch

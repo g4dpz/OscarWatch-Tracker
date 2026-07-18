@@ -1,6 +1,6 @@
 # Building rotator drivers
 
-OscarWatch talks to antenna rotators over a **serial port** (COM on Windows) or, for some protocols, **TCP**. Each protocol is a small class that implements `IRotatorDriver`. A factory picks the class from user settings.
+OscarWatch talks to antenna rotators over a **serial port** (COM on Windows), a **raw TCP serial tunnel** (e.g. ser2net), or, for URC, **TCP/JSON**. Each protocol is a small class that implements `IRotatorDriver`. A factory picks the class from user settings. Serial-protocol drivers share an `IRotatorSerialTransport` so the same protocol code works over COM or TCP.
 
 ## Architecture
 
@@ -19,7 +19,7 @@ flowchart LR
 
 - **`RotatorController`** ([`OscarWatch/Rotator/RotatorController.cs`](../OscarWatch/Rotator/RotatorController.cs)) — connects, tracks the focused satellite, parks, polls position. Uses [`RotatorAzimuthPlanner`](../OscarWatch.Core/Rotator/RotatorAzimuthPlanner.cs) for smart 450° paths before calling the driver.
 - **`IRotatorDriver`** — your implementation (open port or TCP, move, query, dispose).
-- **`RotatorSettings`** ([`OscarWatch.Core/Models/RotatorSettings.cs`](../OscarWatch.Core/Models/RotatorSettings.cs)) — port/baud or network host/port, type, azimuth/elevation limits, park position. Use `HasConfiguredEndpoint` / `UsesNetworkEndpoint` when checking whether a connection can be opened.
+- **`RotatorSettings`** ([`OscarWatch.Core/Models/RotatorSettings.cs`](../OscarWatch.Core/Models/RotatorSettings.cs)) — port/baud or network host/port, `TransportKind` (Serial vs Tcp for serial protocols), type, azimuth/elevation limits, park position. Use `HasConfiguredEndpoint` / `UsesNetworkEndpoint` / `UsesSerialPort` when checking whether a connection can be opened.
 
 The controller calls **`SetPosition(commandAz, el, settings)`** with azimuth already planned (0–450 when smart mode is on). The driver only **clamps** to `settings.MaxAzimuthDeg` / `MaxElevationDeg` and formats the wire protocol.
 
@@ -55,17 +55,21 @@ Reference implementations:
 
 ## Serial I/O patterns
 
-Existing serial drivers use **`System.IO.Ports.SerialPort`** with:
+Serial-protocol drivers use **`IRotatorSerialTransport`** ([`IRotatorSerialTransport.cs`](../OscarWatch/Rotator/IRotatorSerialTransport.cs)):
 
-- 8N1, no handshake (unless your hardware needs RTS/CTS)
-- Line terminator `\r`
-- **`SemaphoreSlim(1,1)`** so `SetPosition` and `GetPosition` do not interleave on the same port
+- **`SerialRotatorTransport`** — wraps `System.IO.Ports.SerialPort` (8N1, no handshake unless hardware needs RTS/CTS)
+- **`TcpRotatorTransport`** — raw `TcpClient` / `NetworkStream` for ser2net-style tunnels (not URC JSON)
+
+[`RotatorDriverFactory`](../OscarWatch/Rotator/RotatorDriverFactory.cs) chooses the transport from `RotatorSettings.TransportKind`. Typical conventions:
+
+- Line terminator `\r` (GS-232) or `\n` (EasyComm / SAEBRTrack)
+- **`SemaphoreSlim(1,1)`** so `SetPosition` and `GetPosition` do not interleave
 - Short sleeps after writes (GS-232 ~150 ms) so the controller can finish before the next command
 - `DiscardInBuffer()` before queries to avoid stale data
 
 GS-232 position parsing is in [`Gs232PositionParser`](../OscarWatch/Rotator/Gs232PositionParser.cs) (unit tests in `Gs232PositionParserTests.cs`). Supports GS-232B (`AZ=`/`EL=`) and GS-232A (`+0nnn`, `+0aaa+0eee`) reply formats on the same driver.
 
-Network drivers (URC) use **`TcpClient`** with `NoDelay`, connect timeouts, and brace-matched JSON framing — see [`UrcTcpClient.cs`](../OscarWatch/Rotator/UrcTcpClient.cs) and [`UrcJsonCodec.cs`](../OscarWatch/Rotator/UrcJsonCodec.cs).
+URC uses a separate **`TcpClient`** stack with brace-matched JSON framing — see [`UrcTcpClient.cs`](../OscarWatch/Rotator/UrcTcpClient.cs) and [`UrcJsonCodec.cs`](../OscarWatch/Rotator/UrcJsonCodec.cs).
 
 ## Step-by-step: add a new rotator type
 
@@ -129,7 +133,7 @@ Add protocol-specific tests for parsing (pure functions) in `OscarWatch.Tests/`.
 
 ### 6. COM port conflict
 
-Rig and rotator cannot share the same COM port. [`SerialPortConflictHelper`](../OscarWatch.Core/Hardware/SerialPortConflictHelper.cs) warns in Settings when both are enabled on one port.
+Rig and rotator cannot share the same COM port when the rotator uses local serial transport. [`SerialPortConflictHelper`](../OscarWatch.Core/Hardware/SerialPortConflictHelper.cs) warns in Settings when both are enabled on one port (TCP serial and URC are ignored for COM conflicts).
 
 ## Smart azimuth (450° rotators)
 

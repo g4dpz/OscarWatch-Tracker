@@ -743,6 +743,18 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="{loc:Localize Key=Settings.Rotator.TypeNote}" />
+            <StackPanel Spacing="10" IsVisible="{Binding ShowRotatorTransportFields}">
+              <TextBlock Text="{loc:Localize Key=Settings.Rotator.Transport}" />
+              <ComboBox ItemsSource="{Binding RotatorTransportChoices}"
+                        SelectedItem="{Binding SelectedRotatorTransportChoice, Mode=TwoWay}"
+                        HorizontalAlignment="Stretch">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate x:DataType="vm:RotatorTransportOption">
+                    <TextBlock Text="{Binding Label}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+            </StackPanel>
             <StackPanel Spacing="10" IsVisible="{Binding ShowRotatorSerialFields}">
               <TextBlock Text="{loc:Localize Key=Settings.Radio.SerialPort}" />
               <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
@@ -780,7 +792,13 @@
               <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                          FontSize="11"
                          TextWrapping="Wrap"
+                         IsVisible="{Binding ShowRotatorUrcNetworkNote}"
                          Text="{loc:Localize Key=Settings.Rotator.NetworkNote}" />
+              <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                         FontSize="11"
+                         TextWrapping="Wrap"
+                         IsVisible="{Binding ShowRotatorTcpSerialNetworkNote}"
+                         Text="{loc:Localize Key=Settings.Rotator.NetworkNoteTcpSerial}" />
             </StackPanel>
             <TextBlock Text="{loc:Localize Key=Settings.Rotator.AzimuthRange}" />
             <ComboBox ItemsSource="{Binding AzimuthRangeChoices}"

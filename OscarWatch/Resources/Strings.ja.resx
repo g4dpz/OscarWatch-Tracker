@@ -1231,19 +1231,31 @@
     <value>ローテータータイプ</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232はYaesuおよび互換機。SPIDはSPモード（Rot1Prog / Rot2Prog）。EasyCommはECモード — SPID、M2などのテキストプロトコルコントローラ。OZ9AAR URC (TCP) は Ultimate Rotator Controller（Ethernet、既定ポート1111、URCをREM/リモートモードに設定）。</value>
+    <value>GS-232はYaesuおよび互換機。SPIDはSPモード（Rot1Prog / Rot2Prog）。EasyCommはECモード — SPID、M2などのテキストプロトコルコントローラ。SAEBRTrackは古典的な衛星トラッカーインターフェース（9600ボー）。OZ9AAR URC (TCP) は Ultimate Rotator Controller（Ethernet、既定ポート1111、URCをREM/リモートモードに設定）。シリアルプロトコルはローカルCOMの代わりにTCPシリアルサーバー（例: ser2net）も利用できます。</value>
+  </data>
+  <data name="Settings.Rotator.Transport">
+    <value>接続</value>
+  </data>
+  <data name="Settings.Rotator.Transport.Serial">
+    <value>シリアル（COMポート）</value>
+  </data>
+  <data name="Settings.Rotator.Transport.Tcp">
+    <value>TCPシリアル（例: ser2net）</value>
   </data>
   <data name="Settings.Rotator.NetworkHost">
-    <value>URCホスト</value>
+    <value>ホスト</value>
   </data>
   <data name="Settings.Rotator.NetworkHostWatermark">
     <value>127.0.0.1 またはホスト名</value>
   </data>
   <data name="Settings.Rotator.NetworkPort">
-    <value>URC TCPポート</value>
+    <value>TCPポート</value>
   </data>
   <data name="Settings.Rotator.NetworkNote">
     <value>OscarWatchはTCPクライアントとして接続します。URCでソケットサーバーを有効にし、リモート（REM）追跡モードを選ぶとGOTOでアンテナが動きます。既定ポートは1111です。</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNoteTcpSerial">
+    <value>OscarWatchは生のシリアルトンネル（例: ser2net）へTCPクライアントとして接続します。ボーレートやシリアル設定はサーバー側で行ってください。ローカルネットワーク向けです。遅延が大きいとタイムアウトすることがあります。</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuth">
     <value>スマート450°方位（北経由の最短経路）</value>

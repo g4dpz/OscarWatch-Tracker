@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.IO.Ports;
 using OscarWatch.Core.Models;
 
 namespace OscarWatch.Rotator;
@@ -9,18 +8,17 @@ public sealed class EasyCommRotator : IRotatorDriver
 {
     private const string LineEnding = "\n";
 
-    private readonly SerialPort _port;
+    private readonly IRotatorSerialTransport _port;
     private readonly SemaphoreSlim _gate = new(1, 1);
 
     public EasyCommRotator(string portName, int baudRate)
+        : this(new SerialRotatorTransport(portName, baudRate, 1000, 1000, LineEnding))
     {
-        _port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One)
-        {
-            Handshake = Handshake.None,
-            ReadTimeout = 1000,
-            WriteTimeout = 1000,
-            NewLine = LineEnding
-        };
+    }
+
+    internal EasyCommRotator(IRotatorSerialTransport transport)
+    {
+        _port = transport;
     }
 
     public void Open() => _port.Open();
@@ -57,7 +55,6 @@ public sealed class EasyCommRotator : IRotatorDriver
             if (_port.IsOpen)
             {
                 try { Stop(); } catch { /* ignore */ }
-                _port.Close();
             }
         }
         catch
