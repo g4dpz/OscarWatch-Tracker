@@ -98,7 +98,7 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
         
         foreach (var device in result)
         {
-            Log.Debug("  - Device: '{DisplayName}' (index={Id})", device.DisplayName, device.Id);
+            Log.Debug("  - Device: '{DisplayName}' (id={Id})", device.DisplayName, device.Id);
         }
 
         return result;
@@ -122,47 +122,26 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
             if (IsRecording)
                 await StopCoreAsync().ConfigureAwait(false);
 
-            if (!int.TryParse(deviceId, out var deviceIndex))
-                throw new InvalidOperationException($"Invalid audio device id '{deviceId}'.");
-
             var (preferredSampleRate, channels) = format.GetFormat();
-            
-            // Validate device index is still valid; if not, try to find by name
-            if (deviceIndex < 0 || deviceIndex >= PortAudio.DeviceCount || 
-                PortAudio.GetDeviceInfo(deviceIndex).maxInputChannels <= 0)
+
+            var inputs = SnapshotInputDevices();
+            var deviceIndex = RecordingDeviceResolver.ResolveIndex(deviceId, deviceName, inputs);
+            if (deviceIndex < 0)
             {
-                if (!string.IsNullOrWhiteSpace(deviceName))
-                {
-                    // Try to find device by name (more stable than index across reboots)
-                    // Format both the stored name and PortAudio names for comparison
-                    var formattedStoredName = RecordingDeviceNameFormatter.Format(deviceName.Trim());
-                    deviceIndex = -1;
-                    for (var i = 0; i < PortAudio.DeviceCount; i++)
-                    {
-                        var info = PortAudio.GetDeviceInfo(i);
-                        if (info.maxInputChannels > 0)
-                        {
-                            var formattedPortAudioName = RecordingDeviceNameFormatter.Format(info.name);
-                            if (formattedPortAudioName.Equals(formattedStoredName, StringComparison.OrdinalIgnoreCase))
-                            {
-                                deviceIndex = i;
-                                Log.Information("Found device by name: '{Device}' at index {NewIndex}", deviceName, i);
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-                if (deviceIndex < 0 || deviceIndex >= PortAudio.DeviceCount)
-                {
-                    Log.Warning("Could not find device: id='{DeviceId}' name='{DeviceName}'", deviceId, deviceName ?? "(not provided)");
-                    throw new InvalidOperationException(
-                        $"Audio device is no longer available. " +
-                        $"Please go to Settings → Recording, click Refresh, and re-select your radio input device.");
-                }
+                Log.Warning("Could not find device: id='{DeviceId}' name='{DeviceName}'", deviceId, deviceName ?? "(not provided)");
+                throw new InvalidOperationException(
+                    "Audio device is no longer available. " +
+                    "Please go to Settings → Recording, click Refresh, and re-select your radio input device.");
             }
 
             var deviceInfo = PortAudio.GetDeviceInfo(deviceIndex);
+            Log.Information(
+                "Resolved recording device '{RawName}' to index {Index} (saved id='{DeviceId}', display='{DisplayName}')",
+                deviceInfo.name,
+                deviceIndex,
+                deviceId,
+                deviceName ?? "");
+
             if (deviceInfo.maxInputChannels <= 0)
             {
                 Log.Warning("Device at index {DeviceIndex} ('{Device}') has no input channels", deviceIndex, deviceInfo.name);
@@ -410,6 +389,25 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
             rates.Add(44100);
 
         return rates;
+    }
+
+    private List<RecordingDeviceResolver.InputDeviceSnapshot> SnapshotInputDevices()
+    {
+        var inputs = new List<RecordingDeviceResolver.InputDeviceSnapshot>();
+        for (var i = 0; i < PortAudio.DeviceCount; i++)
+        {
+            var info = PortAudio.GetDeviceInfo(i);
+            if (info.maxInputChannels <= 0)
+                continue;
+
+            inputs.Add(new RecordingDeviceResolver.InputDeviceSnapshot(
+                i,
+                info.name ?? "",
+                info.defaultLowInputLatency,
+                info.maxInputChannels));
+        }
+
+        return inputs;
     }
 
     private StreamCallbackResult OnAudioCallback(

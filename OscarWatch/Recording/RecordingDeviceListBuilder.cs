@@ -9,6 +9,7 @@ internal readonly record struct RecordingDeviceCandidate(
 
 internal readonly record struct DeviceWithFormattedName(
     int Index,
+    string RawName,
     string FormattedName,
     double DefaultLowInputLatency);
 
@@ -31,10 +32,15 @@ internal static class RecordingDeviceListBuilder
         // Format names and second pass: deduplicate by formatted name
         // (in case different raw names format to the same display name)
         var withFormattedNames = deduplicatedByRawName
-            .Select(c => new DeviceWithFormattedName(
-                c.Index,
-                RecordingDeviceNameFormatter.Format(c.Name.Trim()),
-                c.DefaultLowInputLatency))
+            .Select(c =>
+            {
+                var rawName = c.Name.Trim();
+                return new DeviceWithFormattedName(
+                    c.Index,
+                    rawName,
+                    RecordingDeviceNameFormatter.Format(rawName),
+                    c.DefaultLowInputLatency);
+            })
             .ToList();
 
         var deduplicatedByFormattedName = withFormattedNames
@@ -44,7 +50,7 @@ internal static class RecordingDeviceListBuilder
                 .ThenBy(c => c.Index)
                 .First())
             .OrderBy(c => c.FormattedName, StringComparer.OrdinalIgnoreCase)
-            .Select(c => new AudioInputDevice(c.Index.ToString(), c.FormattedName))
+            .Select(c => new AudioInputDevice(c.RawName, c.FormattedName))
             .ToList();
 
         return deduplicatedByFormattedName;

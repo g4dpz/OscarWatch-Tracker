@@ -33,7 +33,8 @@ public sealed class PassRecordingCoordinator
 
         if (!settings.Enabled
             || string.IsNullOrWhiteSpace(focusedNoradId)
-            || string.IsNullOrWhiteSpace(settings.DeviceId)
+            || (string.IsNullOrWhiteSpace(settings.DeviceId)
+                && string.IsNullOrWhiteSpace(settings.DeviceDisplayName))
             || focusedState is null
             || !string.Equals(focusedState.NoradId, focusedNoradId, StringComparison.Ordinal))
         {

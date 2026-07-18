@@ -11,7 +11,8 @@ public sealed class PassRecordingCoordinatorTests
     private static PassRecordingSettings EnabledSettings => new()
     {
         Enabled = true,
-        DeviceId = "0",
+        DeviceId = "Fake Input",
+        DeviceDisplayName = "Fake Input",
         StartElevationDeg = 5,
         StopElevationDeg = 3,
         Format = RecordingFormatPreset.Mono44100
@@ -56,7 +57,7 @@ public sealed class PassRecordingCoordinatorTests
         var disabled = new PassRecordingSettings
         {
             Enabled = false,
-            DeviceId = "0",
+            DeviceId = "Fake Input",
             StartElevationDeg = 5,
             StopElevationDeg = 3
         };
@@ -137,7 +138,7 @@ internal sealed class FakeAudioRecordingService : IAudioRecordingService
     public int StopCount { get; private set; }
 
     public IReadOnlyList<AudioInputDevice> GetInputDevices() =>
-        [new AudioInputDevice("0", "Fake Input")];
+        [new AudioInputDevice("Fake Input", "Fake Input")];
 
     public Task StartAsync(
         string noradId,

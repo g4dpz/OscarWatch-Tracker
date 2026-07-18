@@ -779,20 +779,33 @@ public partial class SettingsViewModel : ViewModelBase
     [RelayCommand]
     private void RefreshRecordingDevices()
     {
+        var previousId = SelectedRecordingDevice?.Id;
+        var previousDisplayName = SelectedRecordingDevice?.DisplayName;
+
         RecordingDeviceOptions.Clear();
         foreach (var device in _recording.GetInputDevices())
             RecordingDeviceOptions.Add(new RecordingDeviceOption(device.Id, device.DisplayName));
 
-        if (SelectedRecordingDevice is not null)
+        SelectedRecordingDevice = FindRecordingDeviceOption(previousId, previousDisplayName);
+    }
+
+    private RecordingDeviceOption? FindRecordingDeviceOption(string? deviceId, string? deviceDisplayName)
+    {
+        if (!string.IsNullOrWhiteSpace(deviceId))
         {
-            SelectedRecordingDevice = RecordingDeviceOptions.FirstOrDefault(d =>
-                d.Id == SelectedRecordingDevice.Id)
-                ?? RecordingDeviceOptions.FirstOrDefault(d =>
-                    d.DisplayName == SelectedRecordingDevice.DisplayName);
+            var byId = RecordingDeviceOptions.FirstOrDefault(d =>
+                string.Equals(d.Id, deviceId, StringComparison.OrdinalIgnoreCase));
+            if (byId is not null)
+                return byId;
         }
 
-        if (SelectedRecordingDevice is null)
-            SelectedRecordingDevice = RecordingDeviceOptions.FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(deviceDisplayName))
+        {
+            return RecordingDeviceOptions.FirstOrDefault(d =>
+                string.Equals(d.DisplayName, deviceDisplayName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return null;
     }
 
     [RelayCommand]
@@ -1063,11 +1076,7 @@ public partial class SettingsViewModel : ViewModelBase
             SelectedRecordingFormat = RecordingFormatOptions.FirstOrDefault(o => o.Value == recording.Format)
                 ?? RecordingFormatOptions[0];
             RefreshRecordingDevices();
-            if (!string.IsNullOrWhiteSpace(recording.DeviceId))
-            {
-                SelectedRecordingDevice = RecordingDeviceOptions.FirstOrDefault(d => d.Id == recording.DeviceId)
-                    ?? RecordingDeviceOptions.FirstOrDefault(d => d.DisplayName == recording.DeviceDisplayName);
-            }
+            SelectedRecordingDevice = FindRecordingDeviceOption(recording.DeviceId, recording.DeviceDisplayName);
             RecordingTestStatus = "";
 
             var rotator = _settings.Current.Rotator ?? new RotatorSettings();

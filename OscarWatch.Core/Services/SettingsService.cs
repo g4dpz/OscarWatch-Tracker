@@ -249,6 +249,7 @@ public sealed class SettingsService : ISettingsService, IDisposable
         settings.SatelliteLink.UpdateIntervalMs =
             SatelliteLinkSettings.NormalizeUpdateIntervalMs(settings.SatelliteLink.UpdateIntervalMs);
         settings.PassRecording ??= new PassRecordingSettings();
+        settings.PassRecording.MigrateLegacyNumericDeviceId();
         settings.QsoLogbook ??= new QsoLogbookSettings();
         settings.QsoLogbook.HistoryColumnWidthsPx ??=
             new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
