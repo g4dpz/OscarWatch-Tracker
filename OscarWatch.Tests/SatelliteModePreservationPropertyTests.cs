@@ -23,10 +23,10 @@ public class SatelliteModePreservationPropertyTests
 
     /// <summary>
     /// For any number of SetSatelliteMode(false) calls, the exit command sequence is always
-    /// exactly: RX;, TO0;, TN39;, TN39;, SA0010000; — unchanged.
+    /// exactly: RX;, TO0;, SA0010000; — unchanged.
     /// </summary>
     [Property(MaxTest = 10)]
-    public bool Exit_sequence_is_always_RX_TO0_TN39_TN39_SA0010000(byte callCountByte)
+    public bool Exit_sequence_is_always_RX_TO0_SA0010000(byte callCountByte)
     {
         var callCount = (callCountByte % 5) + 1; // 1-5 exit calls
 
@@ -44,7 +44,7 @@ public class SatelliteModePreservationPropertyTests
             driver.SetSatelliteMode(false);
 
             // Assert the exact exit sequence
-            string[] expectedExit = ["RX;", "TO0;", "TN39;", "TN39;", "SA0010000;"];
+            string[] expectedExit = ["RX;", "TO0;", "SA0010000;"];
             if (transport.SentCommands.Count != expectedExit.Length)
                 return false;
 
@@ -209,7 +209,7 @@ public class SatelliteModePreservationPropertyTests
 
     /// <summary>
     /// For any valid frequency and mode-code combination, ApplySatellitePassFrequencies
-    /// produces the double FA/FB, SM, mode, PC050, and tone sequence without link-hold bursts.
+    /// produces the double FA/FB, SM, mode, and tone sequence without link-hold bursts or PC050.
     /// </summary>
     [Property(MaxTest = 10)]
     public bool PassFrequencies_produces_programming_sequence_without_link_hold_burst(
@@ -255,8 +255,8 @@ public class SatelliteModePreservationPropertyTests
         if (!cmds.Contains(expectedDownlinkMode)) return false;
         if (!cmds.Contains(expectedUplinkMode)) return false;
 
-        // 4. PC050; power level command
-        if (!cmds.Contains("PC050;")) return false;
+        // 4. Must not force RF power
+        if (cmds.Contains("PC050;")) return false;
 
         // 5. SA1010110; and SA1011110; control commands (satellite mode on / sub control)
         if (!cmds.Contains("SA1010110;")) return false;

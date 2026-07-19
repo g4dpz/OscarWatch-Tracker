@@ -31,6 +31,9 @@ public sealed class RigController : IRigController, IDisposable
     private static readonly TimeSpan CommandWaitTimeout = TimeSpan.FromSeconds(10);
     private static readonly TimeSpan DopplerLogSnapshotInterval = TimeSpan.FromSeconds(1);
     private const int ConnectFailureBackoffSeconds = 3;
+    /// <summary>Consecutive failed Kenwood FA/FB (or beacon FA) writes before suspending doppler briefly.</summary>
+    private const int KenwoodFaFbFailBackoffThreshold = 3;
+    private const int KenwoodFaFbFailBackoffMs = 1500;
 
     private readonly Func<RigSettings, IRigDriver>? _driverFactory;
     private readonly Func<RigEndpointSettings, IRigDriver>? _endpointFactory;
@@ -87,6 +90,9 @@ public sealed class RigController : IRigController, IDisposable
     private DateTime _ignoreDialUntilUtc = DateTime.MinValue;
     private DateTime _lastDialChangeUtc = DateTime.MinValue;
     private DateTime _suspendDopplerUntilUtc = DateTime.MinValue;
+    /// <summary>Kenwood-only: after consecutive FA/FB rejects, block further Doppler writes (including force/offset).</summary>
+    private DateTime _kenwoodFaFbBackoffUntilUtc = DateTime.MinValue;
+    private int _kenwoodFaFbFailCount;
     private DateTime _suspendConnectUntilUtc = DateTime.MinValue;
     private string? _lastConnectError;
     private SerialPortConnectErrorKind _lastConnectErrorKind = SerialPortConnectErrorKind.None;
@@ -496,6 +502,8 @@ public sealed class RigController : IRigController, IDisposable
         _lastPassDownlinkOnVhf = null;
         _receiveVfo = RigVfo.VfoA;
         _suspendDopplerUntilUtc = DateTime.MinValue;
+        _kenwoodFaFbBackoffUntilUtc = DateTime.MinValue;
+        _kenwoodFaFbFailCount = 0;
     }
 
     private void RunLoopIteration(bool ignoreDopplerSuspend = false)
@@ -865,6 +873,14 @@ public sealed class RigController : IRigController, IDisposable
         if (!forceApply && !ShouldWrite(thresholdHz, rxHz, txHz, strategy))
             return false;
 
+        // Kenwood FA/FB reject storms: honour failure backoff even when offset/force ignores loop settle.
+        if (settings.Type == RigType.KenwoodTs2000 && DateTime.UtcNow < _kenwoodFaFbBackoffUntilUtc)
+        {
+            if (forceApply)
+                _forceFrequencyApply = true;
+            return false;
+        }
+
         var rxDelta = Math.Abs(rxHz - _lastRigRxHz);
         var txDelta = _isBeaconOnly ? 0 : Math.Abs(txHz - _lastRigTxHz);
         var correctRx = strategy != DopplerStrategy.UplinkOnly;
@@ -907,8 +923,13 @@ public sealed class RigController : IRigController, IDisposable
         if (settings.Type == RigType.KenwoodTs2000 && _useMainSub && _driver is KenwoodTs2000Driver kenwoodDoppler
             && kenwoodDoppler.UsesFaFbSatelliteTracking && (writeRx || writeTx))
         {
-            if (kenwoodDoppler.ApplySatelliteDopplerStep(rxHz, txHz))
+            var ok = _isBeaconOnly
+                ? kenwoodDoppler.ApplySatelliteBeaconDopplerStep(rxHz)
+                : kenwoodDoppler.ApplySatelliteDopplerStep(rxHz, txHz);
+
+            if (ok)
             {
+                NoteKenwoodFrequencyWriteSuccess();
                 if (writeRx)
                 {
                     _lastRigRxHz = rxHz;
@@ -920,6 +941,10 @@ public sealed class RigController : IRigController, IDisposable
                     _lastRigTxHz = txHz;
                     wroteTx = true;
                 }
+            }
+            else
+            {
+                NoteKenwoodFrequencyWriteFailure();
             }
 
             if (_interactive && wroteTx)
@@ -1152,10 +1177,34 @@ public sealed class RigController : IRigController, IDisposable
 
         if (_isBeaconOnly)
         {
-            _driver.SetSatelliteMode(false);
-            _driver.SetSplitOn(false);
-            ClearCtcssLeavingSatelliteMode(settings, context);
-            EnsureBeaconDownlinkOnMain(context);
+            if (settings.Type == RigType.KenwoodTs2000)
+            {
+                // TS-2000: keep SATL and Doppler-track FA only (exiting SATL causes FR/tone reject beeps).
+                _useMainSub = true;
+                if (_driver is KenwoodTs2000Driver kenwoodBeacon
+                    && kenwoodBeacon.UsesFaFbSatelliteTracking)
+                {
+                    kenwoodBeacon.ReaffirmSatelliteLayout();
+                }
+                else
+                {
+                    _driver.SetSatelliteMode(true);
+                    if (!_driver.IsSatelliteModeActive)
+                    {
+                        Log.Warning(
+                            "TS-2000 SATL not confirmed via SA; — continuing FA tracking for beacon (no FR/split in SAT).");
+                    }
+
+                    Thread.Sleep(150);
+                }
+            }
+            else
+            {
+                _driver.SetSatelliteMode(false);
+                _driver.SetSplitOn(false);
+                ClearCtcssLeavingSatelliteMode(settings, context);
+                EnsureBeaconDownlinkOnMain(context);
+            }
         }
         else if (!_useMainSub)
         {
@@ -1238,7 +1287,7 @@ public sealed class RigController : IRigController, IDisposable
             _lastWriteUtc = DateTime.UtcNow;
         _lastPassDownlinkOnVhf = RigSatModeHelper.IsVhfCenterKHz(context.Mode.DownlinkKHz);
         MarkProgrammaticFrequencySettle();
-        _suspendDopplerUntilUtc = DateTime.UtcNow.AddMilliseconds(500);
+        ExtendDopplerSuspendMs(500);
         RestoreOperatorVfo();
     }
 
@@ -1308,7 +1357,7 @@ public sealed class RigController : IRigController, IDisposable
 
         _lastPassDownlinkOnVhf = RigSatModeHelper.IsVhfCenterKHz(context.Mode.DownlinkKHz);
         MarkProgrammaticFrequencySettle();
-        _suspendDopplerUntilUtc = DateTime.UtcNow.AddMilliseconds(500);
+        ExtendDopplerSuspendMs(500);
         RestoreOperatorVfo();
     }
 
@@ -1454,6 +1503,19 @@ public sealed class RigController : IRigController, IDisposable
         else
             _driver.SetToneOn(false);
 
+        if (_isBeaconOnly)
+        {
+            if (!KenwoodCatCodec.TryGetModeCode(context.EffectiveDownlinkMode, out var beaconMode))
+                return new InitialFrequencyWriteResult(false, TxWritten: true);
+
+            var beaconOk = kenwood.ApplySatelliteBeaconPassFrequencies(downlinkHz, beaconMode);
+            if (beaconOk)
+                NoteKenwoodFrequencyWriteSuccess();
+            else
+                NoteKenwoodFrequencyWriteFailure();
+            return new InitialFrequencyWriteResult(beaconOk, TxWritten: true);
+        }
+
         if (!KenwoodCatCodec.TryGetModeCode(context.EffectiveDownlinkMode, out var downlinkMode)
             || !KenwoodCatCodec.TryGetModeCode(context.EffectiveUplinkMode, out var uplinkMode))
         {
@@ -1461,7 +1523,33 @@ public sealed class RigController : IRigController, IDisposable
         }
 
         var ok = kenwood.ApplySatellitePassFrequencies(downlinkHz, uplinkHz, downlinkMode, uplinkMode);
+        if (ok)
+            NoteKenwoodFrequencyWriteSuccess();
+        else
+            NoteKenwoodFrequencyWriteFailure();
         return new InitialFrequencyWriteResult(ok, ok && !_isBeaconOnly);
+    }
+
+    private void NoteKenwoodFrequencyWriteSuccess() => _kenwoodFaFbFailCount = 0;
+
+    private void NoteKenwoodFrequencyWriteFailure()
+    {
+        _kenwoodFaFbFailCount++;
+        if (_kenwoodFaFbFailCount < KenwoodFaFbFailBackoffThreshold)
+            return;
+
+        _kenwoodFaFbFailCount = 0;
+        _kenwoodFaFbBackoffUntilUtc = DateTime.UtcNow.AddMilliseconds(KenwoodFaFbFailBackoffMs);
+        Log.Warning(
+            "TS-2000 FA/FB writes failing; backing off Doppler CAT for {BackoffMs} ms",
+            KenwoodFaFbFailBackoffMs);
+    }
+
+    private void ExtendDopplerSuspendMs(int milliseconds)
+    {
+        var until = DateTime.UtcNow.AddMilliseconds(milliseconds);
+        if (until > _suspendDopplerUntilUtc)
+            _suspendDopplerUntilUtc = until;
     }
 
     private void ConfigureVfoModes(RigTrackingContext context)

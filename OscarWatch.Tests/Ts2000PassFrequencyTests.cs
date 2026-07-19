@@ -89,17 +89,46 @@ public class Ts2000PassFrequencyTests : Ts2000TestBase
     }
 
     /// <summary>
-    /// Requirement 10.4: ApplySatellitePassFrequencies sends PC050; to set the RF power level.
+    /// Requirement 10.4: ApplySatellitePassFrequencies must not set RF power (operator control).
     /// </summary>
     [Fact]
-    public void PassFrequencies_sends_PC050_power_level()
+    public void PassFrequencies_does_not_send_PC050_power_level()
     {
         EnterSatelliteMode();
         ClearCommandLog();
 
         Driver.ApplySatellitePassFrequencies(DownlinkHz, UplinkHz, DownlinkModeCode, UplinkModeCode);
 
-        AssertCommandContains("PC050;");
+        Assert.DoesNotContain("PC050;", GetSentCommands());
+    }
+
+    [Fact]
+    public void BeaconPassFrequencies_sends_FA_and_mode_without_FB_or_SM()
+    {
+        EnterSatelliteMode();
+        ClearCommandLog();
+
+        Assert.True(Driver.ApplySatelliteBeaconPassFrequencies(DownlinkHz, DownlinkModeCode));
+
+        var cmds = GetSentCommands();
+        Assert.Contains($"FA{DownlinkHz:D11};", cmds);
+        Assert.Contains($"MD{DownlinkModeCode};", cmds);
+        Assert.Contains("AI0;", cmds);
+        Assert.DoesNotContain(cmds, c => c.StartsWith("FB", StringComparison.Ordinal));
+        Assert.DoesNotContain(cmds, c => c.StartsWith("SM", StringComparison.Ordinal));
+        Assert.DoesNotContain("PC050;", cmds);
+    }
+
+    [Fact]
+    public void BeaconDopplerStep_sends_FA_only()
+    {
+        EnterSatelliteMode();
+        ClearCommandLog();
+
+        Assert.True(Driver.ApplySatelliteBeaconDopplerStep(DownlinkHz));
+
+        var cmds = GetSentCommands();
+        Assert.Equal([$"FA{DownlinkHz:D11};"], cmds);
     }
 
     /// <summary>

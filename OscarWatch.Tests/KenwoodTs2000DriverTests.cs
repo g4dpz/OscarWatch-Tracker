@@ -57,7 +57,7 @@ public sealed class KenwoodTs2000DriverTests
 
         driver.ApplySatellitePassFrequencies(145_900_000, 435_700_000, '2', '1');
 
-        Assert.Contains("PC050;", transport.SentCommands);
+        Assert.DoesNotContain("PC050;", transport.SentCommands);
         Assert.Contains("SA1011110;", transport.SentCommands);
         Assert.Contains("DC10;", transport.SentCommands);
         Assert.DoesNotContain(transport.SentCommands, c => c == "FA;");

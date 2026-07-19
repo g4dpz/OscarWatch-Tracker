@@ -51,9 +51,6 @@ public static class KenwoodCatCodec
     /// <summary>SATL entry: sent after initial <c>FA;</c> read (TS-2000 satellite CAT handshake).</summary>
     public static string BuildSatelliteEntryTsCommand() => "TS1;";
 
-    /// <summary>SATL pass programming: RF power level 50 (PC P1=050).</summary>
-    public static string BuildSatellitePowerLevelCommand() => "PC050;";
-
     /// <summary>Minimum interval between FA; link-hold polls while SATL tracking (SatPC32 ~1/s).</summary>
     public const int SatelliteLinkHoldPollIntervalMs = 1000;
 
@@ -98,14 +95,13 @@ public static class KenwoodCatCodec
     public static string BuildSetSatelliteModeOffCommand() => "SA0;";
 
     /// <summary>
-    /// SATL exit (SatPC32-compatible): read RX status, clear encode tone, reset TN table entries, then SAT off.
+    /// SATL exit: read RX status, clear encode tone, then SAT off.
+    /// (No TN table reset — those SatPC32 TN39 commands cause rejection beeps on many radios.)
     /// </summary>
     public static readonly string[] SatelliteModeExitSequence =
     [
         "RX;",
         "TO0;",
-        "TN39;",
-        "TN39;",
         "SA0010000;"
     ];
 

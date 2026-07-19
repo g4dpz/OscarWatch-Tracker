@@ -270,27 +270,24 @@ public class Ts2000TrackingLoopTests
         var cmds = transport.SentCommands;
 
         // Pass init for TS-2000 calls ApplySatellitePassFrequencies which programs
-        // frequencies via double FA/FB, SM, mode commands, PC050, AI0, and link-hold polls.
+        // frequencies via double FA/FB, SM, mode commands, AI0, and link-hold polls.
         // Verify that the new downlink frequency appears in FA commands.
         var expectedRxHz = (long)Math.Round(corrected2.RadioReceiveKHz * 1000.0);
         var faCmd = $"FA{expectedRxHz:D11};";
         Assert.Contains(faCmd, cmds);
 
-        // PC050 is part of ApplySatellitePassFrequencies
-        Assert.Contains("PC050;", cmds);
+        // Operator RF power must not be overridden
+        Assert.DoesNotContain("PC050;", cmds);
 
         // AI0 finalises the pass programming
         Assert.Contains("AI0;", cmds);
     }
 
     /// <summary>
-    /// Requirement 11.4: When the tracking context is cleared (pass ends), the RigController
-    /// calls SetSatelliteMode(false) to exit satellite mode on the Driver.
-    /// In practice, this happens when a new pass starts that doesn't require satellite mode
-    /// (e.g., a beacon-only pass), causing the controller to exit sat mode.
+    /// Switching to a beacon-only mode keeps SATL and programs FA (downlink) only.
     /// </summary>
     [Fact]
-    public void New_non_satellite_pass_calls_SetSatelliteMode_false()
+    public void Switching_to_beacon_keeps_satellite_mode_and_programs_FA_only()
     {
         var transport = Ts2000TransportFactory.CreateRecordingTransport();
         var driver = new KenwoodTs2000Driver(
@@ -334,12 +331,10 @@ public class Ts2000TrackingLoopTests
             CatDelayMs = 0
         };
 
-        // Enter tracking in satellite mode (cross-band V/U uses main/sub)
         controller.Update(settings, ctx);
         controller.DrainCommandQueueForTests();
         Assert.True(driver.IsSatelliteModeActive);
 
-        // Now switch to a beacon-only satellite (no uplink — this triggers SetSatelliteMode(false))
         var beaconMode = new SatelliteTransponderMode
         {
             Type = "Beacon",
@@ -368,14 +363,176 @@ public class Ts2000TrackingLoopTests
 
         transport.SentCommands.Clear();
 
-        // Switching to beacon pass should exit satellite mode
         controller.Update(settings, beaconCtx);
         controller.DrainCommandQueueForTests();
 
-        // The driver should no longer be in satellite mode
-        Assert.False(driver.IsSatelliteModeActive);
+        Assert.True(driver.IsSatelliteModeActive);
+        Assert.True(driver.UsesFaFbSatelliteTracking);
+        Assert.DoesNotContain("SA0010000;", transport.SentCommands);
 
-        // The exit sequence should have been sent (SA0010000; is the final command in exit)
+        var expectedRxHz = (long)Math.Round(beaconCorrected.RadioReceiveKHz * 1000.0);
+        Assert.Contains($"FA{expectedRxHz:D11};", transport.SentCommands);
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("FB", StringComparison.Ordinal));
+    }
+
+    /// <summary>
+    /// Same-band (UL≈DL) still exits SATL and enables split — not the beacon SATL path.
+    /// </summary>
+    [Fact]
+    public void Same_band_pass_exits_satellite_mode_and_enables_split()
+    {
+        var transport = Ts2000TransportFactory.CreateRecordingTransport();
+        var driver = new KenwoodTs2000Driver(
+            transport, catDelayMs: 0, satModeSettlingDelayMs: 0,
+            satModeRetryCount: 3, satModeRetryDelayMs: 0);
+        var controller = new RigController(_ => driver);
+
+        var crossBand = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 436_800,
+            UplinkKHz = 145_850,
+            DownlinkMode = "FMN",
+            UplinkMode = "FMN",
+            Doppler = "NOR"
+        };
+
+        var crossState = new SatelliteTrackState
+        {
+            Name = "SO-50",
+            NoradId = "27607",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 45, 600, 2.0)
+        };
+
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.KenwoodTs2000,
+            Port = "COM1",
+            DopplerThresholdFmHz = 200,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0
+        };
+
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = crossState,
+            Mode = crossBand,
+            Corrected = DopplerFrequencyCalculator.Compute(crossBand, 2.0, 0)
+        });
+        controller.DrainCommandQueueForTests();
+        Assert.True(driver.IsSatelliteModeActive);
+
+        var sameBand = new SatelliteTransponderMode
+        {
+            Type = "Packet",
+            DownlinkKHz = 145_825,
+            UplinkKHz = 145_825,
+            DownlinkMode = "FMN",
+            UplinkMode = "FMN",
+            Doppler = "NOR"
+        };
+
+        var sameState = new SatelliteTrackState
+        {
+            Name = "ISS-Packet",
+            NoradId = "25544",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 30, 400, 1.0)
+        };
+
+        transport.SentCommands.Clear();
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = sameState,
+            Mode = sameBand,
+            Corrected = DopplerFrequencyCalculator.Compute(sameBand, 1.0, 0)
+        });
+        controller.DrainCommandQueueForTests();
+
+        Assert.False(driver.IsSatelliteModeActive);
         Assert.Contains("SA0010000;", transport.SentCommands);
+        Assert.Contains("FR0;FT1;", transport.SentCommands);
+    }
+
+    [Fact]
+    public void Failed_FA_FB_writes_backoff_doppler_after_threshold()
+    {
+        var transport = Ts2000TransportFactory.CreateRecordingTransport();
+        transport.FailSets = true;
+        var driver = new KenwoodTs2000Driver(
+            transport, catDelayMs: 0, satModeSettlingDelayMs: 0,
+            satModeRetryCount: 3, satModeRetryDelayMs: 0);
+        var controller = new RigController(_ => driver);
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 436_800,
+            UplinkKHz = 145_850,
+            DownlinkMode = "FMN",
+            UplinkMode = "FMN",
+            Doppler = "NOR"
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "SO-50",
+            NoradId = "27607",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 50, 500, 3.0)
+        };
+
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.KenwoodTs2000,
+            Port = "COM1",
+            DopplerThresholdFmHz = 0,
+            DopplerThresholdLinearHz = 0,
+            CatDelayMs = 0
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = state,
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 3.0, 0)
+        };
+
+        // First update: pass init fails (FailSets) and counts toward backoff.
+        controller.Update(settings, ctx);
+        controller.DrainCommandQueueForTests();
+
+        // Force more failed doppler writes until backoff threshold trips.
+        for (var i = 0; i < 5; i++)
+        {
+            var next = DopplerFrequencyCalculator.Compute(mode, 3.0 + i * 0.1, 0);
+            controller.Update(settings, new RigTrackingContext
+            {
+                TrackState = state,
+                Mode = mode,
+                Corrected = next,
+                ReceiveOffsetKHz = i * 0.01
+            });
+            controller.DrainCommandQueueForTests();
+        }
+
+        var countBefore = transport.SentCommands.Count;
+        transport.SentCommands.Clear();
+
+        // Immediate further update during backoff should not spam another FA/FB cluster.
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = state,
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 4.0, 0),
+            ReceiveOffsetKHz = 0.05
+        });
+        controller.DrainCommandQueueForTests();
+
+        Assert.True(countBefore > 0);
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("FA00", StringComparison.Ordinal));
     }
 }

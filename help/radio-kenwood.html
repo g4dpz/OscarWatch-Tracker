@@ -47,7 +47,7 @@
       <p class="lead">
         The TS-2000 is supported as a <strong>single</strong> satellite radio (Beta). OscarWatch drives
         <strong>SATL</strong> over Kenwood ASCII CAT (SatPC32-style <code>SA</code> / <code>FA</code> / <code>FB</code>),
-        including entry on pass start and exit when you quit, disconnect, or switch to receive-only.
+        including entry on pass start and exit when you quit or disconnect.
       </p>
 
       <h2 id="ts-2000-setup">Before each pass (or once per session)</h2>
@@ -74,8 +74,11 @@
         <li>Modes where the driver supports them for the selected transponder (bracketed with SAT CTRL so uplink stays on Sub).</li>
         <li>CTCSS on FM satellites when configured.</li>
         <li>Link-hold reads (~1/s <code>FA;</code>) while tracking, matching SatPC32 habits.</li>
-        <li>Satellite mode <strong>exit when you quit, disconnect, or switch to receive-only</strong> (SatPC32-style cleanup), then COM port close with RTS/DTR dropped so USB serial adapters release cleanly.</li>
+        <li>Satellite mode <strong>exit when you quit or disconnect</strong>, then COM port close with RTS/DTR dropped so USB serial adapters release cleanly.</li>
       </ul>
+      <p>
+        OscarWatch does <strong>not</strong> change RF power — set watts on the radio yourself.
+      </p>
       <p>
         If SATL cannot be confirmed via <code>SA;</code>, OscarWatch continues FA/FB tracking in a degraded state and
         avoids falling back to ordinary <code>FR</code> split commands. Check the radio front panel and leave menus closed.
@@ -88,10 +91,19 @@
         <li><strong>Pause CAT</strong> in Settings if you want full manual control for a while.</li>
       </ul>
 
-      <h2>Receive-only</h2>
+      <h2>Receive-only and same-band</h2>
+      <ul>
+        <li>
+          <strong>Beacons / SSTV</strong> (uplink 0): OscarWatch <strong>keeps SATL</strong> and Doppler-tracks the downlink on
+          <code>FA</code> only (Sub / <code>FB</code> is left parked). This avoids leaving SAT and losing Doppler on the TS-2000.
+        </li>
+        <li>
+          <strong>Same-band</strong> modes (uplink and downlink within 10&nbsp;MHz, e.g. ISS Packet): OscarWatch turns SATL
+          <strong>off</strong> and uses split (<code>FR0;FT1;</code>), as on other non-cross-band passes.
+        </li>
+      </ul>
       <p>
-        For modes with uplink 0 (SSTV, beacons), OscarWatch updates receive frequency only.
-        You may leave SAT off if you prefer simple VFO tuning — see <a href="radio-rotator.html#beacon-receive-only">receive-only overview</a>.
+        See also <a href="radio-rotator.html#beacon-receive-only">receive-only overview</a> (ICOM behaviour differs — sat mode off for beacons).
       </p>
 
       <p><a href="radio-rotator.html">← Back to radio overview</a></p>

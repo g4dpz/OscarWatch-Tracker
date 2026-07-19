@@ -279,11 +279,12 @@ Covers **FTX-1 Field** and **FTX-1optima** (same field head). Same dual-radio pa
 | Serial transport | [`OscarWatch/Rig/KenwoodCatTransport.cs`](../OscarWatch/Rig/KenwoodCatTransport.cs) — **8N1**, hardware RTS, semicolon-terminated ASCII |
 | Driver | [`OscarWatch/Rig/KenwoodTs2000Driver.cs`](../OscarWatch/Rig/KenwoodTs2000Driver.cs) |
 
-- Cross-band **SATL** for the TS-2000 ([`KenwoodTs2000_SatCatReference_A07.txt`](../OscarWatch.Tests/Fixtures/KenwoodTs2000_SatCatReference_A07.txt) field CAT capture): `SA1010110;` / `SA1011110;` for CTRL (no `DC` in SAT), 2× `TO0;`, `FA;` read, `TS1;`, `AI2;`, then `AI0;` after init; pass programming and SATL doppler steps (`FA`/`FB`/`SM` cluster). While tracking, one `FA;` link-hold poll about every second (SatPC32-style), not a burst per doppler step. Exit (SatPC32-compatible): `RX;` `TO0;` `TN39;` `TN39;` `SA0010000;` — also sent on driver `Dispose` when tracking was active. Silent set commands do not require a CAT echo; `FA;` reads wait up to ~450 ms.
+- Cross-band **SATL** for the TS-2000 ([`KenwoodTs2000_SatCatReference_A07.txt`](../OscarWatch.Tests/Fixtures/KenwoodTs2000_SatCatReference_A07.txt) field CAT capture): `SA1010110;` / `SA1011110;` for CTRL (no `DC` in SAT), 2× `TO0;`, `FA;` read, `TS1;`, `AI2;`, then `AI0;` after init; pass programming and SATL doppler steps (`FA`/`FB`/`SM` cluster). While tracking, one `FA;` link-hold poll about every second (SatPC32-style), not a burst per doppler step. **Beacon / receive-only** keeps SATL and updates `FA` only. Exit on quit/disconnect: `RX;` `TO0;` `SA0010000;` — also sent on driver `Dispose` when tracking was active. Does **not** set RF power (`PC`). Silent set commands do not require a CAT echo; `FA;` reads wait up to ~450 ms.
 - `Main`/`Sub` → **`FA`/`FB`**; **no `FR`/`FT` or `DC`** in SATL (Hamlib/Gpredict disable `FR` in SAT for the same reason).
 - `SupportsVfoExchange` is **true** — swaps `FA`/`FB` frequencies in SATL when Main is on the wrong band (same logic as ICOM `TryBandSwap`).
 - CTCSS encode: `TN` + `TO`; TSQL squelch: `CN` + `CT` (Hamlib `ts2000_ctcss_list`, 1-based index). In SATL, **`SA1011110;`** selects Sub CTRL before uplink `MD`/tone (not `DC01;`). After entry/pass setup, best-effort **`DC10;`** pins TX/PTT to SUB (CTRL MAIN); ignored if the radio rejects `DC` in SATL.
 - If `SA;` does not confirm SATL, OscarWatch **still tracks on `FA`/`FB`** (no split/FR fallback).
+- Consecutive failed `FA`/`FB` writes briefly suspend further Doppler CAT to avoid rejection-beep storms.
 - Cross-check against [Hamlib `kenwood.c`](https://github.com/Hamlib/Hamlib/blob/master/rigs/kenwood/kenwood.c) and [`ts2000.txt`](https://github.com/Hamlib/Hamlib/blob/master/rigs/kenwood/ts2000.txt).
 
 ### Hardware checklist (TS-2000)
@@ -350,8 +351,8 @@ You rarely call the driver from the UI. Typical sequence on the worker thread:
 1. `EnsureConnected` → `RigDriverFactory.Create` → `Open`
 2. New pass (`RunPassInit`) — layout depends on mode (see **`RigSatModeHelper.UseMainSubLayout`** and **`SatelliteTransponderMode.IsBeaconOnly`**):
    - **Cross-band** (`downlink` and `uplink` both &gt; 0, &gt;10 MHz apart) → `SetSatelliteMode(true)`, `SetSplitOn(false)`, Main=RX / Sub=TX, optional `ExchangeVfos`, CTCSS on Sub
-   - **Beacon / receive-only** (`uplink` ≤ 0) → `SetSatelliteMode(false)`; on **IC-910 / IC-9100 / IC-9700** also clear tones on Main+Sub, ensure downlink band on **Main** (`ExchangeVfos` if needed), tune and doppler on Main only
-   - **Same-band** (both freqs, ≤10 MHz apart) → **IC-910/9100/9700**: satellite mode off, split on, VFO A/B; **IC-821H**: satellite mode on, Main/Sub (no split CAT)
+   - **Beacon / receive-only** (`uplink` ≤ 0) → **ICOM**: `SetSatelliteMode(false)`; on **IC-910 / IC-9100 / IC-9700** also clear tones on Main+Sub, ensure downlink band on **Main** (`ExchangeVfos` if needed), tune and doppler on Main only. **Kenwood TS-2000**: keep SATL, Doppler on `FA` only.
+   - **Same-band** (both freqs, ≤10 MHz apart) → **IC-910/9100/9700**: satellite mode off, split on, VFO A/B; **IC-821H**: satellite mode on, Main/Sub (no split CAT); **Kenwood TS-2000**: satellite mode off, split on
 3. Each context update → `SelectVfo` + `SetFrequencyHz` when doppler delta exceeds threshold (`_receiveVfo` may be Main, Sub, VfoA, or VfoB)
 4. CTCSS changes → `SetToneHz` / squelch on uplink VFO (skipped when `IsBeaconOnly`)
 5. Disconnect / disable → dispose driver

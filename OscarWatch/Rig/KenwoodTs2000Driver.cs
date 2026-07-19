@@ -135,9 +135,28 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     }
 
     /// <summary>
-    /// Programs pass frequencies after SAT entry: double FA/FB, SM, main/sub finalize (modes, PC050, tones).
+    /// Beacon / receive-only SATL doppler: update Main (<c>FA</c>) only; leave Sub (<c>FB</c>) parked.
+    /// </summary>
+    public bool ApplySatelliteBeaconDopplerStep(long downlinkHz)
+    {
+        if (!_faFbSatelliteTracking || !_transport.IsOpen || downlinkHz <= 0)
+            return false;
+
+        _lastMainHz = downlinkHz;
+        _lastVfoAHz = downlinkHz;
+
+        var ok = SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('A', downlinkHz));
+        if (!ok)
+            Log.Warning("TS-2000 beacon FA doppler send failed");
+
+        return ok;
+    }
+
+    /// <summary>
+    /// Programs pass frequencies after SAT entry: double FA/FB, SM, main/sub finalize (modes, tones).
     /// Mode finalize always runs even when <c>SM</c>/tone clears are rejected — entry handshake leaves
     /// USB/LSB placeholders that must be overwritten with the pass modes (e.g. FM for AO-91).
+    /// Does not set RF power — the operator controls power on the radio.
     /// </summary>
     public bool ApplySatellitePassFrequencies(
         long downlinkHz,
@@ -165,6 +184,31 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         var ok = freqOk && mainOk && subOk && wrapOk;
         if (!ok)
             Log.Warning("TS-2000 pass frequency programming send failed");
+
+        return ok;
+    }
+
+    /// <summary>
+    /// Beacon / receive-only pass setup in SATL: Main mode + <c>FA</c> only (Sub / <c>FB</c> untouched).
+    /// </summary>
+    public bool ApplySatelliteBeaconPassFrequencies(long downlinkHz, char downlinkModeCode)
+    {
+        if (!_faFbSatelliteTracking || !_transport.IsOpen || downlinkHz <= 0)
+            return false;
+
+        _lastMainHz = downlinkHz;
+        _lastVfoAHz = downlinkHz;
+
+        var ok =
+            SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('A', downlinkHz))
+            && SendSet(KenwoodCatCodec.BuildSetSatelliteModeOnCommand())
+            && SendSet(KenwoodCatCodec.BuildSetModeCommand(downlinkModeCode))
+            && SendSet(KenwoodCatCodec.BuildSetFrequencyCommand('A', downlinkHz))
+            && SendSet(KenwoodCatCodec.BuildSetSatelliteModeOnCommand())
+            && SendSet(KenwoodCatCodec.BuildAutoinfoOffCommand());
+
+        if (!ok)
+            Log.Warning("TS-2000 beacon pass frequency programming send failed");
 
         return ok;
     }
@@ -596,8 +640,7 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         SendBestEffort("DQ0;");
         var ok =
             SendSet(KenwoodCatCodec.BuildSetSatelliteModeOnCommand())
-            && SendSet(KenwoodCatCodec.BuildSetModeCommand(downlinkModeCode))
-            && SendSet(KenwoodCatCodec.BuildSatellitePowerLevelCommand());
+            && SendSet(KenwoodCatCodec.BuildSetModeCommand(downlinkModeCode));
         SendBestEffort(KenwoodCatCodec.BuildSatelliteBandSelectSubCommand(downlinkHz));
         SendBestEffort(KenwoodCatCodec.BuildSatelliteBandSelectMainCommand());
         return ok;
@@ -612,7 +655,6 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         SendBestEffort(KenwoodCatCodec.BuildToneEnableCommand(false));
         SendBestEffort(KenwoodCatCodec.BuildCtcssEnableCommand(false));
         SendBestEffort("DQ0;");
-        SendBestEffort(KenwoodCatCodec.BuildSatellitePowerLevelCommand());
         SendBestEffort(KenwoodCatCodec.BuildSatelliteBandSelectMainCommand());
         SendBestEffort(KenwoodCatCodec.BuildSatelliteBandSelectSubCommand(uplinkHz));
         ok = SendSet(KenwoodCatCodec.BuildSetSatelliteModeOnCommand()) && ok;

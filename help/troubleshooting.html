@@ -100,7 +100,7 @@
         <li>Confirm you are not in Standby mode.</li>
         <li>Verify rig type and CI-V address (ICOM).</li>
         <li>For <strong>cross-band</strong> modes, the radio should be in satellite/split layout (OscarWatch usually sets this at pass start).</li>
-        <li>For <strong>receive-only</strong> modes (e.g. ISS SSTV with uplink 0), satellite mode should be <strong>off</strong> — OscarWatch does that on ICOM rigs. Pick the matching band mode (SSTV VHF vs UHF) in the frequency panel.</li>
+        <li>For <strong>receive-only</strong> modes (e.g. ISS SSTV with uplink 0), satellite mode should be <strong>off</strong> on ICOM rigs — OscarWatch does that automatically. On the <strong>TS-2000</strong>, receive-only stays in SATL with downlink Doppler on <code>FA</code> only — see <a href="radio-kenwood.html">Kenwood help</a>. Pick the matching band mode (SSTV VHF vs UHF) in the frequency panel.</li>
         <li>On linear SSB/CW, check <a href="radio-doppler-tuning.html#doppler-cat-thresholds">Doppler thresholds</a> — very large values can make tracking look sluggish near TCA.</li>
       </ul>
 
@@ -111,7 +111,8 @@
         <li>Select <strong>SAT</strong> on the radio and turn <strong>memory mode off</strong> before tracking — see <a href="radio-kenwood.html">Kenwood TS-2000 help</a>.</li>
         <li>Close any front-panel menu; the radio may reply <code>?;</code> while a menu is open.</li>
         <li>If SATL is not confirmed, OscarWatch still tracks on <code>FA</code>/<code>FB</code> — check the status bar for a degraded-tracking warning.</li>
-        <li>OscarWatch exits satellite mode when you disconnect, quit the app, or switch to a receive-only pass — matching SatPC32-style cleanup.</li>
+        <li>OscarWatch exits satellite mode when you disconnect or quit the app. Receive-only (beacon) modes keep SATL and track <code>FA</code> only.</li>
+        <li>OscarWatch does not set RF power — leave the radio at your preferred watts.</li>
       </ul>
 
       <h2>Dual radio not connecting (FT-817 / FT-818 / FT-991 / FTX-1 / IC-705 / IC-905 / IC-706 series)</h2>
