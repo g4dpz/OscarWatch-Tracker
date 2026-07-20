@@ -151,6 +151,14 @@
         "downlink_mode": "USB",
         "uplink_mode": "LSB",
         "doppler": "REV"
+      },
+      {
+        "type": "CW Beacon",
+        "downlink": 435795,
+        "uplink": 0,
+        "downlink_mode": "CW",
+        "uplink_mode": "CW",
+        "doppler": "REV"
       }
     ]
   },

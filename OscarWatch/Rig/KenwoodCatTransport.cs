@@ -238,9 +238,9 @@ internal sealed class KenwoodCatTransport : IKenwoodCatTransport
                 // Drop RTS/DTR before Close so Windows releases the USB serial adapter for SatPC32/etc.
                 try
                 {
+                    _port.Handshake = Handshake.None;
                     _port.RtsEnable = false;
                     _port.DtrEnable = false;
-                    _port.Handshake = Handshake.None;
                     _port.DiscardInBuffer();
                     _port.DiscardOutBuffer();
                 }

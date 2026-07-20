@@ -1508,7 +1508,10 @@ public sealed class RigController : IRigController, IDisposable
             if (!KenwoodCatCodec.TryGetModeCode(context.EffectiveDownlinkMode, out var beaconMode))
                 return new InitialFrequencyWriteResult(false, TxWritten: true);
 
-            var beaconOk = kenwood.ApplySatelliteBeaconPassFrequencies(downlinkHz, beaconMode);
+            var beaconOk = kenwood.ApplySatelliteBeaconPassFrequenciesWithBandRecovery(
+                downlinkHz,
+                context.Mode.DownlinkKHz,
+                beaconMode);
             if (beaconOk)
                 NoteKenwoodFrequencyWriteSuccess();
             else
@@ -1522,7 +1525,12 @@ public sealed class RigController : IRigController, IDisposable
             return new InitialFrequencyWriteResult(false, false);
         }
 
-        var ok = kenwood.ApplySatellitePassFrequencies(downlinkHz, uplinkHz, downlinkMode, uplinkMode);
+        var ok = kenwood.ApplySatellitePassFrequenciesWithBandRecovery(
+            downlinkHz,
+            uplinkHz,
+            context.Mode.DownlinkKHz,
+            downlinkMode,
+            uplinkMode);
         if (ok)
             NoteKenwoodFrequencyWriteSuccess();
         else

@@ -189,6 +189,25 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     }
 
     /// <summary>
+    /// Programs pass frequencies; on FA/FB failure, recover inverted Main/Sub band layout via VFO exchange and SAT re-entry.
+    /// </summary>
+    public bool ApplySatellitePassFrequenciesWithBandRecovery(
+        long downlinkHz,
+        long uplinkHz,
+        double downlinkKHz,
+        char downlinkModeCode,
+        char uplinkModeCode)
+    {
+        var ok = ApplySatellitePassFrequencies(downlinkHz, uplinkHz, downlinkModeCode, uplinkModeCode);
+        if (ok)
+            return true;
+
+        return TryRecoverSatelliteBandLayout(
+            downlinkKHz,
+            () => ApplySatellitePassFrequencies(downlinkHz, uplinkHz, downlinkModeCode, uplinkModeCode));
+    }
+
+    /// <summary>
     /// Beacon / receive-only pass setup in SATL: Main mode + <c>FA</c> only (Sub / <c>FB</c> untouched).
     /// </summary>
     public bool ApplySatelliteBeaconPassFrequencies(long downlinkHz, char downlinkModeCode)
@@ -211,6 +230,23 @@ public sealed class KenwoodTs2000Driver : IRigDriver
             Log.Warning("TS-2000 beacon pass frequency programming send failed");
 
         return ok;
+    }
+
+    /// <summary>
+    /// Beacon pass setup with band-layout recovery when <c>FA</c> programming fails.
+    /// </summary>
+    public bool ApplySatelliteBeaconPassFrequenciesWithBandRecovery(
+        long downlinkHz,
+        double downlinkKHz,
+        char downlinkModeCode)
+    {
+        var ok = ApplySatelliteBeaconPassFrequencies(downlinkHz, downlinkModeCode);
+        if (ok)
+            return true;
+
+        return TryRecoverSatelliteBandLayout(
+            downlinkKHz,
+            () => ApplySatelliteBeaconPassFrequencies(downlinkHz, downlinkModeCode));
     }
 
     public void SelectVfo(RigVfo vfo, bool force = false)
@@ -678,5 +714,24 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         _transport.SendFireAndForget(KenwoodCatCodec.BuildToneEnableCommand(false), _catDelayMs);
         _transport.SendFireAndForget("DQ0;", _catDelayMs);
         _transport.SendFireAndForget(KenwoodCatCodec.BuildCtcssEnableCommand(false), _catDelayMs);
+    }
+
+    private bool TryRecoverSatelliteBandLayout(double downlinkKHz, Func<bool> reprogram)
+    {
+        Log.Warning("TS-2000 pass frequency programming failed — attempting SAT band layout recovery");
+
+        ExchangeVfos();
+        var ok = reprogram();
+        var mainHz = ReadFrequencyHz(RigVfo.Main);
+        var bandOk = mainHz is null or <= 0
+            || !RigSatModeHelper.NeedsMainSubBandSwap(mainHz.Value, downlinkKHz);
+
+        if (ok && bandOk)
+            return true;
+
+        Log.Warning("TS-2000 band recovery via VFO exchange insufficient — re-entering SATL");
+        SetSatelliteMode(false);
+        SetSatelliteMode(true);
+        return reprogram();
     }
 }

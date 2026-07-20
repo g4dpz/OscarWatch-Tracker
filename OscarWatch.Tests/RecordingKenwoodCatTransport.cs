@@ -20,6 +20,9 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
     /// <summary>Command prefixes (e.g. <c>SM</c>, <c>TO0</c>) that return false from set sends.</summary>
     public HashSet<string> RejectedPrefixes { get; } = new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>Optional per-command rejection hook for tests (return true to reject).</summary>
+    public Func<string, bool>? ShouldRejectSet { get; set; }
+
     public char MainVfoSelect { get; set; } = '0';
     public char SubVfoSelect { get; set; } = '0';
     public List<string> SentCommands { get; } = [];
@@ -47,9 +50,11 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
     }
 
     private bool IsRejected(string normalized) =>
-        RejectedPrefixes.Count > 0
-        && RejectedPrefixes.Any(prefix =>
-            normalized.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+        ShouldRejectSet?.Invoke(normalized) == true
+        || FailSets
+        || (RejectedPrefixes.Count > 0
+            && RejectedPrefixes.Any(prefix =>
+                normalized.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)));
 
     public string? Transact(string command, int postDelayMs = 50)
     {
