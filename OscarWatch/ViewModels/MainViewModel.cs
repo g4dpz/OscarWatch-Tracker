@@ -2056,7 +2056,9 @@ public partial class MainViewModel : ViewModelBase
         await ReloadTleCatalogAfterSettingsAsync().ConfigureAwait(true);
         _liveTracking.RequestReload();
         _rotator.Disconnect();
-        _rig.DisconnectAndWait();
+        // Non-blocking: DisconnectAndWait on the UI thread freezes/crashes if the rig worker
+        // is busy (e.g. Yaesu set-command timeouts). Connect is re-enqueued below after drain.
+        _rig.Disconnect();
         _gps.Disconnect();
         _gps.Update(_settings.Current.Gps);
         ApplySatelliteLinkSettings();

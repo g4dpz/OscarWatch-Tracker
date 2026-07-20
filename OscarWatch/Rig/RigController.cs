@@ -229,13 +229,28 @@ public sealed class RigController : IRigController, IDisposable
                 if (_commands!.TryTake(out var command, LoopInterval))
                 {
                     ProcessCommand(command);
-                    DrainPendingCommands();
+                    try
+                    {
+                        DrainPendingCommands();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warning(ex, "Rig worker drain failed; continuing");
+                    }
                 }
 
                 if (_shutdownRequested)
                     break;
 
-                RunLoopIteration(ignoreDopplerSuspend: false);
+                try
+                {
+                    RunLoopIteration(ignoreDopplerSuspend: false);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning(ex, "Rig tracking loop iteration failed; continuing");
+                }
+
                 RefreshStatusSnapshot();
             }
         }
@@ -297,6 +312,10 @@ public sealed class RigController : IRigController, IDisposable
                     _shutdownRequested = true;
                     break;
             }
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Rig worker failed processing {Kind}", command.Kind);
         }
         finally
         {

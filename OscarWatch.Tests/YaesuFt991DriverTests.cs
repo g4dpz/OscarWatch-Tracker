@@ -116,4 +116,29 @@ public sealed class YaesuFt991DriverTests
         Assert.Single(transport.SentCommands);
         Assert.Equal("FB435250000;", transport.SentCommands[0]);
     }
+
+    [Fact]
+    public void SetFrequencyHz_returns_false_when_set_rejected()
+    {
+        var transport = new RecordingYaesuNewCatTransport { FailSets = true };
+        var driver = new YaesuFt991Driver(RigType.YaesuFt991, transport);
+        driver.Open();
+        transport.SentCommands.Clear();
+
+        driver.SelectVfo(RigVfo.Main);
+        Assert.False(driver.SetFrequencyHz(145_960_000));
+        Assert.Contains("FA145960000;", transport.SentCommands);
+    }
+
+    [Fact]
+    public void SendCommand_does_not_require_echo_reply()
+    {
+        // Real Yaesu sets return no reply; the recording transport mirrors that.
+        var transport = new RecordingYaesuNewCatTransport();
+        transport.Open();
+
+        Assert.True(transport.SendCommand("FA145960000;"));
+        Assert.Null(transport.Transact("MD0;")); // no canned read reply
+        Assert.Equal(2, transport.SentCommands.Count);
+    }
 }
