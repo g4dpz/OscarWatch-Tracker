@@ -567,14 +567,15 @@ public sealed class RigControllerDualRadioTests
         for (var attempt = 0; attempt < 120; attempt++)
         {
             controller.Update(settings, context);
-            var faSet = upTransport.SentCommands.Find(c =>
-                c.StartsWith("FA", StringComparison.Ordinal)
+            var fbSet = upTransport.SentCommands.Find(c =>
+                c.StartsWith("FB", StringComparison.Ordinal)
                 && c.Length >= 11
                 && long.TryParse(c.AsSpan(2, 9), out var hz)
                 && Math.Abs(hz - expectedTx) <= 5);
             if (sdrServer.FrequencyHz >= expectedRx - 5
                 && sdrServer.FrequencyHz <= expectedRx + 5
-                && faSet is not null)
+                && fbSet is not null
+                && upTransport.SentCommands.Contains("FT3;"))
             {
                 initCompleted = true;
                 break;
@@ -585,7 +586,8 @@ public sealed class RigControllerDualRadioTests
 
         Assert.True(initCompleted);
         Assert.InRange(sdrServer.FrequencyHz, expectedRx - 5, expectedRx + 5);
-        Assert.Contains(upTransport.SentCommands, c => c.StartsWith("FA", StringComparison.Ordinal));
+        Assert.Contains(upTransport.SentCommands, c => c == "FT3;");
+        Assert.Contains(upTransport.SentCommands, c => c.StartsWith("FB", StringComparison.Ordinal));
     }
 
     [Fact]

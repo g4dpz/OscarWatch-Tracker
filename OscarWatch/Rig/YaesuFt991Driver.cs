@@ -5,7 +5,8 @@ using Serilog;
 namespace OscarWatch.Rig;
 
 /// <summary>
-/// Yaesu FT-991 / FT-991A CAT driver for dual-radio endpoints (VFO-A only per physical radio).
+/// Yaesu FT-991 / FT-991A CAT driver for dual-radio endpoints.
+/// Downlink uses VFO-A; uplink may use split with TX on VFO-B for Doppler during keydown.
 /// </summary>
 public class YaesuFt991Driver : IRigDriver
 {
@@ -15,6 +16,7 @@ public class YaesuFt991Driver : IRigDriver
     private readonly RigType _rigType;
     private readonly int _catDelayMs;
     private RigVfo _currentVfo = RigVfo.Main;
+    private bool _splitOn;
     private int? _lastCtcssIndex;
     private long _lastMainHz;
     private long _lastSubHz;
@@ -81,8 +83,15 @@ public class YaesuFt991Driver : IRigDriver
 
         try
         {
-            var cmd = YaesuFt991CatCodec.BuildSetFrequencyCommand(UseVfoB(_currentVfo), hz);
-            return _transport.SendCommand(cmd, _catDelayMs);
+            var vfoB = UseVfoB(_currentVfo);
+            var cmd = YaesuFt991CatCodec.BuildSetFrequencyCommand(vfoB, hz);
+            if (!_transport.SendCommand(cmd, _catDelayMs))
+                return false;
+
+            if (_splitOn && !vfoB)
+                _transport.SendCommand(YaesuFt991CatCodec.BuildCopyVfoAToBCommand(), _catDelayMs);
+
+            return true;
         }
         catch (ArgumentOutOfRangeException ex)
         {
@@ -120,6 +129,11 @@ public class YaesuFt991Driver : IRigDriver
 
     public void SetSplitOn(bool on)
     {
+        _splitOn = on;
+        if (!_transport.IsOpen)
+            return;
+
+        _transport.SendCommand(YaesuFt991CatCodec.BuildSetTxVfoCommand(on), _catDelayMs);
     }
 
     public void ExchangeVfos()

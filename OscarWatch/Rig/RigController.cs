@@ -1333,9 +1333,21 @@ public sealed class RigController : IRigController, IDisposable
         var txWritten = true;
         if (!_isBeaconOnly && settings.Uplink.Type != RigType.Dummy)
         {
+            if (UsesYaesuNewCatSplitUplink(settings))
+                _uplinkDriver.SetSplitOn(true);
+
             _uplinkDriver.SelectVfo(RigVfo.Main);
             _uplinkDriver.SetMode(context.EffectiveUplinkMode);
-            txWritten = _uplinkDriver.SetFrequencyHz(txHz);
+            if (UsesYaesuNewCatSplitUplink(settings))
+            {
+                _uplinkDriver.SetFrequencyHz(txHz);
+                _uplinkDriver.SelectVfo(RigVfo.VfoB);
+                txWritten = _uplinkDriver.SetFrequencyHz(txHz);
+            }
+            else
+            {
+                txWritten = _uplinkDriver.SetFrequencyHz(txHz);
+            }
         }
 
         ApplyCtcss(settings, context, force: true);
@@ -1618,7 +1630,12 @@ public sealed class RigController : IRigController, IDisposable
     private static RigVfo UplinkVfoForCtcss(RigSettings settings, RigTrackingContext context)
     {
         if (settings.DualRadioEnabled)
+        {
+            if (RigSettings.IsYaesuNewCatDualEndpoint(settings.Uplink.Type))
+                return RigVfo.VfoB;
+
             return RigVfo.Main;
+        }
 
         if (settings.Type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700 or RigType.IcomIc821h)
         {
@@ -1686,7 +1703,10 @@ public sealed class RigController : IRigController, IDisposable
         if (_isBeaconOnly || settings.Uplink.Type == RigType.Dummy)
             return new InitialFrequencyWriteResult(rxWritten, TxWritten: true);
 
-        _uplinkDriver.SelectVfo(RigVfo.Main);
+        if (UsesYaesuNewCatSplitUplink(settings))
+            _uplinkDriver.SetSplitOn(true);
+
+        _uplinkDriver.SelectVfo(TransmitVfoForWrite(settings));
         var txWritten = _uplinkDriver.SetFrequencyHz(txHz);
         return new InitialFrequencyWriteResult(rxWritten, txWritten);
     }
@@ -1857,8 +1877,21 @@ public sealed class RigController : IRigController, IDisposable
     private RigVfo ReceiveVfoForWrite(RigSettings settings) =>
         settings.DualRadioEnabled ? RigVfo.Main : ReceiveVfo();
 
-    private RigVfo TransmitVfoForWrite(RigSettings settings) =>
-        settings.DualRadioEnabled ? RigVfo.Main : TransmitVfo();
+    private RigVfo TransmitVfoForWrite(RigSettings settings)
+    {
+        if (settings.DualRadioEnabled)
+        {
+            if (RigSettings.IsYaesuNewCatDualEndpoint(settings.Uplink.Type))
+                return RigVfo.VfoB;
+
+            return RigVfo.Main;
+        }
+
+        return TransmitVfo();
+    }
+
+    private static bool UsesYaesuNewCatSplitUplink(RigSettings settings) =>
+        settings.DualRadioEnabled && RigSettings.IsYaesuNewCatDualEndpoint(settings.Uplink.Type);
 
     private static bool NearlyEqual(double a, double b) => Math.Abs(a - b) < 0.0001;
 

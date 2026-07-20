@@ -237,7 +237,7 @@ One CI-V driver covers **IC-706**, **IC-706MKII**, and **IC-706MKIIG** as separa
 | Serial transport | [`OscarWatch/Rig/YaesuNewCatTransport.cs`](../OscarWatch/Rig/YaesuNewCatTransport.cs) — **8N2**, hardware RTS, semicolon ASCII |
 | Driver | [`OscarWatch/Rig/YaesuFt991Driver.cs`](../OscarWatch/Rig/YaesuFt991Driver.cs), [`YaesuFt991aDriver.cs`](../OscarWatch/Rig/YaesuFt991aDriver.cs) |
 
-- **Dual radio only**: FT-991/991A are not in the single-radio driver list. Each endpoint uses **VFO-A** (`FA`, `MD0`, `LK0/1`, `CT0`/`CN0`).
+- **Dual radio only**: FT-991/991A are not in the single-radio driver list. Downlink legs use **VFO-A** (`FA`, `MD0`, `LK0/1`, `CT0`/`CN0`). **Uplink** legs use split (`FT3;`) and Doppler on **VFO-B** (`FB`) so TX frequency can update during keydown.
 - ASCII newcat commands (Hamlib-compatible subset); default baud **38400** (menu 031).
 - FM tracking locks VFO-A dial via `LK1`; linear modes use `LK0` so passband trim works on the downlink leg.
 - Cross-check against [Hamlib `ft991.c`](https://github.com/Hamlib/Hamlib/blob/master/rigs/yaesu/ft991.c).
@@ -257,7 +257,7 @@ One CI-V driver covers **IC-706**, **IC-706MKII**, and **IC-706MKIIG** as separa
 | Serial transport | [`OscarWatch/Rig/YaesuNewCatTransport.cs`](../OscarWatch/Rig/YaesuNewCatTransport.cs) — **8N2**, hardware RTS, semicolon ASCII |
 | Driver | [`OscarWatch/Rig/YaesuFtx1Driver.cs`](../OscarWatch/Rig/YaesuFtx1Driver.cs) |
 
-Covers **FTX-1 Field** and **FTX-1optima** (same field head). Same dual-radio pattern as FT-991: VFO-A (`FA`, `MD0`, `LK`, `CN`/`CT`) per physical radio.
+Covers **FTX-1 Field** and **FTX-1optima** (same field head). Downlink uses VFO-A (`FA`, `MD0`, `LK`, `CN`/`CT`); uplink uses split and **VFO-B** (`FB`) for Doppler during transmit.
 
 - **Dual radio only** — not in the single-radio driver list.
 - Default baud **38400** on **CAT-1** (menu CAT-1 RATE; 4800–115200 supported).

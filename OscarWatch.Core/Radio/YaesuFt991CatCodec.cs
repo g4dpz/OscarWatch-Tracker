@@ -33,6 +33,12 @@ public static class YaesuFt991CatCodec
     /// <summary>P1=0 MAIN RX on VFO-A.</summary>
     public static string BuildSetModeCommand(char modeCode) => $"MD0{modeCode};";
 
+    /// <summary>FT P1=2 TX on VFO-A, P1=3 TX on VFO-B (split).</summary>
+    public static string BuildSetTxVfoCommand(bool txOnVfoB) => txOnVfoB ? "FT3;" : "FT2;";
+
+    /// <summary>Copy VFO-A frequency and mode to VFO-B.</summary>
+    public static string BuildCopyVfoAToBCommand() => "AB;";
+
     public static string BuildDialLockCommand(bool on) => on ? "LK1;" : "LK0;";
 
     public static string BuildCtcssOffCommand() => "CT00;";

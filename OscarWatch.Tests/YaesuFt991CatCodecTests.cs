@@ -35,4 +35,17 @@ public sealed class YaesuFt991CatCodecTests
         Assert.True(YaesuFt991CatCodec.TryGetModeCode("USB", out var usb));
         Assert.Equal('2', usb);
     }
+
+    [Fact]
+    public void BuildSetTxVfoCommand_maps_split_on_and_off()
+    {
+        Assert.Equal("FT3;", YaesuFt991CatCodec.BuildSetTxVfoCommand(txOnVfoB: true));
+        Assert.Equal("FT2;", YaesuFt991CatCodec.BuildSetTxVfoCommand(txOnVfoB: false));
+    }
+
+    [Fact]
+    public void BuildCopyVfoAToBCommand_returns_ab()
+    {
+        Assert.Equal("AB;", YaesuFt991CatCodec.BuildCopyVfoAToBCommand());
+    }
 }
