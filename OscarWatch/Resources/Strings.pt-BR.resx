@@ -2001,6 +2001,48 @@ Continuar?</value>
   <data name="Settings.Radio.SdrHint">
     <value>Ative o servidor rigctl no SDR++ (Module Manager → rigctl_server) ou SDR Connect e corresponda host e porta. O OscarWatch envia a frequência RX Doppler e lê o VFO do waterfall para o passband. Use 100 ms ou mais de atraso CAT no downlink.</value>
   </data>
+  <data name="Settings.Radio.FlexSmartSdr">
+    <value>FlexRadio (SmartSDR)</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscovered">
+    <value>Discovered radios</value>
+  </data>
+  <data name="Settings.Radio.FlexHost">
+    <value>SmartSDR host</value>
+  </data>
+  <data name="Settings.Radio.FlexPort">
+    <value>SmartSDR port</value>
+  </data>
+  <data name="Settings.Radio.FlexTestConnection">
+    <value>Test SmartSDR connection</value>
+  </data>
+  <data name="Settings.Radio.FlexTesting">
+    <value>Testing SmartSDR connection...</value>
+  </data>
+  <data name="Settings.Radio.FlexEnterHostPort">
+    <value>Enter a valid host and port.</value>
+  </data>
+  <data name="Settings.Radio.FlexConnectionOk">
+    <value>SmartSDR connection OK.</value>
+  </data>
+  <data name="Settings.Radio.FlexConnectionFailed">
+    <value>SmartSDR connection failed: {0}</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscoveryListening">
+    <value>Listening for Flex radios on UDP 4992...</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscoveryFound">
+    <value>Found {0} Flex radio(s) on the LAN.</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscoveryFailed">
+    <value>Flex discovery failed: {0}</value>
+  </data>
+  <data name="Settings.Radio.FlexHint">
+    <value>Pick a discovered radio or enter the IP manually (TCP port 4992). OscarWatch enables full duplex and drives separate RX/TX slices for Doppler. Antenna and XVTR ports should already be set on the radio or in SmartSDR. Dual-SCU models (e.g. 6600/6700) are required for true full duplex.</value>
+  </data>
+  <data name="Settings.Radio.FlexDuplexWarning">
+    <value>This model may not support full duplex (single SCU). Satellite use typically needs a dual-SCU Flex such as a 6600 or 6700 with suitable isolation or transverters.</value>
+  </data>
   <data name="Settings.Radio.Uplink">
     <value>Rádio de uplink</value>
   </data>

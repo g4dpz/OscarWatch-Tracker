@@ -41,11 +41,22 @@ public sealed class RigSettings
 
     public RigEndpointSettings Uplink { get; set; } = new();
 
+    public const int FlexSmartSdrDefaultPort = 4992;
+
     public RigType Type { get; set; } = RigType.None;
 
     public string Port { get; set; } = "";
 
     public int BaudRate { get; set; } = 19200;
+
+    /// <summary>TCP host when <see cref="Type"/> is <see cref="RigType.FlexSmartSdr"/>.</summary>
+    public string NetworkHost { get; set; } = "";
+
+    /// <summary>TCP port when <see cref="Type"/> is <see cref="RigType.FlexSmartSdr"/> (default 4992).</summary>
+    public int NetworkPort { get; set; } = FlexSmartSdrDefaultPort;
+
+    /// <summary>Optional Flex radio serial from discovery, used to re-select the same radio.</summary>
+    public string FlexRadioSerial { get; set; } = "";
 
     /// <summary>CI-V address as hex string (factory default for most ICOM rigs is 60).</summary>
     public string CivAddress { get; set; } = "60";
@@ -104,7 +115,14 @@ public sealed class RigSettings
 
     public static bool IsSdrDownlinkEndpoint(RigType type) => type == RigType.SdrRigCtlTcp;
 
+    public static bool IsFlexNetworkRadio(RigType type) => type == RigType.FlexSmartSdr;
+
     public static bool IsDummyUplinkEndpoint(RigType type) => type == RigType.Dummy;
+
+    public bool IsFlexNetworkConfigured =>
+        IsFlexNetworkRadio(Type)
+        && NetworkPort is > 0 and <= 65535
+        && !string.IsNullOrWhiteSpace(NetworkHost);
 
     /// <summary>FT-817/818 are dual-radio only; move legacy single-radio config to the downlink endpoint.</summary>
     public void MigrateFt817818ToDualOnly()

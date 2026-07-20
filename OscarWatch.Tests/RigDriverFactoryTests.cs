@@ -152,4 +152,39 @@ public sealed class RigDriverFactoryTests
             Port = "COM1"
         }));
     }
+
+    [Fact]
+    public void Create_settings_flex_returns_driver()
+    {
+        var driver = RigDriverFactory.Create(new RigSettings
+        {
+            Type = RigType.FlexSmartSdr,
+            NetworkHost = "192.168.1.20",
+            NetworkPort = 4992
+        });
+
+        Assert.Equal(RigType.FlexSmartSdr, driver.RigType);
+    }
+
+    [Fact]
+    public void Create_endpoint_flex_throws()
+    {
+        Assert.Throws<InvalidOperationException>(() =>
+            RigDriverFactory.EnsureValidDualEndpoint(
+                new RigEndpointSettings { Type = RigType.FlexSmartSdr, NetworkHost = "10.0.0.1" },
+                isDownlink: true));
+    }
+
+    [Fact]
+    public void IsFlexNetworkRadio_helpers()
+    {
+        Assert.True(RigSettings.IsFlexNetworkRadio(RigType.FlexSmartSdr));
+        Assert.False(RigSettings.IsDualCapableEndpoint(RigType.FlexSmartSdr));
+        Assert.True(new RigSettings
+        {
+            Type = RigType.FlexSmartSdr,
+            NetworkHost = "10.0.0.1",
+            NetworkPort = 4992
+        }.IsFlexNetworkConfigured);
+    }
 }

@@ -21,5 +21,7 @@ public enum RigType
     KenwoodTs2000,
     /// <summary>SDR application rigctl TCP server (dual-radio downlink only).</summary>
     SdrRigCtlTcp,
+    /// <summary>FlexRadio SmartSDR TCP/IP API (single-radio full duplex).</summary>
+    FlexSmartSdr,
     Dummy
 }

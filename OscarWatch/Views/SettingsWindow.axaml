@@ -335,38 +335,81 @@
                   </DataTemplate>
                 </ComboBox.ItemTemplate>
               </ComboBox>
-              <TextBlock Text="{loc:Localize Key=Settings.Radio.SerialPort}" />
-              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                <ComboBox Grid.Column="0"
-                          ItemsSource="{Binding AvailableComPorts}"
-                          Text="{Binding SelectedRigComPort, Mode=TwoWay}"
-                          PlaceholderText="{loc:Localize Key=Settings.Radio.SelectComPort}"
-                          HorizontalAlignment="Stretch"
-                          IsEditable="True">
-                  <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                      <TextBlock Text="{Binding Converter={x:Static theme:SerialPortDisplayConverter.Instance}}"
-                                 ToolTip.Tip="{Binding}" />
-                    </DataTemplate>
-                  </ComboBox.ItemTemplate>
-                </ComboBox>
-                <Button Grid.Column="1"
-                        Content="{loc:Localize Key=Common.Refresh}"
-                        Command="{Binding RefreshComPortsCommand}"
-                        MinWidth="72" />
-              </Grid>
-              <TextBlock Text="{loc:Localize Key=Settings.Radio.BaudRate}" />
-              <ComboBox ItemsSource="{Binding RigBaudRateOptions}"
-                        SelectedItem="{Binding RigBaudRate, Mode=TwoWay}"
-                        HorizontalAlignment="Stretch" />
-              <StackPanel Spacing="4" IsVisible="{Binding ShowRigCivAddress}">
-                <TextBlock Text="{loc:Localize Key=Settings.Radio.CivAddress}" />
-                <TextBox Text="{Binding RigCivAddress, Mode=TwoWay}"
-                         Watermark="60" />
+              <StackPanel Spacing="10" IsVisible="{Binding ShowRigSerialFields}">
+                <TextBlock Text="{loc:Localize Key=Settings.Radio.SerialPort}" />
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                  <ComboBox Grid.Column="0"
+                            ItemsSource="{Binding AvailableComPorts}"
+                            Text="{Binding SelectedRigComPort, Mode=TwoWay}"
+                            PlaceholderText="{loc:Localize Key=Settings.Radio.SelectComPort}"
+                            HorizontalAlignment="Stretch"
+                            IsEditable="True">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding Converter={x:Static theme:SerialPortDisplayConverter.Instance}}"
+                                   ToolTip.Tip="{Binding}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                  <Button Grid.Column="1"
+                          Content="{loc:Localize Key=Common.Refresh}"
+                          Command="{Binding RefreshComPortsCommand}"
+                          MinWidth="72" />
+                </Grid>
+                <TextBlock Text="{loc:Localize Key=Settings.Radio.BaudRate}" />
+                <ComboBox ItemsSource="{Binding RigBaudRateOptions}"
+                          SelectedItem="{Binding RigBaudRate, Mode=TwoWay}"
+                          HorizontalAlignment="Stretch" />
+                <StackPanel Spacing="4" IsVisible="{Binding ShowRigCivAddress}">
+                  <TextBlock Text="{loc:Localize Key=Settings.Radio.CivAddress}" />
+                  <TextBox Text="{Binding RigCivAddress, Mode=TwoWay}"
+                           Watermark="60" />
+                  <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                             FontSize="11"
+                             TextWrapping="Wrap"
+                             Text="{loc:Localize Key=Settings.Radio.CivHint}" />
+                </StackPanel>
+              </StackPanel>
+              <StackPanel Spacing="10" IsVisible="{Binding ShowRigFlexFields}">
+                <TextBlock Text="{loc:Localize Key=Settings.Radio.FlexDiscovered}" />
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                  <ComboBox Grid.Column="0"
+                            ItemsSource="{Binding DiscoveredFlexRadios}"
+                            SelectedItem="{Binding SelectedFlexDiscoveredRadio, Mode=TwoWay}"
+                            HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate x:DataType="vm:FlexDiscoveredRadioOption">
+                        <TextBlock Text="{Binding Label}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                  <Button Grid.Column="1"
+                          Content="{loc:Localize Key=Common.Refresh}"
+                          Command="{Binding RefreshFlexDiscoveryCommand}"
+                          MinWidth="72" />
+                </Grid>
+                <TextBlock Text="{loc:Localize Key=Settings.Radio.FlexHost}" />
+                <TextBox Text="{Binding RigNetworkHost, Mode=TwoWay}"
+                         Watermark="192.168.1.10" />
+                <TextBlock Text="{loc:Localize Key=Settings.Radio.FlexPort}" />
+                <NumericUpDown Value="{Binding RigNetworkPort, Mode=TwoWay}"
+                               Minimum="1" Maximum="65535"
+                               Increment="1" FormatString="F0" />
+                <Button Content="{loc:Localize Key=Settings.Radio.FlexTestConnection}"
+                        Command="{Binding TestFlexConnectionCommand}" />
+                <TextBlock Text="{Binding RigFlexTestStatus}"
+                           FontSize="11"
+                           TextWrapping="Wrap" />
                 <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                            FontSize="11"
                            TextWrapping="Wrap"
-                           Text="{loc:Localize Key=Settings.Radio.CivHint}" />
+                           IsVisible="{Binding ShowRigFlexHint}"
+                           Text="{loc:Localize Key=Settings.Radio.FlexHint}" />
+                <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           FontSize="11"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding ShowRigFlexDuplexWarning}"
+                           Text="{loc:Localize Key=Settings.Radio.FlexDuplexWarning}" />
               </StackPanel>
               <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                          FontSize="11"
@@ -378,20 +421,22 @@
                          TextWrapping="Wrap"
                          IsVisible="{Binding ShowRigTs2000CatHint}"
                          Text="{loc:Localize Key=Settings.Radio.Ts2000Hint}" />
-              <TextBlock Text="{loc:Localize Key=Settings.Radio.Region}" />
-              <ComboBox ItemsSource="{Binding RigRegionChoices}"
-                        SelectedItem="{Binding SelectedRigRegionChoice, Mode=TwoWay}"
-                        HorizontalAlignment="Stretch">
-                <ComboBox.ItemTemplate>
-                  <DataTemplate x:DataType="vm:RigRegionOption">
-                    <TextBlock Text="{Binding Label}" />
-                  </DataTemplate>
-                </ComboBox.ItemTemplate>
-              </ComboBox>
-              <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                         FontSize="11"
-                         TextWrapping="Wrap"
-                         Text="{loc:Localize Key=Settings.Radio.RegionNote}" />
+              <StackPanel Spacing="10" IsVisible="{Binding ShowRigSerialFields}">
+                <TextBlock Text="{loc:Localize Key=Settings.Radio.Region}" />
+                <ComboBox ItemsSource="{Binding RigRegionChoices}"
+                          SelectedItem="{Binding SelectedRigRegionChoice, Mode=TwoWay}"
+                          HorizontalAlignment="Stretch">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:RigRegionOption">
+                      <TextBlock Text="{Binding Label}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           FontSize="11"
+                           TextWrapping="Wrap"
+                           Text="{loc:Localize Key=Settings.Radio.RegionNote}" />
+              </StackPanel>
               <TextBlock Text="{loc:Localize Key=Settings.Radio.CatDelay}" />
               <NumericUpDown Value="{Binding RigCatDelayMs, Mode=TwoWay}"
                              Minimum="0" Maximum="500"

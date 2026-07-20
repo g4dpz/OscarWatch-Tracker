@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FlexRadio (SmartSDR) — OscarWatch Help</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <a href="index.html" class="brand-home" title="Home"><img src="oscarwatch-icon.png" alt="" class="brand-icon" width="56" height="56" /></a>
+        <div class="brand-text">
+          <h1>FlexRadio (SmartSDR)</h1>
+          <p class="tagline">Full-duplex satellite tracking over the SmartSDR TCP/IP API</p>
+        </div>
+      </div>
+      <nav aria-label="Help topics">
+        <ul>
+          <li><a href="quick-start.html">Quick start</a></li>
+          <li><a href="map-and-sidebar.html">Map &amp; sidebar</a></li>
+          <li><a href="frequencies.html">Frequencies</a></li>
+          <li><a href="satellites.html">Satellites &amp; TLEs</a></li>
+          <li><a href="passes.html">Pass planning</a></li>
+          <li><a href="radio-rotator.html">Radio &amp; rotator</a></li>
+          <li><a href="settings.html">Settings</a></li>
+          <li><a href="keyboard-shortcuts.html">Shortcuts</a></li>
+          <li><a href="troubleshooting.html">Problems?</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <nav class="subnav" aria-label="Radio and rotator topics">
+      <a href="radio-rotator.html">Overview</a> ·
+      <a href="radio-icom.html">ICOM</a> ·
+      <a href="radio-yaesu.html">Yaesu</a> ·
+      <a href="radio-kenwood.html">Kenwood</a> ·
+      <a href="radio-flex.html" aria-current="page">FlexRadio</a> ·
+      <a href="radio-sdr-dual.html">SDR dual</a> ·
+      <a href="radio-offsets.html">RX/TX offsets</a> ·
+      <a href="radio-doppler-tuning.html">Doppler tuning</a> ·
+      <a href="linux-serial.html">Linux serial</a> ·
+      <a href="rotators.html">Rotators</a>
+    </nav>
+
+    <main>
+      <p class="lead">
+        OscarWatch treats duplex-capable Flex radios as a <strong>single satellite radio</strong>:
+        one SmartSDR TCP connection, full duplex enabled, separate RX and TX slices for Doppler.
+      </p>
+
+      <h2>What you need</h2>
+      <ul>
+        <li>A dual-SCU Flex (for example <strong>6600</strong>, <strong>6600M</strong>, or <strong>6700</strong>) for true full duplex.</li>
+        <li>The radio on the same LAN as the PC (SmartSDR API on TCP port <strong>4992</strong>).</li>
+        <li>Antenna / XVTR ports already set on the radio or in SmartSDR for your satellite bands.</li>
+      </ul>
+      <p>
+        Single-SCU models (such as a 6400) are not suitable for full-duplex satellite work.
+        Settings shows a warning if discovery reports such a model.
+      </p>
+
+      <h2>Easy setup</h2>
+      <ol>
+        <li>Open <strong>Settings → Radio</strong>, enable the radio, and leave <strong>Dual radio</strong> off.</li>
+        <li>Choose <strong>FlexRadio (SmartSDR)</strong>.</li>
+        <li>Click <strong>Refresh</strong> next to Discovered radios (UDP discovery on port 4992).</li>
+        <li>Select your radio — host and port fill in automatically (or type the IP yourself).</li>
+        <li>Click <strong>Test SmartSDR connection</strong> to confirm the API handshake.</li>
+        <li>Track a pass — OscarWatch enables full duplex and drives RX/TX slices.</li>
+      </ol>
+
+      <h2>How OscarWatch maps VFOs</h2>
+      <table>
+        <thead>
+          <tr><th>OscarWatch</th><th>SmartSDR</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Main (RX)</td><td>Downlink slice frequency and mode</td></tr>
+          <tr><td>Sub (TX)</td><td>Uplink slice (<code>tx=1</code>), mode, and FM CTCSS when needed</td></tr>
+          <tr><td>Satellite mode</td><td><code>full_duplex_enabled=1</code> and a two-slice layout</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Pass layouts</h3>
+      <ul>
+        <li><strong>Cross-band</strong> and <strong>same-band duplex</strong> (both uplink and downlink set, e.g. ISS packet): full duplex on, two slices. Same-band does <em>not</em> use classic split; Doppler still separates TX and RX on the two slices.</li>
+        <li><strong>Beacon / receive-only</strong> (uplink 0): full duplex off; only the downlink slice is tracked.</li>
+      </ul>
+
+      <h2>Tips</h2>
+      <ul>
+        <li>SmartSDR for Windows can stay open for panadapter and audio; OscarWatch is another API client.</li>
+        <li>This driver is <strong>not</strong> a dual-radio leg and is not Hamlib/rigctl.</li>
+        <li>RF isolation and transverters remain your responsibility — OscarWatch only controls frequency, mode, FDX, and tone.</li>
+      </ul>
+
+      <h2>Hardware smoke checklist</h2>
+      <ol>
+        <li>Discovery lists the radio; Test connection succeeds.</li>
+        <li>On pass start, full duplex is on and two slices are active.</li>
+        <li>RX and TX Doppler both update during a pass.</li>
+        <li>FM satellites get the correct uplink CTCSS.</li>
+      </ol>
+    </main>
+  </div>
+</body>
+</html>

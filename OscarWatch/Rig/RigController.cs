@@ -1030,7 +1030,9 @@ public sealed class RigController : IRigController, IDisposable
         if (DateTime.UtcNow < _suspendConnectUntilUtc)
             return _driver?.IsConnected == true;
 
-        var key = $"{settings.Type}|{settings.Port}|{settings.BaudRate}|{settings.CivAddress}";
+        var key = RigSettings.IsFlexNetworkRadio(settings.Type)
+            ? $"{settings.Type}|{settings.NetworkHost}|{settings.NetworkPort}|{settings.FlexRadioSerial}|{settings.CatDelayMs}"
+            : $"{settings.Type}|{settings.Port}|{settings.BaudRate}|{settings.CivAddress}";
         if (_driver is not null && _connectedKey == key && _driver.IsConnected)
             return true;
 
@@ -1049,24 +1051,28 @@ public sealed class RigController : IRigController, IDisposable
                 return true;
             }
 
-            _lastConnectError = $"Opened {settings.Port} but CI-V is not responding";
-            Log.Warning("Rig opened {Port} for {RigType} but link is not active", settings.Port, settings.Type);
+            var endpoint = FormatSingleEndpoint(settings);
+            _lastConnectError = RigSettings.IsFlexNetworkRadio(settings.Type)
+                ? $"Opened {endpoint} but SmartSDR is not responding"
+                : $"Opened {settings.Port} but CI-V is not responding";
+            Log.Warning("Rig opened {Endpoint} for {RigType} but link is not active", endpoint, settings.Type);
             TearDownRig();
             RecordConnectFailure(
                 SerialPortConnectErrorKind.Generic,
-                settings.Port,
+                endpoint,
                 endpointLabel: null,
                 englishDetail: _lastConnectError);
             return false;
         }
         catch (Exception ex)
         {
+            var endpoint = FormatSingleEndpoint(settings);
             RecordConnectFailure(
                 ClassifyConnectError(ex),
-                settings.Port,
+                endpoint,
                 endpointLabel: null,
                 englishDetail: ex.Message);
-            Log.Warning(ex, "Rig connect failed for {RigType} on {Port}", settings.Type, settings.Port);
+            Log.Warning(ex, "Rig connect failed for {RigType} on {Endpoint}", settings.Type, endpoint);
             _driver?.Dispose();
             _driver = null;
             return false;
@@ -1440,15 +1446,17 @@ public sealed class RigController : IRigController, IDisposable
 
     private static bool UsesMainSubSatelliteLayout(RigType type) =>
         type is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700 or RigType.IcomIc821h
-            or RigType.YaesuFt847 or RigType.KenwoodTs2000 or RigType.Dummy;
+            or RigType.YaesuFt847 or RigType.KenwoodTs2000 or RigType.FlexSmartSdr or RigType.Dummy;
 
     private static bool UsesIcomSatelliteOnlyLayout(RigType type) =>
         type == RigType.IcomIc821h;
 
     private static bool ShouldUseMainSubLayout(RigSettings settings, RigTrackingContext context) =>
-        UsesMainSubSatelliteLayout(settings.Type)
-        && (RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz)
-            || UsesIcomSatelliteOnlyLayout(settings.Type));
+        settings.Type == RigType.FlexSmartSdr
+            ? context.Mode.DownlinkKHz > 0 && context.Mode.UplinkKHz > 0
+            : UsesMainSubSatelliteLayout(settings.Type)
+              && (RigSatModeHelper.UseMainSubLayout(context.Mode.DownlinkKHz, context.Mode.UplinkKHz)
+                  || UsesIcomSatelliteOnlyLayout(settings.Type));
 
     private static bool UsesIcomSplitAbLayout(RigSettings settings, RigTrackingContext context) =>
         IsIcomSatelliteLayoutRig(settings.Type)
@@ -2279,6 +2287,11 @@ public sealed class RigController : IRigController, IDisposable
             ? $"{endpoint.NetworkHost}:{endpoint.NetworkPort}"
             : endpoint.Port;
 
+    private static string FormatSingleEndpoint(RigSettings settings) =>
+        RigSettings.IsFlexNetworkRadio(settings.Type)
+            ? $"{settings.NetworkHost}:{settings.NetworkPort}"
+            : settings.Port;
+
     private static bool RigIsConfigured(RigSettings settings) =>
         settings.Enabled && (settings.DualRadioEnabled || settings.Type != RigType.None);
 
@@ -2286,6 +2299,9 @@ public sealed class RigController : IRigController, IDisposable
     {
         if (settings.DualRadioEnabled)
             return settings.Downlink.IsConfigured && settings.Uplink.IsConfigured;
+
+        if (RigSettings.IsFlexNetworkRadio(settings.Type))
+            return settings.IsFlexNetworkConfigured;
 
         return !string.IsNullOrWhiteSpace(settings.Port) || settings.Type == RigType.Dummy;
     }
@@ -2323,6 +2339,14 @@ public sealed class RigController : IRigController, IDisposable
 
         if (settings.DualRadioEnabled)
             return (RigStatusKind.DualNotConnected, null, _lastConnectError);
+
+        if (RigSettings.IsFlexNetworkRadio(settings.Type))
+        {
+            var endpoint = FormatSingleEndpoint(settings);
+            return string.IsNullOrWhiteSpace(settings.NetworkHost)
+                ? (RigStatusKind.NotConnected, null, _lastConnectError)
+                : (RigStatusKind.NotConnected, endpoint, _lastConnectError);
+        }
 
         var port = settings.Port;
         return string.IsNullOrWhiteSpace(port)

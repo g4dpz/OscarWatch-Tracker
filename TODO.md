@@ -59,6 +59,7 @@ See [building rotator drivers](documents/building-rotator-drivers.md).
 - [x] **ICOM IC-905** — dual-radio endpoints only (CI-V; VHF/UHF/SHF; default address `AC`)
 - [x] **Yaesu FT-991 / FT-991A** — dual-radio endpoints only (ASCII CAT; mix with other dual legs)
 - [x] **SDR downlink (rigctl TCP)** — dual-radio downlink via SDR++/SDR Connect rigctl server; bidirectional frequency
+- [x] **FlexRadio (SmartSDR)** — single-radio full duplex; LAN discovery; RX/TX slices; stub + controller tests
 - [x] ICOM IC-9100 driver (CI-V; satellite/Main/Sub/tone path as IC-9700)
 - [x] Hardware validation: IC-9700, IC-9100, FT-847 (satellite mode, doppler, tones)
 

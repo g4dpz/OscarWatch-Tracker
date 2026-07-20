@@ -9,6 +9,14 @@ public static class RigDriverFactory
         if (settings.DualRadioEnabled)
             throw new InvalidOperationException("Use Create(RigEndpointSettings) for dual-radio endpoints.");
 
+        if (settings.Type == RigType.FlexSmartSdr)
+        {
+            return new FlexRadioDriver(
+                settings.NetworkHost,
+                settings.NetworkPort > 0 ? settings.NetworkPort : RigSettings.FlexSmartSdrDefaultPort,
+                settings.CatDelayMs);
+        }
+
         return CreateSingle(settings.Type, settings.Port, settings.BaudRate, settings.Region, settings.CatDelayMs, settings.CivAddress);
     }
 
@@ -49,6 +57,9 @@ public static class RigDriverFactory
     {
         if (endpoint.Type == RigType.SdrRigCtlTcp && !isDownlink)
             throw new InvalidOperationException("SDR rigctl TCP is supported on the downlink only.");
+
+        if (endpoint.Type == RigType.FlexSmartSdr)
+            throw new InvalidOperationException("FlexRadio SmartSDR is a single-radio full-duplex driver; disable Dual radio.");
 
         if (endpoint.Type == RigType.Dummy && isDownlink)
             throw new InvalidOperationException("Dummy radio is supported on the uplink only.");
@@ -98,6 +109,10 @@ public static class RigDriverFactory
             RigType.YaesuFtx1 =>
                 throw new InvalidOperationException("FTX-1 series radios require Settings → Radio → Dual radio."),
             RigType.KenwoodTs2000 => new KenwoodTs2000Driver(port, baudRate, catDelayMs),
+            RigType.FlexSmartSdr =>
+                throw new InvalidOperationException("FlexRadio SmartSDR requires network host/port via RigSettings."),
+            RigType.SdrRigCtlTcp =>
+                throw new InvalidOperationException("SDR rigctl TCP requires Settings → Radio → Dual radio (downlink)."),
             RigType.Dummy => new DummyRigDriver(),
             _ => new DummyRigDriver()
         };

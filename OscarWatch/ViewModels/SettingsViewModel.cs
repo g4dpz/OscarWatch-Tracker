@@ -30,6 +30,7 @@ public partial class SettingsViewModel : ViewModelBase
     private readonly IHamsAtRovesService _hamsAtRoves;
     private readonly IGpsService _gps;
     private readonly ISatelliteLinkBroadcastService _satelliteLink;
+    private readonly FlexDiscoveryService _flexDiscovery = new();
     private readonly GroundStation _draft = new();
     private bool _isSynchronizing;
     private string _uiLanguageAtOpen = LocalizationCulture.DefaultLanguage;
@@ -375,6 +376,21 @@ public partial class SettingsViewModel : ViewModelBase
     private string _downlinkSdrTestStatus = "";
 
     [ObservableProperty]
+    private string _rigNetworkHost = "";
+
+    [ObservableProperty]
+    private int _rigNetworkPort = RigSettings.FlexSmartSdrDefaultPort;
+
+    [ObservableProperty]
+    private string _rigFlexRadioSerial = "";
+
+    [ObservableProperty]
+    private string _rigFlexTestStatus = "";
+
+    [ObservableProperty]
+    private FlexDiscoveredRadioOption? _selectedFlexDiscoveredRadio;
+
+    [ObservableProperty]
     private RigRegionOption? _selectedRigRegionChoice;
 
     [ObservableProperty]
@@ -524,6 +540,14 @@ public partial class SettingsViewModel : ViewModelBase
 
     public bool ShowRigDualConfig => DualRadioEnabled;
 
+    public bool ShowRigSerialFields =>
+        !DualRadioEnabled
+        && SelectedRigTypeChoice?.Value is not (RigType.FlexSmartSdr or RigType.Dummy);
+
+    public bool ShowRigFlexFields =>
+        !DualRadioEnabled
+        && SelectedRigTypeChoice?.Value == RigType.FlexSmartSdr;
+
     public bool ShowRigCivAddress =>
         SelectedRigTypeChoice?.Value is RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700
             or RigType.IcomIc821h;
@@ -533,6 +557,17 @@ public partial class SettingsViewModel : ViewModelBase
 
     public bool ShowRigTs2000CatHint =>
         SelectedRigTypeChoice?.Value == RigType.KenwoodTs2000;
+
+    public bool ShowRigFlexHint =>
+        SelectedRigTypeChoice?.Value == RigType.FlexSmartSdr;
+
+    public bool ShowRigFlexDuplexWarning =>
+        ShowRigFlexFields
+        && SelectedFlexDiscoveredRadio is { Radio: not null } opt
+        && !string.IsNullOrWhiteSpace(opt.Radio.Model)
+        && !FlexDiscoveryCodec.LooksDuplexCapable(opt.Radio.Model);
+
+    public ObservableCollection<FlexDiscoveredRadioOption> DiscoveredFlexRadios { get; } = [];
 
     public bool ShowRigFt817CatHint =>
         DualRadioEnabled
@@ -706,6 +741,7 @@ public partial class SettingsViewModel : ViewModelBase
             new(RigType.IcomIc821h, "ICOM IC-821H"),
             new(RigType.YaesuFt847, "Yaesu FT-847"),
             new(RigType.KenwoodTs2000, "Kenwood TS-2000"),
+            new(RigType.FlexSmartSdr, _l.Get("Settings.Radio.FlexSmartSdr")),
             new(RigType.Dummy, "Dummy Rig")
         ];
         RigDualTypeChoices =
@@ -758,6 +794,7 @@ public partial class SettingsViewModel : ViewModelBase
         RefreshRecordingDevices();
         LoadFromDraft();
         SeedSavedComPorts();
+        _flexDiscovery.RadiosChanged += OnFlexDiscoveryRadiosChanged;
         Dispatcher.UIThread.Post(MergeDiscoveredComPorts, DispatcherPriority.Background);
     }
 
@@ -949,6 +986,11 @@ public partial class SettingsViewModel : ViewModelBase
             Port = SelectedRigComPort ?? "",
             BaudRate = RigBaudRate,
             CivAddress = RigCivAddress.Trim(),
+            NetworkHost = RigNetworkHost.Trim(),
+            NetworkPort = RigNetworkPort is > 0 and <= 65535
+                ? RigNetworkPort
+                : RigSettings.FlexSmartSdrDefaultPort,
+            FlexRadioSerial = RigFlexRadioSerial.Trim(),
             Region = SelectedRigRegionChoice?.Value ?? RigRegion.EU,
             DopplerThresholdFmHz = RigDopplerThresholdFmHz,
             DopplerThresholdLinearHz = RigDopplerThresholdLinearHz,
@@ -1118,8 +1160,18 @@ public partial class SettingsViewModel : ViewModelBase
             SelectedRigComPort = string.IsNullOrWhiteSpace(rig.Port) ? null : rig.Port;
             RigBaudRate = rig.BaudRate;
             RigCivAddress = rig.CivAddress;
+            RigNetworkHost = rig.NetworkHost ?? "";
+            RigNetworkPort = rig.NetworkPort > 0 ? rig.NetworkPort : RigSettings.FlexSmartSdrDefaultPort;
+            RigFlexRadioSerial = rig.FlexRadioSerial ?? "";
+            RigFlexTestStatus = "";
             SelectedRigRegionChoice = RigRegionChoices.FirstOrDefault(o => o.Value == rig.Region)
                 ?? RigRegionChoices[0];
+            RefreshDiscoveredFlexRadiosFromService();
+            if (!string.IsNullOrWhiteSpace(rig.FlexRadioSerial))
+            {
+                SelectedFlexDiscoveredRadio = DiscoveredFlexRadios
+                    .FirstOrDefault(o => string.Equals(o.Radio.Serial, rig.FlexRadioSerial, StringComparison.OrdinalIgnoreCase));
+            }
             var down = rig.Downlink ?? new RigEndpointSettings();
             var up = rig.Uplink ?? new RigEndpointSettings();
             SelectedDownlinkRigTypeChoice = RigDualDownlinkTypeChoices.FirstOrDefault(o => o.Value == down.Type)
@@ -1353,6 +1405,67 @@ public partial class SettingsViewModel : ViewModelBase
             DownlinkSdrTestStatus = _l.Get("Settings.Radio.SdrConnectionFailed", ex.Message);
         }
     }
+
+    [RelayCommand]
+    private void RefreshFlexDiscovery()
+    {
+        try
+        {
+            _flexDiscovery.Start();
+            RefreshDiscoveredFlexRadiosFromService();
+            RigFlexTestStatus = DiscoveredFlexRadios.Count == 0
+                ? _l.Get("Settings.Radio.FlexDiscoveryListening")
+                : _l.Get("Settings.Radio.FlexDiscoveryFound", DiscoveredFlexRadios.Count);
+        }
+        catch (Exception ex)
+        {
+            RigFlexTestStatus = _l.Get("Settings.Radio.FlexDiscoveryFailed", ex.Message);
+        }
+    }
+
+    [RelayCommand]
+    public async Task TestFlexConnectionAsync()
+    {
+        try
+        {
+            RigFlexTestStatus = _l.Get("Settings.Radio.FlexTesting");
+            if (string.IsNullOrWhiteSpace(RigNetworkHost) || RigNetworkPort is <= 0 or > 65535)
+            {
+                RigFlexTestStatus = _l.Get("Settings.Radio.FlexEnterHostPort");
+                return;
+            }
+
+            await Task.Run(() =>
+            {
+                using var driver = new FlexRadioDriver(RigNetworkHost.Trim(), RigNetworkPort, RigCatDelayMs);
+                driver.Open();
+                return driver.IsConnected;
+            }).ConfigureAwait(true);
+
+            RigFlexTestStatus = _l.Get("Settings.Radio.FlexConnectionOk");
+        }
+        catch (Exception ex)
+        {
+            RigFlexTestStatus = _l.Get("Settings.Radio.FlexConnectionFailed", ex.Message);
+        }
+    }
+
+    private void RefreshDiscoveredFlexRadiosFromService()
+    {
+        var previousSerial = SelectedFlexDiscoveredRadio?.Radio.Serial ?? RigFlexRadioSerial;
+        DiscoveredFlexRadios.Clear();
+        foreach (var radio in _flexDiscovery.Radios)
+            DiscoveredFlexRadios.Add(new FlexDiscoveredRadioOption(radio, FlexDiscoveryCodec.FormatDisplayName(radio)));
+
+        if (!string.IsNullOrWhiteSpace(previousSerial))
+        {
+            SelectedFlexDiscoveredRadio = DiscoveredFlexRadios
+                .FirstOrDefault(o => string.Equals(o.Radio.Serial, previousSerial, StringComparison.OrdinalIgnoreCase));
+        }
+    }
+
+    private void OnFlexDiscoveryRadiosChanged(object? sender, EventArgs e) =>
+        Dispatcher.UIThread.Post(RefreshDiscoveredFlexRadiosFromService, DispatcherPriority.Background);
 
     public async Task TestSatelliteLinkAsync()
     {
@@ -1641,8 +1754,12 @@ public partial class SettingsViewModel : ViewModelBase
     partial void OnSelectedRigTypeChoiceChanged(RigTypeOption? value)
     {
         OnPropertyChanged(nameof(ShowRigCivAddress));
+        OnPropertyChanged(nameof(ShowRigSerialFields));
+        OnPropertyChanged(nameof(ShowRigFlexFields));
         OnPropertyChanged(nameof(ShowRigFt847CatHint));
         OnPropertyChanged(nameof(ShowRigTs2000CatHint));
+        OnPropertyChanged(nameof(ShowRigFlexHint));
+        OnPropertyChanged(nameof(ShowRigFlexDuplexWarning));
         OnPropertyChanged(nameof(ShowRigFt817CatHint));
         RefreshComPortConflictIfReady();
         if (_isSynchronizing || value is null)
@@ -1651,6 +1768,16 @@ public partial class SettingsViewModel : ViewModelBase
         if (value.Value is RigType.YaesuFt847 or RigType.KenwoodTs2000)
             RigBaudRate = 57600;
 
+        if (value.Value == RigType.FlexSmartSdr)
+        {
+            if (RigNetworkPort is <= 0 or > 65535)
+                RigNetworkPort = RigSettings.FlexSmartSdrDefaultPort;
+            if (RigCatDelayMs < 50)
+                RigCatDelayMs = 50;
+            RefreshFlexDiscovery();
+            return;
+        }
+
         if (value.Value is not (RigType.IcomIc910 or RigType.IcomIc9100 or RigType.IcomIc9700 or RigType.IcomIc821h))
             return;
 
@@ -1658,6 +1785,17 @@ public partial class SettingsViewModel : ViewModelBase
         if (string.IsNullOrWhiteSpace(RigCivAddress)
             || RigCivAddress is "60" or "7C" or "A2" or "4C")
             RigCivAddress = suggested;
+    }
+
+    partial void OnSelectedFlexDiscoveredRadioChanged(FlexDiscoveredRadioOption? value)
+    {
+        OnPropertyChanged(nameof(ShowRigFlexDuplexWarning));
+        if (_isSynchronizing || value is null)
+            return;
+
+        RigNetworkHost = value.Radio.IpAddress;
+        RigNetworkPort = value.Radio.Port > 0 ? value.Radio.Port : RigSettings.FlexSmartSdrDefaultPort;
+        RigFlexRadioSerial = value.Radio.Serial ?? "";
     }
 
     partial void OnSelectedDownlinkRigTypeChoiceChanged(RigTypeOption? value)
@@ -2077,6 +2215,8 @@ public sealed record RotatorAzimuthOption(RotatorAzimuthRange Value, string Labe
 public sealed record RotatorElevationOption(RotatorElevationRange Value, string Label);
 
 public sealed record RigTypeOption(RigType Value, string Label);
+
+public sealed record FlexDiscoveredRadioOption(FlexDiscoveredRadio Radio, string Label);
 
 public sealed record RigRegionOption(RigRegion Value, string Label);
 

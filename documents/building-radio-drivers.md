@@ -294,6 +294,29 @@ Covers **FTX-1 Field** and **FTX-1optima** (same field head). Downlink uses VFO-
 - Close any front-panel menu before tracking; press **SAT** on the front panel and turn memory mode off (CAT `SA` alone is not enough). CAT delay ~20–30 ms helps on the TS-2000.
 - On a real pass: RX/TX doppler on `FA`/`FB`, uplink CTCSS on Sub.
 
+## Reference: FlexRadio SmartSDR (shipped)
+
+| Piece | Path |
+|-------|------|
+| Discovery parse | [`OscarWatch.Core/Radio/FlexDiscoveryCodec.cs`](../OscarWatch.Core/Radio/FlexDiscoveryCodec.cs) |
+| Command framing | [`OscarWatch.Core/Radio/FlexSmartSdrCodec.cs`](../OscarWatch.Core/Radio/FlexSmartSdrCodec.cs) |
+| TCP client | [`OscarWatch/Rig/FlexSmartSdrClient.cs`](../OscarWatch/Rig/FlexSmartSdrClient.cs) |
+| Discovery service | [`OscarWatch/Rig/FlexDiscoveryService.cs`](../OscarWatch/Rig/FlexDiscoveryService.cs) |
+| Driver | [`OscarWatch/Rig/FlexRadioDriver.cs`](../OscarWatch/Rig/FlexRadioDriver.cs) |
+
+- **Single-radio only** — not a dual-radio endpoint. Settings lists discovered radios (UDP **4992**) or accepts a manual host/port (TCP **4992**).
+- `SetSatelliteMode(true)` → `radio set full_duplex_enabled=1`, ensure two slices, mark uplink `tx=1`.
+- `Main`/`Sub` → RX / TX slice tune + mode; CTCSS via `fm_tone_mode` / `fm_tone_value` on the TX slice.
+- `SupportsVfoExchange` is **false**.
+- Hardware-less tests use [`FlexSmartSdrStubServer`](../OscarWatch.Tests/FlexSmartSdrStubServer.cs) (same idea as rigctl TCP stubs).
+- Do **not** take a FlexLib dependency — protocol subset only (AGPL-friendly, easy to stub).
+
+### Hardware checklist (Flex)
+
+- Dual-SCU radio on the LAN; antenna/XVTR ports already configured for the satellite bands.
+- Discovery or manual IP; **Test SmartSDR connection** succeeds.
+- On a real pass: FDX on, RX/TX Doppler both move, FM uplink CTCSS correct.
+
 ## Step-by-step: add a new rig type
 
 ### 1. Add `RigType` enum value
