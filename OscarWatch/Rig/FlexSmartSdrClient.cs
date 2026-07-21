@@ -105,9 +105,11 @@ internal sealed class FlexSmartSdrClient : IDisposable
             _nextSequence = 1;
 
             ReadPrologueUnlocked();
-            RequireCommandUnlocked(
-                seq => FlexSmartSdrCodec.BuildClientProgramCommand(seq),
-                "register the OscarWatch client");
+            if (!SendAndWaitUnlocked(seq => FlexSmartSdrCodec.BuildClientProgramCommand(seq)))
+            {
+                Log.Warning(
+                    "Flex SmartSDR did not acknowledge the optional OscarWatch client label; continuing connection");
+            }
             RequireCommandUnlocked(
                 seq => FlexSmartSdrCodec.BuildSubSliceAllCommand(seq),
                 "subscribe to slice status");

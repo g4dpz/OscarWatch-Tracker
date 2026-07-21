@@ -24,6 +24,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
     private readonly bool _rejectSliceCreate;
     private readonly bool _omitSliceCreateIndex;
     private readonly bool _emitPartialSliceStatus;
+    private readonly bool _rejectClientProgram;
 
     public FlexSmartSdrStubServer(
         int initialSliceCount = 2,
@@ -31,7 +32,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         bool rejectTxSlice = false,
         bool rejectSliceCreate = false,
         bool omitSliceCreateIndex = false,
-        bool emitPartialSliceStatus = false)
+        bool emitPartialSliceStatus = false,
+        bool rejectClientProgram = false)
     {
         if (initialSliceCount >= 1)
             _slices[0] = new StubSlice(0, 145_900_000, "USB", Tx: false);
@@ -44,6 +46,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         _rejectSliceCreate = rejectSliceCreate;
         _omitSliceCreateIndex = omitSliceCreateIndex;
         _emitPartialSliceStatus = emitPartialSliceStatus;
+        _rejectClientProgram = rejectClientProgram;
 
         _listener = new TcpListener(IPAddress.Loopback, 0);
         _listener.Start();
@@ -170,8 +173,17 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
 
         var body = line[(bar + 1)..].Trim();
 
-        if (body.StartsWith("client program", StringComparison.OrdinalIgnoreCase)
-            || body.StartsWith("sub slice", StringComparison.OrdinalIgnoreCase)
+        if (body.StartsWith("client program", StringComparison.OrdinalIgnoreCase))
+        {
+            await writer.WriteLineAsync(
+                    _rejectClientProgram
+                        ? $"R{seq}|50000015|Client label unavailable"
+                        : $"R{seq}|0|")
+                .ConfigureAwait(false);
+            return;
+        }
+
+        if (body.StartsWith("sub slice", StringComparison.OrdinalIgnoreCase)
             || body.StartsWith("sub radio", StringComparison.OrdinalIgnoreCase))
         {
             if (body.StartsWith("sub slice", StringComparison.OrdinalIgnoreCase))

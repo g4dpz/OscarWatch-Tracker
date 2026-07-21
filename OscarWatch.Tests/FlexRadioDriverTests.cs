@@ -25,6 +25,20 @@ public class FlexRadioDriverTests
     }
 
     [Fact]
+    public void Open_WhenOptionalClientLabelIsRejected_StillConnects()
+    {
+        using var stub = new FlexSmartSdrStubServer(rejectClientProgram: true);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+
+        Assert.True(driver.IsConnected);
+        Assert.Equal(145_900_000, driver.ReadFrequencyHz(RigVfo.Main));
+        Assert.Equal(435_000_000, driver.ReadFrequencyHz(RigVfo.Sub));
+    }
+
+    [Fact]
     public void SetSatelliteMode_EnablesFullDuplexAndTxSlice()
     {
         using var stub = new FlexSmartSdrStubServer();
