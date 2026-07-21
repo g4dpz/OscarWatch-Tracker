@@ -693,6 +693,12 @@
   <data name="Rig.Tracking">
     <value>跟踪中</value>
   </data>
+  <data name="Rig.FlexControlFailed">
+    <value>FlexRadio 卫星设置失败</value>
+  </data>
+  <data name="Rig.FlexControlFailedDetail">
+    <value>FlexRadio 卫星设置失败：{0}</value>
+  </data>
   <data name="Rig.NoComPort">
     <value>未选择 COM 端口</value>
   </data>
@@ -731,6 +737,12 @@
   </data>
   <data name="Rig.DualRadioSamePort">
     <value>下行和上行电台使用同一串口。请为每台电台选择不同端口。</value>
+  </data>
+  <data name="App.AlreadyRunningTitle">
+    <value>OscarWatch 已在运行</value>
+  </data>
+  <data name="App.AlreadyRunningMessage">
+    <value>OscarWatch 已在运行，但无法激活其窗口。如果没有出现窗口，请在任务管理器中结束 OscarWatch.exe，然后重试。</value>
   </data>
   <data name="Menu.Tools.QsoLogbook">
     <value>_QSO 日志</value>

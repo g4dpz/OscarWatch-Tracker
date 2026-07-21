@@ -19,7 +19,7 @@ using OscarWatch.Theme;
 
 namespace OscarWatch.ViewModels;
 
-public partial class SettingsViewModel : ViewModelBase
+public partial class SettingsViewModel : ViewModelBase, IDisposable
 {
     private readonly ISettingsService _settings;
     private readonly ILocalizationService _l;
@@ -33,7 +33,19 @@ public partial class SettingsViewModel : ViewModelBase
     private readonly FlexDiscoveryService _flexDiscovery = new();
     private readonly GroundStation _draft = new();
     private bool _isSynchronizing;
+    private bool _disposed;
     private string _uiLanguageAtOpen = LocalizationCulture.DefaultLanguage;
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+        _flexDiscovery.RadiosChanged -= OnFlexDiscoveryRadiosChanged;
+        _flexDiscovery.Dispose();
+        GC.SuppressFinalize(this);
+    }
 
     [ObservableProperty]
     private string _displayName = "";

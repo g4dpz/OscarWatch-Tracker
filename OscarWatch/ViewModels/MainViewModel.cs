@@ -156,6 +156,7 @@ public partial class MainViewModel : ViewModelBase
 
     private bool? _rigCatPausedBeforeStandby;
     private bool _suppressCatPausePersist;
+    private int _hardwareShutdownStarted;
 
     [ObservableProperty]
     private bool _showRigStatus;
@@ -1097,6 +1098,11 @@ public partial class MainViewModel : ViewModelBase
     /// <summary>Disconnect CAT/rotator/GPS hardware before process exit so COM ports are released cleanly.</summary>
     internal void DisconnectHardwareForShutdown()
     {
+        if (Interlocked.Exchange(ref _hardwareShutdownStarted, 1) != 0)
+            return;
+
+        AppShutdownWatchdog.Start();
+
         // Stop UI ticks first so they cannot re-publish Update and reopen ports after Disconnect.
         _timer.Stop();
         _liveDisplayTimer?.Stop();
@@ -1964,21 +1970,28 @@ public partial class MainViewModel : ViewModelBase
     private async Task OpenSettingsAsync()
     {
         var vm = App.Services.GetRequiredService<SettingsViewModel>();
-        var window = new SettingsWindow { DataContext = vm };
-        if (App.MainWindow is null)
-            return;
-
-        var saved = await window.ShowDialog<bool?>(App.MainWindow) == true;
-
-        if (saved)
+        try
         {
-            await ApplyPersistedSettingsAsync().ConfigureAwait(true);
+            var window = new SettingsWindow { DataContext = vm };
+            if (App.MainWindow is null)
+                return;
 
-            if (vm.LanguageChangedOnLastSave
-                && await LanguageRestartWindow.ShowAsync(App.MainWindow).ConfigureAwait(true))
+            var saved = await window.ShowDialog<bool?>(App.MainWindow) == true;
+
+            if (saved)
             {
-                AppRestart.Request();
+                await ApplyPersistedSettingsAsync().ConfigureAwait(true);
+
+                if (vm.LanguageChangedOnLastSave
+                    && await LanguageRestartWindow.ShowAsync(App.MainWindow).ConfigureAwait(true))
+                {
+                    AppRestart.Request();
+                }
             }
+        }
+        finally
+        {
+            vm.Dispose();
         }
     }
 

@@ -100,6 +100,7 @@ public sealed class RigController : IRigController, IDisposable
     private string? _lastConnectEndpoint;
     private bool? _lastPassDownlinkOnVhf;
     private DateTime _lastDopplerLogUtc = DateTime.MinValue;
+    private string? _flexSatelliteSetupError;
     /// <summary>Prior loop horizon state; used to detect orbital AOS (below → above 0°).</summary>
     private bool? _wasAboveHorizon;
 
@@ -313,6 +314,14 @@ public sealed class RigController : IRigController, IDisposable
                     break;
             }
         }
+        catch (FlexSatelliteSetupException ex)
+        {
+            _isTracking = false;
+            _passInitPending = false;
+            _flexSatelliteSetupError = ex.Message;
+            SetRigStatus(RigStatusKind.FlexControlFailed, detail: ex.Message);
+            Log.Warning(ex, "FlexRadio satellite setup failed while processing {Kind}", command.Kind);
+        }
         catch (Exception ex)
         {
             Log.Warning(ex, "Rig worker failed processing {Kind}", command.Kind);
@@ -410,20 +419,38 @@ public sealed class RigController : IRigController, IDisposable
 
         var newPassKey = PassKey(context);
         var passKeyChanged = !string.Equals(_passKey, newPassKey, StringComparison.Ordinal);
+        if (passKeyChanged || reinitializePass || resumingFromCatPause)
+            _flexSatelliteSetupError = null;
+
         if (passKeyChanged)
             BeginNewPass(settings, context, newPassKey, effectivePaused);
+
+        if (_flexSatelliteSetupError is not null)
+        {
+            _isTracking = false;
+            SetRigStatus(RigStatusKind.FlexControlFailed, detail: _flexSatelliteSetupError);
+            return;
+        }
 
         if (effectivePaused)
         {
             _isTracking = false;
             if (!wasPaused)
+            {
+                if (settings.Type == RigType.FlexSmartSdr)
+                    Log.Information("FlexRadio CAT updates paused; Doppler control is suspended");
                 LogDopplerPauseTransition(settings, context, "cat_pause_start");
+            }
             SetRigStatus(RigStatusKind.CatPaused);
             return;
         }
 
         if (resumingFromCatPause)
+        {
+            if (settings.Type == RigType.FlexSmartSdr)
+                Log.Information("FlexRadio CAT updates resumed; reinitialising satellite control");
             LogDopplerPauseTransition(settings, context, "cat_pause_end");
+        }
 
         if (resumingFromCatPause || _passInitPending)
         {
@@ -474,6 +501,7 @@ public sealed class RigController : IRigController, IDisposable
         _wasAboveHorizon = context.TrackState.LookAngles is null ? null : IsAboveHorizon(context);
         ClearDialHistory();
         _lastAppliedCtcssHz = null;
+        _flexSatelliteSetupError = null;
         _lastAppliedCtcssSquelch = null;
         _lastContextRxOffsetKHz = context.ReceiveOffsetKHz;
         _lastContextTxOffsetKHz = context.TransmitOffsetKHz;
@@ -516,6 +544,7 @@ public sealed class RigController : IRigController, IDisposable
         _passInitPending = false;
         _catUpdatesPaused = false;
         _cachedCatPausedOverride = null;
+        _flexSatelliteSetupError = null;
         _lastAppliedCtcssHz = null;
         _lastAppliedCtcssSquelch = null;
         _lastPassDownlinkOnVhf = null;
@@ -1044,6 +1073,7 @@ public sealed class RigController : IRigController, IDisposable
             _connectedKey = key;
             if (_driver.IsConnected)
             {
+                Log.Information("Rig connected: type={RigType}, endpoint={Endpoint}", settings.Type, FormatSingleEndpoint(settings));
                 _lastConnectError = null;
                 _lastConnectErrorKind = SerialPortConnectErrorKind.None;
                 _lastConnectErrorPort = null;
@@ -1198,6 +1228,16 @@ public sealed class RigController : IRigController, IDisposable
             return;
 
         _useMainSub = !_isBeaconOnly && ShouldUseMainSubLayout(settings, context);
+        if (settings.Type == RigType.FlexSmartSdr)
+        {
+            Log.Information(
+                "Initialising FlexRadio pass: satellite={Satellite}, beaconOnly={BeaconOnly}, mainSub={MainSub}, downlinkKHz={DownlinkKHz}, uplinkKHz={UplinkKHz}",
+                context.TrackState.Name,
+                _isBeaconOnly,
+                _useMainSub,
+                context.Mode.DownlinkKHz,
+                context.Mode.UplinkKHz);
+        }
         AssignReceiveVfo(settings, context);
 
         if (_isBeaconOnly)

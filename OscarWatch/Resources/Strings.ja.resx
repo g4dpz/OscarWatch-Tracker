@@ -570,6 +570,12 @@
   <data name="Rig.Tracking">
     <value>追従中</value>
   </data>
+  <data name="Rig.FlexControlFailed">
+    <value>FlexRadioの衛星設定に失敗しました</value>
+  </data>
+  <data name="Rig.FlexControlFailedDetail">
+    <value>FlexRadioの衛星設定に失敗しました: {0}</value>
+  </data>
   <data name="Rig.NoComPort">
     <value>COMポート未選択</value>
   </data>
@@ -608,6 +614,12 @@
   </data>
   <data name="Rig.DualRadioSamePort">
     <value>ダウンリンクとアップリンクの無線機が同じシリアルポートを使用しています。各無線機に別のポートを使用してください。</value>
+  </data>
+  <data name="App.AlreadyRunningTitle">
+    <value>OscarWatchは既に実行中です</value>
+  </data>
+  <data name="App.AlreadyRunningMessage">
+    <value>OscarWatchは既に実行中ですが、ウィンドウを表示できませんでした。ウィンドウが表示されない場合は、タスク マネージャーでOscarWatch.exeを終了してから、もう一度お試しください。</value>
   </data>
   <data name="Freq.SelectSatellite">
     <value>衛星を選択</value>

@@ -104,6 +104,21 @@
         <li>On linear SSB/CW, check <a href="radio-doppler-tuning.html#doppler-cat-thresholds">Doppler thresholds</a> — very large values can make tracking look sluggish near TCA.</li>
       </ul>
 
+      <h2>FlexRadio is discovered but not controlled</h2>
+      <ul>
+        <li>Discovery alone does not test control. In <strong>Settings → Radio</strong>, select the FlexRadio and run <strong>Test SmartSDR connection</strong> (TCP port <strong>4992</strong>).</li>
+        <li>Confirm the radio is enabled, <strong>Pause CAT</strong> is off, OscarWatch is not in Standby, and a satellite pass with both uplink and downlink is focused.</li>
+        <li>A dual-SCU model such as the 6600 or 6700 is required. At pass start, SmartSDR should show full duplex and separate RX/TX slices.</li>
+        <li>If the status bar reports a FlexRadio satellite setup failure, open the logs folder and include the current log in your report. See the <a href="radio-flex.html">FlexRadio guide</a>.</li>
+      </ul>
+
+      <h2>OscarWatch will not reopen after exit (Windows)</h2>
+      <ul>
+        <li>Open Task Manager and check for <code>OscarWatch.exe</code>. If it remains after the window closes, end that task and try again; a full reboot should not be necessary.</li>
+        <li>A second launch now warns when an existing process cannot activate its window. Include the current log if shutdown was forced after its timeout.</li>
+        <li>Logs are appended under <code>%AppData%\OscarWatch\logs\</code>; attempting a second launch does not erase the current daily log.</li>
+      </ul>
+
       <h2>Kenwood TS-2000: no CAT replies / SATL not confirmed</h2>
       <ul>
         <li>The TS-2000 only sends CAT data when the PC asserts <strong>RTS</strong>. OscarWatch does this automatically — use a straight RS-232 cable or USB adapter that passes RTS through.</li>

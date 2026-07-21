@@ -693,6 +693,12 @@ Continuar?</value>
   <data name="Rig.Tracking">
     <value>Rastreando</value>
   </data>
+  <data name="Rig.FlexControlFailed">
+    <value>Falha na configuração de satélite do FlexRadio</value>
+  </data>
+  <data name="Rig.FlexControlFailedDetail">
+    <value>Falha na configuração de satélite do FlexRadio: {0}</value>
+  </data>
   <data name="Rig.NoComPort">
     <value>Nenhuma porta COM selecionada</value>
   </data>
@@ -731,6 +737,12 @@ Continuar?</value>
   </data>
   <data name="Rig.DualRadioSamePort">
     <value>Os rádios de downlink e uplink usam a mesma porta serial. Use portas diferentes para cada rádio.</value>
+  </data>
+  <data name="App.AlreadyRunningTitle">
+    <value>O OscarWatch já está em execução</value>
+  </data>
+  <data name="App.AlreadyRunningMessage">
+    <value>O OscarWatch já está em execução, mas não foi possível ativar a janela. Se nenhuma janela aparecer, finalize OscarWatch.exe no Gerenciador de Tarefas e tente novamente.</value>
   </data>
   <data name="Menu.Tools.QsoLogbook">
     <value>_Livro de QSO</value>

@@ -15,6 +15,8 @@ public enum RigStatusKind
     SerialPortNotFound,
     SerialPortBusy,
     DualRadioSamePort,
+    /// <summary>FlexRadio connected, but full-duplex satellite setup failed.</summary>
+    FlexControlFailed,
     /// <summary>TS-2000 cross-band tracking on FA/FB because SA; did not confirm SATL.</summary>
     Ts2000SatlUnconfirmed,
 }

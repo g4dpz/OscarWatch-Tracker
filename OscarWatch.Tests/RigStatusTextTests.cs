@@ -13,6 +13,7 @@ public sealed class RigStatusTextTests
     [InlineData(RigStatusKind.SerialPortNotFound, "/dev/ttyUSB1", null, "Serial port not found (/dev/ttyUSB1). Check the USB cable and refresh the port list.")]
     [InlineData(RigStatusKind.SerialPortBusy, "COM3", null, "Serial port in use (COM3). Close other CAT programs or choose a different port.")]
     [InlineData(RigStatusKind.DualRadioSamePort, "/dev/ttyUSB0", null, "Downlink and uplink radios both use /dev/ttyUSB0. Use different COM ports for each radio.")]
+    [InlineData(RigStatusKind.FlexControlFailed, null, "SmartSDR did not enable full duplex.", "FlexRadio satellite setup failed: SmartSDR did not enable full duplex.")]
     public void ToEnglish_formats_known_statuses(
         RigStatusKind kind,
         string? port,

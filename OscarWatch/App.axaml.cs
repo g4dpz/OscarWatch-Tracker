@@ -85,7 +85,7 @@ public partial class App : Application
             sp.GetRequiredService<IGpsService>()));
         services.AddSingleton<ILiveTrackingService>(sp => sp.GetRequiredService<LiveTrackingService>());
         services.AddOscarWatchOrbit();
-        services.AddTransient<MainViewModel>();
+        services.AddSingleton<MainViewModel>();
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<SatellitePickerViewModel>();
         services.AddTransient<PassPlanningViewModel>();
@@ -135,7 +135,15 @@ public partial class App : Application
 
     private static void OnDesktopExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
     {
-        OscarWatchHttpClients.DisposeSharedHandler();
+        try
+        {
+            OscarWatchHttpClients.DisposeSharedHandler();
+            (Services as IDisposable)?.Dispose();
+        }
+        finally
+        {
+            AppShutdownWatchdog.Cancel();
+        }
     }
 
     private static void ActivateMainWindow()
@@ -155,11 +163,30 @@ public partial class App : Application
 
     private static void OnDesktopShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
     {
+        AppShutdownWatchdog.Start();
         Services?.GetService<MainViewModel>()?.DisconnectHardwareForShutdown();
-        Services?.GetService<ISatelliteLinkBroadcastService>()?.StopAsync().GetAwaiter().GetResult();
+        WaitForShutdownTask(
+            Services?.GetService<ISatelliteLinkBroadcastService>()?.StopAsync(),
+            "Satellite Link");
 
         // Flush pending settings save on shutdown
         var settings = Services?.GetService<ISettingsService>();
-        settings?.FlushAsync().GetAwaiter().GetResult();
+        WaitForShutdownTask(settings?.FlushAsync(), "settings");
+    }
+
+    private static void WaitForShutdownTask(Task? task, string operation)
+    {
+        if (task is null)
+            return;
+
+        try
+        {
+            if (!task.Wait(TimeSpan.FromSeconds(5)))
+                Log.Warning("{Operation} shutdown timed out after 5 seconds; continuing application exit", operation);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "{Operation} shutdown failed; continuing application exit", operation);
+        }
     }
 }

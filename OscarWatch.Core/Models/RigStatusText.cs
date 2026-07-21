@@ -41,6 +41,10 @@ public static class RigStatusText
                 return string.IsNullOrWhiteSpace(status.StatusPort)
                     ? "Downlink and uplink radios use the same serial port. Use different ports for each radio."
                     : $"Downlink and uplink radios both use {status.StatusPort}. Use different COM ports for each radio.";
+            case RigStatusKind.FlexControlFailed:
+                return string.IsNullOrWhiteSpace(status.StatusDetail)
+                    ? "FlexRadio satellite setup failed"
+                    : $"FlexRadio satellite setup failed: {status.StatusDetail}";
             case RigStatusKind.NotConnected:
                 var baseMessage = string.IsNullOrWhiteSpace(status.StatusPort)
                     ? "Rig not connected"

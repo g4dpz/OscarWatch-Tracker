@@ -717,6 +717,12 @@
   <data name="Rig.Tracking">
     <value>Seguimiento</value>
   </data>
+  <data name="Rig.FlexControlFailed">
+    <value>Error en la configuración satelital de FlexRadio</value>
+  </data>
+  <data name="Rig.FlexControlFailedDetail">
+    <value>Error en la configuración satelital de FlexRadio: {0}</value>
+  </data>
   <data name="Rig.NoComPort">
     <value>No se ha seleccionado ningún puerto COM</value>
   </data>
@@ -755,6 +761,12 @@
   </data>
   <data name="Rig.DualRadioSamePort">
     <value>Las radios de bajada y subida usan el mismo puerto serie. Usa puertos distintos para cada radio.</value>
+  </data>
+  <data name="App.AlreadyRunningTitle">
+    <value>OscarWatch ya está en ejecución</value>
+  </data>
+  <data name="App.AlreadyRunningMessage">
+    <value>OscarWatch ya está en ejecución, pero no se pudo activar su ventana. Si no aparece ninguna ventana, finaliza OscarWatch.exe en el Administrador de tareas e inténtalo de nuevo.</value>
   </data>
   <data name="Menu.Tools.QsoLogbook">
     <value>_Libro de QSO</value>

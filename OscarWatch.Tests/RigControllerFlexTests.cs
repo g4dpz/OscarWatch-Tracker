@@ -47,6 +47,35 @@ public class RigControllerFlexTests
     }
 
     [Fact]
+    public void Flex_fdx_failure_is_visible_in_rig_status_and_stops_tracking()
+    {
+        using var stub = new FlexSmartSdrStubServer(rejectFullDuplex: true);
+        stub.WaitUntilReady();
+        using var harness = CreateHarness(stub);
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 145_900,
+            UplinkKHz = 435_800,
+            DownlinkMode = "FM",
+            UplinkMode = "FM"
+        };
+
+        PublishAndWait(
+            harness,
+            mode,
+            DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            ready: () => harness.Controller.GetStatus().StatusKind == RigStatusKind.FlexControlFailed);
+
+        var status = harness.Controller.GetStatus();
+        Assert.True(status.IsConnected);
+        Assert.False(status.IsTracking);
+        Assert.Equal(RigStatusKind.FlexControlFailed, status.StatusKind);
+        Assert.Contains("full duplex", status.StatusDetail, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void Flex_same_band_packet_enables_fdx_with_two_slices_not_classic_split()
     {
         using var stub = new FlexSmartSdrStubServer();
@@ -235,6 +264,10 @@ public class RigControllerFlexTests
                 return;
             Thread.Sleep(50);
         }
+
+        var finalStatus = harness.Controller.GetStatus();
+        throw new TimeoutException(
+            $"Flex controller did not reach the expected state. Status={finalStatus.StatusKind}, detail={finalStatus.StatusDetail}");
     }
 
     private sealed class FlexHarness : IDisposable

@@ -19,12 +19,28 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
     private readonly object _gate = new();
     private int _nextSliceIndex;
     private bool _fullDuplex;
+    private readonly bool _rejectFullDuplex;
+    private readonly bool _rejectTxSlice;
+    private readonly bool _rejectSliceCreate;
+    private readonly bool _omitSliceCreateIndex;
 
-    public FlexSmartSdrStubServer()
+    public FlexSmartSdrStubServer(
+        int initialSliceCount = 2,
+        bool rejectFullDuplex = false,
+        bool rejectTxSlice = false,
+        bool rejectSliceCreate = false,
+        bool omitSliceCreateIndex = false)
     {
-        _slices[0] = new StubSlice(0, 145_900_000, "USB", Tx: false);
-        _slices[1] = new StubSlice(1, 435_000_000, "USB", Tx: true);
-        _nextSliceIndex = 2;
+        if (initialSliceCount >= 1)
+            _slices[0] = new StubSlice(0, 145_900_000, "USB", Tx: false);
+        if (initialSliceCount >= 2)
+            _slices[1] = new StubSlice(1, 435_000_000, "USB", Tx: true);
+
+        _nextSliceIndex = Math.Max(0, initialSliceCount);
+        _rejectFullDuplex = rejectFullDuplex;
+        _rejectTxSlice = rejectTxSlice;
+        _rejectSliceCreate = rejectSliceCreate;
+        _omitSliceCreateIndex = omitSliceCreateIndex;
 
         _listener = new TcpListener(IPAddress.Loopback, 0);
         _listener.Start();
@@ -165,6 +181,12 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         if (body.StartsWith("radio set full_duplex_enabled=", StringComparison.OrdinalIgnoreCase))
         {
             var enabled = body.EndsWith("=1", StringComparison.Ordinal);
+            if (enabled && _rejectFullDuplex)
+            {
+                await writer.WriteLineAsync($"R{seq}|50000015|FDX unavailable").ConfigureAwait(false);
+                return;
+            }
+
             lock (_gate)
                 _fullDuplex = enabled;
 
@@ -197,6 +219,12 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                 && int.TryParse(match.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var index))
             {
                 var args = match.Groups[2].Value;
+                if (_rejectTxSlice && args.Contains("tx=1", StringComparison.OrdinalIgnoreCase))
+                {
+                    await writer.WriteLineAsync($"R{seq}|50000015|TX slice unavailable").ConfigureAwait(false);
+                    return;
+                }
+
                 ApplySliceSet(index, args);
                 await EmitSliceAsync(writer, index).ConfigureAwait(false);
             }
@@ -207,6 +235,12 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
 
         if (body.StartsWith("slice create", StringComparison.OrdinalIgnoreCase))
         {
+            if (_rejectSliceCreate)
+            {
+                await writer.WriteLineAsync($"R{seq}|50000015|Slice unavailable").ConfigureAwait(false);
+                return;
+            }
+
             var freq = 14.0;
             var mode = "USB";
             foreach (var token in body.Split(' ', StringSplitOptions.RemoveEmptyEntries))
@@ -226,7 +260,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
             }
 
             await EmitSliceAsync(writer, index).ConfigureAwait(false);
-            await writer.WriteLineAsync($"R{seq}|0|{index}").ConfigureAwait(false);
+            await writer.WriteLineAsync(_omitSliceCreateIndex ? $"R{seq}|0|" : $"R{seq}|0|{index}")
+                .ConfigureAwait(false);
             return;
         }
 

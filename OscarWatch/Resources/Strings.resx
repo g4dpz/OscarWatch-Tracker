@@ -744,6 +744,12 @@ Continue?</value>
   <data name="Rig.Tracking">
     <value>Tracking</value>
   </data>
+  <data name="Rig.FlexControlFailed">
+    <value>FlexRadio satellite setup failed</value>
+  </data>
+  <data name="Rig.FlexControlFailedDetail">
+    <value>FlexRadio satellite setup failed: {0}</value>
+  </data>
   <data name="Rig.Ts2000SatlUnconfirmed">
     <value>Tracking (TS-2000 SATL not confirmed — using FA/FB)</value>
   </data>
@@ -791,6 +797,12 @@ Continue?</value>
   </data>
   <data name="Rig.DualRadioSamePort">
     <value>Downlink and uplink radios use the same serial port. Use different ports for each radio.</value>
+  </data>
+  <data name="App.AlreadyRunningTitle">
+    <value>OscarWatch is already running</value>
+  </data>
+  <data name="App.AlreadyRunningMessage">
+    <value>OscarWatch is already running but its window could not be activated. If no window appears, end OscarWatch.exe in Task Manager and try again.</value>
   </data>
   <data name="Window.PassPlanner.Title">
     <value>Pass planner</value>

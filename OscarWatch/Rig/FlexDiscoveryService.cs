@@ -163,7 +163,17 @@ public sealed class FlexDiscoveryService : IDisposable
             });
 
         if (changed)
+        {
+            Log.Information(
+                "FlexRadio discovered: model={Model}, nickname={Nickname}, serial={Serial}, endpoint={IpAddress}:{Port}, status={Status}",
+                radio.Model,
+                radio.Nickname,
+                radio.Serial,
+                radio.IpAddress,
+                radio.Port,
+                radio.Status);
             RadiosChanged?.Invoke(this, EventArgs.Empty);
+        }
 
         return changed;
     }

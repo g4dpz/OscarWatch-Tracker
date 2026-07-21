@@ -14,6 +14,7 @@ public sealed class SatelliteLinkWebSocketHost : IAsyncDisposable
 {
     private static readonly ILogger Log = Serilog.Log.ForContext<SatelliteLinkWebSocketHost>();
     private const int HandshakeTimeoutMs = 5000;
+    private static readonly TimeSpan SocketCloseTimeout = TimeSpan.FromSeconds(2);
 
     private readonly object _gate = new();
     private readonly ConcurrentDictionary<Guid, WebSocket> _clients = new();
@@ -335,8 +336,11 @@ public sealed class SatelliteLinkWebSocketHost : IAsyncDisposable
         try
         {
             if (socket.State is WebSocketState.Open or WebSocketState.CloseReceived)
-                await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "bye", CancellationToken.None)
+            {
+                using var cts = new CancellationTokenSource(SocketCloseTimeout);
+                await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "bye", cts.Token)
                     .ConfigureAwait(false);
+            }
         }
         catch
         {

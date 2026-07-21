@@ -96,6 +96,14 @@
         <li>RF isolation and transverters remain your responsibility — OscarWatch only controls frequency, mode, FDX, and tone.</li>
       </ul>
 
+      <h2>If the radio is discovered but not controlled</h2>
+      <ol>
+        <li>Use <strong>Test SmartSDR connection</strong>; discovery uses UDP, while control needs TCP port <strong>4992</strong>.</li>
+        <li>Confirm the radio is enabled, <strong>Pause CAT</strong> is off, OscarWatch is not in Standby, and a satellite with an uplink and downlink is focused.</li>
+        <li>At pass start, check SmartSDR shows full duplex and separate RX/TX slices. OscarWatch now reports a visible radio status if either step fails.</li>
+        <li>If control still fails, use <strong>Help → Open logs folder</strong> and include the current log with your report. Flex discovery, connection, full-duplex and slice setup are recorded there.</li>
+      </ol>
+
       <h2>Hardware smoke checklist</h2>
       <ol>
         <li>Discovery lists the radio; Test connection succeeds.</li>

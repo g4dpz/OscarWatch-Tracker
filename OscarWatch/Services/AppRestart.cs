@@ -9,6 +9,8 @@ namespace OscarWatch.Services;
 
 public static class AppRestart
 {
+    private static int _restartRequested;
+
     public static void Request()
     {
         var exe = Environment.ProcessPath;
@@ -27,9 +29,21 @@ public static class AppRestart
 
         App.Services?.GetService<MainViewModel>()?.DisconnectHardwareForShutdown();
 
-        Process.Start(new ProcessStartInfo(exe) { UseShellExecute = true });
+        Interlocked.Exchange(ref _restartRequested, 1);
 
         if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             desktop.Shutdown();
+    }
+
+    internal static void StartRequestedProcess()
+    {
+        if (Interlocked.Exchange(ref _restartRequested, 0) == 0)
+            return;
+
+        var exe = Environment.ProcessPath;
+        if (string.IsNullOrWhiteSpace(exe))
+            return;
+
+        Process.Start(new ProcessStartInfo(exe) { UseShellExecute = true });
     }
 }

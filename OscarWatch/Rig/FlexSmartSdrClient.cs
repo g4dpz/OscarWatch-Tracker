@@ -90,6 +90,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
     {
         lock (_gate)
         {
+            Log.Information("Connecting to FlexRadio SmartSDR at {Host}:{Port}", _host, _port);
             DisconnectUnlocked();
             _client = new TcpClient { NoDelay = true };
             _client.ReceiveTimeout = _commandTimeoutMs;
@@ -104,9 +105,22 @@ internal sealed class FlexSmartSdrClient : IDisposable
             _nextSequence = 1;
 
             ReadPrologueUnlocked();
-            SendAndWaitUnlocked(seq => FlexSmartSdrCodec.BuildClientProgramCommand(seq));
-            SendAndWaitUnlocked(seq => FlexSmartSdrCodec.BuildSubSliceAllCommand(seq));
-            SendAndWaitUnlocked(seq => FlexSmartSdrCodec.BuildSubRadioAllCommand(seq));
+            RequireCommandUnlocked(
+                seq => FlexSmartSdrCodec.BuildClientProgramCommand(seq),
+                "register the OscarWatch client");
+            RequireCommandUnlocked(
+                seq => FlexSmartSdrCodec.BuildSubSliceAllCommand(seq),
+                "subscribe to slice status");
+            RequireCommandUnlocked(
+                seq => FlexSmartSdrCodec.BuildSubRadioAllCommand(seq),
+                "subscribe to radio status");
+            Log.Information(
+                "Connected to FlexRadio SmartSDR at {Host}:{Port}; version={Version}, handle={Handle}, slices={SliceCount}",
+                _host,
+                _port,
+                _version,
+                _handle,
+                _slices.Values.Count(s => s.InUse));
         }
     }
 
@@ -116,9 +130,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
         {
             EnsureConnectedUnlocked();
             var ok = SendAndWaitUnlocked(seq => FlexSmartSdrCodec.BuildFullDuplexCommand(seq, enabled));
-            if (ok)
-                _fullDuplexEnabled = enabled;
-            return ok;
+            return ok && WaitForStateUnlocked(() => _fullDuplexEnabled == enabled);
         }
     }
 
@@ -160,17 +172,8 @@ internal sealed class FlexSmartSdrClient : IDisposable
             if (!ok)
                 return false;
 
-            var keys = new List<int>(_slices.Keys);
-            foreach (var key in keys)
-            {
-                var s = _slices[key];
-                if (key == sliceIndex)
-                    _slices[key] = s with { IsTransmit = tx };
-                else if (tx && s.IsTransmit)
-                    _slices[key] = s with { IsTransmit = false };
-            }
-
-            return true;
+            return WaitForStateUnlocked(
+                () => _slices.TryGetValue(sliceIndex, out var slice) && slice.IsTransmit == tx);
         }
     }
 
@@ -189,24 +192,17 @@ internal sealed class FlexSmartSdrClient : IDisposable
         lock (_gate)
         {
             EnsureConnectedUnlocked();
+            var existingIndexes = _slices.Keys.ToHashSet();
             var mhz = FlexSmartSdrCodec.HzToMhz(hz);
             var response = SendAndWaitResponseUnlocked(seq =>
                 FlexSmartSdrCodec.BuildSliceCreateCommand(seq, mhz, mode, ant));
             if (response is null || !FlexSmartSdrCodec.IsSuccessResponse(response))
                 return null;
 
-            if (FlexSmartSdrCodec.TryParseSliceCreateIndex(response.Body, out var index))
-            {
-                _slices[index] = new FlexSliceState(
-                    index, true, hz, mode, IsTransmit: false, IsActive: false, "", 0);
-                return index;
-            }
-
-            // Fallback: highest known index + 1 if radio did not echo the index
-            var next = _slices.Count == 0 ? 0 : _slices.Keys.Max() + 1;
-            _slices[next] = new FlexSliceState(
-                next, true, hz, mode, IsTransmit: false, IsActive: false, "", 0);
-            return next;
+            var responseIndex = FlexSmartSdrCodec.TryParseSliceCreateIndex(response.Body, out var index)
+                ? index
+                : (int?)null;
+            return WaitForCreatedSliceUnlocked(existingIndexes, responseIndex);
         }
     }
 
@@ -266,6 +262,71 @@ internal sealed class FlexSmartSdrClient : IDisposable
     {
         var response = SendAndWaitResponseUnlocked(commandFactory);
         return response is not null && FlexSmartSdrCodec.IsSuccessResponse(response);
+    }
+
+    private void RequireCommandUnlocked(Func<uint, string> commandFactory, string operation)
+    {
+        if (!SendAndWaitUnlocked(commandFactory))
+            throw new InvalidOperationException($"Flex SmartSDR failed to {operation}.");
+    }
+
+    private bool WaitForStateUnlocked(Func<bool> condition)
+    {
+        if (condition())
+            return true;
+
+        var deadline = DateTime.UtcNow.AddMilliseconds(_commandTimeoutMs);
+        while (DateTime.UtcNow < deadline)
+        {
+            if (!TryReadLineUnlocked(deadline, out var line) || string.IsNullOrEmpty(line))
+                continue;
+
+            ProcessIncomingLineUnlocked(line);
+            if (condition())
+                return true;
+        }
+
+        return false;
+    }
+
+    private int? WaitForCreatedSliceUnlocked(HashSet<int> existingIndexes, int? responseIndex)
+    {
+        int? Resolve()
+        {
+            if (responseIndex is { } confirmed
+                && !existingIndexes.Contains(confirmed)
+                && _slices.TryGetValue(confirmed, out var responseSlice)
+                && responseSlice.InUse)
+            {
+                return confirmed;
+            }
+
+            var newIndexes = _slices.Values
+                .Where(slice => slice.InUse && !existingIndexes.Contains(slice.Index))
+                .Select(slice => slice.Index)
+                .Distinct()
+                .Take(2)
+                .ToList();
+            return newIndexes.Count == 1 ? newIndexes[0] : null;
+        }
+
+        var resolved = Resolve();
+        if (resolved is not null)
+            return resolved;
+
+        var deadline = DateTime.UtcNow.AddMilliseconds(_commandTimeoutMs);
+        while (DateTime.UtcNow < deadline)
+        {
+            if (!TryReadLineUnlocked(deadline, out var line) || string.IsNullOrEmpty(line))
+                continue;
+
+            ProcessIncomingLineUnlocked(line);
+            resolved = Resolve();
+            if (resolved is not null)
+                return resolved;
+        }
+
+        return null;
     }
 
     private FlexSmartSdrMessage? SendAndWaitResponseUnlocked(Func<uint, string> commandFactory)
@@ -455,6 +516,10 @@ internal sealed class FlexSmartSdrClient : IDisposable
 
         _stream = null;
         _client = null;
+        _handle = "";
+        _version = "";
+        _fullDuplexEnabled = false;
+        _slices.Clear();
         _lineBuffer.Clear();
     }
 

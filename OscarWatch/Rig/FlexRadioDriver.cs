@@ -94,22 +94,40 @@ public sealed class FlexRadioDriver : IRigDriver
 
     public void SetSatelliteMode(bool on)
     {
-        _satelliteMode = on;
         if (!_client.IsConnected)
             return;
 
         if (!on)
         {
-            _client.SetFullDuplex(false);
+            var disabled = _client.SetFullDuplex(false);
+            _satelliteMode = false;
+            Log.Information("FlexRadio satellite mode disabled; full duplex command succeeded={Succeeded}", disabled);
             return;
         }
 
         if (!_client.SetFullDuplex(true))
-            Log.Warning("Flex SmartSDR failed to enable full duplex");
+        {
+            _satelliteMode = false;
+            throw new FlexSatelliteSetupException("SmartSDR did not enable full duplex.");
+        }
 
-        EnsureDuplexSlices();
+        if (!EnsureDuplexSlices())
+        {
+            DisableFullDuplexAfterSetupFailure();
+            throw new FlexSatelliteSetupException("SmartSDR could not establish separate RX and TX slices.");
+        }
+
         if (!_client.SetSliceTx(_txSliceIndex, true))
-            Log.Warning("Flex SmartSDR failed to mark TX slice {Index}", _txSliceIndex);
+        {
+            DisableFullDuplexAfterSetupFailure();
+            throw new FlexSatelliteSetupException($"SmartSDR did not mark slice {_txSliceIndex} as the TX slice.");
+        }
+
+        _satelliteMode = true;
+        Log.Information(
+            "FlexRadio satellite mode enabled; full duplex=true, RX slice={RxSliceIndex}, TX slice={TxSliceIndex}",
+            _rxSliceIndex,
+            _txSliceIndex);
     }
 
     public void ExchangeVfos()
@@ -155,7 +173,20 @@ public sealed class FlexRadioDriver : IRigDriver
         _client.SetSliceTone(_txSliceIndex, _toneOn, _toneHz);
     }
 
-    private void EnsureDuplexSlices()
+    private void DisableFullDuplexAfterSetupFailure()
+    {
+        _satelliteMode = false;
+        try
+        {
+            _client.SetFullDuplex(false);
+        }
+        catch (Exception ex)
+        {
+            Log.Debug(ex, "FlexRadio full duplex cleanup after setup failure failed");
+        }
+    }
+
+    private bool EnsureDuplexSlices()
     {
         var slices = _client.GetInUseSlices();
         var tx = slices.FirstOrDefault(s => s.IsTransmit);
@@ -173,7 +204,7 @@ public sealed class FlexRadioDriver : IRigDriver
                 _txSliceIndex = slices[1].Index;
             }
 
-            return;
+            return _rxSliceIndex != _txSliceIndex;
         }
 
         if (slices.Count == 1)
@@ -182,8 +213,11 @@ public sealed class FlexRadioDriver : IRigDriver
             var created = _client.CreateSlice(
                 _lastSubHz > 0 ? _lastSubHz : 435_000_000,
                 "USB");
-            _txSliceIndex = created ?? (_rxSliceIndex == 0 ? 1 : 0);
-            return;
+            if (created is null || created.Value == _rxSliceIndex)
+                return false;
+
+            _txSliceIndex = created.Value;
+            return _client.GetInUseSlices().Select(s => s.Index).Distinct().Count() >= 2;
         }
 
         var rxCreated = _client.CreateSlice(
@@ -192,8 +226,12 @@ public sealed class FlexRadioDriver : IRigDriver
         var txCreated = _client.CreateSlice(
             _lastSubHz > 0 ? _lastSubHz : 435_000_000,
             "USB");
-        _rxSliceIndex = rxCreated ?? 0;
-        _txSliceIndex = txCreated ?? 1;
+        if (rxCreated is null || txCreated is null || rxCreated.Value == txCreated.Value)
+            return false;
+
+        _rxSliceIndex = rxCreated.Value;
+        _txSliceIndex = txCreated.Value;
+        return _client.GetInUseSlices().Select(s => s.Index).Distinct().Count() >= 2;
     }
 
     private int SliceFor(RigVfo vfo) =>
@@ -212,4 +250,12 @@ public sealed class FlexRadioDriver : IRigDriver
 
     private static int ResolveTimeoutMs(int catDelayMs) =>
         Math.Max(500, catDelayMs * 20);
+}
+
+public sealed class FlexSatelliteSetupException : InvalidOperationException
+{
+    public FlexSatelliteSetupException(string message)
+        : base(message)
+    {
+    }
 }
