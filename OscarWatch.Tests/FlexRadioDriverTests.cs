@@ -125,7 +125,7 @@ public class FlexRadioDriverTests
     [Fact]
     public void SetMode_AndTone_ApplyToSlices()
     {
-        using var stub = new FlexSmartSdrStubServer();
+        using var stub = new FlexSmartSdrStubServer(emitPartialSliceStatus: true);
         stub.WaitUntilReady();
 
         using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
@@ -145,6 +145,8 @@ public class FlexRadioDriverTests
         Assert.Equal("FM", tx.Mode);
         Assert.Equal("ctcss_tx", tx.ToneMode);
         Assert.Equal(67.0, tx.ToneHz);
+        Assert.Equal(145_900_000, driver.ReadFrequencyHz(RigVfo.Main));
+        Assert.Equal(435_000_000, driver.ReadFrequencyHz(RigVfo.Sub));
     }
 
     [Fact]

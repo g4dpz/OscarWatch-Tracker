@@ -23,13 +23,15 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
     private readonly bool _rejectTxSlice;
     private readonly bool _rejectSliceCreate;
     private readonly bool _omitSliceCreateIndex;
+    private readonly bool _emitPartialSliceStatus;
 
     public FlexSmartSdrStubServer(
         int initialSliceCount = 2,
         bool rejectFullDuplex = false,
         bool rejectTxSlice = false,
         bool rejectSliceCreate = false,
-        bool omitSliceCreateIndex = false)
+        bool omitSliceCreateIndex = false,
+        bool emitPartialSliceStatus = false)
     {
         if (initialSliceCount >= 1)
             _slices[0] = new StubSlice(0, 145_900_000, "USB", Tx: false);
@@ -41,6 +43,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         _rejectTxSlice = rejectTxSlice;
         _rejectSliceCreate = rejectSliceCreate;
         _omitSliceCreateIndex = omitSliceCreateIndex;
+        _emitPartialSliceStatus = emitPartialSliceStatus;
 
         _listener = new TcpListener(IPAddress.Loopback, 0);
         _listener.Start();
@@ -226,7 +229,14 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                 }
 
                 ApplySliceSet(index, args);
-                await EmitSliceAsync(writer, index).ConfigureAwait(false);
+                if (_emitPartialSliceStatus)
+                {
+                    await writer.WriteLineAsync($"SABCDEF01|slice {index} {args}").ConfigureAwait(false);
+                }
+                else
+                {
+                    await EmitSliceAsync(writer, index).ConfigureAwait(false);
+                }
             }
 
             await writer.WriteLineAsync($"R{seq}|0|").ConfigureAwait(false);

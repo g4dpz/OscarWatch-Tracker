@@ -170,7 +170,14 @@ public sealed class FlexRadioDriver : IRigDriver
         if (!_client.IsConnected)
             return;
 
-        _client.SetSliceTone(_txSliceIndex, _toneOn, _toneHz);
+        if (!_client.SetSliceTone(_txSliceIndex, _toneOn, _toneHz))
+        {
+            Log.Warning(
+                "FlexRadio failed to confirm CTCSS on TX slice {SliceIndex}: enabled={Enabled}, toneHz={ToneHz}",
+                _txSliceIndex,
+                _toneOn,
+                _toneHz);
+        }
     }
 
     private void DisableFullDuplexAfterSetupFailure()

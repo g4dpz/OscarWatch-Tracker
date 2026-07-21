@@ -53,18 +53,15 @@ public static class FlexSmartSdrCodec
             sequence,
             $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} tx={(tx ? "1" : "0")}");
 
-    public static string BuildSliceSetToneCommand(
-        uint sequence,
-        int sliceIndex,
-        bool toneOn,
-        double toneHz)
-    {
-        var mode = toneOn ? "ctcss_tx" : "OFF";
-        var value = toneHz.ToString("0.0", CultureInfo.InvariantCulture);
-        return BuildCommand(
+    public static string BuildSliceSetToneModeCommand(uint sequence, int sliceIndex, bool toneOn) =>
+        BuildCommand(
             sequence,
-            $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} fm_tone_mode={mode} fm_tone_value={value}");
-    }
+            $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} fm_tone_mode={(toneOn ? "ctcss_tx" : "OFF")}");
+
+    public static string BuildSliceSetToneValueCommand(uint sequence, int sliceIndex, double toneHz) =>
+        BuildCommand(
+            sequence,
+            $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} fm_tone_value={toneHz.ToString("0.0", CultureInfo.InvariantCulture)}");
 
     public static long MhzToHz(double mhz) =>
         (long)Math.Round(mhz * 1_000_000d, MidpointRounding.AwayFromZero);

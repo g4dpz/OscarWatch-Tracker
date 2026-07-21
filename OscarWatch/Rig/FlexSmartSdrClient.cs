@@ -182,8 +182,28 @@ internal sealed class FlexSmartSdrClient : IDisposable
         lock (_gate)
         {
             EnsureConnectedUnlocked();
-            return SendAndWaitUnlocked(seq =>
-                FlexSmartSdrCodec.BuildSliceSetToneCommand(seq, sliceIndex, toneOn, toneHz));
+            var modeSet = SendAndWaitUnlocked(seq =>
+                FlexSmartSdrCodec.BuildSliceSetToneModeCommand(seq, sliceIndex, toneOn));
+            if (!modeSet
+                || !WaitForStateUnlocked(
+                    () => _slices.TryGetValue(sliceIndex, out var slice)
+                        && string.Equals(
+                            slice.FmToneMode,
+                            toneOn ? "ctcss_tx" : "OFF",
+                            StringComparison.OrdinalIgnoreCase)))
+            {
+                return false;
+            }
+
+            if (!toneOn)
+                return true;
+
+            var valueSet = SendAndWaitUnlocked(seq =>
+                FlexSmartSdrCodec.BuildSliceSetToneValueCommand(seq, sliceIndex, toneHz));
+            return valueSet
+                && WaitForStateUnlocked(
+                    () => _slices.TryGetValue(sliceIndex, out var slice)
+                        && Math.Abs(slice.FmToneHz - toneHz) < 0.05);
         }
     }
 
@@ -380,6 +400,26 @@ internal sealed class FlexSmartSdrClient : IDisposable
     {
         if (FlexSmartSdrCodec.TryParseSliceStatus(body, out var slice))
         {
+            if (_slices.TryGetValue(slice.Index, out var existing))
+            {
+                slice = existing with
+                {
+                    InUse = HasSliceField(body, "in_use") ? slice.InUse : existing.InUse,
+                    FrequencyHz = HasSliceField(body, "RF_frequency") || HasSliceField(body, "freq")
+                        ? slice.FrequencyHz
+                        : existing.FrequencyHz,
+                    Mode = HasSliceField(body, "mode") ? slice.Mode : existing.Mode,
+                    IsTransmit = HasSliceField(body, "tx") ? slice.IsTransmit : existing.IsTransmit,
+                    IsActive = HasSliceField(body, "active") ? slice.IsActive : existing.IsActive,
+                    FmToneMode = HasSliceField(body, "fm_tone_mode")
+                        ? slice.FmToneMode
+                        : existing.FmToneMode,
+                    FmToneHz = HasSliceField(body, "fm_tone_value")
+                        ? slice.FmToneHz
+                        : existing.FmToneHz
+                };
+            }
+
             _slices[slice.Index] = slice;
             return;
         }
@@ -387,6 +427,9 @@ internal sealed class FlexSmartSdrClient : IDisposable
         if (FlexSmartSdrCodec.TryParseRadioFullDuplex(body, out var fdx))
             _fullDuplexEnabled = fdx;
     }
+
+    private static bool HasSliceField(string statusBody, string field) =>
+        statusBody.Contains($" {field}=", StringComparison.OrdinalIgnoreCase);
 
     private void UpdateSliceFrequencyUnlocked(int sliceIndex, long hz)
     {
