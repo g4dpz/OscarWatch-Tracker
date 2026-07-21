@@ -17,6 +17,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
     private readonly TaskCompletionSource _acceptLoopReady = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly ConcurrentDictionary<int, StubSlice> _slices = new();
     private readonly object _gate = new();
+    private readonly object _writerGate = new();
+    private StreamWriter? _connectedWriter;
     private int _nextSliceIndex;
     private bool _fullDuplex;
     private readonly bool _rejectFullDuplex;
@@ -83,6 +85,20 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
             throw new TimeoutException("Flex SmartSDR stub did not start accepting connections in time.");
     }
 
+    public void SetSliceFrequencyFromOperator(int index, long hz)
+    {
+        UpdateSlice(index, slice => slice with { FrequencyHz = hz });
+        var mhz = FlexSmartSdrCodec.HzToMhz(hz).ToString("0.000000", CultureInfo.InvariantCulture);
+        lock (_writerGate)
+        {
+            if (_connectedWriter is null)
+                throw new InvalidOperationException("No SmartSDR stub client is connected.");
+
+            _connectedWriter.WriteLine($"SABCDEF01|slice {index} RF_frequency={mhz}");
+            _connectedWriter.Flush();
+        }
+    }
+
     public void Dispose()
     {
         _cts.Cancel();
@@ -125,6 +141,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
             await using var stream = client.GetStream();
             using var reader = new StreamReader(stream, Encoding.ASCII, leaveOpen: true);
             await using var writer = new StreamWriter(stream, Encoding.ASCII, leaveOpen: true) { AutoFlush = true };
+            lock (_writerGate)
+                _connectedWriter = writer;
 
             await writer.WriteLineAsync("V1.4.0.0").ConfigureAwait(false);
             await writer.WriteLineAsync("HABCDEF01").ConfigureAwait(false);
@@ -154,6 +172,11 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         }
         finally
         {
+            lock (_writerGate)
+            {
+                if (ReferenceEquals(_connectedWriter, null) is false)
+                    _connectedWriter = null;
+            }
             client.Dispose();
         }
     }

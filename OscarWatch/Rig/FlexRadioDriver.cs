@@ -19,6 +19,9 @@ public sealed class FlexRadioDriver : IRigDriver
     private bool _satelliteMode;
     private long _lastMainHz;
     private long _lastSubHz;
+    private long _lastMainStatusRevision;
+    private long _lastMainObservedHz;
+    private bool _hasMainStatusObservation;
     private bool _toneOn;
     private double _toneHz = 67.0;
 
@@ -54,7 +57,23 @@ public sealed class FlexRadioDriver : IRigDriver
         if (!_client.IsConnected)
             return cached > 0 ? cached : null;
 
-        var hz = _client.GetSliceFrequencyHz(slice);
+        long? hz;
+        if (vfo is RigVfo.Main or RigVfo.VfoA)
+        {
+            var observation = _client.GetSliceFrequencyObservation(slice);
+            hz = observation?.FrequencyHz;
+            if (observation is { } observed)
+            {
+                _lastMainStatusRevision = observed.StatusRevision;
+                _lastMainObservedHz = observed.FrequencyHz;
+                _hasMainStatusObservation = true;
+            }
+        }
+        else
+        {
+            hz = _client.GetSliceFrequencyHz(slice);
+        }
+
         if (hz is > 0)
         {
             StoreFrequencyHz(vfo, hz.Value);
@@ -69,11 +88,23 @@ public sealed class FlexRadioDriver : IRigDriver
         if (hz <= 0)
             return false;
 
-        StoreFrequencyHz(_currentVfo, hz);
         if (!_client.IsConnected)
+        {
+            StoreFrequencyHz(_currentVfo, hz);
             return true;
+        }
 
-        return _client.TuneSlice(SliceFor(_currentVfo), hz);
+        var isReceive = _currentVfo is RigVfo.Main or RigVfo.VfoA;
+        var tuned = isReceive && _hasMainStatusObservation
+            ? _client.TuneSliceIfStatusUnchanged(
+                SliceFor(_currentVfo),
+                hz,
+                _lastMainStatusRevision,
+                _lastMainObservedHz)
+            : _client.TuneSlice(SliceFor(_currentVfo), hz);
+        if (tuned)
+            StoreFrequencyHz(_currentVfo, hz);
+        return tuned;
     }
 
     public void SelectVfo(RigVfo vfo, bool force = false) => _currentVfo = vfo;
@@ -135,6 +166,7 @@ public sealed class FlexRadioDriver : IRigDriver
         // Slice roles stay RX/TX; front-panel / SmartSDR swap is not mirrored.
         (_rxSliceIndex, _txSliceIndex) = (_txSliceIndex, _rxSliceIndex);
         (_lastMainHz, _lastSubHz) = (_lastSubHz, _lastMainHz);
+        _hasMainStatusObservation = false;
     }
 
     public void SetToneOn(bool on)

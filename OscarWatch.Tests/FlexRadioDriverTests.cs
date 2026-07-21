@@ -137,6 +137,47 @@ public class FlexRadioDriverTests
     }
 
     [Fact]
+    public void ReadFrequencyHz_DrainsUnsolicitedManualSliceStatus()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        stub.SetSliceFrequencyFromOperator(driver.RxSliceIndex, 145_850_000);
+
+        var deadline = DateTime.UtcNow.AddSeconds(2);
+        long? observed = null;
+        while (DateTime.UtcNow < deadline && observed != 145_850_000)
+        {
+            observed = driver.ReadFrequencyHz(RigVfo.Main);
+            Thread.Sleep(10);
+        }
+
+        Assert.Equal(145_850_000, observed);
+    }
+
+    [Fact]
+    public void SetFrequencyHz_RejectsStaleRxTuneWhenNewerStatusArrives()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        Assert.Equal(145_900_000, driver.ReadFrequencyHz(RigVfo.Main));
+
+        stub.SetSliceFrequencyFromOperator(driver.RxSliceIndex, 145_850_000);
+        Thread.Sleep(50);
+
+        driver.SelectVfo(RigVfo.Main);
+        Assert.False(driver.SetFrequencyHz(145_901_000));
+        Assert.Equal(145_850_000, stub.Slices[driver.RxSliceIndex].FrequencyHz);
+        Assert.Equal(145_850_000, driver.ReadFrequencyHz(RigVfo.Main));
+    }
+
+    [Fact]
     public void SetMode_AndTone_ApplyToSlices()
     {
         using var stub = new FlexSmartSdrStubServer(emitPartialSliceStatus: true);
@@ -147,8 +188,8 @@ public class FlexRadioDriverTests
         driver.SetSatelliteMode(true);
 
         driver.SelectVfo(RigVfo.Main);
-        driver.SetMode("FM");
-        Assert.Equal("FM", stub.Slices[driver.RxSliceIndex].Mode);
+        driver.SetMode("FMN");
+        Assert.Equal("NFM", stub.Slices[driver.RxSliceIndex].Mode);
 
         driver.SelectVfo(RigVfo.Sub);
         driver.SetMode("FM");

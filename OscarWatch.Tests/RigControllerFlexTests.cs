@@ -47,6 +47,57 @@ public class RigControllerFlexTests
     }
 
     [Fact]
+    public void Flex_linear_manual_rx_tune_is_not_snapped_back()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+        using var harness = CreateHarness(stub);
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "Linear",
+            DownlinkKHz = 145_900,
+            UplinkKHz = 435_800,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        PublishAndWait(
+            harness,
+            mode,
+            DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            ready: () => harness.Controller.GetStatus().IsTracking
+                && harness.Driver?.IsSatelliteModeActive == true);
+
+        var tunedHz = 145_905_000L;
+        stub.SetSliceFrequencyFromOperator(harness.Driver!.RxSliceIndex, tunedHz);
+
+        var deadline = DateTime.UtcNow.AddSeconds(2);
+        while (DateTime.UtcNow < deadline)
+        {
+            var actual = stub.Slices[harness.Driver.RxSliceIndex].FrequencyHz;
+            if (Math.Abs(actual - tunedHz) <= 50
+                && harness.Controller.GetStatus().LastReceiveHz is { } displayed
+                && Math.Abs(displayed - tunedHz) <= 50)
+            {
+                Thread.Sleep(300);
+                break;
+            }
+
+            Thread.Sleep(20);
+        }
+
+        Assert.InRange(
+            stub.Slices[harness.Driver.RxSliceIndex].FrequencyHz,
+            tunedHz - 50,
+            tunedHz + 50);
+        Assert.InRange(
+            harness.Controller.GetStatus().LastReceiveHz!.Value,
+            tunedHz - 50,
+            tunedHz + 50);
+    }
+
+    [Fact]
     public void Flex_fdx_failure_is_visible_in_rig_status_and_stops_tracking()
     {
         using var stub = new FlexSmartSdrStubServer(rejectFullDuplex: true);

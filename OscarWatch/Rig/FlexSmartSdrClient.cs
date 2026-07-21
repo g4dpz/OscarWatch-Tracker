@@ -22,6 +22,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
     private readonly int _connectTimeoutMs;
     private readonly object _gate = new();
     private readonly Dictionary<int, FlexSliceState> _slices = new();
+    private readonly Dictionary<int, long> _sliceFrequencyRevisions = new();
     private readonly StringBuilder _lineBuffer = new();
     private readonly byte[] _readBuffer = new byte[4096];
 
@@ -151,6 +152,40 @@ internal sealed class FlexSmartSdrClient : IDisposable
         }
     }
 
+    public bool TuneSliceIfStatusUnchanged(
+        int sliceIndex,
+        long hz,
+        long expectedRevision,
+        long expectedFrequencyHz)
+    {
+        lock (_gate)
+        {
+            EnsureConnectedUnlocked();
+            DrainPendingStatusUnlocked();
+            var currentRevision = _sliceFrequencyRevisions.GetValueOrDefault(sliceIndex);
+            if (currentRevision != expectedRevision
+                && _slices.TryGetValue(sliceIndex, out var current)
+                && current.FrequencyHz != expectedFrequencyHz
+                && current.FrequencyHz != hz)
+            {
+                Log.Debug(
+                    "Skipped stale FlexRadio RX tune: slice={SliceIndex}, requestedHz={RequestedHz}, currentHz={CurrentHz}, expectedRevision={ExpectedRevision}, currentRevision={CurrentRevision}",
+                    sliceIndex,
+                    hz,
+                    current.FrequencyHz,
+                    expectedRevision,
+                    currentRevision);
+                return false;
+            }
+
+            var mhz = FlexSmartSdrCodec.HzToMhz(hz);
+            var ok = SendAndWaitUnlocked(seq => FlexSmartSdrCodec.BuildSliceTuneCommand(seq, sliceIndex, mhz));
+            if (ok)
+                UpdateSliceFrequencyUnlocked(sliceIndex, hz);
+            return ok;
+        }
+    }
+
     public bool SetSliceMode(int sliceIndex, string smartSdrMode)
     {
         lock (_gate)
@@ -238,8 +273,22 @@ internal sealed class FlexSmartSdrClient : IDisposable
     {
         lock (_gate)
         {
+            DrainPendingStatusUnlocked();
             return _slices.TryGetValue(sliceIndex, out var s) && s.FrequencyHz > 0
                 ? s.FrequencyHz
+                : null;
+        }
+    }
+
+    public FlexSliceFrequencyObservation? GetSliceFrequencyObservation(int sliceIndex)
+    {
+        lock (_gate)
+        {
+            DrainPendingStatusUnlocked();
+            return _slices.TryGetValue(sliceIndex, out var slice) && slice.FrequencyHz > 0
+                ? new FlexSliceFrequencyObservation(
+                    slice.FrequencyHz,
+                    _sliceFrequencyRevisions.GetValueOrDefault(sliceIndex))
                 : null;
         }
     }
@@ -389,12 +438,13 @@ internal sealed class FlexSmartSdrClient : IDisposable
     {
         if (FlexSmartSdrCodec.TryParseSliceStatus(body, out var slice))
         {
+            var hasFrequency = HasSliceField(body, "RF_frequency") || HasSliceField(body, "freq");
             if (_slices.TryGetValue(slice.Index, out var existing))
             {
                 slice = existing with
                 {
                     InUse = HasSliceField(body, "in_use") ? slice.InUse : existing.InUse,
-                    FrequencyHz = HasSliceField(body, "RF_frequency") || HasSliceField(body, "freq")
+                    FrequencyHz = hasFrequency
                         ? slice.FrequencyHz
                         : existing.FrequencyHz,
                     Mode = HasSliceField(body, "mode") ? slice.Mode : existing.Mode,
@@ -410,6 +460,9 @@ internal sealed class FlexSmartSdrClient : IDisposable
             }
 
             _slices[slice.Index] = slice;
+            if (hasFrequency)
+                _sliceFrequencyRevisions[slice.Index] =
+                    _sliceFrequencyRevisions.GetValueOrDefault(slice.Index) + 1;
             return;
         }
 
@@ -427,6 +480,36 @@ internal sealed class FlexSmartSdrClient : IDisposable
         else
             _slices[sliceIndex] = new FlexSliceState(
                 sliceIndex, true, hz, "", false, false, "", 0);
+    }
+
+    private void DrainPendingStatusUnlocked()
+    {
+        while (ExtractLineFromBuffer() is { } buffered)
+            ProcessIncomingLineUnlocked(buffered);
+
+        if (_stream is null)
+            return;
+
+        try
+        {
+            while (_stream.DataAvailable)
+            {
+                var read = _stream.Read(_readBuffer, 0, _readBuffer.Length);
+                if (read <= 0)
+                    break;
+
+                _lineBuffer.Append(Encoding.ASCII.GetString(_readBuffer, 0, read));
+                while (ExtractLineFromBuffer() is { } line)
+                    ProcessIncomingLineUnlocked(line);
+            }
+        }
+        catch (IOException ex)
+        {
+            Log.Debug(ex, "Flex SmartSDR non-blocking status drain failed");
+        }
+        catch (ObjectDisposedException)
+        {
+        }
     }
 
     private bool TryReadLineUnlocked(DateTime deadline, out string line)
@@ -552,6 +635,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
         _version = "";
         _fullDuplexEnabled = false;
         _slices.Clear();
+        _sliceFrequencyRevisions.Clear();
         _lineBuffer.Clear();
     }
 
@@ -568,3 +652,5 @@ internal sealed class FlexSmartSdrClient : IDisposable
         }
     }
 }
+
+internal readonly record struct FlexSliceFrequencyObservation(long FrequencyHz, long StatusRevision);

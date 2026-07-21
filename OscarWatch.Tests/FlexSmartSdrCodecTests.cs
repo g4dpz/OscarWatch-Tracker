@@ -96,7 +96,9 @@ public class FlexSmartSdrCodecTests
 
     [Theory]
     [InlineData("USB", "USB")]
-    [InlineData("FMN", "FM")]
+    [InlineData("FM", "FM")]
+    [InlineData("FMN", "NFM")]
+    [InlineData("NFM", "NFM")]
     [InlineData("DATA-USB", "DIGU")]
     [InlineData("DIGL", "DIGL")]
     [InlineData(null, null)]

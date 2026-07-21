@@ -1,3 +1,5 @@
+using OscarWatch.Core.Models;
+
 namespace OscarWatch.Core.Radio;
 
 /// <summary>
@@ -8,6 +10,13 @@ public static class KnobTuneCapturePolicy
 {
     public const int LinearThresholdHz = 30;
     public const int FmThresholdHz = 250;
+
+    /// <summary>
+    /// Flex slice frequencies arrive as pushed SmartSDR status, so an external change can be accepted
+    /// immediately. Polled CAT radios still require a stable sample history to reject stale reads.
+    /// </summary>
+    public static bool UsesImmediateStatusCapture(RigType rigType) =>
+        rigType == RigType.FlexSmartSdr;
 
     public static int Resolve(string? downlinkMode)
     {

@@ -790,6 +790,15 @@ public sealed class RigController : IRigController, IDisposable
 
         _passbandDownlinkAdjustKHz = newDown;
         _passbandUplinkAdjustKHz = newUp;
+        if (KnobTuneCapturePolicy.UsesImmediateStatusCapture(_cachedSettings.Type))
+        {
+            Log.Information(
+                "FlexRadio manual passband tune captured: dialHz={DialHz}, deltaKHz={DeltaKHz:F3}, downlinkAdjustKHz={DownlinkAdjustKHz:F3}, uplinkAdjustKHz={UplinkAdjustKHz:F3}",
+                dialHz,
+                deltaKhz,
+                newDown,
+                newUp);
+        }
         LogDopplerEvent(
             _cachedSettings,
             context,
@@ -823,6 +832,19 @@ public sealed class RigController : IRigController, IDisposable
 
         _receiveDialMatchesLastCatWrite = _lastRigRxHz > 0
             && DialMatchesLastCatWrite(dialHz, AutomaticDialMatchToleranceHz());
+
+        // SmartSDR pushes external slice tuning to our cache. Unlike serial CAT polling, a changed
+        // Flex frequency is already an authoritative operator action, so capture it immediately
+        // instead of waiting for eight identical samples while Doppler can pull the slice back.
+        if (KnobTuneCapturePolicy.UsesImmediateStatusCapture(_cachedSettings.Type)
+            && IsOperatorDialMovement(dialHz))
+        {
+            _ignoreDialUntilUtc = DateTime.MinValue;
+            _lastDialChangeUtc = DateTime.UtcNow;
+            SeedDialHistoryStable(dialHz);
+            _vfoNotMoving = true;
+            return;
+        }
 
         if (DateTime.UtcNow < _ignoreDialUntilUtc)
         {

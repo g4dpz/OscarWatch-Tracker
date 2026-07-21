@@ -21,9 +21,12 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
 
     private static readonly ILogger Log = Serilog.Log.ForContext<PortAudioRecordingService>();
     private readonly SemaphoreSlim _operationLock = new(1, 1);
+    private readonly object _initializationGate = new();
     private readonly object _streamGate = new();
 
     private bool _initialized;
+    private bool _initializationAttempted;
+    private bool _disposed;
     private string? _initError;
     private PortAudioSharp.Stream? _stream;
     private WavWriter? _wavWriter;
@@ -38,70 +41,94 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
     private int _activeChannels = 1;
     private int _maxCallbackBytes;
 
-    public bool IsAvailable => _initialized;
-    public string? UnavailableReason => _initialized ? null : _initError ?? "PortAudio is not available.";
+    public bool IsAvailable => EnsureInitialized();
+    public string? UnavailableReason
+    {
+        get
+        {
+            EnsureInitialized();
+            return _initialized ? null : _initError ?? "PortAudio is not available.";
+        }
+    }
     public bool IsRecording { get; private set; }
     public string? ActiveNoradId { get; private set; }
     public string? ActiveOutputPath { get; private set; }
 
-    public PortAudioRecordingService()
+    /// <summary>
+    /// Initialises PortAudio on first recording use. In particular, do not enumerate Windows audio
+    /// devices while the main window is being constructed: some SmartSDR/DAX installations can block
+    /// inside the native PortAudio initialiser.
+    /// </summary>
+    private bool EnsureInitialized()
     {
-        try
+        lock (_initializationGate)
         {
-            PortAudio.Initialize();
-            _initialized = true;
-            Log.Information("PortAudio initialized ({Version})", PortAudio.VersionInfo.versionText);
-        }
-        catch (Exception ex)
-        {
-            _initError = ex.Message;
-            Log.Warning(ex, "PortAudio initialization failed");
+            ObjectDisposedException.ThrowIf(_disposed, this);
+
+            if (_initializationAttempted)
+                return _initialized;
+
+            _initializationAttempted = true;
+            try
+            {
+                Log.Information("Initialising PortAudio on first recording use");
+                PortAudio.Initialize();
+                _initialized = true;
+                Log.Information("PortAudio initialized ({Version})", PortAudio.VersionInfo.versionText);
+            }
+            catch (Exception ex)
+            {
+                _initError = ex.Message;
+                Log.Warning(ex, "PortAudio initialization failed");
+            }
+
+            return _initialized;
         }
     }
 
     public IReadOnlyList<AudioInputDevice> GetInputDevices()
     {
-        if (!_initialized)
-            return [];
-
-        // PortAudio on Windows enumerates devices from multiple audio APIs:
-        // - WASAPI (modern, low-latency)
-        // - DirectSound (legacy)
-        // - MME (very legacy)
-        // - WDM-KS (kernel streaming)
-        // A single physical device can appear multiple times, once per API.
-        // Our deduplication prefers lower-latency devices and combines by name.
-        
-        var candidates = new List<RecordingDeviceCandidate>();
-        Log.Debug("PortAudio: Scanning {DeviceCount} devices", PortAudio.DeviceCount);
-        
-        for (var i = 0; i < PortAudio.DeviceCount; i++)
+        _operationLock.Wait();
+        try
         {
-            var info = PortAudio.GetDeviceInfo(i);
-            
-            Log.Debug(
-                "PortAudio Device {Index}: '{Name}' (in={Channels}, latency={Latency}ms)",
-                i,
-                info.name,
-                info.maxInputChannels,
-                info.defaultLowInputLatency * 1000);
-            
-            if (info.maxInputChannels <= 0)
-                continue;
+            if (!EnsureInitialized())
+                return [];
 
-            candidates.Add(new RecordingDeviceCandidate(i, info.name, info.defaultLowInputLatency));
+            // PortAudio on Windows enumerates devices from multiple audio APIs. A single physical
+            // device can appear through several APIs, so prefer the lower-latency candidate.
+            var candidates = new List<RecordingDeviceCandidate>();
+            Log.Debug("PortAudio: Scanning {DeviceCount} devices", PortAudio.DeviceCount);
+            
+            for (var i = 0; i < PortAudio.DeviceCount; i++)
+            {
+                var info = PortAudio.GetDeviceInfo(i);
+                
+                Log.Debug(
+                    "PortAudio Device {Index}: '{Name}' (in={Channels}, latency={Latency}ms)",
+                    i,
+                    info.name,
+                    info.maxInputChannels,
+                    info.defaultLowInputLatency * 1000);
+                
+                if (info.maxInputChannels <= 0)
+                    continue;
+
+                candidates.Add(new RecordingDeviceCandidate(i, info.name, info.defaultLowInputLatency));
+            }
+
+            Log.Debug("PortAudio: Found {InputDevices} input devices", candidates.Count);
+            var result = RecordingDeviceListBuilder.Build(candidates);
+            Log.Debug("After deduplication: {FinalDevices} unique devices", result.Count);
+            
+            foreach (var device in result)
+                Log.Debug("  - Device: '{DisplayName}' (id={Id})", device.DisplayName, device.Id);
+
+            return result;
         }
-
-        Log.Debug("PortAudio: Found {InputDevices} input devices", candidates.Count);
-        var result = RecordingDeviceListBuilder.Build(candidates);
-        Log.Debug("After deduplication: {FinalDevices} unique devices", result.Count);
-        
-        foreach (var device in result)
+        finally
         {
-            Log.Debug("  - Device: '{DisplayName}' (id={Id})", device.DisplayName, device.Id);
+            _operationLock.Release();
         }
-
-        return result;
     }
 
     public async Task StartAsync(
@@ -113,12 +140,12 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
         string? deviceName = null,
         CancellationToken cancellationToken = default)
     {
-        if (!_initialized)
-            throw new InvalidOperationException(UnavailableReason ?? "PortAudio is not available.");
-
         await _operationLock.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
+            if (!EnsureInitialized())
+                throw new InvalidOperationException(_initError ?? "PortAudio is not available.");
+
             if (IsRecording)
                 await StopCoreAsync().ConfigureAwait(false);
 
@@ -607,31 +634,46 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
 
     public void Dispose()
     {
+        _operationLock.Wait();
         try
         {
-            StopCoreAsync().GetAwaiter().GetResult();
-        }
-        catch (Exception ex)
-        {
-            Log.Warning(ex, "Recording dispose stop failed");
-        }
+            lock (_initializationGate)
+            {
+                if (_disposed)
+                    return;
 
-        if (_initialized)
-        {
+                _disposed = true;
+            }
+
             try
             {
-                PortAudio.Terminate();
+                StopCoreAsync().GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {
-                Log.Debug(ex, "PortAudio terminate failed");
+                Log.Warning(ex, "Recording dispose stop failed");
             }
 
-            _initialized = false;
-            Log.Information("PortAudio terminated");
+            if (_initialized)
+            {
+                try
+                {
+                    PortAudio.Terminate();
+                }
+                catch (Exception ex)
+                {
+                    Log.Debug(ex, "PortAudio terminate failed");
+                }
+
+                _initialized = false;
+                Log.Information("PortAudio terminated");
+            }
+        }
+        finally
+        {
+            _operationLock.Release();
         }
 
         _dataAvailable.Dispose();
-        _operationLock.Dispose();
     }
 }
