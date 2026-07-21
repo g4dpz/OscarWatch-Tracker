@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net.Sockets;
 using System.Text;
@@ -21,7 +21,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
     private readonly int _commandTimeoutMs;
     private readonly int _connectTimeoutMs;
     private readonly object _gate = new();
-    private readonly ConcurrentDictionary<int, FlexSliceState> _slices = new();
+    private readonly Dictionary<int, FlexSliceState> _slices = new();
     private readonly StringBuilder _lineBuffer = new();
     private readonly byte[] _readBuffer = new byte[4096];
 
@@ -160,11 +160,10 @@ internal sealed class FlexSmartSdrClient : IDisposable
             if (!ok)
                 return false;
 
-            foreach (var key in _slices.Keys.ToArray())
+            var keys = new List<int>(_slices.Keys);
+            foreach (var key in keys)
             {
-                if (!_slices.TryGetValue(key, out var s))
-                    continue;
-
+                var s = _slices[key];
                 if (key == sliceIndex)
                     _slices[key] = s with { IsTransmit = tx };
                 else if (tx && s.IsTransmit)
@@ -343,6 +342,13 @@ internal sealed class FlexSmartSdrClient : IDisposable
         if (_stream is null)
             return false;
 
+        var timeout = deadline - DateTime.UtcNow;
+        if (timeout <= TimeSpan.Zero)
+            return false;
+
+        var sw = Stopwatch.StartNew();
+        var timeoutMs = (long)timeout.TotalMilliseconds;
+
         while (true)
         {
             var buffered = ExtractLineFromBuffer();
@@ -352,10 +358,10 @@ internal sealed class FlexSmartSdrClient : IDisposable
                 return true;
             }
 
-            if (DateTime.UtcNow >= deadline)
+            if (sw.ElapsedMilliseconds >= timeoutMs)
                 return false;
 
-            var remainingMs = (int)Math.Max(1, (deadline - DateTime.UtcNow).TotalMilliseconds);
+            var remainingMs = (int)Math.Max(1, timeoutMs - sw.ElapsedMilliseconds);
             var saved = _stream.ReadTimeout;
             _stream.ReadTimeout = remainingMs;
             try
@@ -387,19 +393,35 @@ internal sealed class FlexSmartSdrClient : IDisposable
 
     private string? ExtractLineFromBuffer()
     {
-        var text = _lineBuffer.ToString();
-        var idx = text.IndexOfAny(['\r', '\n']);
+        // Scan StringBuilder by index to avoid allocating a full string copy on every call.
+        var length = _lineBuffer.Length;
+        if (length == 0)
+            return null;
+
+        var idx = -1;
+        for (var i = 0; i < length; i++)
+        {
+            var c = _lineBuffer[i];
+            if (c is '\r' or '\n')
+            {
+                idx = i;
+                break;
+            }
+        }
+
         if (idx < 0)
             return null;
 
-        var line = text[..idx];
+        // Extract the line up to the newline character.
+        var line = _lineBuffer.ToString(0, idx);
+
+        // Determine how many characters to skip (handle \r\n as one delimiter).
         var skip = 1;
-        if (idx + 1 < text.Length && text[idx] == '\r' && text[idx + 1] == '\n')
+        if (idx + 1 < length && _lineBuffer[idx] == '\r' && _lineBuffer[idx + 1] == '\n')
             skip = 2;
 
-        _lineBuffer.Clear();
-        if (idx + skip < text.Length)
-            _lineBuffer.Append(text[(idx + skip)..]);
+        // Remove the consumed line + delimiter from the buffer.
+        _lineBuffer.Remove(0, idx + skip);
 
         return line;
     }
