@@ -132,7 +132,9 @@ internal sealed class FlexSmartSdrClient : IDisposable
         {
             EnsureConnectedUnlocked();
             var ok = SendAndWaitUnlocked(seq => FlexSmartSdrCodec.BuildFullDuplexCommand(seq, enabled));
-            return ok && WaitForStateUnlocked(() => _fullDuplexEnabled == enabled);
+            if (ok)
+                _fullDuplexEnabled = enabled;
+            return ok;
         }
     }
 
@@ -174,8 +176,17 @@ internal sealed class FlexSmartSdrClient : IDisposable
             if (!ok)
                 return false;
 
-            return WaitForStateUnlocked(
-                () => _slices.TryGetValue(sliceIndex, out var slice) && slice.IsTransmit == tx);
+            var keys = new List<int>(_slices.Keys);
+            foreach (var key in keys)
+            {
+                var slice = _slices[key];
+                if (key == sliceIndex)
+                    _slices[key] = slice with { IsTransmit = tx };
+                else if (tx && slice.IsTransmit)
+                    _slices[key] = slice with { IsTransmit = false };
+            }
+
+            return true;
         }
     }
 
@@ -186,26 +197,21 @@ internal sealed class FlexSmartSdrClient : IDisposable
             EnsureConnectedUnlocked();
             var modeSet = SendAndWaitUnlocked(seq =>
                 FlexSmartSdrCodec.BuildSliceSetToneModeCommand(seq, sliceIndex, toneOn));
-            if (!modeSet
-                || !WaitForStateUnlocked(
-                    () => _slices.TryGetValue(sliceIndex, out var slice)
-                        && string.Equals(
-                            slice.FmToneMode,
-                            toneOn ? "ctcss_tx" : "OFF",
-                            StringComparison.OrdinalIgnoreCase)))
-            {
+            if (!modeSet)
                 return false;
-            }
+
+            if (_slices.TryGetValue(sliceIndex, out var modeSlice))
+                _slices[sliceIndex] = modeSlice with { FmToneMode = toneOn ? "ctcss_tx" : "OFF" };
 
             if (!toneOn)
                 return true;
 
             var valueSet = SendAndWaitUnlocked(seq =>
                 FlexSmartSdrCodec.BuildSliceSetToneValueCommand(seq, sliceIndex, toneHz));
-            return valueSet
-                && WaitForStateUnlocked(
-                    () => _slices.TryGetValue(sliceIndex, out var slice)
-                        && Math.Abs(slice.FmToneHz - toneHz) < 0.05);
+            if (valueSet && _slices.TryGetValue(sliceIndex, out var valueSlice))
+                _slices[sliceIndex] = valueSlice with { FmToneHz = toneHz };
+
+            return valueSet;
         }
     }
 
@@ -290,25 +296,6 @@ internal sealed class FlexSmartSdrClient : IDisposable
     {
         if (!SendAndWaitUnlocked(commandFactory))
             throw new InvalidOperationException($"Flex SmartSDR failed to {operation}.");
-    }
-
-    private bool WaitForStateUnlocked(Func<bool> condition)
-    {
-        if (condition())
-            return true;
-
-        var deadline = DateTime.UtcNow.AddMilliseconds(_commandTimeoutMs);
-        while (DateTime.UtcNow < deadline)
-        {
-            if (!TryReadLineUnlocked(deadline, out var line) || string.IsNullOrEmpty(line))
-                continue;
-
-            ProcessIncomingLineUnlocked(line);
-            if (condition())
-                return true;
-        }
-
-        return false;
     }
 
     private int? WaitForCreatedSliceUnlocked(HashSet<int> existingIndexes, int? responseIndex)

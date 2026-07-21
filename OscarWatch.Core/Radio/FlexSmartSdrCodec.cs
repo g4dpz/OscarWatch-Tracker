@@ -56,12 +56,12 @@ public static class FlexSmartSdrCodec
     public static string BuildSliceSetToneModeCommand(uint sequence, int sliceIndex, bool toneOn) =>
         BuildCommand(
             sequence,
-            $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} fm_tone_mode={(toneOn ? "ctcss_tx" : "OFF")}");
+            $"slice s {sliceIndex.ToString(CultureInfo.InvariantCulture)} fm_tone_mode={(toneOn ? "ctcss_tx" : "off")}");
 
     public static string BuildSliceSetToneValueCommand(uint sequence, int sliceIndex, double toneHz) =>
         BuildCommand(
             sequence,
-            $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} fm_tone_value={toneHz.ToString("0.0", CultureInfo.InvariantCulture)}");
+            $"slice s {sliceIndex.ToString(CultureInfo.InvariantCulture)} fm_tone_value={toneHz.ToString("0.0", CultureInfo.InvariantCulture)}");
 
     public static long MhzToHz(double mhz) =>
         (long)Math.Round(mhz * 1_000_000d, MidpointRounding.AwayFromZero);

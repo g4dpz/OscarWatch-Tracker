@@ -164,6 +164,26 @@ public class FlexRadioDriverTests
     }
 
     [Fact]
+    public void SetTone_WhenRadioDoesNotEchoOwnStatus_SendsModeAndValue()
+    {
+        using var stub = new FlexSmartSdrStubServer(suppressSliceSetStatus: true);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        driver.SelectVfo(RigVfo.Sub);
+        driver.SetMode("FM");
+        driver.SetToneHz(74.4, squelchTone: false);
+        driver.SetToneOn(true);
+
+        var tx = stub.Slices[driver.TxSliceIndex];
+        Assert.Equal("ctcss_tx", tx.ToneMode);
+        Assert.Equal(74.4, tx.ToneHz);
+        Assert.Equal(435_000_000, driver.ReadFrequencyHz(RigVfo.Sub));
+    }
+
+    [Fact]
     public void SupportsVfoExchange_IsFalse()
     {
         using var stub = new FlexSmartSdrStubServer();

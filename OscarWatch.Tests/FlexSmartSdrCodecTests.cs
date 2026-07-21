@@ -89,9 +89,9 @@ public class FlexSmartSdrCodecTests
         var value = FlexSmartSdrCodec.BuildSliceSetToneValueCommand(6, 1, 67.0);
         var off = FlexSmartSdrCodec.BuildSliceSetToneModeCommand(7, 1, toneOn: false);
 
-        Assert.Equal("C5|slice set 1 fm_tone_mode=ctcss_tx\n", on);
-        Assert.Equal("C6|slice set 1 fm_tone_value=67.0\n", value);
-        Assert.Equal("C7|slice set 1 fm_tone_mode=OFF\n", off);
+        Assert.Equal("C5|slice s 1 fm_tone_mode=ctcss_tx\n", on);
+        Assert.Equal("C6|slice s 1 fm_tone_value=67.0\n", value);
+        Assert.Equal("C7|slice s 1 fm_tone_mode=off\n", off);
     }
 
     [Theory]

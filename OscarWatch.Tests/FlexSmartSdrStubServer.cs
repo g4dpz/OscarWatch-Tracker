@@ -25,6 +25,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
     private readonly bool _omitSliceCreateIndex;
     private readonly bool _emitPartialSliceStatus;
     private readonly bool _rejectClientProgram;
+    private readonly bool _suppressSliceSetStatus;
 
     public FlexSmartSdrStubServer(
         int initialSliceCount = 2,
@@ -33,7 +34,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         bool rejectSliceCreate = false,
         bool omitSliceCreateIndex = false,
         bool emitPartialSliceStatus = false,
-        bool rejectClientProgram = false)
+        bool rejectClientProgram = false,
+        bool suppressSliceSetStatus = false)
     {
         if (initialSliceCount >= 1)
             _slices[0] = new StubSlice(0, 145_900_000, "USB", Tx: false);
@@ -47,6 +49,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         _omitSliceCreateIndex = omitSliceCreateIndex;
         _emitPartialSliceStatus = emitPartialSliceStatus;
         _rejectClientProgram = rejectClientProgram;
+        _suppressSliceSetStatus = suppressSliceSetStatus;
 
         _listener = new TcpListener(IPAddress.Loopback, 0);
         _listener.Start();
@@ -227,9 +230,10 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
             return;
         }
 
-        if (body.StartsWith("slice set ", StringComparison.OrdinalIgnoreCase))
+        if (body.StartsWith("slice set ", StringComparison.OrdinalIgnoreCase)
+            || body.StartsWith("slice s ", StringComparison.OrdinalIgnoreCase))
         {
-            var match = Regex.Match(body, @"^slice set (\d+)\s+(.+)$", RegexOptions.IgnoreCase);
+            var match = Regex.Match(body, @"^slice (?:set|s) (\d+)\s+(.+)$", RegexOptions.IgnoreCase);
             if (match.Success
                 && int.TryParse(match.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var index))
             {
@@ -241,7 +245,11 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                 }
 
                 ApplySliceSet(index, args);
-                if (_emitPartialSliceStatus)
+                if (_suppressSliceSetStatus)
+                {
+                    // SmartSDR normally does not echo a change back to the client that issued it.
+                }
+                else if (_emitPartialSliceStatus)
                 {
                     await writer.WriteLineAsync($"SABCDEF01|slice {index} {args}").ConfigureAwait(false);
                 }
