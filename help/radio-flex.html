@@ -92,6 +92,7 @@
       <h2>Tips</h2>
       <ul>
         <li>SmartSDR for Windows can stay open for panadapter and audio; OscarWatch is another API client.</li>
+        <li>If <strong>Settings → Recording</strong> reports that audio is unavailable while SmartSDR is running, configure pass recording with SmartSDR closed — some DAX virtual audio devices fail PortAudio initialisation. OscarWatch probes audio in a separate process so this does not close the main application. Other Settings tabs are safe to use during a pass.</li>
         <li>This driver is <strong>not</strong> a dual-radio leg and is not Hamlib/rigctl.</li>
         <li>RF isolation and transverters remain your responsibility — OscarWatch only controls frequency, mode, FDX, and tone.</li>
       </ul>

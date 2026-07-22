@@ -83,6 +83,15 @@ public partial class SettingsWindow : Window
         }
     }
 
+    private void OnSettingsTabSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (DataContext is not SettingsViewModel vm)
+            return;
+
+        if ((SettingsTabControl.SelectedItem as TabItem)?.Tag as string == "Recording")
+            vm.OnRecordingTabSelected();
+    }
+
     private void OnIntegrationsSectionNavSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (IntegrationsSectionNav is null)

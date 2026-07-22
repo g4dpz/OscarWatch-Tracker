@@ -129,16 +129,31 @@ public sealed class PassRecordingCoordinatorTests
 
 internal sealed class FakeAudioRecordingService : IAudioRecordingService
 {
-    public bool IsAvailable => true;
-    public string? UnavailableReason => null;
+    public bool IsAvailable => !_initializationFailed;
+    public string? UnavailableReason => _initializationFailed ? "PortAudio unavailable (test)" : null;
     public bool IsRecording { get; private set; }
     public string? ActiveNoradId { get; private set; }
     public string? ActiveOutputPath { get; private set; }
     public int StartCount { get; private set; }
     public int StopCount { get; private set; }
+    public int TryInitializeCount { get; private set; }
+    public int GetInputDevicesCount { get; private set; }
 
-    public IReadOnlyList<AudioInputDevice> GetInputDevices() =>
-        [new AudioInputDevice("Fake Input", "Fake Input")];
+    private bool _initializationFailed;
+
+    public void SetInitializationFailed(bool failed) => _initializationFailed = failed;
+
+    public bool TryInitialize()
+    {
+        TryInitializeCount++;
+        return IsAvailable;
+    }
+
+    public IReadOnlyList<AudioInputDevice> GetInputDevices()
+    {
+        GetInputDevicesCount++;
+        return [new AudioInputDevice("Fake Input", "Fake Input")];
+    }
 
     public Task StartAsync(
         string noradId,

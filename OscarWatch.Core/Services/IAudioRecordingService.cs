@@ -6,11 +6,16 @@ public sealed record AudioInputDevice(string Id, string DisplayName);
 
 public interface IAudioRecordingService
 {
+    /// <summary>True before any probe, or after a successful PortAudio initialisation.</summary>
     bool IsAvailable { get; }
+    /// <summary>Non-null only after an initialisation attempt failed.</summary>
     string? UnavailableReason { get; }
     bool IsRecording { get; }
     string? ActiveNoradId { get; }
     string? ActiveOutputPath { get; }
+
+    /// <summary>Initialises PortAudio when recording or device enumeration is needed.</summary>
+    bool TryInitialize();
 
     IReadOnlyList<AudioInputDevice> GetInputDevices();
     Task StartAsync(

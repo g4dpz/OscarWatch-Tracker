@@ -25,4 +25,16 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <Target Name="CopyPortAudioProbeToTestOutput" AfterTargets="Build">
+    <MSBuild Projects="..\OscarWatch.PortAudioProbe\OscarWatch.PortAudioProbe.csproj"
+             Targets="Build"
+             Properties="Configuration=$(Configuration)" />
+    <ItemGroup>
+      <_ProbeFiles Include="..\OscarWatch.PortAudioProbe\bin\$(Configuration)\net10.0\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_ProbeFiles)"
+          DestinationFiles="@(_ProbeFiles->'$(OutputPath)%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
 </Project>

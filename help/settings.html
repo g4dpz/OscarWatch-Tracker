@@ -103,6 +103,12 @@
         <li><strong>Test recording (5 s)</strong> — saves a short clip so you can confirm levels and device selection before a pass.</li>
       </ul>
       <p>
+        Other Settings tabs open immediately. The <strong>Recording</strong> tab loads audio devices when you select it.
+        On some FlexRadio SmartSDR setups with <strong>DAX</strong> virtual audio devices, PortAudio can hang or fail while SmartSDR is running.
+        OscarWatch checks audio in a separate probe process first so a DAX failure does not close the main application.
+        If the Recording tab reports that audio is unavailable, configure recording with SmartSDR closed, or use <strong>Refresh</strong> on the Recording tab after closing DAX streams you do not need.
+      </p>
+      <p>
         Files are named in UTC: <code>{satellite-name}-{yy-MM-dd-HH-mm}.wav</code>
         (for example <code>so-50-26-05-24-14-30.wav</code>).
         Only the satellite you have <strong>selected</strong> on the map or pass list is recorded.

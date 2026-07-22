@@ -27,7 +27,9 @@
       </StackPanel>
     </Border>
 
-    <TabControl Margin="12,12,12,8">
+    <TabControl x:Name="SettingsTabControl"
+                Margin="12,12,12,8"
+                SelectionChanged="OnSettingsTabSelectionChanged">
       <TabControl.Styles>
         <Style Selector="TabItem">
           <Setter Property="FontSize" Value="14" />
@@ -969,7 +971,7 @@
         </ScrollViewer>
       </TabItem>
 
-      <TabItem Header="{loc:Localize Key=Settings.Tab.Recording}">
+      <TabItem Header="{loc:Localize Key=Settings.Tab.Recording}" Tag="Recording">
         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
           <StackPanel Spacing="10" MaxWidth="420">
             <CheckBox Content="{loc:Localize Key=Settings.Recording.Enable}"
@@ -979,11 +981,16 @@
                        TextWrapping="Wrap"
                        Text="{loc:Localize Key=Settings.Recording.EnableNote}" />
             <TextBlock Text="{loc:Localize Key=Settings.Recording.InputDevice}" Margin="0,8,0,0" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding RecordingDevicesLoading}"
+                       Text="{loc:Localize Key=Settings.Recording.DevicesLoading}" />
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
               <ComboBox Grid.Column="0"
                         ItemsSource="{Binding RecordingDeviceOptions}"
                         SelectedItem="{Binding SelectedRecordingDevice, Mode=TwoWay}"
-                        IsEnabled="{Binding RecordingAvailable}"
+                        IsEnabled="{Binding RecordingInputEnabled}"
                         HorizontalAlignment="Stretch">
                 <ComboBox.ItemTemplate>
                   <DataTemplate x:DataType="vm:RecordingDeviceOption">
@@ -998,7 +1005,7 @@
             <TextBlock Text="{loc:Localize Key=Settings.Recording.Format}" Margin="0,8,0,0" />
             <ComboBox ItemsSource="{Binding RecordingFormatOptions}"
                       SelectedItem="{Binding SelectedRecordingFormat, Mode=TwoWay}"
-                      IsEnabled="{Binding RecordingAvailable}"
+                      IsEnabled="{Binding RecordingInputEnabled}"
                       HorizontalAlignment="Stretch">
               <ComboBox.ItemTemplate>
                 <DataTemplate x:DataType="vm:RecordingFormatOption">

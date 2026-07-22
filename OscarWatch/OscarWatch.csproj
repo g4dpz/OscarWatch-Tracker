@@ -33,7 +33,37 @@
   <ItemGroup>
     <ProjectReference Include="..\OscarWatch.Core\OscarWatch.Core.csproj" />
     <ProjectReference Include="..\OscarWatch.Orbit\OscarWatch.Orbit.csproj" />
+    <ProjectReference Include="..\OscarWatch.PortAudioProbe\OscarWatch.PortAudioProbe.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
+
+  <Target Name="BuildPortAudioProbe" AfterTargets="Build">
+    <MSBuild Projects="..\OscarWatch.PortAudioProbe\OscarWatch.PortAudioProbe.csproj"
+             Targets="Build"
+             Properties="Configuration=$(Configuration);RuntimeIdentifier=$(RuntimeIdentifier)" />
+  </Target>
+
+  <Target Name="CopyPortAudioProbeToOutput" AfterTargets="BuildPortAudioProbe">
+    <PropertyGroup>
+      <_ProbeOutputDir>..\OscarWatch.PortAudioProbe\bin\$(Configuration)\net10.0\</_ProbeOutputDir>
+      <_ProbeOutputDir Condition="'$(RuntimeIdentifier)' != ''">..\OscarWatch.PortAudioProbe\bin\$(Configuration)\net10.0\$(RuntimeIdentifier)\publish\</_ProbeOutputDir>
+      <_ProbeOutputDir Condition="'$(RuntimeIdentifier)' != '' and !Exists('$(_ProbeOutputDir)OscarWatch.PortAudioProbe.dll')">..\OscarWatch.PortAudioProbe\bin\$(Configuration)\net10.0\$(RuntimeIdentifier)\</_ProbeOutputDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <_ProbeFiles Include="$(_ProbeOutputDir)**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_ProbeFiles)"
+          DestinationFiles="@(_ProbeFiles->'$(OutputPath)%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(_ProbeOutputDir)OscarWatch.PortAudioProbe.dll') Or Exists('$(_ProbeOutputDir)OscarWatch.PortAudioProbe')" />
+  </Target>
+
+  <Target Name="PublishPortAudioProbe" AfterTargets="Publish">
+    <MSBuild Projects="..\OscarWatch.PortAudioProbe\OscarWatch.PortAudioProbe.csproj"
+             Targets="Publish"
+             Properties="Configuration=$(Configuration);RuntimeIdentifier=$(RuntimeIdentifier);SelfContained=$(SelfContained);PublishSingleFile=false;PublishDir=$(PublishDir)" />
+  </Target>
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />

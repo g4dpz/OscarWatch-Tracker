@@ -41,15 +41,14 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
     private int _activeChannels = 1;
     private int _maxCallbackBytes;
 
-    public bool IsAvailable => EnsureInitialized();
-    public string? UnavailableReason
-    {
-        get
-        {
-            EnsureInitialized();
-            return _initialized ? null : _initError ?? "PortAudio is not available.";
-        }
-    }
+    public bool IsAvailable => !_initializationAttempted || _initialized;
+
+    public string? UnavailableReason =>
+        _initializationAttempted && !_initialized
+            ? _initError ?? "PortAudio is not available."
+            : null;
+
+    public bool TryInitialize() => EnsureInitialized();
     public bool IsRecording { get; private set; }
     public string? ActiveNoradId { get; private set; }
     public string? ActiveOutputPath { get; private set; }
@@ -71,7 +70,14 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
             _initializationAttempted = true;
             try
             {
-                Log.Information("Initialising PortAudio on first recording use");
+                if (!PortAudioOutOfProcessProbe.TryRun(out var probeError))
+                {
+                    _initError = probeError;
+                    Log.Warning("PortAudio out-of-process probe failed: {Reason}", probeError);
+                    return false;
+                }
+
+                Log.Information("Initialising PortAudio (device enumeration or capture)");
                 PortAudio.Initialize();
                 _initialized = true;
                 Log.Information("PortAudio initialized ({Version})", PortAudio.VersionInfo.versionText);

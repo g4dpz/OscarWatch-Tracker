@@ -2385,6 +2385,9 @@ Continue?</value>
   <data name="Settings.Recording.Unavailable">
     <value>Audio recording is not available on this system.</value>
   </data>
+  <data name="Settings.Recording.DevicesLoading">
+    <value>Loading audio devices…</value>
+  </data>
   <data name="Settings.Recording.SelectDeviceFirst">
     <value>Select an input device first.</value>
   </data>

@@ -35,6 +35,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     private bool _isSynchronizing;
     private bool _disposed;
     private string _uiLanguageAtOpen = LocalizationCulture.DefaultLanguage;
+    private int _recordingDeviceLoadGeneration;
 
     public void Dispose()
     {
@@ -167,9 +168,18 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
 
     public ObservableCollection<RecordingDeviceOption> RecordingDeviceOptions { get; } = [];
 
-    public bool RecordingAvailable { get; }
+    [ObservableProperty]
+    private bool _recordingAvailable = true;
 
-    public bool RecordingUnavailable => !RecordingAvailable;
+    [ObservableProperty]
+    private bool _recordingDevicesLoading;
+
+    [ObservableProperty]
+    private bool _recordingDevicesLoaded;
+
+    public bool RecordingUnavailable => RecordingDevicesLoaded && !RecordingAvailable;
+
+    public bool RecordingInputEnabled => RecordingAvailable && !RecordingDevicesLoading;
 
     public string RecordingUnavailableText =>
         _recording.UnavailableReason ?? _l.Get("Settings.Recording.Unavailable");
@@ -799,11 +809,9 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         _speech = speech;
         _recording = recording;
         _cloudlog = cloudlog;
-        RecordingAvailable = recording.IsAvailable;
         SpeechAvailable = speech.IsAvailable;
         SpeechVoiceOptions = speech.GetAvailableVoices();
         CopyGroundStation(settings.Current.GroundStation, _draft);
-        RefreshRecordingDevices();
         LoadFromDraft();
         SeedSavedComPorts();
         _flexDiscovery.RadiosChanged += OnFlexDiscoveryRadiosChanged;
@@ -825,17 +833,91 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             EnsureSavedPortListed(port);
     }
 
-    [RelayCommand]
-    private void RefreshRecordingDevices()
+    /// <summary>Called when the Recording tab is selected; probes PortAudio only then.</summary>
+    public void OnRecordingTabSelected()
     {
-        var previousId = SelectedRecordingDevice?.Id;
-        var previousDisplayName = SelectedRecordingDevice?.DisplayName;
+        if (!RecordingDevicesLoaded && !RecordingDevicesLoading)
+            _ = RefreshRecordingDevicesAsync();
+    }
 
+    [RelayCommand]
+    private async Task RefreshRecordingDevicesAsync()
+    {
+        var generation = Interlocked.Increment(ref _recordingDeviceLoadGeneration);
+        RecordingDevicesLoading = true;
+        OnPropertyChanged(nameof(RecordingInputEnabled));
+        RecordingTestStatus = "";
+
+        try
+        {
+            var previousId = SelectedRecordingDevice?.Id;
+            var previousDisplayName = SelectedRecordingDevice?.DisplayName;
+
+            var probeResult = await Task.Run(() =>
+            {
+                var available = _recording.TryInitialize();
+                if (!available)
+                {
+                    return (
+                        Available: false,
+                        Devices: (IReadOnlyList<AudioInputDevice>)Array.Empty<AudioInputDevice>(),
+                        Reason: _recording.UnavailableReason);
+                }
+
+                return (Available: true, Devices: _recording.GetInputDevices(), Reason: (string?)null);
+            }).ConfigureAwait(true);
+
+            if (generation != _recordingDeviceLoadGeneration)
+                return;
+
+            RecordingAvailable = probeResult.Available;
+            RecordingDevicesLoaded = true;
+            RecordingDeviceOptions.Clear();
+            foreach (var device in probeResult.Devices)
+                RecordingDeviceOptions.Add(new RecordingDeviceOption(device.Id, device.DisplayName));
+
+            SelectedRecordingDevice = FindRecordingDeviceOption(previousId, previousDisplayName);
+
+            if (!probeResult.Available && !string.IsNullOrWhiteSpace(probeResult.Reason))
+                RecordingTestStatus = probeResult.Reason;
+        }
+        catch (Exception ex)
+        {
+            if (generation != _recordingDeviceLoadGeneration)
+                return;
+
+            RecordingAvailable = false;
+            RecordingDevicesLoaded = true;
+            RecordingDeviceOptions.Clear();
+            RecordingTestStatus = ex.Message;
+        }
+        finally
+        {
+            if (generation == _recordingDeviceLoadGeneration)
+            {
+                RecordingDevicesLoading = false;
+                OnPropertyChanged(nameof(RecordingInputEnabled));
+                OnPropertyChanged(nameof(RecordingUnavailable));
+            }
+
+            TestRecordingCommand.NotifyCanExecuteChanged();
+        }
+    }
+
+    private void ApplySavedRecordingDevicePlaceholder(string? deviceId, string? deviceDisplayName)
+    {
         RecordingDeviceOptions.Clear();
-        foreach (var device in _recording.GetInputDevices())
-            RecordingDeviceOptions.Add(new RecordingDeviceOption(device.Id, device.DisplayName));
+        if (string.IsNullOrWhiteSpace(deviceId) && string.IsNullOrWhiteSpace(deviceDisplayName))
+        {
+            SelectedRecordingDevice = null;
+            return;
+        }
 
-        SelectedRecordingDevice = FindRecordingDeviceOption(previousId, previousDisplayName);
+        var id = string.IsNullOrWhiteSpace(deviceId) ? deviceDisplayName! : deviceId;
+        var name = string.IsNullOrWhiteSpace(deviceDisplayName) ? deviceId! : deviceDisplayName;
+        var placeholder = new RecordingDeviceOption(id, name);
+        RecordingDeviceOptions.Add(placeholder);
+        SelectedRecordingDevice = placeholder;
     }
 
     private RecordingDeviceOption? FindRecordingDeviceOption(string? deviceId, string? deviceDisplayName)
@@ -1129,8 +1211,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             RecordingOutputFolder = recording.OutputFolder;
             SelectedRecordingFormat = RecordingFormatOptions.FirstOrDefault(o => o.Value == recording.Format)
                 ?? RecordingFormatOptions[0];
-            RefreshRecordingDevices();
-            SelectedRecordingDevice = FindRecordingDeviceOption(recording.DeviceId, recording.DeviceDisplayName);
+            ApplySavedRecordingDevicePlaceholder(recording.DeviceId, recording.DeviceDisplayName);
             RecordingTestStatus = "";
 
             var rotator = _settings.Current.Rotator ?? new RotatorSettings();
@@ -1284,6 +1365,9 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     [RelayCommand(CanExecute = nameof(CanTestRecording))]
     private async Task TestRecordingAsync()
     {
+        if (!RecordingDevicesLoaded)
+            await RefreshRecordingDevicesAsync().ConfigureAwait(true);
+
         if (SelectedRecordingDevice is null)
         {
             RecordingTestStatus = _l.Get("Settings.Recording.SelectDeviceFirst");
@@ -1326,7 +1410,29 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         TestRecordingCommand.NotifyCanExecuteChanged();
 
     private bool CanTestRecording() =>
-        RecordingAvailable && SelectedRecordingDevice is not null && !_recording.IsRecording;
+        RecordingAvailable
+        && RecordingDevicesLoaded
+        && SelectedRecordingDevice is not null
+        && !_recording.IsRecording;
+
+    partial void OnRecordingAvailableChanged(bool value)
+    {
+        OnPropertyChanged(nameof(RecordingUnavailable));
+        OnPropertyChanged(nameof(RecordingInputEnabled));
+        TestRecordingCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnRecordingDevicesLoadingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(RecordingInputEnabled));
+        TestRecordingCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnRecordingDevicesLoadedChanged(bool value)
+    {
+        OnPropertyChanged(nameof(RecordingUnavailable));
+        TestRecordingCommand.NotifyCanExecuteChanged();
+    }
 
     partial void OnTleSourceOptionChanged(TleSourceOption? value)
     {
