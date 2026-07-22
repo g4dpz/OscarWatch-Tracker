@@ -10,6 +10,12 @@ internal sealed class RecordingRigDriver : IRigDriver
 
     /// <summary>When set, the next Main/VfoA read returns this value once (simulates CAT display lag).</summary>
     public long? NextStaleMainReadHz { get; set; }
+
+    /// <summary>
+    /// When set, every Main/VfoA read returns this value (simulates lagging Flex/SmartSDR status
+    /// that keeps reporting the pre-write frequency after SetFrequencyHz succeeds).
+    /// </summary>
+    public long? ForcedMainReadHz { get; set; }
     public int SetFrequencyCallCount { get; private set; }
     public Queue<bool> SetFrequencyResults { get; } = new();
     public double? LastToneHz { get; private set; }
@@ -28,6 +34,9 @@ internal sealed class RecordingRigDriver : IRigDriver
     {
         if (vfo is RigVfo.VfoA or RigVfo.Main)
         {
+            if (ForcedMainReadHz is long forced)
+                return forced;
+
             if (NextStaleMainReadHz is long stale)
             {
                 NextStaleMainReadHz = null;

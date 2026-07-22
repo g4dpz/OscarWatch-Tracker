@@ -938,6 +938,71 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Flex_rx_offset_does_not_capture_stale_status_as_passband_trim()
+    {
+        // SmartSDR can keep reporting the pre-offset slice frequency after a CAT write.
+        // Immediate Flex capture must not treat that lag as a Main-dial hunt (~20 kHz snaps).
+        var rig = new RecordingRigDriver();
+        var controller = new RigController(_ => rig);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.FlexSmartSdr,
+            NetworkHost = "127.0.0.1",
+            NetworkPort = 4992,
+            DopplerThresholdLinearHz = 50,
+            CatDelayMs = 0
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 435_667,
+            UplinkKHz = 145_937.61,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var state = new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "44909",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+
+        RigTrackingContext Build(double rxOffset) =>
+            new()
+            {
+                TrackState = state,
+                Mode = mode,
+                Corrected = DopplerFrequencyCalculator.Compute(mode, 0, rxOffset),
+                TransmitOffsetKHz = 0,
+                ReceiveOffsetKHz = rxOffset
+            };
+
+        controller.Update(settings, Build(0));
+        controller.DrainCommandQueueForTests();
+        var baselineMain = rig.MainHz;
+
+        // Reads keep returning the pre-offset frequency while SetFrequencyHz advances MainHz.
+        rig.ForcedMainReadHz = baselineMain;
+        controller.PublishContext(settings, Build(1.0), reinitializePass: false);
+        controller.DrainCommandQueueForTests();
+
+        var expectedAfterOffset = baselineMain + 1_000;
+        Assert.Equal(expectedAfterOffset, rig.MainHz);
+
+        for (var i = 0; i < 20; i++)
+            controller.RunTrackingLoopOnce();
+
+        var status = controller.GetStatus();
+        Assert.InRange(status.ManualReceiveAdjustKHz, -0.05, 0.05);
+        Assert.InRange(status.ManualTransmitAdjustKHz, -0.05, 0.05);
+        Assert.Equal(expectedAfterOffset, rig.MainHz);
+    }
+
+    [Fact]
     public void Rx_offset_sends_cat_frequency_to_rig()
     {
         var rig = new RecordingRigDriver();

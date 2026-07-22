@@ -27,6 +27,11 @@ public sealed class RigController : IRigController, IDisposable
     private const int FmCompanionLegHz = 10;
     /// <summary>After a CAT frequency write, ignore dial stability briefly so reads settle.</summary>
     private const int PostCatWriteDialSettleMs = 350;
+    /// <summary>
+    /// Flex SmartSDR can push a lagging slice frequency after our CAT write. Treat a dial that still
+    /// shows the pre-write frequency as status lag, not a Main-dial passband hunt.
+    /// </summary>
+    private const int FlexPostWriteStatusLagMs = 2_000;
     private static readonly TimeSpan LoopInterval = TimeSpan.FromMilliseconds(100);
     private static readonly TimeSpan CommandWaitTimeout = TimeSpan.FromSeconds(10);
     private static readonly TimeSpan DopplerLogSnapshotInterval = TimeSpan.FromSeconds(1);
@@ -58,6 +63,8 @@ public sealed class RigController : IRigController, IDisposable
     private string? _passKey;
     private long _lastRigRxHz;
     private long _lastRigTxHz;
+    /// <summary>RX frequency immediately before the last successful CAT write (Flex stale-status detection).</summary>
+    private long _rxHzBeforeLastCatWrite;
     private long _displayRxHz;
     private long _displayTxHz;
     private DateTime _lastWriteUtc = DateTime.MinValue;
@@ -537,6 +544,7 @@ public sealed class RigController : IRigController, IDisposable
         _passbandUplinkAdjustKHz = 0;
         _lastRigRxHz = 0;
         _lastRigTxHz = 0;
+        _rxHzBeforeLastCatWrite = 0;
         _displayRxHz = 0;
         _displayTxHz = 0;
         _isTracking = false;
@@ -723,6 +731,10 @@ public sealed class RigController : IRigController, IDisposable
         if (!TryReadReceiveDialHz(out var dialHz))
             return;
 
+        // Lagging SmartSDR status after an offset/Doppler write must not become passband trim.
+        if (IsStalePostWriteDialEcho(dialHz))
+            return;
+
         var (rxRangeRate, txRangeRate) = ResolveRangeRatesForDoppler(context);
         var baseline = DopplerFrequencyCalculator.Compute(
             context.Mode,
@@ -836,10 +848,21 @@ public sealed class RigController : IRigController, IDisposable
         // SmartSDR pushes external slice tuning to our cache. Unlike serial CAT polling, a changed
         // Flex frequency is already an authoritative operator action, so capture it immediately
         // instead of waiting for eight identical samples while Doppler can pull the slice back.
+        // Never do that during post-CAT settle / offset block, and never treat a lagging pre-write
+        // frequency as a hunt (that was snapping RS-44 ~tens of kHz after offset clicks).
         if (KnobTuneCapturePolicy.UsesImmediateStatusCapture(_cachedSettings.Type)
+            && !_blockKnobCapture
+            && DateTime.UtcNow >= _ignoreDialUntilUtc
             && IsOperatorDialMovement(dialHz))
         {
-            _ignoreDialUntilUtc = DateTime.MinValue;
+            if (IsStalePostWriteDialEcho(dialHz))
+            {
+                MarkProgrammaticFrequencySettle();
+                _forceFrequencyApply = true;
+                _vfoNotMoving = false;
+                return;
+            }
+
             _lastDialChangeUtc = DateTime.UtcNow;
             SeedDialHistoryStable(dialHz);
             _vfoNotMoving = true;
@@ -925,6 +948,27 @@ public sealed class RigController : IRigController, IDisposable
     /// <summary>Main dial moved away from the last CAT RX write — operator passband hunt, not Doppler stepping.</summary>
     private bool IsOperatorDialMovement(long dialHz) =>
         _lastRigRxHz <= 0 || Math.Abs(dialHz - _lastRigRxHz) >= KnobTuneThresholdHz();
+
+    /// <summary>
+    /// True when Flex status still reports the RX frequency we just tuned away from (lagging status),
+    /// rather than a genuine operator Main-dial move to a new spot in the passband.
+    /// </summary>
+    private bool IsStalePostWriteDialEcho(long dialHz)
+    {
+        if (!KnobTuneCapturePolicy.UsesImmediateStatusCapture(_cachedSettings.Type))
+            return false;
+
+        if (_rxHzBeforeLastCatWrite <= 0 || _lastRigRxHz <= 0 || _lastRxWriteUtc == DateTime.MinValue)
+            return false;
+
+        if ((DateTime.UtcNow - _lastRxWriteUtc).TotalMilliseconds > FlexPostWriteStatusLagMs)
+            return false;
+
+        if (DialMatchesLastCatWrite(dialHz, KnobTuneThresholdHz()))
+            return false;
+
+        return Math.Abs(dialHz - _rxHzBeforeLastCatWrite) < KnobTuneThresholdHz();
+    }
 
     private bool WriteDopplerFrequencies(RigSettings settings, RigTrackingContext context, bool holdDownlinkCatWrites = false)
     {
@@ -1351,6 +1395,7 @@ public sealed class RigController : IRigController, IDisposable
         var txHz = ToHz(corrected.RadioTransmitKHz);
         _lastRigRxHz = 0;
         _lastRigTxHz = 0;
+        _rxHzBeforeLastCatWrite = 0;
         var initResult = isKenwoodSat && _driver is KenwoodTs2000Driver kenwoodInit
             ? InitializeKenwoodSatellitePass(settings, kenwoodInit, context, rxHz, txHz)
             : WriteInitialFrequencies(settings, rxHz, txHz);
@@ -1412,6 +1457,7 @@ public sealed class RigController : IRigController, IDisposable
         var txHz = ToHz(corrected.RadioTransmitKHz);
         _lastRigRxHz = 0;
         _lastRigTxHz = 0;
+        _rxHzBeforeLastCatWrite = 0;
 
         _downlinkDriver.SelectVfo(RigVfo.Main);
         _downlinkDriver.SetMode(context.EffectiveDownlinkMode);
@@ -1934,6 +1980,8 @@ public sealed class RigController : IRigController, IDisposable
         driver.SelectVfo(ReceiveVfoForWrite(settings), force: true);
         if (driver.SetFrequencyHz(hz))
         {
+            if (_lastRigRxHz > 0 && _lastRigRxHz != hz)
+                _rxHzBeforeLastCatWrite = _lastRigRxHz;
             _lastRigRxHz = hz;
             return true;
         }
