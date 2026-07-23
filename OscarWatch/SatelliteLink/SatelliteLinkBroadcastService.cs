@@ -17,8 +17,10 @@ public sealed class SatelliteLinkBroadcastService : ISatelliteLinkBroadcastServi
     };
 
     private readonly SatelliteLinkWebSocketHost _host = new();
+    private readonly SemaphoreSlim _lifecycle = new(1, 1);
     private readonly object _gate = new();
     private SatelliteLinkSettings _settings = new();
+    private int _applyGeneration;
     private string? _lastSignature;
     private DateTime _lastBroadcastUtc = DateTime.MinValue;
     private string? _lastError;
@@ -45,8 +47,11 @@ public sealed class SatelliteLinkBroadcastService : ISatelliteLinkBroadcastServi
 
     public void ApplySettings(SatelliteLinkSettings settings)
     {
-        _settings = settings ?? new SatelliteLinkSettings();
-        _ = ApplySettingsAsync(_settings);
+        lock (_gate)
+            _settings = settings ?? new SatelliteLinkSettings();
+
+        Interlocked.Increment(ref _applyGeneration);
+        _ = ApplySettingsAsync();
     }
 
     public void Publish(SatelliteTrackState? track, RigTrackingContext? context, bool force = false)
@@ -98,85 +103,126 @@ public sealed class SatelliteLinkBroadcastService : ISatelliteLinkBroadcastServi
 
     public async Task<bool> TestBindAsync(SatelliteLinkSettings settings, CancellationToken cancellationToken = default)
     {
-        var probe = new SatelliteLinkSettings
-        {
-            Enabled = true,
-            Port = settings.Port,
-            AllowLanClients = settings.AllowLanClients
-        };
-
-        var wasListening = _host.IsListening;
-        var resumeSettings = _settings;
-
-        if (wasListening)
-            await _host.StopAsync().ConfigureAwait(false);
-
-        await using var host = new SatelliteLinkWebSocketHost();
+        await _lifecycle.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            await host.StartAsync(probe, cancellationToken).ConfigureAwait(false);
-            return true;
-        }
-        catch (Exception ex)
-        {
-            lock (_gate)
-                _lastError = SatelliteLinkListenPrefixBuilder.DescribeBindFailure(ex);
-            StateChanged?.Invoke();
-            Log.Debug(ex, "Satellite link bind test failed");
-            return false;
-        }
-        finally
-        {
-            await host.StopAsync().ConfigureAwait(false);
-
-            if (wasListening && resumeSettings.Enabled)
+            var probe = new SatelliteLinkSettings
             {
-                try
+                Enabled = true,
+                Port = settings.Port,
+                AllowLanClients = settings.AllowLanClients
+            };
+
+            SatelliteLinkSettings resumeSettings;
+            lock (_gate)
+                resumeSettings = _settings;
+
+            var wasListening = _host.IsListening;
+
+            if (wasListening)
+                await _host.StopAsync().ConfigureAwait(false);
+
+            await using var host = new SatelliteLinkWebSocketHost();
+            try
+            {
+                await host.StartAsync(probe, cancellationToken).ConfigureAwait(false);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                lock (_gate)
+                    _lastError = SatelliteLinkListenPrefixBuilder.DescribeBindFailure(ex);
+                StateChanged?.Invoke();
+                Log.Debug(ex, "Satellite link bind test failed");
+                return false;
+            }
+            finally
+            {
+                await host.StopAsync().ConfigureAwait(false);
+
+                if (wasListening && resumeSettings.Enabled)
                 {
-                    await _host.StartAsync(resumeSettings, cancellationToken).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    lock (_gate)
-                        _lastError = SatelliteLinkListenPrefixBuilder.DescribeBindFailure(ex);
-                    Log.Warning(ex, "Satellite link failed to resume after bind test");
-                    StateChanged?.Invoke();
+                    try
+                    {
+                        await _host.StartAsync(resumeSettings, cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        lock (_gate)
+                            _lastError = SatelliteLinkListenPrefixBuilder.DescribeBindFailure(ex);
+                        Log.Warning(ex, "Satellite link failed to resume after bind test");
+                        StateChanged?.Invoke();
+                    }
                 }
             }
         }
+        finally
+        {
+            _lifecycle.Release();
+        }
     }
 
-    public Task StopAsync() => _host.StopAsync();
-
-    private async Task ApplySettingsAsync(SatelliteLinkSettings settings)
+    public async Task StopAsync()
     {
-        lock (_gate)
-        {
-            _lastSignature = null;
-            _lastBroadcastUtc = DateTime.MinValue;
-            _lastError = null;
-        }
-
-        await _host.StopAsync().ConfigureAwait(false);
-
-        if (!settings.Enabled)
-        {
-            StateChanged?.Invoke();
-            return;
-        }
-
+        await _lifecycle.WaitAsync().ConfigureAwait(false);
         try
         {
-            await _host.StartAsync(settings).ConfigureAwait(false);
+            await _host.StopAsync().ConfigureAwait(false);
         }
-        catch (Exception ex)
+        finally
         {
-            lock (_gate)
-                _lastError = SatelliteLinkListenPrefixBuilder.DescribeBindFailure(ex);
-            Log.Warning(ex, "Satellite link failed to start");
+            _lifecycle.Release();
         }
+    }
 
-        StateChanged?.Invoke();
+    private async Task ApplySettingsAsync()
+    {
+        await _lifecycle.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            // Coalesce overlapping ApplySettings calls to the latest requested settings.
+            while (true)
+            {
+                var appliedGeneration = Volatile.Read(ref _applyGeneration);
+                SatelliteLinkSettings settings;
+                lock (_gate)
+                {
+                    settings = _settings;
+                    _lastSignature = null;
+                    _lastBroadcastUtc = DateTime.MinValue;
+                    _lastError = null;
+                }
+
+                await _host.StopAsync().ConfigureAwait(false);
+
+                if (!settings.Enabled)
+                {
+                    StateChanged?.Invoke();
+                }
+                else
+                {
+                    try
+                    {
+                        await _host.StartAsync(settings).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        lock (_gate)
+                            _lastError = SatelliteLinkListenPrefixBuilder.DescribeBindFailure(ex);
+                        Log.Warning(ex, "Satellite link failed to start");
+                    }
+
+                    StateChanged?.Invoke();
+                }
+
+                if (appliedGeneration == Volatile.Read(ref _applyGeneration))
+                    break;
+            }
+        }
+        finally
+        {
+            _lifecycle.Release();
+        }
     }
 
     private async Task BroadcastAsync(string json)

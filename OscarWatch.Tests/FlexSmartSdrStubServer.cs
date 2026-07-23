@@ -24,6 +24,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
     private readonly bool _rejectFullDuplex;
     private readonly bool _rejectTxSlice;
     private readonly bool _rejectSliceCreate;
+    private int _rejectSliceCreateRemaining;
     private readonly bool _omitSliceCreateIndex;
     private readonly bool _emitPartialSliceStatus;
     private readonly bool _rejectClientProgram;
@@ -34,6 +35,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         bool rejectFullDuplex = false,
         bool rejectTxSlice = false,
         bool rejectSliceCreate = false,
+        int rejectSliceCreateCount = 0,
         bool omitSliceCreateIndex = false,
         bool emitPartialSliceStatus = false,
         bool rejectClientProgram = false,
@@ -48,6 +50,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         _rejectFullDuplex = rejectFullDuplex;
         _rejectTxSlice = rejectTxSlice;
         _rejectSliceCreate = rejectSliceCreate;
+        _rejectSliceCreateRemaining = Math.Max(0, rejectSliceCreateCount);
         _omitSliceCreateIndex = omitSliceCreateIndex;
         _emitPartialSliceStatus = emitPartialSliceStatus;
         _rejectClientProgram = rejectClientProgram;
@@ -288,7 +291,17 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
 
         if (body.StartsWith("slice create", StringComparison.OrdinalIgnoreCase))
         {
-            if (_rejectSliceCreate)
+            var rejectTemporarily = false;
+            lock (_gate)
+            {
+                if (_rejectSliceCreateRemaining > 0)
+                {
+                    _rejectSliceCreateRemaining--;
+                    rejectTemporarily = true;
+                }
+            }
+
+            if (_rejectSliceCreate || rejectTemporarily)
             {
                 await writer.WriteLineAsync($"R{seq}|50000015|Slice unavailable").ConfigureAwait(false);
                 return;

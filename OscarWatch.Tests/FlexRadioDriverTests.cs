@@ -86,6 +86,23 @@ public class FlexRadioDriverTests
     }
 
     [Fact]
+    public void SetSatelliteMode_RetriesWhenInitialSliceCreatesFailTransiently()
+    {
+        // Zero slices + first two create attempts rejected (one EnsureDuplex pass), then creates succeed.
+        using var stub = new FlexSmartSdrStubServer(initialSliceCount: 0, rejectSliceCreateCount: 2);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        Assert.True(driver.IsSatelliteModeActive);
+        Assert.True(stub.FullDuplexEnabled);
+        Assert.NotEqual(driver.RxSliceIndex, driver.TxSliceIndex);
+        Assert.Equal(2, stub.Slices.Count);
+    }
+
+    [Fact]
     public void SetSatelliteMode_ConfirmsCreatedSliceFromStatusWhenResponseOmitsIndex()
     {
         using var stub = new FlexSmartSdrStubServer(initialSliceCount: 1, omitSliceCreateIndex: true);

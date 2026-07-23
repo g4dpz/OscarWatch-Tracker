@@ -142,7 +142,7 @@ public sealed class FlexRadioDriver : IRigDriver
             throw new FlexSatelliteSetupException("SmartSDR did not enable full duplex.");
         }
 
-        if (!EnsureDuplexSlices())
+        if (!EnsureDuplexSlicesWithRetry())
         {
             DisableFullDuplexAfterSetupFailure();
             throw new FlexSatelliteSetupException("SmartSDR could not establish separate RX and TX slices.");
@@ -225,7 +225,34 @@ public sealed class FlexRadioDriver : IRigDriver
         }
     }
 
-    private bool EnsureDuplexSlices()
+    /// <summary>
+    /// After reconnect SmartSDR sometimes reports zero slices briefly; create/status can lag.
+    /// Retry a few times before failing pass init (matches field recovery on immediate re-init).
+    /// </summary>
+    private bool EnsureDuplexSlicesWithRetry()
+    {
+        const int maxAttempts = 5;
+        const int retryDelayMs = 100;
+
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            if (TryEnsureDuplexSlices())
+                return true;
+
+            if (attempt < maxAttempts)
+            {
+                Log.Debug(
+                    "FlexRadio duplex slice setup attempt {Attempt}/{MaxAttempts} failed; retrying",
+                    attempt,
+                    maxAttempts);
+                Thread.Sleep(retryDelayMs);
+            }
+        }
+
+        return false;
+    }
+
+    private bool TryEnsureDuplexSlices()
     {
         var slices = _client.GetInUseSlices();
         var tx = slices.FirstOrDefault(s => s.IsTransmit);
