@@ -49,6 +49,10 @@
         <li><strong>Satellites → Refresh TLEs</strong> — download or re-read the catalogue now.</li>
         <li><strong>Settings → TLE → TLE updates</strong> — choose when to refresh automatically (URLs only; e.g. on startup, every six hours).</li>
         <li>The status bar shows how long ago TLEs were updated and which source is in use (e.g. “TLE 2 h ago (tle.oscarwatch.org)”).</li>
+        <li>
+          Classic TLE/3LE <strong>Alpha-5</strong> catalogue fields (objects 100000–339999, e.g. <code>A0000</code>) are accepted automatically.
+          JSON GP feeds keep numeric <code>NORAD_CAT_ID</code>; OscarWatch encodes them to Alpha-5 only when rewriting fixed-width TLE lines for the propagator.
+        </li>
       </ul>
       <div class="warn">
         <strong>Important:</strong> Stale TLEs mean pass times and azimuth/el can be wrong. Refresh before a serious operating session.

@@ -1,9 +1,9 @@
-using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using OscarWatch.Core.Json;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Radio;
+using OscarWatch.Core.Tle;
 
 namespace OscarWatch.Core.Services;
 
@@ -102,7 +102,7 @@ public static class SatelliteDatabaseFile
                 return $"{entry.Name} has no transponder modes.";
 
             if (!string.IsNullOrWhiteSpace(entry.NoradId) && !IsValidNoradId(entry.NoradId))
-                return $"{entry.Name}: NORAD ID must be a 1–5 digit catalogue number.";
+                return $"{entry.Name}: NORAD ID must be a catalogue number (0–339999) or Alpha-5 field (e.g. A0000).";
         }
 
         return null;
@@ -113,19 +113,9 @@ public static class SatelliteDatabaseFile
         if (string.IsNullOrWhiteSpace(noradId))
             return null;
 
-        var trimmed = noradId.Trim();
-        if (!int.TryParse(trimmed, NumberStyles.None, CultureInfo.InvariantCulture, out var value) || value < 0)
-            return trimmed;
-
-        return value.ToString("D5", CultureInfo.InvariantCulture);
+        return Alpha5CatalogId.Normalize(noradId.Trim()) ?? noradId.Trim();
     }
 
-    internal static bool IsValidNoradId(string noradId)
-    {
-        if (string.IsNullOrWhiteSpace(noradId))
-            return false;
-
-        return int.TryParse(noradId.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var value)
-            && value is >= 0 and <= 99999;
-    }
+    internal static bool IsValidNoradId(string noradId) =>
+        Alpha5CatalogId.IsSupportedCatalogueId(noradId);
 }

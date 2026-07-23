@@ -94,4 +94,52 @@ public class SatelliteDatabaseFileTests
 
         Assert.Contains("NORAD ID", error, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public void NormalizeEntry_encodes_alpha5_norad_id()
+    {
+        var entry = new SatelliteRadioEntry
+        {
+            Name = "ALPHA5-TEST",
+            NoradId = "100000",
+            Modes = [new SatelliteTransponderMode { Type = "FM", DownlinkKHz = 1, UplinkKHz = 1, DownlinkMode = "FM", UplinkMode = "FM" }]
+        };
+
+        SatelliteDatabaseFile.NormalizeEntry(entry);
+
+        Assert.Equal("A0000", entry.NoradId);
+        Assert.Null(SatelliteDatabaseFile.ValidateEntries([entry]));
+    }
+
+    [Fact]
+    public void NormalizeEntry_accepts_alpha5_field()
+    {
+        var entry = new SatelliteRadioEntry
+        {
+            Name = "ALPHA5-TEST",
+            NoradId = "a0000",
+            Modes = [new SatelliteTransponderMode { Type = "FM", DownlinkKHz = 1, UplinkKHz = 1, DownlinkMode = "FM", UplinkMode = "FM" }]
+        };
+
+        SatelliteDatabaseFile.NormalizeEntry(entry);
+
+        Assert.Equal("A0000", entry.NoradId);
+        Assert.True(SatelliteDatabaseFile.IsValidNoradId(entry.NoradId!));
+    }
+
+    [Fact]
+    public void ValidateEntries_rejects_alpha5_letters_i_and_o()
+    {
+        var entries = new List<SatelliteRadioEntry>
+        {
+            new()
+            {
+                Name = "BAD-I",
+                NoradId = "I0000",
+                Modes = [new SatelliteTransponderMode { Type = "FM", DownlinkKHz = 1, UplinkKHz = 1, DownlinkMode = "FM", UplinkMode = "FM" }]
+            }
+        };
+
+        Assert.Contains("NORAD ID", SatelliteDatabaseFile.ValidateEntries(entries), StringComparison.Ordinal);
+    }
 }

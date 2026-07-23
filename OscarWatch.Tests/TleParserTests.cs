@@ -111,4 +111,39 @@ public sealed class TleParserTests
         Assert.Null(entries[0].EpochUtc);
         Assert.Equal("33333", entries[0].NoradId);
     }
+
+    [Fact]
+    public void Alpha5_satnum_is_extracted_as_string_norad_id()
+    {
+        var record = new GpElementRecord
+        {
+            AmsatName = "ALPHA5-TEST",
+            ObjectId = "2026-001A",
+            NoradCatId = 100000,
+            Epoch = "2026-01-01T12:00:00Z",
+            Inclination = 51.64,
+            Eccentricity = 0.0007,
+            RaOfAscNode = 100.0,
+            ArgOfPericenter = 90.0,
+            MeanAnomaly = 270.0,
+            MeanMotion = 15.5,
+            MeanMotionDot = 0,
+            MeanMotionDdot = 0,
+            Bstar = 0,
+            EphemerisType = 0,
+            ClassificationType = "U",
+            ElementSetNo = 999,
+            RevAtEpoch = 1
+        };
+
+        Assert.True(GpJsonCatalogParser.TryParseEpoch(record.Epoch, out var epochUtc));
+        var (line1, line2) = TleLineFormatter.FormatLines(record, epochUtc);
+        var catalog = string.Join("\n", "ALPHA5-TEST", line1, line2);
+
+        var entries = TleParser.ParseCatalog(catalog);
+
+        Assert.Single(entries);
+        Assert.Equal("A0000", entries[0].NoradId);
+        Assert.Equal("ALPHA5-TEST", entries[0].Name);
+    }
 }

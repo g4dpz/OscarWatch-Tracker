@@ -91,7 +91,8 @@ public sealed class LiveTrackingServiceTests
         service.Start();
         service.RefreshSnapshotSynchronously();
 
-        Assert.Same(service.GetSnapshot(), service.GetLiveNowSnapshot());
+        var (display, liveNow) = service.GetSnapshotsForTests();
+        Assert.Same(display, liveNow);
     }
 
     [Fact]

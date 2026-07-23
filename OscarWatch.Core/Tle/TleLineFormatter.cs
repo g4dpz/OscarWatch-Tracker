@@ -9,7 +9,11 @@ public static class TleLineFormatter
 {
     public static (string Line1, string Line2) FormatLines(GpElementRecord record, DateTime epochUtc)
     {
-        var noradId = record.NoradCatId.GetValueOrDefault().ToString("D5", CultureInfo.InvariantCulture);
+        if (!Alpha5CatalogId.TryEncode(record.NoradCatId.GetValueOrDefault(), out var noradId))
+            throw new ArgumentOutOfRangeException(
+                nameof(record),
+                record.NoradCatId,
+                $"NORAD catalogue ID must be between 0 and {Alpha5CatalogId.MaxCatalogueValue} for fixed-width TLE lines.");
         var classification = string.IsNullOrWhiteSpace(record.ClassificationType)
             ? "U"
             : record.ClassificationType.Trim()[0].ToString();

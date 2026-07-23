@@ -67,7 +67,7 @@ public static class GpJsonCatalogParser
     {
         var name = ResolveName(record);
         return !string.IsNullOrWhiteSpace(name)
-               && record.NoradCatId is > 0
+               && record.NoradCatId is > 0 and <= Alpha5CatalogId.MaxCatalogueValue
                && record.MeanMotion is > 0
                && record.Inclination is not null
                && record.Eccentricity is not null
@@ -83,11 +83,14 @@ public static class GpJsonCatalogParser
         if (!TryParseEpoch(record.Epoch, out var epochUtc))
             return false;
 
+        if (!Alpha5CatalogId.TryEncode(record.NoradCatId.GetValueOrDefault(), out var noradId))
+            return false;
+
         var (line1, line2) = TleLineFormatter.FormatLines(record, epochUtc);
         entry = new SatelliteCatalogEntry
         {
             Name = name,
-            NoradId = record.NoradCatId.GetValueOrDefault().ToString(CultureInfo.InvariantCulture),
+            NoradId = noradId,
             Line1 = line1,
             Line2 = line2,
             EpochUtc = epochUtc

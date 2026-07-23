@@ -83,6 +83,13 @@ public sealed class LiveTrackingService : ILiveTrackingService
             return _liveNowSnapshot;
     }
 
+    /// <summary>Returns display and live-now snapshots under one lock (unit tests).</summary>
+    internal (IReadOnlyList<SatelliteTrackState> Display, IReadOnlyList<SatelliteTrackState> LiveNow) GetSnapshotsForTests()
+    {
+        lock (_snapshotLock)
+            return (_snapshot, _liveNowSnapshot);
+    }
+
     public void Start()
     {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) == 1, this);
@@ -176,8 +183,10 @@ public sealed class LiveTrackingService : ILiveTrackingService
 
                 if (commands.TryTake(out var command, LoopInterval))
                 {
-                    ProcessCommand(command);
-                    DrainPendingCommands();
+                    var refreshedByCommand = ProcessCommand(command);
+                    refreshedByCommand |= DrainPendingCommands();
+                    if (refreshedByCommand || _shutdownRequested)
+                        continue;
                 }
 
                 if (_shutdownRequested)
@@ -198,18 +207,21 @@ public sealed class LiveTrackingService : ILiveTrackingService
         }
     }
 
-    private void DrainPendingCommands()
+    private bool DrainPendingCommands()
     {
         var commands = _commands;
         if (commands is null)
-            return;
+            return false;
 
+        var refreshed = false;
         while (commands.TryTake(out var command, 0))
-            ProcessCommand(command);
+            refreshed |= ProcessCommand(command);
+        return refreshed;
     }
 
-    private void ProcessCommand(LiveTrackingCommand command)
+    private bool ProcessCommand(LiveTrackingCommand command)
     {
+        var refreshed = false;
         try
         {
             switch (command.Kind)
@@ -218,10 +230,12 @@ public sealed class LiveTrackingService : ILiveTrackingService
                     // Reload invalidates the cached enabled-satellite list (Req 2.4)
                     _orchestrator.ReloadEnabledSatellites();
                     RefreshSnapshot();
+                    refreshed = true;
                     break;
 
                 case LiveTrackingCommandKind.RefreshSynchronously:
                     RefreshSnapshot();
+                    refreshed = true;
                     break;
 
                 case LiveTrackingCommandKind.Drain:
@@ -236,6 +250,8 @@ public sealed class LiveTrackingService : ILiveTrackingService
         {
             command.Completed?.Set();
         }
+
+        return refreshed;
     }
 
     private void RefreshSnapshot()

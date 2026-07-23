@@ -42,7 +42,7 @@ public sealed class GpJsonCatalogParserTests
 
         Assert.Single(entries);
         Assert.Equal("AO-07", entries[0].Name);
-        Assert.Equal("7530", entries[0].NoradId);
+        Assert.Equal("07530", entries[0].NoradId);
         Assert.NotNull(entries[0].EpochUtc);
     }
 
@@ -134,5 +134,43 @@ public sealed class GpJsonCatalogParserTests
 
         var diagnostics = GpJsonCatalogParser.ParseCatalogWithDiagnostics(catalog).Diagnostics;
         Assert.Equal(1, diagnostics.SkippedIncomplete);
+    }
+
+    [Fact]
+    public void Parse_encodes_alpha5_norad_id_and_loads_in_orbit_tools()
+    {
+        const string catalog = """
+            [
+                {
+                    "AMSAT_NAME": "ALPHA5-TEST",
+                    "OBJECT_NAME": "ALPHA5 TEST",
+                    "OBJECT_ID": "2026-001A",
+                    "INCLINATION": 51.64,
+                    "ECCENTRICITY": 0.0007,
+                    "RA_OF_ASC_NODE": 100.0,
+                    "ARG_OF_PERICENTER": 90.0,
+                    "MEAN_ANOMALY": 270.0,
+                    "MEAN_MOTION": 15.5,
+                    "EPOCH": "2026-07-07T12:00:00",
+                    "NORAD_CAT_ID": 100000,
+                    "REV_AT_EPOCH": 1,
+                    "BSTAR": 0.0,
+                    "EPHEMERIS_TYPE": 0,
+                    "CLASSIFICATION_TYPE": "U",
+                    "ELEMENT_SET_NO": 999,
+                    "MEAN_MOTION_DDOT": 0.0,
+                    "MEAN_MOTION_DOT": 0.0
+                }
+            ]
+            """;
+
+        var entry = GpJsonCatalogParser.ParseCatalog(catalog).Single();
+
+        Assert.Equal("A0000", entry.NoradId);
+        Assert.StartsWith("1 A0000U", entry.Line1, StringComparison.Ordinal);
+        Assert.StartsWith("2 A0000 ", entry.Line2, StringComparison.Ordinal);
+
+        var tle = new Tle(entry.Name, entry.Line1, entry.Line2);
+        _ = new SatelliteOrbit(tle);
     }
 }
