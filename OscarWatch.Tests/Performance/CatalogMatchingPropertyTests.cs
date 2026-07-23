@@ -34,8 +34,8 @@ public class CatalogMatchingPropertyTests : IDisposable
             if (string.IsNullOrWhiteSpace(name))
                 continue;
 
-            if (satelliteName.Contains(name, StringComparison.OrdinalIgnoreCase)
-                || name.Contains(satelliteName, StringComparison.OrdinalIgnoreCase))
+            if (SatelliteCatalogMatching.ContainsToken(satelliteName, name)
+                || SatelliteCatalogMatching.ContainsToken(name, satelliteName))
                 return true;
 
             if (satelliteName.Contains($"({name})", StringComparison.OrdinalIgnoreCase))

@@ -57,7 +57,8 @@ public partial class SatellitePickerViewModel : ViewModelBase
             {
                 Name = sat.Name,
                 NoradId = sat.NoradId,
-                IsEnabled = enabled.Contains(sat.Name),
+                // Same rules as TleService.GetEnabledSatellites so checkboxes match the map.
+                IsEnabled = SatelliteCatalogMatching.IsEnabled(sat, enabled),
                 IsStale = sat.IsStale(TimeSpan.FromDays(14)),
                 EpochText = sat.EpochUtc?.ToString("yyyy-MM-dd") ?? "?"
             };

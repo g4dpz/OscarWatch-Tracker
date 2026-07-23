@@ -27,14 +27,14 @@ public static class SatelliteCatalogMatching
         if (index.Count > 0 && index.ContainsKey(satellite.Name))
             return true;
 
-        // O(M) substring fallback — preserves existing semantics
+        // O(M) token-aware substring fallback — aliases like SO-50 ↔ SAUDISAT 1C (SO-50),
+        // without treating "ISAT" as a match for "OrigamiSat 2" (mid-token "iSat").
         foreach (var name in enabled)
         {
             if (string.IsNullOrWhiteSpace(name))
                 continue;
 
-            if (satellite.Name.Contains(name, StringComparison.OrdinalIgnoreCase)
-                || name.Contains(satellite.Name, StringComparison.OrdinalIgnoreCase))
+            if (ContainsToken(satellite.Name, name) || ContainsToken(name, satellite.Name))
                 return true;
 
             if (satellite.Name.Contains($"({name})", StringComparison.OrdinalIgnoreCase))
@@ -43,6 +43,36 @@ public static class SatelliteCatalogMatching
 
         return false;
     }
+
+    /// <summary>
+    /// True when <paramref name="needle"/> appears in <paramref name="haystack"/> as a whole
+    /// token bounded by non-letter/non-digit characters (or string ends).
+    /// </summary>
+    internal static bool ContainsToken(string haystack, string needle)
+    {
+        if (string.IsNullOrEmpty(haystack) || string.IsNullOrEmpty(needle))
+            return false;
+
+        var start = 0;
+        while (start <= haystack.Length - needle.Length)
+        {
+            var index = haystack.IndexOf(needle, start, StringComparison.OrdinalIgnoreCase);
+            if (index < 0)
+                return false;
+
+            var beforeOk = index == 0 || !IsNameTokenChar(haystack[index - 1]);
+            var afterIndex = index + needle.Length;
+            var afterOk = afterIndex == haystack.Length || !IsNameTokenChar(haystack[afterIndex]);
+            if (beforeOk && afterOk)
+                return true;
+
+            start = index + 1;
+        }
+
+        return false;
+    }
+
+    private static bool IsNameTokenChar(char c) => char.IsLetterOrDigit(c);
 
     /// <summary>
     /// Returns the parenthesis alias index, rebuilding it only if the enabled set instance changes.

@@ -56,17 +56,15 @@ public class SatelliteCatalogMatchingPropertyTests
                 break;
 
             case 1:
-                // Strategy (b): Satellite name contains enabled entry as substring
-                // Build satellite name that contains baseStr as a substring
-                satelliteName = prefixStr + baseStr + suffixStr;
+                // Strategy (b): Satellite name contains enabled entry as a whole token
+                satelliteName = prefixStr + " " + baseStr + " " + suffixStr;
                 enabledSet = new HashSet<string> { baseStr };
                 break;
 
             case 2:
-                // Strategy (c): Enabled entry contains satellite name as substring
-                // Build enabled entry that contains satellite name as a substring
+                // Strategy (c): Enabled entry contains satellite name as a whole token
                 satelliteName = baseStr;
-                enabledSet = new HashSet<string> { prefixStr + baseStr + suffixStr };
+                enabledSet = new HashSet<string> { prefixStr + " " + baseStr + " " + suffixStr };
                 break;
 
             case 3:
