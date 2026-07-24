@@ -38,9 +38,12 @@ public static class KenwoodCatCodec
     public static string BuildSatelliteStatusQuery() => "SA;";
 
     /// <summary>
-    /// Enter SATL: P1 on, mem 0, Main=downlink/Sub=uplink, CTRL main, TRACE/TRACE REV on, VFO mode.
+    /// Enter SATL: P1 on, mem 0, Main=downlink/Sub=uplink, CTRL main, VFO mode.
+    /// When <paramref name="traceEnabled"/> is true, TRACE and TRACE REV are on (<c>SA1010110;</c>);
+    /// when false, both are off (<c>SA1010000;</c>) for PC-managed Doppler.
     /// </summary>
-    public static string BuildSetSatelliteModeOnCommand() => "SA1010110;";
+    public static string BuildSetSatelliteModeOnCommand(bool traceEnabled = true) =>
+        traceEnabled ? "SA1010110;" : "SA1010000;";
 
     /// <summary>Encode-tone off commands sent when entering SATL (pre-tracking).</summary>
     public static readonly string[] SatelliteModeEntryToneOffSequence = ["TO0;", "TO0;"];
@@ -82,8 +85,12 @@ public static class KenwoodCatCodec
             || body.Equals("ID", StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>SATL on with CTRL on sub (before uplink <c>MD</c> / tone on Sub).</summary>
-    public static string BuildSetSatelliteModeOnSubControlCommand() => "SA1011110;";
+    /// <summary>
+    /// SATL on with CTRL on sub (before uplink <c>MD</c> / tone on Sub).
+    /// TRACE/TRACE REV follow <paramref name="traceEnabled"/> (<c>SA1011110;</c> vs <c>SA1011000;</c>).
+    /// </summary>
+    public static string BuildSetSatelliteModeOnSubControlCommand(bool traceEnabled = true) =>
+        traceEnabled ? "SA1011110;" : "SA1011000;";
 
     /// <summary>Band select after <c>FA</c>/<c>FB</c> in SATL (main then sub band index).</summary>
     public static string BuildSatelliteBandSelectMainCommand() => "SM10000;";

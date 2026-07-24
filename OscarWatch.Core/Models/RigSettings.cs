@@ -55,6 +55,12 @@ public sealed class RigSettings
     /// </summary>
     public bool KenwoodHardwareRtsEnabled { get; set; } = true;
 
+    /// <summary>
+    /// When true, SATL SA commands enable TRACE/TRACE REV on the radio.
+    /// Ignored for non-Kenwood rig types. Turn off to leave Doppler entirely to OscarWatch.
+    /// </summary>
+    public bool KenwoodTraceEnabled { get; set; } = true;
+
     /// <summary>TCP host when <see cref="Type"/> is <see cref="RigType.FlexSmartSdr"/>.</summary>
     public string NetworkHost { get; set; } = "";
 

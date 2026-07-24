@@ -1992,6 +1992,12 @@
   <data name="Settings.Radio.Ts2000HardwareRtsNote">
     <value>Déjelo activado con cables CAT completos que pasan RTS (necesario para las respuestas de la radio). Desactívelo si su cable o adaptador no tiene control de flujo por hardware.</value>
   </data>
+  <data name="Settings.Radio.Ts2000Trace">
+    <value>TRACE / TRACE REV en SATL</value>
+  </data>
+  <data name="Settings.Radio.Ts2000TraceNote">
+    <value>Déjelo activado para el seguimiento de frecuencia de la radio. Desactívelo cuando OscarWatch gestiona el Doppler (recomendado con CAT desde el PC); pruebe ambos si no está seguro.</value>
+  </data>
   <data name="Settings.Radio.Region">
     <value>Región</value>
   </data>

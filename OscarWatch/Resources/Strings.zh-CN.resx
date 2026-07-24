@@ -1968,6 +1968,12 @@
   <data name="Settings.Radio.Ts2000HardwareRtsNote">
     <value>完整的 CAT 线缆（可传递 RTS）请保持开启（电台应答需要）。若线缆或适配器无硬件流控制，请关闭。</value>
   </data>
+  <data name="Settings.Radio.Ts2000Trace">
+    <value>SATL 中的 TRACE / TRACE REV</value>
+  </data>
+  <data name="Settings.Radio.Ts2000TraceNote">
+    <value>使用电台内置频率跟踪时请保持开启。由 OscarWatch 管理多普勒时请关闭（适合 PC CAT 跟踪）；不确定时可两种都试。</value>
+  </data>
   <data name="Settings.Radio.Region">
     <value>区域</value>
   </data>

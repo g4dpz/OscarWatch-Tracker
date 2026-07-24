@@ -24,7 +24,8 @@ public static class RigDriverFactory
             settings.Region,
             settings.CatDelayMs,
             settings.CivAddress,
-            settings.KenwoodHardwareRtsEnabled);
+            settings.KenwoodHardwareRtsEnabled,
+            settings.KenwoodTraceEnabled);
     }
 
     public static IRigDriver Create(RigEndpointSettings endpoint) => endpoint.Type switch
@@ -95,7 +96,8 @@ public static class RigDriverFactory
         RigRegion region,
         int catDelayMs,
         string civAddress,
-        bool kenwoodHardwareRtsEnabled = true)
+        bool kenwoodHardwareRtsEnabled = true,
+        bool kenwoodTraceEnabled = true)
     {
         return type switch
         {
@@ -117,7 +119,11 @@ public static class RigDriverFactory
             RigType.YaesuFtx1 =>
                 throw new InvalidOperationException("FTX-1 series radios require Settings → Radio → Dual radio."),
             RigType.KenwoodTs2000 => new KenwoodTs2000Driver(
-                port, baudRate, catDelayMs, hardwareRtsEnabled: kenwoodHardwareRtsEnabled),
+                port,
+                baudRate,
+                catDelayMs,
+                hardwareRtsEnabled: kenwoodHardwareRtsEnabled,
+                traceEnabled: kenwoodTraceEnabled),
             RigType.FlexSmartSdr =>
                 throw new InvalidOperationException("FlexRadio SmartSDR requires network host/port via RigSettings."),
             RigType.SdrRigCtlTcp =>

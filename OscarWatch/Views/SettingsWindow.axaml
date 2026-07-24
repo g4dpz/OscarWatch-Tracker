@@ -429,6 +429,12 @@
                            FontSize="11"
                            TextWrapping="Wrap"
                            Text="{loc:Localize Key=Settings.Radio.Ts2000HardwareRtsNote}" />
+                <CheckBox Content="{loc:Localize Key=Settings.Radio.Ts2000Trace}"
+                          IsChecked="{Binding RigKenwoodTraceEnabled, Mode=TwoWay}" />
+                <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           FontSize="11"
+                           TextWrapping="Wrap"
+                           Text="{loc:Localize Key=Settings.Radio.Ts2000TraceNote}" />
               </StackPanel>
               <StackPanel Spacing="10" IsVisible="{Binding ShowRigSerialFields}">
                 <TextBlock Text="{loc:Localize Key=Settings.Radio.Region}" />

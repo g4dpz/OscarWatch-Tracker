@@ -66,7 +66,9 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
         return normalized switch
         {
             "SA1010110;" => SatelliteStatusOn ? "SA1;" : "SA0;",
-            "SA10100000;" => SatelliteStatusOn ? "SA1;" : "SA0;",
+            "SA1010000;" => SatelliteStatusOn ? "SA1;" : "SA0;",
+            "SA1011110;" => SatelliteStatusOn ? "SA1;" : "SA0;",
+            "SA1011000;" => SatelliteStatusOn ? "SA1;" : "SA0;",
             "SA0010000;" => "SA0;",
             "SA0;" => "SA0;",
             "RX;" => "RX0;",
@@ -84,7 +86,8 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
     {
         if (normalized is "SA0010000;" or "SA0;")
             SatelliteStatusOn = false;
-        else if (normalized is "SA1010110;" && AutoConfirmSatelliteOnSet)
+        else if (AutoConfirmSatelliteOnSet
+            && normalized is "SA1010110;" or "SA1010000;" or "SA1011110;" or "SA1011000;")
             SatelliteStatusOn = true;
     }
 

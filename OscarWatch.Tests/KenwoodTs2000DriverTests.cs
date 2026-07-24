@@ -47,6 +47,21 @@ public sealed class KenwoodTs2000DriverTests
     }
 
     [Fact]
+    public void SetSatelliteMode_on_with_trace_disabled_sends_SA_without_TRACE_bits()
+    {
+        var transport = new RecordingKenwoodCatTransport();
+        var driver = new KenwoodTs2000Driver(transport, catDelayMs: 0, satModeSettlingDelayMs: 0, traceEnabled: false);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        Assert.Contains("SA1010000;", transport.SentCommands);
+        Assert.Contains("SA1011000;", transport.SentCommands);
+        Assert.DoesNotContain("SA1010110;", transport.SentCommands);
+        Assert.DoesNotContain("SA1011110;", transport.SentCommands);
+        Assert.True(driver.IsSatelliteModeActive);
+    }
+
+    [Fact]
     public void ApplySatellitePassFrequencies_sends_pass_programming_and_hold_polls()
     {
         var transport = new RecordingKenwoodCatTransport();

@@ -1107,6 +1107,12 @@
   <data name="Settings.Radio.Ts2000HardwareRtsNote">
     <value>RTSを通す完全なCATケーブルではオンのままにしてください（無線機の応答に必要）。ハードウェアフロー制御のないケーブルやアダプターではオフにしてください。</value>
   </data>
+  <data name="Settings.Radio.Ts2000Trace">
+    <value>SATLのTRACE / TRACE REV</value>
+  </data>
+  <data name="Settings.Radio.Ts2000TraceNote">
+    <value>無線機側の周波数追従を使う場合はオン。OscarWatchがドップラーを管理する場合はオフ（PC CAT追跡向け）。不明な場合は両方試してください。</value>
+  </data>
   <data name="Settings.Radio.Region">
     <value>地域</value>
   </data>

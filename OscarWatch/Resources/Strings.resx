@@ -2061,6 +2061,12 @@ Continue?</value>
   <data name="Settings.Radio.Ts2000HardwareRtsNote">
     <value>Leave on for full CAT cables that pass RTS (required for radio replies). Turn off if your cable or adapter has no hardware flow control.</value>
   </data>
+  <data name="Settings.Radio.Ts2000Trace">
+    <value>TRACE / TRACE REV in SATL</value>
+  </data>
+  <data name="Settings.Radio.Ts2000TraceNote">
+    <value>Leave on for the radio's built-in frequency tracking. Turn off when OscarWatch manages Doppler (recommended for PC CAT tracking); try both if unsure.</value>
+  </data>
   <data name="Settings.Radio.Region">
     <value>Region</value>
   </data>
