@@ -16,6 +16,7 @@ Thank you to everyone who has donated to support OscarWatch development.
 | Steve                    | AG2J           |
 | Jean-Pierre Plessis (JP) | KQ4DO          |
 | Denis                    | F6ITK          |
+| Rocco                    | IK8XLD         |
 
 
 If you donate and would like to be listed here, let Peter know your name and callsign.
