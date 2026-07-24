@@ -1960,7 +1960,13 @@ Continuar?</value>
     <value>FT-847: defina o baud CAT no menu do rádio #37 (normalmente 57600). Use o conector CAT/LINEAR com um conversor de nível (ex.: CT-62).</value>
   </data>
   <data name="Settings.Radio.Ts2000Hint">
-    <value>TS-2000: CAT 57600 8N1. Selecione SAT no rádio e desative o modo de memória antes do rastreamento; o OscarWatch então habilita SATL e a troca automática de banda VHF/UHF (TRACE desativado via CAT).</value>
+    <value>TS-2000: CAT 57600 8N1. Selecione SAT no rádio e desative o modo de memória antes do rastreamento; o OscarWatch então habilita SATL via CAT (layout SA/FA/FB), troca automática de banda VHF/UHF.</value>
+  </data>
+  <data name="Settings.Radio.Ts2000HardwareRts">
+    <value>RTS por hardware (controle de fluxo)</value>
+  </data>
+  <data name="Settings.Radio.Ts2000HardwareRtsNote">
+    <value>Deixe ligado para cabos CAT completos que passam RTS (necessário para respostas do rádio). Desligue se o cabo ou adaptador não tiver controle de fluxo por hardware.</value>
   </data>
   <data name="Settings.Radio.Region">
     <value>Região</value>

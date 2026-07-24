@@ -1962,6 +1962,12 @@
   <data name="Settings.Radio.Ts2000Hint">
     <value>TS-2000：CAT 57600 8N1。跟踪前在电台上选择 SAT 模式并关闭记忆模式；OscarWatch 通过 CAT 启用 SATL（SA/FA/FB 布局），自动切换 VHF/UHF 频段。</value>
   </data>
+  <data name="Settings.Radio.Ts2000HardwareRts">
+    <value>硬件 RTS（流控制）</value>
+  </data>
+  <data name="Settings.Radio.Ts2000HardwareRtsNote">
+    <value>完整的 CAT 线缆（可传递 RTS）请保持开启（电台应答需要）。若线缆或适配器无硬件流控制，请关闭。</value>
+  </data>
   <data name="Settings.Radio.Region">
     <value>区域</value>
   </data>

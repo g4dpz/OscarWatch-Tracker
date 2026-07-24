@@ -121,7 +121,7 @@
 
       <h2>Kenwood TS-2000: no CAT replies / SATL not confirmed</h2>
       <ul>
-        <li>The TS-2000 only sends CAT data when the PC asserts <strong>RTS</strong>. OscarWatch does this automatically — use a straight RS-232 cable or USB adapter that passes RTS through.</li>
+        <li>The TS-2000 only sends CAT data when the PC asserts <strong>RTS</strong> on cables that support it. OscarWatch enables hardware RTS by default — use a straight RS-232 cable or USB adapter that passes RTS through. If your cable has no flow control, turn off <strong>Hardware RTS</strong> in Settings → Radio.</li>
         <li>Match baud <strong>57600 8N1</strong> in Settings and on the radio.</li>
         <li>Select <strong>SAT</strong> on the radio and turn <strong>memory mode off</strong> before tracking — see <a href="radio-kenwood.html">Kenwood TS-2000 help</a>.</li>
         <li>Close any front-panel menu; the radio may reply <code>?;</code> while a menu is open.</li>

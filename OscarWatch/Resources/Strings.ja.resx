@@ -1101,6 +1101,12 @@
   <data name="Settings.Radio.Ts2000Hint">
     <value>TS-2000: CAT 57600 8N1。追跡前に無線機でSATを選択しメモリモードをオフに。OscarWatchがCATでSATLを有効化（SA/FA/FBレイアウト）、VHF/UHF自動バンド切替。</value>
   </data>
+  <data name="Settings.Radio.Ts2000HardwareRts">
+    <value>ハードウェアRTS（フロー制御）</value>
+  </data>
+  <data name="Settings.Radio.Ts2000HardwareRtsNote">
+    <value>RTSを通す完全なCATケーブルではオンのままにしてください（無線機の応答に必要）。ハードウェアフロー制御のないケーブルやアダプターではオフにしてください。</value>
+  </data>
   <data name="Settings.Radio.Region">
     <value>地域</value>
   </data>

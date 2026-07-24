@@ -18,6 +18,18 @@ public sealed class KenwoodCatTransportTests
         Assert.Equal(StopBits.One, port.StopBits);
     }
 
+    [Fact]
+    public void Serial_port_disables_RTS_when_hardware_flow_control_off()
+    {
+        using var transport = new KenwoodCatTransport("COM99", 57600, hardwareRtsEnabled: false);
+        var port = GetSerialPort(transport);
+
+        Assert.False(port.RtsEnable);
+        Assert.Equal(Handshake.None, port.Handshake);
+        Assert.False(port.DtrEnable);
+        Assert.Equal(StopBits.One, port.StopBits);
+    }
+
     private static SerialPort GetSerialPort(KenwoodCatTransport transport)
     {
         var field = typeof(KenwoodCatTransport).GetField("_port", BindingFlags.Instance | BindingFlags.NonPublic);

@@ -31,8 +31,20 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     private char? _savedMainVfoSelect;
     private char? _savedSubVfoSelect;
 
-    public KenwoodTs2000Driver(string port, int baudRate, int catDelayMs = 50, int satModeSettlingDelayMs = 250, int satModeRetryCount = 3, int satModeRetryDelayMs = 200)
-        : this(new KenwoodCatTransport(port, baudRate), catDelayMs, satModeSettlingDelayMs, satModeRetryCount, satModeRetryDelayMs)
+    public KenwoodTs2000Driver(
+        string port,
+        int baudRate,
+        int catDelayMs = 50,
+        int satModeSettlingDelayMs = 250,
+        int satModeRetryCount = 3,
+        int satModeRetryDelayMs = 200,
+        bool hardwareRtsEnabled = true)
+        : this(
+            new KenwoodCatTransport(port, baudRate, hardwareRtsEnabled),
+            catDelayMs,
+            satModeSettlingDelayMs,
+            satModeRetryCount,
+            satModeRetryDelayMs)
     {
     }
 

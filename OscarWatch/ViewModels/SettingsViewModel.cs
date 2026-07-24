@@ -335,6 +335,9 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     private int _rigCatDelayMs = 50;
 
     [ObservableProperty]
+    private bool _rigKenwoodHardwareRtsEnabled = true;
+
+    [ObservableProperty]
     private bool _rigDopplerCatLeadEnabled = true;
 
     [ObservableProperty]
@@ -1091,6 +1094,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             DopplerAdaptiveThresholdEnabled = RigDopplerAdaptiveThresholdEnabled,
             DopplerPassLogEnabled = RigDopplerPassLogEnabled,
             CatDelayMs = RigCatDelayMs,
+            KenwoodHardwareRtsEnabled = RigKenwoodHardwareRtsEnabled,
             DopplerCatLeadEnabled = RigDopplerCatLeadEnabled,
             DopplerCatLeadMs = RigDopplerCatLeadMs,
             DopplerCatLeadGainPercent = RigDopplerCatLeadGainPercent,
@@ -1299,6 +1303,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             RigDopplerAdaptiveThresholdEnabled = rig.DopplerAdaptiveThresholdEnabled;
             RigDopplerPassLogEnabled = rig.DopplerPassLogEnabled;
             RigCatDelayMs = rig.CatDelayMs;
+            RigKenwoodHardwareRtsEnabled = rig.KenwoodHardwareRtsEnabled;
             RigDopplerCatLeadEnabled = rig.DopplerCatLeadEnabled;
             RigDopplerCatLeadMs = Math.Clamp(rig.DopplerCatLeadMs, 0, DopplerCatLead.UserLeadMsMax);
             RigDopplerCatLeadGainPercent = rig.DopplerCatLeadGainPercent is > 0 and <= 100

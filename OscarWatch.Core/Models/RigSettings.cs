@@ -49,6 +49,12 @@ public sealed class RigSettings
 
     public int BaudRate { get; set; } = 19200;
 
+    /// <summary>
+    /// When true, Kenwood TS-2000 CAT asserts hardware RTS (required for replies on full cables).
+    /// Ignored for non-Kenwood rig types. Turn off for CAT cables that do not pass RTS/CTS.
+    /// </summary>
+    public bool KenwoodHardwareRtsEnabled { get; set; } = true;
+
     /// <summary>TCP host when <see cref="Type"/> is <see cref="RigType.FlexSmartSdr"/>.</summary>
     public string NetworkHost { get; set; } = "";
 

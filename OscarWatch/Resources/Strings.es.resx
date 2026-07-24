@@ -1986,6 +1986,12 @@
   <data name="Settings.Radio.Ts2000Hint">
     <value>TS-2000: CAT 57600 8N1. Selecciona SAT en la radio y desactiva el modo memoria antes del seguimiento; OscarWatch habilita entonces SATL vía CAT (disposición SA/FA/FB), cambio automático de banda VHF/UHF.</value>
   </data>
+  <data name="Settings.Radio.Ts2000HardwareRts">
+    <value>RTS por hardware (control de flujo)</value>
+  </data>
+  <data name="Settings.Radio.Ts2000HardwareRtsNote">
+    <value>Déjelo activado con cables CAT completos que pasan RTS (necesario para las respuestas de la radio). Desactívelo si su cable o adaptador no tiene control de flujo por hardware.</value>
+  </data>
   <data name="Settings.Radio.Region">
     <value>Región</value>
   </data>

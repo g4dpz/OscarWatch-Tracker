@@ -5,7 +5,10 @@ using Serilog;
 
 namespace OscarWatch.Rig;
 
-/// <summary>Kenwood TS-2000 CAT: 8N1 ASCII commands terminated by semicolon; hardware RTS required for radio replies.</summary>
+/// <summary>
+/// Kenwood TS-2000 CAT: 8N1 ASCII commands terminated by semicolon.
+/// Hardware RTS is enabled by default (required for replies on full CAT cables); can be disabled for simple cables.
+/// </summary>
 internal sealed class KenwoodCatTransport : IKenwoodCatTransport
 {
     private static readonly ILogger Log = Serilog.Log.ForContext<KenwoodCatTransport>();
@@ -16,15 +19,15 @@ internal sealed class KenwoodCatTransport : IKenwoodCatTransport
     private string? _lastRejectedSetCommand;
     private int _rejectedSetRepeatCount;
 
-    public KenwoodCatTransport(string portName, int baudRate)
+    public KenwoodCatTransport(string portName, int baudRate, bool hardwareRtsEnabled = true)
     {
         _port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One)
         {
-            Handshake = Handshake.RequestToSend,
+            Handshake = hardwareRtsEnabled ? Handshake.RequestToSend : Handshake.None,
             ReadTimeout = 200,
             WriteTimeout = 1000,
             DtrEnable = false,
-            RtsEnable = true,
+            RtsEnable = hardwareRtsEnabled,
             NewLine = ";"
         };
     }

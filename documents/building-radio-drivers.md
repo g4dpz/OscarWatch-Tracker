@@ -276,7 +276,7 @@ Covers **FTX-1 Field** and **FTX-1optima** (same field head). Downlink uses VFO-
 | Piece | Path |
 |-------|------|
 | CAT codec | [`OscarWatch.Core/Radio/KenwoodCatCodec.cs`](../OscarWatch.Core/Radio/KenwoodCatCodec.cs) |
-| Serial transport | [`OscarWatch/Rig/KenwoodCatTransport.cs`](../OscarWatch/Rig/KenwoodCatTransport.cs) — **8N1**, hardware RTS, semicolon-terminated ASCII |
+| Serial transport | [`OscarWatch/Rig/KenwoodCatTransport.cs`](../OscarWatch/Rig/KenwoodCatTransport.cs) — **8N1**, hardware RTS by default (Settings toggle), semicolon-terminated ASCII |
 | Driver | [`OscarWatch/Rig/KenwoodTs2000Driver.cs`](../OscarWatch/Rig/KenwoodTs2000Driver.cs) |
 
 - Cross-band **SATL** for the TS-2000 ([`KenwoodTs2000_SatCatReference_A07.txt`](../OscarWatch.Tests/Fixtures/KenwoodTs2000_SatCatReference_A07.txt) field CAT capture): `SA1010110;` / `SA1011110;` for CTRL (no `DC` in SAT), 2× `TO0;`, `FA;` read, `TS1;`, `AI2;`, then `AI0;` after init; pass programming and SATL doppler steps (`FA`/`FB`/`SM` cluster). While tracking, one `FA;` link-hold poll about every second (SatPC32-style), not a burst per doppler step. **Beacon / receive-only** keeps SATL and updates `FA` only. Exit on quit/disconnect: `RX;` `TO0;` `SA0010000;` — also sent on driver `Dispose` when tracking was active. Does **not** set RF power (`PC`). Silent set commands do not require a CAT echo; `FA;` reads wait up to ~450 ms.
@@ -290,7 +290,7 @@ Covers **FTX-1 Field** and **FTX-1optima** (same field head). Downlink uses VFO-
 ### Hardware checklist (TS-2000)
 
 - On the radio: select **SAT** mode and turn **memory mode off** before OscarWatch tracking (manual steps — CAT alone is not enough).
-- PC CAT port **57600 8N1** with **hardware RTS** (matches Settings default; RTS must be asserted or the radio will not reply).
+- PC CAT port **57600 8N1** with **hardware RTS** by default (matches Settings; RTS must be asserted on full cables or the radio will not reply). Operators with cables that lack RTS/CTS can turn off **Hardware RTS** in Settings → Radio.
 - Close any front-panel menu before tracking; press **SAT** on the front panel and turn memory mode off (CAT `SA` alone is not enough). CAT delay ~20–30 ms helps on the TS-2000.
 - On a real pass: RX/TX doppler on `FA`/`FB`, uplink CTCSS on Sub.
 

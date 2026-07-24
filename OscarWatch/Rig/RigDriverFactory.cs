@@ -17,7 +17,14 @@ public static class RigDriverFactory
                 settings.CatDelayMs);
         }
 
-        return CreateSingle(settings.Type, settings.Port, settings.BaudRate, settings.Region, settings.CatDelayMs, settings.CivAddress);
+        return CreateSingle(
+            settings.Type,
+            settings.Port,
+            settings.BaudRate,
+            settings.Region,
+            settings.CatDelayMs,
+            settings.CivAddress,
+            settings.KenwoodHardwareRtsEnabled);
     }
 
     public static IRigDriver Create(RigEndpointSettings endpoint) => endpoint.Type switch
@@ -87,7 +94,8 @@ public static class RigDriverFactory
         int baudRate,
         RigRegion region,
         int catDelayMs,
-        string civAddress)
+        string civAddress,
+        bool kenwoodHardwareRtsEnabled = true)
     {
         return type switch
         {
@@ -108,7 +116,8 @@ public static class RigDriverFactory
                 throw new InvalidOperationException("FT-991/FT-991A require Settings → Radio → Dual radio."),
             RigType.YaesuFtx1 =>
                 throw new InvalidOperationException("FTX-1 series radios require Settings → Radio → Dual radio."),
-            RigType.KenwoodTs2000 => new KenwoodTs2000Driver(port, baudRate, catDelayMs),
+            RigType.KenwoodTs2000 => new KenwoodTs2000Driver(
+                port, baudRate, catDelayMs, hardwareRtsEnabled: kenwoodHardwareRtsEnabled),
             RigType.FlexSmartSdr =>
                 throw new InvalidOperationException("FlexRadio SmartSDR requires network host/port via RigSettings."),
             RigType.SdrRigCtlTcp =>

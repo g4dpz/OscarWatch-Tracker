@@ -418,11 +418,18 @@
                          TextWrapping="Wrap"
                          IsVisible="{Binding ShowRigFt847CatHint}"
                          Text="{loc:Localize Key=Settings.Radio.Ft847Hint}" />
-              <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                         FontSize="11"
-                         TextWrapping="Wrap"
-                         IsVisible="{Binding ShowRigTs2000CatHint}"
-                         Text="{loc:Localize Key=Settings.Radio.Ts2000Hint}" />
+              <StackPanel Spacing="6" IsVisible="{Binding ShowRigTs2000CatHint}">
+                <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           FontSize="11"
+                           TextWrapping="Wrap"
+                           Text="{loc:Localize Key=Settings.Radio.Ts2000Hint}" />
+                <CheckBox Content="{loc:Localize Key=Settings.Radio.Ts2000HardwareRts}"
+                          IsChecked="{Binding RigKenwoodHardwareRtsEnabled, Mode=TwoWay}" />
+                <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           FontSize="11"
+                           TextWrapping="Wrap"
+                           Text="{loc:Localize Key=Settings.Radio.Ts2000HardwareRtsNote}" />
+              </StackPanel>
               <StackPanel Spacing="10" IsVisible="{Binding ShowRigSerialFields}">
                 <TextBlock Text="{loc:Localize Key=Settings.Radio.Region}" />
                 <ComboBox ItemsSource="{Binding RigRegionChoices}"
