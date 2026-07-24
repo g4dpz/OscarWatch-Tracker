@@ -2596,6 +2596,8 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
     public string TcaLocal { get; init; } = "";
     public string TimeRangeLine { get; init; } = "";
     public string DetailsLine { get; init; } = "";
+    public string DurationText { get; init; } = "";
+    public string MaxElevationText { get; init; } = "";
     public DateTime AosUtc { get; init; }
     public DateTime LosUtc { get; init; }
     public DateTime MaxElevationUtc { get; init; }
@@ -2675,7 +2677,9 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
             LosLocal = los,
             TcaLocal = PassDisplayFormat.FormatLocal(p.MaxElevationUtc, clockFormat, useUtc: useUtc),
             TimeRangeLine = FormatPassTimeRangeLine(p.AosUtc, p.LosUtc, clockFormat, useUtc),
-            DetailsLine = FormatPassDetailsLine(p.MaxElevationDeg, p.Duration)
+            DetailsLine = FormatPassDetailsLine(p.MaxElevationDeg, p.Duration),
+            DurationText = FormatPassDurationText(p.Duration),
+            MaxElevationText = FormatPassMaxElevationText(p.MaxElevationDeg)
         };
     }
 
@@ -2695,6 +2699,8 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
             TcaLocal = PassDisplayFormat.FormatLocal(MaxElevationUtc, clockFormat, useUtc: useUtc),
             TimeRangeLine = FormatPassTimeRangeLine(AosUtc, LosUtc, clockFormat, useUtc),
             DetailsLine = DetailsLine,
+            DurationText = DurationText,
+            MaxElevationText = MaxElevationText,
             Highlight = Highlight,
             BadgeText = BadgeText,
             ShowBadge = ShowBadge
@@ -2713,13 +2719,23 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
 
     private static string FormatPassDetailsLine(double maxElevationDeg, TimeSpan duration)
     {
+        return L.Get("Pass.Details", FormatPassDurationValue(duration), $"{maxElevationDeg:F0}°");
+    }
+
+    private static string FormatPassDurationText(TimeSpan duration)
+        => L.Get("Pass.Duration", FormatPassDurationValue(duration));
+
+    private static string FormatPassMaxElevationText(double maxElevationDeg)
+        => L.Get("Pass.MaxElevation", $"{maxElevationDeg:F0}°");
+
+    private static string FormatPassDurationValue(TimeSpan duration)
+    {
         var minutes = duration.TotalSeconds < 30
             ? 0
             : (int)Math.Round(duration.TotalMinutes, MidpointRounding.AwayFromZero);
-        var durationText = minutes == 1
+        return minutes == 1
             ? L.Get("Pass.DurationOneMinute")
             : L.Get("Pass.DurationMinutes", minutes);
-        return L.Get("Pass.Details", durationText, $"{maxElevationDeg:F0}°");
     }
 }
 

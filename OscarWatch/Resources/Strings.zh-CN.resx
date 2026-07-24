@@ -208,6 +208,12 @@
   <data name="Pass.Details">
     <value>持续时间：{0} | 最大仰角：{1}</value>
   </data>
+  <data name="Pass.Duration">
+    <value>持续时间：{0}</value>
+  </data>
+  <data name="Pass.MaxElevation">
+    <value>最大仰角：{0}</value>
+  </data>
   <data name="Pass.DurationMinutes">
     <value>{0} 分钟</value>
   </data>

@@ -585,15 +585,18 @@
               <ListBox.Styles>
                 <Style Selector="ListBoxItem">
                   <Setter Property="Padding" Value="0" />
-                  <Setter Property="Margin" Value="0,0,0,2" />
+                  <Setter Property="Margin" Value="0,0,0,4" />
                   <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                 </Style>
                 <Style Selector="ListBoxItem:not(.pass-day-header)">
-                  <Setter Property="MinHeight" Value="68" />
+                  <Setter Property="MinHeight" Value="72" />
+                </Style>
+                <Style Selector="ListBoxItem.pass-day-header">
+                  <Setter Property="Margin" Value="0,8,0,2" />
                 </Style>
                 <Style Selector="ListBoxItem.pass-day-header:disabled">
                   <Setter Property="Padding" Value="0" />
-                  <Setter Property="Margin" Value="0,6,0,2" />
+                  <Setter Property="Margin" Value="0,8,0,2" />
                   <Setter Property="Background" Value="Transparent" />
                   <Setter Property="Opacity" Value="1" />
                 </Style>
@@ -615,11 +618,13 @@
                   </Border>
                 </DataTemplate>
                 <DataTemplate DataType="vm:PassRowViewModel">
-                  <Border Padding="6,4"
-                          CornerRadius="3"
+                  <Border Padding="10,8"
+                          CornerRadius="4"
                           HorizontalAlignment="Stretch"
+                          BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                          BorderThickness="1"
                           Background="{Binding Highlight, Converter={x:Static theme:PassRowBackgroundConverter.Instance}}">
-                    <StackPanel Spacing="2">
+                    <StackPanel Spacing="3">
                       <DockPanel LastChildFill="True">
                         <Border DockPanel.Dock="Right"
                                 Padding="10,4"
@@ -637,16 +642,30 @@
                         <TextBlock Text="{Binding SatelliteName}"
                                    FontWeight="SemiBold"
                                    FontSize="16"
-                                   TextTrimming="CharacterEllipsis" />
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{DynamicResource ThemeForegroundBrush}" />
                       </DockPanel>
-                      <TextBlock FontSize="15"
+                      <TextBlock FontSize="14"
                                  Text="{Binding TimeRangeLine}"
                                  TextTrimming="CharacterEllipsis"
-                                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-                      <TextBlock FontSize="15"
-                                 Text="{Binding DetailsLine}"
-                                 TextTrimming="CharacterEllipsis"
-                                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                                 Foreground="{DynamicResource ThemeForegroundBrush}" />
+                      <Grid ColumnDefinitions="*,Auto,*">
+                        <TextBlock Grid.Column="0"
+                                   FontSize="13"
+                                   Text="{Binding DurationText}"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+                        <TextBlock Grid.Column="1"
+                                   FontSize="13"
+                                   Margin="8,0"
+                                   Text="|"
+                                   Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+                        <TextBlock Grid.Column="2"
+                                   FontSize="13"
+                                   Text="{Binding MaxElevationText}"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+                      </Grid>
                     </StackPanel>
                   </Border>
                 </DataTemplate>

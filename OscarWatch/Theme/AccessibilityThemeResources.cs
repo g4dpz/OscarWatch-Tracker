@@ -16,6 +16,7 @@ public static class AccessibilityThemeResources
     public const string PassInProgressBackgroundKey = "PassInProgressBackgroundBrush";
     public const string PassRecordingBackgroundKey = "PassRecordingBackgroundBrush";
     public const string PassImminentBackgroundKey = "PassImminentBackgroundBrush";
+    public const string PassLaterBackgroundKey = "PassLaterBackgroundBrush";
     public const string PassImminentBadgeBackgroundKey = "PassImminentBadgeBackgroundBrush";
     public const string PassImminentBadgeForegroundKey = "PassImminentBadgeForegroundBrush";
     public const string PassInProgressBadgeBackgroundKey = "PassInProgressBadgeBackgroundBrush";
@@ -59,23 +60,25 @@ public static class AccessibilityThemeResources
         resources["TextControlPlaceholderOpacity"] = 1.0;
         resources[PassHighlightKey] = new SolidColorBrush(
             isDark ? Color.Parse("#9EDE6B") : Color.Parse("#2B6E1F"));
+        // Softer row fills so primary/secondary text stay crisp; accents carry status.
         resources[PassInProgressBackgroundKey] = new SolidColorBrush(
-            isDark ? Color.Parse("#2A4A24") : Color.Parse("#D4EDCC"));
+            isDark ? Color.Parse("#1E3220") : Color.Parse("#E5F5E0"));
         resources[PassRecordingBackgroundKey] = new SolidColorBrush(
-            isDark ? Color.Parse("#1F3D2E") : Color.Parse("#C8E6C0"));
+            isDark ? Color.Parse("#1A2E26") : Color.Parse("#D8F0D4"));
         resources[PassImminentBackgroundKey] = new SolidColorBrush(
-            isDark ? Color.Parse("#4D3D1A") : Color.Parse("#FFF0D4"));
+            isDark ? Color.Parse("#322A1A") : Color.Parse("#FFF6E4"));
+        resources[PassLaterBackgroundKey] = new SolidColorBrush(
+            isDark ? Color.Parse("#26282C") : Color.Parse("#F6F7F8"));
         resources[PassImminentBadgeBackgroundKey] = new SolidColorBrush(
-            isDark ? Color.Parse("#C47A1A") : Color.Parse("#E89B1E"));
-        resources[PassImminentBadgeForegroundKey] = new SolidColorBrush(
-            isDark ? Colors.White : Color.Parse("#1A1A1A"));
+            isDark ? Color.Parse("#E09A20") : Color.Parse("#E89B1E"));
+        resources[PassImminentBadgeForegroundKey] = new SolidColorBrush(Color.Parse("#1A1A1A"));
         resources[PassInProgressBadgeBackgroundKey] = new SolidColorBrush(
-            isDark ? Color.Parse("#3D8B2E") : Color.Parse("#2B6E1F"));
+            isDark ? Color.Parse("#45A338") : Color.Parse("#2B6E1F"));
         resources[PassInProgressBadgeForegroundKey] = new SolidColorBrush(Colors.White);
         resources[HamsAtGridBadgeBackgroundKey] = new SolidColorBrush(
-            isDark ? Color.Parse("#256322") : Color.Parse("#2B6E1F"));
+            isDark ? Color.Parse("#2E7A2A") : Color.Parse("#2B6E1F"));
         resources[PassRecordingBadgeBackgroundKey] = new SolidColorBrush(
-            isDark ? Color.Parse("#B91C1C") : Color.Parse("#DC2626"));
+            isDark ? Color.Parse("#EF4444") : Color.Parse("#DC2626"));
         resources[PassRecordingBadgeForegroundKey] = new SolidColorBrush(Colors.White);
         resources[StaleTleKey] = new SolidColorBrush(
             isDark ? Color.Parse("#FFB347") : Color.Parse("#B45309"));

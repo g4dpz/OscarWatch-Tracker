@@ -208,6 +208,12 @@
   <data name="Pass.Details">
     <value>Duração: {0} | Elevação máx.: {1}</value>
   </data>
+  <data name="Pass.Duration">
+    <value>Duração: {0}</value>
+  </data>
+  <data name="Pass.MaxElevation">
+    <value>Elevação máx.: {0}</value>
+  </data>
   <data name="Pass.DurationMinutes">
     <value>{0} min</value>
   </data>

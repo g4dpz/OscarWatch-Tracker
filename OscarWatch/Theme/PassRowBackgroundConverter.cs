@@ -18,11 +18,10 @@ public sealed class PassRowBackgroundConverter : IValueConverter
             PassRowHighlight.Recording => AccessibilityThemeResources.PassRecordingBackgroundKey,
             PassRowHighlight.InProgress => AccessibilityThemeResources.PassInProgressBackgroundKey,
             PassRowHighlight.Imminent => AccessibilityThemeResources.PassImminentBackgroundKey,
-            _ => null
+            _ => AccessibilityThemeResources.PassLaterBackgroundKey
         };
 
-        if (key is not null
-            && Application.Current?.Resources.TryGetResource(
+        if (Application.Current?.Resources.TryGetResource(
                 key, Application.Current.ActualThemeVariant, out var brush) == true)
             return brush;
 
