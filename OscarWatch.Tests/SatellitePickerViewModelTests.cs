@@ -13,20 +13,16 @@ public class SatellitePickerViewModelTests
     {
         using var _ = TestUiCulture.Apply(DefaultLanguage);
 
-        // Classic AMSAT alias: settings store "SO-50", catalog uses the long TLE name.
         var so50 = Entry("SAUDISAT 1C (SO-50)", "27607");
         var iss = Entry("ISS", "25544");
-        var settings = new TestSettingsService();
-        settings.Current.EnabledSatelliteNames = ["SO-50"];
+        var settings = NameOnlySettings(["SO-50"]);
         var tle = new StubTleService([so50, iss]);
 
-        Assert.True(SatelliteCatalogMatching.IsEnabled(so50, new HashSet<string>(settings.Current.EnabledSatelliteNames, StringComparer.OrdinalIgnoreCase)));
         Assert.Equal([so50], tle.GetEnabledSatellites(settings.Current));
 
         var vm = new SatellitePickerViewModel(settings, tle, LocalizationService.Instance);
 
-        var so50Item = Assert.Single(vm.Satellites, s => s.NoradId == "27607");
-        Assert.True(so50Item.IsEnabled);
+        Assert.True(Assert.Single(vm.Satellites, s => s.NoradId == "27607").IsEnabled);
         Assert.False(Assert.Single(vm.Satellites, s => s.NoradId == "25544").IsEnabled);
     }
 
@@ -35,11 +31,9 @@ public class SatellitePickerViewModelTests
     {
         using var _ = TestUiCulture.Apply(DefaultLanguage);
 
-        // After a TLE source change, settings may still hold a longer historical name.
         var isat = Entry("ISAT", "43879");
         var origami = Entry("OrigamiSat 2", "68795");
-        var settings = new TestSettingsService();
-        settings.Current.EnabledSatelliteNames = ["ISAT (CUBE)", "OrigamiSat 2"];
+        var settings = NameOnlySettings(["ISAT (CUBE)", "OrigamiSat 2"]);
         var tle = new StubTleService([isat, origami]);
 
         Assert.Equal(2, tle.GetEnabledSatellites(settings.Current).Count);
@@ -55,12 +49,9 @@ public class SatellitePickerViewModelTests
     {
         using var _ = TestUiCulture.Apply(DefaultLanguage);
 
-        // Reporter case: only OrigamiSat 2 ticked, but ISAT appeared on the map because
-        // "OrigamiSat" contains the mid-token letters iSat.
         var isat = Entry("ISAT", "43879");
         var origami = Entry("OrigamiSat 2", "68795");
-        var settings = new TestSettingsService();
-        settings.Current.EnabledSatelliteNames = ["OrigamiSat 2"];
+        var settings = NameOnlySettings(["OrigamiSat 2"]);
         var tle = new StubTleService([isat, origami]);
 
         Assert.Equal([origami], tle.GetEnabledSatellites(settings.Current));
@@ -72,19 +63,54 @@ public class SatellitePickerViewModelTests
     }
 
     [Fact]
+    public void Load_checks_by_norad_id_when_catalog_name_differs()
+    {
+        using var _ = TestUiCulture.Apply(DefaultLanguage);
+
+        var origami = Entry("OrigamiSat 2", "68795");
+        var settings = new TestSettingsService();
+        settings.Current.EnabledSatelliteNames = ["ORIGAMISAT-2"];
+        settings.Current.EnabledSatelliteNoradIds = ["68795"];
+        var tle = new StubTleService([origami]);
+
+        var vm = new SatellitePickerViewModel(settings, tle, LocalizationService.Instance);
+
+        Assert.True(Assert.Single(vm.Satellites).IsEnabled);
+        Assert.Equal([origami], tle.GetEnabledSatellites(settings.Current));
+    }
+
+    [Fact]
+    public async Task Save_writes_both_names_and_normalised_norad_ids()
+    {
+        using var _ = TestUiCulture.Apply(DefaultLanguage);
+
+        var so50 = Entry("SAUDISAT 1C (SO-50)", "27607");
+        var alpha = Entry("HIGH-CAT", "A0000");
+        var settings = NameOnlySettings(["SO-50"]);
+        var tle = new StubTleService([so50, alpha]);
+        var vm = new SatellitePickerViewModel(settings, tle, LocalizationService.Instance);
+
+        Assert.Single(vm.Satellites, s => s.NoradId == "A0000").IsEnabled = true;
+        await vm.SaveCommand.ExecuteAsync(null);
+
+        Assert.Equal(["HIGH-CAT", "SAUDISAT 1C (SO-50)"], settings.Current.EnabledSatelliteNames.OrderBy(n => n).ToList());
+        Assert.Equal(["27607", "A0000"], settings.Current.EnabledSatelliteNoradIds.OrderBy(id => id).ToList());
+    }
+
+    [Fact]
     public async Task Save_rewrites_fuzzy_enabled_names_to_current_catalog_names()
     {
         using var _ = TestUiCulture.Apply(DefaultLanguage);
 
         var so50 = Entry("SAUDISAT 1C (SO-50)", "27607");
-        var settings = new TestSettingsService();
-        settings.Current.EnabledSatelliteNames = ["SO-50"];
+        var settings = NameOnlySettings(["SO-50"]);
         var tle = new StubTleService([so50]);
         var vm = new SatellitePickerViewModel(settings, tle, LocalizationService.Instance);
 
         await vm.SaveCommand.ExecuteAsync(null);
 
         Assert.Equal(["SAUDISAT 1C (SO-50)"], settings.Current.EnabledSatelliteNames);
+        Assert.Equal(["27607"], settings.Current.EnabledSatelliteNoradIds);
     }
 
     [Fact]
@@ -94,8 +120,7 @@ public class SatellitePickerViewModelTests
 
         var isat = Entry("ISAT", "43879");
         var origami = Entry("OrigamiSat 2", "68795");
-        var settings = new TestSettingsService();
-        settings.Current.EnabledSatelliteNames = ["ISAT (CUBE)", "OrigamiSat 2"];
+        var settings = NameOnlySettings(["ISAT (CUBE)", "OrigamiSat 2"]);
         var tle = new StubTleService([isat, origami]);
         var vm = new SatellitePickerViewModel(settings, tle, LocalizationService.Instance);
 
@@ -103,7 +128,16 @@ public class SatellitePickerViewModelTests
         await vm.SaveCommand.ExecuteAsync(null);
 
         Assert.Equal(["OrigamiSat 2"], settings.Current.EnabledSatelliteNames);
+        Assert.Equal(["68795"], settings.Current.EnabledSatelliteNoradIds);
         Assert.Equal([origami], tle.GetEnabledSatellites(settings.Current));
+    }
+
+    private static TestSettingsService NameOnlySettings(List<string> names)
+    {
+        var settings = new TestSettingsService();
+        settings.Current.EnabledSatelliteNames = names;
+        settings.Current.EnabledSatelliteNoradIds = [];
+        return settings;
     }
 
     private static SatelliteCatalogEntry Entry(string name, string noradId) => new()
@@ -147,8 +181,9 @@ public class SatellitePickerViewModelTests
 
         public IReadOnlyList<SatelliteCatalogEntry> GetEnabledSatellites(AppSettings settings)
         {
-            var enabled = new HashSet<string>(settings.EnabledSatelliteNames, StringComparer.OrdinalIgnoreCase);
-            return catalog.Where(s => SatelliteCatalogMatching.IsEnabled(s, enabled)).ToList();
+            var ids = SatelliteCatalogMatching.CreateNoradIdSet(settings.EnabledSatelliteNoradIds);
+            var names = new HashSet<string>(settings.EnabledSatelliteNames ?? [], StringComparer.OrdinalIgnoreCase);
+            return catalog.Where(s => SatelliteCatalogMatching.IsEnabled(s, ids, names)).ToList();
         }
     }
 }

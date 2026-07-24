@@ -61,6 +61,7 @@ public sealed class SettingsService : ISettingsService, IDisposable
         {
             settings = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new AppSettings();
             MigrateDisplayTimesInUtc(json, settings);
+            MigrateMissingEnabledSatelliteNoradIds(json, settings);
         }
         catch (JsonException ex)
         {
@@ -256,6 +257,27 @@ public sealed class SettingsService : ISettingsService, IDisposable
         settings.TleSource ??= new TleSourceSettings();
         settings.TleSource = TleSourceResolver.NormalizeLegacyCustomUrl(settings.TleSource);
         settings.TransponderConflictAcknowledgments ??= [];
+        settings.EnabledSatelliteNames ??= [];
+        settings.EnabledSatelliteNoradIds ??= [];
+    }
+
+    /// <summary>
+    /// Before <see cref="AppSettings.EnabledSatelliteNoradIds"/> existed, enablement was name-only.
+    /// Missing JSON must not inherit the new-install default ID list.
+    /// </summary>
+    private static void MigrateMissingEnabledSatelliteNoradIds(string json, AppSettings settings)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("enabledSatelliteNoradIds", out _))
+                return;
+
+            settings.EnabledSatelliteNoradIds = [];
+        }
+        catch (JsonException)
+        {
+        }
     }
 
     /// <summary>

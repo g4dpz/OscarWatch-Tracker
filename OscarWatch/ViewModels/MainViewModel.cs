@@ -599,6 +599,7 @@ public partial class MainViewModel : ViewModelBase
                 StatusText = _l.Get("Status.RefreshingTle");
                 await _tleService.RefreshAsync().ConfigureAwait(true);
                 Log.Information("Startup stale TLE refresh completed in {ElapsedMs} ms", tleRefreshStopwatch.ElapsedMilliseconds);
+                TryBackfillEnabledSatelliteIds();
             }
             catch (Exception ex)
             {
@@ -665,6 +666,7 @@ public partial class MainViewModel : ViewModelBase
         {
             await _tleService.EnsureLoadedAsync().ConfigureAwait(false);
             LogTleLoadDiagnostics();
+            TryBackfillEnabledSatelliteIds();
             return true;
         }
         catch (Exception ex)
@@ -672,6 +674,18 @@ public partial class MainViewModel : ViewModelBase
             Log.Error(ex, "TLE load failed during startup");
             return false;
         }
+    }
+
+    /// <summary>
+    /// After the catalog is available, append normalised catalogue IDs for name-matched
+    /// enabled satellites so TLE source renames do not drop selections.
+    /// </summary>
+    private void TryBackfillEnabledSatelliteIds()
+    {
+        if (!SatelliteCatalogMatching.TryMigrateEnabledSatelliteIds(_settings.Current, _tleService.Catalog))
+            return;
+
+        _settings.RequestSave();
     }
 
     private void LogTleLoadDiagnostics()
@@ -2126,6 +2140,7 @@ public partial class MainViewModel : ViewModelBase
             }
 
             LogTleLoadDiagnostics();
+            TryBackfillEnabledSatelliteIds();
         }
         catch (Exception ex)
         {
@@ -2153,6 +2168,7 @@ public partial class MainViewModel : ViewModelBase
         {
             StatusText = _l.Get("Status.RefreshingTle");
             await _tleService.RefreshAsync().ConfigureAwait(true);
+            TryBackfillEnabledSatelliteIds();
             _liveTracking.RequestReload();
         }
         catch (Exception ex)
@@ -2415,6 +2431,7 @@ public partial class MainViewModel : ViewModelBase
     private async Task OpenSatellitesAsync()
     {
         await _tleService.EnsureLoadedAsync();
+        TryBackfillEnabledSatelliteIds();
         var vm = App.Services.GetRequiredService<SatellitePickerViewModel>();
         var window = new SatellitePickerWindow { DataContext = vm };
         var saved = App.MainWindow is not null

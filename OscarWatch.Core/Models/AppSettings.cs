@@ -6,6 +6,8 @@ public sealed class AppSettings
     public string ActiveStationId { get; set; } = "";
     public List<StationProfile> SavedStations { get; set; } = [];
     public List<string> EnabledSatelliteNames { get; set; } = ["ISS", "SO-50", "AO-91"];
+    /// <summary>Catalogue IDs (NORAD / Alpha-5) for enabled satellites. Preferred over names when present.</summary>
+    public List<string> EnabledSatelliteNoradIds { get; set; } = ["25544", "27607", "43017"];
     public double MinimumElevationDeg { get; set; } = 5.0;
     public int PassPredictionHours { get; set; } = 48;
     public int PassFilterMinDurationMinutes { get; set; } = 2;

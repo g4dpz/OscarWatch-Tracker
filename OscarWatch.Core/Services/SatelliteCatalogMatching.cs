@@ -1,4 +1,5 @@
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Tle;
 
 namespace OscarWatch.Core.Services;
 
@@ -16,7 +17,25 @@ public static class SatelliteCatalogMatching
     /// </summary>
     private static IReadOnlySet<string>? _lastEnabledSet;
 
-    public static bool IsEnabled(SatelliteCatalogEntry satellite, IReadOnlySet<string> enabled)
+    /// <summary>
+    /// True when the satellite is enabled by normalised catalogue ID, or else by name alias rules.
+    /// </summary>
+    public static bool IsEnabled(
+        SatelliteCatalogEntry satellite,
+        IReadOnlySet<string> enabledNoradIds,
+        IReadOnlySet<string> enabledNames)
+    {
+        if (MatchesNoradId(satellite.NoradId, enabledNoradIds))
+            return true;
+
+        return IsEnabledByName(satellite, enabledNames);
+    }
+
+    /// <summary>Name-only enablement (legacy / migrate source). Prefer the ID+name overload.</summary>
+    public static bool IsEnabled(SatelliteCatalogEntry satellite, IReadOnlySet<string> enabledNames) =>
+        IsEnabledByName(satellite, enabledNames);
+
+    private static bool IsEnabledByName(SatelliteCatalogEntry satellite, IReadOnlySet<string> enabled)
     {
         // O(1) exact match via case-insensitive HashSet
         if (enabled.Contains(satellite.Name))
@@ -42,6 +61,111 @@ public static class SatelliteCatalogMatching
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Builds a case-insensitive set of normalised catalogue IDs (Alpha-5 / D5).
+    /// </summary>
+    public static HashSet<string> CreateNoradIdSet(IEnumerable<string>? ids)
+    {
+        var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (ids is null)
+            return set;
+
+        foreach (var id in ids)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                continue;
+
+            set.Add(NormalizeNoradId(id));
+        }
+
+        return set;
+    }
+
+    public static bool MatchesNoradId(string? noradId, IReadOnlySet<string> enabledNoradIds)
+    {
+        if (string.IsNullOrWhiteSpace(noradId) || enabledNoradIds.Count == 0)
+            return false;
+
+        return enabledNoradIds.Contains(NormalizeNoradId(noradId));
+    }
+
+    public static string NormalizeNoradId(string noradId)
+    {
+        var trimmed = noradId.Trim();
+        return Alpha5CatalogId.Normalize(trimmed) ?? trimmed;
+    }
+
+    /// <summary>
+    /// Appends normalised catalogue IDs for name-matched satellites that are missing from
+    /// <see cref="AppSettings.EnabledSatelliteNoradIds"/>. Does not remove names.
+    /// Also normalises any existing ID spellings (e.g. 100000 → A0000).
+    /// </summary>
+    public static bool TryMigrateEnabledSatelliteIds(
+        AppSettings settings,
+        IReadOnlyList<SatelliteCatalogEntry> catalog)
+    {
+        settings.EnabledSatelliteNames ??= [];
+        settings.EnabledSatelliteNoradIds ??= [];
+
+        var changed = false;
+        var normalisedIds = new List<string>();
+        var seenIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var id in settings.EnabledSatelliteNoradIds)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                changed = true;
+                continue;
+            }
+
+            var normalised = NormalizeNoradId(id);
+            if (!seenIds.Add(normalised))
+            {
+                changed = true;
+                continue;
+            }
+
+            if (!string.Equals(id.Trim(), normalised, StringComparison.Ordinal))
+                changed = true;
+
+            normalisedIds.Add(normalised);
+        }
+
+        if (normalisedIds.Count != settings.EnabledSatelliteNoradIds.Count)
+            changed = true;
+
+        var nameSet = new HashSet<string>(settings.EnabledSatelliteNames, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var sat in catalog)
+        {
+            if (!IsEnabledByName(sat, nameSet))
+                continue;
+
+            if (string.IsNullOrWhiteSpace(sat.NoradId))
+                continue;
+
+            var normalised = NormalizeNoradId(sat.NoradId);
+            if (!seenIds.Add(normalised))
+                continue;
+
+            normalisedIds.Add(normalised);
+            changed = true;
+
+            if (!nameSet.Contains(sat.Name))
+            {
+                settings.EnabledSatelliteNames.Add(sat.Name);
+                nameSet.Add(sat.Name);
+                changed = true;
+            }
+        }
+
+        if (changed)
+            settings.EnabledSatelliteNoradIds = normalisedIds;
+
+        return changed;
     }
 
     /// <summary>

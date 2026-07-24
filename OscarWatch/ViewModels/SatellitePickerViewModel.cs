@@ -50,7 +50,10 @@ public partial class SatellitePickerViewModel : ViewModelBase
     private void Load()
     {
         Satellites.Clear();
-        var enabled = new HashSet<string>(_settings.Current.EnabledSatelliteNames, StringComparer.OrdinalIgnoreCase);
+        var enabledNames = new HashSet<string>(
+            _settings.Current.EnabledSatelliteNames ?? [],
+            StringComparer.OrdinalIgnoreCase);
+        var enabledIds = SatelliteCatalogMatching.CreateNoradIdSet(_settings.Current.EnabledSatelliteNoradIds);
         foreach (var sat in _tleService.Catalog.OrderBy(s => s.Name))
         {
             var item = new SatelliteItemViewModel
@@ -58,7 +61,7 @@ public partial class SatellitePickerViewModel : ViewModelBase
                 Name = sat.Name,
                 NoradId = sat.NoradId,
                 // Same rules as TleService.GetEnabledSatellites so checkboxes match the map.
-                IsEnabled = SatelliteCatalogMatching.IsEnabled(sat, enabled),
+                IsEnabled = SatelliteCatalogMatching.IsEnabled(sat, enabledIds, enabledNames),
                 IsStale = sat.IsStale(TimeSpan.FromDays(14)),
                 EpochText = sat.EpochUtc?.ToString("yyyy-MM-dd") ?? "?"
             };
@@ -109,9 +112,12 @@ public partial class SatellitePickerViewModel : ViewModelBase
     [RelayCommand]
     private async Task SaveAsync()
     {
-        _settings.Current.EnabledSatelliteNames = Satellites
-            .Where(s => s.IsEnabled)
-            .Select(s => s.Name)
+        var enabled = Satellites.Where(s => s.IsEnabled).ToList();
+        _settings.Current.EnabledSatelliteNames = enabled.Select(s => s.Name).ToList();
+        _settings.Current.EnabledSatelliteNoradIds = enabled
+            .Select(s => SatelliteCatalogMatching.NormalizeNoradId(s.NoradId))
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
         await _settings.SaveAsync();
     }

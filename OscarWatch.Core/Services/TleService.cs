@@ -110,8 +110,9 @@ public sealed class TleService : ITleService
 
     public IReadOnlyList<SatelliteCatalogEntry> GetEnabledSatellites(AppSettings settings)
     {
-        var enabled = new HashSet<string>(settings.EnabledSatelliteNames, StringComparer.OrdinalIgnoreCase);
-        return _catalog.Where(s => SatelliteCatalogMatching.IsEnabled(s, enabled)).ToList();
+        var enabledIds = SatelliteCatalogMatching.CreateNoradIdSet(settings.EnabledSatelliteNoradIds);
+        var enabledNames = new HashSet<string>(settings.EnabledSatelliteNames ?? [], StringComparer.OrdinalIgnoreCase);
+        return _catalog.Where(s => SatelliteCatalogMatching.IsEnabled(s, enabledIds, enabledNames)).ToList();
     }
 
     private TleSourceSettings EffectiveSettings =>

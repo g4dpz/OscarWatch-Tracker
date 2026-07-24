@@ -12,6 +12,7 @@ public sealed class SettingsServiceTests
         var service = new SettingsService(path);
         service.Current.GroundStation.DisplayName = "Portable";
         service.Current.EnabledSatelliteNames = ["ISS", "SO-50"];
+        service.Current.EnabledSatelliteNoradIds = ["25544", "27607"];
         service.Current.Rig.Enabled = true;
 
         var json = service.SerializeCurrent();
@@ -20,7 +21,25 @@ public sealed class SettingsServiceTests
         Assert.Null(error);
         Assert.Equal("Portable", parsed.GroundStation.DisplayName);
         Assert.Equal(["ISS", "SO-50"], parsed.EnabledSatelliteNames);
+        Assert.Equal(["25544", "27607"], parsed.EnabledSatelliteNoradIds);
         Assert.True(parsed.Rig.Enabled);
+    }
+
+    [Fact]
+    public void TryParse_missing_norad_ids_defaults_to_empty_list()
+    {
+        const string json = """
+            {
+              "enabledSatelliteNames": ["ISS"],
+              "groundStation": { "displayName": "Home", "latitudeDeg": 51.5, "longitudeDeg": -0.1 }
+            }
+            """;
+
+        Assert.True(SettingsService.TryParse(json, out var parsed, out var error));
+        Assert.Null(error);
+        Assert.Equal(["ISS"], parsed.EnabledSatelliteNames);
+        Assert.NotNull(parsed.EnabledSatelliteNoradIds);
+        Assert.Empty(parsed.EnabledSatelliteNoradIds);
     }
 
     [Fact]

@@ -4,10 +4,8 @@ using OscarWatch.Core.Services;
 namespace OscarWatch.Tests;
 
 /// <summary>
-/// **Validates: Requirements 12.6**
-///
-/// Edge-case tests verifying that <see cref="SatelliteCatalogMatching.IsEnabled"/>
-/// correctly handles whitespace-only entries and avoids mid-token false positives.
+/// Edge-case tests for <see cref="SatelliteCatalogMatching"/>: token boundaries,
+/// catalogue ID preference, Alpha-5 normalisation, and additive ID migrate.
 /// </summary>
 public sealed class SatelliteCatalogMatchingTests
 {
@@ -23,7 +21,6 @@ public sealed class SatelliteCatalogMatchingTests
     [Fact]
     public void OrigamiSat_2_does_not_enable_ISAT_via_mid_token_substring()
     {
-        // "OrigamiSat" contains the letters i-S-a-t, which previously matched "ISAT".
         var isat = Entry("ISAT", "43879");
         var origami = Entry("OrigamiSat 2", "68795");
         var enabled = new HashSet<string>(["OrigamiSat 2"], StringComparer.OrdinalIgnoreCase);
@@ -47,6 +44,103 @@ public sealed class SatelliteCatalogMatchingTests
         Assert.True(SatelliteCatalogMatching.ContainsToken("SAUDISAT 1C (SO-50)", "SO-50"));
         Assert.True(SatelliteCatalogMatching.ContainsToken("ISAT (CUBE)", "ISAT"));
         Assert.False(SatelliteCatalogMatching.ContainsToken("OrigamiSat 2", "ISAT"));
+    }
+
+    [Fact]
+    public void Id_match_enables_when_catalog_name_differs()
+    {
+        var origami = Entry("OrigamiSat 2", "68795");
+        var ids = SatelliteCatalogMatching.CreateNoradIdSet(["68795"]);
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        Assert.True(SatelliteCatalogMatching.IsEnabled(origami, ids, names));
+    }
+
+    [Fact]
+    public void Name_fallback_used_when_ids_empty()
+    {
+        var origami = Entry("OrigamiSat 2", "68795");
+        var ids = SatelliteCatalogMatching.CreateNoradIdSet([]);
+        var names = new HashSet<string>(["OrigamiSat 2"], StringComparer.OrdinalIgnoreCase);
+
+        Assert.True(SatelliteCatalogMatching.IsEnabled(origami, ids, names));
+    }
+
+    [Fact]
+    public void OrigamiSat_id_does_not_enable_ISAT()
+    {
+        var isat = Entry("ISAT", "43879");
+        var ids = SatelliteCatalogMatching.CreateNoradIdSet(["68795"]);
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        Assert.False(SatelliteCatalogMatching.IsEnabled(isat, ids, names));
+    }
+
+    [Fact]
+    public void Numeric_100000_matches_catalog_A0000()
+    {
+        var sat = Entry("HIGH-CAT", "A0000");
+        var ids = SatelliteCatalogMatching.CreateNoradIdSet(["100000"]);
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        Assert.True(SatelliteCatalogMatching.IsEnabled(sat, ids, names));
+        Assert.Equal("A0000", SatelliteCatalogMatching.NormalizeNoradId("100000"));
+    }
+
+    [Fact]
+    public void TryMigrate_appends_ids_from_names_without_removing_names()
+    {
+        var so50 = Entry("SAUDISAT 1C (SO-50)", "27607");
+        var origami = Entry("OrigamiSat 2", "68795");
+        var settings = new AppSettings
+        {
+            EnabledSatelliteNames = ["SO-50", "OrigamiSat 2"],
+            EnabledSatelliteNoradIds = []
+        };
+
+        Assert.True(SatelliteCatalogMatching.TryMigrateEnabledSatelliteIds(settings, [so50, origami]));
+
+        Assert.Contains("SO-50", settings.EnabledSatelliteNames);
+        Assert.Contains("OrigamiSat 2", settings.EnabledSatelliteNames);
+        Assert.Contains("SAUDISAT 1C (SO-50)", settings.EnabledSatelliteNames);
+        Assert.Equal(["27607", "68795"], settings.EnabledSatelliteNoradIds.OrderBy(id => id).ToList());
+    }
+
+    [Fact]
+    public void TryMigrate_normalises_existing_ids_and_is_idempotent()
+    {
+        var sat = Entry("HIGH-CAT", "A0000");
+        var settings = new AppSettings
+        {
+            EnabledSatelliteNames = ["HIGH-CAT"],
+            EnabledSatelliteNoradIds = ["100000"]
+        };
+
+        Assert.True(SatelliteCatalogMatching.TryMigrateEnabledSatelliteIds(settings, [sat]));
+        Assert.Equal(["A0000"], settings.EnabledSatelliteNoradIds);
+        Assert.Equal(["HIGH-CAT"], settings.EnabledSatelliteNames);
+
+        Assert.False(SatelliteCatalogMatching.TryMigrateEnabledSatelliteIds(settings, [sat]));
+    }
+
+    [Fact]
+    public void TryMigrate_adds_current_catalog_name_spelling_when_missing()
+    {
+        var origami = Entry("OrigamiSat 2", "68795");
+        var settings = new AppSettings
+        {
+            EnabledSatelliteNames = ["ORIGAMISAT-2"],
+            EnabledSatelliteNoradIds = []
+        };
+
+        // Token match won't link ORIGAMISAT-2 to OrigamiSat 2 (hyphen vs space).
+        // Exact/token: "OrigamiSat 2" vs "ORIGAMISAT-2" — no match. Migrate won't add.
+        Assert.False(SatelliteCatalogMatching.TryMigrateEnabledSatelliteIds(settings, [origami]));
+
+        // With a name that does match:
+        settings.EnabledSatelliteNames = ["OrigamiSat 2"];
+        Assert.True(SatelliteCatalogMatching.TryMigrateEnabledSatelliteIds(settings, [origami]));
+        Assert.Contains("68795", settings.EnabledSatelliteNoradIds);
     }
 
     private static SatelliteCatalogEntry Entry(string name, string noradId) => new()
