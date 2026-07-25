@@ -164,7 +164,7 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 - Menu **#14** CAT rate on **each** radio must match Settings for that leg (OscarWatch suggests **4800**; **38400** also works).
 - OscarWatch uses **8N2** Yaesu CAT. One main VFO per radio — downlink for RX, uplink for TX + CTCSS.
 - **FM:** dial lock on via CAT while tracking. **USB/LSB/CW:** dial unlocked on downlink so you can scan the transponder; uplink doppler continues on the other radio.
-- On a real pass: both legs get doppler; CTCSS on uplink only (region selects tone vs TSQL).
+- On a real pass: both legs get doppler; CTCSS encode-only on uplink (not TSQL; satellite downlinks almost never carry a tone).
 
 ## Reference: ICOM IC-905 (shipped, dual radio only)
 

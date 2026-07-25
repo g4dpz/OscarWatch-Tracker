@@ -1147,13 +1147,15 @@ public class RigControllerTests
 
         controller.Update(settings, Build(67.0));
         Assert.Equal(67.0, rig.LastToneHz);
-        Assert.True(rig.LastToneSquelch);
-        Assert.True(rig.ToneSquelchOn);
+        Assert.False(rig.LastToneSquelch);
+        Assert.True(rig.ToneOn);
+        Assert.False(rig.ToneSquelchOn);
         Assert.Equal(RigVfo.Sub, rig.LastToneVfo);
 
         controller.Update(settings, Build(74.4));
         Assert.Equal(74.4, rig.LastToneHz);
-        Assert.True(rig.ToneSquelchOn);
+        Assert.True(rig.ToneOn);
+        Assert.False(rig.ToneSquelchOn);
         Assert.Equal(RigVfo.Sub, rig.LastToneVfo);
     }
 
@@ -1656,7 +1658,8 @@ public class RigControllerTests
         controller.DrainCommandQueueForTests();
         Assert.Equal(74.4, rig.LastToneHz);
         Assert.Equal(RigVfo.Sub, rig.LastToneVfo);
-        Assert.True(rig.ToneSquelchOn);
+        Assert.True(rig.ToneOn);
+        Assert.False(rig.ToneSquelchOn);
     }
 
     [Fact]
@@ -1708,7 +1711,7 @@ public class RigControllerTests
     }
 
     [Fact]
-    public void Pass_init_ctcss_uses_tsql_path_for_us_region()
+    public void Pass_init_ctcss_uses_encode_only_tone_for_us_region()
     {
         var rig = new RecordingRigDriver();
         var controller = new RigController(_ => rig);
@@ -1747,8 +1750,55 @@ public class RigControllerTests
 
         controller.Update(settings, ctx);
         Assert.Equal(RigVfo.Sub, rig.LastToneVfo);
-        Assert.True(rig.LastToneSquelch);
-        Assert.True(rig.ToneSquelchOn);
+        Assert.False(rig.LastToneSquelch);
+        Assert.True(rig.ToneOn);
+        Assert.False(rig.ToneSquelchOn);
+    }
+
+    [Fact]
+    public void Ts2000_pass_init_ctcss_sends_TO_not_CT_for_us_region()
+    {
+        var transport = new RecordingKenwoodCatTransport();
+        var driver = new KenwoodTs2000Driver(transport, catDelayMs: 0, satModeSettlingDelayMs: 0, satModeRetryCount: 1, satModeRetryDelayMs: 0);
+        var controller = new RigController(_ => driver);
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.KenwoodTs2000,
+            Port = "COM1",
+            CatDelayMs = 0,
+            Region = RigRegion.USA
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 437_800,
+            UplinkKHz = 145_990,
+            DownlinkMode = "FMN",
+            UplinkMode = "FMN",
+            CtcssHz = 67.0
+        };
+
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "ISS",
+                NoradId = "25544",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, 0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            SelectedCtcssHz = 67.0
+        });
+        controller.DrainCommandQueueForTests();
+
+        Assert.Contains("TN01;", transport.SentCommands);
+        Assert.Contains("TO1;", transport.SentCommands);
+        Assert.DoesNotContain("CN01;", transport.SentCommands);
+        Assert.DoesNotContain("CT1;", transport.SentCommands);
     }
 
     [Fact]

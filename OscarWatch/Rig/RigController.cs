@@ -88,7 +88,6 @@ public sealed class RigController : IRigController, IDisposable
     private bool _catUpdatesPaused;
     private bool _passInitPending;
     private double? _lastAppliedCtcssHz;
-    private bool? _lastAppliedCtcssSquelch;
     private double _lastContextRxOffsetKHz;
     private double _lastContextTxOffsetKHz;
     private DopplerStrategy _lastContextDopplerStrategy = DopplerStrategy.Full;
@@ -509,7 +508,6 @@ public sealed class RigController : IRigController, IDisposable
         ClearDialHistory();
         _lastAppliedCtcssHz = null;
         _flexSatelliteSetupError = null;
-        _lastAppliedCtcssSquelch = null;
         _lastContextRxOffsetKHz = context.ReceiveOffsetKHz;
         _lastContextTxOffsetKHz = context.TransmitOffsetKHz;
         _lastContextDopplerStrategy = context.DopplerStrategy;
@@ -554,7 +552,6 @@ public sealed class RigController : IRigController, IDisposable
         _cachedCatPausedOverride = null;
         _flexSatelliteSetupError = null;
         _lastAppliedCtcssHz = null;
-        _lastAppliedCtcssSquelch = null;
         _lastPassDownlinkOnVhf = null;
         _receiveVfo = RigVfo.VfoA;
         _suspendDopplerUntilUtc = DateTime.MinValue;
@@ -1603,7 +1600,6 @@ public sealed class RigController : IRigController, IDisposable
             SetCtcssOffOnVfo(vfo);
 
         _lastAppliedCtcssHz = null;
-        _lastAppliedCtcssSquelch = null;
     }
 
     private static IEnumerable<RigVfo> VfosForSatelliteCtcssClear(RigSettings settings, RigTrackingContext context)
@@ -1741,25 +1737,16 @@ public sealed class RigController : IRigController, IDisposable
         if (driver is null || settings.Uplink.Type == RigType.Dummy || context.SelectedCtcssHz is not { } hz || hz <= 0)
             return;
 
-        var squelch = settings.TransmitRegion() == RigRegion.USA;
-        if (!force && _lastAppliedCtcssHz == hz && _lastAppliedCtcssSquelch == squelch)
+        if (!force && _lastAppliedCtcssHz == hz)
             return;
 
-        // CTCSS on uplink VFO: tone Hz then enable (US: TSQL, EU: repeater tone).
+        // Encode-only CTCSS on the uplink VFO. Satellite downlinks almost never carry a tone,
+        // so TSQL/CT would mute receive (e.g. TS-2000 "CT" mode).
         driver.SelectVfo(UplinkVfoForCtcss(settings, context), force: true);
-        if (squelch)
-        {
-            driver.SetToneHz(hz, squelchTone: true);
-            driver.SetToneSquelchOn(true);
-        }
-        else
-        {
-            driver.SetToneHz(hz, squelchTone: false);
-            driver.SetToneOn(true);
-        }
+        driver.SetToneHz(hz, squelchTone: false);
+        driver.SetToneOn(true);
 
         _lastAppliedCtcssHz = hz;
-        _lastAppliedCtcssSquelch = squelch;
     }
 
     private static RigVfo UplinkVfoForCtcss(RigSettings settings, RigTrackingContext context)
