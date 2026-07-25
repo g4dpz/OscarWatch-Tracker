@@ -88,6 +88,7 @@ public sealed class RigController : IRigController, IDisposable
     private bool _catUpdatesPaused;
     private bool _passInitPending;
     private double? _lastAppliedCtcssHz;
+    private bool? _lastAppliedCtcssSquelch;
     private double _lastContextRxOffsetKHz;
     private double _lastContextTxOffsetKHz;
     private DopplerStrategy _lastContextDopplerStrategy = DopplerStrategy.Full;
@@ -507,6 +508,7 @@ public sealed class RigController : IRigController, IDisposable
         _wasAboveHorizon = context.TrackState.LookAngles is null ? null : IsAboveHorizon(context);
         ClearDialHistory();
         _lastAppliedCtcssHz = null;
+        _lastAppliedCtcssSquelch = null;
         _flexSatelliteSetupError = null;
         _lastContextRxOffsetKHz = context.ReceiveOffsetKHz;
         _lastContextTxOffsetKHz = context.TransmitOffsetKHz;
@@ -552,6 +554,7 @@ public sealed class RigController : IRigController, IDisposable
         _cachedCatPausedOverride = null;
         _flexSatelliteSetupError = null;
         _lastAppliedCtcssHz = null;
+        _lastAppliedCtcssSquelch = null;
         _lastPassDownlinkOnVhf = null;
         _receiveVfo = RigVfo.VfoA;
         _suspendDopplerUntilUtc = DateTime.MinValue;
@@ -1600,6 +1603,7 @@ public sealed class RigController : IRigController, IDisposable
             SetCtcssOffOnVfo(vfo);
 
         _lastAppliedCtcssHz = null;
+        _lastAppliedCtcssSquelch = null;
     }
 
     private static IEnumerable<RigVfo> VfosForSatelliteCtcssClear(RigSettings settings, RigTrackingContext context)
@@ -1737,16 +1741,27 @@ public sealed class RigController : IRigController, IDisposable
         if (driver is null || settings.Uplink.Type == RigType.Dummy || context.SelectedCtcssHz is not { } hz || hz <= 0)
             return;
 
-        if (!force && _lastAppliedCtcssHz == hz)
+        // ICOM (and most others): USA region uses TSQL so the tone is actually programmed/enabled.
+        // TS-2000: always encode-only; CT mutes receive because satellite downlinks rarely carry a tone.
+        var uplinkType = settings.DualRadioEnabled ? settings.Uplink.Type : settings.Type;
+        var squelch = uplinkType != RigType.KenwoodTs2000 && settings.TransmitRegion() == RigRegion.USA;
+        if (!force && _lastAppliedCtcssHz == hz && _lastAppliedCtcssSquelch == squelch)
             return;
 
-        // Encode-only CTCSS on the uplink VFO. Satellite downlinks almost never carry a tone,
-        // so TSQL/CT would mute receive (e.g. TS-2000 "CT" mode).
         driver.SelectVfo(UplinkVfoForCtcss(settings, context), force: true);
-        driver.SetToneHz(hz, squelchTone: false);
-        driver.SetToneOn(true);
+        if (squelch)
+        {
+            driver.SetToneHz(hz, squelchTone: true);
+            driver.SetToneSquelchOn(true);
+        }
+        else
+        {
+            driver.SetToneHz(hz, squelchTone: false);
+            driver.SetToneOn(true);
+        }
 
         _lastAppliedCtcssHz = hz;
+        _lastAppliedCtcssSquelch = squelch;
     }
 
     private static RigVfo UplinkVfoForCtcss(RigSettings settings, RigTrackingContext context)

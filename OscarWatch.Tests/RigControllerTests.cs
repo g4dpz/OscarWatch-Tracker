@@ -1147,15 +1147,13 @@ public class RigControllerTests
 
         controller.Update(settings, Build(67.0));
         Assert.Equal(67.0, rig.LastToneHz);
-        Assert.False(rig.LastToneSquelch);
-        Assert.True(rig.ToneOn);
-        Assert.False(rig.ToneSquelchOn);
+        Assert.True(rig.LastToneSquelch);
+        Assert.True(rig.ToneSquelchOn);
         Assert.Equal(RigVfo.Sub, rig.LastToneVfo);
 
         controller.Update(settings, Build(74.4));
         Assert.Equal(74.4, rig.LastToneHz);
-        Assert.True(rig.ToneOn);
-        Assert.False(rig.ToneSquelchOn);
+        Assert.True(rig.ToneSquelchOn);
         Assert.Equal(RigVfo.Sub, rig.LastToneVfo);
     }
 
@@ -1658,8 +1656,7 @@ public class RigControllerTests
         controller.DrainCommandQueueForTests();
         Assert.Equal(74.4, rig.LastToneHz);
         Assert.Equal(RigVfo.Sub, rig.LastToneVfo);
-        Assert.True(rig.ToneOn);
-        Assert.False(rig.ToneSquelchOn);
+        Assert.True(rig.ToneSquelchOn);
     }
 
     [Fact]
@@ -1711,7 +1708,7 @@ public class RigControllerTests
     }
 
     [Fact]
-    public void Pass_init_ctcss_uses_encode_only_tone_for_us_region()
+    public void Pass_init_ctcss_uses_tsql_path_for_us_region()
     {
         var rig = new RecordingRigDriver();
         var controller = new RigController(_ => rig);
@@ -1750,9 +1747,8 @@ public class RigControllerTests
 
         controller.Update(settings, ctx);
         Assert.Equal(RigVfo.Sub, rig.LastToneVfo);
-        Assert.False(rig.LastToneSquelch);
-        Assert.True(rig.ToneOn);
-        Assert.False(rig.ToneSquelchOn);
+        Assert.True(rig.LastToneSquelch);
+        Assert.True(rig.ToneSquelchOn);
     }
 
     [Fact]
