@@ -181,13 +181,14 @@ public sealed class FlexRadioDriver : IRigDriver
         var rxAnt = FlexAntennaPortResolver.ResolveRxPort(settings, downlinkHz);
         if (rxAnt is not null)
         {
-            if (!_client.SetSliceRxAnt(_rxSliceIndex, rxAnt))
+            if (!_client.SetSliceRxAnt(_rxSliceIndex, rxAnt, out var rxFailure))
             {
                 Log.Warning(
-                    "FlexRadio failed to set RX antenna on slice {SliceIndex}: port={Port}, downlinkHz={DownlinkHz}",
+                    "FlexRadio failed to set RX antenna on slice {SliceIndex}: port={Port}, downlinkHz={DownlinkHz}, detail={Detail}",
                     _rxSliceIndex,
                     rxAnt,
-                    downlinkHz);
+                    downlinkHz,
+                    rxFailure);
             }
         }
 
@@ -195,13 +196,14 @@ public sealed class FlexRadioDriver : IRigDriver
             return;
 
         var txAnt = FlexAntennaPortResolver.ResolveTxPort(settings, uplinkHz);
-        if (txAnt is not null && !_client.SetSliceTxAnt(_txSliceIndex, txAnt))
+        if (txAnt is not null && !_client.SetSliceTxAnt(_txSliceIndex, txAnt, out var txFailure))
         {
             Log.Warning(
-                "FlexRadio failed to set TX antenna on slice {SliceIndex}: port={Port}, uplinkHz={UplinkHz}",
+                "FlexRadio failed to set TX antenna on slice {SliceIndex}: port={Port}, uplinkHz={UplinkHz}, detail={Detail}",
                 _txSliceIndex,
                 txAnt,
-                uplinkHz);
+                uplinkHz,
+                txFailure);
         }
     }
 

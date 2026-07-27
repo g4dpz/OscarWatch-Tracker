@@ -106,19 +106,19 @@ public class FlexSmartSdrCodecTests
         Assert.Equal(expected, FlexModeMapper.ToSmartSdrMode(input));
 
     [Fact]
-    public void BuildSliceSetAntCommands_use_slice_s_rxant_and_txant()
+    public void BuildSliceSetAntCommands_use_slice_set_rxant_and_txant()
     {
-        var rx = FlexSmartSdrCodec.BuildSliceSetRxAntCommand(8, 0, "RXA");
+        var rx = FlexSmartSdrCodec.BuildSliceSetRxAntCommand(8, 0, "RX_A");
         var tx = FlexSmartSdrCodec.BuildSliceSetTxAntCommand(9, 1, "XVTR");
 
-        Assert.Equal("C8|slice s 0 rxant=RXA\n", rx);
-        Assert.Equal("C9|slice s 1 txant=XVTR\n", tx);
+        Assert.Equal("C8|slice set 0 rxant=RX_A\n", rx);
+        Assert.Equal("C9|slice set 1 txant=XVTR\n", tx);
     }
 
     [Fact]
     public void BuildSliceCreateCommand_includes_ant_when_provided()
     {
-        var cmd = FlexSmartSdrCodec.BuildSliceCreateCommand(10, 145.9, "USB", "RXB");
-        Assert.Contains("ant=RXB", cmd, StringComparison.Ordinal);
+        var cmd = FlexSmartSdrCodec.BuildSliceCreateCommand(10, 145.9, "USB", "RX_B");
+        Assert.Contains("ant=RX_B", cmd, StringComparison.Ordinal);
     }
 }

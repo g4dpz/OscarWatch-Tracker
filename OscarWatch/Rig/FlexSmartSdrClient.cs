@@ -225,24 +225,53 @@ internal sealed class FlexSmartSdrClient : IDisposable
         }
     }
 
-    public bool SetSliceRxAnt(int sliceIndex, string antennaPort)
+    public bool SetSliceRxAnt(int sliceIndex, string antennaPort, out string? failureDetail)
     {
         lock (_gate)
         {
             EnsureConnectedUnlocked();
-            return SendAndWaitUnlocked(seq =>
-                FlexSmartSdrCodec.BuildSliceSetRxAntCommand(seq, sliceIndex, antennaPort));
+            return TrySendSliceCommandUnlocked(
+                seq => FlexSmartSdrCodec.BuildSliceSetRxAntCommand(seq, sliceIndex, antennaPort),
+                out failureDetail);
         }
     }
 
-    public bool SetSliceTxAnt(int sliceIndex, string antennaPort)
+    public bool SetSliceTxAnt(int sliceIndex, string antennaPort, out string? failureDetail)
     {
         lock (_gate)
         {
             EnsureConnectedUnlocked();
-            return SendAndWaitUnlocked(seq =>
-                FlexSmartSdrCodec.BuildSliceSetTxAntCommand(seq, sliceIndex, antennaPort));
+            return TrySendSliceCommandUnlocked(
+                seq => FlexSmartSdrCodec.BuildSliceSetTxAntCommand(seq, sliceIndex, antennaPort),
+                out failureDetail);
         }
+    }
+
+    private bool TrySendSliceCommandUnlocked(Func<uint, string> commandFactory, out string? failureDetail)
+    {
+        var response = SendAndWaitResponseUnlocked(commandFactory);
+        if (response is null)
+        {
+            failureDetail = "timeout waiting for SmartSDR response";
+            return false;
+        }
+
+        if (FlexSmartSdrCodec.IsSuccessResponse(response))
+        {
+            failureDetail = null;
+            return true;
+        }
+
+        failureDetail =
+            $"hex=0x{response.HexResponse:X8}, body={TruncateForLog(response.Body)}";
+        return false;
+    }
+
+    private static string TruncateForLog(string? body)
+    {
+        if (string.IsNullOrEmpty(body))
+            return "";
+        return body.Length <= 120 ? body : body[..120] + "…";
     }
 
     public bool SetSliceTone(int sliceIndex, bool toneOn, double toneHz)

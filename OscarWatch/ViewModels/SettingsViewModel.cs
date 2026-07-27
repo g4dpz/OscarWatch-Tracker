@@ -1910,8 +1910,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             new("", leaveUnchanged),
             new("ANT1", "ANT1"),
             new("ANT2", "ANT2"),
-            new("RXA", "RX A"),
-            new("RXB", "RX B"),
+            new("RX_A", "RX A"),
+            new("RX_B", "RX B"),
             new("XVTR", "XVTR")
         ];
     }

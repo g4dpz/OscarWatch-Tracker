@@ -56,12 +56,12 @@ public static class FlexSmartSdrCodec
     public static string BuildSliceSetRxAntCommand(uint sequence, int sliceIndex, string antennaPort) =>
         BuildCommand(
             sequence,
-            $"slice s {sliceIndex.ToString(CultureInfo.InvariantCulture)} rxant={SanitizeToken(antennaPort)}");
+            $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} rxant={SanitizeToken(antennaPort)}");
 
     public static string BuildSliceSetTxAntCommand(uint sequence, int sliceIndex, string antennaPort) =>
         BuildCommand(
             sequence,
-            $"slice s {sliceIndex.ToString(CultureInfo.InvariantCulture)} txant={SanitizeToken(antennaPort)}");
+            $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} txant={SanitizeToken(antennaPort)}");
 
     public static string BuildSliceSetToneModeCommand(uint sequence, int sliceIndex, bool toneOn) =>
         BuildCommand(

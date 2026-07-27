@@ -94,7 +94,12 @@
       <p>
         When you switch between U/V and V/U satellites, OscarWatch retunes both slices but SmartSDR does not
         automatically move auxiliary receive ports. If your UHF transverter is on <strong>RX A</strong> and VHF on
-        <strong>RX B</strong>, you can map those in Settings so the correct port is selected at pass start.
+        <strong>RX B</strong>, you can map those in Settings so the correct port is selected when OscarWatch
+        initialises the duplex layout.
+      </p>
+      <p>
+        Ports are applied whenever a satellite (or mode) is focused and CAT pass setup runs — including below the
+        horizon when you swap birds for testing. You do <em>not</em> need the satellite to be above the horizon.
       </p>
       <p>
         Under <strong>Settings → Radio → FlexRadio</strong>, the <strong>Antenna ports by band</strong> section offers
@@ -106,7 +111,8 @@
       </ul>
       <p>
         Choose <strong>Leave unchanged</strong> for any row you do not want OscarWatch to touch (the default for all four).
-        Valid ports are <code>ANT1</code>, <code>ANT2</code>, <code>RXA</code>, <code>RXB</code>, and <code>XVTR</code>.
+        Valid SmartSDR tokens are <code>ANT1</code>, <code>ANT2</code>, <code>RX_A</code>, <code>RX_B</code>, and <code>XVTR</code>
+        (shown in Settings as RX A / RX B).
       </p>
       <p>
         <strong>RX A</strong> and <strong>RX B</strong> are <em>receive-only</em> auxiliary ports — typical for transverter IF inputs.

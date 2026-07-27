@@ -74,8 +74,8 @@ public class RigControllerFlexTests
                 NetworkPort = harness.Stub.Port,
                 DopplerThresholdFmHz = 200,
                 CatDelayMs = 50,
-                FlexVhfRxAnt = "RXB",
-                FlexUhfRxAnt = "RXA",
+                FlexVhfRxAnt = "RX_B",
+                FlexUhfRxAnt = "RX_A",
                 FlexVhfTxAnt = "XVTR",
                 FlexUhfTxAnt = "ANT1"
             },
@@ -83,7 +83,7 @@ public class RigControllerFlexTests
 
         var rxSlice = stub.Slices[harness.Driver!.RxSliceIndex];
         var txSlice = stub.Slices[harness.Driver.TxSliceIndex];
-        Assert.Equal("RXA", rxSlice.RxAnt);
+        Assert.Equal("RX_A", rxSlice.RxAnt);
         Assert.Equal("XVTR", txSlice.TxAnt);
     }
 

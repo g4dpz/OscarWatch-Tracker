@@ -253,8 +253,8 @@ public class FlexRadioDriverTests
 
         var settings = new RigSettings
         {
-            FlexVhfRxAnt = "RXB",
-            FlexUhfRxAnt = "RXA",
+            FlexVhfRxAnt = "RX_B",
+            FlexUhfRxAnt = "RX_A",
             FlexVhfTxAnt = "XVTR",
             FlexUhfTxAnt = "ANT1"
         };
@@ -263,7 +263,7 @@ public class FlexRadioDriverTests
 
         var rx = stub.Slices[driver.RxSliceIndex];
         var tx = stub.Slices[driver.TxSliceIndex];
-        Assert.Equal("RXA", rx.RxAnt);
+        Assert.Equal("RX_A", rx.RxAnt);
         Assert.Equal("XVTR", tx.TxAnt);
     }
 

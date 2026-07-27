@@ -6,14 +6,14 @@ namespace OscarWatch.Tests;
 public class FlexAntennaPortResolverTests
 {
     [Theory]
-    [InlineData(145_900_000, "RXB")]
-    [InlineData(435_300_000, "RXA")]
+    [InlineData(145_900_000, "RX_B")]
+    [InlineData(435_300_000, "RX_A")]
     public void ResolveRxPort_uses_band_specific_settings(long hz, string expected)
     {
         var settings = new RigSettings
         {
-            FlexVhfRxAnt = "RXB",
-            FlexUhfRxAnt = "RXA"
+            FlexVhfRxAnt = "RX_B",
+            FlexUhfRxAnt = "RX_A"
         };
 
         Assert.Equal(expected, FlexAntennaPortResolver.ResolveRxPort(settings, hz));
@@ -42,10 +42,25 @@ public class FlexAntennaPortResolverTests
     }
 
     [Fact]
-    public void NormalizeToken_rejects_unknown_values()
+    public void NormalizeToken_maps_legacy_rxa_rxb_to_underscore_form()
     {
-        Assert.Equal("RXA", FlexAntennaPortResolver.NormalizeToken("rxa"));
+        Assert.Equal("RX_A", FlexAntennaPortResolver.NormalizeToken("rxa"));
+        Assert.Equal("RX_B", FlexAntennaPortResolver.NormalizeToken("RXB"));
+        Assert.Equal("RX_A", FlexAntennaPortResolver.NormalizeToken("RX_A"));
         Assert.Null(FlexAntennaPortResolver.NormalizeToken("INVALID"));
         Assert.Null(FlexAntennaPortResolver.NormalizeToken(""));
+    }
+
+    [Fact]
+    public void ResolveRxPort_accepts_legacy_saved_tokens()
+    {
+        var settings = new RigSettings
+        {
+            FlexVhfRxAnt = "RXB",
+            FlexUhfRxAnt = "RXA"
+        };
+
+        Assert.Equal("RX_B", FlexAntennaPortResolver.ResolveRxPort(settings, 145_900_000));
+        Assert.Equal("RX_A", FlexAntennaPortResolver.ResolveRxPort(settings, 435_300_000));
     }
 }

@@ -70,7 +70,7 @@ public sealed class RigSettings
     /// <summary>Optional Flex radio serial from discovery, used to re-select the same radio.</summary>
     public string FlexRadioSerial { get; set; } = "";
 
-    /// <summary>SmartSDR RX antenna for VHF downlink/uplink (ANT1, ANT2, RXA, RXB, XVTR; empty = leave unchanged).</summary>
+    /// <summary>SmartSDR RX antenna for VHF downlink/uplink (ANT1, ANT2, RX_A, RX_B, XVTR; empty = leave unchanged).</summary>
     public string FlexVhfRxAnt { get; set; } = "";
 
     /// <summary>SmartSDR RX antenna for UHF and above (empty = leave unchanged).</summary>

@@ -2167,7 +2167,7 @@ Continue?</value>
     <value>Antenna ports by band</value>
   </data>
   <data name="Settings.Radio.FlexAntennaPortsHint">
-    <value>When switching U/V ↔ V/U satellites, OscarWatch sets SmartSDR RX/TX ports from the downlink and uplink bands. Leave unchanged keeps the radio’s current port. RX A and RX B are receive-only; map TX to ANT or XVTR as wired.</value>
+    <value>When switching U/V ↔ V/U satellites, OscarWatch sets SmartSDR RX/TX ports from the downlink and uplink bands (on satellite focus / pass setup — not only when the bird is above the horizon). Leave unchanged keeps the radio’s current port. RX A and RX B are receive-only; map TX to ANT or XVTR as wired.</value>
   </data>
   <data name="Settings.Radio.FlexAntennaLeaveUnchanged">
     <value>Leave unchanged</value>
