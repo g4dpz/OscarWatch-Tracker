@@ -2161,7 +2161,28 @@ Continue?</value>
     <value>Flex discovery failed: {0}</value>
   </data>
   <data name="Settings.Radio.FlexHint">
-    <value>Pick a discovered radio or enter the IP manually (TCP port 4992). OscarWatch enables full duplex and drives separate RX/TX slices for Doppler. Antenna and XVTR ports should already be set on the radio or in SmartSDR. Dual-SCU models (e.g. 6600/6700) are required for true full duplex.</value>
+    <value>Pick a discovered radio or enter the IP manually (TCP port 4992). OscarWatch enables full duplex and drives separate RX/TX slices for Doppler. Use the antenna port map below when transverters use different RX A/RX B or ANT/XVTR paths per band. Dual-SCU models (e.g. 6600/6700) are required for true full duplex.</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPorts">
+    <value>Antenna ports by band</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPortsHint">
+    <value>When switching U/V ↔ V/U satellites, OscarWatch sets SmartSDR RX/TX ports from the downlink and uplink bands. Leave unchanged keeps the radio’s current port. RX A and RX B are receive-only; map TX to ANT or XVTR as wired.</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaLeaveUnchanged">
+    <value>Leave unchanged</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfRxAnt">
+    <value>VHF receive (2 m)</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfRxAnt">
+    <value>UHF receive (70 cm+)</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfTxAnt">
+    <value>VHF transmit (2 m)</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfTxAnt">
+    <value>UHF transmit (70 cm+)</value>
   </data>
   <data name="Settings.Radio.FlexDuplexWarning">
     <value>This model may not support full duplex (single SCU). Satellite use typically needs a dual-SCU Flex such as a 6600 or 6700 with suitable isolation or transverters.</value>

@@ -70,6 +70,18 @@ public sealed class RigSettings
     /// <summary>Optional Flex radio serial from discovery, used to re-select the same radio.</summary>
     public string FlexRadioSerial { get; set; } = "";
 
+    /// <summary>SmartSDR RX antenna for VHF downlink/uplink (ANT1, ANT2, RXA, RXB, XVTR; empty = leave unchanged).</summary>
+    public string FlexVhfRxAnt { get; set; } = "";
+
+    /// <summary>SmartSDR RX antenna for UHF and above (empty = leave unchanged).</summary>
+    public string FlexUhfRxAnt { get; set; } = "";
+
+    /// <summary>SmartSDR TX antenna for VHF uplink (empty = leave unchanged).</summary>
+    public string FlexVhfTxAnt { get; set; } = "";
+
+    /// <summary>SmartSDR TX antenna for UHF and above (empty = leave unchanged).</summary>
+    public string FlexUhfTxAnt { get; set; } = "";
+
     /// <summary>CI-V address as hex string (factory default for most ICOM rigs is 60).</summary>
     public string CivAddress { get; set; } = "60";
 

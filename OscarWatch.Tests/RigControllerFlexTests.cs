@@ -47,6 +47,47 @@ public class RigControllerFlexTests
     }
 
     [Fact]
+    public void Flex_cross_band_pass_applies_configured_antenna_ports()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+        using var harness = CreateHarness(stub);
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 435_800,
+            UplinkKHz = 145_900,
+            DownlinkMode = "FM",
+            UplinkMode = "FM"
+        };
+
+        PublishAndWait(
+            harness,
+            mode,
+            DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            settings: new RigSettings
+            {
+                Enabled = true,
+                Type = RigType.FlexSmartSdr,
+                NetworkHost = "127.0.0.1",
+                NetworkPort = harness.Stub.Port,
+                DopplerThresholdFmHz = 200,
+                CatDelayMs = 50,
+                FlexVhfRxAnt = "RXB",
+                FlexUhfRxAnt = "RXA",
+                FlexVhfTxAnt = "XVTR",
+                FlexUhfTxAnt = "ANT1"
+            },
+            ready: () => stub.FullDuplexEnabled);
+
+        var rxSlice = stub.Slices[harness.Driver!.RxSliceIndex];
+        var txSlice = stub.Slices[harness.Driver.TxSliceIndex];
+        Assert.Equal("RXA", rxSlice.RxAnt);
+        Assert.Equal("XVTR", txSlice.TxAnt);
+    }
+
+    [Fact]
     public void Flex_linear_manual_rx_tune_is_not_snapped_back()
     {
         using var stub = new FlexSmartSdrStubServer();
@@ -278,9 +319,10 @@ public class RigControllerFlexTests
         SatelliteTransponderMode mode,
         CorrectedFrequencies corrected,
         Func<bool> ready,
-        double? selectedCtcssHz = null)
+        double? selectedCtcssHz = null,
+        RigSettings? settings = null)
     {
-        var settings = new RigSettings
+        settings ??= new RigSettings
         {
             Enabled = true,
             Type = RigType.FlexSmartSdr,
@@ -289,6 +331,11 @@ public class RigControllerFlexTests
             DopplerThresholdFmHz = 200,
             CatDelayMs = 50
         };
+
+        settings.Enabled = true;
+        settings.Type = RigType.FlexSmartSdr;
+        settings.NetworkHost = "127.0.0.1";
+        settings.NetworkPort = harness.Stub.Port;
 
         var ctx = new RigTrackingContext
         {

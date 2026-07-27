@@ -309,6 +309,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
 
             var freq = 14.0;
             var mode = "USB";
+            var ant = "";
             foreach (var token in body.Split(' ', StringSplitOptions.RemoveEmptyEntries))
             {
                 if (token.StartsWith("freq=", StringComparison.OrdinalIgnoreCase)
@@ -316,13 +317,20 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                     freq = mhz;
                 if (token.StartsWith("mode=", StringComparison.OrdinalIgnoreCase))
                     mode = token[5..];
+                if (token.StartsWith("ant=", StringComparison.OrdinalIgnoreCase))
+                    ant = token[4..];
             }
 
             int index;
             lock (_gate)
             {
                 index = _nextSliceIndex++;
-                _slices[index] = new StubSlice(index, FlexSmartSdrCodec.MhzToHz(freq), mode, Tx: false);
+                _slices[index] = new StubSlice(
+                    index,
+                    FlexSmartSdrCodec.MhzToHz(freq),
+                    mode,
+                    Tx: false,
+                    RxAnt: ant);
             }
 
             await EmitSliceAsync(writer, index).ConfigureAwait(false);
@@ -356,6 +364,10 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                 else if (key.Equals("fm_tone_value", StringComparison.OrdinalIgnoreCase)
                          && double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var hz))
                     next = next with { ToneHz = hz };
+                else if (key.Equals("rxant", StringComparison.OrdinalIgnoreCase))
+                    next = next with { RxAnt = value };
+                else if (key.Equals("txant", StringComparison.OrdinalIgnoreCase))
+                    next = next with { TxAnt = value };
             }
 
             return next;
@@ -403,5 +415,13 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
             .ConfigureAwait(false);
     }
 
-    internal sealed record StubSlice(int Index, long FrequencyHz, string Mode, bool Tx, string ToneMode = "OFF", double ToneHz = 67.0);
+    internal sealed record StubSlice(
+        int Index,
+        long FrequencyHz,
+        string Mode,
+        bool Tx,
+        string ToneMode = "OFF",
+        double ToneHz = 67.0,
+        string RxAnt = "",
+        string TxAnt = "");
 }

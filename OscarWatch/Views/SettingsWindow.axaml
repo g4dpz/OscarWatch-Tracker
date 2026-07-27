@@ -412,6 +412,61 @@
                            TextWrapping="Wrap"
                            IsVisible="{Binding ShowRigFlexDuplexWarning}"
                            Text="{loc:Localize Key=Settings.Radio.FlexDuplexWarning}" />
+                <TextBlock Text="{loc:Localize Key=Settings.Radio.FlexAntennaPorts}" />
+                <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           FontSize="11"
+                           TextWrapping="Wrap"
+                           Text="{loc:Localize Key=Settings.Radio.FlexAntennaPortsHint}" />
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="8">
+                  <TextBlock Grid.Row="0" Grid.Column="0"
+                             Text="{loc:Localize Key=Settings.Radio.FlexVhfRxAnt}" />
+                  <ComboBox Grid.Row="1" Grid.Column="0"
+                            ItemsSource="{Binding FlexAntennaPortChoices}"
+                            SelectedItem="{Binding SelectedFlexVhfRxAnt, Mode=TwoWay}"
+                            HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate x:DataType="vm:FlexAntennaPortOption">
+                        <TextBlock Text="{Binding Label}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                  <TextBlock Grid.Row="0" Grid.Column="1"
+                             Text="{loc:Localize Key=Settings.Radio.FlexUhfRxAnt}" />
+                  <ComboBox Grid.Row="1" Grid.Column="1"
+                            ItemsSource="{Binding FlexAntennaPortChoices}"
+                            SelectedItem="{Binding SelectedFlexUhfRxAnt, Mode=TwoWay}"
+                            HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate x:DataType="vm:FlexAntennaPortOption">
+                        <TextBlock Text="{Binding Label}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                  <TextBlock Grid.Row="2" Grid.Column="0"
+                             Text="{loc:Localize Key=Settings.Radio.FlexVhfTxAnt}" />
+                  <ComboBox Grid.Row="3" Grid.Column="0"
+                            ItemsSource="{Binding FlexAntennaPortChoices}"
+                            SelectedItem="{Binding SelectedFlexVhfTxAnt, Mode=TwoWay}"
+                            HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate x:DataType="vm:FlexAntennaPortOption">
+                        <TextBlock Text="{Binding Label}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                  <TextBlock Grid.Row="2" Grid.Column="1"
+                             Text="{loc:Localize Key=Settings.Radio.FlexUhfTxAnt}" />
+                  <ComboBox Grid.Row="3" Grid.Column="1"
+                            ItemsSource="{Binding FlexAntennaPortChoices}"
+                            SelectedItem="{Binding SelectedFlexUhfTxAnt, Mode=TwoWay}"
+                            HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate x:DataType="vm:FlexAntennaPortOption">
+                        <TextBlock Text="{Binding Label}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                </Grid>
               </StackPanel>
               <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                          FontSize="11"

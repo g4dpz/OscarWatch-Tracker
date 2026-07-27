@@ -1356,6 +1356,9 @@ public sealed class RigController : IRigController, IDisposable
             }
             else
             {
+                if (settings.Type == RigType.FlexSmartSdr && _driver is FlexRadioDriver flexBeforeSat)
+                    flexBeforeSat.ConfigureAntennaPorts(settings);
+
                 _driver.SetSatelliteMode(true);
                 if (settings.Type == RigType.KenwoodTs2000 && !_driver.IsSatelliteModeActive)
                 {
@@ -1417,6 +1420,14 @@ public sealed class RigController : IRigController, IDisposable
 
         if (initResult.RxWritten || initResult.TxWritten)
             _lastWriteUtc = DateTime.UtcNow;
+
+        if (settings.Type == RigType.FlexSmartSdr && _driver is FlexRadioDriver flexDriver)
+        {
+            flexDriver.ConfigureAntennaPorts(settings);
+            if (rxHz > 0)
+                flexDriver.ApplyBandAntennaPorts(settings, rxHz, _isBeaconOnly ? 0 : txHz);
+        }
+
         _lastPassDownlinkOnVhf = RigSatModeHelper.IsVhfCenterKHz(context.Mode.DownlinkKHz);
         MarkProgrammaticFrequencySettle();
         ExtendDopplerSuspendMs(500);

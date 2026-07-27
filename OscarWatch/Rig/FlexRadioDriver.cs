@@ -24,6 +24,7 @@ public sealed class FlexRadioDriver : IRigDriver
     private bool _hasMainStatusObservation;
     private bool _toneOn;
     private double _toneHz = 67.0;
+    private RigSettings _antennaPortSettings = new();
 
     public FlexRadioDriver(string host, int port, int catDelayMs = 50)
         : this(new FlexSmartSdrClient(host, port, ResolveTimeoutMs(catDelayMs)), ownsClient: true)
@@ -161,6 +162,49 @@ public sealed class FlexRadioDriver : IRigDriver
             _txSliceIndex);
     }
 
+    /// <summary>
+    /// Stores band→port settings used when creating slices and applying antenna ports.
+    /// </summary>
+    public void ConfigureAntennaPorts(RigSettings settings) =>
+        _antennaPortSettings = settings;
+
+    /// <summary>
+    /// Applies configured VHF/UHF RX and TX antenna ports for the current duplex slices.
+    /// Empty settings leave SmartSDR ports unchanged.
+    /// </summary>
+    public void ApplyBandAntennaPorts(RigSettings settings, long downlinkHz, long uplinkHz)
+    {
+        _antennaPortSettings = settings;
+        if (!_client.IsConnected)
+            return;
+
+        var rxAnt = FlexAntennaPortResolver.ResolveRxPort(settings, downlinkHz);
+        if (rxAnt is not null)
+        {
+            if (!_client.SetSliceRxAnt(_rxSliceIndex, rxAnt))
+            {
+                Log.Warning(
+                    "FlexRadio failed to set RX antenna on slice {SliceIndex}: port={Port}, downlinkHz={DownlinkHz}",
+                    _rxSliceIndex,
+                    rxAnt,
+                    downlinkHz);
+            }
+        }
+
+        if (!_satelliteMode || uplinkHz <= 0)
+            return;
+
+        var txAnt = FlexAntennaPortResolver.ResolveTxPort(settings, uplinkHz);
+        if (txAnt is not null && !_client.SetSliceTxAnt(_txSliceIndex, txAnt))
+        {
+            Log.Warning(
+                "FlexRadio failed to set TX antenna on slice {SliceIndex}: port={Port}, uplinkHz={UplinkHz}",
+                _txSliceIndex,
+                txAnt,
+                uplinkHz);
+        }
+    }
+
     public void ExchangeVfos()
     {
         // Slice roles stay RX/TX; front-panel / SmartSDR swap is not mirrored.
@@ -276,9 +320,11 @@ public sealed class FlexRadioDriver : IRigDriver
         if (slices.Count == 1)
         {
             _rxSliceIndex = slices[0].Index;
+            var createHz = _lastSubHz > 0 ? _lastSubHz : 435_000_000;
             var created = _client.CreateSlice(
-                _lastSubHz > 0 ? _lastSubHz : 435_000_000,
-                "USB");
+                createHz,
+                "USB",
+                FlexAntennaPortResolver.ResolveTxPort(_antennaPortSettings, createHz));
             if (created is null || created.Value == _rxSliceIndex)
                 return false;
 
@@ -286,12 +332,16 @@ public sealed class FlexRadioDriver : IRigDriver
             return _client.GetInUseSlices().Select(s => s.Index).Distinct().Count() >= 2;
         }
 
+        var rxCreateHz = _lastMainHz > 0 ? _lastMainHz : 145_900_000;
+        var txCreateHz = _lastSubHz > 0 ? _lastSubHz : 435_000_000;
         var rxCreated = _client.CreateSlice(
-            _lastMainHz > 0 ? _lastMainHz : 145_900_000,
-            "USB");
+            rxCreateHz,
+            "USB",
+            FlexAntennaPortResolver.ResolveRxPort(_antennaPortSettings, rxCreateHz));
         var txCreated = _client.CreateSlice(
-            _lastSubHz > 0 ? _lastSubHz : 435_000_000,
-            "USB");
+            txCreateHz,
+            "USB",
+            FlexAntennaPortResolver.ResolveTxPort(_antennaPortSettings, txCreateHz));
         if (rxCreated is null || txCreated is null || rxCreated.Value == txCreated.Value)
             return false;
 

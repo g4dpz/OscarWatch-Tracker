@@ -52,9 +52,9 @@
 
       <h2>What you need</h2>
       <ul>
-        <li>A dual-SCU Flex (for example <strong>6600</strong>, <strong>6600M</strong>, or <strong>6700</strong>) for true full duplex.</li>
+        <li>A dual-SCU Flex (for example <strong>6600</strong>, <strong>6600M</strong>, <strong>6700</strong>, or <strong>8600</strong>) for true full duplex.</li>
         <li>The radio on the same LAN as the PC (SmartSDR API on TCP port <strong>4992</strong>).</li>
-        <li>Antenna / XVTR ports already set on the radio or in SmartSDR for your satellite bands.</li>
+        <li>Transverters and antenna ports wired for your satellite bands (see <a href="#antenna-ports">Antenna ports by band</a> below).</li>
       </ul>
       <p>
         Single-SCU models (such as a 6400) are not suitable for full-duplex satellite work.
@@ -67,6 +67,7 @@
         <li>Choose <strong>FlexRadio (SmartSDR)</strong>.</li>
         <li>Click <strong>Refresh</strong> next to Discovered radios (UDP discovery on port 4992).</li>
         <li>Select your radio — host and port fill in automatically (or type the IP yourself).</li>
+        <li>Configure <strong>Antenna ports by band</strong> if you use separate RX A/RX B or ANT/XVTR paths for 2&nbsp;m and 70&nbsp;cm (optional; see below).</li>
         <li>Click <strong>Test SmartSDR connection</strong> to confirm the API handshake.</li>
         <li>Track a pass — OscarWatch enables full duplex and drives RX/TX slices.</li>
       </ol>
@@ -77,8 +78,8 @@
           <tr><th>OscarWatch</th><th>SmartSDR</th></tr>
         </thead>
         <tbody>
-          <tr><td>Main (RX)</td><td>Downlink slice frequency and mode</td></tr>
-          <tr><td>Sub (TX)</td><td>Uplink slice (<code>tx=1</code>), mode, and FM CTCSS when needed</td></tr>
+          <tr><td>Main (RX)</td><td>Downlink slice frequency, mode, and optional RX antenna</td></tr>
+          <tr><td>Sub (TX)</td><td>Uplink slice (<code>tx=1</code>), mode, FM CTCSS, and optional TX antenna</td></tr>
           <tr><td>Satellite mode</td><td><code>full_duplex_enabled=1</code> and a two-slice layout</td></tr>
         </tbody>
       </table>
@@ -86,15 +87,53 @@
       <h3>Pass layouts</h3>
       <ul>
         <li><strong>Cross-band</strong> and <strong>same-band duplex</strong> (both uplink and downlink set, e.g. ISS packet): full duplex on, two slices. Same-band does <em>not</em> use classic split; Doppler still separates TX and RX on the two slices.</li>
-        <li><strong>Beacon / receive-only</strong> (uplink 0): full duplex off; only the downlink slice is tracked.</li>
+        <li><strong>Beacon / receive-only</strong> (uplink 0): full duplex off; only the downlink slice is tracked (RX antenna mapping still applies when configured).</li>
       </ul>
+
+      <h2 id="antenna-ports">Antenna ports by band</h2>
+      <p>
+        When you switch between U/V and V/U satellites, OscarWatch retunes both slices but SmartSDR does not
+        automatically move auxiliary receive ports. If your UHF transverter is on <strong>RX A</strong> and VHF on
+        <strong>RX B</strong>, you can map those in Settings so the correct port is selected at pass start.
+      </p>
+      <p>
+        Under <strong>Settings → Radio → FlexRadio</strong>, the <strong>Antenna ports by band</strong> section offers
+        four optional mappings:
+      </p>
+      <ul>
+        <li><strong>VHF receive (2&nbsp;m)</strong> and <strong>UHF receive (70&nbsp;cm+)</strong> — applied to the downlink slice (<code>rxant</code>).</li>
+        <li><strong>VHF transmit (2&nbsp;m)</strong> and <strong>UHF transmit (70&nbsp;cm+)</strong> — applied to the uplink slice (<code>txant</code>).</li>
+      </ul>
+      <p>
+        Choose <strong>Leave unchanged</strong> for any row you do not want OscarWatch to touch (the default for all four).
+        Valid ports are <code>ANT1</code>, <code>ANT2</code>, <code>RXA</code>, <code>RXB</code>, and <code>XVTR</code>.
+      </p>
+      <p>
+        <strong>RX A</strong> and <strong>RX B</strong> are <em>receive-only</em> auxiliary ports — typical for transverter IF inputs.
+        Transmit paths usually use <code>ANT1</code>, <code>ANT2</code>, or <code>XVTR</code>; map TX only if your station switches those by band.
+      </p>
+      <h3>Example (transverters on RX A / RX B)</h3>
+      <table>
+        <thead>
+          <tr><th>Setting</th><th>Value</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>VHF receive</td><td>RX B</td></tr>
+          <tr><td>UHF receive</td><td>RX A</td></tr>
+          <tr><td>VHF / UHF transmit</td><td>Leave unchanged (or ANT/XVTR as wired)</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Wiring is station-specific — 6600, 6700, and 8600 models can all expose RX A/RX B when fitted, but which band
+        goes to which port is yours to configure.
+      </p>
 
       <h2>Tips</h2>
       <ul>
         <li>SmartSDR for Windows can stay open for panadapter and audio; OscarWatch is another API client.</li>
         <li>If <strong>Settings → Recording</strong> reports that audio is unavailable while SmartSDR is running, configure pass recording with SmartSDR closed — some DAX virtual audio devices fail PortAudio initialisation. OscarWatch probes audio in a separate process so this does not close the main application. Other Settings tabs are safe to use during a pass.</li>
         <li>This driver is <strong>not</strong> a dual-radio leg and is not Hamlib/rigctl.</li>
-        <li>RF isolation and transverters remain your responsibility — OscarWatch only controls frequency, mode, FDX, and tone.</li>
+        <li>RF isolation and transverters remain your responsibility — OscarWatch controls frequency, mode, full duplex, tone, and optional antenna ports.</li>
       </ul>
 
       <h2>If the radio is discovered but not controlled</h2>
@@ -111,6 +150,7 @@
         <li>On pass start, full duplex is on and two slices are active.</li>
         <li>RX and TX Doppler both update during a pass.</li>
         <li>FM satellites get the correct uplink CTCSS.</li>
+        <li>When antenna port mapping is configured, switching U/V ↔ V/U selects the expected RX (and TX) ports in SmartSDR.</li>
       </ol>
     </main>
   </div>

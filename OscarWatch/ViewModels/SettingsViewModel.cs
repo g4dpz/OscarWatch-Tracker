@@ -416,6 +416,18 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     private string _rigFlexTestStatus = "";
 
     [ObservableProperty]
+    private FlexAntennaPortOption? _selectedFlexVhfRxAnt;
+
+    [ObservableProperty]
+    private FlexAntennaPortOption? _selectedFlexUhfRxAnt;
+
+    [ObservableProperty]
+    private FlexAntennaPortOption? _selectedFlexVhfTxAnt;
+
+    [ObservableProperty]
+    private FlexAntennaPortOption? _selectedFlexUhfTxAnt;
+
+    [ObservableProperty]
     private FlexDiscoveredRadioOption? _selectedFlexDiscoveredRadio;
 
     [ObservableProperty]
@@ -596,6 +608,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         && !FlexDiscoveryCodec.LooksDuplexCapable(opt.Radio.Model);
 
     public ObservableCollection<FlexDiscoveredRadioOption> DiscoveredFlexRadios { get; } = [];
+
+    public IReadOnlyList<FlexAntennaPortOption> FlexAntennaPortChoices { get; }
 
     public bool ShowRigFt817CatHint =>
         DualRadioEnabled
@@ -800,6 +814,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             new(RigRegion.EU, "EU"),
             new(RigRegion.USA, "USA")
         ];
+        FlexAntennaPortChoices = BuildFlexAntennaPortChoices();
         GpsConnectionChoices =
         [
             new(GpsConnectionKind.Serial, _l.Get("Settings.Gps.Connection.Serial")),
@@ -1091,6 +1106,10 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
                 ? RigNetworkPort
                 : RigSettings.FlexSmartSdrDefaultPort,
             FlexRadioSerial = RigFlexRadioSerial.Trim(),
+            FlexVhfRxAnt = SelectedFlexVhfRxAnt?.Token ?? "",
+            FlexUhfRxAnt = SelectedFlexUhfRxAnt?.Token ?? "",
+            FlexVhfTxAnt = SelectedFlexVhfTxAnt?.Token ?? "",
+            FlexUhfTxAnt = SelectedFlexUhfTxAnt?.Token ?? "",
             Region = SelectedRigRegionChoice?.Value ?? RigRegion.EU,
             DopplerThresholdFmHz = RigDopplerThresholdFmHz,
             DopplerThresholdLinearHz = RigDopplerThresholdLinearHz,
@@ -1265,6 +1284,10 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             RigNetworkPort = rig.NetworkPort > 0 ? rig.NetworkPort : RigSettings.FlexSmartSdrDefaultPort;
             RigFlexRadioSerial = rig.FlexRadioSerial ?? "";
             RigFlexTestStatus = "";
+            SelectedFlexVhfRxAnt = SelectFlexAntennaPortChoice(rig.FlexVhfRxAnt);
+            SelectedFlexUhfRxAnt = SelectFlexAntennaPortChoice(rig.FlexUhfRxAnt);
+            SelectedFlexVhfTxAnt = SelectFlexAntennaPortChoice(rig.FlexVhfTxAnt);
+            SelectedFlexUhfTxAnt = SelectFlexAntennaPortChoice(rig.FlexUhfTxAnt);
             SelectedRigRegionChoice = RigRegionChoices.FirstOrDefault(o => o.Value == rig.Region)
                 ?? RigRegionChoices[0];
             RefreshDiscoveredFlexRadiosFromService();
@@ -1879,6 +1902,27 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     partial void OnSelectedDownlinkComPortChanged(string? value) => RefreshComPortConflictIfReady();
     partial void OnSelectedUplinkComPortChanged(string? value) => RefreshComPortConflictIfReady();
 
+    private IReadOnlyList<FlexAntennaPortOption> BuildFlexAntennaPortChoices()
+    {
+        var leaveUnchanged = _l.Get("Settings.Radio.FlexAntennaLeaveUnchanged");
+        return
+        [
+            new("", leaveUnchanged),
+            new("ANT1", "ANT1"),
+            new("ANT2", "ANT2"),
+            new("RXA", "RX A"),
+            new("RXB", "RX B"),
+            new("XVTR", "XVTR")
+        ];
+    }
+
+    private FlexAntennaPortOption SelectFlexAntennaPortChoice(string? token)
+    {
+        var normalized = FlexAntennaPortResolver.NormalizeToken(token) ?? "";
+        return FlexAntennaPortChoices.FirstOrDefault(o => o.Token == normalized)
+            ?? FlexAntennaPortChoices[0];
+    }
+
     partial void OnSelectedRigTypeChoiceChanged(RigTypeOption? value)
     {
         OnPropertyChanged(nameof(ShowRigCivAddress));
@@ -2345,6 +2389,8 @@ public sealed record RotatorElevationOption(RotatorElevationRange Value, string 
 public sealed record RigTypeOption(RigType Value, string Label);
 
 public sealed record FlexDiscoveredRadioOption(FlexDiscoveredRadio Radio, string Label);
+
+public sealed record FlexAntennaPortOption(string Token, string Label);
 
 public sealed record RigRegionOption(RigRegion Value, string Label);
 

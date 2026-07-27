@@ -314,7 +314,7 @@ Covers **FTX-1 Field** and **FTX-1optima** (same field head). Downlink uses VFO-
 
 ### Hardware checklist (Flex)
 
-- Dual-SCU radio on the LAN; antenna/XVTR ports already configured for the satellite bands.
+- Dual-SCU radio on the LAN; optional band→antenna port map in Settings (VHF/UHF RX and TX); otherwise SmartSDR ports stay as configured.
 - Discovery or manual IP; **Test SmartSDR connection** succeeds.
 - On a real pass: FDX on, RX/TX Doppler both move, FM uplink CTCSS correct.
 

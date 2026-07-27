@@ -242,6 +242,51 @@ public class FlexRadioDriverTests
     }
 
     [Fact]
+    public void ApplyBandAntennaPorts_sets_rx_and_tx_ports_for_duplex_layout()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        var settings = new RigSettings
+        {
+            FlexVhfRxAnt = "RXB",
+            FlexUhfRxAnt = "RXA",
+            FlexVhfTxAnt = "XVTR",
+            FlexUhfTxAnt = "ANT1"
+        };
+
+        driver.ApplyBandAntennaPorts(settings, 435_300_000, 145_800_000);
+
+        var rx = stub.Slices[driver.RxSliceIndex];
+        var tx = stub.Slices[driver.TxSliceIndex];
+        Assert.Equal("RXA", rx.RxAnt);
+        Assert.Equal("XVTR", tx.TxAnt);
+    }
+
+    [Fact]
+    public void ApplyBandAntennaPorts_with_empty_settings_sends_no_antenna_commands()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        driver.ApplyBandAntennaPorts(new RigSettings(), 435_300_000, 145_800_000);
+
+        foreach (var slice in stub.Slices.Values)
+        {
+            Assert.Equal("", slice.RxAnt);
+            Assert.Equal("", slice.TxAnt);
+        }
+    }
+
+    [Fact]
     public void SupportsVfoExchange_IsFalse()
     {
         using var stub = new FlexSmartSdrStubServer();

@@ -225,6 +225,26 @@ internal sealed class FlexSmartSdrClient : IDisposable
         }
     }
 
+    public bool SetSliceRxAnt(int sliceIndex, string antennaPort)
+    {
+        lock (_gate)
+        {
+            EnsureConnectedUnlocked();
+            return SendAndWaitUnlocked(seq =>
+                FlexSmartSdrCodec.BuildSliceSetRxAntCommand(seq, sliceIndex, antennaPort));
+        }
+    }
+
+    public bool SetSliceTxAnt(int sliceIndex, string antennaPort)
+    {
+        lock (_gate)
+        {
+            EnsureConnectedUnlocked();
+            return SendAndWaitUnlocked(seq =>
+                FlexSmartSdrCodec.BuildSliceSetTxAntCommand(seq, sliceIndex, antennaPort));
+        }
+    }
+
     public bool SetSliceTone(int sliceIndex, bool toneOn, double toneHz)
     {
         lock (_gate)
