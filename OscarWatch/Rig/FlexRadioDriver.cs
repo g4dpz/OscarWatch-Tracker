@@ -207,6 +207,68 @@ public sealed class FlexRadioDriver : IRigDriver
         }
     }
 
+    /// <summary>
+    /// One-shot: centre each slice's panadapter on its band frequency after pass init.
+    /// Continuous Doppler uses autopan=0 so these pans are not yanked again.
+    /// </summary>
+    public void CenterBandPanadapters(long downlinkHz, long uplinkHz)
+    {
+        if (!_client.IsConnected)
+            return;
+
+        if (downlinkHz > 0)
+            CenterSlicePan(_rxSliceIndex, downlinkHz, "RX");
+
+        if (_satelliteMode && uplinkHz > 0)
+            CenterSlicePan(_txSliceIndex, uplinkHz, "TX");
+
+        var rxPan = _client.GetSlicePanStreamId(_rxSliceIndex);
+        var txPan = _client.GetSlicePanStreamId(_txSliceIndex);
+        if (!string.IsNullOrWhiteSpace(rxPan)
+            && !string.IsNullOrWhiteSpace(txPan)
+            && string.Equals(rxPan, txPan, StringComparison.OrdinalIgnoreCase)
+            && downlinkHz > 0
+            && uplinkHz > 0)
+        {
+            Log.Warning(
+                "FlexRadio RX and TX slices share pan {PanStreamId}; both bands cannot stay on screen until each slice has its own panadapter",
+                rxPan);
+        }
+    }
+
+    private void CenterSlicePan(int sliceIndex, long centerHz, string role)
+    {
+        var panId = _client.GetSlicePanStreamId(sliceIndex);
+        if (string.IsNullOrWhiteSpace(panId))
+        {
+            Log.Debug(
+                "FlexRadio skip pan centre for {Role} slice {SliceIndex}: pan stream id not yet known",
+                role,
+                sliceIndex);
+            return;
+        }
+
+        if (!_client.SetPanCenter(panId, centerHz, out var failure))
+        {
+            Log.Warning(
+                "FlexRadio failed to centre {Role} pan {PanStreamId} at {CenterHz} Hz (slice {SliceIndex}): detail={Detail}",
+                role,
+                panId,
+                centerHz,
+                sliceIndex,
+                failure);
+        }
+        else
+        {
+            Log.Information(
+                "FlexRadio centred {Role} pan {PanStreamId} at {CenterMhz:0.###} MHz (slice {SliceIndex})",
+                role,
+                panId,
+                FlexSmartSdrCodec.HzToMhz(centerHz),
+                sliceIndex);
+        }
+    }
+
     public void ExchangeVfos()
     {
         // Slice roles stay RX/TX; front-panel / SmartSDR swap is not mirrored.

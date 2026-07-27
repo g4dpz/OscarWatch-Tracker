@@ -29,6 +29,9 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
     private readonly bool _emitPartialSliceStatus;
     private readonly bool _rejectClientProgram;
     private readonly bool _suppressSliceSetStatus;
+    private readonly ConcurrentDictionary<string, long> _panCentersHz = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentQueue<string> _commandBodies = new();
+    private int _nextPanSuffix;
 
     public FlexSmartSdrStubServer(
         int initialSliceCount = 2,
@@ -42,9 +45,9 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         bool suppressSliceSetStatus = false)
     {
         if (initialSliceCount >= 1)
-            _slices[0] = new StubSlice(0, 145_900_000, "USB", Tx: false);
+            _slices[0] = new StubSlice(0, 145_900_000, "USB", Tx: false, PanStreamId: "0x40000000");
         if (initialSliceCount >= 2)
-            _slices[1] = new StubSlice(1, 435_000_000, "USB", Tx: true);
+            _slices[1] = new StubSlice(1, 435_000_000, "USB", Tx: true, PanStreamId: "0x40000001");
 
         _nextSliceIndex = Math.Max(0, initialSliceCount);
         _rejectFullDuplex = rejectFullDuplex;
@@ -55,6 +58,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         _emitPartialSliceStatus = emitPartialSliceStatus;
         _rejectClientProgram = rejectClientProgram;
         _suppressSliceSetStatus = suppressSliceSetStatus;
+        _nextPanSuffix = Math.Max(0, initialSliceCount);
 
         _listener = new TcpListener(IPAddress.Loopback, 0);
         _listener.Start();
@@ -79,6 +83,19 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         {
             lock (_gate)
                 return new Dictionary<int, StubSlice>(_slices);
+        }
+    }
+
+    public IReadOnlyDictionary<string, long> PanCentersHz =>
+        new Dictionary<string, long>(_panCentersHz, StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>SmartSDR command bodies received (text after <c>Cseq|</c>), oldest first.</summary>
+    public IReadOnlyList<string> CommandBodies => _commandBodies.ToArray();
+
+    public void ClearCommandBodies()
+    {
+        while (_commandBodies.TryDequeue(out _))
+        {
         }
     }
 
@@ -201,6 +218,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
             return;
 
         var body = line[(bar + 1)..].Trim();
+        _commandBodies.Enqueue(body);
 
         if (body.StartsWith("client program", StringComparison.OrdinalIgnoreCase))
         {
@@ -237,6 +255,22 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
             await writer.WriteLineAsync(
                     $"SABCDEF01|radio full_duplex_enabled={(enabled ? "1" : "0")}")
                 .ConfigureAwait(false);
+            await writer.WriteLineAsync($"R{seq}|0|").ConfigureAwait(false);
+            return;
+        }
+
+        if (body.StartsWith("display pan set ", StringComparison.OrdinalIgnoreCase))
+        {
+            var match = Regex.Match(
+                body,
+                @"^display pan set (\S+)\s+center=([0-9.]+)",
+                RegexOptions.IgnoreCase);
+            if (match.Success
+                && double.TryParse(match.Groups[2].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var mhz))
+            {
+                _panCentersHz[match.Groups[1].Value] = FlexSmartSdrCodec.MhzToHz(mhz);
+            }
+
             await writer.WriteLineAsync($"R{seq}|0|").ConfigureAwait(false);
             return;
         }
@@ -322,15 +356,19 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
             }
 
             int index;
+            string panId;
             lock (_gate)
             {
                 index = _nextSliceIndex++;
+                panId = $"0x{(0x40000000 + _nextPanSuffix):X8}";
+                _nextPanSuffix++;
                 _slices[index] = new StubSlice(
                     index,
                     FlexSmartSdrCodec.MhzToHz(freq),
                     mode,
                     Tx: false,
-                    RxAnt: ant);
+                    RxAnt: ant,
+                    PanStreamId: panId);
             }
 
             await EmitSliceAsync(writer, index).ConfigureAwait(false);
@@ -410,8 +448,11 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         var mhz = FlexSmartSdrCodec.HzToMhz(slice.FrequencyHz).ToString("0.000000", CultureInfo.InvariantCulture);
         var tone = string.IsNullOrWhiteSpace(slice.ToneMode) ? "OFF" : slice.ToneMode;
         var toneHz = slice.ToneHz.ToString("0.0", CultureInfo.InvariantCulture);
+        var pan = string.IsNullOrWhiteSpace(slice.PanStreamId)
+            ? $"0x{(0x40000000 + index):X8}"
+            : slice.PanStreamId;
         await writer.WriteLineAsync(
-                $"SABCDEF01|slice {index} in_use=1 RF_frequency={mhz} mode={slice.Mode} tx={(slice.Tx ? "1" : "0")} active=0 fm_tone_mode={tone} fm_tone_value={toneHz}")
+                $"SABCDEF01|slice {index} in_use=1 RF_frequency={mhz} mode={slice.Mode} tx={(slice.Tx ? "1" : "0")} active=0 pan={pan} fm_tone_mode={tone} fm_tone_value={toneHz}")
             .ConfigureAwait(false);
     }
 
@@ -423,5 +464,6 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         string ToneMode = "OFF",
         double ToneHz = 67.0,
         string RxAnt = "",
-        string TxAnt = "");
+        string TxAnt = "",
+        string PanStreamId = "");
 }

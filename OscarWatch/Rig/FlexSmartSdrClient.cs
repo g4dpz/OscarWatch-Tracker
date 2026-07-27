@@ -247,6 +247,36 @@ internal sealed class FlexSmartSdrClient : IDisposable
         }
     }
 
+    public string? GetSlicePanStreamId(int sliceIndex)
+    {
+        lock (_gate)
+        {
+            DrainPendingStatusUnlocked();
+            return _slices.TryGetValue(sliceIndex, out var slice)
+                   && !string.IsNullOrWhiteSpace(slice.PanStreamId)
+                ? slice.PanStreamId
+                : null;
+        }
+    }
+
+    public bool SetPanCenter(string panStreamId, long centerHz, out string? failureDetail)
+    {
+        lock (_gate)
+        {
+            EnsureConnectedUnlocked();
+            if (string.IsNullOrWhiteSpace(panStreamId) || centerHz <= 0)
+            {
+                failureDetail = "missing pan stream id or centre frequency";
+                return false;
+            }
+
+            var mhz = FlexSmartSdrCodec.HzToMhz(centerHz);
+            return TrySendSliceCommandUnlocked(
+                seq => FlexSmartSdrCodec.BuildDisplayPanCenterCommand(seq, panStreamId, mhz),
+                out failureDetail);
+        }
+    }
+
     private bool TrySendSliceCommandUnlocked(Func<uint, string> commandFactory, out string? failureDetail)
     {
         var response = SendAndWaitResponseUnlocked(commandFactory);
@@ -504,7 +534,10 @@ internal sealed class FlexSmartSdrClient : IDisposable
                         : existing.FmToneMode,
                     FmToneHz = HasSliceField(body, "fm_tone_value")
                         ? slice.FmToneHz
-                        : existing.FmToneHz
+                        : existing.FmToneHz,
+                    PanStreamId = HasSliceField(body, "pan")
+                        ? slice.PanStreamId
+                        : existing.PanStreamId
                 };
             }
 

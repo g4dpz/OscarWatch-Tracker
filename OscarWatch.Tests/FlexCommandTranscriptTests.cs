@@ -1,0 +1,145 @@
+using OscarWatch.Core.Models;
+using OscarWatch.Core.Radio;
+using OscarWatch.Rig;
+
+namespace OscarWatch.Tests;
+
+/// <summary>
+/// Locks SmartSDR wire strings so we do not silently regress to bare tune / wiki RXA tokens.
+/// </summary>
+public class FlexCommandTranscriptTests
+{
+    [Fact]
+    public void Doppler_tune_always_includes_autopan_zero()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        stub.ClearCommandBodies();
+
+        driver.SelectVfo(RigVfo.Main);
+        Assert.True(driver.SetFrequencyHz(145_960_000));
+        driver.SelectVfo(RigVfo.Sub);
+        Assert.True(driver.SetFrequencyHz(435_148_000));
+
+        var tunes = stub.CommandBodies
+            .Where(b => b.StartsWith("slice tune ", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        Assert.Equal(2, tunes.Count);
+        Assert.Contains(tunes, b => b.Equals("slice tune 0 145.96 autopan=0", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(tunes, b => b.Equals("slice tune 1 435.148 autopan=0", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(stub.CommandBodies, IsBareTuneWithoutAutopan);
+    }
+
+    [Fact]
+    public void Antenna_ports_use_slice_set_and_RX_A_underscore_tokens()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        stub.ClearCommandBodies();
+
+        driver.ApplyBandAntennaPorts(
+            new RigSettings
+            {
+                FlexVhfRxAnt = "RX_B",
+                FlexUhfRxAnt = "RX_A",
+                FlexVhfTxAnt = "XVTR",
+                FlexUhfTxAnt = "ANT1"
+            },
+            downlinkHz: 435_300_000,
+            uplinkHz: 145_800_000);
+
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals("slice set 0 rxant=RX_A", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals("slice set 1 txant=XVTR", StringComparison.OrdinalIgnoreCase));
+
+        Assert.DoesNotContain(
+            stub.CommandBodies,
+            b => b.Contains("rxant=RXA", StringComparison.OrdinalIgnoreCase)
+                 || b.Contains("rxant=RXB", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(
+            stub.CommandBodies,
+            b => b.StartsWith("slice s ", StringComparison.OrdinalIgnoreCase)
+                 && b.Contains("rxant=", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Legacy_saved_RXA_token_is_sent_as_RX_A()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        stub.ClearCommandBodies();
+
+        driver.ApplyBandAntennaPorts(
+            new RigSettings { FlexUhfRxAnt = "RXA", FlexVhfTxAnt = "XVTR" },
+            downlinkHz: 435_300_000,
+            uplinkHz: 145_800_000);
+
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals("slice set 0 rxant=RX_A", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(
+            stub.CommandBodies,
+            b => b.Contains("rxant=RXA", StringComparison.OrdinalIgnoreCase)
+                 && !b.Contains("rxant=RX_A", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Pass_init_pan_centre_uses_display_pan_set_center()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        stub.ClearCommandBodies();
+
+        driver.CenterBandPanadapters(145_960_000, 435_148_000);
+
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals("display pan set 0x40000000 center=145.96", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals("display pan set 0x40000001 center=435.148", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Empty_antenna_settings_send_no_rxant_or_txant()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        stub.ClearCommandBodies();
+
+        driver.ApplyBandAntennaPorts(new RigSettings(), 435_300_000, 145_800_000);
+
+        Assert.DoesNotContain(
+            stub.CommandBodies,
+            b => b.Contains("rxant=", StringComparison.OrdinalIgnoreCase)
+                 || b.Contains("txant=", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool IsBareTuneWithoutAutopan(string body) =>
+        body.StartsWith("slice tune ", StringComparison.OrdinalIgnoreCase)
+        && !body.Contains("autopan=0", StringComparison.OrdinalIgnoreCase);
+}

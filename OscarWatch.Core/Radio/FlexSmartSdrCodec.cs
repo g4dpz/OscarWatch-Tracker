@@ -41,7 +41,12 @@ public static class FlexSmartSdrCodec
     public static string BuildSliceTuneCommand(uint sequence, int sliceIndex, double freqMhz) =>
         BuildCommand(
             sequence,
-            $"slice tune {sliceIndex.ToString(CultureInfo.InvariantCulture)} {freqMhz.ToString("0.######", CultureInfo.InvariantCulture)}");
+            $"slice tune {sliceIndex.ToString(CultureInfo.InvariantCulture)} {freqMhz.ToString("0.######", CultureInfo.InvariantCulture)} autopan=0");
+
+    public static string BuildDisplayPanCenterCommand(uint sequence, string panStreamId, double centerMhz) =>
+        BuildCommand(
+            sequence,
+            $"display pan set {SanitizeToken(panStreamId)} center={centerMhz.ToString("0.######", CultureInfo.InvariantCulture)}");
 
     public static string BuildSliceSetModeCommand(uint sequence, int sliceIndex, string mode) =>
         BuildCommand(
@@ -154,6 +159,7 @@ public static class FlexSmartSdrCodec
         var active = GetInt(fields, "active", 0) != 0;
         fields.TryGetValue("fm_tone_mode", out var toneMode);
         var toneHz = GetDouble(fields, "fm_tone_value", 0);
+        fields.TryGetValue("pan", out var panStreamId);
 
         slice = new FlexSliceState(
             Index: index,
@@ -163,7 +169,8 @@ public static class FlexSmartSdrCodec
             IsTransmit: tx,
             IsActive: active,
             FmToneMode: toneMode ?? "",
-            FmToneHz: toneHz);
+            FmToneHz: toneHz,
+            PanStreamId: panStreamId ?? "");
         return true;
     }
 
@@ -338,4 +345,5 @@ public sealed record FlexSliceState(
     bool IsTransmit,
     bool IsActive,
     string FmToneMode,
-    double FmToneHz);
+    double FmToneHz,
+    string PanStreamId = "");

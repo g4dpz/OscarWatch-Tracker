@@ -58,10 +58,24 @@ public class FlexSmartSdrCodecTests
     }
 
     [Fact]
+    public void BuildSliceTuneCommand_includes_autopan_zero()
+    {
+        var cmd = FlexSmartSdrCodec.BuildSliceTuneCommand(3, 0, 145.9);
+        Assert.Equal("C3|slice tune 0 145.9 autopan=0\n", cmd);
+    }
+
+    [Fact]
+    public void BuildDisplayPanCenterCommand_formats_center()
+    {
+        var cmd = FlexSmartSdrCodec.BuildDisplayPanCenterCommand(4, "0x40000000", 435.15);
+        Assert.Equal("C4|display pan set 0x40000000 center=435.15\n", cmd);
+    }
+
+    [Fact]
     public void TryParseSliceStatus_ExtractsFields()
     {
         const string body =
-            "slice 1 in_use=1 RF_frequency=435.150000 mode=USB tx=1 active=0 " +
+            "slice 1 in_use=1 RF_frequency=435.150000 mode=USB tx=1 active=0 pan=0x40000001 " +
             "fm_tone_mode=ctcss_tx fm_tone_value=67.0";
 
         Assert.True(FlexSmartSdrCodec.TryParseSliceStatus(body, out var slice));
@@ -71,6 +85,7 @@ public class FlexSmartSdrCodecTests
         Assert.True(slice.IsTransmit);
         Assert.Equal("ctcss_tx", slice.FmToneMode);
         Assert.Equal(67.0, slice.FmToneHz);
+        Assert.Equal("0x40000001", slice.PanStreamId);
     }
 
     [Fact]

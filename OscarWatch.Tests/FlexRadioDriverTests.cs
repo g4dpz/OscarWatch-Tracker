@@ -259,12 +259,19 @@ public class FlexRadioDriverTests
             FlexUhfTxAnt = "ANT1"
         };
 
+        stub.ClearCommandBodies();
         driver.ApplyBandAntennaPorts(settings, 435_300_000, 145_800_000);
 
         var rx = stub.Slices[driver.RxSliceIndex];
         var tx = stub.Slices[driver.TxSliceIndex];
         Assert.Equal("RX_A", rx.RxAnt);
         Assert.Equal("XVTR", tx.TxAnt);
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals("slice set 0 rxant=RX_A", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals("slice set 1 txant=XVTR", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -284,6 +291,29 @@ public class FlexRadioDriverTests
             Assert.Equal("", slice.RxAnt);
             Assert.Equal("", slice.TxAnt);
         }
+    }
+
+    [Fact]
+    public void CenterBandPanadapters_centres_rx_and_tx_pans_once()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        stub.ClearCommandBodies();
+        driver.CenterBandPanadapters(145_960_000, 435_148_000);
+
+        Assert.Equal(145_960_000, stub.PanCentersHz["0x40000000"]);
+        Assert.Equal(435_148_000, stub.PanCentersHz["0x40000001"]);
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals("display pan set 0x40000000 center=145.96", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals("display pan set 0x40000001 center=435.148", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]

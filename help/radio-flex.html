@@ -83,6 +83,12 @@
           <tr><td>Satellite mode</td><td><code>full_duplex_enabled=1</code> and a two-slice layout</td></tr>
         </tbody>
       </table>
+      <p>
+        Continuous Doppler uses <code>slice tune … autopan=0</code> so SmartSDR does not yank both panadapters
+        onto one band every few seconds. When a satellite (or mode) is focused, OscarWatch also centres each
+        slice’s panadapter once on the downlink and uplink frequencies. Keep two panadapters open in SmartSDR
+        (typical dual-SCU layout) so VHF and UHF can stay on screen together.
+      </p>
 
       <h3>Pass layouts</h3>
       <ul>
