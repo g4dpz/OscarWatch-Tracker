@@ -118,6 +118,21 @@
         <li><strong>Beacon / receive-only</strong> (uplink 0): full duplex off; only the downlink slice is tracked (RX antenna mapping still applies when configured).</li>
       </ul>
 
+      <h2>If both panadapters stick on one band</h2>
+      <p>
+        After rapid U/V ↔ V/U satellite switching, SmartSDR can occasionally leave both panadapters on VHF or both
+        on UHF. OscarWatch tries to detect and repair that, but if the displays stay stuck:
+      </p>
+      <ol>
+        <li>In SmartSDR for Windows, load a <strong>Global Profile</strong> that restores your normal dual-pan layout
+          (separate VHF and UHF pans — for example a “VU” or satellite profile you already use).</li>
+        <li>Re-select the satellite in OscarWatch so pass setup runs again.</li>
+      </ol>
+      <p>
+        Keeping such a Global Profile handy is the fastest recovery for Flex operators. Antenna port mapping in
+        OscarWatch is optional and separate from this pan layout recovery.
+      </p>
+
       <h2 id="antenna-ports">Antenna ports by band</h2>
       <p>
         When you switch between U/V and V/U satellites, OscarWatch retunes both slices but the radio does not
@@ -165,10 +180,10 @@
 
       <h2>Tips</h2>
       <ul>
-        <li>
-          SmartSDR for Windows (or Maestro) is optional for panadapter display and audio. OscarWatch talks to the radio
-          as a separate API client whether or not that GUI is open.
-        </li>
+        <li>SmartSDR for Windows (or Maestro) is optional for panadapter display and audio. OscarWatch talks to the radio
+          as a separate API client whether or not that GUI is open.</li>
+        <li>Keep a SmartSDR <strong>Global Profile</strong> with separate VHF and UHF pans. If both pans stick on one band
+          after satellite switching, load that profile, then re-select the satellite in OscarWatch (see above).</li>
         <li>If <strong>Settings → Recording</strong> reports that audio is unavailable while SmartSDR for Windows is running, configure pass recording with that app closed — some DAX virtual audio devices fail PortAudio initialisation. OscarWatch probes audio in a separate process so this does not close the main application. Other Settings tabs are safe to use during a pass.</li>
         <li>This driver is <strong>not</strong> a dual-radio leg and is not Hamlib/rigctl.</li>
         <li>RF isolation and transverters remain your responsibility — OscarWatch controls frequency, mode, full duplex, tone, and optional antenna ports.</li>

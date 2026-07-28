@@ -356,10 +356,11 @@ public sealed class FlexRadioDriver : IRigDriver
 
         DuplexFrequenciesVerified(downlinkHz, uplinkHz, out var afterRetune, expectedRxMode, expectedTxMode);
         Log.Warning(
-            "FlexRadio pass layout still wrong after light repair: {Detail}; clearing pan locks and force-rebinding",
+            "FlexRadio pass layout still wrong after light repair: {Detail}; force-rebinding while preserving band pan locks",
             afterRetune);
 
-        _client.ClearLockedBandPans();
+        // Never clear sticky locks while both pans may sit on one band — re-resolve only if VHF+UHF are both live.
+        _client.TryRelockBandPansFromLiveCentres();
         BindDuplexSlicesToBandPans(downlinkHz, uplinkHz, forceRebind: true);
         ApplyDuplexLightRepair(downlinkHz, uplinkHz, expectedRxMode, expectedTxMode);
 
@@ -373,7 +374,7 @@ public sealed class FlexRadioDriver : IRigDriver
         else
         {
             Log.Warning(
-                "FlexRadio pass layout still incorrect after force rebind: {Detail}",
+                "FlexRadio pass layout still incorrect after force rebind: {Detail}. If both panadapters are stuck on one band, load a SmartSDR Global Profile that restores separate VHF and UHF pans, then re-select the satellite in OscarWatch.",
                 stillWrong);
         }
     }
@@ -400,6 +401,9 @@ public sealed class FlexRadioDriver : IRigDriver
         string? expectedRxMode,
         string? expectedTxMode)
     {
+        // Centre pans onto the target bands first, then tune slices, then centre again so a stale
+        // pan centre cannot leave both displays on one band after a layout flip.
+        CenterBandPanadapters(downlinkHz, uplinkHz);
         RetuneDuplexSlices(downlinkHz, uplinkHz);
         CenterBandPanadapters(downlinkHz, uplinkHz);
 

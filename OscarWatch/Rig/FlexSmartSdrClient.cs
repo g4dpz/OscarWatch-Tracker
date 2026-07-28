@@ -290,6 +290,38 @@ internal sealed class FlexSmartSdrClient : IDisposable
             ClearLockedBandPansUnlocked();
     }
 
+    /// <summary>
+    /// Re-resolves VHF/UHF pan locks from live centres only when both bands are present.
+    /// Otherwise keeps the sticky locks — clearing them while both pans sit on one band causes an unrecoverable bind failure.
+    /// </summary>
+    public bool TryRelockBandPansFromLiveCentres()
+    {
+        lock (_gate)
+        {
+            EnsureConnectedUnlocked();
+            DrainPendingStatusUnlocked();
+
+            if (!FlexPanBandResolver.TryResolveBandPans(_pans.Values, out var vhfPan, out var uhfPan)
+                || string.IsNullOrWhiteSpace(vhfPan)
+                || string.IsNullOrWhiteSpace(uhfPan)
+                || !_pans.ContainsKey(vhfPan)
+                || !_pans.ContainsKey(uhfPan))
+            {
+                Log.Warning(
+                    "FlexRadio keeping sticky pan locks; live centres do not show separate VHF and UHF pans: vhfPan={VhfPan}, uhfPan={UhfPan}, stickyVhf={StickyVhf}, stickyUhf={StickyUhf}",
+                    vhfPan ?? "(missing)",
+                    uhfPan ?? "(missing)",
+                    _lockedVhfPanStreamId ?? "(none)",
+                    _lockedUhfPanStreamId ?? "(none)");
+                return false;
+            }
+
+            _lockedVhfPanStreamId = vhfPan;
+            _lockedUhfPanStreamId = uhfPan;
+            return true;
+        }
+    }
+
     public void GetLockedBandPanStreamIds(out string? vhfPanStreamId, out string? uhfPanStreamId)
     {
         lock (_gate)
@@ -876,7 +908,27 @@ internal sealed class FlexSmartSdrClient : IDisposable
         var responseIndex = FlexSmartSdrCodec.TryParseSliceCreateIndex(response.Body, out var index)
             ? index
             : (int?)null;
-        return WaitForCreatedSliceUnlocked(existingIndexes, responseIndex);
+        var created = WaitForCreatedSliceUnlocked(existingIndexes, responseIndex);
+        if (created is null)
+            return null;
+
+        // Create status can omit RF or reuse a slice index with a stale frequency — force the commanded tune.
+        UpdateSliceFrequencyUnlocked(created.Value, hz);
+        var tuneOk = SendAndWaitUnlocked(seq =>
+            FlexSmartSdrCodec.BuildSliceTuneCommand(seq, created.Value, mhz));
+        if (tuneOk)
+            UpdateSliceFrequencyUnlocked(created.Value, hz);
+        else
+        {
+            Log.Warning(
+                "FlexRadio slice {SliceIndex} created on pan {PanStreamId} but tune to {FrequencyHz} Hz was not acknowledged",
+                created.Value,
+                panStreamId ?? "(none)",
+                hz);
+        }
+
+        DrainPendingStatusUnlocked();
+        return created;
     }
 
     private bool SetPanCenterUnlocked(string panStreamId, long centerHz, out string? failureDetail)
