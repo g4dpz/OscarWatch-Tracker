@@ -2092,10 +2092,10 @@
     <value>Flex discovery failed: {0}</value>
   </data>
   <data name="Settings.Radio.FlexHint">
-    <value>Pick a discovered radio or enter the IP manually (TCP port 4992). OscarWatch enables full duplex and drives separate RX/TX slices for Doppler. Antenna and XVTR ports should already be set on the radio or in SmartSDR. Dual-SCU models (e.g. 6600/6700) are required for true full duplex.</value>
+    <value>Pick a discovered radio or enter the IP manually (TCP port 4992). OscarWatch connects directly to the radio over the SmartSDR TCP/IP API (not by automating SmartSDR for Windows), enables full duplex, and drives separate RX/TX slices for Doppler. Use the antenna port map below when transverters use different RX A/RX B or ANT/XVTR paths per band. Dual-SCU models are required for true full duplex (e.g. 8600/8600M; also 6600/6700).</value>
   </data>
   <data name="Settings.Radio.FlexDuplexWarning">
-    <value>This model may not support full duplex (single SCU). Satellite use typically needs a dual-SCU Flex such as a 6600 or 6700 with suitable isolation or transverters.</value>
+    <value>This model may not support full duplex (single SCU). Satellite use typically needs a dual-SCU Flex such as an 8600/8600M (or a dual-SCU 6000-series radio) with suitable isolation or transverters.</value>
   </data>
   <data name="Settings.Radio.Uplink">
     <value>Radio de subida</value>

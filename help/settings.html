@@ -104,9 +104,10 @@
       </ul>
       <p>
         Other Settings tabs open immediately. The <strong>Recording</strong> tab loads audio devices when you select it.
-        On some FlexRadio SmartSDR setups with <strong>DAX</strong> virtual audio devices, PortAudio can hang or fail while SmartSDR is running.
+        On some FlexRadio setups with <strong>DAX</strong> virtual audio devices, PortAudio can hang or fail while
+        <strong>SmartSDR for Windows</strong> is running (OscarWatch itself talks to the radio over the API, not via that GUI).
         OscarWatch checks audio in a separate probe process first so a DAX failure does not close the main application.
-        If the Recording tab reports that audio is unavailable, configure recording with SmartSDR closed, or use <strong>Refresh</strong> on the Recording tab after closing DAX streams you do not need.
+        If the Recording tab reports that audio is unavailable, configure recording with SmartSDR for Windows closed, or use <strong>Refresh</strong> on the Recording tab after closing DAX streams you do not need.
       </p>
       <p>
         Files are named in UTC: <code>{satellite-name}-{yy-MM-dd-HH-mm}.wav</code>

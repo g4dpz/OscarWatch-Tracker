@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FlexRadio (SmartSDR) — OscarWatch Help</title>
+  <title>FlexRadio — OscarWatch Help</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -12,8 +12,8 @@
       <div class="brand">
         <a href="index.html" class="brand-home" title="Home"><img src="oscarwatch-icon.png" alt="" class="brand-icon" width="56" height="56" /></a>
         <div class="brand-text">
-          <h1>FlexRadio (SmartSDR)</h1>
-          <p class="tagline">Full-duplex satellite tracking over the SmartSDR TCP/IP API</p>
+          <h1>FlexRadio</h1>
+          <p class="tagline">Full-duplex satellite tracking over the radio’s SmartSDR TCP/IP API</p>
         </div>
       </div>
       <nav aria-label="Help topics">
@@ -46,19 +46,25 @@
 
     <main>
       <p class="lead">
-        OscarWatch treats duplex-capable Flex radios as a <strong>single satellite radio</strong>:
-        one SmartSDR TCP connection, full duplex enabled, separate RX and TX slices for Doppler.
+        OscarWatch treats duplex-capable Flex radios as a <strong>single satellite radio</strong>.
+        It connects <strong>directly to the radio</strong> on the LAN using Flex’s <strong>SmartSDR TCP/IP API</strong>
+        (not by automating the SmartSDR for Windows application). Full duplex is enabled on the radio, with separate
+        RX and TX slices for Doppler.
       </p>
 
       <h2>What you need</h2>
       <ul>
-        <li>A dual-SCU Flex (for example <strong>6600</strong>, <strong>6600M</strong>, <strong>6700</strong>, or <strong>8600</strong>) for true full duplex.</li>
-        <li>The radio on the same LAN as the PC (SmartSDR API on TCP port <strong>4992</strong>).</li>
+        <li>
+          A dual-SCU Flex for true full duplex. Current Signature Series examples:
+          <strong>8600</strong> / <strong>8600M</strong>.
+          Supported dual-SCU 6000-series radios include <strong>6600</strong>, <strong>6600M</strong>, and <strong>6700</strong>.
+        </li>
+        <li>The radio on the same LAN as the PC (API discovery/control on UDP/TCP port <strong>4992</strong>).</li>
         <li>Transverters and antenna ports wired for your satellite bands (see <a href="#antenna-ports">Antenna ports by band</a> below).</li>
       </ul>
       <p>
-        Single-SCU models (such as a 6400) are not suitable for full-duplex satellite work.
-        Settings shows a warning if discovery reports such a model.
+        Single-SCU models (for example <strong>8400</strong> / <strong>8400M</strong>, or a legacy <strong>6400</strong>)
+        are not suitable for full-duplex satellite work. Settings shows a warning if discovery reports such a model.
       </p>
 
       <h2>Easy setup</h2>
@@ -68,14 +74,14 @@
         <li>Click <strong>Refresh</strong> next to Discovered radios (UDP discovery on port 4992).</li>
         <li>Select your radio — host and port fill in automatically (or type the IP yourself).</li>
         <li>Configure <strong>Antenna ports by band</strong> if you use separate RX A/RX B or ANT/XVTR paths for 2&nbsp;m and 70&nbsp;cm (optional; see below).</li>
-        <li>Click <strong>Test SmartSDR connection</strong> to confirm the API handshake.</li>
-        <li>Track a pass — OscarWatch enables full duplex and drives RX/TX slices.</li>
+        <li>Click <strong>Test SmartSDR connection</strong> to confirm the TCP API handshake with the radio.</li>
+        <li>Track a pass — OscarWatch enables full duplex and drives RX/TX slices on the radio.</li>
       </ol>
 
       <h2>How OscarWatch maps VFOs</h2>
       <table>
         <thead>
-          <tr><th>OscarWatch</th><th>SmartSDR</th></tr>
+          <tr><th>OscarWatch</th><th>Radio (SmartSDR API)</th></tr>
         </thead>
         <tbody>
           <tr><td>Main (RX)</td><td>Downlink slice frequency, mode, and optional RX antenna</td></tr>
@@ -84,24 +90,24 @@
         </tbody>
       </table>
       <p>
-        Continuous Doppler uses <code>slice tune … autopan=0</code> so SmartSDR does not yank both panadapters
+        Continuous Doppler uses <code>slice tune … autopan=0</code> so the radio does not yank both panadapters
         onto one band every few seconds. When a satellite (or mode) is focused, OscarWatch rebinds each slice onto
         the correct VHF or UHF panadapter by removing and recreating slices with <code>slice create … pan=</code>
-        (SmartSDR rejects <code>slice set … pan=</code>, and <code>slice m</code> cannot safely swap two occupied pans).
-        A V/U↔U/V layout flip always forces that recreate so a stale pan cache cannot leave RX/TX on the wrong SCU.
-        OscarWatch then tunes, then centres the
+        (the API rejects <code>slice set … pan=</code>, and <code>slice m</code> cannot safely swap two occupied pans).
+        A V/U↔U/V layout flip, or a change of satellite, forces that recreate so a stale pan cache cannot leave RX/TX
+        on the wrong SCU. OscarWatch then tunes, then centres the
         <strong>VHF and UHF panadapters</strong> once each (by locked SCU band, not by which slice happened to be attached),
-        and sends <code>autocenter=0</code> so SmartSDR does not recentre them during Doppler. Modes (USB downlink /
+        and sends <code>autocenter=0</code> so the radio does not recentre them during Doppler. Modes (USB downlink /
         LSB uplink on linear SSB) are applied after that settle. FM CTCSS is programmed only on FM uplink modes.
-        Keep two panadapters open in SmartSDR (typical dual-SCU layout) so VHF and UHF can stay on screen together —
+        Keep two panadapters active on the radio (typical dual-SCU layout) so VHF and UHF can stay available together —
         especially when switching from V/U to U/V satellites.
       </p>
       <p>
         OscarWatch keeps <strong>band-locked</strong> pans: VHF frequencies stay on the VHF panadapter and UHF on the
-        UHF panadapter (important when one pan is an XVTR). SmartSDR’s panadapter <em>window order</em> (which pan is
-        on top) is controlled only in the SmartSDR GUI — drag the title bar or use maximise. If you prefer the
-        downlink always on the top panadapter, put the downlink band’s pan window on top yourself; OscarWatch cannot
-        reorder SmartSDR windows over the API.
+        UHF panadapter (important when one pan is an XVTR). Panadapter <em>window order</em> in SmartSDR for Windows
+        (which pan is on top) is GUI-only — drag the title bar, maximise, or load a Global Profile. If you prefer the
+        downlink always on the top panadapter, arrange that in SmartSDR yourself; OscarWatch cannot reorder GUI windows
+        over the API.
       </p>
 
       <h3>Pass layouts</h3>
@@ -112,7 +118,7 @@
 
       <h2 id="antenna-ports">Antenna ports by band</h2>
       <p>
-        When you switch between U/V and V/U satellites, OscarWatch retunes both slices but SmartSDR does not
+        When you switch between U/V and V/U satellites, OscarWatch retunes both slices but the radio does not
         automatically move auxiliary receive ports. If your UHF transverter is on <strong>RX A</strong> and VHF on
         <strong>RX B</strong>, you can map those in Settings so the correct port is selected when OscarWatch
         initialises the duplex layout.
@@ -131,7 +137,7 @@
       </ul>
       <p>
         Choose <strong>Leave unchanged</strong> for any row you do not want OscarWatch to touch (the default for all four).
-        Valid SmartSDR tokens are <code>ANT1</code>, <code>ANT2</code>, <code>RX_A</code>, <code>RX_B</code>, and <code>XVTR</code>
+        Valid API port tokens are <code>ANT1</code>, <code>ANT2</code>, <code>RX_A</code>, <code>RX_B</code>, and <code>XVTR</code>
         (shown in Settings as RX A / RX B).
       </p>
       <p>
@@ -150,23 +156,27 @@
         </tbody>
       </table>
       <p>
-        Wiring is station-specific — 6600, 6700, and 8600 models can all expose RX A/RX B when fitted, but which band
-        goes to which port is yours to configure.
+        Wiring is station-specific — dual-SCU models such as the <strong>8600</strong> / <strong>8600M</strong>
+        (and dual-SCU 6000-series radios) can expose RX A/RX B when fitted, but which band goes to which port is yours
+        to configure.
       </p>
 
       <h2>Tips</h2>
       <ul>
-        <li>SmartSDR for Windows can stay open for panadapter and audio; OscarWatch is another API client.</li>
-        <li>If <strong>Settings → Recording</strong> reports that audio is unavailable while SmartSDR is running, configure pass recording with SmartSDR closed — some DAX virtual audio devices fail PortAudio initialisation. OscarWatch probes audio in a separate process so this does not close the main application. Other Settings tabs are safe to use during a pass.</li>
+        <li>
+          SmartSDR for Windows (or Maestro) is optional for panadapter display and audio. OscarWatch talks to the radio
+          as a separate API client whether or not that GUI is open.
+        </li>
+        <li>If <strong>Settings → Recording</strong> reports that audio is unavailable while SmartSDR for Windows is running, configure pass recording with that app closed — some DAX virtual audio devices fail PortAudio initialisation. OscarWatch probes audio in a separate process so this does not close the main application. Other Settings tabs are safe to use during a pass.</li>
         <li>This driver is <strong>not</strong> a dual-radio leg and is not Hamlib/rigctl.</li>
         <li>RF isolation and transverters remain your responsibility — OscarWatch controls frequency, mode, full duplex, tone, and optional antenna ports.</li>
       </ul>
 
       <h2>If the radio is discovered but not controlled</h2>
       <ol>
-        <li>Use <strong>Test SmartSDR connection</strong>; discovery uses UDP, while control needs TCP port <strong>4992</strong>.</li>
+        <li>Use <strong>Test SmartSDR connection</strong>; discovery uses UDP, while control needs TCP port <strong>4992</strong> to the radio.</li>
         <li>Confirm the radio is enabled, <strong>Pause CAT</strong> is off, OscarWatch is not in Standby, and a satellite with an uplink and downlink is focused.</li>
-        <li>At pass start, check SmartSDR shows full duplex and separate RX/TX slices. OscarWatch now reports a visible radio status if either step fails.</li>
+        <li>At pass start, confirm the radio has full duplex on and separate RX/TX slices (visible in SmartSDR for Windows if you use it, or via status/logs). OscarWatch reports a visible radio status if either step fails.</li>
         <li>If control still fails, use <strong>Help → Open logs folder</strong> and include the current log with your report. Flex discovery, connection, full-duplex and slice setup are recorded there.</li>
       </ol>
 
@@ -176,7 +186,7 @@
         <li>On pass start, full duplex is on and two slices are active.</li>
         <li>RX and TX Doppler both update during a pass.</li>
         <li>FM satellites get the correct uplink CTCSS.</li>
-        <li>When antenna port mapping is configured, switching U/V ↔ V/U selects the expected RX (and TX) ports in SmartSDR.</li>
+        <li>When antenna port mapping is configured, switching U/V ↔ V/U selects the expected RX (and TX) ports on the radio.</li>
       </ol>
     </main>
   </div>

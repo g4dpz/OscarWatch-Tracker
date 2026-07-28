@@ -106,6 +106,8 @@ public sealed class RigController : IRigController, IDisposable
     private string? _lastConnectErrorPort;
     private string? _lastConnectEndpoint;
     private bool? _lastPassDownlinkOnVhf;
+    /// <summary>Last Flex/sat pass identity (<see cref="SatelliteTrackState.Name"/>); used to force pan rebind on sat change.</summary>
+    private string? _lastPassSatelliteKey;
     private DateTime _lastDopplerLogUtc = DateTime.MinValue;
     private string? _flexSatelliteSetupError;
     /// <summary>Prior loop horizon state; used to detect orbital AOS (below → above 0°).</summary>
@@ -556,6 +558,7 @@ public sealed class RigController : IRigController, IDisposable
         _lastAppliedCtcssHz = null;
         _lastAppliedCtcssSquelch = null;
         _lastPassDownlinkOnVhf = null;
+        _lastPassSatelliteKey = null;
         _receiveVfo = RigVfo.VfoA;
         _suspendDopplerUntilUtc = DateTime.MinValue;
         _kenwoodFaFbBackoffUntilUtc = DateTime.MinValue;
@@ -1406,8 +1409,12 @@ public sealed class RigController : IRigController, IDisposable
         {
             flexPreTune.ConfigureAntennaPorts(settings);
             var downlinkOnVhf = RigSatModeHelper.IsVhfCenterKHz(context.Mode.DownlinkKHz);
-            var forcePanRebind = _lastPassDownlinkOnVhf is bool previousDownlinkOnVhf
+            var layoutFlipped = _lastPassDownlinkOnVhf is bool previousDownlinkOnVhf
                 && previousDownlinkOnVhf != downlinkOnVhf;
+            var satelliteChanged = _lastPassSatelliteKey is string previousSatellite
+                && !string.Equals(previousSatellite, context.TrackState.Name, StringComparison.OrdinalIgnoreCase);
+            // Same-layout sat switches (e.g. RS-44↔ISS) must recreate; AlreadyBound alone can skip a needed reset.
+            var forcePanRebind = layoutFlipped || satelliteChanged;
             flexPreTune.BindDuplexSlicesToBandPans(rxHz, txHz, forcePanRebind);
             flexPreTune.ApplyBandAntennaPorts(settings, rxHz, txHz);
         }
@@ -1452,6 +1459,7 @@ public sealed class RigController : IRigController, IDisposable
         }
 
         _lastPassDownlinkOnVhf = RigSatModeHelper.IsVhfCenterKHz(context.Mode.DownlinkKHz);
+        _lastPassSatelliteKey = context.TrackState.Name;
         MarkProgrammaticFrequencySettle();
         ExtendDopplerSuspendMs(500);
         RestoreOperatorVfo();
@@ -1535,6 +1543,7 @@ public sealed class RigController : IRigController, IDisposable
             _lastWriteUtc = DateTime.UtcNow;
 
         _lastPassDownlinkOnVhf = RigSatModeHelper.IsVhfCenterKHz(context.Mode.DownlinkKHz);
+        _lastPassSatelliteKey = context.TrackState.Name;
         MarkProgrammaticFrequencySettle();
         ExtendDopplerSuspendMs(500);
         RestoreOperatorVfo();

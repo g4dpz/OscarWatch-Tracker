@@ -407,6 +407,111 @@ public class RigControllerFlexTests
     }
 
     [Fact]
+    public void Flex_same_uv_layout_satellite_change_force_rebinds()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+        using var harness = CreateHarness(stub);
+
+        var iss = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 437_800,
+            UplinkKHz = 145_990,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR",
+            CtcssHz = 67.0
+        };
+
+        PublishAndWait(
+            harness,
+            iss,
+            DopplerFrequencyCalculator.Compute(iss, 0, 0),
+            selectedCtcssHz: 67.0,
+            satelliteName: "ISS",
+            ready: () => stub.FullDuplexEnabled);
+
+        stub.ClearCommandBodies();
+
+        var rs44 = new SatelliteTransponderMode
+        {
+            Type = "SSB Transponder",
+            DownlinkKHz = 435_640,
+            UplinkKHz = 145_965,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "NOR"
+        };
+
+        PublishAndWait(
+            harness,
+            rs44,
+            DopplerFrequencyCalculator.Compute(rs44, 0, 0),
+            satelliteName: "RS-44",
+            ready: () => harness.Controller.GetStatus().IsTracking);
+
+        var bodies = stub.CommandBodies.ToList();
+        Assert.Contains(bodies, b => b.StartsWith("slice remove ", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            bodies,
+            b => b.Contains("slice create ", StringComparison.OrdinalIgnoreCase)
+                 && b.Contains(" pan=0x40000000", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            bodies,
+            b => b.Contains("slice create ", StringComparison.OrdinalIgnoreCase)
+                 && b.Contains(" pan=0x40000001", StringComparison.OrdinalIgnoreCase));
+
+        var rxSlice = stub.Slices.Values.First(s => !s.Tx);
+        var txSlice = stub.Slices.Values.First(s => s.Tx);
+        Assert.Equal("0x40000000", rxSlice.PanStreamId);
+        Assert.Equal("0x40000001", txSlice.PanStreamId);
+        Assert.Equal("USB", rxSlice.Mode);
+        Assert.Equal("LSB", txSlice.Mode);
+    }
+
+    [Fact]
+    public void Flex_same_satellite_reinit_skips_rebind_when_already_bound()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+        using var harness = CreateHarness(stub);
+
+        var rs44 = new SatelliteTransponderMode
+        {
+            Type = "SSB Transponder",
+            DownlinkKHz = 435_640,
+            UplinkKHz = 145_965,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "NOR"
+        };
+
+        PublishAndWait(
+            harness,
+            rs44,
+            DopplerFrequencyCalculator.Compute(rs44, 0, 0),
+            satelliteName: "RS-44",
+            ready: () => stub.FullDuplexEnabled);
+
+        stub.ClearCommandBodies();
+
+        PublishAndWait(
+            harness,
+            rs44,
+            DopplerFrequencyCalculator.Compute(rs44, 0, 0),
+            satelliteName: "RS-44",
+            ready: () => harness.Controller.GetStatus().IsTracking);
+
+        Assert.DoesNotContain(
+            stub.CommandBodies,
+            b => b.StartsWith("slice remove ", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(
+            stub.CommandBodies,
+            b => b.StartsWith("slice create ", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void Flex_beacon_after_same_band_pass_turns_fdx_off()
     {
         using var stub = new FlexSmartSdrStubServer();
@@ -473,7 +578,8 @@ public class RigControllerFlexTests
         CorrectedFrequencies corrected,
         Func<bool> ready,
         double? selectedCtcssHz = null,
-        RigSettings? settings = null)
+        RigSettings? settings = null,
+        string? satelliteName = null)
     {
         settings ??= new RigSettings
         {
@@ -494,7 +600,7 @@ public class RigControllerFlexTests
         {
             TrackState = new SatelliteTrackState
             {
-                Name = mode.Type,
+                Name = string.IsNullOrWhiteSpace(satelliteName) ? mode.Type : satelliteName.Trim(),
                 NoradId = "25544",
                 Subpoint = new GeoCoordinate(0, 0),
                 LookAngles = new LookAngles(180, 25, 900, 1.5)

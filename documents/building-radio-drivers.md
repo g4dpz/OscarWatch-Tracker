@@ -314,7 +314,8 @@ Covers **FTX-1 Field** and **FTX-1optima** (same field head). Downlink uses VFO-
 
 ### Hardware checklist (Flex)
 
-- Dual-SCU radio on the LAN; optional band→antenna port map in Settings (VHF/UHF RX and TX); otherwise SmartSDR ports stay as configured.
+- Dual-SCU radio on the LAN (e.g. **8600** / **8600M**, or dual-SCU 6000-series); optional band→antenna port map in Settings (VHF/UHF RX and TX); otherwise radio ports stay as configured.
+- OscarWatch uses the SmartSDR TCP/IP API to the radio (not automation of SmartSDR for Windows).
 - Discovery or manual IP; **Test SmartSDR connection** succeeds.
 - On a real pass: FDX on, RX/TX Doppler both move, FM uplink CTCSS correct.
 
