@@ -276,26 +276,33 @@ public sealed class FlexRadioDriver : IRigDriver
             out var vhfHz,
             out var uhfHz);
 
-        if (!_client.CenterBandPans(downlinkHz, uplinkHz, _satelliteMode))
+        var centred = _client.CenterBandPans(downlinkHz, uplinkHz, _satelliteMode);
+        _client.GetLockedBandPanStreamIds(out var lockedVhf, out var lockedUhf);
+
+        if (!centred)
         {
             Log.Warning(
-                "FlexRadio failed to centre one or more band panadapters: downlinkHz={DownlinkHz}, uplinkHz={UplinkHz}",
+                "FlexRadio failed to centre one or more band panadapters: downlinkHz={DownlinkHz}, uplinkHz={UplinkHz}, vhfPan={VhfPan}, uhfPan={UhfPan}",
                 downlinkHz,
-                uplinkHz);
+                uplinkHz,
+                lockedVhf ?? "(none)",
+                lockedUhf ?? "(none)");
         }
         else
         {
             if (vhfHz > 0)
             {
                 Log.Information(
-                    "FlexRadio centred VHF pan at {CenterMhz:0.###} MHz",
+                    "FlexRadio centred VHF pan {PanStreamId} at {CenterMhz:0.###} MHz",
+                    lockedVhf ?? "(unresolved)",
                     FlexSmartSdrCodec.HzToMhz(vhfHz));
             }
 
             if (_satelliteMode && uhfHz > 0)
             {
                 Log.Information(
-                    "FlexRadio centred UHF pan at {CenterMhz:0.###} MHz",
+                    "FlexRadio centred UHF pan {PanStreamId} at {CenterMhz:0.###} MHz",
+                    lockedUhf ?? "(unresolved)",
                     FlexSmartSdrCodec.HzToMhz(uhfHz));
             }
         }
@@ -312,6 +319,105 @@ public sealed class FlexRadioDriver : IRigDriver
                 "FlexRadio RX and TX slices share pan {PanStreamId}; both bands cannot stay on screen until each slice has its own panadapter",
                 rxPan);
         }
+    }
+
+    /// <summary>
+    /// After bind/tune/centre/modes, confirm live RX/TX layout. Retune and re-apply modes, and if needed
+    /// clear pan locks and force-rebind, when the radio did not land on the commanded pass.
+    /// </summary>
+    public void EnsureDuplexPassFrequencies(
+        long downlinkHz,
+        long uplinkHz,
+        string? expectedRxMode = null,
+        string? expectedTxMode = null)
+    {
+        if (!_client.IsConnected || !_satelliteMode)
+            return;
+
+        _client.ResolveDuplexSliceRoles(ref _rxSliceIndex, ref _txSliceIndex);
+
+        if (DuplexFrequenciesVerified(downlinkHz, uplinkHz, out var mismatch, expectedRxMode, expectedTxMode))
+            return;
+
+        Log.Warning(
+            "FlexRadio pass layout mismatch after init: {Detail}; retuning, recentring, and reapplying modes",
+            mismatch);
+
+        ApplyDuplexLightRepair(downlinkHz, uplinkHz, expectedRxMode, expectedTxMode);
+
+        if (DuplexFrequenciesVerified(downlinkHz, uplinkHz, out _, expectedRxMode, expectedTxMode))
+        {
+            Log.Information(
+                "FlexRadio pass layout repaired without rebind: RX={RxHz} Hz, TX={TxHz} Hz",
+                downlinkHz,
+                uplinkHz);
+            return;
+        }
+
+        DuplexFrequenciesVerified(downlinkHz, uplinkHz, out var afterRetune, expectedRxMode, expectedTxMode);
+        Log.Warning(
+            "FlexRadio pass layout still wrong after light repair: {Detail}; clearing pan locks and force-rebinding",
+            afterRetune);
+
+        _client.ClearLockedBandPans();
+        BindDuplexSlicesToBandPans(downlinkHz, uplinkHz, forceRebind: true);
+        ApplyDuplexLightRepair(downlinkHz, uplinkHz, expectedRxMode, expectedTxMode);
+
+        if (DuplexFrequenciesVerified(downlinkHz, uplinkHz, out var stillWrong, expectedRxMode, expectedTxMode))
+        {
+            Log.Information(
+                "FlexRadio pass layout repaired by force rebind: RX={RxHz} Hz, TX={TxHz} Hz",
+                downlinkHz,
+                uplinkHz);
+        }
+        else
+        {
+            Log.Warning(
+                "FlexRadio pass layout still incorrect after force rebind: {Detail}",
+                stillWrong);
+        }
+    }
+
+    private bool DuplexFrequenciesVerified(
+        long downlinkHz,
+        long uplinkHz,
+        out string detail,
+        string? expectedRxMode = null,
+        string? expectedTxMode = null) =>
+        _client.VerifyDuplexSliceFrequencies(
+            _rxSliceIndex,
+            _txSliceIndex,
+            downlinkHz,
+            uplinkHz,
+            _satelliteMode,
+            out detail,
+            expectedRxMode,
+            expectedTxMode);
+
+    private void ApplyDuplexLightRepair(
+        long downlinkHz,
+        long uplinkHz,
+        string? expectedRxMode,
+        string? expectedTxMode)
+    {
+        RetuneDuplexSlices(downlinkHz, uplinkHz);
+        CenterBandPanadapters(downlinkHz, uplinkHz);
+
+        if (!string.IsNullOrWhiteSpace(expectedRxMode))
+            _client.SetSliceMode(_rxSliceIndex, expectedRxMode);
+        if (!string.IsNullOrWhiteSpace(expectedTxMode))
+            _client.SetSliceMode(_txSliceIndex, expectedTxMode);
+
+        if (_satelliteMode && uplinkHz > 0)
+            _client.SetSliceTx(_txSliceIndex, tx: true);
+    }
+
+    private void RetuneDuplexSlices(long downlinkHz, long uplinkHz)
+    {
+        if (downlinkHz > 0)
+            _client.TuneSlice(_rxSliceIndex, downlinkHz);
+        if (_satelliteMode && uplinkHz > 0)
+            _client.TuneSlice(_txSliceIndex, uplinkHz);
     }
 
     public void ExchangeVfos()

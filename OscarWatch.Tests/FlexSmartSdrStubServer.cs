@@ -291,6 +291,9 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                 }
 
                 _panCentersHz[panId] = centerHz;
+                await writer.WriteLineAsync(
+                        $"SABCDEF01|display pan {panId} center={mhz.ToString("0.######", CultureInfo.InvariantCulture)} autocenter=0")
+                    .ConfigureAwait(false);
             }
 
             await writer.WriteLineAsync($"R{seq}|0|").ConfigureAwait(false);

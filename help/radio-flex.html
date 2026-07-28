@@ -98,7 +98,9 @@
         on the wrong SCU. OscarWatch then tunes, then centres the
         <strong>VHF and UHF panadapters</strong> once each (by locked SCU band, not by which slice happened to be attached),
         and sends <code>autocenter=0</code> so the radio does not recentre them during Doppler. Modes (USB downlink /
-        LSB uplink on linear SSB) are applied after that settle. FM CTCSS is programmed only on FM uplink modes.
+        LSB uplink on linear SSB) are applied next. OscarWatch then <strong>reads back</strong> live RX/TX slice
+        frequencies, modes, TX roles, and pan attachments, and retunes / force-rebinds if anything landed wrong.
+        FM CTCSS is programmed only on FM uplink modes.
         Keep two panadapters active on the radio (typical dual-SCU layout) so VHF and UHF can stay available together —
         especially when switching from V/U to U/V satellites.
       </p>

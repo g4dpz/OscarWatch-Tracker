@@ -381,6 +381,100 @@ public class FlexRadioDriverTests
     }
 
     [Fact]
+    public void EnsureDuplexPassFrequencies_retunes_when_rx_slice_wrong()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        driver.BindDuplexSlicesToBandPans(145_950_000, 432_146_000);
+        driver.SelectVfo(RigVfo.Main);
+        driver.SetFrequencyHz(145_950_000);
+        driver.SelectVfo(RigVfo.Sub);
+        driver.SetFrequencyHz(432_146_000);
+        driver.CenterBandPanadapters(145_950_000, 432_146_000);
+
+        driver.SelectVfo(RigVfo.Main);
+        driver.SetFrequencyHz(145_867_000);
+        Assert.Equal(145_867_000, stub.Slices[driver.RxSliceIndex].FrequencyHz);
+
+        stub.ClearCommandBodies();
+        driver.EnsureDuplexPassFrequencies(145_950_000, 432_146_000);
+
+        Assert.Equal(145_950_000, stub.Slices[driver.RxSliceIndex].FrequencyHz);
+        Assert.Equal(432_146_000, stub.Slices[driver.TxSliceIndex].FrequencyHz);
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.StartsWith("slice tune ", StringComparison.OrdinalIgnoreCase)
+                 && b.Contains(" 145.95", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void EnsureDuplexPassFrequencies_noop_when_slices_already_correct()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        driver.BindDuplexSlicesToBandPans(435_640_000, 145_965_000);
+        driver.SelectVfo(RigVfo.Main);
+        driver.SetFrequencyHz(435_640_000);
+        driver.SelectVfo(RigVfo.Sub);
+        driver.SetFrequencyHz(145_965_000);
+        driver.CenterBandPanadapters(435_640_000, 145_965_000);
+
+        stub.ClearCommandBodies();
+        driver.EnsureDuplexPassFrequencies(435_640_000, 145_965_000);
+
+        Assert.DoesNotContain(
+            stub.CommandBodies,
+            b => b.StartsWith("slice tune ", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(
+            stub.CommandBodies,
+            b => b.StartsWith("slice remove ", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal(435_640_000, stub.Slices[driver.RxSliceIndex].FrequencyHz);
+        Assert.Equal(145_965_000, stub.Slices[driver.TxSliceIndex].FrequencyHz);
+    }
+
+    [Fact]
+    public void EnsureDuplexPassFrequencies_repairs_wrong_rx_mode()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        driver.BindDuplexSlicesToBandPans(145_950_000, 432_146_000);
+        driver.SelectVfo(RigVfo.Main);
+        driver.SetFrequencyHz(145_950_000);
+        driver.SelectVfo(RigVfo.Sub);
+        driver.SetFrequencyHz(432_146_000);
+        driver.CenterBandPanadapters(145_950_000, 432_146_000);
+        driver.SelectVfo(RigVfo.Main);
+        driver.SetMode("FM");
+        driver.SelectVfo(RigVfo.Sub);
+        driver.SetMode("LSB");
+
+        stub.ClearCommandBodies();
+        driver.EnsureDuplexPassFrequencies(145_950_000, 432_146_000, "USB", "LSB");
+
+        Assert.Equal("USB", stub.Slices[driver.RxSliceIndex].Mode);
+        Assert.Equal("LSB", stub.Slices[driver.TxSliceIndex].Mode);
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Contains("slice set ", StringComparison.OrdinalIgnoreCase)
+                 && b.Contains(" mode=USB", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void SupportsVfoExchange_IsFalse()
     {
         using var stub = new FlexSmartSdrStubServer();

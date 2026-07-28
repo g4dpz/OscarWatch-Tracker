@@ -268,6 +268,189 @@ internal sealed class FlexSmartSdrClient : IDisposable
         }
     }
 
+    public long? GetPanCenterHz(string panStreamId)
+    {
+        lock (_gate)
+        {
+            EnsureConnectedUnlocked();
+            DrainPendingStatusUnlocked();
+            if (string.IsNullOrWhiteSpace(panStreamId))
+                return null;
+
+            return _pans.TryGetValue(panStreamId, out var pan) && pan.CenterHz > 0
+                ? pan.CenterHz
+                : null;
+        }
+    }
+
+    /// <summary>Drops sticky VHF/UHF pan locks so the next bind/centre re-resolves from live pan centres.</summary>
+    public void ClearLockedBandPans()
+    {
+        lock (_gate)
+            ClearLockedBandPansUnlocked();
+    }
+
+    public void GetLockedBandPanStreamIds(out string? vhfPanStreamId, out string? uhfPanStreamId)
+    {
+        lock (_gate)
+        {
+            vhfPanStreamId = _lockedVhfPanStreamId;
+            uhfPanStreamId = _lockedUhfPanStreamId;
+        }
+    }
+
+    /// <summary>
+    /// After drain, checks RX/TX slice frequencies, TX roles, distinct locked pans, pan bands, and optional modes.
+    /// </summary>
+    public bool VerifyDuplexSliceFrequencies(
+        int rxSliceIndex,
+        int txSliceIndex,
+        long downlinkHz,
+        long uplinkHz,
+        bool satelliteMode,
+        out string detail,
+        string? expectedRxMode = null,
+        string? expectedTxMode = null)
+    {
+        lock (_gate)
+        {
+            EnsureConnectedUnlocked();
+            DrainPendingStatusUnlocked();
+            EnsureLockedBandPansUnlocked();
+
+            if (downlinkHz > 0)
+            {
+                if (!_slices.TryGetValue(rxSliceIndex, out var rx) || !rx.InUse || rx.FrequencyHz <= 0)
+                {
+                    detail = $"RX slice {rxSliceIndex} missing or has no frequency";
+                    return false;
+                }
+
+                if (rx.IsTransmit)
+                {
+                    detail = $"RX slice {rxSliceIndex} is marked TX";
+                    return false;
+                }
+
+                if (!FrequenciesNearlyEqual(rx.FrequencyHz, downlinkHz))
+                {
+                    detail =
+                        $"RX slice {rxSliceIndex} at {rx.FrequencyHz} Hz, expected {downlinkHz} Hz";
+                    return false;
+                }
+
+                if (!string.IsNullOrWhiteSpace(expectedRxMode)
+                    && !string.Equals(rx.Mode, expectedRxMode, StringComparison.OrdinalIgnoreCase))
+                {
+                    detail =
+                        $"RX slice {rxSliceIndex} mode {rx.Mode}, expected {expectedRxMode}";
+                    return false;
+                }
+
+                var expectedRxPan = ResolveLockedPanForFrequencyUnlocked(downlinkHz);
+                if (!string.IsNullOrWhiteSpace(expectedRxPan)
+                    && !string.Equals(rx.PanStreamId, expectedRxPan, StringComparison.OrdinalIgnoreCase))
+                {
+                    detail =
+                        $"RX slice {rxSliceIndex} on pan {rx.PanStreamId ?? "(none)"}, expected {expectedRxPan}";
+                    return false;
+                }
+
+                if (!string.IsNullOrWhiteSpace(rx.PanStreamId)
+                    && _pans.TryGetValue(rx.PanStreamId, out var rxPan)
+                    && rxPan.CenterHz > 0
+                    && !PanCenterMatchesFrequencyBand(rxPan.CenterHz, downlinkHz))
+                {
+                    detail =
+                        $"RX pan {rx.PanStreamId} centre {rxPan.CenterHz} Hz is not on the downlink band ({downlinkHz} Hz)";
+                    return false;
+                }
+            }
+
+            if (satelliteMode && uplinkHz > 0)
+            {
+                if (!_slices.TryGetValue(txSliceIndex, out var tx) || !tx.InUse || tx.FrequencyHz <= 0)
+                {
+                    detail = $"TX slice {txSliceIndex} missing or has no frequency";
+                    return false;
+                }
+
+                if (!tx.IsTransmit)
+                {
+                    detail = $"TX slice {txSliceIndex} is not marked TX";
+                    return false;
+                }
+
+                if (rxSliceIndex == txSliceIndex)
+                {
+                    detail = $"RX and TX share slice index {rxSliceIndex}";
+                    return false;
+                }
+
+                if (!FrequenciesNearlyEqual(tx.FrequencyHz, uplinkHz))
+                {
+                    detail =
+                        $"TX slice {txSliceIndex} at {tx.FrequencyHz} Hz, expected {uplinkHz} Hz";
+                    return false;
+                }
+
+                if (!string.IsNullOrWhiteSpace(expectedTxMode)
+                    && !string.Equals(tx.Mode, expectedTxMode, StringComparison.OrdinalIgnoreCase))
+                {
+                    detail =
+                        $"TX slice {txSliceIndex} mode {tx.Mode}, expected {expectedTxMode}";
+                    return false;
+                }
+
+                var expectedTxPan = ResolveLockedPanForFrequencyUnlocked(uplinkHz);
+                if (!string.IsNullOrWhiteSpace(expectedTxPan)
+                    && !string.Equals(tx.PanStreamId, expectedTxPan, StringComparison.OrdinalIgnoreCase))
+                {
+                    detail =
+                        $"TX slice {txSliceIndex} on pan {tx.PanStreamId ?? "(none)"}, expected {expectedTxPan}";
+                    return false;
+                }
+
+                if (!string.IsNullOrWhiteSpace(tx.PanStreamId)
+                    && _pans.TryGetValue(tx.PanStreamId, out var txPan)
+                    && txPan.CenterHz > 0
+                    && !PanCenterMatchesFrequencyBand(txPan.CenterHz, uplinkHz))
+                {
+                    detail =
+                        $"TX pan {tx.PanStreamId} centre {txPan.CenterHz} Hz is not on the uplink band ({uplinkHz} Hz)";
+                    return false;
+                }
+
+                if (downlinkHz > 0
+                    && _slices.TryGetValue(rxSliceIndex, out var rxForPan)
+                    && !string.IsNullOrWhiteSpace(rxForPan.PanStreamId)
+                    && !string.IsNullOrWhiteSpace(tx.PanStreamId)
+                    && string.Equals(rxForPan.PanStreamId, tx.PanStreamId, StringComparison.OrdinalIgnoreCase))
+                {
+                    detail = $"RX and TX slices share pan {tx.PanStreamId}";
+                    return false;
+                }
+            }
+
+            detail = "";
+            return true;
+        }
+    }
+
+    internal static bool FrequenciesNearlyEqual(long actualHz, long expectedHz, long toleranceHz = 1000) =>
+        Math.Abs(actualHz - expectedHz) <= toleranceHz;
+
+    private static bool PanCenterMatchesFrequencyBand(long panCenterHz, long frequencyHz)
+    {
+        var panKHz = panCenterHz / 1000.0;
+        var freqKHz = frequencyHz / 1000.0;
+        if (RigSatModeHelper.IsVhfCenterKHz(freqKHz))
+            return RigSatModeHelper.IsVhfCenterKHz(panKHz);
+        if (RigSatModeHelper.IsUhfCenterKHz(freqKHz))
+            return RigSatModeHelper.IsUhfCenterKHz(panKHz);
+        return true;
+    }
+
     public bool SetPanCenter(string panStreamId, long centerHz, out string? failureDetail)
     {
         lock (_gate)
@@ -703,7 +886,12 @@ internal sealed class FlexSmartSdrClient : IDisposable
             seq => FlexSmartSdrCodec.BuildDisplayPanCenterCommand(seq, panStreamId, mhz),
             out failureDetail);
         if (ok)
+        {
+            // Prefer live status when the radio emits it; fall back to the commanded centre.
             UpdatePanCenterUnlocked(panStreamId, centerHz, autoCenter: false);
+            DrainPendingStatusUnlocked();
+        }
+
         return ok;
     }
 

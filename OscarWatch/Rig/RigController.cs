@@ -1447,6 +1447,11 @@ public sealed class RigController : IRigController, IDisposable
         {
             flexPostInit.CenterBandPanadapters(rxHz, txHz);
             ConfigureVfoModes(context);
+            flexPostInit.EnsureDuplexPassFrequencies(
+                rxHz,
+                txHz,
+                FlexModeMapper.ToSmartSdrMode(context.EffectiveDownlinkMode),
+                FlexModeMapper.ToSmartSdrMode(context.EffectiveUplinkMode));
             ApplyCtcss(settings, context, force: true);
         }
         else if (settings.Type == RigType.FlexSmartSdr && _driver is FlexRadioDriver flexBeaconDriver)
