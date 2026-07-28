@@ -295,18 +295,23 @@ internal sealed class FlexSmartSdrClient : IDisposable
     /// recreated with <c>slice create … pan=</c> — <c>slice m</c> cannot safely swap two
     /// occupied pans, and <c>slice set … pan=</c> is rejected by SmartSDR.
     /// </summary>
+    /// <param name="forceRebind">
+    /// When true (e.g. V/U↔U/V layout flip), skip the cache short-circuit and recreate.
+    /// </param>
     public bool BindDuplexSlicesToBandPans(
         ref int rxSliceIndex,
         ref int txSliceIndex,
         long downlinkHz,
         long uplinkHz,
-        bool satelliteMode)
+        bool satelliteMode,
+        bool forceRebind = false)
     {
         lock (_gate)
         {
             EnsureConnectedUnlocked();
             DrainPendingStatusUnlocked();
             EnsureLockedBandPansUnlocked();
+            ResolveDuplexSliceRolesUnlocked(ref rxSliceIndex, ref txSliceIndex);
 
             if (satelliteMode && downlinkHz > 0 && uplinkHz > 0
                 && (string.IsNullOrWhiteSpace(_lockedVhfPanStreamId)
@@ -344,18 +349,19 @@ internal sealed class FlexSmartSdrClient : IDisposable
                 }
             }
 
-            var rxOnPan = _slices.TryGetValue(rxSliceIndex, out var rxSlice)
-                && rxSlice.InUse
-                && string.Equals(rxSlice.PanStreamId, downlinkPan, StringComparison.OrdinalIgnoreCase);
-            var txOnPan = !satelliteMode
-                || uplinkHz <= 0
-                || (_slices.TryGetValue(txSliceIndex, out var txSlice)
-                    && txSlice.InUse
-                    && string.Equals(txSlice.PanStreamId, uplinkPan, StringComparison.OrdinalIgnoreCase));
-
-            if (rxOnPan && txOnPan)
+            if (!forceRebind
+                && DuplexSlicesAlreadyBoundUnlocked(
+                    rxSliceIndex,
+                    txSliceIndex,
+                    downlinkPan,
+                    uplinkPan,
+                    satelliteMode,
+                    uplinkHz))
+            {
                 return true;
+            }
 
+            _slices.TryGetValue(rxSliceIndex, out var rxSlice);
             var rxMode = rxSlice?.Mode;
             if (string.IsNullOrWhiteSpace(rxMode))
                 rxMode = "USB";
@@ -398,6 +404,15 @@ internal sealed class FlexSmartSdrClient : IDisposable
                 return false;
             }
 
+            if (!VerifySlicePanUnlocked(newRx.Value, downlinkPan))
+            {
+                Log.Warning(
+                    "FlexRadio RX slice {SliceIndex} did not attach to pan {PanStreamId} after create",
+                    newRx.Value,
+                    downlinkPan);
+                return false;
+            }
+
             rxSliceIndex = newRx.Value;
 
             if (satelliteMode && uplinkHz > 0 && !string.IsNullOrWhiteSpace(uplinkPan))
@@ -412,6 +427,15 @@ internal sealed class FlexSmartSdrClient : IDisposable
                     return false;
                 }
 
+                if (!VerifySlicePanUnlocked(newTx.Value, uplinkPan))
+                {
+                    Log.Warning(
+                        "FlexRadio TX slice {SliceIndex} did not attach to pan {PanStreamId} after create",
+                        newTx.Value,
+                        uplinkPan);
+                    return false;
+                }
+
                 txSliceIndex = newTx.Value;
                 var txIndex = txSliceIndex;
                 if (!SendAndWaitUnlocked(seq => FlexSmartSdrCodec.BuildSliceSetTxCommand(seq, txIndex, tx: true)))
@@ -422,19 +446,49 @@ internal sealed class FlexSmartSdrClient : IDisposable
                     return false;
                 }
 
+                DrainPendingStatusUnlocked();
                 if (_slices.TryGetValue(txIndex, out var createdTx))
                     _slices[txIndex] = createdTx with { IsTransmit = true };
                 if (_slices.TryGetValue(rxSliceIndex, out var createdRx))
                     _slices[rxSliceIndex] = createdRx with { IsTransmit = false };
+
+                if (!DuplexSlicesAlreadyBoundUnlocked(
+                        rxSliceIndex,
+                        txSliceIndex,
+                        downlinkPan,
+                        uplinkPan,
+                        satelliteMode,
+                        uplinkHz))
+                {
+                    Log.Warning(
+                        "FlexRadio pan rebind verification failed after recreate: rxSlice={RxSlice} pan={RxPan}, txSlice={TxSlice} pan={TxPan}",
+                        rxSliceIndex,
+                        downlinkPan,
+                        txSliceIndex,
+                        uplinkPan);
+                    return false;
+                }
             }
 
             Log.Information(
-                "FlexRadio rebound duplex slices onto band pans: rxSlice={RxSlice} pan={RxPan}, txSlice={TxSlice} pan={TxPan}",
+                "FlexRadio rebound duplex slices onto band pans: rxSlice={RxSlice} pan={RxPan}, txSlice={TxSlice} pan={TxPan}, forceRebind={ForceRebind}",
                 rxSliceIndex,
                 downlinkPan,
                 txSliceIndex,
-                uplinkPan ?? "(none)");
+                uplinkPan ?? "(none)",
+                forceRebind);
             return true;
+        }
+    }
+
+    /// <summary>Re-reads in-use slices and assigns RX/TX indices from the live <c>tx=1</c> flag.</summary>
+    public void ResolveDuplexSliceRoles(ref int rxSliceIndex, ref int txSliceIndex)
+    {
+        lock (_gate)
+        {
+            EnsureConnectedUnlocked();
+            DrainPendingStatusUnlocked();
+            ResolveDuplexSliceRolesUnlocked(ref rxSliceIndex, ref txSliceIndex);
         }
     }
 
@@ -544,6 +598,75 @@ internal sealed class FlexSmartSdrClient : IDisposable
         return SetPanCenterUnlocked(slice.PanStreamId, centerHz, out _);
     }
 
+    private void ResolveDuplexSliceRolesUnlocked(ref int rxSliceIndex, ref int txSliceIndex)
+    {
+        var inUse = _slices.Values.Where(s => s.InUse).OrderBy(s => s.Index).ToList();
+        if (inUse.Count < 2)
+            return;
+
+        var tx = inUse.FirstOrDefault(s => s.IsTransmit);
+        if (tx is not null)
+        {
+            txSliceIndex = tx.Index;
+            rxSliceIndex = inUse.FirstOrDefault(s => s.Index != tx.Index)?.Index ?? (tx.Index == 0 ? 1 : 0);
+            return;
+        }
+
+        // Prefer caller's indices when both still exist; otherwise fall back to lowest/highest.
+        var rxIndex = rxSliceIndex;
+        var txIndex = txSliceIndex;
+        if (inUse.Any(s => s.Index == rxIndex) && inUse.Any(s => s.Index == txIndex)
+            && rxIndex != txIndex)
+        {
+            return;
+        }
+
+        rxSliceIndex = inUse[0].Index;
+        txSliceIndex = inUse[1].Index;
+    }
+
+    private bool DuplexSlicesAlreadyBoundUnlocked(
+        int rxSliceIndex,
+        int txSliceIndex,
+        string downlinkPan,
+        string? uplinkPan,
+        bool satelliteMode,
+        long uplinkHz)
+    {
+        if (!_slices.TryGetValue(rxSliceIndex, out var rxSlice)
+            || !rxSlice.InUse
+            || string.IsNullOrWhiteSpace(rxSlice.PanStreamId)
+            || !string.Equals(rxSlice.PanStreamId, downlinkPan, StringComparison.OrdinalIgnoreCase)
+            || rxSlice.IsTransmit)
+        {
+            return false;
+        }
+
+        if (!satelliteMode || uplinkHz <= 0)
+            return true;
+
+        if (string.IsNullOrWhiteSpace(uplinkPan)
+            || !_slices.TryGetValue(txSliceIndex, out var txSlice)
+            || !txSlice.InUse
+            || string.IsNullOrWhiteSpace(txSlice.PanStreamId)
+            || !string.Equals(txSlice.PanStreamId, uplinkPan, StringComparison.OrdinalIgnoreCase)
+            || !txSlice.IsTransmit)
+        {
+            return false;
+        }
+
+        return rxSliceIndex != txSliceIndex;
+    }
+
+    private bool VerifySlicePanUnlocked(int sliceIndex, string expectedPanStreamId)
+    {
+        DrainPendingStatusUnlocked();
+        return _slices.TryGetValue(sliceIndex, out var slice)
+            && slice.InUse
+            && !string.IsNullOrWhiteSpace(slice.PanStreamId)
+            && string.Equals(slice.PanStreamId, expectedPanStreamId, StringComparison.OrdinalIgnoreCase);
+    }
+
     private bool RemoveSliceUnlocked(int sliceIndex, out string? failureDetail)
     {
         var ok = TrySendSliceCommandUnlocked(
@@ -570,16 +693,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
         var responseIndex = FlexSmartSdrCodec.TryParseSliceCreateIndex(response.Body, out var index)
             ? index
             : (int?)null;
-        var created = WaitForCreatedSliceUnlocked(existingIndexes, responseIndex);
-        if (created is not null
-            && !string.IsNullOrWhiteSpace(panStreamId)
-            && _slices.TryGetValue(created.Value, out var slice)
-            && string.IsNullOrWhiteSpace(slice.PanStreamId))
-        {
-            _slices[created.Value] = slice with { PanStreamId = panStreamId };
-        }
-
-        return created;
+        return WaitForCreatedSliceUnlocked(existingIndexes, responseIndex);
     }
 
     private bool SetPanCenterUnlocked(string panStreamId, long centerHz, out string? failureDetail)

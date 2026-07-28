@@ -156,6 +156,83 @@ public class FlexCommandTranscriptTests
     }
 
     [Fact]
+    public void Force_rebind_recreates_even_when_pans_already_match()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        // Initial stub already has RX on UHF pan and TX on VHF pan (RS-44 layout).
+        driver.BindDuplexSlicesToBandPans(435_863_000, 145_943_000);
+        stub.ClearCommandBodies();
+
+        driver.BindDuplexSlicesToBandPans(435_863_000, 145_943_000, forceRebind: true);
+
+        var bodies = stub.CommandBodies.ToList();
+        Assert.Contains(bodies, b => b.StartsWith("slice remove ", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            bodies,
+            b => b.Contains("slice create freq=435.863 pan=0x40000000", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            bodies,
+            b => b.Contains("slice create freq=145.943 pan=0x40000001", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal("0x40000000", stub.Slices[driver.RxSliceIndex].PanStreamId);
+        Assert.Equal("0x40000001", stub.Slices[driver.TxSliceIndex].PanStreamId);
+    }
+
+    [Fact]
+    public void Jo97_to_rs44_layout_flip_rebinds_slices()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        driver.BindDuplexSlicesToBandPans(145_865_000, 435_110_100); // JO-97 V/U
+        stub.ClearCommandBodies();
+
+        driver.BindDuplexSlicesToBandPans(435_640_000, 145_965_000, forceRebind: true); // RS-44 U/V
+
+        var bodies = stub.CommandBodies.ToList();
+        Assert.Contains(bodies, b => b.StartsWith("slice remove ", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            bodies,
+            b => b.Contains("slice create freq=435.64 pan=0x40000000", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            bodies,
+            b => b.Contains("slice create freq=145.965 pan=0x40000001", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal("0x40000000", stub.Slices[driver.RxSliceIndex].PanStreamId);
+        Assert.Equal("0x40000001", stub.Slices[driver.TxSliceIndex].PanStreamId);
+    }
+
+    [Fact]
+    public void Bind_fails_when_create_status_omits_pan()
+    {
+        using var stub = new FlexSmartSdrStubServer(omitPanOnCreateStatus: true);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        stub.ClearCommandBodies();
+
+        driver.BindDuplexSlicesToBandPans(145_950_000, 432_146_000);
+
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.StartsWith("slice create ", StringComparison.OrdinalIgnoreCase)
+                 && b.Contains(" pan=", StringComparison.OrdinalIgnoreCase));
+        // Driver retries once; still cannot verify pan attachment.
+        Assert.True(
+            stub.CommandBodies.Count(b => b.StartsWith("slice create ", StringComparison.OrdinalIgnoreCase)) >= 2);
+    }
+
+    [Fact]
     public void Empty_antenna_settings_send_no_rxant_or_txant()
     {
         using var stub = new FlexSmartSdrStubServer();

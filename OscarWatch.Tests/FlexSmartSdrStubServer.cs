@@ -29,6 +29,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
     private readonly bool _emitPartialSliceStatus;
     private readonly bool _rejectClientProgram;
     private readonly bool _suppressSliceSetStatus;
+    private readonly bool _omitPanOnCreateStatus;
     private readonly ConcurrentDictionary<string, long> _panCentersHz = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentQueue<string> _commandBodies = new();
     private string? _vhfPanStreamId;
@@ -45,7 +46,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         bool omitSliceCreateIndex = false,
         bool emitPartialSliceStatus = false,
         bool rejectClientProgram = false,
-        bool suppressSliceSetStatus = false)
+        bool suppressSliceSetStatus = false,
+        bool omitPanOnCreateStatus = false)
     {
         if (initialSliceCount >= 1)
             _slices[0] = new StubSlice(0, 145_900_000, "USB", Tx: false, PanStreamId: "0x40000000");
@@ -66,6 +68,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         _emitPartialSliceStatus = emitPartialSliceStatus;
         _rejectClientProgram = rejectClientProgram;
         _suppressSliceSetStatus = suppressSliceSetStatus;
+        _omitPanOnCreateStatus = omitPanOnCreateStatus;
         _nextPanSuffix = Math.Max(0, initialSliceCount);
 
         _listener = new TcpListener(IPAddress.Loopback, 0);
@@ -452,7 +455,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                     _panCentersHz[panId] = FlexSmartSdrCodec.MhzToHz(freq);
             }
 
-            await EmitSliceAsync(writer, index).ConfigureAwait(false);
+            await EmitSliceAsync(writer, index, omitPan: _omitPanOnCreateStatus).ConfigureAwait(false);
             await writer.WriteLineAsync(_omitSliceCreateIndex ? $"R{seq}|0|" : $"R{seq}|0|{index}")
                 .ConfigureAwait(false);
             return;
@@ -558,7 +561,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         }
     }
 
-    private async Task EmitSliceAsync(StreamWriter writer, int index)
+    private async Task EmitSliceAsync(StreamWriter writer, int index, bool omitPan = false)
     {
         if (!Slices.TryGetValue(index, out var slice))
             return;
@@ -566,11 +569,17 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         var mhz = FlexSmartSdrCodec.HzToMhz(slice.FrequencyHz).ToString("0.000000", CultureInfo.InvariantCulture);
         var tone = string.IsNullOrWhiteSpace(slice.ToneMode) ? "OFF" : slice.ToneMode;
         var toneHz = slice.ToneHz.ToString("0.0", CultureInfo.InvariantCulture);
-        var pan = string.IsNullOrWhiteSpace(slice.PanStreamId)
-            ? $"0x{(0x40000000 + index):X8}"
-            : slice.PanStreamId;
+        var panField = "";
+        if (!omitPan)
+        {
+            var pan = string.IsNullOrWhiteSpace(slice.PanStreamId)
+                ? $"0x{(0x40000000 + index):X8}"
+                : slice.PanStreamId;
+            panField = $" pan={pan}";
+        }
+
         await writer.WriteLineAsync(
-                $"SABCDEF01|slice {index} in_use=1 RF_frequency={mhz} mode={slice.Mode} tx={(slice.Tx ? "1" : "0")} active=0 pan={pan} fm_tone_mode={tone} fm_tone_value={toneHz}")
+                $"SABCDEF01|slice {index} in_use=1 RF_frequency={mhz} mode={slice.Mode} tx={(slice.Tx ? "1" : "0")} active=0{panField} fm_tone_mode={tone} fm_tone_value={toneHz}")
             .ConfigureAwait(false);
     }
 

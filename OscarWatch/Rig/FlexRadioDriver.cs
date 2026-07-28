@@ -218,17 +218,28 @@ public sealed class FlexRadioDriver : IRigDriver
     /// <summary>
     /// Binds RX/TX slices to locked VHF/UHF panadapters before initial tune on band changes.
     /// </summary>
-    public void BindDuplexSlicesToBandPans(long downlinkHz, long uplinkHz)
+    /// <param name="forceRebind">
+    /// When true (V/U↔U/V layout flip), recreate even if cached pan IDs look plausible.
+    /// </param>
+    public void BindDuplexSlicesToBandPans(long downlinkHz, long uplinkHz, bool forceRebind = false)
     {
         if (!_client.IsConnected || !_satelliteMode)
             return;
+
+        _client.ResolveDuplexSliceRoles(ref _rxSliceIndex, ref _txSliceIndex);
 
         const int maxAttempts = 2;
         const int retryDelayMs = 100;
 
         for (var attempt = 1; attempt <= maxAttempts; attempt++)
         {
-            if (_client.BindDuplexSlicesToBandPans(ref _rxSliceIndex, ref _txSliceIndex, downlinkHz, uplinkHz, _satelliteMode))
+            if (_client.BindDuplexSlicesToBandPans(
+                    ref _rxSliceIndex,
+                    ref _txSliceIndex,
+                    downlinkHz,
+                    uplinkHz,
+                    _satelliteMode,
+                    forceRebind))
                 return;
 
             if (attempt < maxAttempts)
@@ -242,9 +253,10 @@ public sealed class FlexRadioDriver : IRigDriver
         }
 
         Log.Warning(
-            "FlexRadio failed to bind duplex slices to band panadapters: downlinkHz={DownlinkHz}, uplinkHz={UplinkHz}",
+            "FlexRadio failed to bind duplex slices to band panadapters: downlinkHz={DownlinkHz}, uplinkHz={UplinkHz}, forceRebind={ForceRebind}",
             downlinkHz,
-            uplinkHz);
+            uplinkHz,
+            forceRebind);
     }
 
     /// <summary>

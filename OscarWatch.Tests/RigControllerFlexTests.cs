@@ -349,6 +349,64 @@ public class RigControllerFlexTests
     }
 
     [Fact]
+    public void Flex_uv_after_vu_layout_flip_force_rebinds()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+        using var harness = CreateHarness(stub);
+
+        var jo97 = new SatelliteTransponderMode
+        {
+            Type = "SSB Transponder",
+            DownlinkKHz = 145_865,
+            UplinkKHz = 435_110.1,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "NOR"
+        };
+
+        PublishAndWait(
+            harness,
+            jo97,
+            DopplerFrequencyCalculator.Compute(jo97, 0, 0),
+            ready: () => stub.FullDuplexEnabled);
+
+        stub.ClearCommandBodies();
+
+        var rs44 = new SatelliteTransponderMode
+        {
+            Type = "SSB Transponder",
+            DownlinkKHz = 435_640,
+            UplinkKHz = 145_965,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "NOR"
+        };
+
+        PublishAndWait(
+            harness,
+            rs44,
+            DopplerFrequencyCalculator.Compute(rs44, 0, 0),
+            ready: () => harness.Controller.GetStatus().IsTracking);
+
+        var bodies = stub.CommandBodies.ToList();
+        Assert.Contains(bodies, b => b.StartsWith("slice remove ", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            bodies,
+            b => b.Contains("slice create ", StringComparison.OrdinalIgnoreCase)
+                 && b.Contains(" pan=0x40000000", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            bodies,
+            b => b.Contains("slice create ", StringComparison.OrdinalIgnoreCase)
+                 && b.Contains(" pan=0x40000001", StringComparison.OrdinalIgnoreCase));
+
+        var rxSlice = stub.Slices.Values.First(s => !s.Tx);
+        var txSlice = stub.Slices.Values.First(s => s.Tx);
+        Assert.Equal("0x40000000", rxSlice.PanStreamId);
+        Assert.Equal("0x40000001", txSlice.PanStreamId);
+    }
+
+    [Fact]
     public void Flex_beacon_after_same_band_pass_turns_fdx_off()
     {
         using var stub = new FlexSmartSdrStubServer();

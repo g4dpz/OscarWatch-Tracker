@@ -87,13 +87,21 @@
         Continuous Doppler uses <code>slice tune … autopan=0</code> so SmartSDR does not yank both panadapters
         onto one band every few seconds. When a satellite (or mode) is focused, OscarWatch rebinds each slice onto
         the correct VHF or UHF panadapter by removing and recreating slices with <code>slice create … pan=</code>
-        (SmartSDR rejects <code>slice set … pan=</code>, and <code>slice m</code> cannot safely swap two occupied pans),
-        then tunes, then centres the
+        (SmartSDR rejects <code>slice set … pan=</code>, and <code>slice m</code> cannot safely swap two occupied pans).
+        A V/U↔U/V layout flip always forces that recreate so a stale pan cache cannot leave RX/TX on the wrong SCU.
+        OscarWatch then tunes, then centres the
         <strong>VHF and UHF panadapters</strong> once each (by locked SCU band, not by which slice happened to be attached),
         and sends <code>autocenter=0</code> so SmartSDR does not recentre them during Doppler. Modes (USB downlink /
         LSB uplink on linear SSB) are applied after that settle. FM CTCSS is programmed only on FM uplink modes.
         Keep two panadapters open in SmartSDR (typical dual-SCU layout) so VHF and UHF can stay on screen together —
         especially when switching from V/U to U/V satellites.
+      </p>
+      <p>
+        OscarWatch keeps <strong>band-locked</strong> pans: VHF frequencies stay on the VHF panadapter and UHF on the
+        UHF panadapter (important when one pan is an XVTR). SmartSDR’s panadapter <em>window order</em> (which pan is
+        on top) is controlled only in the SmartSDR GUI — drag the title bar or use maximise. If you prefer the
+        downlink always on the top panadapter, put the downlink band’s pan window on top yourself; OscarWatch cannot
+        reorder SmartSDR windows over the API.
       </p>
 
       <h3>Pass layouts</h3>

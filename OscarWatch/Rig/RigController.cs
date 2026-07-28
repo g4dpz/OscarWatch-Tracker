@@ -1405,7 +1405,10 @@ public sealed class RigController : IRigController, IDisposable
         if (isFlexSatPass && _driver is FlexRadioDriver flexPreTune)
         {
             flexPreTune.ConfigureAntennaPorts(settings);
-            flexPreTune.BindDuplexSlicesToBandPans(rxHz, txHz);
+            var downlinkOnVhf = RigSatModeHelper.IsVhfCenterKHz(context.Mode.DownlinkKHz);
+            var forcePanRebind = _lastPassDownlinkOnVhf is bool previousDownlinkOnVhf
+                && previousDownlinkOnVhf != downlinkOnVhf;
+            flexPreTune.BindDuplexSlicesToBandPans(rxHz, txHz, forcePanRebind);
             flexPreTune.ApplyBandAntennaPorts(settings, rxHz, txHz);
         }
 
