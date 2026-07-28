@@ -24,6 +24,9 @@ public static class FlexSmartSdrCodec
     public static string BuildSubRadioAllCommand(uint sequence) =>
         BuildCommand(sequence, "sub radio all");
 
+    public static string BuildSubPanAllCommand(uint sequence) =>
+        BuildCommand(sequence, "sub pan all");
+
     public static string BuildFullDuplexCommand(uint sequence, bool enabled) =>
         BuildCommand(sequence, $"radio set full_duplex_enabled={(enabled ? "1" : "0")}");
 
@@ -46,7 +49,7 @@ public static class FlexSmartSdrCodec
     public static string BuildDisplayPanCenterCommand(uint sequence, string panStreamId, double centerMhz) =>
         BuildCommand(
             sequence,
-            $"display pan set {SanitizeToken(panStreamId)} center={centerMhz.ToString("0.######", CultureInfo.InvariantCulture)}");
+            $"display pan set {SanitizeToken(panStreamId)} center={centerMhz.ToString("0.######", CultureInfo.InvariantCulture)} autocenter=0");
 
     public static string BuildSliceSetModeCommand(uint sequence, int sliceIndex, string mode) =>
         BuildCommand(
@@ -171,6 +174,36 @@ public static class FlexSmartSdrCodec
             FmToneMode: toneMode ?? "",
             FmToneHz: toneHz,
             PanStreamId: panStreamId ?? "");
+        return true;
+    }
+
+    public static bool TryParseDisplayPanStatus(string statusBody, out FlexPanState pan)
+    {
+        pan = default!;
+        if (string.IsNullOrWhiteSpace(statusBody))
+            return false;
+
+        var body = statusBody.Trim();
+        if (!body.StartsWith("display pan ", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        var rest = body["display pan ".Length..].TrimStart();
+        var space = rest.IndexOf(' ');
+        if (space <= 0)
+            return false;
+
+        var streamId = rest[..space];
+        if (string.IsNullOrWhiteSpace(streamId))
+            return false;
+
+        var fields = ParseKeyValues(rest[(space + 1)..]);
+        var centerMhz = GetDouble(fields, "center", 0);
+        var autoCenter = GetInt(fields, "autocenter", 0) != 0;
+
+        pan = new FlexPanState(
+            streamId,
+            centerMhz > 0 ? MhzToHz(centerMhz) : 0,
+            autoCenter);
         return true;
     }
 

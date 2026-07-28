@@ -49,6 +49,9 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         if (initialSliceCount >= 2)
             _slices[1] = new StubSlice(1, 435_000_000, "USB", Tx: true, PanStreamId: "0x40000001");
 
+        _panCentersHz["0x40000000"] = 435_000_000;
+        _panCentersHz["0x40000001"] = 145_900_000;
+
         _nextSliceIndex = Math.Max(0, initialSliceCount);
         _rejectFullDuplex = rejectFullDuplex;
         _rejectTxSlice = rejectTxSlice;
@@ -231,10 +234,13 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         }
 
         if (body.StartsWith("sub slice", StringComparison.OrdinalIgnoreCase)
-            || body.StartsWith("sub radio", StringComparison.OrdinalIgnoreCase))
+            || body.StartsWith("sub radio", StringComparison.OrdinalIgnoreCase)
+            || body.StartsWith("sub pan", StringComparison.OrdinalIgnoreCase))
         {
             if (body.StartsWith("sub slice", StringComparison.OrdinalIgnoreCase))
                 await EmitSlicesAsync(writer).ConfigureAwait(false);
+            if (body.StartsWith("sub pan", StringComparison.OrdinalIgnoreCase))
+                await EmitPansAsync(writer).ConfigureAwait(false);
 
             await writer.WriteLineAsync($"R{seq}|0|").ConfigureAwait(false);
             return;
@@ -438,6 +444,16 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
     {
         foreach (var index in Slices.Keys.OrderBy(i => i))
             await EmitSliceAsync(writer, index).ConfigureAwait(false);
+    }
+
+    private async Task EmitPansAsync(StreamWriter writer)
+    {
+        foreach (var entry in _panCentersHz.OrderBy(static p => p.Key, StringComparer.OrdinalIgnoreCase))
+        {
+            var mhz = FlexSmartSdrCodec.HzToMhz(entry.Value).ToString("0.######", CultureInfo.InvariantCulture);
+            await writer.WriteLineAsync($"SABCDEF01|display pan {entry.Key} center={mhz}")
+                .ConfigureAwait(false);
+        }
     }
 
     private async Task EmitSliceAsync(StreamWriter writer, int index)

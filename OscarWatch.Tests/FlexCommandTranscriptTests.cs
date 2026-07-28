@@ -114,10 +114,10 @@ public class FlexCommandTranscriptTests
 
         Assert.Contains(
             stub.CommandBodies,
-            b => b.Equals("display pan set 0x40000000 center=145.96", StringComparison.OrdinalIgnoreCase));
+            b => b.Equals("display pan set 0x40000001 center=145.96 autocenter=0", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(
             stub.CommandBodies,
-            b => b.Equals("display pan set 0x40000001 center=435.148", StringComparison.OrdinalIgnoreCase));
+            b => b.Equals("display pan set 0x40000000 center=435.148 autocenter=0", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]

@@ -22,6 +22,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
     private readonly int _connectTimeoutMs;
     private readonly object _gate = new();
     private readonly Dictionary<int, FlexSliceState> _slices = new();
+    private readonly Dictionary<string, FlexPanState> _pans = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<int, long> _sliceFrequencyRevisions = new();
     private readonly StringBuilder _lineBuffer = new();
     private readonly byte[] _readBuffer = new byte[4096];
@@ -103,6 +104,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
             _connected = true;
             _lineBuffer.Clear();
             _slices.Clear();
+            _pans.Clear();
             _nextSequence = 1;
 
             ReadPrologueUnlocked();
@@ -117,6 +119,10 @@ internal sealed class FlexSmartSdrClient : IDisposable
             RequireCommandUnlocked(
                 seq => FlexSmartSdrCodec.BuildSubRadioAllCommand(seq),
                 "subscribe to radio status");
+            RequireCommandUnlocked(
+                seq => FlexSmartSdrCodec.BuildSubPanAllCommand(seq),
+                "subscribe to panadapter status");
+            DrainPendingStatusUnlocked();
             Log.Information(
                 "Connected to FlexRadio SmartSDR at {Host}:{Port}; version={Version}, handle={Handle}, slices={SliceCount}",
                 _host,
@@ -271,10 +277,94 @@ internal sealed class FlexSmartSdrClient : IDisposable
             }
 
             var mhz = FlexSmartSdrCodec.HzToMhz(centerHz);
-            return TrySendSliceCommandUnlocked(
+            var ok = TrySendSliceCommandUnlocked(
                 seq => FlexSmartSdrCodec.BuildDisplayPanCenterCommand(seq, panStreamId, mhz),
                 out failureDetail);
+            if (ok)
+                UpdatePanCenterUnlocked(panStreamId, centerHz, autoCenter: false);
+            return ok;
         }
+    }
+
+    public bool CenterBandPans(long downlinkHz, long uplinkHz, bool satelliteMode)
+    {
+        lock (_gate)
+        {
+            EnsureConnectedUnlocked();
+            DrainPendingStatusUnlocked();
+
+            FlexPanBandResolver.ResolveTargetFrequencies(
+                downlinkHz,
+                uplinkHz,
+                satelliteMode,
+                out var vhfHz,
+                out var uhfHz);
+
+            if (FlexPanBandResolver.TryResolveBandPans(_pans.Values, out var vhfPan, out var uhfPan))
+            {
+                var ok = true;
+                if (vhfHz > 0 && !string.IsNullOrWhiteSpace(vhfPan))
+                    ok &= SetPanCenterUnlocked(vhfPan, vhfHz);
+                if (uhfHz > 0 && !string.IsNullOrWhiteSpace(uhfPan))
+                    ok &= SetPanCenterUnlocked(uhfPan, uhfHz);
+                return ok;
+            }
+
+            return CenterBandPansBySliceAssociationUnlocked(downlinkHz, uplinkHz, satelliteMode);
+        }
+    }
+
+    private bool CenterBandPansBySliceAssociationUnlocked(long downlinkHz, long uplinkHz, bool satelliteMode)
+    {
+        var ok = true;
+        if (downlinkHz > 0)
+            ok &= TryCenterSlicePanUnlocked(FindRxSliceIndexUnlocked(), downlinkHz);
+
+        if (satelliteMode && uplinkHz > 0)
+            ok &= TryCenterSlicePanUnlocked(FindTxSliceIndexUnlocked(), uplinkHz);
+
+        return ok;
+    }
+
+    private int FindRxSliceIndexUnlocked()
+    {
+        var tx = _slices.Values.FirstOrDefault(s => s.InUse && s.IsTransmit);
+        if (tx is not null)
+        {
+            var rx = _slices.Values.FirstOrDefault(s => s.InUse && s.Index != tx.Index);
+            if (rx is not null)
+                return rx.Index;
+        }
+
+        return _slices.Values.Where(s => s.InUse).Select(s => s.Index).DefaultIfEmpty(0).Min();
+    }
+
+    private int FindTxSliceIndexUnlocked()
+    {
+        var tx = _slices.Values.FirstOrDefault(s => s.InUse && s.IsTransmit);
+        if (tx is not null)
+            return tx.Index;
+
+        return _slices.Values.Where(s => s.InUse).Select(s => s.Index).DefaultIfEmpty(1).Max();
+    }
+
+    private bool TryCenterSlicePanUnlocked(int sliceIndex, long centerHz)
+    {
+        if (!_slices.TryGetValue(sliceIndex, out var slice) || string.IsNullOrWhiteSpace(slice.PanStreamId))
+            return false;
+
+        return SetPanCenterUnlocked(slice.PanStreamId, centerHz);
+    }
+
+    private bool SetPanCenterUnlocked(string panStreamId, long centerHz)
+    {
+        var mhz = FlexSmartSdrCodec.HzToMhz(centerHz);
+        var ok = TrySendSliceCommandUnlocked(
+            seq => FlexSmartSdrCodec.BuildDisplayPanCenterCommand(seq, panStreamId, mhz),
+            out _);
+        if (ok)
+            UpdatePanCenterUnlocked(panStreamId, centerHz, autoCenter: false);
+        return ok;
     }
 
     private bool TrySendSliceCommandUnlocked(Func<uint, string> commandFactory, out string? failureDetail)
@@ -550,7 +640,34 @@ internal sealed class FlexSmartSdrClient : IDisposable
 
         if (FlexSmartSdrCodec.TryParseRadioFullDuplex(body, out var fdx))
             _fullDuplexEnabled = fdx;
+        else if (FlexSmartSdrCodec.TryParseDisplayPanStatus(body, out var pan))
+            ApplyPanStatusUnlocked(pan, body);
     }
+
+    private void ApplyPanStatusUnlocked(FlexPanState pan, string body)
+    {
+        if (_pans.TryGetValue(pan.StreamId, out var existing))
+        {
+            pan = existing with
+            {
+                CenterHz = HasPanField(body, "center") ? pan.CenterHz : existing.CenterHz,
+                AutoCenter = HasPanField(body, "autocenter") ? pan.AutoCenter : existing.AutoCenter
+            };
+        }
+
+        _pans[pan.StreamId] = pan;
+    }
+
+    private void UpdatePanCenterUnlocked(string panStreamId, long centerHz, bool autoCenter)
+    {
+        if (_pans.TryGetValue(panStreamId, out var existing))
+            _pans[panStreamId] = existing with { CenterHz = centerHz, AutoCenter = autoCenter };
+        else
+            _pans[panStreamId] = new FlexPanState(panStreamId, centerHz, autoCenter);
+    }
+
+    private static bool HasPanField(string statusBody, string field) =>
+        statusBody.Contains($" {field}=", StringComparison.OrdinalIgnoreCase);
 
     private static bool HasSliceField(string statusBody, string field) =>
         statusBody.Contains($" {field}=", StringComparison.OrdinalIgnoreCase);

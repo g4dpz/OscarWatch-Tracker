@@ -208,7 +208,8 @@ public sealed class FlexRadioDriver : IRigDriver
     }
 
     /// <summary>
-    /// One-shot: centre each slice's panadapter on its band frequency after pass init.
+    /// One-shot: centre each band panadapter (VHF SCU / UHF SCU) after pass init.
+    /// Uses pan display band, not slice pan association, so U/V after V/U still splits correctly.
     /// Continuous Doppler uses autopan=0 so these pans are not yanked again.
     /// </summary>
     public void CenterBandPanadapters(long downlinkHz, long uplinkHz)
@@ -216,11 +217,36 @@ public sealed class FlexRadioDriver : IRigDriver
         if (!_client.IsConnected)
             return;
 
-        if (downlinkHz > 0)
-            CenterSlicePan(_rxSliceIndex, downlinkHz, "RX");
+        FlexPanBandResolver.ResolveTargetFrequencies(
+            downlinkHz,
+            uplinkHz,
+            _satelliteMode,
+            out var vhfHz,
+            out var uhfHz);
 
-        if (_satelliteMode && uplinkHz > 0)
-            CenterSlicePan(_txSliceIndex, uplinkHz, "TX");
+        if (!_client.CenterBandPans(downlinkHz, uplinkHz, _satelliteMode))
+        {
+            Log.Warning(
+                "FlexRadio failed to centre one or more band panadapters: downlinkHz={DownlinkHz}, uplinkHz={UplinkHz}",
+                downlinkHz,
+                uplinkHz);
+        }
+        else
+        {
+            if (vhfHz > 0)
+            {
+                Log.Information(
+                    "FlexRadio centred VHF pan at {CenterMhz:0.###} MHz",
+                    FlexSmartSdrCodec.HzToMhz(vhfHz));
+            }
+
+            if (_satelliteMode && uhfHz > 0)
+            {
+                Log.Information(
+                    "FlexRadio centred UHF pan at {CenterMhz:0.###} MHz",
+                    FlexSmartSdrCodec.HzToMhz(uhfHz));
+            }
+        }
 
         var rxPan = _client.GetSlicePanStreamId(_rxSliceIndex);
         var txPan = _client.GetSlicePanStreamId(_txSliceIndex);
@@ -233,39 +259,6 @@ public sealed class FlexRadioDriver : IRigDriver
             Log.Warning(
                 "FlexRadio RX and TX slices share pan {PanStreamId}; both bands cannot stay on screen until each slice has its own panadapter",
                 rxPan);
-        }
-    }
-
-    private void CenterSlicePan(int sliceIndex, long centerHz, string role)
-    {
-        var panId = _client.GetSlicePanStreamId(sliceIndex);
-        if (string.IsNullOrWhiteSpace(panId))
-        {
-            Log.Debug(
-                "FlexRadio skip pan centre for {Role} slice {SliceIndex}: pan stream id not yet known",
-                role,
-                sliceIndex);
-            return;
-        }
-
-        if (!_client.SetPanCenter(panId, centerHz, out var failure))
-        {
-            Log.Warning(
-                "FlexRadio failed to centre {Role} pan {PanStreamId} at {CenterHz} Hz (slice {SliceIndex}): detail={Detail}",
-                role,
-                panId,
-                centerHz,
-                sliceIndex,
-                failure);
-        }
-        else
-        {
-            Log.Information(
-                "FlexRadio centred {Role} pan {PanStreamId} at {CenterMhz:0.###} MHz (slice {SliceIndex})",
-                role,
-                panId,
-                FlexSmartSdrCodec.HzToMhz(centerHz),
-                sliceIndex);
         }
     }
 

@@ -65,10 +65,20 @@ public class FlexSmartSdrCodecTests
     }
 
     [Fact]
+    public void TryParseDisplayPanStatus_extracts_center()
+    {
+        const string body = "display pan 0x40000001 center=145.865000 bandwidth=0.384";
+
+        Assert.True(FlexSmartSdrCodec.TryParseDisplayPanStatus(body, out var pan));
+        Assert.Equal("0x40000001", pan.StreamId);
+        Assert.Equal(145_865_000, pan.CenterHz);
+    }
+
+    [Fact]
     public void BuildDisplayPanCenterCommand_formats_center()
     {
         var cmd = FlexSmartSdrCodec.BuildDisplayPanCenterCommand(4, "0x40000000", 435.15);
-        Assert.Equal("C4|display pan set 0x40000000 center=435.15\n", cmd);
+        Assert.Equal("C4|display pan set 0x40000000 center=435.15 autocenter=0\n", cmd);
     }
 
     [Fact]

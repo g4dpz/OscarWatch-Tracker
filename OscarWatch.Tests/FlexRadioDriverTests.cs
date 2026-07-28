@@ -294,7 +294,7 @@ public class FlexRadioDriverTests
     }
 
     [Fact]
-    public void CenterBandPanadapters_centres_rx_and_tx_pans_once()
+    public void CenterBandPanadapters_centres_vhf_and_uhf_band_pans()
     {
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
@@ -306,14 +306,37 @@ public class FlexRadioDriverTests
         stub.ClearCommandBodies();
         driver.CenterBandPanadapters(145_960_000, 435_148_000);
 
-        Assert.Equal(145_960_000, stub.PanCentersHz["0x40000000"]);
-        Assert.Equal(435_148_000, stub.PanCentersHz["0x40000001"]);
+        Assert.Equal(145_960_000, stub.PanCentersHz["0x40000001"]);
+        Assert.Equal(435_148_000, stub.PanCentersHz["0x40000000"]);
         Assert.Contains(
             stub.CommandBodies,
-            b => b.Equals("display pan set 0x40000000 center=145.96", StringComparison.OrdinalIgnoreCase));
+            b => b.Equals("display pan set 0x40000001 center=145.96 autocenter=0", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(
             stub.CommandBodies,
-            b => b.Equals("display pan set 0x40000001 center=435.148", StringComparison.OrdinalIgnoreCase));
+            b => b.Equals("display pan set 0x40000000 center=435.148 autocenter=0", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CenterBandPanadapters_vu_layout_centres_uhf_and_vhf_band_pans()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        stub.ClearCommandBodies();
+        driver.CenterBandPanadapters(435_863_000, 145_943_000);
+
+        Assert.Equal(435_863_000, stub.PanCentersHz["0x40000000"]);
+        Assert.Equal(145_943_000, stub.PanCentersHz["0x40000001"]);
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals("display pan set 0x40000000 center=435.863 autocenter=0", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals("display pan set 0x40000001 center=145.943 autocenter=0", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
