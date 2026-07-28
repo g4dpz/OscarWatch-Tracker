@@ -85,8 +85,10 @@
       </table>
       <p>
         Continuous Doppler uses <code>slice tune … autopan=0</code> so SmartSDR does not yank both panadapters
-        onto one band every few seconds. When a satellite (or mode) is focused, OscarWatch first binds each slice to
-        the correct VHF or UHF panadapter (<code>slice set … pan=</code>), then tunes, then centres the
+        onto one band every few seconds. When a satellite (or mode) is focused, OscarWatch rebinds each slice onto
+        the correct VHF or UHF panadapter by removing and recreating slices with <code>slice create … pan=</code>
+        (SmartSDR rejects <code>slice set … pan=</code>, and <code>slice m</code> cannot safely swap two occupied pans),
+        then tunes, then centres the
         <strong>VHF and UHF panadapters</strong> once each (by locked SCU band, not by which slice happened to be attached),
         and sends <code>autocenter=0</code> so SmartSDR does not recentre them during Doppler. Modes (USB downlink /
         LSB uplink on linear SSB) are applied after that settle. FM CTCSS is programmed only on FM uplink modes.

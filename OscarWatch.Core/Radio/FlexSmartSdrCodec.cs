@@ -30,16 +30,28 @@ public static class FlexSmartSdrCodec
     public static string BuildFullDuplexCommand(uint sequence, bool enabled) =>
         BuildCommand(sequence, $"radio set full_duplex_enabled={(enabled ? "1" : "0")}");
 
-    public static string BuildSliceCreateCommand(uint sequence, double freqMhz, string mode, string? ant = null)
+    public static string BuildSliceCreateCommand(
+        uint sequence,
+        double freqMhz,
+        string mode,
+        string? ant = null,
+        string? panStreamId = null)
     {
         var sb = new StringBuilder();
         sb.Append(CultureInfo.InvariantCulture, $"slice create freq={freqMhz.ToString("0.######", CultureInfo.InvariantCulture)}");
+        if (!string.IsNullOrWhiteSpace(panStreamId))
+            sb.Append(CultureInfo.InvariantCulture, $" pan={SanitizeToken(panStreamId)}");
         if (!string.IsNullOrWhiteSpace(mode))
             sb.Append(CultureInfo.InvariantCulture, $" mode={SanitizeToken(mode)}");
         if (!string.IsNullOrWhiteSpace(ant))
             sb.Append(CultureInfo.InvariantCulture, $" ant={SanitizeToken(ant)}");
         return BuildCommand(sequence, sb.ToString());
     }
+
+    public static string BuildSliceRemoveCommand(uint sequence, int sliceIndex) =>
+        BuildCommand(
+            sequence,
+            $"slice remove {sliceIndex.ToString(CultureInfo.InvariantCulture)}");
 
     public static string BuildSliceTuneCommand(uint sequence, int sliceIndex, double freqMhz) =>
         BuildCommand(
@@ -56,10 +68,16 @@ public static class FlexSmartSdrCodec
             sequence,
             $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} mode={SanitizeToken(mode)}");
 
-    public static string BuildSliceSetPanCommand(uint sequence, int sliceIndex, string panStreamId) =>
+    public static string BuildSliceSetActiveCommand(uint sequence, int sliceIndex, bool active) =>
         BuildCommand(
             sequence,
-            $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} pan={SanitizeToken(panStreamId)}");
+            $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} active={(active ? "1" : "0")}");
+
+    /// <summary>Cross-pan click-to-tune: moves the active slice to <paramref name="panStreamId"/>.</summary>
+    public static string BuildSliceMoveCommand(uint sequence, double freqMhz, string panStreamId) =>
+        BuildCommand(
+            sequence,
+            $"slice m {freqMhz.ToString("0.######", CultureInfo.InvariantCulture)} pan={SanitizeToken(panStreamId)}");
 
     public static string BuildSliceSetTxCommand(uint sequence, int sliceIndex, bool tx) =>
         BuildCommand(

@@ -141,10 +141,17 @@ public class FlexSmartSdrCodecTests
     }
 
     [Fact]
-    public void BuildSliceSetPanCommand_uses_slice_set_pan()
+    public void BuildSliceCreateCommand_includes_pan_when_provided()
     {
-        var cmd = FlexSmartSdrCodec.BuildSliceSetPanCommand(11, 0, "0x40000001");
-        Assert.Equal("C11|slice set 0 pan=0x40000001\n", cmd);
+        var cmd = FlexSmartSdrCodec.BuildSliceCreateCommand(11, 145.95, "USB", ant: null, panStreamId: "0x40000001");
+        Assert.Equal("C11|slice create freq=145.95 pan=0x40000001 mode=USB\n", cmd);
+    }
+
+    [Fact]
+    public void BuildSliceRemoveCommand_uses_slice_remove()
+    {
+        var cmd = FlexSmartSdrCodec.BuildSliceRemoveCommand(12, 1);
+        Assert.Equal("C12|slice remove 1\n", cmd);
     }
 
     [Fact]

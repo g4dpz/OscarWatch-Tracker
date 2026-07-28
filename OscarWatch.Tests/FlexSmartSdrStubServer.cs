@@ -34,6 +34,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
     private string? _vhfPanStreamId;
     private string? _uhfPanStreamId;
     private int _nextPanSuffix;
+    private int _activeSliceIndex;
 
     public FlexSmartSdrStubServer(
         int initialSliceCount = 2,
@@ -308,6 +309,31 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
             return;
         }
 
+        if (body.StartsWith("slice m ", StringComparison.OrdinalIgnoreCase))
+        {
+            var match = Regex.Match(
+                body,
+                @"^slice m ([0-9.]+)\s+pan=(0x[0-9A-Fa-f]+)$",
+                RegexOptions.IgnoreCase);
+            if (match.Success
+                && double.TryParse(match.Groups[1].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var mhz))
+            {
+                var panId = match.Groups[2].Value;
+                int index;
+                lock (_gate)
+                    index = _activeSliceIndex;
+                UpdateSlice(index, s => s with
+                {
+                    FrequencyHz = FlexSmartSdrCodec.MhzToHz(mhz),
+                    PanStreamId = panId,
+                });
+                await EmitSliceAsync(writer, index).ConfigureAwait(false);
+            }
+
+            await writer.WriteLineAsync($"R{seq}|0|").ConfigureAwait(false);
+            return;
+        }
+
         if (body.StartsWith("slice set ", StringComparison.OrdinalIgnoreCase)
             || body.StartsWith("slice s ", StringComparison.OrdinalIgnoreCase))
         {
@@ -316,6 +342,19 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                 && int.TryParse(match.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var index))
             {
                 var args = match.Groups[2].Value;
+                if (args.Contains("pan=", StringComparison.OrdinalIgnoreCase))
+                {
+                    await writer.WriteLineAsync($"R{seq}|5000002D|Bad field 'pan={ExtractPanField(args)}'")
+                        .ConfigureAwait(false);
+                    return;
+                }
+
+                if (args.Contains("active=1", StringComparison.OrdinalIgnoreCase))
+                {
+                    lock (_gate)
+                        _activeSliceIndex = index;
+                }
+
                 if (_rejectTxSlice && args.Contains("tx=1", StringComparison.OrdinalIgnoreCase))
                 {
                     await writer.WriteLineAsync($"R{seq}|50000015|TX slice unavailable").ConfigureAwait(false);
@@ -335,6 +374,22 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                 {
                     await EmitSliceAsync(writer, index).ConfigureAwait(false);
                 }
+            }
+
+            await writer.WriteLineAsync($"R{seq}|0|").ConfigureAwait(false);
+            return;
+        }
+
+        if (body.StartsWith("slice remove ", StringComparison.OrdinalIgnoreCase)
+            || body.StartsWith("slice r ", StringComparison.OrdinalIgnoreCase))
+        {
+            var parts = body.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length >= 3
+                && int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var index))
+            {
+                lock (_gate)
+                    _slices.TryRemove(index, out _);
+                await writer.WriteLineAsync($"SABCDEF01|slice {index} in_use=0").ConfigureAwait(false);
             }
 
             await writer.WriteLineAsync($"R{seq}|0|").ConfigureAwait(false);
@@ -362,6 +417,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
             var freq = 14.0;
             var mode = "USB";
             var ant = "";
+            string? requestedPan = null;
             foreach (var token in body.Split(' ', StringSplitOptions.RemoveEmptyEntries))
             {
                 if (token.StartsWith("freq=", StringComparison.OrdinalIgnoreCase)
@@ -371,6 +427,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                     mode = token[5..];
                 if (token.StartsWith("ant=", StringComparison.OrdinalIgnoreCase))
                     ant = token[4..];
+                if (token.StartsWith("pan=", StringComparison.OrdinalIgnoreCase))
+                    requestedPan = token[4..];
             }
 
             int index;
@@ -378,8 +436,11 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
             lock (_gate)
             {
                 index = _nextSliceIndex++;
-                panId = $"0x{(0x40000000 + _nextPanSuffix):X8}";
-                _nextPanSuffix++;
+                panId = !string.IsNullOrWhiteSpace(requestedPan)
+                    ? requestedPan
+                    : $"0x{(0x40000000 + _nextPanSuffix):X8}";
+                if (string.IsNullOrWhiteSpace(requestedPan))
+                    _nextPanSuffix++;
                 _slices[index] = new StubSlice(
                     index,
                     FlexSmartSdrCodec.MhzToHz(freq),
@@ -387,6 +448,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                     Tx: false,
                     RxAnt: ant,
                     PanStreamId: panId);
+                if (!_panCentersHz.ContainsKey(panId))
+                    _panCentersHz[panId] = FlexSmartSdrCodec.MhzToHz(freq);
             }
 
             await EmitSliceAsync(writer, index).ConfigureAwait(false);
@@ -424,8 +487,6 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                     next = next with { RxAnt = value };
                 else if (key.Equals("txant", StringComparison.OrdinalIgnoreCase))
                     next = next with { TxAnt = value };
-                else if (key.Equals("pan", StringComparison.OrdinalIgnoreCase))
-                    next = next with { PanStreamId = value };
             }
 
             return next;
@@ -441,6 +502,17 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                 UpdateSlice(key, s => s with { Tx = false });
             }
         }
+    }
+
+    private static string ExtractPanField(string args)
+    {
+        foreach (var token in args.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (token.StartsWith("pan=", StringComparison.OrdinalIgnoreCase))
+                return token["pan=".Length..];
+        }
+
+        return string.Empty;
     }
 
     private bool IsCrossScuPanCenter(string panStreamId, long centerHz)

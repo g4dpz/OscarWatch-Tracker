@@ -139,15 +139,18 @@ public class FlexCommandTranscriptTests
         driver.SetFrequencyHz(432_146_000);
 
         var bodies = stub.CommandBodies.ToList();
-        var firstBind = bodies.FindIndex(b =>
-            b.StartsWith("slice set ", StringComparison.OrdinalIgnoreCase)
+        var firstRemove = bodies.FindIndex(b =>
+            b.StartsWith("slice remove ", StringComparison.OrdinalIgnoreCase));
+        var firstCreate = bodies.FindIndex(b =>
+            b.StartsWith("slice create ", StringComparison.OrdinalIgnoreCase)
             && b.Contains(" pan=", StringComparison.OrdinalIgnoreCase));
         var firstTune = bodies.FindIndex(b => b.StartsWith("slice tune ", StringComparison.OrdinalIgnoreCase));
 
-        Assert.True(firstBind >= 0);
-        Assert.True(firstTune > firstBind);
-        Assert.Contains(bodies, b => b.Equals("slice set 0 pan=0x40000001", StringComparison.OrdinalIgnoreCase));
-        Assert.Contains(bodies, b => b.Equals("slice set 1 pan=0x40000000", StringComparison.OrdinalIgnoreCase));
+        Assert.True(firstRemove >= 0);
+        Assert.True(firstCreate > firstRemove);
+        Assert.True(firstTune > firstCreate);
+        Assert.Contains(bodies, b => b.Contains("slice create freq=145.95 pan=0x40000001", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(bodies, b => b.Contains("slice create freq=432.146 pan=0x40000000", StringComparison.OrdinalIgnoreCase));
         Assert.Equal("0x40000001", stub.Slices[driver.RxSliceIndex].PanStreamId);
         Assert.Equal("0x40000000", stub.Slices[driver.TxSliceIndex].PanStreamId);
     }

@@ -1405,8 +1405,8 @@ public sealed class RigController : IRigController, IDisposable
         if (isFlexSatPass && _driver is FlexRadioDriver flexPreTune)
         {
             flexPreTune.ConfigureAntennaPorts(settings);
-            flexPreTune.ApplyBandAntennaPorts(settings, rxHz, txHz);
             flexPreTune.BindDuplexSlicesToBandPans(rxHz, txHz);
+            flexPreTune.ApplyBandAntennaPorts(settings, rxHz, txHz);
         }
 
         var initResult = isKenwoodSat && _driver is KenwoodTs2000Driver kenwoodInit

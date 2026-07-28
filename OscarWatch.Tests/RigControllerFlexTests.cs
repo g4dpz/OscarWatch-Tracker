@@ -329,13 +329,16 @@ public class RigControllerFlexTests
             ready: () => harness.Controller.GetStatus().IsTracking);
 
         var bodies = stub.CommandBodies.ToList();
-        var firstBind = bodies.FindIndex(b =>
-            b.StartsWith("slice set ", StringComparison.OrdinalIgnoreCase)
+        var firstRemove = bodies.FindIndex(b =>
+            b.StartsWith("slice remove ", StringComparison.OrdinalIgnoreCase));
+        var firstCreate = bodies.FindIndex(b =>
+            b.StartsWith("slice create ", StringComparison.OrdinalIgnoreCase)
             && b.Contains(" pan=", StringComparison.OrdinalIgnoreCase));
         var firstTune = bodies.FindIndex(b => b.StartsWith("slice tune ", StringComparison.OrdinalIgnoreCase));
 
-        Assert.True(firstBind >= 0, "Expected slice pan bind during AO-07 pass init");
-        Assert.True(firstTune > firstBind, "Expected pan bind before tune on V/U to U/V swap");
+        Assert.True(firstRemove >= 0, "Expected slice remove during AO-07 pan rebind");
+        Assert.True(firstCreate > firstRemove, "Expected slice create on locked pans after remove");
+        Assert.True(firstTune > firstCreate, "Expected pan rebind before tune on V/U to U/V swap");
 
         var rxSlice = stub.Slices.Values.First(s => !s.Tx);
         var txSlice = stub.Slices.Values.First(s => s.Tx);

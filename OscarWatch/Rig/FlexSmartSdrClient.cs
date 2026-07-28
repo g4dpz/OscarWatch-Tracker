@@ -289,9 +289,15 @@ internal sealed class FlexSmartSdrClient : IDisposable
         }
     }
 
+    /// <summary>
+    /// Ensures RX/TX slices live on the locked VHF/UHF panadapters for the pass frequencies.
+    /// When either slice is on the wrong pan (typical V/U↔U/V swap), both are removed and
+    /// recreated with <c>slice create … pan=</c> — <c>slice m</c> cannot safely swap two
+    /// occupied pans, and <c>slice set … pan=</c> is rejected by SmartSDR.
+    /// </summary>
     public bool BindDuplexSlicesToBandPans(
-        int rxSliceIndex,
-        int txSliceIndex,
+        ref int rxSliceIndex,
+        ref int txSliceIndex,
         long downlinkHz,
         long uplinkHz,
         bool satelliteMode)
@@ -313,52 +319,122 @@ internal sealed class FlexSmartSdrClient : IDisposable
                 return false;
             }
 
-            var ok = true;
+            if (downlinkHz <= 0)
+                return true;
+
             var downlinkPan = ResolveLockedPanForFrequencyUnlocked(downlinkHz);
-            if (downlinkHz > 0)
+            if (string.IsNullOrWhiteSpace(downlinkPan))
             {
-                if (string.IsNullOrWhiteSpace(downlinkPan))
-                {
-                    Log.Warning(
-                        "FlexRadio could not resolve downlink pan for bind: downlinkHz={DownlinkHz}",
-                        downlinkHz);
-                    ok = false;
-                }
-                else if (!SetSlicePanUnlocked(rxSliceIndex, downlinkPan, out var rxFailure))
-                {
-                    Log.Warning(
-                        "FlexRadio failed to bind RX slice {SliceIndex} to pan {PanStreamId}: downlinkHz={DownlinkHz}, detail={Detail}",
-                        rxSliceIndex,
-                        downlinkPan,
-                        downlinkHz,
-                        rxFailure);
-                    ok = false;
-                }
+                Log.Warning(
+                    "FlexRadio could not resolve downlink pan for bind: downlinkHz={DownlinkHz}",
+                    downlinkHz);
+                return false;
             }
 
+            string? uplinkPan = null;
             if (satelliteMode && uplinkHz > 0)
             {
-                var uplinkPan = ResolveLockedPanForFrequencyUnlocked(uplinkHz);
+                uplinkPan = ResolveLockedPanForFrequencyUnlocked(uplinkHz);
                 if (string.IsNullOrWhiteSpace(uplinkPan))
                 {
                     Log.Warning(
                         "FlexRadio could not resolve uplink pan for bind: uplinkHz={UplinkHz}",
                         uplinkHz);
-                    ok = false;
-                }
-                else if (!SetSlicePanUnlocked(txSliceIndex, uplinkPan, out var txFailure))
-                {
-                    Log.Warning(
-                        "FlexRadio failed to bind TX slice {SliceIndex} to pan {PanStreamId}: uplinkHz={UplinkHz}, detail={Detail}",
-                        txSliceIndex,
-                        uplinkPan,
-                        uplinkHz,
-                        txFailure);
-                    ok = false;
+                    return false;
                 }
             }
 
-            return ok;
+            var rxOnPan = _slices.TryGetValue(rxSliceIndex, out var rxSlice)
+                && rxSlice.InUse
+                && string.Equals(rxSlice.PanStreamId, downlinkPan, StringComparison.OrdinalIgnoreCase);
+            var txOnPan = !satelliteMode
+                || uplinkHz <= 0
+                || (_slices.TryGetValue(txSliceIndex, out var txSlice)
+                    && txSlice.InUse
+                    && string.Equals(txSlice.PanStreamId, uplinkPan, StringComparison.OrdinalIgnoreCase));
+
+            if (rxOnPan && txOnPan)
+                return true;
+
+            var rxMode = rxSlice?.Mode;
+            if (string.IsNullOrWhiteSpace(rxMode))
+                rxMode = "USB";
+            var txMode = _slices.TryGetValue(txSliceIndex, out var existingTx) ? existingTx.Mode : null;
+            if (string.IsNullOrWhiteSpace(txMode))
+                txMode = "USB";
+
+            // Remove TX first so the target pan is free, then RX, then recreate on locked pans.
+            if (_slices.TryGetValue(txSliceIndex, out var txInUse) && txInUse.InUse)
+            {
+                if (!RemoveSliceUnlocked(txSliceIndex, out var removeTxFailure))
+                {
+                    Log.Warning(
+                        "FlexRadio failed to remove TX slice {SliceIndex} for pan rebind: detail={Detail}",
+                        txSliceIndex,
+                        removeTxFailure);
+                    return false;
+                }
+            }
+
+            if (_slices.TryGetValue(rxSliceIndex, out var rxInUse) && rxInUse.InUse)
+            {
+                if (!RemoveSliceUnlocked(rxSliceIndex, out var removeRxFailure))
+                {
+                    Log.Warning(
+                        "FlexRadio failed to remove RX slice {SliceIndex} for pan rebind: detail={Detail}",
+                        rxSliceIndex,
+                        removeRxFailure);
+                    return false;
+                }
+            }
+
+            var newRx = CreateSliceUnlocked(downlinkHz, rxMode, ant: null, downlinkPan);
+            if (newRx is null)
+            {
+                Log.Warning(
+                    "FlexRadio failed to recreate RX slice on pan {PanStreamId}: downlinkHz={DownlinkHz}",
+                    downlinkPan,
+                    downlinkHz);
+                return false;
+            }
+
+            rxSliceIndex = newRx.Value;
+
+            if (satelliteMode && uplinkHz > 0 && !string.IsNullOrWhiteSpace(uplinkPan))
+            {
+                var newTx = CreateSliceUnlocked(uplinkHz, txMode, ant: null, uplinkPan);
+                if (newTx is null)
+                {
+                    Log.Warning(
+                        "FlexRadio failed to recreate TX slice on pan {PanStreamId}: uplinkHz={UplinkHz}",
+                        uplinkPan,
+                        uplinkHz);
+                    return false;
+                }
+
+                txSliceIndex = newTx.Value;
+                var txIndex = txSliceIndex;
+                if (!SendAndWaitUnlocked(seq => FlexSmartSdrCodec.BuildSliceSetTxCommand(seq, txIndex, tx: true)))
+                {
+                    Log.Warning(
+                        "FlexRadio failed to mark recreated slice {SliceIndex} as TX after pan rebind",
+                        txIndex);
+                    return false;
+                }
+
+                if (_slices.TryGetValue(txIndex, out var createdTx))
+                    _slices[txIndex] = createdTx with { IsTransmit = true };
+                if (_slices.TryGetValue(rxSliceIndex, out var createdRx))
+                    _slices[rxSliceIndex] = createdRx with { IsTransmit = false };
+            }
+
+            Log.Information(
+                "FlexRadio rebound duplex slices onto band pans: rxSlice={RxSlice} pan={RxPan}, txSlice={TxSlice} pan={TxPan}",
+                rxSliceIndex,
+                downlinkPan,
+                txSliceIndex,
+                uplinkPan ?? "(none)");
+            return true;
         }
     }
 
@@ -468,15 +544,42 @@ internal sealed class FlexSmartSdrClient : IDisposable
         return SetPanCenterUnlocked(slice.PanStreamId, centerHz, out _);
     }
 
-    private bool SetSlicePanUnlocked(int sliceIndex, string panStreamId, out string? failureDetail)
+    private bool RemoveSliceUnlocked(int sliceIndex, out string? failureDetail)
     {
         var ok = TrySendSliceCommandUnlocked(
-            seq => FlexSmartSdrCodec.BuildSliceSetPanCommand(seq, sliceIndex, panStreamId),
+            seq => FlexSmartSdrCodec.BuildSliceRemoveCommand(seq, sliceIndex),
             out failureDetail);
-        if (ok && _slices.TryGetValue(sliceIndex, out var existing))
-            _slices[sliceIndex] = existing with { PanStreamId = panStreamId };
+        if (ok)
+        {
+            _slices.Remove(sliceIndex);
+            _sliceFrequencyRevisions.Remove(sliceIndex);
+        }
 
         return ok;
+    }
+
+    private int? CreateSliceUnlocked(long hz, string mode, string? ant, string? panStreamId)
+    {
+        var existingIndexes = _slices.Keys.ToHashSet();
+        var mhz = FlexSmartSdrCodec.HzToMhz(hz);
+        var response = SendAndWaitResponseUnlocked(seq =>
+            FlexSmartSdrCodec.BuildSliceCreateCommand(seq, mhz, mode, ant, panStreamId));
+        if (response is null || !FlexSmartSdrCodec.IsSuccessResponse(response))
+            return null;
+
+        var responseIndex = FlexSmartSdrCodec.TryParseSliceCreateIndex(response.Body, out var index)
+            ? index
+            : (int?)null;
+        var created = WaitForCreatedSliceUnlocked(existingIndexes, responseIndex);
+        if (created is not null
+            && !string.IsNullOrWhiteSpace(panStreamId)
+            && _slices.TryGetValue(created.Value, out var slice)
+            && string.IsNullOrWhiteSpace(slice.PanStreamId))
+        {
+            _slices[created.Value] = slice with { PanStreamId = panStreamId };
+        }
+
+        return created;
     }
 
     private bool SetPanCenterUnlocked(string panStreamId, long centerHz, out string? failureDetail)
@@ -580,22 +683,12 @@ internal sealed class FlexSmartSdrClient : IDisposable
         }
     }
 
-    public int? CreateSlice(long hz, string mode, string? ant = null)
+    public int? CreateSlice(long hz, string mode, string? ant = null, string? panStreamId = null)
     {
         lock (_gate)
         {
             EnsureConnectedUnlocked();
-            var existingIndexes = _slices.Keys.ToHashSet();
-            var mhz = FlexSmartSdrCodec.HzToMhz(hz);
-            var response = SendAndWaitResponseUnlocked(seq =>
-                FlexSmartSdrCodec.BuildSliceCreateCommand(seq, mhz, mode, ant));
-            if (response is null || !FlexSmartSdrCodec.IsSuccessResponse(response))
-                return null;
-
-            var responseIndex = FlexSmartSdrCodec.TryParseSliceCreateIndex(response.Body, out var index)
-                ? index
-                : (int?)null;
-            return WaitForCreatedSliceUnlocked(existingIndexes, responseIndex);
+            return CreateSliceUnlocked(hz, mode, ant, panStreamId);
         }
     }
 

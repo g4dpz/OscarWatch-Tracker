@@ -228,7 +228,7 @@ public sealed class FlexRadioDriver : IRigDriver
 
         for (var attempt = 1; attempt <= maxAttempts; attempt++)
         {
-            if (_client.BindDuplexSlicesToBandPans(_rxSliceIndex, _txSliceIndex, downlinkHz, uplinkHz, _satelliteMode))
+            if (_client.BindDuplexSlicesToBandPans(ref _rxSliceIndex, ref _txSliceIndex, downlinkHz, uplinkHz, _satelliteMode))
                 return;
 
             if (attempt < maxAttempts)
