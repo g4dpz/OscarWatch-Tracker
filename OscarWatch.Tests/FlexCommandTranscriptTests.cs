@@ -110,6 +110,7 @@ public class FlexCommandTranscriptTests
         driver.SetSatelliteMode(true);
         stub.ClearCommandBodies();
 
+        driver.BindDuplexSlicesToBandPans(145_960_000, 435_148_000);
         driver.CenterBandPanadapters(145_960_000, 435_148_000);
 
         Assert.Contains(
@@ -118,6 +119,37 @@ public class FlexCommandTranscriptTests
         Assert.Contains(
             stub.CommandBodies,
             b => b.Equals("display pan set 0x40000000 center=435.148 autocenter=0", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Ao07_layout_binds_slices_to_band_pans_before_tune()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        stub.ClearCommandBodies();
+
+        driver.BindDuplexSlicesToBandPans(145_950_000, 432_146_000);
+        driver.SelectVfo(RigVfo.Main);
+        driver.SetFrequencyHz(145_950_000);
+        driver.SelectVfo(RigVfo.Sub);
+        driver.SetFrequencyHz(432_146_000);
+
+        var bodies = stub.CommandBodies.ToList();
+        var firstBind = bodies.FindIndex(b =>
+            b.StartsWith("slice set ", StringComparison.OrdinalIgnoreCase)
+            && b.Contains(" pan=", StringComparison.OrdinalIgnoreCase));
+        var firstTune = bodies.FindIndex(b => b.StartsWith("slice tune ", StringComparison.OrdinalIgnoreCase));
+
+        Assert.True(firstBind >= 0);
+        Assert.True(firstTune > firstBind);
+        Assert.Contains(bodies, b => b.Equals("slice set 0 pan=0x40000001", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(bodies, b => b.Equals("slice set 1 pan=0x40000000", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal("0x40000001", stub.Slices[driver.RxSliceIndex].PanStreamId);
+        Assert.Equal("0x40000000", stub.Slices[driver.TxSliceIndex].PanStreamId);
     }
 
     [Fact]

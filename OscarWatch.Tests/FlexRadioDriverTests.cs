@@ -340,6 +340,47 @@ public class FlexRadioDriverTests
     }
 
     [Fact]
+    public void BindDuplexSlicesToBandPans_vu_layout_binds_rx_uhf_tx_vhf()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        driver.BindDuplexSlicesToBandPans(435_863_000, 145_943_000);
+
+        Assert.Equal("0x40000000", stub.Slices[driver.RxSliceIndex].PanStreamId);
+        Assert.Equal("0x40000001", stub.Slices[driver.TxSliceIndex].PanStreamId);
+    }
+
+    [Fact]
+    public void Deferred_modes_set_usb_on_rx_and_lsb_on_tx()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        driver.BindDuplexSlicesToBandPans(145_950_000, 432_146_000);
+        driver.SelectVfo(RigVfo.Main);
+        driver.SetFrequencyHz(145_950_000);
+        driver.SelectVfo(RigVfo.Sub);
+        driver.SetFrequencyHz(432_146_000);
+        driver.CenterBandPanadapters(145_950_000, 432_146_000);
+        driver.SelectVfo(RigVfo.Main);
+        driver.SetMode("USB");
+        driver.SelectVfo(RigVfo.Sub);
+        driver.SetMode("LSB");
+
+        Assert.Equal("USB", stub.Slices[driver.RxSliceIndex].Mode);
+        Assert.Equal("LSB", stub.Slices[driver.TxSliceIndex].Mode);
+    }
+
+    [Fact]
     public void SupportsVfoExchange_IsFalse()
     {
         using var stub = new FlexSmartSdrStubServer();

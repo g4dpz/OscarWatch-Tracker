@@ -141,6 +141,13 @@ public class FlexSmartSdrCodecTests
     }
 
     [Fact]
+    public void BuildSliceSetPanCommand_uses_slice_set_pan()
+    {
+        var cmd = FlexSmartSdrCodec.BuildSliceSetPanCommand(11, 0, "0x40000001");
+        Assert.Equal("C11|slice set 0 pan=0x40000001\n", cmd);
+    }
+
+    [Fact]
     public void BuildSliceCreateCommand_includes_ant_when_provided()
     {
         var cmd = FlexSmartSdrCodec.BuildSliceCreateCommand(10, 145.9, "USB", "RX_B");

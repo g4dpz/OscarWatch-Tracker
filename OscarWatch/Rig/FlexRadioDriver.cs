@@ -23,6 +23,7 @@ public sealed class FlexRadioDriver : IRigDriver
     private long _lastMainObservedHz;
     private bool _hasMainStatusObservation;
     private bool _toneOn;
+    private bool _toneApplied;
     private double _toneHz = 67.0;
     private RigSettings _antennaPortSettings = new();
 
@@ -116,7 +117,14 @@ public sealed class FlexRadioDriver : IRigDriver
         if (smart is null || !_client.IsConnected)
             return;
 
-        _client.SetSliceMode(SliceFor(_currentVfo), smart);
+        var sliceIndex = SliceFor(_currentVfo);
+        if (!_client.SetSliceMode(sliceIndex, smart))
+        {
+            Log.Warning(
+                "FlexRadio failed to set mode on slice {SliceIndex}: mode={Mode}",
+                sliceIndex,
+                smart);
+        }
     }
 
     public void SetSplitOn(bool on)
@@ -205,6 +213,38 @@ public sealed class FlexRadioDriver : IRigDriver
                 uplinkHz,
                 txFailure);
         }
+    }
+
+    /// <summary>
+    /// Binds RX/TX slices to locked VHF/UHF panadapters before initial tune on band changes.
+    /// </summary>
+    public void BindDuplexSlicesToBandPans(long downlinkHz, long uplinkHz)
+    {
+        if (!_client.IsConnected || !_satelliteMode)
+            return;
+
+        const int maxAttempts = 2;
+        const int retryDelayMs = 100;
+
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            if (_client.BindDuplexSlicesToBandPans(_rxSliceIndex, _txSliceIndex, downlinkHz, uplinkHz, _satelliteMode))
+                return;
+
+            if (attempt < maxAttempts)
+            {
+                Log.Debug(
+                    "FlexRadio slice-to-pan bind attempt {Attempt}/{MaxAttempts} failed; retrying",
+                    attempt,
+                    maxAttempts);
+                Thread.Sleep(retryDelayMs);
+            }
+        }
+
+        Log.Warning(
+            "FlexRadio failed to bind duplex slices to band panadapters: downlinkHz={DownlinkHz}, uplinkHz={UplinkHz}",
+            downlinkHz,
+            uplinkHz);
     }
 
     /// <summary>
@@ -303,6 +343,14 @@ public sealed class FlexRadioDriver : IRigDriver
         if (!_client.IsConnected)
             return;
 
+        if (!_toneOn)
+        {
+            if (!_toneApplied)
+                return;
+
+            _toneApplied = false;
+        }
+
         if (!_client.SetSliceTone(_txSliceIndex, _toneOn, _toneHz))
         {
             Log.Warning(
@@ -310,7 +358,11 @@ public sealed class FlexRadioDriver : IRigDriver
                 _txSliceIndex,
                 _toneOn,
                 _toneHz);
+            return;
         }
+
+        if (_toneOn)
+            _toneApplied = true;
     }
 
     private void DisableFullDuplexAfterSetupFailure()

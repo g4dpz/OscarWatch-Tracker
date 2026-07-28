@@ -31,6 +31,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
     private readonly bool _suppressSliceSetStatus;
     private readonly ConcurrentDictionary<string, long> _panCentersHz = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentQueue<string> _commandBodies = new();
+    private string? _vhfPanStreamId;
+    private string? _uhfPanStreamId;
     private int _nextPanSuffix;
 
     public FlexSmartSdrStubServer(
@@ -51,6 +53,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
 
         _panCentersHz["0x40000000"] = 435_000_000;
         _panCentersHz["0x40000001"] = 145_900_000;
+        _vhfPanStreamId = "0x40000001";
+        _uhfPanStreamId = "0x40000000";
 
         _nextSliceIndex = Math.Max(0, initialSliceCount);
         _rejectFullDuplex = rejectFullDuplex;
@@ -274,7 +278,15 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
             if (match.Success
                 && double.TryParse(match.Groups[2].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var mhz))
             {
-                _panCentersHz[match.Groups[1].Value] = FlexSmartSdrCodec.MhzToHz(mhz);
+                var panId = match.Groups[1].Value;
+                var centerHz = FlexSmartSdrCodec.MhzToHz(mhz);
+                if (IsCrossScuPanCenter(panId, centerHz))
+                {
+                    await writer.WriteLineAsync($"R{seq}|50000015|Pan centre band mismatch").ConfigureAwait(false);
+                    return;
+                }
+
+                _panCentersHz[panId] = centerHz;
             }
 
             await writer.WriteLineAsync($"R{seq}|0|").ConfigureAwait(false);
@@ -412,6 +424,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                     next = next with { RxAnt = value };
                 else if (key.Equals("txant", StringComparison.OrdinalIgnoreCase))
                     next = next with { TxAnt = value };
+                else if (key.Equals("pan", StringComparison.OrdinalIgnoreCase))
+                    next = next with { PanStreamId = value };
             }
 
             return next;
@@ -427,6 +441,22 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                 UpdateSlice(key, s => s with { Tx = false });
             }
         }
+    }
+
+    private bool IsCrossScuPanCenter(string panStreamId, long centerHz)
+    {
+        if (centerHz <= 0)
+            return false;
+
+        var centerKHz = centerHz / 1000.0;
+        var targetIsVhf = RigSatModeHelper.IsVhfCenterKHz(centerKHz);
+        var targetIsUhf = RigSatModeHelper.IsUhfCenterKHz(centerKHz);
+        if (string.Equals(panStreamId, _vhfPanStreamId, StringComparison.OrdinalIgnoreCase))
+            return !targetIsVhf;
+        if (string.Equals(panStreamId, _uhfPanStreamId, StringComparison.OrdinalIgnoreCase))
+            return !targetIsUhf;
+
+        return false;
     }
 
     private void UpdateSlice(int index, Func<StubSlice, StubSlice> update)

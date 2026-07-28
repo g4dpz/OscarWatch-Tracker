@@ -254,6 +254,98 @@ public class RigControllerFlexTests
     }
 
     [Fact]
+    public void Flex_ssb_pass_sets_usb_lsb_and_skips_ctcss()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+        using var harness = CreateHarness(stub);
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "SSB Transponder",
+            DownlinkKHz = 435_850,
+            UplinkKHz = 145_952,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "NOR",
+            CtcssHz = 67.0
+        };
+
+        PublishAndWait(
+            harness,
+            mode,
+            DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            selectedCtcssHz: 67.0,
+            ready: () => stub.FullDuplexEnabled);
+
+        var rxSlice = stub.Slices.Values.First(s => !s.Tx);
+        var txSlice = stub.Slices.Values.First(s => s.Tx);
+        Assert.Equal("USB", rxSlice.Mode);
+        Assert.Equal("LSB", txSlice.Mode);
+        Assert.DoesNotContain(
+            stub.CommandBodies,
+            b => b.Contains("fm_tone_mode", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Flex_vu_to_uv_swap_binds_slices_before_tune()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+        using var harness = CreateHarness(stub);
+
+        var fo29 = new SatelliteTransponderMode
+        {
+            Type = "SSB Transponder",
+            DownlinkKHz = 435_850,
+            UplinkKHz = 145_952,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "NOR"
+        };
+
+        PublishAndWait(
+            harness,
+            fo29,
+            DopplerFrequencyCalculator.Compute(fo29, 0, 0),
+            ready: () => stub.FullDuplexEnabled);
+
+        stub.ClearCommandBodies();
+
+        var ao07 = new SatelliteTransponderMode
+        {
+            Type = "SSB Transponder",
+            DownlinkKHz = 145_950,
+            UplinkKHz = 432_146,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "NOR"
+        };
+
+        PublishAndWait(
+            harness,
+            ao07,
+            DopplerFrequencyCalculator.Compute(ao07, 0, 0),
+            ready: () => harness.Controller.GetStatus().IsTracking);
+
+        var bodies = stub.CommandBodies.ToList();
+        var firstBind = bodies.FindIndex(b =>
+            b.StartsWith("slice set ", StringComparison.OrdinalIgnoreCase)
+            && b.Contains(" pan=", StringComparison.OrdinalIgnoreCase));
+        var firstTune = bodies.FindIndex(b => b.StartsWith("slice tune ", StringComparison.OrdinalIgnoreCase));
+
+        Assert.True(firstBind >= 0, "Expected slice pan bind during AO-07 pass init");
+        Assert.True(firstTune > firstBind, "Expected pan bind before tune on V/U to U/V swap");
+
+        var rxSlice = stub.Slices.Values.First(s => !s.Tx);
+        var txSlice = stub.Slices.Values.First(s => s.Tx);
+        Assert.Equal("USB", rxSlice.Mode);
+        Assert.Equal("LSB", txSlice.Mode);
+        Assert.Equal("0x40000001", rxSlice.PanStreamId);
+        Assert.Equal("0x40000000", txSlice.PanStreamId);
+    }
+
+    [Fact]
     public void Flex_beacon_after_same_band_pass_turns_fdx_off()
     {
         using var stub = new FlexSmartSdrStubServer();

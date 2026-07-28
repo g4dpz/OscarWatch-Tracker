@@ -56,6 +56,11 @@ public static class FlexSmartSdrCodec
             sequence,
             $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} mode={SanitizeToken(mode)}");
 
+    public static string BuildSliceSetPanCommand(uint sequence, int sliceIndex, string panStreamId) =>
+        BuildCommand(
+            sequence,
+            $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} pan={SanitizeToken(panStreamId)}");
+
     public static string BuildSliceSetTxCommand(uint sequence, int sliceIndex, bool tx) =>
         BuildCommand(
             sequence,

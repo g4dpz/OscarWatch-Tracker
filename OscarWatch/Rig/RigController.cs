@@ -1388,8 +1388,10 @@ public sealed class RigController : IRigController, IDisposable
         _knobTuneThresholdHz = KnobTuneCapturePolicy.Resolve(context.EffectiveDownlinkMode);
 
         // FT-847 can revert to narrow FM when SAT frequencies/CTCSS are programmed after mode.
-        var deferModeSetup = settings.Type == RigType.YaesuFt847;
+        // Flex SmartSDR must defer modes until after slice pan bind, tune, and pan centre.
+        var deferModeSetup = settings.Type is RigType.YaesuFt847 or RigType.FlexSmartSdr;
         var isKenwoodSat = settings.Type == RigType.KenwoodTs2000 && _useMainSub;
+        var isFlexSatPass = settings.Type == RigType.FlexSmartSdr && _useMainSub && !_isBeaconOnly;
         if (!deferModeSetup && !isKenwoodSat)
             ConfigureVfoModes(context);
 
@@ -1399,12 +1401,22 @@ public sealed class RigController : IRigController, IDisposable
         _lastRigRxHz = 0;
         _lastRigTxHz = 0;
         _rxHzBeforeLastCatWrite = 0;
+
+        if (isFlexSatPass && _driver is FlexRadioDriver flexPreTune)
+        {
+            flexPreTune.ConfigureAntennaPorts(settings);
+            flexPreTune.ApplyBandAntennaPorts(settings, rxHz, txHz);
+            flexPreTune.BindDuplexSlicesToBandPans(rxHz, txHz);
+        }
+
         var initResult = isKenwoodSat && _driver is KenwoodTs2000Driver kenwoodInit
             ? InitializeKenwoodSatellitePass(settings, kenwoodInit, context, rxHz, txHz)
             : WriteInitialFrequencies(settings, rxHz, txHz);
-        ApplyCtcss(settings, context, force: true);
 
-        if (deferModeSetup)
+        if (!isFlexSatPass)
+            ApplyCtcss(settings, context, force: true);
+
+        if (deferModeSetup && settings.Type == RigType.YaesuFt847)
             ConfigureVfoModes(context);
 
         if (initResult.RxWritten)
@@ -1421,13 +1433,19 @@ public sealed class RigController : IRigController, IDisposable
         if (initResult.RxWritten || initResult.TxWritten)
             _lastWriteUtc = DateTime.UtcNow;
 
-        if (settings.Type == RigType.FlexSmartSdr && _driver is FlexRadioDriver flexDriver)
+        if (isFlexSatPass && _driver is FlexRadioDriver flexPostInit)
         {
-            flexDriver.ConfigureAntennaPorts(settings);
+            flexPostInit.CenterBandPanadapters(rxHz, txHz);
+            ConfigureVfoModes(context);
+            ApplyCtcss(settings, context, force: true);
+        }
+        else if (settings.Type == RigType.FlexSmartSdr && _driver is FlexRadioDriver flexBeaconDriver)
+        {
+            flexBeaconDriver.ConfigureAntennaPorts(settings);
             if (rxHz > 0)
-                flexDriver.ApplyBandAntennaPorts(settings, rxHz, _isBeaconOnly ? 0 : txHz);
+                flexBeaconDriver.ApplyBandAntennaPorts(settings, rxHz, 0);
             if (rxHz > 0)
-                flexDriver.CenterBandPanadapters(rxHz, _isBeaconOnly ? 0 : txHz);
+                flexBeaconDriver.CenterBandPanadapters(rxHz, 0);
         }
 
         _lastPassDownlinkOnVhf = RigSatModeHelper.IsVhfCenterKHz(context.Mode.DownlinkKHz);
@@ -1754,9 +1772,16 @@ public sealed class RigController : IRigController, IDisposable
         if (driver is null || settings.Uplink.Type == RigType.Dummy || context.SelectedCtcssHz is not { } hz || hz <= 0)
             return;
 
+        var uplinkType = settings.DualRadioEnabled ? settings.Uplink.Type : settings.Type;
+        if (uplinkType == RigType.FlexSmartSdr
+            && !context.Mode.IsFmMode
+            && !IsFmUplinkMode(context.EffectiveUplinkMode))
+        {
+            return;
+        }
+
         // ICOM (and most others): USA region uses TSQL so the tone is actually programmed/enabled.
         // TS-2000: always encode-only; CT mutes receive because satellite downlinks rarely carry a tone.
-        var uplinkType = settings.DualRadioEnabled ? settings.Uplink.Type : settings.Type;
         var squelch = uplinkType != RigType.KenwoodTs2000 && settings.TransmitRegion() == RigRegion.USA;
         if (!force && _lastAppliedCtcssHz == hz && _lastAppliedCtcssSquelch == squelch)
             return;
@@ -1776,6 +1801,11 @@ public sealed class RigController : IRigController, IDisposable
         _lastAppliedCtcssHz = hz;
         _lastAppliedCtcssSquelch = squelch;
     }
+
+    private static bool IsFmUplinkMode(string mode) =>
+        mode.Equals("FM", StringComparison.OrdinalIgnoreCase)
+        || mode.Equals("FMN", StringComparison.OrdinalIgnoreCase)
+        || mode.Equals("NFM", StringComparison.OrdinalIgnoreCase);
 
     private static RigVfo UplinkVfoForCtcss(RigSettings settings, RigTrackingContext context)
     {
@@ -1814,11 +1844,16 @@ public sealed class RigController : IRigController, IDisposable
         if (_useMainSub)
         {
             // Pass init: clear tone on Main, set RX, then set TX on Sub (CTCSS applied after).
+            // Flex SmartSDR encodes tone on the TX slice only; skip pre-clear (ApplyCtcss gates FM).
             _driver.SelectVfo(RigVfo.Main);
-            if (settings.ReceiveRegion() == RigRegion.USA)
-                _driver.SetToneSquelchOn(false);
-            else
-                _driver.SetToneOn(false);
+            if (settings.Type != RigType.FlexSmartSdr)
+            {
+                if (settings.ReceiveRegion() == RigRegion.USA)
+                    _driver.SetToneSquelchOn(false);
+                else
+                    _driver.SetToneOn(false);
+            }
+
             var rxWritten = _driver.SetFrequencyHz(rxHz);
             if (_isBeaconOnly)
                 return new InitialFrequencyWriteResult(rxWritten, TxWritten: true);
