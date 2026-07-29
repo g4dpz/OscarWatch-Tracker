@@ -1,0 +1,56 @@
+name: General issue
+description: Questions, transponder data, translations, documentation, or anything else
+title: "[General]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for questions and contributions that are not a bug report or a feature idea.
+
+        - **Something broken?** Use **Bug report** and include diagnostics.
+        - **New capability?** Use **Feature request**.
+
+  - type: dropdown
+    id: topic
+    attributes:
+      label: Topic
+      options:
+        - Question / how do I …?
+        - Transponder database (correction or new mode)
+        - New UI language / translation
+        - Documentation / operator guide
+        - Hardware support enquiry
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What do you need help with, or what are you proposing?
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: |
+        For transponder data: satellite name, mode, frequencies (kHz), and a credible source (AMSAT page, official notice, your own verified QSO, etc.).
+        For translations: locale code (for example `de-DE`), script/font needs, and whether you can maintain it across releases.
+      placeholder: |
+        Satellite: AO-07
+        Mode: Mode A — downlink 29450 kHz, uplink 145900 kHz
+        Source: https://…
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: OscarWatch version (if relevant)
+      description: Help → About, or leave blank.
+      placeholder: "1.2.3"
+    validations:
+      required: false

@@ -3,6 +3,9 @@ contact_links:
   - name: Operator guide — Problems?
     url: https://github.com/magicbug/OscarWatch-Tracker/blob/main/help/troubleshooting.html
     about: Common fixes for passes, CAT, rotator, recording, and logs before opening an issue.
+  - name: Contributing
+    url: https://github.com/magicbug/OscarWatch-Tracker/blob/main/README.md#contributing
+    about: Pull requests, translations, transponder database entries, and when to open an issue first.
   - name: Releases
     url: https://github.com/magicbug/OscarWatch-Tracker/releases
     about: Check you are on the latest build and note the version in your report.
