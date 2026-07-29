@@ -97,7 +97,7 @@ public abstract class IcomCivDriverBase : IRigDriver
         Thread.Sleep(_catDelayMs);
         var response = _transport.WriteCommand([0x03], _catDelayMs);
         var hz = IcomCivCodec.DecodeFrequencyFromResponse(response);
-        if (hz is { } value && IcomCivCodec.IsValidSatelliteFrequencyHz(value))
+        if (hz is { } value && IsFrequencyAllowedHz(value))
         {
             StoreFrequencyHz(vfo, value);
             return value;
@@ -108,7 +108,7 @@ public abstract class IcomCivDriverBase : IRigDriver
 
     public bool SetFrequencyHz(long hz)
     {
-        if (!IcomCivCodec.IsValidSatelliteFrequencyHz(hz))
+        if (!IsFrequencyAllowedHz(hz))
             return false;
 
         if (_transport is null || !IsConnected)
@@ -129,6 +129,10 @@ public abstract class IcomCivDriverBase : IRigDriver
 
     /// <summary>Map RigController VFO names to CI-V selectors (e.g. IC-705 uses VFO A instead of Main).</summary>
     protected virtual RigVfo MapOperationalVfo(RigVfo vfo) => vfo;
+
+    /// <summary>Per-model band gate before CI-V frequency writes/reads (default: shared satellite bands).</summary>
+    protected virtual bool IsFrequencyAllowedHz(long hz) =>
+        IcomCivCodec.IsValidSatelliteFrequencyHz(hz);
 
     private void SelectVfoInternal(RigVfo vfo, bool force)
     {

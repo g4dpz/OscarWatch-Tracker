@@ -1951,7 +1951,7 @@
     <value>Habilitar control CAT</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>Doble radio (bajada y subida separadas — FT-817/818, FT-991(A), IC-705, IC-905, serie IC-706 o mixtas)</value>
+    <value>Doble radio (bajada y subida separadas — FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, serie IC-706 o mixtas)</value>
   </data>
   <data name="Settings.Radio.DualIncompleteBoth">
     <value>Selecciona puertos COM para las radios de bajada y subida.</value>

@@ -64,6 +64,29 @@ public sealed class IcomIc7300DriverTests
     [Fact]
     public void IsDualCapableSerialEndpoint_includes_ic7300() =>
         Assert.True(RigSettings.IsDualCapableSerialEndpoint(RigType.IcomIc7300));
+
+    [Fact]
+    public void SetFrequencyHz_rejects_vhf_on_hf_only_radio()
+    {
+        var transport = new RecordingIcomCivTransport();
+        var driver = new IcomIc7300Driver(transport);
+        driver.Open();
+        driver.SelectVfo(RigVfo.Main);
+
+        Assert.False(driver.SetFrequencyHz(145_960_000));
+        Assert.Equal(0, transport.SetFrequencyCommandCount);
+    }
+
+    [Fact]
+    public void SetFrequencyHz_accepts_10m_hf()
+    {
+        var transport = new RecordingIcomCivTransport();
+        var driver = new IcomIc7300Driver(transport);
+        driver.Open();
+        driver.SelectVfo(RigVfo.Main);
+
+        Assert.True(driver.SetFrequencyHz(29_450_000));
+    }
 }
 
 public sealed class IcomIc7300EndpointSettingsTests

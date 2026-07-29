@@ -229,7 +229,7 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 |-------|------|
 | Driver | [`OscarWatch/Rig/IcomIc706SeriesDriver.cs`](../OscarWatch/Rig/IcomIc706SeriesDriver.cs) |
 
-One CI-V driver covers **IC-706**, **IC-706MKII**, and **IC-706MKIIG** as separate dual-radio leg types. OscarWatch uses the same VFO-A command set for all three; only the default CI-V address and band coverage differ.
+One CI-V driver covers **IC-706**, **IC-706MKII**, and **IC-706MKIIG** as separate dual-radio leg types. OscarWatch uses the same VFO-A command set for all three; only the default CI-V address and band coverage differ. Out-of-band frequency writes are rejected in software (706/MKII: 2 m only; MKIIG: 2 m and 70 cm).
 
 | Model | Default CI-V | Bands (satellite-relevant) |
 |-------|--------------|----------------------------|

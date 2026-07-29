@@ -44,6 +44,65 @@ public sealed class IcomIc706SeriesDriverTests
     {
         Assert.Equal(expected, RigSettings.DefaultCivAddressFor(rigType));
     }
+
+    [Theory]
+    [InlineData(RigType.IcomIc706)]
+    [InlineData(RigType.IcomIc706Mkii)]
+    [InlineData(RigType.IcomIc706MkiiG)]
+    public void IsDualCapableSerialEndpoint_includes_model(RigType rigType) =>
+        Assert.True(RigSettings.IsDualCapableSerialEndpoint(rigType));
+
+    [Fact]
+    public void SetFrequencyHz_on_Main_updates_cached_read_for_mkiig_70cm()
+    {
+        var transport = new RecordingIcomCivTransport { MainHz = 435_750_000 };
+        var driver = new IcomIc706SeriesDriver(RigType.IcomIc706MkiiG, transport);
+        driver.Open();
+        driver.SelectVfo(RigVfo.Main);
+
+        Assert.True(driver.SetFrequencyHz(435_751_000));
+        transport.NextReadResponse = [];
+        Assert.Equal(435_751_000, driver.ReadFrequencyHz(RigVfo.Main));
+    }
+
+    [Theory]
+    [InlineData(RigType.IcomIc706)]
+    [InlineData(RigType.IcomIc706Mkii)]
+    public void SetFrequencyHz_rejects_70cm_on_2m_only_models(RigType rigType)
+    {
+        var transport = new RecordingIcomCivTransport();
+        var driver = new IcomIc706SeriesDriver(rigType, transport);
+        driver.Open();
+        driver.SelectVfo(RigVfo.Main);
+
+        Assert.False(driver.SetFrequencyHz(435_750_000));
+        Assert.Equal(0, transport.SetFrequencyCommandCount);
+    }
+
+    [Fact]
+    public void SetFrequencyHz_accepts_2m_on_all_models()
+    {
+        foreach (var rigType in new[] { RigType.IcomIc706, RigType.IcomIc706Mkii, RigType.IcomIc706MkiiG })
+        {
+            var transport = new RecordingIcomCivTransport();
+            var driver = new IcomIc706SeriesDriver(rigType, transport);
+            driver.Open();
+            driver.SelectVfo(RigVfo.Main);
+
+            Assert.True(driver.SetFrequencyHz(145_960_000));
+        }
+    }
+
+    [Fact]
+    public void SetFrequencyHz_accepts_70cm_only_on_mkiig()
+    {
+        var transport = new RecordingIcomCivTransport();
+        var driver = new IcomIc706SeriesDriver(RigType.IcomIc706MkiiG, transport);
+        driver.Open();
+        driver.SelectVfo(RigVfo.Main);
+
+        Assert.True(driver.SetFrequencyHz(435_750_000));
+    }
 }
 
 public sealed class IcomIc706SeriesEndpointSettingsTests

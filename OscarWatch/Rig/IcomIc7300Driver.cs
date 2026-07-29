@@ -26,4 +26,7 @@ public sealed class IcomIc7300Driver : IcomCivDriverBase
 
     protected override RigVfo MapOperationalVfo(RigVfo vfo) =>
         vfo is RigVfo.Main or RigVfo.Sub ? RigVfo.VfoA : vfo;
+
+    protected override bool IsFrequencyAllowedHz(long hz) =>
+        hz is >= 1_800_000 and <= 54_000_000;
 }
