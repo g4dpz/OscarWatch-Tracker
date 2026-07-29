@@ -229,13 +229,13 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 |-------|------|
 | Driver | [`OscarWatch/Rig/IcomIc706SeriesDriver.cs`](../OscarWatch/Rig/IcomIc706SeriesDriver.cs) |
 
-One CI-V driver covers **IC-706**, **IC-706MKII**, and **IC-706MKIIG** as separate dual-radio leg types. OscarWatch uses the same VFO-A command set for all three; only the default CI-V address and band coverage differ. Out-of-band frequency writes are rejected in software (706/MKII: 2 m only; MKIIG: 2 m and 70 cm).
+One CI-V driver covers **IC-706**, **IC-706MKII**, and **IC-706MKIIG** as separate dual-radio leg types. OscarWatch uses the same VFO-A command set for all three; only the default CI-V address and band coverage differ. Out-of-band frequency writes are rejected in software (706/MKII: HF/6 m and 2 m; MKIIG adds 70 cm).
 
 | Model | Default CI-V | Bands (satellite-relevant) |
 |-------|--------------|----------------------------|
-| IC-706 | `48H` | 2m only |
-| IC-706MKII | `4CH` | 2m only |
-| IC-706MKIIG | `58H` | 2m and 70cm |
+| IC-706 | `48H` | HF/6 m and 2m |
+| IC-706MKII | `4CH` | HF/6 m and 2m |
+| IC-706MKIIG | `58H` | HF/6 m, 2m, and 70cm (AO-07 Mode A downlink on 10 m) |
 
 - **Dual radio only** — not in the single-radio driver list. Each endpoint is one physical radio on VFO A.
 - No dedicated satellite mode — `SetSatelliteMode` is a no-op.

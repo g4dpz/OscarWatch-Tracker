@@ -68,7 +68,7 @@ public sealed class IcomIc706SeriesDriverTests
     [Theory]
     [InlineData(RigType.IcomIc706)]
     [InlineData(RigType.IcomIc706Mkii)]
-    public void SetFrequencyHz_rejects_70cm_on_2m_only_models(RigType rigType)
+    public void SetFrequencyHz_rejects_70cm_on_hf_vhf_models(RigType rigType)
     {
         var transport = new RecordingIcomCivTransport();
         var driver = new IcomIc706SeriesDriver(rigType, transport);
@@ -90,6 +90,20 @@ public sealed class IcomIc706SeriesDriverTests
             driver.SelectVfo(RigVfo.Main);
 
             Assert.True(driver.SetFrequencyHz(145_960_000));
+        }
+    }
+
+    [Fact]
+    public void SetFrequencyHz_accepts_10m_on_all_models()
+    {
+        foreach (var rigType in new[] { RigType.IcomIc706, RigType.IcomIc706Mkii, RigType.IcomIc706MkiiG })
+        {
+            var transport = new RecordingIcomCivTransport();
+            var driver = new IcomIc706SeriesDriver(rigType, transport);
+            driver.Open();
+            driver.SelectVfo(RigVfo.Main);
+
+            Assert.True(driver.SetFrequencyHz(29_450_000));
         }
     }
 

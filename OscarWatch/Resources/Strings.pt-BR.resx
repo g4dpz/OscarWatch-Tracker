@@ -2110,13 +2110,13 @@ Continuar?</value>
     <value>IC-905: Apenas dual radio. Combine o endereço CI-V (padrão AC) e o baud (padrão 115200) no modo Set. Use a porta serial USB CI-V. Uma COM por perna — cobre VHF/UHF/SHF incluindo 13 cm, 6 cm e 3 cm.</value>
   </data>
   <data name="Settings.Radio.Ic706Hint">
-    <value>IC-706: CI-V via jack REMOTE (ou CT-17). Apenas 2 m (sem 70 cm). Defina endereço e baud no Initial Set Mode (LOCK na ligar) para corresponder às Configurações (padrão 48H / 19200). CI-V TRN On recomendado.</value>
+    <value>IC-706: CI-V via jack REMOTE (ou CT-17). HF/6 m e 2 m (sem 70 cm). Defina endereço e baud no Initial Set Mode (LOCK na ligar) para corresponder às Configurações (padrão 48H / 19200). CI-V TRN On recomendado. Downlink AO-07 Modo A em 10 m suportado.</value>
   </data>
   <data name="Settings.Radio.Ic706MkiiHint">
-    <value>IC-706MKII: mesma configuração CI-V do IC-706. Apenas 2 m (sem 70 cm). Endereço padrão 4CH.</value>
+    <value>IC-706MKII: mesma configuração CI-V do IC-706. HF/6 m e 2 m (sem 70 cm). Endereço padrão 4CH. Downlink AO-07 Modo A em 10 m suportado.</value>
   </data>
   <data name="Settings.Radio.Ic706MkiiGHint">
-    <value>IC-706MKIIG: CI-V via jack REMOTE (ou CT-17). Menu 34 CI-V ADDRES (padrão 58H), menu 35 CI-V BAUD (padrão 19200) e menu 36 CI-V TRN On. Cobre 2 m e 70 cm; satélites 23 cm não são suportados.</value>
+    <value>IC-706MKIIG: CI-V via jack REMOTE (ou CT-17). Menu 34 CI-V ADDRES (padrão 58H), menu 35 CI-V BAUD (padrão 19200) e menu 36 CI-V TRN On. Cobre HF/6 m, 2 m e 70 cm (downlink AO-07 Modo A em 10 m); satélites 23 cm não são suportados.</value>
   </data>
   <data name="Settings.Radio.Ft991Hint">
     <value>FT-991 / FT-991A: Combine o menu 031 CAT RATE com as Configurações (padrão 38400). CAT ASCII 8N2 com RTS de hardware — use a porta COM USB CAT. Uma COM por perna. FM trava o dial VFO-A durante o rastreamento.</value>

@@ -1249,13 +1249,13 @@
     <value>IC-905: デュアル無線機専用。CI-Vアドレス（既定AC）とボーレート（既定115200）を設定モードで一致させてください。USB CI-Vシリアルポートを使用。レッグごとに1 COM — VHF/UHF/SHF（13cm、6cm、3cm含む）。</value>
   </data>
   <data name="Settings.Radio.Ic706Hint">
-    <value>IC-706: REMOTE端子（またはCT-17）経由のCI-V。2mのみ（70cm非対応）。Initial Set Mode（電源投入時LOCK）でアドレス/ボーレートを設定と一致（既定48H/19200）。CI-V TRN On推奨。</value>
+    <value>IC-706: REMOTE端子（またはCT-17）経由のCI-V。HF/6mと2m（70cm非対応）。Initial Set Mode（電源投入時LOCK）でアドレス/ボーレートを設定と一致（既定48H/19200）。CI-V TRN On推奨。AO-07 Mode Aの10mダウンリンク対応。</value>
   </data>
   <data name="Settings.Radio.Ic706MkiiHint">
-    <value>IC-706MKII: IC-706と同じCI-V設定。2mのみ（70cm非対応）。工場出荷アドレス4CH。</value>
+    <value>IC-706MKII: IC-706と同じCI-V設定。HF/6mと2m（70cm非対応）。工場出荷アドレス4CH。AO-07 Mode Aの10mダウンリンク対応。</value>
   </data>
   <data name="Settings.Radio.Ic706MkiiGHint">
-    <value>IC-706MKIIG: REMOTE端子（またはCT-17）経由のCI-V。メニュー34 CI-V ADDRESを設定と一致（既定58H）、メニュー35 CI-V BAUD（既定19200）、メニュー36 CI-V TRN On。2m/70cm対応。23cm衛星は非対応。</value>
+    <value>IC-706MKIIG: REMOTE端子（またはCT-17）経由のCI-V。メニュー34 CI-V ADDRESを設定と一致（既定58H）、メニュー35 CI-V BAUD（既定19200）、メニュー36 CI-V TRN On。HF/6m、2m、70cm対応（AO-07 Mode Aの10mダウンリンク可）。23cm衛星は非対応。</value>
   </data>
   <data name="Settings.Radio.Ft991Hint">
     <value>FT-991 / FT-991A: メニュー031 CAT RATEを設定と一致（既定38400）。RTS付き8N2 ASCII CAT — USB CAT COMポートを使用。レッグごとに1 COM。FMは追跡中VFO-Aダイヤル固定。</value>

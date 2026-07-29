@@ -114,7 +114,7 @@ OscarWatch talks to rigs and rotators over **serial CAT** (COM port on Windows, 
 | **ICOM IC-705**     | CI-V              | **Dual radio only**: one or two IC-705s, or mixed with FT-817/818; one VFO per radio; per-leg CI-V address (default `A4`) |
 | **ICOM IC-7300**    | CI-V              | **Dual radio only**: HF/6 m leg (1.8–54 MHz); default CI-V `94` / 115200; typical AO-07 Mode A downlink paired with a 2 m uplink radio |
 | **ICOM IC-905**     | CI-V              | **Dual radio only**: one VFO per radio; default CI-V `AC` / 115200; VHF/UHF plus SHF (13 cm / 6 cm / 3 cm) |
-| **ICOM IC-706 / IC-706MKII / IC-706MKIIG** | CI-V | **Dual radio only**: shared CI-V driver; default addresses `48` / `4C` / `58`. IC-706 and MKII are 2m-only; MKIIG adds 70cm. 23cm not supported |
+| **ICOM IC-706 / IC-706MKII / IC-706MKIIG** | CI-V | **Dual radio only**: shared CI-V driver; default addresses `48` / `4C` / `58`. All three cover HF/6 m and 2m; MKIIG adds 70cm (AO-07 Mode A downlink on 10 m). 23cm not supported |
 | **Yaesu FT-991 / FT-991A** | Yaesu ASCII CAT (8N2) | **Dual radio only**: one or two FT-991(A)s, or mixed with other dual legs; VFO-A per radio; FM dial lock via `LK` |
 | **Yaesu FTX-1 Field / FTX-1optima** | Yaesu ASCII CAT (8N2) | **Dual radio only**: same newcat subset as FT-991; use CAT-1 (Enhanced COM) per leg; HF/50/144/430 coverage |
 | **SDR (rigctl TCP)** | Hamlib-style rigctl over TCP | **Dual radio downlink only**: SDR++, SDR Connect, or any rigctl server; bidirectional frequency for passband trim ([help](help/radio-sdr-dual.html)) |

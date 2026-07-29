@@ -2134,13 +2134,13 @@
     <value>IC-905: Solo doble radio. Iguala la dirección CI-V (predeterminado AC) y el baud (predeterminado 115200) en el modo Set. Usa el puerto serie USB CI-V. Un COM por tramo — cubre VHF/UHF/SHF incluyendo 13 cm, 6 cm y 3 cm.</value>
   </data>
   <data name="Settings.Radio.Ic706Hint">
-    <value>IC-706: CI-V por la toma REMOTE (o CT-17). Solo 2 m (sin 70 cm). Configura dirección y velocidad CI-V en Initial Set Mode (LOCK al encender) para que coincida con Configuración (predeterminado 48H / 19200). CI-V TRN On recomendado.</value>
+    <value>IC-706: CI-V por la toma REMOTE (o CT-17). HF/6 m y 2 m (sin 70 cm). Configura dirección y velocidad CI-V en Initial Set Mode (LOCK al encender) para que coincida con Configuración (predeterminado 48H / 19200). CI-V TRN On recomendado. Bajada AO-07 Modo A en 10 m compatible.</value>
   </data>
   <data name="Settings.Radio.Ic706MkiiHint">
-    <value>IC-706MKII: misma configuración CI-V que IC-706. Solo 2 m (sin 70 cm). Dirección predeterminada de fábrica 4CH.</value>
+    <value>IC-706MKII: misma configuración CI-V que IC-706. HF/6 m y 2 m (sin 70 cm). Dirección predeterminada de fábrica 4CH. Bajada AO-07 Modo A en 10 m compatible.</value>
   </data>
   <data name="Settings.Radio.Ic706MkiiGHint">
-    <value>IC-706MKIIG: CI-V por la toma REMOTE (o CT-17). Configura el menú 34 CI-V ADDRES para que coincida con Configuración (predeterminado 58H), menú 35 CI-V BAUD para que coincida con Configuración (predeterminado 19200) y menú 36 CI-V TRN On. Cubre 2 m y 70 cm; satélites de 23 cm no compatibles.</value>
+    <value>IC-706MKIIG: CI-V por la toma REMOTE (o CT-17). Configura el menú 34 CI-V ADDRES para que coincida con Configuración (predeterminado 58H), menú 35 CI-V BAUD para que coincida con Configuración (predeterminado 19200) y menú 36 CI-V TRN On. Cubre HF/6 m, 2 m y 70 cm (bajada AO-07 Modo A en 10 m); satélites de 23 cm no compatibles.</value>
   </data>
   <data name="Settings.Radio.Ft991Hint">
     <value>FT-991 / FT-991A: Iguala el menú 031 CAT RATE con Configuración (predeterminado 38400). CAT ASCII 8N2 con RTS por hardware — usa el puerto COM CAT USB. Un COM por tramo. FM bloquea el dial VFO-A mientras hace seguimiento.</value>

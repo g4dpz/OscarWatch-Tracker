@@ -35,9 +35,11 @@ public sealed class IcomIc706SeriesDriver : IcomCivDriverBase
     protected override bool IsFrequencyAllowedHz(long hz) => RigType switch
     {
         RigType.IcomIc706 or RigType.IcomIc706Mkii =>
-            hz is >= 144_000_000 and <= 148_000_000,
+            hz is >= 1_800_000 and <= 54_000_000
+                or >= 144_000_000 and <= 148_000_000,
         RigType.IcomIc706MkiiG =>
-            hz is >= 144_000_000 and <= 148_000_000
+            hz is >= 1_800_000 and <= 54_000_000
+                or >= 144_000_000 and <= 148_000_000
                 or >= 430_000_000 and <= 450_000_000,
         _ => base.IsFrequencyAllowedHz(hz)
     };
