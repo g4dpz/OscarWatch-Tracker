@@ -8,6 +8,9 @@ public sealed class RigSettings
     /// <summary>Factory CI-V USB default baud for IC-705 (must match radio menu).</summary>
     public const int Ic705DefaultBaudRate = 115200;
 
+    /// <summary>Factory CI-V USB default baud for IC-7300 (must match radio menu).</summary>
+    public const int Ic7300DefaultBaudRate = 115200;
+
     /// <summary>Factory CI-V USB default baud for IC-905 (must match radio Set mode).</summary>
     public const int Ic905DefaultBaudRate = 115200;
 
@@ -134,7 +137,7 @@ public sealed class RigSettings
     public static bool IsDualCapableSerialEndpoint(RigType type) =>
         type is RigType.YaesuFt817 or RigType.YaesuFt818 or RigType.YaesuFtx1
             or RigType.YaesuFt991 or RigType.YaesuFt991a
-            or RigType.IcomIc705 or RigType.IcomIc905
+            or RigType.IcomIc705 or RigType.IcomIc7300 or RigType.IcomIc905
             or RigType.IcomIc706 or RigType.IcomIc706Mkii or RigType.IcomIc706MkiiG;
 
     public static bool IsSdrDownlinkEndpoint(RigType type) => type == RigType.SdrRigCtlTcp;
@@ -188,6 +191,7 @@ public sealed class RigSettings
         RigType.IcomIc910 => "7C",
         RigType.IcomIc821h => "4C",
         RigType.IcomIc705 => "A4",
+        RigType.IcomIc7300 => "94",
         RigType.IcomIc905 => "AC",
         RigType.IcomIc706 => "48",
         RigType.IcomIc706Mkii => "4C",

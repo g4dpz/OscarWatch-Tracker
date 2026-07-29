@@ -2079,6 +2079,9 @@ Continuar?</value>
   <data name="Settings.Radio.Ic705CivHint">
     <value>IC-705 padrão de fábrica A4. Deve corresponder ao menu CI-V do rádio.</value>
   </data>
+  <data name="Settings.Radio.Ic7300CivHint">
+    <value>IC-7300 padrão de fábrica 94H. Deve corresponder ao menu CI-V do rádio.</value>
+  </data>
   <data name="Settings.Radio.Ic905CivHint">
     <value>IC-905 padrão de fábrica AC. Deve corresponder ao modo Set CI-V do rádio.</value>
   </data>
@@ -2099,6 +2102,9 @@ Continuar?</value>
   </data>
   <data name="Settings.Radio.Ic705Hint">
     <value>IC-705: Defina Conectores → CI-V → Porta USB CI-V para Vincular a [CI-V] (não REMOTE). Combine o baud CI-V nas Configurações (padrão 115200). Uma porta COM por perna — use a porta marcada como CI-V quando duas aparecerem.</value>
+  </data>
+  <data name="Settings.Radio.Ic7300Hint">
+    <value>IC-7300: apenas rádio dual. Cobertura HF/6 m (1,8–54 MHz). Combine o endereço CI-V (padrão 94H) e o baud (padrão 115200) no menu CI-V do rádio. Uma porta COM por perna — típico para AO-07 Modo A com o 7300 no downlink e um rádio de 2 m no uplink.</value>
   </data>
   <data name="Settings.Radio.Ic905Hint">
     <value>IC-905: Apenas dual radio. Combine o endereço CI-V (padrão AC) e o baud (padrão 115200) no modo Set. Use a porta serial USB CI-V. Uma COM por perna — cobre VHF/UHF/SHF incluindo 13 cm, 6 cm e 3 cm.</value>

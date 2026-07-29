@@ -2103,6 +2103,9 @@
   <data name="Settings.Radio.Ic705CivHint">
     <value>IC-705 predeterminado de fábrica A4. Debe coincidir con el menú CI-V de la radio.</value>
   </data>
+  <data name="Settings.Radio.Ic7300CivHint">
+    <value>IC-7300 predeterminado de fábrica 94H. Debe coincidir con el menú CI-V de la radio.</value>
+  </data>
   <data name="Settings.Radio.Ic905CivHint">
     <value>IC-905 predeterminado de fábrica AC. Debe coincidir con el modo Set CI-V de la radio.</value>
   </data>
@@ -2123,6 +2126,9 @@
   </data>
   <data name="Settings.Radio.Ic705Hint">
     <value>IC-705: Configura Connectors → CI-V → CI-V USB Port en Link to [CI-V] (no REMOTE). Iguala la velocidad CI-V en Configuración (predeterminado 115200). Un puerto COM por tramo — usa el puerto etiquetado CI-V cuando aparezcan dos.</value>
+  </data>
+  <data name="Settings.Radio.Ic7300Hint">
+    <value>IC-7300: solo radio dual. Cobertura HF/6 m (1,8–54 MHz). Iguala la dirección CI-V (predeterminado 94H) y la velocidad (predeterminado 115200) en el menú CI-V de la radio. Un puerto COM por tramo — habitual para AO-07 Modo A con el 7300 en bajada y una radio de 2 m en subida.</value>
   </data>
   <data name="Settings.Radio.Ic905Hint">
     <value>IC-905: Solo doble radio. Iguala la dirección CI-V (predeterminado AC) y el baud (predeterminado 115200) en el modo Set. Usa el puerto serie USB CI-V. Un COM por tramo — cubre VHF/UHF/SHF incluyendo 13 cm, 6 cm y 3 cm.</value>

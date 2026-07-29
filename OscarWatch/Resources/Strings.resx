@@ -2193,6 +2193,9 @@ Continue?</value>
   <data name="Settings.Radio.Ic705CivHint">
     <value>IC-705 factory default A4. Must match the radio CI-V menu.</value>
   </data>
+  <data name="Settings.Radio.Ic7300CivHint">
+    <value>IC-7300 factory default 94H. Must match the radio CI-V menu.</value>
+  </data>
   <data name="Settings.Radio.Ic905CivHint">
     <value>IC-905 factory default AC. Must match the radio CI-V Set mode.</value>
   </data>
@@ -2213,6 +2216,9 @@ Continue?</value>
   </data>
   <data name="Settings.Radio.Ic705Hint">
     <value>IC-705: Set Connectors → CI-V → CI-V USB Port to Link to [CI-V] (not REMOTE). Match CI-V baud in Settings (default 115200). One COM port per leg — use the port labelled CI-V when two appear.</value>
+  </data>
+  <data name="Settings.Radio.Ic7300Hint">
+    <value>IC-7300: Dual radio only. HF/6 m coverage (1.8–54 MHz). Match CI-V address (default 94H) and baud (default 115200) in the radio CI-V menu. One COM port per leg — typical for AO-07 Mode A with the 7300 on downlink and a 2 m radio on uplink.</value>
   </data>
   <data name="Settings.Radio.Ic905Hint">
     <value>IC-905: Dual radio only. Match CI-V address (default AC) and baud (default 115200) in Set mode. Use the USB CI-V serial port. One COM port per leg — covers VHF/UHF/SHF including 13 cm, 6 cm, and 3 cm.</value>

@@ -2079,6 +2079,9 @@
   <data name="Settings.Radio.Ic705CivHint">
     <value>IC-705 出厂默认 A4。必须与电台 CI-V 菜单匹配。</value>
   </data>
+  <data name="Settings.Radio.Ic7300CivHint">
+    <value>IC-7300 出厂默认 94H。必须与电台 CI-V 菜单匹配。</value>
+  </data>
   <data name="Settings.Radio.Ic905CivHint">
     <value>IC-905 出厂默认 AC。必须与电台 CI-V 设置模式匹配。</value>
   </data>
@@ -2099,6 +2102,9 @@
   </data>
   <data name="Settings.Radio.Ic705Hint">
     <value>IC-705：设置 → 连接器 → CI-V → CI-V USB 端口 → 链接到 [CI-V]（非 REMOTE）。在设置中匹配 CI-V 波特率（默认 115200）。每台电台一个 COM 口 — 出现两个端口时，使用标记为 CI-V 的那个。</value>
+  </data>
+  <data name="Settings.Radio.Ic7300Hint">
+    <value>IC-7300：仅双机模式。HF/6 m 覆盖（1.8–54 MHz）。在电台 CI-V 菜单中匹配 CI-V 地址（默认 94H）和波特率（默认 115200）。每台电台一个 COM 口 — 典型用于 AO-07 Mode A，7300 作下行、2 m 电台作上行。</value>
   </data>
   <data name="Settings.Radio.Ic905Hint">
     <value>IC-905：仅双电台。在设置模式中匹配 CI-V 地址（默认 AC）和波特率（默认 115200）。使用 USB CI-V 串口。每台电台一个 COM — 覆盖 VHF/UHF/SHF（含 13 cm、6 cm、3 cm）。</value>

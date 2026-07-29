@@ -1218,6 +1218,9 @@
   <data name="Settings.Radio.Ic705CivHint">
     <value>IC-705 工場出荷 A4。無線機のCI-Vメニューと一致させてください。</value>
   </data>
+  <data name="Settings.Radio.Ic7300CivHint">
+    <value>IC-7300 工場出荷 94H。無線機のCI-Vメニューと一致させてください。</value>
+  </data>
   <data name="Settings.Radio.Ic905CivHint">
     <value>IC-905 工場出荷 AC。無線機のCI-V設定と一致させてください。</value>
   </data>
@@ -1238,6 +1241,9 @@
   </data>
   <data name="Settings.Radio.Ic705Hint">
     <value>IC-705: コネクタ → CI-V → CI-V USBポートを [CI-V] にリンク（REMOTEではない）。設定のCI-Vボーレートと一致（既定115200）。レッグごとに1 COM — 2つ表示される場合はCI-Vラベルのポートを使用。</value>
+  </data>
+  <data name="Settings.Radio.Ic7300Hint">
+    <value>IC-7300: デュアル無線機専用。HF/6m（1.8–54 MHz）。CI-Vアドレス（既定94H）とボーレート（既定115200）を無線機のCI-Vメニューと一致させてください。レッグごとに1 COM — AO-07 Mode Aで7300をダウンリンク、2m無線機をアップリンクにする構成が一般的です。</value>
   </data>
   <data name="Settings.Radio.Ic905Hint">
     <value>IC-905: デュアル無線機専用。CI-Vアドレス（既定AC）とボーレート（既定115200）を設定モードで一致させてください。USB CI-Vシリアルポートを使用。レッグごとに1 COM — VHF/UHF/SHF（13cm、6cm、3cm含む）。</value>

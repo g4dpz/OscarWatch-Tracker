@@ -82,6 +82,7 @@ Per-radio subclasses only override what differs, usually **`SetSatelliteMode`**:
 | [`IcomIc9700Driver`](../OscarWatch/Rig/IcomIc9700Driver.cs) | `IcomIc9700` | `16 5A 01` / `00` |
 | [`IcomIc821hDriver`](../OscarWatch/Rig/IcomIc821hDriver.cs) | `IcomIc821h` | `1A 07 01` / `00`; inverted `07 D0`/`D1` in SAT; split no-op |
 | [`IcomIc705Driver`](../OscarWatch/Rig/IcomIc705Driver.cs) | `IcomIc705` | no-op (dual-radio VFO A only) |
+| [`IcomIc7300Driver`](../OscarWatch/Rig/IcomIc7300Driver.cs) | `IcomIc7300` | no-op (dual-radio VFO A only) |
 | [`IcomIc905Driver`](../OscarWatch/Rig/IcomIc905Driver.cs) | `IcomIc905` | no-op (dual-radio VFO A only) |
 | [`IcomIc706SeriesDriver`](../OscarWatch/Rig/IcomIc706SeriesDriver.cs) | `IcomIc706`, `IcomIc706Mkii`, `IcomIc706MkiiG` | no-op (dual-radio VFO A only) |
 
@@ -201,6 +202,25 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 - Enable **Settings → Radio → Dual radio**; configure each leg (type, COM, baud, CI-V address for IC-705 legs).
 - **Connectors → CI-V → CI-V USB Port** = **Link to [CI-V]** on each radio (not REMOTE).
 - One COM port per leg — use the CI-V-labeled port when Windows shows two.
+- On a real pass: both legs get doppler; CTCSS on uplink only.
+
+## Reference: ICOM IC-7300 (shipped, dual radio only)
+
+| Piece | Path |
+|-------|------|
+| Driver | [`OscarWatch/Rig/IcomIc7300Driver.cs`](../OscarWatch/Rig/IcomIc7300Driver.cs) |
+
+- **Dual radio only** (`RigSettings.DualRadioEnabled`): IC-7300 is not offered in the single-radio driver list. Each endpoint is one physical radio on VFO A (RigController uses `Main`, mapped to VFO A in the driver).
+- No dedicated satellite mode — `SetSatelliteMode` is a no-op; dual pass init sets mode and frequency directly.
+- Default CI-V address **94**; default baud **115200** (must match radio menu).
+- HF and 6 m coverage (1.8–54 MHz). Typical use: **downlink** for AO-07 Mode A (10 m) paired with a 2 m-capable uplink radio (FT-817/818, IC-706, IC-705, etc.).
+- Mixed pairs need no special controller logic.
+
+### Hardware checklist (IC-7300 dual)
+
+- Enable **Settings → Radio → Dual radio**; configure each leg (type, COM, baud, CI-V address for IC-7300 legs).
+- Match **CI-V address** and **baud** in the radio CI-V menu (defaults 94H / 115200).
+- One COM port per leg — use the USB CI-V serial port.
 - On a real pass: both legs get doppler; CTCSS on uplink only.
 
 ## Reference: ICOM IC-706 series (shipped, dual radio only)

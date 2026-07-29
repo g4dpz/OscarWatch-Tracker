@@ -618,16 +618,19 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
 
     public bool ShowDownlinkCivAddress =>
         DualRadioEnabled
-        && (SelectedDownlinkRigTypeChoice?.Value is RigType.IcomIc705 or RigType.IcomIc905
+        && (SelectedDownlinkRigTypeChoice?.Value is RigType.IcomIc705 or RigType.IcomIc7300 or RigType.IcomIc905
             || RigSettings.IsIc706SeriesEndpoint(SelectedDownlinkRigTypeChoice?.Value ?? RigType.None));
 
     public bool ShowUplinkCivAddress =>
         DualRadioEnabled
-        && (SelectedUplinkRigTypeChoice?.Value is RigType.IcomIc705 or RigType.IcomIc905
+        && (SelectedUplinkRigTypeChoice?.Value is RigType.IcomIc705 or RigType.IcomIc7300 or RigType.IcomIc905
             || RigSettings.IsIc706SeriesEndpoint(SelectedUplinkRigTypeChoice?.Value ?? RigType.None));
 
     public bool ShowDownlinkIc705CivHint =>
         DualRadioEnabled && SelectedDownlinkRigTypeChoice?.Value == RigType.IcomIc705;
+
+    public bool ShowDownlinkIc7300CivHint =>
+        DualRadioEnabled && SelectedDownlinkRigTypeChoice?.Value == RigType.IcomIc7300;
 
     public bool ShowDownlinkIc905CivHint =>
         DualRadioEnabled && SelectedDownlinkRigTypeChoice?.Value == RigType.IcomIc905;
@@ -643,6 +646,9 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
 
     public bool ShowUplinkIc705CivHint =>
         DualRadioEnabled && SelectedUplinkRigTypeChoice?.Value == RigType.IcomIc705;
+
+    public bool ShowUplinkIc7300CivHint =>
+        DualRadioEnabled && SelectedUplinkRigTypeChoice?.Value == RigType.IcomIc7300;
 
     public bool ShowUplinkIc905CivHint =>
         DualRadioEnabled && SelectedUplinkRigTypeChoice?.Value == RigType.IcomIc905;
@@ -660,6 +666,11 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         DualRadioEnabled
         && (SelectedDownlinkRigTypeChoice?.Value == RigType.IcomIc705
             || SelectedUplinkRigTypeChoice?.Value == RigType.IcomIc705);
+
+    public bool ShowRigIc7300CatHint =>
+        DualRadioEnabled
+        && (SelectedDownlinkRigTypeChoice?.Value == RigType.IcomIc7300
+            || SelectedUplinkRigTypeChoice?.Value == RigType.IcomIc7300);
 
     public bool ShowRigIc905CatHint =>
         DualRadioEnabled
@@ -794,6 +805,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             new(RigType.YaesuFt991a, "Yaesu FT-991A"),
             new(RigType.YaesuFtx1, "Yaesu FTX-1"),
             new(RigType.IcomIc705, "ICOM IC-705"),
+            new(RigType.IcomIc7300, "ICOM IC-7300"),
             new(RigType.IcomIc905, "ICOM IC-905"),
             new(RigType.IcomIc706, "ICOM IC-706"),
             new(RigType.IcomIc706Mkii, "ICOM IC-706MKII"),
@@ -1886,11 +1898,14 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(ShowUplinkSerialFields));
         OnPropertyChanged(nameof(ShowUplinkCivAddress));
         OnPropertyChanged(nameof(ShowDownlinkIc705CivHint));
+        OnPropertyChanged(nameof(ShowDownlinkIc7300CivHint));
         OnPropertyChanged(nameof(ShowDownlinkIc905CivHint));
         NotifyIc706SeriesVisibility();
         OnPropertyChanged(nameof(ShowUplinkIc705CivHint));
+        OnPropertyChanged(nameof(ShowUplinkIc7300CivHint));
         OnPropertyChanged(nameof(ShowUplinkIc905CivHint));
         OnPropertyChanged(nameof(ShowRigIc705CatHint));
+        OnPropertyChanged(nameof(ShowRigIc7300CatHint));
         OnPropertyChanged(nameof(ShowRigIc905CatHint));
         OnPropertyChanged(nameof(ShowRigFt991CatHint));
         OnPropertyChanged(nameof(ShowRigFtx1CatHint));
@@ -1977,9 +1992,11 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(ShowDownlinkSerialFields));
         OnPropertyChanged(nameof(ShowDownlinkSdrFields));
         OnPropertyChanged(nameof(ShowDownlinkIc705CivHint));
+        OnPropertyChanged(nameof(ShowDownlinkIc7300CivHint));
         OnPropertyChanged(nameof(ShowDownlinkIc905CivHint));
         NotifyIc706SeriesVisibility();
         OnPropertyChanged(nameof(ShowRigIc705CatHint));
+        OnPropertyChanged(nameof(ShowRigIc7300CatHint));
         OnPropertyChanged(nameof(ShowRigIc905CatHint));
         OnPropertyChanged(nameof(ShowRigFt991CatHint));
         OnPropertyChanged(nameof(ShowRigFtx1CatHint));
@@ -2000,6 +2017,13 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             DownlinkBaudRate = RigSettings.Ic705DefaultBaudRate;
             if (ShouldSuggestCivAddress(DownlinkCivAddress))
                 DownlinkCivAddress = RigSettings.DefaultCivAddressFor(RigType.IcomIc705);
+        }
+
+        if (value.Value == RigType.IcomIc7300)
+        {
+            DownlinkBaudRate = RigSettings.Ic7300DefaultBaudRate;
+            if (ShouldSuggestCivAddress(DownlinkCivAddress))
+                DownlinkCivAddress = RigSettings.DefaultCivAddressFor(RigType.IcomIc7300);
         }
 
         if (value.Value == RigType.IcomIc905)
@@ -2028,9 +2052,11 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(ShowUplinkCivAddress));
         OnPropertyChanged(nameof(ShowUplinkSerialFields));
         OnPropertyChanged(nameof(ShowUplinkIc705CivHint));
+        OnPropertyChanged(nameof(ShowUplinkIc7300CivHint));
         OnPropertyChanged(nameof(ShowUplinkIc905CivHint));
         NotifyIc706SeriesVisibility();
         OnPropertyChanged(nameof(ShowRigIc705CatHint));
+        OnPropertyChanged(nameof(ShowRigIc7300CatHint));
         OnPropertyChanged(nameof(ShowRigIc905CatHint));
         OnPropertyChanged(nameof(ShowRigFt991CatHint));
         OnPropertyChanged(nameof(ShowRigFtx1CatHint));
@@ -2053,6 +2079,13 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
                 UplinkCivAddress = RigSettings.DefaultCivAddressFor(RigType.IcomIc705);
         }
 
+        if (value.Value == RigType.IcomIc7300)
+        {
+            UplinkBaudRate = RigSettings.Ic7300DefaultBaudRate;
+            if (ShouldSuggestCivAddress(UplinkCivAddress))
+                UplinkCivAddress = RigSettings.DefaultCivAddressFor(RigType.IcomIc7300);
+        }
+
         if (value.Value == RigType.IcomIc905)
         {
             UplinkBaudRate = RigSettings.Ic905DefaultBaudRate;
@@ -2066,7 +2099,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
 
     private static bool ShouldSuggestCivAddress(string? address) =>
         string.IsNullOrWhiteSpace(address)
-        || address is "60" or "7C" or "A2" or "A4" or "AC" or "48" or "4C" or "58";
+        || address is "60" or "7C" or "A2" or "A4" or "94" or "AC" or "48" or "4C" or "58";
 
     private void NotifyIc706SeriesVisibility()
     {

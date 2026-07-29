@@ -47,6 +47,8 @@ public static class RigDriverFactory
             endpoint.Port, endpoint.BaudRate, endpoint.Region, endpoint.CatDelayMs),
         RigType.IcomIc705 => new IcomIc705Driver(
             endpoint.Port, endpoint.BaudRate, ResolveEndpointCivAddress(endpoint), endpoint.CatDelayMs),
+        RigType.IcomIc7300 => new IcomIc7300Driver(
+            endpoint.Port, endpoint.BaudRate, ResolveEndpointCivAddress(endpoint), endpoint.CatDelayMs),
         RigType.IcomIc905 => new IcomIc905Driver(
             endpoint.Port, endpoint.BaudRate, ResolveEndpointCivAddress(endpoint), endpoint.CatDelayMs),
         RigType.IcomIc706 or RigType.IcomIc706Mkii or RigType.IcomIc706MkiiG =>
@@ -107,6 +109,8 @@ public static class RigDriverFactory
             RigType.IcomIc821h => new IcomIc821hDriver(port, baudRate, civAddress, catDelayMs),
             RigType.IcomIc705 =>
                 throw new InvalidOperationException("IC-705 requires Settings → Radio → Dual radio."),
+            RigType.IcomIc7300 =>
+                throw new InvalidOperationException("IC-7300 requires Settings → Radio → Dual radio."),
             RigType.IcomIc905 =>
                 throw new InvalidOperationException("IC-905 requires Settings → Radio → Dual radio."),
             RigType.IcomIc706 or RigType.IcomIc706Mkii or RigType.IcomIc706MkiiG =>
