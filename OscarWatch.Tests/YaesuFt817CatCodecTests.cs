@@ -17,6 +17,14 @@ public sealed class YaesuFt817CatCodecTests
     }
 
     [Fact]
+    public void DecodeFrequency_round_trip_10m()
+    {
+        const long hz = 29_450_000;
+        var cmd = YaesuFt817CatCodec.BuildSetFrequencyCommand(hz);
+        Assert.Equal(hz, YaesuFt817CatCodec.DecodeFrequency10Hz(cmd));
+    }
+
+    [Fact]
     public void BuildSetMode_FM_uses_wide_byte()
     {
         var cmd = YaesuFt817CatCodec.BuildSetModeCommand("FM");

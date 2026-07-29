@@ -1237,7 +1237,7 @@
     <value>COMポートを更新</value>
   </data>
   <data name="Settings.Radio.Ft817Hint">
-    <value>FT-817 / FT-818: 各無線機でメニュー#14を4800に（38400も可）。8N2 CAT — レッグごとに1 COM。リニア: ダウンリンクでパスバンド調整。FMは追跡中ダイヤル固定。</value>
+    <value>FT-817 / FT-818: 各無線機でメニュー#14を4800に（38400も可）。8N2 CAT — レッグごとに1 COM。HF/6m、2m、70cm対応（AO-07 Mode Aの10mダウンリンク可）。リニア: ダウンリンクでパスバンド調整。FMは追跡中ダイヤル固定。</value>
   </data>
   <data name="Settings.Radio.Ic705Hint">
     <value>IC-705: コネクタ → CI-V → CI-V USBポートを [CI-V] にリンク（REMOTEではない）。設定のCI-Vボーレートと一致（既定115200）。レッグごとに1 COM — 2つ表示される場合はCI-Vラベルのポートを使用。</value>

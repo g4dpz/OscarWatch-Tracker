@@ -2098,7 +2098,7 @@
     <value>刷新 COM 端口</value>
   </data>
   <data name="Settings.Radio.Ft817Hint">
-    <value>FT-817 / FT-818：在每台电台上将菜单 #14 设为 4800 波特（38400 亦可）。8N2 CAT — 每台电台一个 COM 口。线性模式：旋转下行旋钮调谐过境频段；FM 锁定时跟踪。</value>
+    <value>FT-817 / FT-818：在每台电台上将菜单 #14 设为 4800 波特（38400 亦可）。8N2 CAT — 每台电台一个 COM 口。覆盖 HF/6 m、2m 和 70cm（AO-07 Mode A 10m 下行）。线性模式：旋转下行旋钮调谐过境频段；FM 锁定时跟踪。</value>
   </data>
   <data name="Settings.Radio.Ic705Hint">
     <value>IC-705：设置 → 连接器 → CI-V → CI-V USB 端口 → 链接到 [CI-V]（非 REMOTE）。在设置中匹配 CI-V 波特率（默认 115200）。每台电台一个 COM 口 — 出现两个端口时，使用标记为 CI-V 的那个。</value>

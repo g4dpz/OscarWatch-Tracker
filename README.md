@@ -110,7 +110,7 @@ OscarWatch talks to rigs and rotators over **serial CAT** (COM port on Windows, 
 | **ICOM IC-9700**    | CI-V              | Same layout as IC-910                                                                                      |
 | **ICOM IC-821H**    | CI-V              | Satellite Main/Sub only (no split CAT); same-band duplex (e.g. ISS Packet) stays in SAT; default CI-V `4C`; uplink tone manual on radio |
 | **Yaesu FT-847**    | Yaesu CAT         | Satellite mode, SAT RX/TX VFOs, doppler, uplink CTCSS                                                      |
-| **Yaesu FT-817 / FT-818** | Yaesu CAT (8N2) | **Dual radio only**: downlink radio on one COM port, uplink on another (e.g. two FT-818s); full doppler; linear passband tuning on the downlink VFO; FM locks the dial via CAT |
+| **Yaesu FT-817 / FT-818** | Yaesu CAT (8N2) | **Dual radio only**: HF/6 m, 2 m, and 70 cm; downlink on one COM, uplink on another; full doppler; AO-07 Mode A downlink on 10 m supported; linear passband tuning on the downlink VFO; FM locks the dial via CAT |
 | **ICOM IC-705**     | CI-V              | **Dual radio only**: one or two IC-705s, or mixed with FT-817/818; one VFO per radio; per-leg CI-V address (default `A4`) |
 | **ICOM IC-7300**    | CI-V              | **Dual radio only**: HF/6 m leg (1.8–54 MHz); default CI-V `94` / 115200; typical AO-07 Mode A downlink paired with a 2 m uplink radio |
 | **ICOM IC-905**     | CI-V              | **Dual radio only**: one VFO per radio; default CI-V `AC` / 115200; VHF/UHF plus SHF (13 cm / 6 cm / 3 cm) |

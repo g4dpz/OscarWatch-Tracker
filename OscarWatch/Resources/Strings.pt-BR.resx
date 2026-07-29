@@ -2098,7 +2098,7 @@ Continuar?</value>
     <value>Atualizar portas COM</value>
   </data>
   <data name="Settings.Radio.Ft817Hint">
-    <value>FT-817 / FT-818: Defina o menu #14 para 4800 baud em cada rádio (38400 também funciona). CAT 8N2 — uma COM por perna. Linear: gire o downlink para a passband; FM trava o dial durante o rastreamento.</value>
+    <value>FT-817 / FT-818: Defina o menu #14 para 4800 baud em cada rádio (38400 também funciona). CAT 8N2 — uma COM por perna. Cobre HF/6 m, 2 m e 70 cm (downlink AO-07 Modo A em 10 m). Linear: gire o downlink para a passband; FM trava o dial durante o rastreamento.</value>
   </data>
   <data name="Settings.Radio.Ic705Hint">
     <value>IC-705: Defina Conectores → CI-V → Porta USB CI-V para Vincular a [CI-V] (não REMOTE). Combine o baud CI-V nas Configurações (padrão 115200). Uma porta COM por perna — use a porta marcada como CI-V quando duas aparecerem.</value>

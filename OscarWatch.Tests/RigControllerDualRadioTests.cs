@@ -431,6 +431,73 @@ public sealed class RigControllerDualRadioTests
     }
 
     [Fact]
+    public void Dual_ft818_downlink_ao07_mode_a_pass_init_writes_rx_and_tx()
+    {
+        var downTransport = new RecordingYaesuCatTransport();
+        var upTransport = new RecordingYaesuCatTransport();
+        var controller = new RigController(
+            endpointFactory: ep => ep.Port == "COM_DL"
+                ? new YaesuFt818Driver(downTransport)
+                : new YaesuFt818Driver(upTransport));
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "Mode A",
+            DownlinkKHz = 29_450,
+            UplinkKHz = 145_900,
+            DownlinkMode = "USB",
+            UplinkMode = "USB",
+            Doppler = "NOR"
+        };
+
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            DualRadioEnabled = true,
+            Downlink = new RigEndpointSettings
+            {
+                Type = RigType.YaesuFt818,
+                Port = "COM_DL",
+                BaudRate = 4800,
+                CatDelayMs = 0
+            },
+            Uplink = new RigEndpointSettings
+            {
+                Type = RigType.YaesuFt818,
+                Port = "COM_UL",
+                BaudRate = 4800,
+                CatDelayMs = 0,
+                Region = RigRegion.EU
+            }
+        };
+
+        controller.Update(settings, new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "AO-07",
+                NoradId = "07530",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 30, 800, 0)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            DopplerStrategy = DopplerStrategy.Full
+        });
+
+        var expectedRx = (long)(DopplerFrequencyCalculator.Compute(mode, 0, 0).RadioReceiveKHz * 1000);
+        var expectedTx = (long)(DopplerFrequencyCalculator.Compute(mode, 0, 0).RadioTransmitKHz * 1000);
+
+        Assert.Contains(downTransport.SentFrames, f => f.Length == 5 && f[4] == 0x01);
+        Assert.Contains(upTransport.SentFrames, f => f.Length == 5 && f[4] == 0x01);
+
+        var downFreqCmd = downTransport.SentFrames.Last(f => f.Length == 5 && f[4] == 0x01);
+        var upFreqCmd = upTransport.SentFrames.Last(f => f.Length == 5 && f[4] == 0x01);
+        Assert.InRange(YaesuFt817CatCodec.DecodeFrequency10Hz(downFreqCmd), expectedRx - 10, expectedRx + 10);
+        Assert.InRange(YaesuFt817CatCodec.DecodeFrequency10Hz(upFreqCmd), expectedTx - 10, expectedTx + 10);
+    }
+
+    [Fact]
     public void Dual_ic706mkiig_both_legs_linear_doppler_updates_both_radios()
     {
         var downTransport = new RecordingIcomCivTransport { MainHz = 145_960_000 };

@@ -2122,7 +2122,7 @@
     <value>Actualizar puertos COM</value>
   </data>
   <data name="Settings.Radio.Ft817Hint">
-    <value>FT-817 / FT-818: Configura el menú n.º 14 a 4800 baudios en cada radio (38400 también funciona). CAT 8N2 — un COM por tramo. Lineal: gira la bajada para la banda de paso; FM bloquea el dial mientras hace seguimiento.</value>
+    <value>FT-817 / FT-818: Configura el menú n.º 14 a 4800 baudios en cada radio (38400 también funciona). CAT 8N2 — un COM por tramo. Cubre HF/6 m, 2 m y 70 cm (bajada AO-07 Modo A en 10 m). Lineal: gira la bajada para la banda de paso; FM bloquea el dial mientras hace seguimiento.</value>
   </data>
   <data name="Settings.Radio.Ic705Hint">
     <value>IC-705: Configura Connectors → CI-V → CI-V USB Port en Link to [CI-V] (no REMOTE). Iguala la velocidad CI-V en Configuración (predeterminado 115200). Un puerto COM por tramo — usa el puerto etiquetado CI-V cuando aparezcan dos.</value>

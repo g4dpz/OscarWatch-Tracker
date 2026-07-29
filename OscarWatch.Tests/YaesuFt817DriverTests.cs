@@ -65,6 +65,29 @@ public sealed class YaesuFt817DriverTests
     }
 
     [Fact]
+    public void SetFrequencyHz_accepts_10m_hf()
+    {
+        var transport = new RecordingYaesuCatTransport();
+        var driver = new YaesuFt817Driver(RigType.YaesuFt817, transport);
+        driver.Open();
+        driver.SelectVfo(RigVfo.Main);
+
+        Assert.True(driver.SetFrequencyHz(29_450_000));
+        Assert.Contains(transport.SentFrames, f => f.Length == 5 && f[4] == 0x01);
+    }
+
+    [Fact]
+    public void Ft818_set_frequency_accepts_10m_hf()
+    {
+        var transport = new RecordingYaesuCatTransport();
+        var driver = new YaesuFt818Driver(transport);
+        driver.Open();
+        driver.SelectVfo(RigVfo.Main);
+
+        Assert.True(driver.SetFrequencyHz(29_450_000));
+    }
+
+    [Fact]
     public void SupportsVfoExchange_is_false()
     {
         var driver = new YaesuFt817Driver(RigType.YaesuFt817, new RecordingYaesuCatTransport());

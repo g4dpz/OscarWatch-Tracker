@@ -154,6 +154,7 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 | Driver | [`OscarWatch/Rig/YaesuFt817Driver.cs`](../OscarWatch/Rig/YaesuFt817Driver.cs), [`YaesuFt818Driver.cs`](../OscarWatch/Rig/YaesuFt818Driver.cs) |
 
 - **Dual radio only** (`RigSettings.DualRadioEnabled`): FT-817/FT-818 are not offered in the single-radio driver list. Each endpoint is one physical radio and one VFO (RX on downlink, TX + CTCSS on uplink). No split CAT is used in this layout.
+- **Band coverage:** HF/6 m, 2 m, and 70 cm on both models. There is no software band gate — any satellite frequency the radio accepts is sent over CAT (including **AO-07 Mode A** on 10 m downlink).
 - `SupportsVfoExchange` is **false** — VFO B is selected with CAT opcode `0x81` before TX commands on a **single** split radio; in **dual** mode uplink CTCSS stays on **Main** (VFO A) to match the TX frequency leg.
 - Cross-check against [Hamlib `ft817.c`](https://github.com/Hamlib/Hamlib/blob/master/rigs/yaesu/ft817.c).
 - CTCSS tone frequency (opcode `0x0B`) uses BCD in bytes 1–2 (Hamlib / KA7OEI), not the FT-847 single-byte tone table.

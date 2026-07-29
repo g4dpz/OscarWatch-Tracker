@@ -2212,7 +2212,7 @@ Continue?</value>
     <value>Refresh COM ports</value>
   </data>
   <data name="Settings.Radio.Ft817Hint">
-    <value>FT-817 / FT-818: Set menu #14 to 4800 baud on each radio (38400 also works). 8N2 CAT — one COM per leg. Linear: spin downlink for passband; FM locks dial while tracking.</value>
+    <value>FT-817 / FT-818: Set menu #14 to 4800 baud on each radio (38400 also works). 8N2 CAT — one COM per leg. Covers HF/6 m, 2m, and 70cm (AO-07 Mode A downlink on 10 m). Linear: spin downlink for passband; FM locks dial while tracking.</value>
   </data>
   <data name="Settings.Radio.Ic705Hint">
     <value>IC-705: Set Connectors → CI-V → CI-V USB Port to Link to [CI-V] (not REMOTE). Match CI-V baud in Settings (default 115200). One COM port per leg — use the port labelled CI-V when two appear.</value>
