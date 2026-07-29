@@ -975,11 +975,29 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     [RelayCommand]
     private void RefreshComPorts()
     {
+        // Snapshot first: clearing the shared ItemsSource can null every ComboBox's
+        // TwoWay Selected*ComPort binding, which would wipe radio/rotator/GPS together.
+        var rotatorPort = SelectedComPort;
+        var rigPort = SelectedRigComPort;
+        var downlinkPort = SelectedDownlinkComPort;
+        var uplinkPort = SelectedUplinkComPort;
+        var gpsPort = SelectedGpsComPort;
+
         AvailableComPorts.Clear();
         foreach (var port in SerialPortDiscovery.GetAvailablePorts(forceRefresh: true))
             AvailableComPorts.Add(port);
 
-        SeedSavedComPorts();
+        EnsureSavedPortListed(rotatorPort);
+        EnsureSavedPortListed(rigPort);
+        EnsureSavedPortListed(downlinkPort);
+        EnsureSavedPortListed(uplinkPort);
+        EnsureSavedPortListed(gpsPort);
+
+        SelectedComPort = rotatorPort;
+        SelectedRigComPort = rigPort;
+        SelectedDownlinkComPort = downlinkPort;
+        SelectedUplinkComPort = uplinkPort;
+        SelectedGpsComPort = gpsPort;
     }
 
     private void EnsureSavedPortListed(string? port)
