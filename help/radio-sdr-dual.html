@@ -76,7 +76,7 @@
 
       <h2>Operating notes</h2>
       <ul>
-        <li>Linear passes: tune on the SDR waterfall — OscarWatch reads frequency via rigctl and adjusts downlink passband trim; uplink Doppler continues on the TX radio. See <a href="radio-doppler-tuning.html#passband-knob">spinning the dial</a>.</li>
+        <li>Linear passes: tune on the SDR waterfall — OscarWatch reads frequency via rigctl and applies NOR/REV passband trim so the TX radio follows your RX hunt while uplink Doppler continues. See <a href="radio-doppler-tuning.html#passband-knob">spinning the dial</a>.</li>
         <li>FM passes: Doppler updates are pushed to the SDR centre frequency; spin the TX radio or overlay for uplink offset as usual.</li>
         <li>Use <strong>100 ms or more</strong> downlink CAT delay when the SDR feels sluggish.</li>
         <li>SDR is <strong>downlink only</strong>; the uplink can be a supported CAT radio or <strong>Dummy uplink (RX only)</strong> for receive-only operation.</li>

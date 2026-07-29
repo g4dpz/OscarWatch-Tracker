@@ -200,7 +200,7 @@ public sealed class RigControllerDualRadioTests
     }
 
     [Fact]
-    public void Dual_linear_manual_downlink_offset_does_not_shift_uplink_passband()
+    public void Dual_linear_manual_downlink_offset_shifts_uplink_passband_rev()
     {
         var downRig = new RecordingRigDriver();
         var upRig = new RecordingRigDriver();
@@ -242,13 +242,15 @@ public sealed class RigControllerDualRadioTests
         controller.Update(settings, Build(0));
         Thread.Sleep(650);
 
+        var txAfterInit = upRig.MainHz;
         downRig.MainHz += 2_000;
         for (var i = 0; i < 10; i++)
             controller.RunTrackingLoopOnce();
 
         var status = controller.GetStatus();
         Assert.InRange(status.ManualReceiveAdjustKHz, 1.9, 2.1);
-        Assert.InRange(status.ManualTransmitAdjustKHz, -0.001, 0.001);
+        Assert.InRange(status.ManualTransmitAdjustKHz, -2.1, -1.9);
+        Assert.True(upRig.MainHz < txAfterInit, $"REV dual expects TX to drop when RX rises: tx={upRig.MainHz} was {txAfterInit}");
     }
 
     [Fact]

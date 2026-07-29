@@ -643,7 +643,8 @@ public sealed class RigController : IRigController, IDisposable
     }
 
     /// <summary>
-    /// Dual linear: downlink dial sets passband trim on the RX radio only; uplink keeps doppler while RX dial moves.
+    /// Dual linear: downlink dial sets NOR/REV passband trim on both legs (same as single radio);
+    /// while RX dial moves, hold downlink CAT but keep writing uplink Doppler + trim.
     /// </summary>
     private void ProcessInteractiveLinearDual(RigSettings settings, RigTrackingContext context)
     {
@@ -763,11 +764,10 @@ public sealed class RigController : IRigController, IDisposable
 
         if (Math.Abs(dialHz - pureBaselineHz) < threshold
             && (Math.Abs(_passbandDownlinkAdjustKHz) > 0.0001
-                || (!_cachedSettings.DualRadioEnabled && Math.Abs(_passbandUplinkAdjustKHz) > 0.0001)))
+                || Math.Abs(_passbandUplinkAdjustKHz) > 0.0001))
         {
             _passbandDownlinkAdjustKHz = 0;
-            if (!_cachedSettings.DualRadioEnabled)
-                _passbandUplinkAdjustKHz = 0;
+            _passbandUplinkAdjustKHz = 0;
             _forceFrequencyApply = true;
             return;
         }
@@ -782,20 +782,15 @@ public sealed class RigController : IRigController, IDisposable
         var deltaKhz = deltaFromBaselineHz / 1000.0;
         double newDown;
         double newUp;
-        if (_cachedSettings.DualRadioEnabled)
+        if (context.Mode.DopplerCorrection == DopplerCorrection.Reverse)
         {
-            newDown = _passbandDownlinkAdjustKHz + deltaKhz;
-            newUp = _passbandUplinkAdjustKHz;
-        }
-        else if (context.Mode.DopplerCorrection == DopplerCorrection.Reverse)
-        {
-            // REV: Main dial up → downlink nominal up, uplink nominal down.
+            // REV: Main dial up → downlink nominal up, uplink nominal down (single and dual radio).
             newDown = _passbandDownlinkAdjustKHz + deltaKhz;
             newUp = _passbandUplinkAdjustKHz - deltaKhz;
         }
         else
         {
-            // NOR: both nominals move with Main dial.
+            // NOR: both nominals move with Main dial (single and dual radio).
             newDown = _passbandDownlinkAdjustKHz + deltaKhz;
             newUp = _passbandUplinkAdjustKHz + deltaKhz;
         }
