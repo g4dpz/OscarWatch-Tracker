@@ -1,0 +1,120 @@
+name: Bug report
+description: Something is broken or not working as expected
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a problem. The sections below help us reproduce and fix it faster.
+
+        **Before you submit:** check [Problems?](https://github.com/magicbug/OscarWatch-Tracker/blob/main/help/troubleshooting.html) and confirm you are on the [latest release](https://github.com/magicbug/OscarWatch-Tracker/releases) if you can.
+
+  - type: input
+    id: version
+    attributes:
+      label: OscarWatch version
+      description: Help → About, or the release tag (for example `1.2.3`).
+      placeholder: "1.2.3"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: os-version
+    attributes:
+      label: OS version
+      description: For example Windows 11, macOS 15, Ubuntu 24.04.
+      placeholder: Windows 11 / macOS 15 / Ubuntu 24.04
+    validations:
+      required: true
+
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Radio and rotator (if relevant)
+      description: Models, connection type (USB serial, network), and whether dual-radio is enabled.
+      placeholder: |
+        Radio: ICOM IC-9700 via USB CI-V (COM5)
+        Rotator: Yaesu GS-232A (COM6)
+    validations:
+      required: false
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What you did, in order, leading up to the problem.
+      placeholder: |
+        1. Selected FO-29 on the pass list
+        2. Enabled radio tracking in Settings
+        3. At AOS, uplink frequency did not update
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Diagnostics and logs
+
+        These save a lot of back-and-forth. Please include both if you can.
+
+        1. In OscarWatch, choose **Help → Copy diagnostics** and paste the clipboard contents below (settings are redacted; API keys are not included).
+        2. Choose **Help → Open logs folder** and attach the log file for the day the problem occurred (`oscarwatch-YYYYMMDD.log`). Drag the file into this issue, or paste a relevant excerpt if it is very large.
+
+        Log folder locations:
+        - **Windows:** `%AppData%\OscarWatch\logs\`
+        - **macOS:** `~/Library/Application Support/OscarWatch/logs/`
+        - **Linux:** `~/.local/share/OscarWatch/logs/`
+
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics bundle
+      description: Paste the output from Help → Copy diagnostics.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log file or excerpt
+      description: Attach the `.log` file above if possible, or paste lines around the error or crash here.
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Screenshots, satellite/mode, whether Standby or Pause CAT was on, etc.
+    validations:
+      required: false
