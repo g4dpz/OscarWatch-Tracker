@@ -18,6 +18,7 @@ Thank you to everyone who has donated to support OscarWatch development.
 | Denis                    | F6ITK          |
 | Rocco                    | IK8XLD         |
 | Mark                     | K0JM           |
+| Dale                     | MM0INH         |
 
 
 If you donate and would like to be listed here, let Peter know your name and callsign.
