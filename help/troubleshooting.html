@@ -71,7 +71,25 @@
         <li>Close other applications using the same port.</li>
         <li>Leave <strong>Standby</strong> if you expect tracking — Resume for live operation.</li>
         <li>Settings or the sidebar may show a COM port conflict warning if two devices share one port.</li>
+        <li>If the port appears but CAT is flaky, try a different USB–serial adapter — see <a href="#usb-serial">USB serial adapters</a>.</li>
       </ul>
+
+      <h2 id="usb-serial">USB serial adapters (FTDI vs Prolific)</h2>
+      <p>
+        OscarWatch talks to many radios and rotators over USB serial. The adapter chipset matters more than
+        most operators expect.
+      </p>
+      <ul>
+        <li>Prefer a genuine <strong>FTDI</strong> USB–serial cable or the radio’s own USB CAT/CI-V port when it provides one.</li>
+        <li><strong>Silicon Labs CP210x</strong> adapters are usually fine.</li>
+        <li>Avoid cheap <strong>Prolific</strong> clones — they are a frequent cause of missed CAT commands, timeouts, and ports that stop working after a Windows driver update. Genuine Prolific devices are less common in bargain cables.</li>
+        <li>Some very cheap <strong>CH340</strong> leads are also unreliable for dense CAT traffic (Doppler updates, dual radio).</li>
+      </ul>
+      <p>
+        FTDI is a recommendation, not a hard requirement — built-in USB on modern rigs (for example IC-9700 or FT-991)
+        is fine. If CAT seems intermittent with an external adapter, swapping to a known-good FTDI lead is one of the
+        fastest checks.
+      </p>
 
       <h2 id="linux-serial">Linux — serial port changed after reboot</h2>
       <ul>
@@ -99,6 +117,7 @@
         <li>Check <strong>Pause CAT</strong> is off in Settings → Radio.</li>
         <li>Confirm you are not in Standby mode.</li>
         <li>Verify rig type and CI-V address (ICOM).</li>
+        <li>Try a genuine <strong>FTDI</strong> USB–serial adapter if you use an external lead — see <a href="#usb-serial">USB serial adapters</a>.</li>
         <li>For <strong>cross-band</strong> modes, the radio should be in satellite/split layout (OscarWatch usually sets this at pass start).</li>
         <li>For <strong>receive-only</strong> modes (e.g. ISS SSTV with uplink 0), satellite mode should be <strong>off</strong> on ICOM rigs — OscarWatch does that automatically. On the <strong>TS-2000</strong>, receive-only stays in SATL with downlink Doppler on <code>FA</code> only — see <a href="radio-kenwood.html">Kenwood help</a>. Pick the matching band mode (SSTV VHF vs UHF) in the frequency panel.</li>
         <li>On linear SSB/CW, check <a href="radio-doppler-tuning.html#doppler-cat-thresholds">Doppler thresholds</a> — very large values can make tracking look sluggish near TCA.</li>

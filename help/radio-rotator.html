@@ -53,6 +53,7 @@
       <h2>Before you plug in</h2>
       <ul>
         <li>Use a <strong>USB serial</strong> lead (or proper interface) to the radio and rotator.</li>
+        <li>Prefer a genuine <strong>FTDI</strong> USB–serial adapter (or the radio’s own USB port). Cheap <strong>Prolific</strong> clones are a common cause of missed CAT and flaky reconnects — see <a href="troubleshooting.html#usb-serial">USB serial adapters</a>.</li>
         <li>Radio and rotator need <strong>different serial ports</strong> — and a third port if you use GPS. On Linux, use a stable <code>by-id</code> or udev path so numbers do not swap after reboot — see <a href="linux-serial.html">Linux serial ports</a>.</li>
         <li><strong>Close other programs</strong> that might hold the port (HRD, WSJT-X rig control, Hamlib, etc.).</li>
         <li>For normal <strong>cross-band</strong> satellites, your radio should be in <strong>satellite mode</strong> when tracking starts (OscarWatch usually sets this), except the <strong>Kenwood TS-2000</strong> — you must select SAT yourself first.</li>
