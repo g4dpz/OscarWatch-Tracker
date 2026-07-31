@@ -1081,7 +1081,10 @@ public sealed class RigController : IRigController, IDisposable
             if (wroteTx)
                 _lastTxWriteUtc = DateTime.UtcNow;
             _lastWriteUtc = DateTime.UtcNow;
-            MarkProgrammaticFrequencySettle();
+            // Dual uplink-only writes cannot echo on the RX dial. Refreshing dial settle here
+            // permanently blocks linear passband capture while Doppler keeps moving the uplink.
+            if (wroteRx || !settings.DualRadioEnabled)
+                MarkProgrammaticFrequencySettle();
             FinishOffsetKnobCaptureBlock();
         }
 

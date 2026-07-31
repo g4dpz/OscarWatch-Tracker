@@ -253,6 +253,80 @@ public sealed class RigControllerDualRadioTests
         Assert.True(upRig.MainHz < txAfterInit, $"REV dual expects TX to drop when RX rises: tx={upRig.MainHz} was {txAfterInit}");
     }
 
+    /// <summary>
+    /// While the operator spins RX, dual mode still writes uplink Doppler. Those TX-only CAT writes must
+    /// not refresh the RX dial settle window, or passband capture never runs and uplink stays untrimmed.
+    /// </summary>
+    [Fact]
+    public void Dual_linear_passband_capture_survives_uplink_doppler_writes_during_knob_spin()
+    {
+        var downRig = new RecordingRigDriver();
+        var upRig = new RecordingRigDriver();
+        var controller = new RigController(
+            endpointFactory: ep => ep.Port == "COM_DL" ? downRig : upRig);
+
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            DualRadioEnabled = true,
+            DopplerThresholdLinearHz = 50,
+            Downlink = new RigEndpointSettings { Type = RigType.YaesuFt817, Port = "COM_DL", CatDelayMs = 0 },
+            Uplink = new RigEndpointSettings { Type = RigType.YaesuFt818, Port = "COM_UL", CatDelayMs = 0 }
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 145_960,
+            UplinkKHz = 435_250,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        RigTrackingContext Build(double rangeRateKmPerSec) => new()
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "RS-44",
+                NoradId = "44909",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 30, 800, rangeRateKmPerSec)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, rangeRateKmPerSec, 0),
+            DopplerStrategy = DopplerStrategy.Full
+        };
+
+        controller.Update(settings, Build(0));
+        Thread.Sleep(650);
+
+        var rxAfterInit = downRig.MainHz;
+        var txAfterInit = upRig.MainHz;
+
+        // Spin RX while uplink Doppler keeps moving — each TX-only write used to refresh dial settle.
+        for (var i = 0; i < 16; i++)
+        {
+            downRig.MainHz = rxAfterInit + 500 + i * 100;
+            controller.PublishContext(settings, Build(0.4 + i * 0.35));
+            controller.RunTrackingLoopOnce();
+        }
+
+        // Return to zero range-rate so dial offset maps cleanly to ~2 kHz passband trim.
+        var spunRx = rxAfterInit + 2_000;
+        downRig.MainHz = spunRx;
+        controller.PublishContext(settings, Build(0));
+        for (var i = 0; i < 12; i++)
+            controller.RunTrackingLoopOnce();
+
+        var status = controller.GetStatus();
+        Assert.InRange(status.ManualReceiveAdjustKHz, 1.5, 2.5);
+        Assert.InRange(status.ManualTransmitAdjustKHz, -2.5, -1.5);
+        Assert.Equal(spunRx, downRig.MainHz);
+        Assert.True(
+            upRig.MainHz < txAfterInit - 1_000,
+            $"Expected uplink passband trim after dial settle; tx={upRig.MainHz} init={txAfterInit} rxAdj={status.ManualReceiveAdjustKHz:F3}");
+    }
+
     [Fact]
     public void Disconnect_clears_passband_trim()
     {
