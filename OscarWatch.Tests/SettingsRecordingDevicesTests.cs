@@ -91,7 +91,10 @@ public sealed class SettingsRecordingDevicesTests
 
     private static async Task WaitForRecordingDevicesLoadedAsync(SettingsViewModel vm)
     {
-        for (var attempt = 0; attempt < 100 && !vm.RecordingDevicesLoaded; attempt++)
+        // Wait until the refresh finishes (!Loading) so options are populated, not merely flagged loaded.
+        for (var attempt = 0;
+             attempt < 100 && !(vm.RecordingDevicesLoaded && !vm.RecordingDevicesLoading);
+             attempt++)
             await Task.Delay(50);
     }
 

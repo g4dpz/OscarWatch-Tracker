@@ -904,12 +904,13 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
                 return;
 
             RecordingAvailable = probeResult.Available;
-            RecordingDevicesLoaded = true;
             RecordingDeviceOptions.Clear();
             foreach (var device in probeResult.Devices)
                 RecordingDeviceOptions.Add(new RecordingDeviceOption(device.Id, device.DisplayName));
 
             SelectedRecordingDevice = FindRecordingDeviceOption(previousId, previousDisplayName);
+            // Mark loaded only after options are populated so waiters never observe an empty list.
+            RecordingDevicesLoaded = true;
 
             if (!probeResult.Available && !string.IsNullOrWhiteSpace(probeResult.Reason))
                 RecordingTestStatus = probeResult.Reason;
@@ -920,9 +921,9 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
                 return;
 
             RecordingAvailable = false;
-            RecordingDevicesLoaded = true;
             RecordingDeviceOptions.Clear();
             RecordingTestStatus = ex.Message;
+            RecordingDevicesLoaded = true;
         }
         finally
         {
