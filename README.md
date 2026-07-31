@@ -1,7 +1,5 @@
 # OscarWatch
 
-**OscarWatch is still in development**
-
 ![OscarWatch main screen](screenshots/oscarwatch-mainscreen.png)
 
 Desktop satellite tracking for amateur radio operators. OscarWatch shows where AMSAT spacecraft are, predicts passes over your station, works out Doppler-corrected uplink and downlink frequencies, and can drive your rotator and radio during a pass, all from one map-centred window.
