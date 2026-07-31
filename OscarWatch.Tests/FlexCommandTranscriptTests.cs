@@ -15,7 +15,7 @@ public class FlexCommandTranscriptTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
         stub.ClearCommandBodies();
@@ -41,7 +41,7 @@ public class FlexCommandTranscriptTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
         stub.ClearCommandBodies();
@@ -80,7 +80,7 @@ public class FlexCommandTranscriptTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
         stub.ClearCommandBodies();
@@ -105,7 +105,7 @@ public class FlexCommandTranscriptTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
         stub.ClearCommandBodies();
@@ -127,7 +127,7 @@ public class FlexCommandTranscriptTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
         stub.ClearCommandBodies();
@@ -161,7 +161,7 @@ public class FlexCommandTranscriptTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
 
@@ -199,7 +199,7 @@ public class FlexCommandTranscriptTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
 
@@ -226,7 +226,7 @@ public class FlexCommandTranscriptTests
         using var stub = new FlexSmartSdrStubServer(omitPanOnCreateStatus: true);
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
         stub.ClearCommandBodies();
@@ -248,7 +248,7 @@ public class FlexCommandTranscriptTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
         stub.ClearCommandBodies();

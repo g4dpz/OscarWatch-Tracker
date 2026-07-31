@@ -12,7 +12,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
 
         Assert.True(driver.IsConnected);
@@ -30,7 +30,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer(rejectClientProgram: true);
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
 
         Assert.True(driver.IsConnected);
@@ -44,7 +44,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
 
@@ -59,7 +59,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer(rejectFullDuplex: true);
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
 
         var ex = Assert.Throws<FlexSatelliteSetupException>(() => driver.SetSatelliteMode(true));
@@ -75,7 +75,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer(initialSliceCount: 1, rejectSliceCreate: true);
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
 
         var ex = Assert.Throws<FlexSatelliteSetupException>(() => driver.SetSatelliteMode(true));
@@ -92,7 +92,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer(initialSliceCount: 0, rejectSliceCreateCount: 2);
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
 
@@ -108,7 +108,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer(initialSliceCount: 1, omitSliceCreateIndex: true);
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
 
@@ -124,7 +124,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer(rejectTxSlice: true);
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
 
         var ex = Assert.Throws<FlexSatelliteSetupException>(() => driver.SetSatelliteMode(true));
@@ -140,7 +140,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
 
@@ -158,7 +158,7 @@ public class FlexRadioDriverTests
     {
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
 
@@ -180,7 +180,7 @@ public class FlexRadioDriverTests
     {
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
         Assert.Equal(145_900_000, driver.ReadFrequencyHz(RigVfo.Main));
@@ -200,7 +200,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer(emitPartialSliceStatus: true);
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
 
@@ -227,7 +227,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer(suppressSliceSetStatus: true);
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
         driver.SelectVfo(RigVfo.Sub);
@@ -247,7 +247,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
 
@@ -280,7 +280,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
 
@@ -299,7 +299,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
 
@@ -322,7 +322,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
 
@@ -345,7 +345,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
 
@@ -361,7 +361,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
 
@@ -386,7 +386,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
 
@@ -418,7 +418,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
 
@@ -448,7 +448,7 @@ public class FlexRadioDriverTests
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
 
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 50);
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
         driver.Open();
         driver.SetSatelliteMode(true);
 

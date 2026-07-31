@@ -595,8 +595,12 @@ public sealed class FlexRadioDriver : IRigDriver
             _lastMainHz = hz;
     }
 
+    /// <summary>
+    /// SmartSDR command wait budget. Floor matches <see cref="FlexSmartSdrClient"/>'s 2s default so
+    /// Open's multi-subscribe handshake is not starved when CatDelayMs is the Doppler default (50).
+    /// </summary>
     private static int ResolveTimeoutMs(int catDelayMs) =>
-        Math.Max(500, catDelayMs * 20);
+        Math.Max(2000, Math.Max(0, catDelayMs) * 20);
 }
 
 public sealed class FlexSatelliteSetupException : InvalidOperationException
