@@ -216,7 +216,7 @@
         <!-- Pass Elevation Timeline ("Mountain Chart") below the map -->
         <Border Grid.Row="1"
                 Height="{Binding TimelinePanelHeight}"
-                IsVisible="{Binding IsTimelineExpanded}"
+                IsVisible="{Binding IsTimelineDockedVisible}"
                 ClipToBounds="True"
                 BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
                 BorderThickness="0,1,0,0">
@@ -250,26 +250,45 @@
                                              Use24HourClock="{Binding Use24HourClock}"
                                              ToolTip.Tip="{loc:Localize Key=Main.Timeline.Description}"
                                              AutomationProperties.Name="Pass Elevation Timeline" />
-          <Button HorizontalAlignment="Right"
-                  VerticalAlignment="Top"
-                  Margin="2,2,4,0"
-                  Padding="6,2"
-                  MinWidth="22"
-                  MinHeight="22"
-                  Background="#CC1E1E1E"
-                  BorderBrush="#FF505050"
-                  BorderThickness="1"
-                  CornerRadius="4"
-                  Command="{Binding HidePassElevationTimelineCommand}"
-                  ToolTip.Tip="{loc:Localize Key=Main.Timeline.Close}"
-                  ZIndex="1">
-            <TextBlock Text="✕"
-                       FontSize="11"
-                       LineHeight="14"
-                       Foreground="#FFB0B0B0"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center" />
-          </Button>
+          <StackPanel Orientation="Horizontal"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Top"
+                      Margin="2,2,4,0"
+                      Spacing="4"
+                      ZIndex="1">
+            <Button Padding="6,2"
+                    MinWidth="22"
+                    MinHeight="22"
+                    Background="#CC1E1E1E"
+                    BorderBrush="#FF505050"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Command="{Binding DetachPassElevationTimelineCommand}"
+                    ToolTip.Tip="{loc:Localize Key=Main.Timeline.Detach}">
+              <TextBlock Text="⧉"
+                         FontSize="11"
+                         LineHeight="14"
+                         Foreground="#FFB0B0B0"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center" />
+            </Button>
+            <Button Padding="6,2"
+                    MinWidth="22"
+                    MinHeight="22"
+                    Background="#CC1E1E1E"
+                    BorderBrush="#FF505050"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Command="{Binding HidePassElevationTimelineCommand}"
+                    ToolTip.Tip="{loc:Localize Key=Main.Timeline.Close}">
+              <TextBlock Text="✕"
+                         FontSize="11"
+                         LineHeight="14"
+                         Foreground="#FFB0B0B0"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center" />
+            </Button>
+          </StackPanel>
           </Grid>
           </Grid>
         </Border>

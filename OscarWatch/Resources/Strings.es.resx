@@ -160,6 +160,9 @@
   <data name="Main.Timeline.Close">
     <value>Ocultar cronograma de elevación de pases</value>
   </data>
+  <data name="Main.Timeline.Detach">
+    <value>Desacoplar el cronograma de elevación de pases a una ventana aparte</value>
+  </data>
   <data name="Main.Timeline.ResizeGrip">
     <value>Arrastre para cambiar el tamaño del cronograma de elevación de pases</value>
   </data>
@@ -494,6 +497,9 @@
   </data>
   <data name="Menu.Window.PassElevationTimeline">
     <value>Cronograma de _elevación de pases</value>
+  </data>
+  <data name="Window.PassElevationTimeline.Title">
+    <value>Cronograma de elevación de pases</value>
   </data>
   <data name="Picker.SelectAll">
     <value>Seleccionar todo</value>

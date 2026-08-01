@@ -75,15 +75,19 @@
       </p>
       <p>
         Use <strong>Window → Pass elevation timeline</strong> to show or hide the panel, or press the small
-        <strong>✕</strong> at the top-right of the chart. Drag the grip at the <strong>top</strong> of the panel
-        to make it taller or shorter (about 80–280 pixels). OscarWatch remembers whether the panel is open
-        and how tall you left it.
+        <strong>✕</strong> at the top-right of the chart. Use the detach control next to ✕ to open the chart in a
+        separate window you can drag to another screen; close that window (or untick <strong>Pass elevation
+        timeline</strong>) to return it to the bottom of the main window. Drag the grip at the <strong>top</strong>
+        of the docked panel to make it taller or shorter (about 80–280 pixels). OscarWatch remembers whether the
+        panel is open, whether it is detached, the floating window position/size, and how tall you left the docked
+        panel.
       </p>
       <p class="tip">
-        <strong>Advanced:</strong> the lookahead window (default 120 minutes), panel height, and open/closed
-        state are stored in <code>settings.json</code> as <code>TimelineWindowMinutes</code> (30–360),
-        <code>TimelinePanelHeightPx</code>, and <code>IsTimelineExpanded</code>. There is no Settings tab
-        for the window length yet — edit the file only while OscarWatch is closed.
+        <strong>Advanced:</strong> the lookahead window (default 120 minutes), panel height, open/closed state, and
+        detach state are stored in <code>settings.json</code> as <code>TimelineWindowMinutes</code> (30–360),
+        <code>TimelinePanelHeightPx</code>, <code>IsTimelineExpanded</code>, <code>IsTimelineDetached</code>, and
+        <code>TimelineDetachedWindow*</code> bounds. There is no Settings tab for the window length yet — edit the
+        file only while OscarWatch is closed.
       </p>
 
       <h2 id="dx-station">DX station monitor</h2>

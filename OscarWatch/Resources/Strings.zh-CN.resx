@@ -160,6 +160,9 @@
   <data name="Main.Timeline.Close">
     <value>隐藏过境仰角时间线</value>
   </data>
+  <data name="Main.Timeline.Detach">
+    <value>将过境仰角时间线分离到单独窗口</value>
+  </data>
   <data name="Main.Timeline.ResizeGrip">
     <value>拖动以调整过境仰角时间线高度</value>
   </data>
@@ -470,6 +473,9 @@
   </data>
   <data name="Menu.Window.PassElevationTimeline">
     <value>过境仰角_时间线</value>
+  </data>
+  <data name="Window.PassElevationTimeline.Title">
+    <value>过境仰角时间线</value>
   </data>
   <data name="Picker.SelectAll">
     <value>全选</value>

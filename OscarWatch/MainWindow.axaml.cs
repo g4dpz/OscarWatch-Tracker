@@ -358,7 +358,7 @@ public partial class MainWindow : Window
 
     private void OnTimelineResizePointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (DataContext is not MainViewModel vm || !vm.IsTimelineExpanded)
+        if (DataContext is not MainViewModel vm || !vm.IsTimelineDockedVisible)
             return;
 
         if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)

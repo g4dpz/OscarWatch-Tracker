@@ -170,7 +170,7 @@ Open **Settings** from the menu. Tabs:
 
 Settings are stored in `%AppData%/OscarWatch/settings.json`.
 
-The pass elevation timeline also reads persisted keys in that file: `IsTimelineExpanded`, `TimelinePanelHeightPx`, and `TimelineWindowMinutes` (lookahead 30–360 minutes, default 120). Only panel show/hide and height are adjustable in the UI; edit `TimelineWindowMinutes` manually if you need a longer or shorter window.
+The pass elevation timeline also reads persisted keys in that file: `IsTimelineExpanded`, `IsTimelineDetached`, `TimelinePanelHeightPx`, `TimelineWindowMinutes` (lookahead 30–360 minutes, default 120), and `TimelineDetachedWindow*` bounds for the floating window. Panel show/hide, detach (via the docked panel control), redock on closing the floating window, and height are adjustable in the UI; edit `TimelineWindowMinutes` manually if you need a longer or shorter window.
 
 ### GPS (serial or gpsd)
 

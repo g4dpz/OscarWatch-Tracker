@@ -55,10 +55,20 @@ public sealed class AppSettings
     public bool PassesExpanded { get; set; } = true;
     /// <summary>Whether the pass elevation timeline panel below the map is expanded.</summary>
     public bool IsTimelineExpanded { get; set; } = true;
+    /// <summary>When true, the pass elevation timeline is in a floating window instead of the docked panel.</summary>
+    public bool IsTimelineDetached { get; set; }
     /// <summary>Lookahead duration in minutes for the pass elevation timeline.</summary>
     public int TimelineWindowMinutes { get; set; } = 120;
     /// <summary>Height in pixels of the pass elevation timeline when expanded.</summary>
     public int TimelinePanelHeightPx { get; set; } = 110;
+    /// <summary>Floating pass elevation timeline window width.</summary>
+    public int? TimelineDetachedWindowWidth { get; set; }
+    /// <summary>Floating pass elevation timeline window height.</summary>
+    public int? TimelineDetachedWindowHeight { get; set; }
+    /// <summary>Floating pass elevation timeline window X position.</summary>
+    public int? TimelineDetachedWindowX { get; set; }
+    /// <summary>Floating pass elevation timeline window Y position.</summary>
+    public int? TimelineDetachedWindowY { get; set; }
     /// <summary>Whether the sidebar hams.at roves expander is open.</summary>
     public bool HamsAtRovesExpanded { get; set; } = true;
     /// <summary>Height in pixels of the hams.at roves list when expanded.</summary>

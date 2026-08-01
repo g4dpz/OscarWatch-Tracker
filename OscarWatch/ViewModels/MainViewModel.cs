@@ -303,7 +303,17 @@ public partial class MainViewModel : ViewModelBase
     private bool _isPassesExpanded = true;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsTimelineDockedVisible))]
+    [NotifyCanExecuteChangedFor(nameof(DetachPassElevationTimelineCommand))]
     private bool _isTimelineExpanded = true;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsTimelineDockedVisible))]
+    [NotifyCanExecuteChangedFor(nameof(DetachPassElevationTimelineCommand))]
+    private bool _isTimelineDetached;
+
+    /// <summary>Docked bottom panel is shown only when expanded and not in a floating window.</summary>
+    public bool IsTimelineDockedVisible => IsTimelineExpanded && !IsTimelineDetached;
 
     [ObservableProperty]
     private int _timelineWindowMinutes = 120;
@@ -456,10 +466,95 @@ public partial class MainViewModel : ViewModelBase
     {
         _settings.Current.IsTimelineExpanded = value;
         _settings.RequestSave();
+        if (!value && IsTimelineDetached)
+            DockPassElevationTimeline();
+        else if (value && IsTimelineDetached)
+            EnsureDetachedTimelineWindowOpen();
+    }
+
+    partial void OnIsTimelineDetachedChanged(bool value)
+    {
+        _settings.Current.IsTimelineDetached = value;
+        _settings.RequestSave();
+        if (value)
+            EnsureDetachedTimelineWindowOpen();
+        else if (!_suppressTimelineWindowClose)
+            CloseDetachedTimelineWindow();
     }
 
     [RelayCommand]
     private void HidePassElevationTimeline() => IsTimelineExpanded = false;
+
+    [RelayCommand(CanExecute = nameof(CanDetachPassElevationTimeline))]
+    private void DetachPassElevationTimeline()
+    {
+        IsTimelineExpanded = true;
+        IsTimelineDetached = true;
+    }
+
+    private bool CanDetachPassElevationTimeline() => !IsTimelineDetached;
+
+    private void DockPassElevationTimeline()
+    {
+        IsTimelineDetached = false;
+        IsTimelineExpanded = true;
+    }
+
+    /// <summary>Called when the floating timeline window is closed by the operator.</summary>
+    public void DockPassElevationTimelineFromWindowClose()
+    {
+        if (!IsTimelineDetached)
+            return;
+
+        _suppressTimelineWindowClose = true;
+        try
+        {
+            _openTimelineWindow = null;
+            IsTimelineDetached = false;
+            IsTimelineExpanded = true;
+        }
+        finally
+        {
+            _suppressTimelineWindowClose = false;
+        }
+    }
+
+    private static PassElevationTimelineWindow? _openTimelineWindow;
+    private bool _suppressTimelineWindowClose;
+
+    private void EnsureDetachedTimelineWindowOpen()
+    {
+        if (!IsTimelineDetached || !IsTimelineExpanded)
+            return;
+
+        if (_openTimelineWindow is { IsVisible: true })
+        {
+            _openTimelineWindow.Activate();
+            return;
+        }
+
+        var window = new PassElevationTimelineWindow { DataContext = this };
+        window.Closed += (_, _) =>
+        {
+            if (ReferenceEquals(_openTimelineWindow, window))
+                _openTimelineWindow = null;
+        };
+        _openTimelineWindow = window;
+        if (App.MainWindow is null)
+            window.Show();
+        else
+            window.Show(App.MainWindow);
+    }
+
+    private void CloseDetachedTimelineWindow()
+    {
+        if (_openTimelineWindow is null)
+            return;
+
+        var window = _openTimelineWindow;
+        _openTimelineWindow = null;
+        window.Close();
+    }
 
     partial void OnTimelineWindowMinutesChanged(int value)
     {
@@ -574,6 +669,7 @@ public partial class MainViewModel : ViewModelBase
             IsSkyPlotExpanded = _settings.Current.SkyPlotExpanded;
             IsPassesExpanded = _settings.Current.PassesExpanded;
             IsTimelineExpanded = _settings.Current.IsTimelineExpanded;
+            IsTimelineDetached = _settings.Current.IsTimelineDetached && IsTimelineExpanded;
             TimelineWindowMinutes = _settings.Current.TimelineWindowMinutes;
             TimelinePanelHeight = Math.Clamp(
                 _settings.Current.TimelinePanelHeightPx,

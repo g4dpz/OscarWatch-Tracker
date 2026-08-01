@@ -160,6 +160,9 @@
   <data name="Main.Timeline.Close">
     <value>Ocultar linha do tempo de elevação de passagens</value>
   </data>
+  <data name="Main.Timeline.Detach">
+    <value>Desacoplar a linha do tempo de elevação de passagens para uma janela separada</value>
+  </data>
   <data name="Main.Timeline.ResizeGrip">
     <value>Arraste para redimensionar a linha do tempo de elevação de passagens</value>
   </data>
@@ -470,6 +473,9 @@ Continuar?</value>
   </data>
   <data name="Menu.Window.PassElevationTimeline">
     <value>Linha do tempo de _elevação de passagens</value>
+  </data>
+  <data name="Window.PassElevationTimeline.Title">
+    <value>Linha do tempo de elevação de passagens</value>
   </data>
   <data name="Picker.SelectAll">
     <value>Selecionar Todos</value>

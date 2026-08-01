@@ -160,6 +160,9 @@
   <data name="Main.Timeline.Close">
     <value>Hide pass elevation timeline</value>
   </data>
+  <data name="Main.Timeline.Detach">
+    <value>Detach pass elevation timeline to a separate window</value>
+  </data>
   <data name="Main.Timeline.ResizeGrip">
     <value>Drag to resize the pass elevation timeline</value>
   </data>
@@ -503,6 +506,9 @@ Continue?</value>
   </data>
   <data name="Menu.Window.PassElevationTimeline">
     <value>Pass _elevation timeline</value>
+  </data>
+  <data name="Window.PassElevationTimeline.Title">
+    <value>Pass elevation timeline</value>
   </data>
   <data name="Picker.SelectAll">
     <value>Select All</value>

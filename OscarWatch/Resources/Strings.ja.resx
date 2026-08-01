@@ -100,6 +100,9 @@
   <data name="Main.Timeline.Close">
     <value>パス仰角タイムラインを非表示</value>
   </data>
+  <data name="Main.Timeline.Detach">
+    <value>パス仰角タイムラインを別ウィンドウに切り離す</value>
+  </data>
   <data name="Main.Timeline.ResizeGrip">
     <value>ドラッグしてパス仰角タイムラインの高さを変更</value>
   </data>
@@ -392,6 +395,9 @@
   </data>
   <data name="Menu.Window.PassElevationTimeline">
     <value>パス仰角タイムライン(_E)</value>
+  </data>
+  <data name="Window.PassElevationTimeline.Title">
+    <value>パス仰角タイムライン</value>
   </data>
   <data name="Settings.FootprintArrows">
     <value>フットプリントの移動矢印を表示</value>
