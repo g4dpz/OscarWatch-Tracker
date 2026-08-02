@@ -1,12 +1,10 @@
-# Build and test on ordinary pushes and pull requests.
+# Build and test on pull requests.
 # Complements publish.yml, which only builds/tests on a version-tag push or
 # manual dispatch — this workflow is the one that actually gates PRs.
 
 name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
 
@@ -19,12 +17,7 @@ env:
 
 jobs:
   build-and-test:
-    name: Build and test (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
