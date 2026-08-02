@@ -1,11 +1,15 @@
 using OscarWatch.Localization;
 using OscarWatch.ViewModels;
+using static OscarWatch.Localization.LocalizationCulture;
 
 namespace OscarWatch.Tests;
 
-public class DopplerPassInsightsAnalyzerTests
+public class DopplerPassInsightsAnalyzerTests : IDisposable
 {
     private static readonly ILocalizationService L = LocalizationService.Instance;
+    private readonly TestUiCulture _culture = TestUiCulture.Apply(DefaultLanguage);
+
+    public void Dispose() => _culture.Dispose();
 
     [Fact]
     public void ParseSettingsComment_reads_pass_settings_line()
