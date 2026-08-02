@@ -30,6 +30,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     private readonly IHamsAtRovesService _hamsAtRoves;
     private readonly IGpsService _gps;
     private readonly ISatelliteLinkBroadcastService _satelliteLink;
+    private readonly ISatelliteStatusReportService _satelliteStatus;
     private readonly FlexDiscoveryService _flexDiscovery = new();
     private readonly GroundStation _draft = new();
     private bool _isSynchronizing;
@@ -558,6 +559,21 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     [ObservableProperty]
     private string _hamsAtTestStatus = "";
 
+    [ObservableProperty]
+    private bool _satelliteStatusEnabled;
+
+    [ObservableProperty]
+    private bool _satelliteStatusAutoReportOnQso;
+
+    [ObservableProperty]
+    private string _satelliteStatusBaseUrl = "https://oscarwatch.org";
+
+    [ObservableProperty]
+    private string _satelliteStatusApiToken = "";
+
+    [ObservableProperty]
+    private string _satelliteStatusTestStatus = "";
+
     public IReadOnlyList<RigTypeOption> RigTypeChoices { get; }
 
     public IReadOnlyList<RigTypeOption> RigDualTypeChoices { get; }
@@ -715,13 +731,15 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         ICloudlogLookupService cloudlogLookup,
         IHamsAtRovesService hamsAtRoves,
         IGpsService gps,
-        ISatelliteLinkBroadcastService satelliteLink)
+        ISatelliteLinkBroadcastService satelliteLink,
+        ISatelliteStatusReportService satelliteStatus)
     {
         _l = localization;
         _cloudlogLookup = cloudlogLookup;
         _hamsAtRoves = hamsAtRoves;
         _gps = gps;
         _satelliteLink = satelliteLink;
+        _satelliteStatus = satelliteStatus;
         LanguageOptions =
         [
             new LanguageOption(LocalizationCulture.DefaultLanguage, _l.Get("Settings.Language.English")),
@@ -1174,6 +1192,15 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             ApiKey = HamsAtApiKey.Trim(),
             RefreshIntervalMinutes = Math.Clamp(HamsAtRefreshIntervalMinutes, 1, 120)
         };
+        _settings.Current.SatelliteStatus = new SatelliteStatusSettings
+        {
+            Enabled = SatelliteStatusEnabled,
+            BaseUrl = string.IsNullOrWhiteSpace(SatelliteStatusBaseUrl)
+                ? "https://oscarwatch.org"
+                : SatelliteStatusBaseUrl.Trim().TrimEnd('/'),
+            ApiToken = SatelliteStatusApiToken.Trim(),
+            AutoReportOnQso = SatelliteStatusAutoReportOnQso
+        };
         _settings.Current.Gps = new GpsSettings
         {
             Enabled = GpsEnabled,
@@ -1410,6 +1437,14 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             HamsAtApiKey = hamsAt.ApiKey;
             HamsAtRefreshIntervalMinutes = hamsAt.RefreshIntervalMinutes <= 0 ? 10 : hamsAt.RefreshIntervalMinutes;
             HamsAtTestStatus = "";
+            var satStatus = _settings.Current.SatelliteStatus ?? new SatelliteStatusSettings();
+            SatelliteStatusEnabled = satStatus.Enabled;
+            SatelliteStatusAutoReportOnQso = satStatus.AutoReportOnQso;
+            SatelliteStatusBaseUrl = string.IsNullOrWhiteSpace(satStatus.BaseUrl)
+                ? "https://oscarwatch.org"
+                : satStatus.BaseUrl;
+            SatelliteStatusApiToken = satStatus.ApiToken;
+            SatelliteStatusTestStatus = "";
             var gps = _settings.Current.Gps ?? new GpsSettings();
             GpsEnabled = gps.Enabled;
             SelectedGpsConnectionChoice =
@@ -1705,6 +1740,35 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         catch (Exception ex)
         {
             HamsAtTestStatus = ex.Message;
+        }
+    }
+
+    public async Task TestSatelliteStatusAsync()
+    {
+        try
+        {
+            SatelliteStatusTestStatus = _l.Get("Settings.SatelliteStatus.Testing");
+            var settings = new SatelliteStatusSettings
+            {
+                Enabled = true,
+                BaseUrl = SatelliteStatusBaseUrl.Trim(),
+                ApiToken = SatelliteStatusApiToken.Trim()
+            };
+
+            if (string.IsNullOrWhiteSpace(settings.ApiToken))
+            {
+                SatelliteStatusTestStatus = _l.Get("Settings.SatelliteStatus.EnterApiToken");
+                return;
+            }
+
+            var result = await _satelliteStatus.TestTokenAsync(settings).ConfigureAwait(true);
+            SatelliteStatusTestStatus = result.Ok
+                ? _l.Get("Settings.SatelliteStatus.ConnectionOk", result.Message)
+                : _l.Get("Settings.SatelliteStatus.ConnectionFailed", result.Message);
+        }
+        catch (Exception ex)
+        {
+            SatelliteStatusTestStatus = ex.Message;
         }
     }
 

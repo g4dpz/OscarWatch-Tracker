@@ -351,27 +351,38 @@
                        VerticalAlignment="Center"
                        TextTrimming="CharacterEllipsis" />
           </StackPanel>
-          <UniformGrid x:Name="OperatingStyleHeader"
-                       Grid.Column="2"
-                       Columns="2"
-                       Rows="1"
-                       Width="108"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       IsVisible="{Binding ShowHeaderOperatingStyle}">
+          <StackPanel Grid.Column="2"
+                      Orientation="Horizontal"
+                      Spacing="6"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Center">
             <Button Classes="operating-style-header"
-                    Classes.operating-style-active="{Binding IsVoiceOperatingStyleSelected}"
-                    Content="{loc:Localize Key=Freq.Voice}"
-                    ToolTip.Tip="{Binding OperatingStyleHint}"
-                    Command="{Binding SelectVoiceOperatingStyleCommand}"
-                    Margin="0,0,3,0" />
-            <Button Classes="operating-style-header"
-                    Classes.operating-style-active="{Binding IsCwOperatingStyleSelected}"
-                    Content="CW"
-                    ToolTip.Tip="{Binding OperatingStyleHint}"
-                    Command="{Binding SelectCwOperatingStyleCommand}"
-                    Margin="3,0,0,0" />
-          </UniformGrid>
+                    Content="{loc:Localize Key=Freq.ReportStatus}"
+                    ToolTip.Tip="{loc:Localize Key=Freq.ReportStatusToolTip}"
+                    Command="{Binding ReportSatelliteStatusCommand}"
+                    IsVisible="{Binding CanReportSatelliteStatus}"
+                    Margin="0,0,2,0" />
+            <UniformGrid x:Name="OperatingStyleHeader"
+                         Columns="2"
+                         Rows="1"
+                         Width="108"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         IsVisible="{Binding ShowHeaderOperatingStyle}">
+              <Button Classes="operating-style-header"
+                      Classes.operating-style-active="{Binding IsVoiceOperatingStyleSelected}"
+                      Content="{loc:Localize Key=Freq.Voice}"
+                      ToolTip.Tip="{Binding OperatingStyleHint}"
+                      Command="{Binding SelectVoiceOperatingStyleCommand}"
+                      Margin="0,0,3,0" />
+              <Button Classes="operating-style-header"
+                      Classes.operating-style-active="{Binding IsCwOperatingStyleSelected}"
+                      Content="CW"
+                      ToolTip.Tip="{Binding OperatingStyleHint}"
+                      Command="{Binding SelectCwOperatingStyleCommand}"
+                      Margin="3,0,0,0" />
+            </UniformGrid>
+          </StackPanel>
           <TextBlock Grid.Column="3"
                      Text="⠿"
                      FontSize="14"

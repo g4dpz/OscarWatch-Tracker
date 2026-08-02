@@ -6,6 +6,28 @@ namespace OscarWatch.Tests;
 public sealed class SettingsServiceTests
 {
     [Fact]
+    public void TryParse_round_trips_satellite_status_settings()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"oscarwatch-sat-status-{Guid.NewGuid():N}.json");
+        var service = new SettingsService(path);
+        service.Current.SatelliteStatus = new SatelliteStatusSettings
+        {
+            Enabled = true,
+            BaseUrl = "https://oscarwatch.org",
+            ApiToken = "pat-token-xyz",
+            AutoReportOnQso = true
+        };
+
+        var json = service.SerializeCurrent();
+        Assert.True(SettingsService.TryParse(json, out var parsed, out var error));
+        Assert.Null(error);
+        Assert.True(parsed.SatelliteStatus.Enabled);
+        Assert.Equal("https://oscarwatch.org", parsed.SatelliteStatus.BaseUrl);
+        Assert.Equal("pat-token-xyz", parsed.SatelliteStatus.ApiToken);
+        Assert.True(parsed.SatelliteStatus.AutoReportOnQso);
+    }
+
+    [Fact]
     public void TryParse_round_trips_serialized_settings()
     {
         var path = Path.Combine(Path.GetTempPath(), $"oscarwatch-parse-{Guid.NewGuid():N}.json");

@@ -42,6 +42,7 @@ public partial class MainViewModel : ViewModelBase
     private readonly ISatelliteDatabaseSyncService _transponderDatabaseSync;
     private readonly IGitHubReleaseService _githubRelease;
     private readonly IHamsAtRovesService _hamsAtRoves;
+    private readonly ISatelliteStatusReportService _satelliteStatus;
     private readonly ILocalizationService _l;
     private readonly LiveTrackerSnapshotProvider _trackerSnapshot;
     private readonly DispatcherTimer _timer;
@@ -384,6 +385,7 @@ public partial class MainViewModel : ViewModelBase
         ISatelliteDatabaseSyncService transponderDatabaseSync,
         IGitHubReleaseService githubRelease,
         IHamsAtRovesService hamsAtRoves,
+        ISatelliteStatusReportService satelliteStatus,
         ILocalizationService localization,
         FrequencyOverlayViewModel frequencies,
         DxStationOverlayViewModel dxStation,
@@ -412,11 +414,13 @@ public partial class MainViewModel : ViewModelBase
         _transponderDatabaseSync = transponderDatabaseSync;
         _githubRelease = githubRelease;
         _hamsAtRoves = hamsAtRoves;
+        _satelliteStatus = satelliteStatus;
         Frequencies = frequencies;
         DxStation = dxStation;
         Frequencies.OffsetsChanged += (_, reinitializePass) => RefreshRigFromOverlay(reinitializePass);
         Frequencies.CtcssChanged += (_, _) => OnCtcssSelectorChanged();
         Frequencies.LeadTuningChanged += (_, _) => RefreshRigFromOverlay(reinitializePass: false);
+        Frequencies.ReportSatelliteStatusRequested += (_, _) => _ = OpenSatelliteStatusReportAsync();
 
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += (_, _) => Tick();
@@ -2105,6 +2109,56 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
+    private async Task OpenSatelliteStatusReportAsync()
+    {
+        if (App.MainWindow is null)
+            return;
+
+        var satellite = Frequencies.SatelliteName;
+        var modeType = Frequencies.SelectedMode?.Type;
+        if (string.IsNullOrWhiteSpace(satellite)
+            || satellite == "—"
+            || string.IsNullOrWhiteSpace(modeType))
+            return;
+
+        var cfg = _settings.Current.SatelliteStatus;
+        if (cfg is not { Enabled: true } || string.IsNullOrWhiteSpace(cfg.ApiToken))
+            return;
+
+        var window = new SatelliteStatusReportWindow(satellite, modeType, _l);
+        var confirmed = await window.ShowDialog<bool?>(App.MainWindow).ConfigureAwait(true) == true;
+        if (!confirmed)
+            return;
+
+        var request = new SatelliteStatusReportRequest(
+            satellite,
+            modeType,
+            window.SelectedStatus,
+            DateTime.UtcNow,
+            NormalizeReportGridsquare(_settings.Current.GroundStation.GridSquare),
+            $"OscarWatch-Tracker/{AppVersionHelper.GetDisplayVersionText()}");
+
+        SatelliteStatusReportResult result;
+        try
+        {
+            result = await _satelliteStatus.SubmitReportAsync(cfg, request).ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            StatusText = _l.Get("SatStatus.Report.Failed", ex.Message);
+            return;
+        }
+
+        StatusText = result.Ok
+            ? (result.Stored
+                ? _l.Get("SatStatus.Report.Stored")
+                : _l.Get("SatStatus.Report.Duplicate"))
+            : _l.Get("SatStatus.Report.Failed", result.Message);
+    }
+
+    private static string? NormalizeReportGridsquare(string? grid) =>
+        SatelliteStatusReportFormatting.NormalizeGridsquare(grid);
+
     [RelayCommand]
     private async Task ExportSettingsAsync()
     {
@@ -2197,6 +2251,7 @@ public partial class MainViewModel : ViewModelBase
         ShowMultiTrackOverlay = _settings.Current.ShowMultiTrackOverlay;
         ApplyMapCentreFromSettings();
         RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
+        Frequencies.RefreshSatelliteStatusReportAvailability();
         _liveDisplayTimer?.Start();
         Tick();
         if (_settings.Current.Rig.Enabled && !ShowComPortConflict)

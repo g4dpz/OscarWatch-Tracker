@@ -1169,6 +1169,8 @@
               </ListBox.Styles>
               <ListBoxItem Tag="HamsAtIntegrationSection"
                            Content="{loc:Localize Key=Settings.HamsAt.Section}" />
+              <ListBoxItem Tag="SatelliteStatusIntegrationSection"
+                           Content="{loc:Localize Key=Settings.SatelliteStatus.Section}" />
               <ListBoxItem Tag="CloudlogIntegrationSection"
                            Content="{loc:Localize Key=Settings.Cloudlog.Section}" />
               <ListBoxItem Tag="GpsIntegrationSection"
@@ -1204,6 +1206,38 @@
                         Click="OnTestHamsAtClick"
                         HorizontalAlignment="Left" />
                 <TextBlock Text="{Binding HamsAtTestStatus}"
+                           TextWrapping="Wrap"
+                           FontSize="12"
+                           MinHeight="20"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+              </StackPanel>
+
+              <StackPanel x:Name="SatelliteStatusIntegrationSection"
+                          Spacing="14"
+                          IsVisible="False">
+                <TextBlock Text="{loc:Localize Key=Settings.SatelliteStatus.Section}"
+                           FontWeight="SemiBold"
+                           FontSize="13" />
+                <TextBlock TextWrapping="Wrap"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           FontSize="11"
+                           Text="{loc:Localize Key=Settings.SatelliteStatus.Intro}" />
+                <CheckBox Content="{loc:Localize Key=Settings.SatelliteStatus.Enable}"
+                          IsChecked="{Binding SatelliteStatusEnabled, Mode=TwoWay}" />
+                <CheckBox Content="{loc:Localize Key=Settings.SatelliteStatus.AutoReportOnQso}"
+                          IsChecked="{Binding SatelliteStatusAutoReportOnQso, Mode=TwoWay}"
+                          IsEnabled="{Binding SatelliteStatusEnabled}" />
+                <TextBlock Text="{loc:Localize Key=Settings.SatelliteStatus.BaseUrl}" />
+                <TextBox Text="{Binding SatelliteStatusBaseUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Watermark="{loc:Localize Key=Settings.SatelliteStatus.BaseUrlWatermark}" />
+                <TextBlock Text="{loc:Localize Key=Settings.SatelliteStatus.ApiToken}" />
+                <TextBox Text="{Binding SatelliteStatusApiToken, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         PasswordChar="•"
+                         Watermark="{loc:Localize Key=Settings.SatelliteStatus.ApiTokenWatermark}" />
+                <Button Content="{loc:Localize Key=Settings.SatelliteStatus.TestConnection}"
+                        Click="OnTestSatelliteStatusClick"
+                        HorizontalAlignment="Left" />
+                <TextBlock Text="{Binding SatelliteStatusTestStatus}"
                            TextWrapping="Wrap"
                            FontSize="12"
                            MinHeight="20"

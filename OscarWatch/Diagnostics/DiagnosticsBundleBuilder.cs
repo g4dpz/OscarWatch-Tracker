@@ -79,6 +79,7 @@ public static class DiagnosticsBundleBuilder
 
         RedactApiKey(clone.Cloudlog);
         RedactApiKey(clone.HamsAt);
+        RedactApiKey(clone.SatelliteStatus);
 
         return JsonSerializer.Serialize(clone, JsonOptions);
     }
@@ -93,6 +94,12 @@ public static class DiagnosticsBundleBuilder
     {
         if (!string.IsNullOrWhiteSpace(settings.ApiKey))
             settings.ApiKey = "***";
+    }
+
+    private static void RedactApiKey(SatelliteStatusSettings settings)
+    {
+        if (!string.IsNullOrWhiteSpace(settings.ApiToken))
+            settings.ApiToken = "***";
     }
 
     private static string ReadLogTail()

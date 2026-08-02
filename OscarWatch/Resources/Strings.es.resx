@@ -1701,6 +1701,12 @@
   <data name="Freq.Voice">
     <value>Voz</value>
   </data>
+  <data name="Freq.ReportStatus">
+    <value>Informar</value>
+  </data>
+  <data name="Freq.ReportStatusToolTip">
+    <value>Informar el estado del satélite a OscarWatch.org para el satélite y modo enfocados</value>
+  </data>
   <data name="Freq.StoredOffsetCleared">
     <value>Desplazamiento guardado borrado.</value>
   </data>
@@ -2423,6 +2429,78 @@
   </data>
   <data name="Settings.HamsAt.ConnectionFailed">
     <value>Conexión fallida — {0}</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Section">
+    <value>OscarWatch</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Intro">
+    <value>Informe si un modo de satélite está On, Off o solo telemetría en OscarWatch.org. Cree un token API en oscarwatch.org → Settings → API tokens. Su perfil del sitio debe tener indicativo y gridsquare para que se acepten los informes.</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Enable">
+    <value>Habilitar informes de estado de satélite</value>
+  </data>
+  <data name="Settings.SatelliteStatus.AutoReportOnQso">
+    <value>Informar automáticamente On al registrar un QSO</value>
+  </data>
+  <data name="Settings.SatelliteStatus.BaseUrl">
+    <value>URL base</value>
+  </data>
+  <data name="Settings.SatelliteStatus.BaseUrlWatermark">
+    <value>https://oscarwatch.org</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ApiToken">
+    <value>Token API</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ApiTokenWatermark">
+    <value>Token Bearer de oscarwatch.org</value>
+  </data>
+  <data name="Settings.SatelliteStatus.TestConnection">
+    <value>Probar conexión</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Testing">
+    <value>Probando conexión con OscarWatch.org…</value>
+  </data>
+  <data name="Settings.SatelliteStatus.EnterApiToken">
+    <value>Introduce primero tu token API de OscarWatch.org.</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ConnectionOk">
+    <value>Conectado — {0}</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ConnectionFailed">
+    <value>Conexión fallida — {0}</value>
+  </data>
+  <data name="SatStatus.Report.Title">
+    <value>Informar estado del satélite</value>
+  </data>
+  <data name="SatStatus.Report.Satellite">
+    <value>Satélite: {0}</value>
+  </data>
+  <data name="SatStatus.Report.Mode">
+    <value>Modo: {0}</value>
+  </data>
+  <data name="SatStatus.Report.StatusPrompt">
+    <value>Estado</value>
+  </data>
+  <data name="SatStatus.Report.Status.On">
+    <value>On</value>
+  </data>
+  <data name="SatStatus.Report.Status.Off">
+    <value>Off</value>
+  </data>
+  <data name="SatStatus.Report.Status.TelemetryOnly">
+    <value>Solo telemetría</value>
+  </data>
+  <data name="SatStatus.Report.Submit">
+    <value>Enviar</value>
+  </data>
+  <data name="SatStatus.Report.Stored">
+    <value>Informe de estado del satélite almacenado.</value>
+  </data>
+  <data name="SatStatus.Report.Duplicate">
+    <value>Informe duplicado — ya almacenado recientemente.</value>
+  </data>
+  <data name="SatStatus.Report.Failed">
+    <value>Error al informar el estado del satélite — {0}</value>
   </data>
   <data name="Settings.SatelliteLink.Section">
     <value>Satellite link</value>

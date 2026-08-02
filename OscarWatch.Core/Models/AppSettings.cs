@@ -79,6 +79,7 @@ public sealed class AppSettings
     public int? MainWindowY { get; set; }
     public bool MainWindowMaximized { get; set; }
     public HamsAtSettings HamsAt { get; set; } = new();
+    public SatelliteStatusSettings SatelliteStatus { get; set; } = new();
     public RotatorSettings Rotator { get; set; } = new();
     public GpsSettings Gps { get; set; } = new();
     public RigSettings Rig { get; set; } = new();

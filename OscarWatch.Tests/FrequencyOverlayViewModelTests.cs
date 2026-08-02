@@ -818,6 +818,45 @@ public class FrequencyOverlayViewModelTests
             vm.RadioTransmitText);
     }
 
+    [Fact]
+    public void CanReportSatelliteStatus_requires_enabled_token_sat_and_mode()
+    {
+        using var _ = TestUiCulture.Apply(LocalizationCulture.DefaultLanguage);
+        var settings = new TestSettingsService();
+        var vm = new FrequencyOverlayViewModel(settings, CreateRs44Database(), LocalizationService.Instance);
+
+        Assert.False(vm.CanReportSatelliteStatus);
+        Assert.False(vm.ReportSatelliteStatusCommand.CanExecute(null));
+
+        settings.Current.SatelliteStatus = new SatelliteStatusSettings
+        {
+            Enabled = true,
+            ApiToken = "token"
+        };
+        vm.RefreshSatelliteStatusReportAvailability();
+        Assert.False(vm.CanReportSatelliteStatus);
+
+        vm.Update(new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "44909",
+            Subpoint = new GeoCoordinate(57, 18),
+            LookAngles = new LookAngles(180, 25, 800, 0)
+        });
+
+        Assert.True(vm.CanReportSatelliteStatus);
+        Assert.True(vm.ReportSatelliteStatusCommand.CanExecute(null));
+
+        settings.Current.SatelliteStatus.ApiToken = "";
+        vm.RefreshSatelliteStatusReportAvailability();
+        Assert.False(vm.CanReportSatelliteStatus);
+
+        settings.Current.SatelliteStatus.ApiToken = "token";
+        settings.Current.SatelliteStatus.Enabled = false;
+        vm.RefreshSatelliteStatusReportAvailability();
+        Assert.False(vm.CanReportSatelliteStatus);
+    }
+
     private static TestSatelliteDatabaseService CreateRs44Database() =>
         new(
         [

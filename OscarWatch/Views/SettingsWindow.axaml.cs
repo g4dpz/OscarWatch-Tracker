@@ -95,6 +95,26 @@ public partial class SettingsWindow : Window
         }
     }
 
+    private async void OnTestSatelliteStatusClick(object? sender, RoutedEventArgs e)
+    {
+        var testButton = sender as Button;
+        if (testButton is not null)
+            testButton.IsEnabled = false;
+
+        try
+        {
+            TopLevel.GetTopLevel(this)?.FocusManager?.ClearFocus();
+
+            if (DataContext is SettingsViewModel vm)
+                await vm.TestSatelliteStatusAsync().ConfigureAwait(true);
+        }
+        finally
+        {
+            if (testButton is not null)
+                testButton.IsEnabled = true;
+        }
+    }
+
     private void OnSettingsTabSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (DataContext is not SettingsViewModel vm)
@@ -111,6 +131,7 @@ public partial class SettingsWindow : Window
 
         var tag = (IntegrationsSectionNav.SelectedItem as ListBoxItem)?.Tag as string;
         HamsAtIntegrationSection.IsVisible = tag == "HamsAtIntegrationSection";
+        SatelliteStatusIntegrationSection.IsVisible = tag == "SatelliteStatusIntegrationSection";
         CloudlogIntegrationSection.IsVisible = tag == "CloudlogIntegrationSection";
         GpsIntegrationSection.IsVisible = tag == "GpsIntegrationSection";
         SatelliteLinkIntegrationSection.IsVisible = tag == "SatelliteLinkIntegrationSection";

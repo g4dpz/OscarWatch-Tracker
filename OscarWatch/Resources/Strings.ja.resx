@@ -741,6 +741,12 @@
   <data name="Freq.Voice">
     <value>音声</value>
   </data>
+  <data name="Freq.ReportStatus">
+    <value>報告</value>
+  </data>
+  <data name="Freq.ReportStatusToolTip">
+    <value>フォーカス中の衛星とモードの状態を OscarWatch.org に報告</value>
+  </data>
   <data name="Freq.StoredOffsetCleared">
     <value>保存したオフセットをクリアしました。</value>
   </data>
@@ -1538,6 +1544,78 @@
   </data>
   <data name="Settings.HamsAt.ConnectionFailed">
     <value>接続失敗 — {0}</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Section">
+    <value>OscarWatch</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Intro">
+    <value>衛星モードが On / Off / テレメトリのみかを OscarWatch.org に報告します。oscarwatch.org → Settings → API tokens で API トークンを作成してください。報告を受け付けるには、サイトのプロフィールにコールサインとグリッドスクエアが必要です。</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Enable">
+    <value>衛星ステータス報告を有効化</value>
+  </data>
+  <data name="Settings.SatelliteStatus.AutoReportOnQso">
+    <value>QSO記録時に自動で On を報告</value>
+  </data>
+  <data name="Settings.SatelliteStatus.BaseUrl">
+    <value>ベース URL</value>
+  </data>
+  <data name="Settings.SatelliteStatus.BaseUrlWatermark">
+    <value>https://oscarwatch.org</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ApiToken">
+    <value>API トークン</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ApiTokenWatermark">
+    <value>oscarwatch.org の Bearer トークン</value>
+  </data>
+  <data name="Settings.SatelliteStatus.TestConnection">
+    <value>接続テスト</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Testing">
+    <value>OscarWatch.org への接続をテスト中…</value>
+  </data>
+  <data name="Settings.SatelliteStatus.EnterApiToken">
+    <value>先に OscarWatch.org の API トークンを入力してください。</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ConnectionOk">
+    <value>接続成功 — {0}</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ConnectionFailed">
+    <value>接続失敗 — {0}</value>
+  </data>
+  <data name="SatStatus.Report.Title">
+    <value>衛星ステータスを報告</value>
+  </data>
+  <data name="SatStatus.Report.Satellite">
+    <value>衛星: {0}</value>
+  </data>
+  <data name="SatStatus.Report.Mode">
+    <value>モード: {0}</value>
+  </data>
+  <data name="SatStatus.Report.StatusPrompt">
+    <value>ステータス</value>
+  </data>
+  <data name="SatStatus.Report.Status.On">
+    <value>On</value>
+  </data>
+  <data name="SatStatus.Report.Status.Off">
+    <value>Off</value>
+  </data>
+  <data name="SatStatus.Report.Status.TelemetryOnly">
+    <value>テレメトリのみ</value>
+  </data>
+  <data name="SatStatus.Report.Submit">
+    <value>送信</value>
+  </data>
+  <data name="SatStatus.Report.Stored">
+    <value>衛星ステータス報告を保存しました。</value>
+  </data>
+  <data name="SatStatus.Report.Duplicate">
+    <value>重複報告 — 最近すでに保存されています。</value>
+  </data>
+  <data name="SatStatus.Report.Failed">
+    <value>衛星ステータス報告に失敗 — {0}</value>
   </data>
   <data name="Settings.SatelliteLink.Section">
     <value>Satellite link</value>

@@ -86,7 +86,8 @@ public sealed class SettingsRecordingDevicesTests
             new StubCloudlogLookupService(),
             new StubHamsAtRovesService(),
             new StubGpsService(),
-            new StubSatelliteLinkBroadcastService());
+            new StubSatelliteLinkBroadcastService(),
+            new StubSatelliteStatusReportService());
     }
 
     private static async Task WaitForRecordingDevicesLoadedAsync(SettingsViewModel vm)
@@ -226,5 +227,19 @@ public sealed class SettingsRecordingDevicesTests
         public Task<bool> TestBindAsync(SatelliteLinkSettings settings, CancellationToken cancellationToken = default) =>
             Task.FromResult(true);
         public Task StopAsync() => Task.CompletedTask;
+    }
+
+    private sealed class StubSatelliteStatusReportService : ISatelliteStatusReportService
+    {
+        public Task<SatelliteStatusTokenTestResult> TestTokenAsync(
+            SatelliteStatusSettings settings,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(new SatelliteStatusTokenTestResult(true, "ok", 200));
+
+        public Task<SatelliteStatusReportResult> SubmitReportAsync(
+            SatelliteStatusSettings settings,
+            SatelliteStatusReportRequest request,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(new SatelliteStatusReportResult(true, true, "ok", 201));
     }
 }

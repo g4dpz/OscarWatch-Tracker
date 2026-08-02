@@ -1,0 +1,60 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:loc="using:OscarWatch.Localization"
+        x:Class="OscarWatch.Views.SatelliteStatusReportWindow"
+        x:DataType="vm:SatelliteStatusReportViewModel"
+        Title="{loc:Localize Key=SatStatus.Report.Title}"
+        Width="420"
+        SizeToContent="Height"
+        MinWidth="360"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="20">
+    <StackPanel DockPanel.Dock="Bottom"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Spacing="8"
+                Margin="0,16,0,0">
+      <Button Content="{loc:Localize Key=Common.Cancel}"
+              Classes="dialog-footer"
+              Click="OnCancelClick"
+              IsCancel="True" />
+      <Button Content="{loc:Localize Key=SatStatus.Report.Submit}"
+              Classes="dialog-footer accent"
+              Click="OnSubmitClick"
+              IsDefault="True" />
+    </StackPanel>
+
+    <StackPanel Spacing="12">
+      <TextBlock Text="{Binding SatelliteLabel}"
+                 FontSize="13"
+                 TextWrapping="Wrap" />
+      <TextBlock Text="{Binding ModeLabel}"
+                 FontSize="13"
+                 TextWrapping="Wrap" />
+
+      <TextBlock Text="{loc:Localize Key=SatStatus.Report.StatusPrompt}"
+                 FontWeight="SemiBold"
+                 FontSize="13" />
+      <StackPanel Spacing="6">
+        <RadioButton GroupName="SatStatus"
+                     Content="{loc:Localize Key=SatStatus.Report.Status.On}"
+                     IsChecked="{Binding IsOnSelected, Mode=TwoWay}" />
+        <RadioButton GroupName="SatStatus"
+                     Content="{loc:Localize Key=SatStatus.Report.Status.Off}"
+                     IsChecked="{Binding IsOffSelected, Mode=TwoWay}" />
+        <RadioButton GroupName="SatStatus"
+                     Content="{loc:Localize Key=SatStatus.Report.Status.TelemetryOnly}"
+                     IsChecked="{Binding IsTelemetryOnlySelected, Mode=TwoWay}" />
+      </StackPanel>
+
+      <TextBlock Text="{Binding StatusMessage}"
+                 TextWrapping="Wrap"
+                 FontSize="12"
+                 MinHeight="18"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                 IsVisible="{Binding HasStatusMessage}" />
+    </StackPanel>
+  </DockPanel>
+</Window>

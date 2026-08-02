@@ -1677,6 +1677,12 @@
   <data name="Freq.Voice">
     <value>话音</value>
   </data>
+  <data name="Freq.ReportStatus">
+    <value>报告</value>
+  </data>
+  <data name="Freq.ReportStatusToolTip">
+    <value>向 OscarWatch.org 报告当前卫星与模式的状态</value>
+  </data>
   <data name="Freq.StoredOffsetCleared">
     <value>已清除已存偏移。</value>
   </data>
@@ -2399,6 +2405,78 @@
   </data>
   <data name="Settings.HamsAt.ConnectionFailed">
     <value>连接失败 — {0}</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Section">
+    <value>OscarWatch</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Intro">
+    <value>向 OscarWatch.org 报告卫星模式为 On、Off 或仅遥测。在 oscarwatch.org → Settings → API tokens 创建 API 令牌。网站个人资料需有呼号与网格方格后才会接受报告。</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Enable">
+    <value>启用卫星状态报告</value>
+  </data>
+  <data name="Settings.SatelliteStatus.AutoReportOnQso">
+    <value>记录 QSO 时自动报告 On</value>
+  </data>
+  <data name="Settings.SatelliteStatus.BaseUrl">
+    <value>基址 URL</value>
+  </data>
+  <data name="Settings.SatelliteStatus.BaseUrlWatermark">
+    <value>https://oscarwatch.org</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ApiToken">
+    <value>API 令牌</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ApiTokenWatermark">
+    <value>来自 oscarwatch.org 的 Bearer 令牌</value>
+  </data>
+  <data name="Settings.SatelliteStatus.TestConnection">
+    <value>测试连接</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Testing">
+    <value>正在测试 OscarWatch.org 连接…</value>
+  </data>
+  <data name="Settings.SatelliteStatus.EnterApiToken">
+    <value>请先输入 OscarWatch.org API 令牌。</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ConnectionOk">
+    <value>已连接 — {0}</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ConnectionFailed">
+    <value>连接失败 — {0}</value>
+  </data>
+  <data name="SatStatus.Report.Title">
+    <value>报告卫星状态</value>
+  </data>
+  <data name="SatStatus.Report.Satellite">
+    <value>卫星：{0}</value>
+  </data>
+  <data name="SatStatus.Report.Mode">
+    <value>模式：{0}</value>
+  </data>
+  <data name="SatStatus.Report.StatusPrompt">
+    <value>状态</value>
+  </data>
+  <data name="SatStatus.Report.Status.On">
+    <value>On</value>
+  </data>
+  <data name="SatStatus.Report.Status.Off">
+    <value>Off</value>
+  </data>
+  <data name="SatStatus.Report.Status.TelemetryOnly">
+    <value>仅遥测</value>
+  </data>
+  <data name="SatStatus.Report.Submit">
+    <value>提交</value>
+  </data>
+  <data name="SatStatus.Report.Stored">
+    <value>卫星状态报告已保存。</value>
+  </data>
+  <data name="SatStatus.Report.Duplicate">
+    <value>重复报告 — 近期已保存。</value>
+  </data>
+  <data name="SatStatus.Report.Failed">
+    <value>卫星状态报告失败 — {0}</value>
   </data>
   <data name="Settings.SatelliteLink.Section">
     <value>Satellite link</value>

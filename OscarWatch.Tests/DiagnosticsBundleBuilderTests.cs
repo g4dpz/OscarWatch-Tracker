@@ -12,13 +12,15 @@ public sealed class DiagnosticsBundleBuilderTests
         var settings = new AppSettings
         {
             Cloudlog = new CloudlogSettings { ApiKey = "secret-cloudlog" },
-            HamsAt = new HamsAtSettings { ApiKey = "secret-hamsat" }
+            HamsAt = new HamsAtSettings { ApiKey = "secret-hamsat" },
+            SatelliteStatus = new SatelliteStatusSettings { ApiToken = "secret-sat-status" }
         };
 
         var redacted = DiagnosticsBundleBuilder.RedactSettings(settings);
 
         Assert.DoesNotContain("secret-cloudlog", redacted);
         Assert.DoesNotContain("secret-hamsat", redacted);
+        Assert.DoesNotContain("secret-sat-status", redacted);
         Assert.Contains("\"***\"", redacted);
     }
 

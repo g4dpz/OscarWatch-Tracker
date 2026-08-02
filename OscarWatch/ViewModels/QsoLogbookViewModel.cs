@@ -7,16 +7,19 @@ using OscarWatch.Core.Logbook;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
 using OscarWatch.Localization;
+using Serilog;
 
 namespace OscarWatch.ViewModels;
 
 public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
 {
+    private static readonly ILogger Log = Serilog.Log.ForContext<QsoLogbookViewModel>();
     private readonly IQsoLogbookRepository _repository;
     private readonly ILiveTrackerSnapshotProvider _tracker;
     private readonly ISettingsService _settings;
     private readonly ICloudlogQsoUploadService _cloudlogUpload;
     private readonly ISatelliteLinkBroadcastService _satelliteLink;
+    private readonly ISatelliteStatusReportService _satelliteStatus;
     private readonly ILocalizationService _l;
     private readonly DispatcherTimer _liveTimer;
     private string _lastStationMode = "";
@@ -31,6 +34,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         ISettingsService settings,
         ICloudlogQsoUploadService cloudlogUpload,
         ISatelliteLinkBroadcastService satelliteLink,
+        ISatelliteStatusReportService satelliteStatus,
         ILocalizationService localization)
     {
         _repository = repository;
@@ -38,6 +42,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         _settings = settings;
         _cloudlogUpload = cloudlogUpload;
         _satelliteLink = satelliteLink;
+        _satelliteStatus = satelliteStatus;
         _l = localization;
         StatusText = _l.Get("Logbook.Status.Ready");
         StationStatusText = _l.Get("Logbook.Station.Unavailable");
@@ -340,11 +345,48 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
             await _cloudlogUpload.QueueUploadIfEnabledAsync(record.Id).ConfigureAwait(true);
 
         PublishQsoEvent(record, SatelliteLinkQsoEventKind.Logged);
+        _ = TryAutoReportSatelliteStatusAsync(record, snapshot);
 
         await ReloadQsosAsync().ConfigureAwait(true);
         StatusText = _l.Get("Logbook.Status.Added", record.Call, FormatQsoUtcTime(record.QsoUtc));
         ClearEntryForm();
         CommitQsoCommand.NotifyCanExecuteChanged();
+    }
+
+    private async Task TryAutoReportSatelliteStatusAsync(QsoRecord record, LiveTrackerSnapshot snapshot)
+    {
+        var cfg = _settings.Current.SatelliteStatus;
+        if (cfg is not { Enabled: true, AutoReportOnQso: true }
+            || string.IsNullOrWhiteSpace(cfg.ApiToken))
+            return;
+
+        var satellite = snapshot.SatelliteName?.Trim() ?? "";
+        var modeType = snapshot.ModeType?.Trim() ?? "";
+        if (string.IsNullOrWhiteSpace(satellite) || string.IsNullOrWhiteSpace(modeType))
+            return;
+
+        var request = new SatelliteStatusReportRequest(
+            satellite,
+            modeType,
+            SatelliteStatusValue.On,
+            record.QsoUtc.Kind == DateTimeKind.Utc
+                ? record.QsoUtc
+                : DateTime.SpecifyKind(record.QsoUtc, DateTimeKind.Utc),
+            SatelliteStatusReportFormatting.NormalizeGridsquare(_settings.Current.GroundStation.GridSquare),
+            $"OscarWatch-Tracker/{AppVersionHelper.GetDisplayVersionText()}");
+
+        try
+        {
+            var result = await _satelliteStatus.SubmitReportAsync(cfg, request).ConfigureAwait(false);
+            if (!result.Ok)
+                Log.Warning("Auto satellite status report failed for {Satellite} {Mode}: {Message}",
+                    satellite, modeType, result.Message);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Auto satellite status report failed for {Satellite} {Mode}",
+                satellite, modeType);
+        }
     }
 
     private async Task SaveEditedQsoAsync()

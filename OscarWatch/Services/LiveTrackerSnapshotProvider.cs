@@ -32,13 +32,15 @@ public sealed class LiveTrackerSnapshotProvider : ILiveTrackerSnapshotProvider
         if (state is null)
             return LiveTrackerSnapshot.Empty;
 
+        var modeType = _frequencies.SelectedMode?.Type?.Trim() ?? "";
+
         var context = _frequencies.TryBuildRigTrackingContext(state);
         if (context is null)
         {
             var name = _frequencies.SatelliteName;
             return string.IsNullOrWhiteSpace(name)
                 ? LiveTrackerSnapshot.Empty
-                : new LiveTrackerSnapshot(name.Trim(), "", "", 0, 0, "", "");
+                : new LiveTrackerSnapshot(name.Trim(), "", "", 0, 0, "", "", modeType);
         }
 
         var update = CloudlogRadioMapper.TryCreate(
@@ -57,7 +59,8 @@ public sealed class LiveTrackerSnapshotProvider : ILiveTrackerSnapshotProvider
             update.UplinkHz,
             update.DownlinkHz,
             AdifBandHelper.FromHz(update.UplinkHz),
-            AdifBandHelper.FromHz(update.DownlinkHz));
+            AdifBandHelper.FromHz(update.DownlinkHz),
+            string.IsNullOrWhiteSpace(modeType) ? context.Mode.Type.Trim() : modeType);
     }
 
     private SatelliteTrackState? ResolveFocusedState()

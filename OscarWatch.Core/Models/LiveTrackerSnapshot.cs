@@ -8,9 +8,10 @@ public sealed record LiveTrackerSnapshot(
     long UplinkHz,
     long DownlinkHz,
     string Band,
-    string BandRx)
+    string BandRx,
+    string ModeType = "")
 {
-    public static LiveTrackerSnapshot Empty { get; } = new("", "", "", 0, 0, "", "");
+    public static LiveTrackerSnapshot Empty { get; } = new("", "", "", 0, 0, "", "", "");
 
     public bool IsAvailable =>
         !string.IsNullOrWhiteSpace(SatelliteName)

@@ -205,7 +205,13 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     [ObservableProperty]
     private SatelliteTransponderMode? _selectedMode;
 
+    [ObservableProperty]
+    private bool _canReportSatelliteStatus;
+
     public ObservableCollection<SatelliteTransponderMode> AvailableModes { get; } = [];
+
+    /// <summary>Raised when the operator requests a satellite status report from the frequency overlay.</summary>
+    public event EventHandler? ReportSatelliteStatusRequested;
 
     public FrequencyOverlayViewModel(
         ISettingsService settings,
@@ -247,6 +253,35 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
     [RelayCommand]
     private void SelectRxFixedDoppler() => SetDopplerStrategy(DopplerStrategy.UplinkOnly);
+
+    [RelayCommand(CanExecute = nameof(CanExecuteReportSatelliteStatus))]
+    private void ReportSatelliteStatus() => ReportSatelliteStatusRequested?.Invoke(this, EventArgs.Empty);
+
+    private bool CanExecuteReportSatelliteStatus() => CanReportSatelliteStatus;
+
+    public void RefreshSatelliteStatusReportAvailability() => UpdateCanReportSatelliteStatus();
+
+    private void UpdateCanReportSatelliteStatus()
+    {
+        var cfg = _settings.Current.SatelliteStatus;
+        var can = cfg is { Enabled: true }
+                  && !string.IsNullOrWhiteSpace(cfg.ApiToken)
+                  && !string.IsNullOrWhiteSpace(_currentSatelliteName)
+                  && SelectedMode is not null
+                  && !string.IsNullOrWhiteSpace(SelectedMode.Type);
+
+        if (CanReportSatelliteStatus == can)
+        {
+            ReportSatelliteStatusCommand.NotifyCanExecuteChanged();
+            return;
+        }
+
+        CanReportSatelliteStatus = can;
+    }
+
+    partial void OnCanReportSatelliteStatusChanged(bool value) =>
+        ReportSatelliteStatusCommand.NotifyCanExecuteChanged();
+
 
     public void SetDopplerStrategy(DopplerStrategy strategy)
     {
@@ -325,6 +360,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             HasTransponderData = false;
             EmptyStateMessage = _l.Get("Freq.SelectSatelliteHint");
             ClearFrequencyDisplay();
+            UpdateCanReportSatelliteStatus();
             return;
         }
 
@@ -348,6 +384,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             HasTransponderData = false;
             EmptyStateMessage = _l.Get("Freq.NoTransponder");
             ClearFrequencyDisplay();
+            UpdateCanReportSatelliteStatus();
             return;
         }
 
@@ -356,6 +393,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
         _lastRangeRateKmPerSec = state.LookAngles?.RangeRateKmPerSec ?? 0;
         ApplyFrequencyDisplay(state);
+        UpdateCanReportSatelliteStatus();
     }
 
     private CorrectedFrequencies ComputeCorrected(
@@ -572,6 +610,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         OffsetsChanged?.Invoke(this, true);
         RequestOverlayReclamp();
         StoreOffsetCommand.NotifyCanExecuteChanged();
+        UpdateCanReportSatelliteStatus();
     }
 
     partial void OnReceiveOffsetKHzChanged(double value)

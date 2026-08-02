@@ -147,7 +147,8 @@
       <h2>Integrations</h2>
       <p>
         The <strong>Integrations</strong> tab groups optional hardware and external services:
-        <strong>GPS</strong>, <strong>hams.at</strong> Upcoming Roves, <strong>Cloudlog</strong>, and
+        <strong>GPS</strong>, <strong>hams.at</strong> Upcoming Roves,
+        <strong>OscarWatch</strong>, <strong>Cloudlog</strong>, and
         <strong>Satellite link</strong>.
         Pick a section from the list on the left.
       </p>
@@ -183,6 +184,20 @@
         <strong>Test connection</strong> to verify the key. Set your observer location on
         <a href="https://hams.at/location" target="_blank" rel="noopener">hams.at</a> so
         <code>is_workable</code> alerts match your station.
+      </p>
+
+      <h3>OscarWatch</h3>
+      <p>
+        Enable reporting, set the base URL (default <code>https://oscarwatch.org</code>), and paste an API token
+        from <a href="https://oscarwatch.org" target="_blank" rel="noopener">oscarwatch.org</a>
+        <strong>Settings → API tokens</strong>. Your website profile must include a
+        <strong>callsign</strong> and <strong>gridsquare</strong> before reports are accepted.
+        Use <strong>Test connection</strong> to call <code>GET /api/v1/me</code>.
+        When enabled, the frequency overlay shows a <strong>Report</strong> button so you can submit
+        On / Off / Telemetry only for the focused satellite and selected mode.
+        Optionally enable <strong>Automatically report On when logging a QSO</strong> — each new live QSO
+        posts an On report using the QSO time and the focused satellite’s catalogue mode
+        (edits do not re-report).
       </p>
 
       <h3>Cloudlog</h3>
