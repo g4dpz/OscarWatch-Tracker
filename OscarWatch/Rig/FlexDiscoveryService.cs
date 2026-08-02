@@ -13,6 +13,7 @@ public sealed class FlexDiscoveryService : IDisposable
 
     private readonly ConcurrentDictionary<string, FlexDiscoveredRadio> _radios = new(StringComparer.OrdinalIgnoreCase);
     private readonly object _gate = new();
+    private volatile IReadOnlyList<FlexDiscoveredRadio>? _cachedRadios;
     private UdpClient? _udp;
     private CancellationTokenSource? _cts;
     private Task? _listenTask;
@@ -23,8 +24,16 @@ public sealed class FlexDiscoveryService : IDisposable
     {
         get
         {
+            // Return cached sorted list; rebuilt only when a radio is added/updated.
+            var cached = _cachedRadios;
+            if (cached is not null)
+                return cached;
+
             lock (_gate)
-                return _radios.Values.OrderBy(r => r.Nickname).ThenBy(r => r.IpAddress).ToList();
+            {
+                _cachedRadios ??= _radios.Values.OrderBy(r => r.Nickname).ThenBy(r => r.IpAddress).ToList();
+                return _cachedRadios;
+            }
         }
     }
 
@@ -99,6 +108,7 @@ public sealed class FlexDiscoveryService : IDisposable
     public void Clear()
     {
         _radios.Clear();
+        _cachedRadios = null;
         RadiosChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -164,6 +174,7 @@ public sealed class FlexDiscoveryService : IDisposable
 
         if (changed)
         {
+            _cachedRadios = null; // Invalidate cached sorted list
             Log.Information(
                 "FlexRadio discovered: model={Model}, nickname={Nickname}, serial={Serial}, endpoint={IpAddress}:{Port}, status={Status}",
                 radio.Model,
