@@ -28,6 +28,7 @@ public partial class PassPlanningViewModel : ViewModelBase
     public ObservableCollection<PassPlanningPassRow> Passes { get; } = [];
     public ObservableCollection<PassPlanningPassRow> DisplayedPasses { get; } = [];
     public ObservableCollection<SatelliteFilterOption> SatelliteFilters { get; } = [];
+    public ObservableCollection<HorizonMaskPoint> HorizonMaskPoints { get; } = [];
 
     [ObservableProperty]
     private SatelliteFilterOption? _selectedSatelliteFilter;
@@ -115,6 +116,9 @@ public partial class PassPlanningViewModel : ViewModelBase
             StationLongitudeDeg = value.LongitudeDeg;
             StationAltitudeMeters = value.AltitudeMetersAsl;
             StationGridSquare = value.GridSquare;
+            HorizonMaskPoints.Clear();
+            foreach (var p in (value.HorizonMask ?? new HorizonMask()).Points)
+                HorizonMaskPoints.Add(new HorizonMaskPoint(p.AzimuthDeg, p.ElevationDeg));
         }
         finally
         {
@@ -132,6 +136,11 @@ public partial class PassPlanningViewModel : ViewModelBase
         SelectedStation.LongitudeDeg = StationLongitudeDeg;
         SelectedStation.AltitudeMetersAsl = StationAltitudeMeters;
         SelectedStation.GridSquare = StationGridSquare.Trim();
+        var mask = new HorizonMask();
+        foreach (var p in HorizonMaskPoints)
+            mask.Points.Add(new HorizonMaskPoint(p.AzimuthDeg, p.ElevationDeg));
+        mask.Normalize();
+        SelectedStation.HorizonMask = mask;
     }
 
     partial void OnStationLatitudeDegChanged(double value)

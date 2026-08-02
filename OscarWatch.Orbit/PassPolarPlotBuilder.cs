@@ -1,3 +1,4 @@
+using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
 
@@ -74,7 +75,8 @@ public static class PassPolarPlotBuilder
         for (var t = startUtc; t <= endUtc; t += SampleStep)
         {
             var look = propagator.GetLookAngles(satellite.NoradId, site, t);
-            if (look.ElevationDeg < minimumElevationDeg)
+            if (HorizonMaskPolarGeometry.IsObstructed(
+                    site.HorizonMask, look.AzimuthDeg, look.ElevationDeg, minimumElevationDeg))
                 continue;
 
             var satEci = propagator.GetEciPosition(satellite.NoradId, t);
@@ -86,7 +88,8 @@ public static class PassPolarPlotBuilder
         if (samples.Count == 0 || samples[^1].Item1 < endUtc)
         {
             var look = propagator.GetLookAngles(satellite.NoradId, site, endUtc);
-            if (look.ElevationDeg >= minimumElevationDeg)
+            if (!HorizonMaskPolarGeometry.IsObstructed(
+                    site.HorizonMask, look.AzimuthDeg, look.ElevationDeg, minimumElevationDeg))
             {
                 var satEci = propagator.GetEciPosition(satellite.NoradId, endUtc);
                 var sunEci = SunPositionCalculator.GetPosition(endUtc);
@@ -165,7 +168,8 @@ public static class PassPolarPlotBuilder
         double minimumElevationDeg)
     {
         var look = propagator.GetLookAngles(satellite.NoradId, site, utc);
-        if (look.ElevationDeg < minimumElevationDeg)
+        if (HorizonMaskPolarGeometry.IsObstructed(
+                site.HorizonMask, look.AzimuthDeg, look.ElevationDeg, minimumElevationDeg))
             return null;
 
         return new PassPolarPlotMarker

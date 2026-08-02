@@ -41,6 +41,13 @@
         It is not your on-air callsign. For logging identity, set <strong>My callsign</strong> on each
         <a href="qso-logbook.html">QSO logbook</a> when you create it.
       </p>
+      <p id="station-horizon-mask">
+        <strong>Horizon mask</strong> (optional) — open <strong>Edit horizon mask…</strong> to draw your local skyline
+        (trees, buildings, hills) on a polar editor: click to add points, drag to move, right-click to remove, or edit the az/el table.
+        An empty mask means unused; pass prediction and plots still use <strong>Tracking → Minimum elevation</strong> alone.
+        When points are set, visibility at each azimuth uses the higher of the mask and that minimum.
+        The same mask is stored per station profile (Settings and Pass planner) and is drawn on the sky plot and pass polar plots.
+      </p>
 
       <h2>TLE</h2>
       <p>
@@ -61,7 +68,7 @@
 
       <h2>Tracking</h2>
       <ul>
-        <li><strong>Minimum elevation</strong> — passes below this angle are hidden from predictions and from the <a href="map-and-sidebar.html#pass-elevation-timeline">pass elevation timeline</a> below the map.</li>
+        <li><strong>Minimum elevation</strong> — passes below this angle are hidden from predictions and from the <a href="map-and-sidebar.html#pass-elevation-timeline">pass elevation timeline</a> below the map. When a <a href="#station-horizon-mask">horizon mask</a> is set, each azimuth uses the higher of the mask and this value.</li>
         <li><strong>Prediction hours</strong> — how far ahead to compute passes.</li>
         <li><strong>Check for transponder database updates on startup</strong> — downloads <a href="https://tle.oscarwatch.org/satellite_database.json">tle.oscarwatch.org/satellite_database.json</a> when the app opens and offers to merge new satellites/modes (on by default). Use <strong>Satellites → Update transponder database…</strong> to check manually.</li>
       </ul>

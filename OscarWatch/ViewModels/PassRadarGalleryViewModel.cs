@@ -16,6 +16,7 @@ public sealed class PassRadarCardViewModel
     public required string StatsText { get; init; }
     public required PassPolarPlotData PlotData { get; init; }
     public required double MinimumElevationDeg { get; init; }
+    public HorizonMask? HorizonMask { get; init; }
     public required bool UseUtcTime { get; init; }
     public required bool Use24HourClock { get; init; }
 }
@@ -115,6 +116,7 @@ public partial class PassRadarGalleryViewModel : ViewModelBase
                     plot.LosAzimuthDeg),
                 PlotData = plot,
                 MinimumElevationDeg = minimumElevationDeg,
+                HorizonMask = site.HorizonMask,
                 UseUtcTime = useUtcTime,
                 Use24HourClock = use24HourClock
             });

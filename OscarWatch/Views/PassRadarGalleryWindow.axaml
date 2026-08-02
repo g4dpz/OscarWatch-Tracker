@@ -66,6 +66,7 @@
                 <ctrl:PassPolarPlotControl Grid.Row="3"
                                            PlotData="{Binding PlotData}"
                                            MinimumElevationDeg="{Binding MinimumElevationDeg}"
+                                           HorizonMask="{Binding HorizonMask}"
                                            UseUtcTime="{Binding UseUtcTime}"
                                            Use24HourClock="{Binding Use24HourClock}"
                                            Margin="0,4,0,0"

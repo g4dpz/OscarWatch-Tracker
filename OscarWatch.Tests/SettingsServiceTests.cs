@@ -26,6 +26,48 @@ public sealed class SettingsServiceTests
     }
 
     [Fact]
+    public void TryParse_round_trips_horizon_mask_on_ground_station()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"oscarwatch-mask-{Guid.NewGuid():N}.json");
+        var service = new SettingsService(path);
+        service.Current.GroundStation.HorizonMask = new HorizonMask
+        {
+            Points =
+            [
+                new HorizonMaskPoint(0, 8),
+                new HorizonMaskPoint(120, 22)
+            ]
+        };
+        service.Current.SavedStations =
+        [
+            StationProfile.FromGroundStation(service.Current.GroundStation, "home1")
+        ];
+
+        var json = service.SerializeCurrent();
+        Assert.True(SettingsService.TryParse(json, out var parsed, out var error));
+        Assert.Null(error);
+        Assert.Equal(2, parsed.GroundStation.HorizonMask.Points.Count);
+        Assert.Equal(22, parsed.GroundStation.HorizonMask.ElevationAt(120), 3);
+        Assert.Single(parsed.SavedStations);
+        Assert.Equal(2, parsed.SavedStations[0].HorizonMask.Points.Count);
+    }
+
+    [Fact]
+    public void TryParse_missing_horizon_mask_defaults_to_empty()
+    {
+        const string json = """
+            {
+              "groundStation": { "displayName": "Home", "latitudeDeg": 51.5, "longitudeDeg": -0.1 }
+            }
+            """;
+
+        Assert.True(SettingsService.TryParse(json, out var parsed, out var error));
+        Assert.Null(error);
+        Assert.NotNull(parsed.GroundStation.HorizonMask);
+        Assert.Empty(parsed.GroundStation.HorizonMask.Points);
+    }
+
+    [Fact]
     public void TryParse_missing_norad_ids_defaults_to_empty_list()
     {
         const string json = """

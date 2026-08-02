@@ -8,5 +8,8 @@ public sealed class GroundStation
     public double AltitudeMetersAsl { get; set; } = 50;
     public string GridSquare { get; set; } = "IO91wm";
 
+    /// <summary>Optional skyline; empty means unused (scalar min elevation only).</summary>
+    public HorizonMask HorizonMask { get; set; } = new();
+
     public double AltitudeKm => AltitudeMetersAsl / 1000.0;
 }

@@ -22,6 +22,7 @@ public sealed class BruteForcePassPredictor : IPassPredictor
         {
             var orbit = OrbitToolsMapping.CreateOrbit(satellite);
             var groundSite = OrbitToolsMapping.CreateSite(site);
+            var mask = site.HorizonMask ?? new HorizonMask();
 
             var passes = new List<PassInfo>();
             var t = utcStart;
@@ -32,12 +33,24 @@ public sealed class BruteForcePassPredictor : IPassPredictor
             double aosAz = 0;
             double losAz = 0;
 
+            bool IsVisible(DateTime time)
+            {
+                try
+                {
+                    var look = groundSite.GetLookAngle(orbit.PositionEci(time));
+                    return look.ElevationDeg >= mask.EffectiveFloor(look.AzimuthDeg, minimumElevationDeg);
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
             double ElAt(DateTime time)
             {
                 try
                 {
-                    var eci = orbit.PositionEci(time);
-                    return groundSite.GetLookAngle(eci).ElevationDeg;
+                    return groundSite.GetLookAngle(orbit.PositionEci(time)).ElevationDeg;
                 }
                 catch
                 {
@@ -48,12 +61,13 @@ public sealed class BruteForcePassPredictor : IPassPredictor
             while (t <= utcEnd)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                var visible = IsVisible(t);
                 var el = ElAt(t);
 
-                if (!inPass && el >= minimumElevationDeg)
+                if (!inPass && visible)
                 {
                     inPass = true;
-                    aos = RefineBoundary(orbit, groundSite, t - CoarseStep, t, minimumElevationDeg, rising: true);
+                    aos = RefineBoundary(orbit, groundSite, mask, minimumElevationDeg, t - CoarseStep, t, rising: true);
                     aosAz = AzAt(orbit, groundSite, aos.Value);
                     maxEl = el;
                     maxElTime = aos.Value;
@@ -66,9 +80,9 @@ public sealed class BruteForcePassPredictor : IPassPredictor
                         maxElTime = t;
                     }
 
-                    if (el < minimumElevationDeg)
+                    if (!visible)
                     {
-                        var los = RefineBoundary(orbit, groundSite, t - CoarseStep, t, minimumElevationDeg, rising: false);
+                        var los = RefineBoundary(orbit, groundSite, mask, minimumElevationDeg, t - CoarseStep, t, rising: false);
                         losAz = AzAt(orbit, groundSite, los);
 
                         passes.Add(new PassInfo
@@ -99,9 +113,10 @@ public sealed class BruteForcePassPredictor : IPassPredictor
     private static DateTime RefineBoundary(
         SatelliteOrbit orbit,
         Site site,
+        HorizonMask mask,
+        double minimumElevationDeg,
         DateTime before,
         DateTime after,
-        double minEl,
         bool rising)
     {
         var lo = before;
@@ -110,20 +125,7 @@ public sealed class BruteForcePassPredictor : IPassPredictor
         while ((hi - lo) > RefineTolerance)
         {
             var mid = lo + (hi - lo) / 2;
-            double El(DateTime time)
-            {
-                try
-                {
-                    return site.GetLookAngle(orbit.PositionEci(time)).ElevationDeg;
-                }
-                catch
-                {
-                    return -90;
-                }
-            }
-
-            var elMid = El(mid);
-            var above = elMid >= minEl;
+            var above = IsVisibleAt(orbit, site, mask, minimumElevationDeg, mid);
             if (rising)
             {
                 if (above)
@@ -141,6 +143,24 @@ public sealed class BruteForcePassPredictor : IPassPredictor
         }
 
         return lo + (hi - lo) / 2;
+    }
+
+    private static bool IsVisibleAt(
+        SatelliteOrbit orbit,
+        Site site,
+        HorizonMask mask,
+        double minimumElevationDeg,
+        DateTime time)
+    {
+        try
+        {
+            var look = site.GetLookAngle(orbit.PositionEci(time));
+            return look.ElevationDeg >= mask.EffectiveFloor(look.AzimuthDeg, minimumElevationDeg);
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private static double AzAt(SatelliteOrbit orbit, Site site, DateTime time)

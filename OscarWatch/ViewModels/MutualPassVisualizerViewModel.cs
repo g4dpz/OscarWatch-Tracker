@@ -65,6 +65,12 @@ public partial class MutualPassVisualizerViewModel : ViewModelBase
     private double _minimumElevationDeg;
 
     [ObservableProperty]
+    private HorizonMask? _westHorizonMask;
+
+    [ObservableProperty]
+    private HorizonMask? _eastHorizonMask;
+
+    [ObservableProperty]
     private bool _useUtcTime;
 
     [ObservableProperty]
@@ -84,6 +90,8 @@ public partial class MutualPassVisualizerViewModel : ViewModelBase
         var clockFormat = PassDisplayFormat.FromSettings(use24HourClock);
         MinimumElevationDeg = minimumElevationDeg;
         (_westSite, _eastSite, _westPass, _eastPass) = OrderWestEast(localSite, remoteSite, pass);
+        WestHorizonMask = _westSite.HorizonMask;
+        EastHorizonMask = _eastSite.HorizonMask;
 
         _satellite = _tleService.Catalog.FirstOrDefault(s => s.NoradId == pass.NoradId);
         if (_satellite is not null)

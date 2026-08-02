@@ -301,7 +301,7 @@ public sealed class TrackingOrchestrator
         if (!_propagator.HasSatellite(pass.NoradId))
             return [];
 
-        return SkyPlotPathBuilder.Build(pass, _propagator, site);
+        return SkyPlotPathBuilder.Build(pass, _propagator, site, _settings.Current.MinimumElevationDeg);
     }
 
     public double? TryGetAheadAzimuthDeg(string noradId, double secondsAhead = 3.0)

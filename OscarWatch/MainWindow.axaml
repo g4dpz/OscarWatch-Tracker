@@ -567,6 +567,7 @@
                                  FocusedNoradId="{Binding FocusedNoradId, Mode=TwoWay}"
                                  SoloFocusedSatellite="{Binding SoloFocusedSatellite}"
                                  MinimumElevationDeg="{Binding MinimumElevationDeg}"
+                                 HorizonMask="{Binding GroundStation.HorizonMask}"
                                  PassPath="{Binding SkyPlotPassPath}"
                                  RotatorAzimuthDeg="{Binding SkyPlotRotatorAzimuthDeg}"
                                  RotatorElevationDeg="{Binding SkyPlotRotatorElevationDeg}" />

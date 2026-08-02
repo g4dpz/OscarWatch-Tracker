@@ -51,6 +51,18 @@ public partial class SettingsWindow : Window
 
     private void OnCancelClick(object? sender, RoutedEventArgs e) => Close(false);
 
+    private async void OnEditHorizonMaskClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not SettingsViewModel vm)
+            return;
+
+        var window = new HorizonMaskEditorWindow
+        {
+            DataContext = vm
+        };
+        await window.ShowDialog(this);
+    }
+
     private async void OnBrowseRecordingFolderClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is SettingsViewModel vm)

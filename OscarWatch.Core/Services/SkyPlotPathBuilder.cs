@@ -1,3 +1,4 @@
+using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
 
@@ -13,7 +14,8 @@ public static class SkyPlotPathBuilder
     public static IReadOnlyList<SkyPlotPathPoint> Build(
         PassInfo pass,
         IOrbitPropagator propagator,
-        GroundStation site)
+        GroundStation site,
+        double minimumElevationDeg = 0)
     {
         ArgumentNullException.ThrowIfNull(pass);
         ArgumentNullException.ThrowIfNull(propagator);
@@ -21,10 +23,10 @@ public static class SkyPlotPathBuilder
 
         var points = new List<SkyPlotPathPoint>();
         for (var t = pass.AosUtc; t <= pass.LosUtc; t += SampleStep)
-            TryAddSample(pass.NoradId, site, propagator, t, points);
+            TryAddSample(pass.NoradId, site, propagator, t, points, minimumElevationDeg);
 
         if (points.Count == 0 || pass.LosUtc > pass.AosUtc)
-            TryAddSample(pass.NoradId, site, propagator, pass.LosUtc, points);
+            TryAddSample(pass.NoradId, site, propagator, pass.LosUtc, points, minimumElevationDeg);
 
         return points;
     }
@@ -34,12 +36,14 @@ public static class SkyPlotPathBuilder
         GroundStation site,
         IOrbitPropagator propagator,
         DateTime utc,
-        List<SkyPlotPathPoint> points)
+        List<SkyPlotPathPoint> points,
+        double minimumElevationDeg)
     {
         try
         {
             var look = propagator.GetLookAngles(noradId, site, utc);
-            if (look.ElevationDeg < 0)
+            if (HorizonMaskPolarGeometry.IsObstructed(
+                    site.HorizonMask, look.AzimuthDeg, look.ElevationDeg, minimumElevationDeg))
                 return;
 
             var sample = new SkyPlotPathPoint(look.AzimuthDeg, look.ElevationDeg);

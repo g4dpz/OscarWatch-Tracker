@@ -1,0 +1,29 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:loc="using:OscarWatch.Localization"
+        xmlns:ctrl="using:OscarWatch.Controls"
+        x:Class="OscarWatch.Views.HorizonMaskEditorWindow"
+        x:DataType="vm:SettingsViewModel"
+        Title="{loc:Localize Key=Window.HorizonMaskEditor.Title}"
+        Width="520"
+        Height="640"
+        MinWidth="440"
+        MinHeight="520"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="14">
+    <Border DockPanel.Dock="Bottom"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="0,1,0,0"
+            Padding="0,12,0,0"
+            Margin="0,12,0,0">
+      <Button Content="{loc:Localize Key=Common.Close}"
+              HorizontalAlignment="Right"
+              MinWidth="88"
+              Click="OnCloseClick" />
+    </Border>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+      <ctrl:HorizonMaskEditorControl Points="{Binding HorizonMaskPoints}" />
+    </ScrollViewer>
+  </DockPanel>
+</Window>

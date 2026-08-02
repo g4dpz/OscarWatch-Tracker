@@ -44,6 +44,9 @@ public partial class PassVisualizerViewModel : ViewModelBase
     private double _minimumElevationDeg;
 
     [ObservableProperty]
+    private HorizonMask? _horizonMask;
+
+    [ObservableProperty]
     private bool _useUtcTime;
 
     [ObservableProperty]
@@ -61,6 +64,7 @@ public partial class PassVisualizerViewModel : ViewModelBase
         UseUtcTime = useUtcTime;
         Use24HourClock = use24HourClock;
         MinimumElevationDeg = minimumElevationDeg;
+        HorizonMask = site.HorizonMask;
 
         var clockFormat = PassDisplayFormat.FromSettings(use24HourClock);
         var stationLabel = StationLabel(site);

@@ -1764,6 +1764,30 @@ Continuar?</value>
   <data name="Settings.Station.Altitude">
     <value>Altitude "ASL" (m)</value>
   </data>
+  <data name="Settings.Station.HorizonMask">
+    <value>Máscara de horizonte</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskHelp">
+    <value>Skyline opcional para árvores, edifícios e colinas. Clique no gráfico polar para adicionar pontos; arraste para mover; clique com o botão direito para remover. Vazia = não usada — só a elevação mínima de rastreamento se aplica. Os passes usam o maior valor entre a máscara e esse mínimo em cada azimute.</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskSummary">
+    <value>Skyline opcional para árvores, edifícios e colinas. Vazia = não usada — só a elevação mínima de rastreamento se aplica.</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskEdit">
+    <value>Editar máscara de horizonte…</value>
+  </data>
+  <data name="Window.HorizonMaskEditor.Title">
+    <value>Máscara de horizonte</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskClear">
+    <value>Limpar máscara</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskAz">
+    <value>Az (°)</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskEl">
+    <value>El (°)</value>
+  </data>
   <data name="Settings.Gps.Title">
     <value>GPS</value>
   </data>

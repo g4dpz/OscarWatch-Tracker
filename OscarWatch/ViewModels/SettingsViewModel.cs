@@ -63,6 +63,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     [ObservableProperty]
     private string _gridSquare = "";
 
+    public ObservableCollection<HorizonMaskPoint> HorizonMaskPoints { get; } = [];
+
     [ObservableProperty]
     private double _minimumElevationDeg = 5;
 
@@ -1034,7 +1036,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             LatitudeDeg = LatitudeDeg,
             LongitudeDeg = LongitudeDeg,
             AltitudeMetersAsl = AltitudeMeters,
-            GridSquare = NormalizeGridSquare(GridSquare)
+            GridSquare = NormalizeGridSquare(GridSquare),
+            HorizonMask = BuildHorizonMaskFromEditor()
         };
         _settings.Current.MinimumElevationDeg = MinimumElevationDeg;
         _settings.Current.PassPredictionHours = PassPredictionHours;
@@ -1227,6 +1230,9 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             LongitudeDeg = _draft.LongitudeDeg;
             AltitudeMeters = _draft.AltitudeMetersAsl;
             GridSquare = NormalizeGridSquare(_draft.GridSquare);
+            HorizonMaskPoints.Clear();
+            foreach (var p in (_draft.HorizonMask ?? new HorizonMask()).Points)
+                HorizonMaskPoints.Add(new HorizonMaskPoint(p.AzimuthDeg, p.ElevationDeg));
             MinimumElevationDeg = _settings.Current.MinimumElevationDeg;
             PassPredictionHours = _settings.Current.PassPredictionHours;
             ThemePreference = _settings.Current.Theme;
@@ -2185,6 +2191,16 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         target.LongitudeDeg = source.LongitudeDeg;
         target.AltitudeMetersAsl = source.AltitudeMetersAsl;
         target.GridSquare = NormalizeGridSquare(source.GridSquare);
+        target.HorizonMask = source.HorizonMask?.Clone() ?? new HorizonMask();
+    }
+
+    private HorizonMask BuildHorizonMaskFromEditor()
+    {
+        var mask = new HorizonMask();
+        foreach (var p in HorizonMaskPoints)
+            mask.Points.Add(new HorizonMaskPoint(p.AzimuthDeg, p.ElevationDeg));
+        mask.Normalize();
+        return mask;
     }
 
     private static string NormalizeGridSquare(string? value) =>

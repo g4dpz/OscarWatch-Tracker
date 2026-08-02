@@ -22,7 +22,7 @@ See [building rotator drivers](documents/building-rotator-drivers.md).
 ## Operations & UX
 
 - [ ] **Pass radar gallery (phase 2+)** — follow-ups after pass-planner gallery (phase 1 shipped):
-  - [ ] **Horizon mask** — per-station obstructions (trees, buildings) drawn on polar plots; optional grey/clip below mask
+  - [x] **Horizon mask** — per-station obstructions (trees, buildings) drawn on polar plots; pass prediction uses `max(mask(az), min elevation)`; optional grey/clip below mask
   - [ ] **Direction arrows** along the pass track
   - [ ] **Single-colour path mode** — optional planner-style track (vs sunlit/eclipse segments)
   - [ ] **Denser elevation rings** — optional 15° / 45° / 75° rings on pass polar plots

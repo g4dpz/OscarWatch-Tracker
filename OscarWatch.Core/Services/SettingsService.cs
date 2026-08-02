@@ -208,6 +208,7 @@ public sealed class SettingsService : ISettingsService, IDisposable
         profile.LongitudeDeg = Current.GroundStation.LongitudeDeg;
         profile.AltitudeMetersAsl = Current.GroundStation.AltitudeMetersAsl;
         profile.GridSquare = Current.GroundStation.GridSquare;
+        profile.HorizonMask = Current.GroundStation.HorizonMask?.Clone() ?? new HorizonMask();
     }
 
     public void SyncGridFromLatLon()

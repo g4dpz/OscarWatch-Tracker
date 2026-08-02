@@ -3,6 +3,7 @@
         xmlns:vm="using:OscarWatch.ViewModels"
         xmlns:loc="using:OscarWatch.Localization"
         xmlns:models="using:OscarWatch.Core.Models"
+        xmlns:ctrl="using:OscarWatch.Controls"
         x:Class="OscarWatch.Views.PassPlanningWindow"
         x:DataType="vm:PassPlanningViewModel"
         Title="{loc:Localize Key=Window.PassPlanner.Title}"
@@ -108,6 +109,10 @@
                     VerticalAlignment="Bottom"
                     MinWidth="110" />
           </Grid>
+
+          <ctrl:HorizonMaskEditorControl Points="{Binding HorizonMaskPoints}"
+                                         MaxWidth="480"
+                                         HorizontalAlignment="Left" />
 
           <Grid ColumnDefinitions="*,*,*,2*"
                 ColumnSpacing="8"

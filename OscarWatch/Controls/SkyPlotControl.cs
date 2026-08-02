@@ -44,6 +44,9 @@ public class SkyPlotControl : ThemeAwareControl
     public static readonly StyledProperty<double?> RotatorElevationDegProperty =
         AvaloniaProperty.Register<SkyPlotControl, double?>(nameof(RotatorElevationDeg));
 
+    public static readonly StyledProperty<HorizonMask?> HorizonMaskProperty =
+        AvaloniaProperty.Register<SkyPlotControl, HorizonMask?>(nameof(HorizonMask));
+
     static SkyPlotControl()
     {
         AffectsRender<SkyPlotControl>(
@@ -52,7 +55,8 @@ public class SkyPlotControl : ThemeAwareControl
             SoloFocusedSatelliteProperty,
             PassPathProperty,
             RotatorAzimuthDegProperty,
-            RotatorElevationDegProperty);
+            RotatorElevationDegProperty,
+            HorizonMaskProperty);
     }
 
     public SkyPlotControl()
@@ -105,6 +109,12 @@ public class SkyPlotControl : ThemeAwareControl
     {
         get => GetValue(RotatorElevationDegProperty);
         set => SetValue(RotatorElevationDegProperty, value);
+    }
+
+    public HorizonMask? HorizonMask
+    {
+        get => GetValue(HorizonMaskProperty);
+        set => SetValue(HorizonMaskProperty, value);
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -316,6 +326,7 @@ public class SkyPlotControl : ThemeAwareControl
         context.FillRectangle(_renderCache.GetBrush(palette.SkyPlotBackground), local);
 
         DrawHorizonDisk(context, cx, cy, plotRadius, palette);
+        HorizonMaskPlotDrawing.DrawObstruction(context, cx, cy, plotRadius, HorizonMask, _renderCache);
         DrawElevationRing(context, cx, cy, plotRadius, 30, palette.SkyPlotRing30, 1);
         DrawElevationRing(context, cx, cy, plotRadius, 60, palette.SkyPlotRing60, 1);
 
@@ -357,7 +368,7 @@ public class SkyPlotControl : ThemeAwareControl
                 color,
                 isFocused,
                 _renderCache,
-                la.ElevationDeg < MinimumElevationDeg);
+                la.ElevationDeg < (HorizonMask?.EffectiveFloor(la.AzimuthDeg, MinimumElevationDeg) ?? MinimumElevationDeg));
         }
 
         // Update position cache after rendering all satellites

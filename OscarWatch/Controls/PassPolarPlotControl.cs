@@ -35,9 +35,12 @@ public class PassPolarPlotControl : ThemeAwareControl
     public static readonly StyledProperty<bool> Use24HourClockProperty =
         AvaloniaProperty.Register<PassPolarPlotControl, bool>(nameof(Use24HourClock));
 
+    public static readonly StyledProperty<HorizonMask?> HorizonMaskProperty =
+        AvaloniaProperty.Register<PassPolarPlotControl, HorizonMask?>(nameof(HorizonMask));
+
     static PassPolarPlotControl()
     {
-        AffectsRender<PassPolarPlotControl>(PlotDataProperty, MinimumElevationDegProperty);
+        AffectsRender<PassPolarPlotControl>(PlotDataProperty, MinimumElevationDegProperty, HorizonMaskProperty);
     }
 
     public PassPolarPlotControl()
@@ -79,6 +82,12 @@ public class PassPolarPlotControl : ThemeAwareControl
         set => SetValue(Use24HourClockProperty, value);
     }
 
+    public HorizonMask? HorizonMask
+    {
+        get => GetValue(HorizonMaskProperty);
+        set => SetValue(HorizonMaskProperty, value);
+    }
+
     public override void Render(DrawingContext context)
     {
         var w = Bounds.Width;
@@ -92,6 +101,7 @@ public class PassPolarPlotControl : ThemeAwareControl
 
         context.FillRectangle(_renderCache.GetBrush(palette.SkyPlotBackground), local);
         DrawHorizonDisk(context, cx, cy, plotRadius, palette);
+        HorizonMaskPlotDrawing.DrawObstruction(context, cx, cy, plotRadius, HorizonMask, _renderCache);
         DrawElevationRing(context, cx, cy, plotRadius, 30, palette.SkyPlotRing30, 1);
         DrawElevationRing(context, cx, cy, plotRadius, 60, palette.SkyPlotRing60, 1);
 

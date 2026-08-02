@@ -9,13 +9,17 @@ public sealed class StationProfile
     public double AltitudeMetersAsl { get; set; } = 50;
     public string GridSquare { get; set; } = "IO91wm";
 
+    /// <summary>Optional skyline; empty means unused (scalar min elevation only).</summary>
+    public HorizonMask HorizonMask { get; set; } = new();
+
     public GroundStation ToGroundStation() => new()
     {
         DisplayName = DisplayName,
         LatitudeDeg = LatitudeDeg,
         LongitudeDeg = LongitudeDeg,
         AltitudeMetersAsl = AltitudeMetersAsl,
-        GridSquare = GridSquare
+        GridSquare = GridSquare,
+        HorizonMask = HorizonMask?.Clone() ?? new HorizonMask()
     };
 
     public static StationProfile FromGroundStation(GroundStation gs, string? id = null) => new()
@@ -25,6 +29,7 @@ public sealed class StationProfile
         LatitudeDeg = gs.LatitudeDeg,
         LongitudeDeg = gs.LongitudeDeg,
         AltitudeMetersAsl = gs.AltitudeMetersAsl,
-        GridSquare = gs.GridSquare
+        GridSquare = gs.GridSquare,
+        HorizonMask = gs.HorizonMask?.Clone() ?? new HorizonMask()
     };
 }

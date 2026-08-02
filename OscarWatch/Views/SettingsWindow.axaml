@@ -79,6 +79,15 @@
             <NumericUpDown Value="{Binding AltitudeMeters, Mode=TwoWay}"
                            Minimum="0" Maximum="9000"
                            Increment="0.1" FormatString="F1" />
+            <TextBlock Text="{loc:Localize Key=Settings.Station.HorizonMask}"
+                       FontWeight="SemiBold" />
+            <TextBlock Text="{loc:Localize Key=Settings.Station.HorizonMaskSummary}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <Button Content="{loc:Localize Key=Settings.Station.HorizonMaskEdit}"
+                    HorizontalAlignment="Left"
+                    Click="OnEditHorizonMaskClick" />
           </StackPanel>
         </ScrollViewer>
       </TabItem>

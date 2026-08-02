@@ -2283,7 +2283,8 @@ public partial class MainViewModel : ViewModelBase
             LatitudeDeg = gs.LatitudeDeg,
             LongitudeDeg = gs.LongitudeDeg,
             AltitudeMetersAsl = gs.AltitudeMetersAsl,
-            GridSquare = gs.GridSquare
+            GridSquare = gs.GridSquare,
+            HorizonMask = gs.HorizonMask?.Clone() ?? new HorizonMask()
         };
         RefreshMapCentreLongitude();
     }
