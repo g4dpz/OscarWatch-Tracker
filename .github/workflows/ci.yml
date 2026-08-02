@@ -1,0 +1,30 @@
+# Build and test on pull requests.
+# Complements publish.yml, which only builds/tests on a version-tag push or
+# manual dispatch — this workflow is the one that actually gates PRs.
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_VERSION: "10.0.x"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - run: dotnet build OscarWatch.slnx -c Release
+
+      - run: dotnet test OscarWatch.slnx -c Release --no-build
