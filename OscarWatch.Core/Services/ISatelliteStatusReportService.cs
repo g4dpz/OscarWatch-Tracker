@@ -19,6 +19,12 @@ public sealed record SatelliteStatusReportRequest(
 
 public static class SatelliteStatusReportFormatting
 {
+    /// <summary>Reports require elevation at or above this value (degrees).</summary>
+    public const double MinimumElevationDeg = -1.0;
+
+    public static bool IsElevationReportable(double? elevationDeg) =>
+        elevationDeg is >= MinimumElevationDeg;
+
     /// <summary>Normalise a Maidenhead gridsquare to 4 or 6 characters for the status API.</summary>
     public static string? NormalizeGridsquare(string? grid)
     {

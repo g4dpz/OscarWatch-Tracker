@@ -745,7 +745,7 @@
     <value>報告</value>
   </data>
   <data name="Freq.ReportStatusToolTip">
-    <value>フォーカス中の衛星とモードの状態を OscarWatch.org に報告</value>
+    <value>フォーカス中の衛星とモードの状態を OscarWatch.org に報告（仰角 −1° 以上）</value>
   </data>
   <data name="Freq.StoredOffsetCleared">
     <value>保存したオフセットをクリアしました。</value>
@@ -1616,6 +1616,9 @@
   </data>
   <data name="SatStatus.Report.Failed">
     <value>衛星ステータス報告に失敗 — {0}</value>
+  </data>
+  <data name="SatStatus.Report.BelowElevation">
+    <value>衛星ステータスは仰角が −1° 以上のときのみ報告できます。</value>
   </data>
   <data name="Settings.SatelliteLink.Section">
     <value>Satellite link</value>

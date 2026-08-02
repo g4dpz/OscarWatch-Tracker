@@ -1681,7 +1681,7 @@
     <value>报告</value>
   </data>
   <data name="Freq.ReportStatusToolTip">
-    <value>向 OscarWatch.org 报告当前卫星与模式的状态</value>
+    <value>向 OscarWatch.org 报告当前卫星与模式的状态（仰角至少 −1°）</value>
   </data>
   <data name="Freq.StoredOffsetCleared">
     <value>已清除已存偏移。</value>
@@ -2477,6 +2477,9 @@
   </data>
   <data name="SatStatus.Report.Failed">
     <value>卫星状态报告失败 — {0}</value>
+  </data>
+  <data name="SatStatus.Report.BelowElevation">
+    <value>仅当仰角至少为 −1° 时可报告卫星状态。</value>
   </data>
   <data name="Settings.SatelliteLink.Section">
     <value>Satellite link</value>

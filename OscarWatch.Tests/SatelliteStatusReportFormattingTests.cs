@@ -16,4 +16,16 @@ public sealed class SatelliteStatusReportFormattingTests
     {
         Assert.Equal(expected, SatelliteStatusReportFormatting.NormalizeGridsquare(input));
     }
+
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData(-1.01, false)]
+    [InlineData(-2.0, false)]
+    [InlineData(-1.0, true)]
+    [InlineData(0.0, true)]
+    [InlineData(45.0, true)]
+    public void IsElevationReportable_requires_at_least_minus_one(double? elevation, bool expected)
+    {
+        Assert.Equal(expected, SatelliteStatusReportFormatting.IsElevationReportable(elevation));
+    }
 }

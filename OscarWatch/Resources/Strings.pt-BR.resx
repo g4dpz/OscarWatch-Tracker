@@ -1681,7 +1681,7 @@ Continuar?</value>
     <value>Reportar</value>
   </data>
   <data name="Freq.ReportStatusToolTip">
-    <value>Reportar o estado do satélite ao OscarWatch.org para o satélite e modo em foco</value>
+    <value>Reportar o estado do satélite ao OscarWatch.org para o satélite e modo em foco (elevação mínima −1°)</value>
   </data>
   <data name="Freq.StoredOffsetCleared">
     <value>Offset armazenado apagado.</value>
@@ -2477,6 +2477,9 @@ Continuar?</value>
   </data>
   <data name="SatStatus.Report.Failed">
     <value>Falha ao reportar estado do satélite — {0}</value>
+  </data>
+  <data name="SatStatus.Report.BelowElevation">
+    <value>O estado do satélite só pode ser reportado com elevação de pelo menos −1°.</value>
   </data>
   <data name="Settings.SatelliteLink.Section">
     <value>Satellite link</value>

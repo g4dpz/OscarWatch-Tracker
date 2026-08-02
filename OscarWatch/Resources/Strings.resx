@@ -1771,7 +1771,7 @@ Continue?</value>
     <value>Report</value>
   </data>
   <data name="Freq.ReportStatusToolTip">
-    <value>Report satellite status to OscarWatch.org for the focused satellite and mode</value>
+    <value>Report satellite status to OscarWatch.org for the focused satellite and mode (elevation must be at least −1°)</value>
   </data>
   <data name="Freq.StoredOffsetCleared">
     <value>Stored offset cleared.</value>
@@ -2594,6 +2594,9 @@ Continue?</value>
   </data>
   <data name="SatStatus.Report.Failed">
     <value>Satellite status report failed — {0}</value>
+  </data>
+  <data name="SatStatus.Report.BelowElevation">
+    <value>Satellite status can only be reported when elevation is at least −1°.</value>
   </data>
   <data name="Settings.SatelliteLink.Section">
     <value>Satellite Link</value>

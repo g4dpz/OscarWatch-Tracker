@@ -2125,6 +2125,13 @@ public partial class MainViewModel : ViewModelBase
         if (cfg is not { Enabled: true } || string.IsNullOrWhiteSpace(cfg.ApiToken))
             return;
 
+        var elevationDeg = Frequencies.TryGetFocusedElevationDeg();
+        if (!SatelliteStatusReportFormatting.IsElevationReportable(elevationDeg))
+        {
+            StatusText = _l.Get("SatStatus.Report.BelowElevation");
+            return;
+        }
+
         var window = new SatelliteStatusReportWindow(satellite, modeType, _l);
         var confirmed = await window.ShowDialog<bool?>(App.MainWindow).ConfigureAwait(true) == true;
         if (!confirmed)

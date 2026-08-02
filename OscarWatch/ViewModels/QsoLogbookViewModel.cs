@@ -362,7 +362,9 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
 
         var satellite = snapshot.SatelliteName?.Trim() ?? "";
         var modeType = snapshot.ModeType?.Trim() ?? "";
-        if (string.IsNullOrWhiteSpace(satellite) || string.IsNullOrWhiteSpace(modeType))
+        if (string.IsNullOrWhiteSpace(satellite)
+            || string.IsNullOrWhiteSpace(modeType)
+            || !SatelliteStatusReportFormatting.IsElevationReportable(snapshot.ElevationDeg))
             return;
 
         var request = new SatelliteStatusReportRequest(

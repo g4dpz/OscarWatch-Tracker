@@ -855,6 +855,25 @@ public class FrequencyOverlayViewModelTests
         settings.Current.SatelliteStatus.Enabled = false;
         vm.RefreshSatelliteStatusReportAvailability();
         Assert.False(vm.CanReportSatelliteStatus);
+
+        settings.Current.SatelliteStatus.Enabled = true;
+        vm.Update(new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "44909",
+            Subpoint = new GeoCoordinate(57, 18),
+            LookAngles = new LookAngles(180, -1.0, 800, 0)
+        });
+        Assert.True(vm.CanReportSatelliteStatus);
+
+        vm.Update(new SatelliteTrackState
+        {
+            Name = "RS-44",
+            NoradId = "44909",
+            Subpoint = new GeoCoordinate(57, 18),
+            LookAngles = new LookAngles(180, -1.01, 800, 0)
+        });
+        Assert.False(vm.CanReportSatelliteStatus);
     }
 
     private static TestSatelliteDatabaseService CreateRs44Database() =>

@@ -1705,7 +1705,7 @@
     <value>Informar</value>
   </data>
   <data name="Freq.ReportStatusToolTip">
-    <value>Informar el estado del satélite a OscarWatch.org para el satélite y modo enfocados</value>
+    <value>Informar el estado del satélite a OscarWatch.org para el satélite y modo enfocados (elevación mínima −1°)</value>
   </data>
   <data name="Freq.StoredOffsetCleared">
     <value>Desplazamiento guardado borrado.</value>
@@ -2501,6 +2501,9 @@
   </data>
   <data name="SatStatus.Report.Failed">
     <value>Error al informar el estado del satélite — {0}</value>
+  </data>
+  <data name="SatStatus.Report.BelowElevation">
+    <value>Solo se puede informar el estado del satélite con elevación de al menos −1°.</value>
   </data>
   <data name="Settings.SatelliteLink.Section">
     <value>Satellite link</value>

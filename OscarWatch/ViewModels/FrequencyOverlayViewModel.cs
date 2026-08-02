@@ -261,14 +261,19 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
     public void RefreshSatelliteStatusReportAvailability() => UpdateCanReportSatelliteStatus();
 
+    /// <summary>Elevation of the track state last applied to the overlay, if known.</summary>
+    public double? TryGetFocusedElevationDeg() => _lastTrackState?.LookAngles?.ElevationDeg;
+
     private void UpdateCanReportSatelliteStatus()
     {
         var cfg = _settings.Current.SatelliteStatus;
+        var elevationDeg = _lastTrackState?.LookAngles?.ElevationDeg;
         var can = cfg is { Enabled: true }
                   && !string.IsNullOrWhiteSpace(cfg.ApiToken)
                   && !string.IsNullOrWhiteSpace(_currentSatelliteName)
                   && SelectedMode is not null
-                  && !string.IsNullOrWhiteSpace(SelectedMode.Type);
+                  && !string.IsNullOrWhiteSpace(SelectedMode.Type)
+                  && SatelliteStatusReportFormatting.IsElevationReportable(elevationDeg);
 
         if (CanReportSatelliteStatus == can)
         {
