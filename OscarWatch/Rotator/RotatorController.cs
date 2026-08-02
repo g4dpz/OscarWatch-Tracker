@@ -802,6 +802,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _lastAzimuth = Math.Round(commandAz);
             _lastElevation = Math.Round(commandEl);
             _parked = false;
+            // Poll before the worker signals command completion so GetPositionStatus
+            // reflects commanded az/el without waiting for the next loop iteration.
+            PollPosition();
         }
         catch (Exception ex)
         {

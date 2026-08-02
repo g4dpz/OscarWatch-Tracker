@@ -9,7 +9,7 @@ public sealed class RotatorControllerTests
     public void Update_runs_on_worker_thread_and_tracks_satellite()
     {
         var rotator = new RecordingRotatorDriver();
-        var controller = new RotatorController(_ => rotator);
+        using var controller = new RotatorController(_ => rotator);
         var settings = new RotatorSettings
         {
             Enabled = true,
