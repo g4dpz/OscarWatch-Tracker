@@ -38,6 +38,15 @@ public static class SatelliteStatusReportFormatting
             return g[..4];
         return null;
     }
+
+    public static SatelliteCommunityStatusKind ParseCommunityStatus(string? status) =>
+        (status ?? "").Trim().ToLowerInvariant() switch
+        {
+            "on" => SatelliteCommunityStatusKind.On,
+            "off" => SatelliteCommunityStatusKind.Off,
+            "telemetry_only" => SatelliteCommunityStatusKind.TelemetryOnly,
+            _ => SatelliteCommunityStatusKind.Unknown
+        };
 }
 
 public sealed record SatelliteStatusReportResult(
@@ -60,5 +69,10 @@ public interface ISatelliteStatusReportService
     Task<SatelliteStatusReportResult> SubmitReportAsync(
         SatelliteStatusSettings settings,
         SatelliteStatusReportRequest request,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>Public community aggregate (no Bearer). Soft-fails on network errors.</summary>
+    Task<SatelliteStatusFetchResult> FetchCommunityAsync(
+        SatelliteStatusSettings settings,
         CancellationToken cancellationToken = default);
 }

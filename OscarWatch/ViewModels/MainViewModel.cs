@@ -43,10 +43,17 @@ public partial class MainViewModel : ViewModelBase
     private readonly IGitHubReleaseService _githubRelease;
     private readonly IHamsAtRovesService _hamsAtRoves;
     private readonly ISatelliteStatusReportService _satelliteStatus;
+    private readonly ISatelliteDatabaseService _satelliteDatabase;
     private readonly ILocalizationService _l;
     private readonly LiveTrackerSnapshotProvider _trackerSnapshot;
     private readonly DispatcherTimer _timer;
     private DispatcherTimer? _appUpdateCheckTimer;
+    private DispatcherTimer? _satelliteStatusRefreshTimer;
+    private SatelliteCommunityCatalog? _communityStatusCatalog;
+    private DateTime _communityStatusFetchedAtUtc;
+    private bool _communityStatusFeatureUnavailable;
+    private bool _communityStatusFetchInFlight;
+    private DateTime _communityStatusLastWarnUtc = DateTime.MinValue;
     private static readonly TimeSpan AppUpdateCheckInterval = TimeSpan.FromHours(24);
     private string? _lastCloudlogErrorShown;
     private string? _recordingPassNoradId;
@@ -386,6 +393,7 @@ public partial class MainViewModel : ViewModelBase
         IGitHubReleaseService githubRelease,
         IHamsAtRovesService hamsAtRoves,
         ISatelliteStatusReportService satelliteStatus,
+        ISatelliteDatabaseService satelliteDatabase,
         ILocalizationService localization,
         FrequencyOverlayViewModel frequencies,
         DxStationOverlayViewModel dxStation,
@@ -415,9 +423,20 @@ public partial class MainViewModel : ViewModelBase
         _githubRelease = githubRelease;
         _hamsAtRoves = hamsAtRoves;
         _satelliteStatus = satelliteStatus;
+        _satelliteDatabase = satelliteDatabase;
         Frequencies = frequencies;
         DxStation = dxStation;
-        Frequencies.OffsetsChanged += (_, reinitializePass) => RefreshRigFromOverlay(reinitializePass);
+        Frequencies.OffsetsChanged += (_, reinitializePass) =>
+        {
+            RefreshRigFromOverlay(reinitializePass);
+            UpdateCommunityStatusDisplays();
+            _ = RefreshCommunityStatusAsync();
+        };
+        Frequencies.CommunityStatusContextChanged += (_, _) =>
+        {
+            UpdateCommunityStatusDisplays();
+            _ = RefreshCommunityStatusAsync();
+        };
         Frequencies.CtcssChanged += (_, _) => OnCtcssSelectorChanged();
         Frequencies.LeadTuningChanged += (_, _) => RefreshRigFromOverlay(reinitializePass: false);
         Frequencies.ReportSatelliteStatusRequested += (_, _) => _ = OpenSatelliteStatusReportAsync();
@@ -716,6 +735,8 @@ public partial class MainViewModel : ViewModelBase
         _timer.Start();
         ConfigurePassListRefreshTimer();
         ConfigureHamsAtRefreshTimer();
+        ConfigureSatelliteStatusRefreshTimer();
+        _ = RefreshCommunityStatusAsync();
         _liveDisplayTimer?.Start();
 
         // Phase 3: Fire pass prediction on background thread (non-blocking)
@@ -946,6 +967,7 @@ public partial class MainViewModel : ViewModelBase
         }
 
         UpdatePassHighlightState();
+        UpdateCommunityStatusDisplays();
     }
 
     private void RefreshHamsAtRoveClockDisplay()
@@ -2161,6 +2183,232 @@ public partial class MainViewModel : ViewModelBase
                 ? _l.Get("SatStatus.Report.Stored")
                 : _l.Get("SatStatus.Report.Duplicate"))
             : _l.Get("SatStatus.Report.Failed", result.Message);
+
+        if (result.Ok)
+            _ = RefreshCommunityStatusAsync(force: true);
+    }
+
+    private void ConfigureSatelliteStatusRefreshTimer()
+    {
+        _satelliteStatusRefreshTimer?.Stop();
+        _satelliteStatusRefreshTimer = null;
+
+        if (!_settings.Current.SatelliteStatus.Enabled)
+        {
+            ClearCommunityStatusUi();
+            return;
+        }
+
+        _communityStatusFeatureUnavailable = false;
+
+        _satelliteStatusRefreshTimer = new DispatcherTimer
+        {
+            Interval = SatelliteStatusCommunityPresentation.CacheTtl
+        };
+        _satelliteStatusRefreshTimer.Tick += (_, _) => _ = RefreshCommunityStatusAsync();
+        _satelliteStatusRefreshTimer.Start();
+    }
+
+    private async Task RefreshCommunityStatusAsync(bool force = false)
+    {
+        if (!_settings.Current.SatelliteStatus.Enabled)
+        {
+            ClearCommunityStatusUi();
+            return;
+        }
+
+        if (_communityStatusFeatureUnavailable && !force)
+        {
+            ClearCommunityStatusUi();
+            return;
+        }
+
+        var now = DateTime.UtcNow;
+        if (!force
+            && _communityStatusCatalog is not null
+            && SatelliteStatusCommunityPresentation.IsCacheFresh(_communityStatusFetchedAtUtc, now))
+        {
+            UpdateCommunityStatusDisplays();
+            return;
+        }
+
+        if (_communityStatusFetchInFlight)
+            return;
+
+        _communityStatusFetchInFlight = true;
+        try
+        {
+            var settings = _settings.Current.SatelliteStatus;
+            var result = await _satelliteStatus.FetchCommunityAsync(settings).ConfigureAwait(false);
+
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                if (result.FeatureUnavailable)
+                {
+                    _communityStatusFeatureUnavailable = true;
+                    _communityStatusCatalog = null;
+                    ClearCommunityStatusUi();
+                    return;
+                }
+
+                if (result.Ok && result.Catalog is not null)
+                {
+                    _communityStatusFeatureUnavailable = false;
+                    _communityStatusCatalog = result.Catalog;
+                    _communityStatusFetchedAtUtc = result.Catalog.FetchedAtUtc;
+                    UpdateCommunityStatusDisplays();
+                    return;
+                }
+
+                // Soft fail: keep last-good while still within TTL.
+                if (_communityStatusCatalog is not null
+                    && SatelliteStatusCommunityPresentation.IsCacheFresh(_communityStatusFetchedAtUtc, DateTime.UtcNow))
+                {
+                    UpdateCommunityStatusDisplays();
+                }
+                else
+                {
+                    _communityStatusCatalog = null;
+                    ClearCommunityStatusUi();
+                }
+
+                if (now - _communityStatusLastWarnUtc > TimeSpan.FromMinutes(5))
+                {
+                    _communityStatusLastWarnUtc = now;
+                    Log.Warning("Community satellite status fetch failed: {Message}", result.Message);
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Community satellite status fetch failed");
+            await Dispatcher.UIThread.InvokeAsync(ClearCommunityStatusUi);
+        }
+        finally
+        {
+            _communityStatusFetchInFlight = false;
+        }
+    }
+
+    private void ClearCommunityStatusUi()
+    {
+        Frequencies.ClearCommunityStatus();
+        foreach (var row in Passes.OfType<PassRowViewModel>())
+            row.ClearCommunityStatus();
+    }
+
+    private void UpdateCommunityStatusDisplays()
+    {
+        if (!_settings.Current.SatelliteStatus.Enabled
+            || _communityStatusFeatureUnavailable
+            || _communityStatusCatalog is null
+            || !SatelliteStatusCommunityPresentation.IsCacheFresh(_communityStatusFetchedAtUtc, DateTime.UtcNow))
+        {
+            ClearCommunityStatusUi();
+            return;
+        }
+
+        var utcNow = DateTime.UtcNow;
+        var catalog = _communityStatusCatalog;
+        string Localize(string key, params object?[] args) =>
+            args.Length == 0 ? _l.Get(key) : _l.Get(key, args!);
+
+        // Overlay: selected mode.
+        var satName = Frequencies.SatelliteName;
+        var modeType = Frequencies.SelectedMode?.Type;
+        if (string.IsNullOrWhiteSpace(satName)
+            || satName == "—"
+            || string.IsNullOrWhiteSpace(modeType))
+        {
+            Frequencies.ClearCommunityStatus();
+        }
+        else
+        {
+            var mode = catalog.TryGetMode(satName, modeType);
+            if (mode is null)
+            {
+                Frequencies.ClearCommunityStatus();
+            }
+            else
+            {
+                var stale = SatelliteStatusCommunityPresentation.IsStale(mode.NewestReportUtc, utcNow);
+                Frequencies.ApplyCommunityStatus(
+                    show: true,
+                    mode.Kind,
+                    SatelliteStatusCommunityPresentation.ShortLabel(
+                        mode.Kind,
+                        (key, args) => Localize(key, args)),
+                    SatelliteStatusCommunityPresentation.BuildOverlayToolTip(
+                        mode,
+                        catalog.WindowHours,
+                        utcNow,
+                        (key, args) => Localize(key, args)),
+                    stale);
+            }
+        }
+
+        // Pass list dots.
+        foreach (var row in Passes.OfType<PassRowViewModel>())
+        {
+            var selections = _settings.Current.FrequencySelections;
+            var resolvedMode = SatelliteStatusCommunityPresentation.ResolvePassRowModeType(
+                row.SatelliteName,
+                row.NoradId,
+                selections,
+                _satelliteDatabase);
+
+            if (string.IsNullOrWhiteSpace(resolvedMode))
+            {
+                row.ClearCommunityStatus();
+                continue;
+            }
+
+            var communitySat = catalog.TryGetSatellite(row.SatelliteName);
+            // Prefer catalogue name from DB for lookup.
+            var entry = _satelliteDatabase.TryGetEntry(row.SatelliteName, row.NoradId);
+            var lookupName = entry?.Name ?? row.SatelliteName;
+            communitySat ??= catalog.TryGetSatellite(lookupName);
+
+            var modeStatus = catalog.TryGetMode(lookupName, resolvedMode)
+                             ?? catalog.TryGetMode(row.SatelliteName, resolvedMode);
+            if (modeStatus is null && communitySat is null)
+            {
+                row.ClearCommunityStatus();
+                continue;
+            }
+
+            var kind = modeStatus?.Kind ?? SatelliteCommunityStatusKind.Unknown;
+            var stale = SatelliteStatusCommunityPresentation.IsStale(modeStatus?.NewestReportUtc, utcNow);
+            var storageKey = entry?.Name?.Trim() ?? row.SatelliteName.Trim();
+            var fromSelection = selections.TryGetValue(storageKey, out var sel)
+                                && string.Equals(sel.ModeType, resolvedMode, StringComparison.OrdinalIgnoreCase);
+
+            var catalogueModes = SatelliteStatusCommunityPresentation.CatalogueModeTypes(
+                row.SatelliteName,
+                row.NoradId,
+                _satelliteDatabase);
+
+            var tip = SatelliteStatusCommunityPresentation.BuildPassToolTip(
+                lookupName,
+                resolvedMode,
+                fromSelection,
+                catalogueModes,
+                communitySat,
+                catalog.WindowHours,
+                utcNow,
+                (key, args) => Localize(key, args));
+
+            var autoName = _l.Get(
+                "SatStatus.Community.PassAutomation",
+                lookupName,
+                resolvedMode,
+                SatelliteStatusCommunityPresentation.FullLabel(
+                    kind,
+                    modeStatus?.StatusLabel,
+                    (key, args) => Localize(key, args)));
+
+            row.ApplyCommunityStatus(kind, stale, tip, autoName);
+        }
     }
 
     private static string? NormalizeReportGridsquare(string? grid) =>
@@ -2237,6 +2485,8 @@ public partial class MainViewModel : ViewModelBase
         ApplyHamsAtSidebarSettings();
         ConfigureHamsAtRefreshTimer();
         await RefreshHamsAtRovesAsync().ConfigureAwait(true);
+        ConfigureSatelliteStatusRefreshTimer();
+        _ = RefreshCommunityStatusAsync();
         await ReloadTleCatalogAfterSettingsAsync().ConfigureAwait(true);
         _liveTracking.RequestReload();
         _rotator.Disconnect();
@@ -2710,6 +2960,7 @@ public partial class MainViewModel : ViewModelBase
                     SelectedListItem = Passes.OfType<PassRowViewModel>().FirstOrDefault(p => p.NoradId == selectedNorad);
 
                 UpdatePassHighlightState();
+                UpdateCommunityStatusDisplays();
 
                 // Update the timeline passes for the elevation timeline control
                 TimelinePasses = merged.Take(50).ToList();
@@ -2747,6 +2998,33 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
     [ObservableProperty]
     private bool _showBadge;
 
+    [ObservableProperty]
+    private bool _showCommunityStatusDot;
+
+    [ObservableProperty]
+    private bool _isCommunityStatusDotStale;
+
+    [ObservableProperty]
+    private double _communityStatusDotOpacity = 1.0;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CommunityStatusIsOn))]
+    [NotifyPropertyChangedFor(nameof(CommunityStatusIsOff))]
+    [NotifyPropertyChangedFor(nameof(CommunityStatusIsTelem))]
+    [NotifyPropertyChangedFor(nameof(CommunityStatusIsUnknown))]
+    private SatelliteCommunityStatusKind _communityStatusKind = SatelliteCommunityStatusKind.Unknown;
+
+    [ObservableProperty]
+    private string _communityStatusToolTip = "";
+
+    [ObservableProperty]
+    private string _communityStatusAutomationName = "";
+
+    public bool CommunityStatusIsOn => CommunityStatusKind == SatelliteCommunityStatusKind.On;
+    public bool CommunityStatusIsOff => CommunityStatusKind == SatelliteCommunityStatusKind.Off;
+    public bool CommunityStatusIsTelem => CommunityStatusKind == SatelliteCommunityStatusKind.TelemetryOnly;
+    public bool CommunityStatusIsUnknown => CommunityStatusKind == SatelliteCommunityStatusKind.Unknown;
+
     public PassInfo Source { get; init; } = null!;
     public string SatelliteName { get; init; } = "";
     public string NoradId { get; init; } = "";
@@ -2760,6 +3038,30 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
     public DateTime AosUtc { get; init; }
     public DateTime LosUtc { get; init; }
     public DateTime MaxElevationUtc { get; init; }
+
+    public void ClearCommunityStatus()
+    {
+        ShowCommunityStatusDot = false;
+        IsCommunityStatusDotStale = false;
+        CommunityStatusDotOpacity = 1.0;
+        CommunityStatusKind = SatelliteCommunityStatusKind.Unknown;
+        CommunityStatusToolTip = "";
+        CommunityStatusAutomationName = "";
+    }
+
+    public void ApplyCommunityStatus(
+        SatelliteCommunityStatusKind kind,
+        bool stale,
+        string toolTip,
+        string automationName)
+    {
+        ShowCommunityStatusDot = true;
+        CommunityStatusKind = kind;
+        IsCommunityStatusDotStale = stale;
+        CommunityStatusDotOpacity = stale ? 0.55 : 1.0;
+        CommunityStatusToolTip = toolTip;
+        CommunityStatusAutomationName = automationName;
+    }
 
     public void UpdateDisplay(DateTime utcNow, TimeSpan imminentWindow, bool isRecording)
     {

@@ -2590,13 +2590,61 @@ Continue?</value>
     <value>Satellite status report stored.</value>
   </data>
   <data name="SatStatus.Report.Duplicate">
-    <value>Duplicate report — already stored recently.</value>
+    <value>Duplicate report - already stored recently.</value>
   </data>
   <data name="SatStatus.Report.Failed">
-    <value>Satellite status report failed — {0}</value>
+    <value>Satellite status report failed: {0}</value>
   </data>
   <data name="SatStatus.Report.BelowElevation">
     <value>Satellite status can only be reported when elevation is at least −1°.</value>
+  </data>
+  <data name="SatStatus.Community.OverlayTitle">
+    <value>Community status (selected mode)</value>
+  </data>
+  <data name="SatStatus.Community.PassTitle">
+    <value>{0} · community status ({1}h)</value>
+  </data>
+  <data name="SatStatus.Community.ReportCount">
+    <value>Reports in window: {0}</value>
+  </data>
+  <data name="SatStatus.Community.LastReport">
+    <value>Last report {0}</value>
+  </data>
+  <data name="SatStatus.Community.LastReportInline">
+    <value>last report {0}</value>
+  </data>
+  <data name="SatStatus.Community.StaleNote">
+    <value>Latest report is older than 3 hours</value>
+  </data>
+  <data name="SatStatus.Community.WindowNote">
+    <value>Community reports, last {0} hours</value>
+  </data>
+  <data name="SatStatus.Community.NoModeData">
+    <value>No mode data available</value>
+  </data>
+  <data name="SatStatus.Community.YourSelection">
+    <value>your last selection</value>
+  </data>
+  <data name="SatStatus.Community.DefaultMode">
+    <value>default</value>
+  </data>
+  <data name="SatStatus.Community.PassAutomation">
+    <value>{0}, {1}: {2}</value>
+  </data>
+  <data name="SatStatus.Community.Short.On">
+    <value>On</value>
+  </data>
+  <data name="SatStatus.Community.Short.Off">
+    <value>Off</value>
+  </data>
+  <data name="SatStatus.Community.Short.Telem">
+    <value>Telem.</value>
+  </data>
+  <data name="SatStatus.Community.Short.Unknown">
+    <value>?</value>
+  </data>
+  <data name="SatStatus.Community.NoRecentReports">
+    <value>No recent reports</value>
   </data>
   <data name="Settings.SatelliteLink.Section">
     <value>Satellite Link</value>

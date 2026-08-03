@@ -2473,13 +2473,61 @@
     <value>卫星状态报告已保存。</value>
   </data>
   <data name="SatStatus.Report.Duplicate">
-    <value>重复报告 — 近期已保存。</value>
+    <value>重复报告: 近期已保存。</value>
   </data>
   <data name="SatStatus.Report.Failed">
-    <value>卫星状态报告失败 — {0}</value>
+    <value>卫星状态报告失败: {0}</value>
   </data>
   <data name="SatStatus.Report.BelowElevation">
     <value>仅当仰角至少为 −1° 时可报告卫星状态。</value>
+  </data>
+  <data name="SatStatus.Community.OverlayTitle">
+    <value>社区状态（当前模式）</value>
+  </data>
+  <data name="SatStatus.Community.PassTitle">
+    <value>{0} · 社区状态（{1} 小时）</value>
+  </data>
+  <data name="SatStatus.Community.ReportCount">
+    <value>窗口内报告数：{0}</value>
+  </data>
+  <data name="SatStatus.Community.LastReport">
+    <value>最近报告 {0}</value>
+  </data>
+  <data name="SatStatus.Community.LastReportInline">
+    <value>最近报告 {0}</value>
+  </data>
+  <data name="SatStatus.Community.StaleNote">
+    <value>最近报告已超过 3 小时</value>
+  </data>
+  <data name="SatStatus.Community.WindowNote">
+    <value>社区报告，最近 {0} 小时</value>
+  </data>
+  <data name="SatStatus.Community.NoModeData">
+    <value>无模式数据</value>
+  </data>
+  <data name="SatStatus.Community.YourSelection">
+    <value>你上次的选择</value>
+  </data>
+  <data name="SatStatus.Community.DefaultMode">
+    <value>默认</value>
+  </data>
+  <data name="SatStatus.Community.PassAutomation">
+    <value>{0}，{1}：{2}</value>
+  </data>
+  <data name="SatStatus.Community.Short.On">
+    <value>开</value>
+  </data>
+  <data name="SatStatus.Community.Short.Off">
+    <value>关</value>
+  </data>
+  <data name="SatStatus.Community.Short.Telem">
+    <value>遥测</value>
+  </data>
+  <data name="SatStatus.Community.Short.Unknown">
+    <value>?</value>
+  </data>
+  <data name="SatStatus.Community.NoRecentReports">
+    <value>无近期报告</value>
   </data>
   <data name="Settings.SatelliteLink.Section">
     <value>Satellite link</value>

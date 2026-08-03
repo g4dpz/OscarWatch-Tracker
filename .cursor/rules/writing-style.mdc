@@ -1,0 +1,45 @@
+---
+description: Writing style - no em dashes; no ellipsis in titles
+alwaysApply: true
+---
+
+# Writing style
+
+## No em dashes
+
+Never use the em dash character (`—`, U+2014) in anything you write for this project.
+
+Applies to chat replies, commit messages, PR descriptions, UI strings (`Strings*.resx`), help HTML, README, TODO notes, code comments, and XML docs.
+
+| Avoid | Use |
+|-------|-----|
+| em dash (`—`) | comma, colon, parentheses, or a full stop and a new sentence |
+| spaced hyphen as a fake em dash (` - `) for asides | commas or parentheses |
+
+Unicode minus (`−`) for negative numbers (for example −1°) is fine. En dashes in numeric ranges are fine if the surrounding style already uses them; do not replace them with em dashes.
+
+```text
+Bad:  Happy path reads can stay lock-free — rebuild stays under the lock.
+Good: Happy path reads can stay lock-free. Rebuild stays under the lock.
+Good: Happy path reads can stay lock-free (rebuild stays under the lock).
+```
+
+## No ellipsis in titles
+
+Never use `...` or `…` in titles. Finish the thought with a complete phrase.
+
+Applies to:
+
+- Commit subject lines and PR titles
+- Window, dialogue, section, and menu titles
+- Help page `<title>` / headings used as titles
+- Localisation keys that are titles (for example `*.Title`)
+
+Status or progress copy in body text may still use ellipsis when it means “in progress” (for example “Testing connection…”). That must not appear in a title.
+
+```text
+Bad:  Add satellite status reporting...
+Good: Add OscarWatch.org satellite status reporting with optional QSO auto-On.
+```
+
+When editing existing text that breaks these rules, fix the lines you touch. Do not sweep the whole repo unless asked.

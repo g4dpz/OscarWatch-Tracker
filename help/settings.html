@@ -195,10 +195,14 @@
         Use <strong>Test connection</strong> to call <code>GET /api/v1/me</code>.
         When enabled, the frequency overlay shows a <strong>Report</strong> button so you can submit
         On / Off / Telemetry only for the focused satellite and selected mode.
-        Optionally enable <strong>Automatically report On when logging a QSO</strong> — each new live QSO
+        Optionally enable <strong>Automatically report On when logging a QSO</strong>: each new live QSO
         posts an On report using the QSO time and the focused satellite’s catalogue mode
         (edits do not re-report). Manual and automatic reports require elevation of at least
         <strong>−1°</strong>.
+        When the integration is enabled, OscarWatch also fetches public community status
+        (no API token required for reading): a chip on the frequency overlay for the selected mode,
+        and a colour dot on Upcoming Passes rows (tooltip lists each mode). Offline or failed fetches
+        hide those indicators without blocking tracking.
       </p>
 
       <h3>Cloudlog</h3>

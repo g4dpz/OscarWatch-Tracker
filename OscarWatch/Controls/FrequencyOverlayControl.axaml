@@ -183,6 +183,37 @@
       <Setter Property="BorderBrush" Value="#FF404040" />
       <Setter Property="Foreground" Value="#FF808080" />
     </Style>
+    <Style Selector="Border.community-status-chip">
+      <Setter Property="Padding" Value="6,2" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="Background" Value="#FF1E1E1E" />
+      <Setter Property="BorderBrush" Value="#FF505050" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+    <Style Selector="Border.community-status-chip.stale">
+      <Setter Property="Opacity" Value="0.55" />
+    </Style>
+    <Style Selector="TextBlock.community-status-label">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="#FFE0E0E0" />
+    </Style>
+    <Style Selector="Ellipse.community-status-dot">
+      <Setter Property="Fill" Value="#FF909090" />
+    </Style>
+    <Style Selector="Border.community-status-chip.on Ellipse.community-status-dot">
+      <Setter Property="Fill" Value="#FF3DDC84" />
+    </Style>
+    <Style Selector="Border.community-status-chip.off Ellipse.community-status-dot">
+      <Setter Property="Fill" Value="#FFE07070" />
+    </Style>
+    <Style Selector="Border.community-status-chip.telem Ellipse.community-status-dot">
+      <Setter Property="Fill" Value="#FFE0A040" />
+    </Style>
+    <Style Selector="Border.community-status-chip.unknown Ellipse.community-status-dot">
+      <Setter Property="Fill" Value="#FF909090" />
+    </Style>
     <Style Selector="Ellipse.doppler-lead-dot">
       <Setter Property="Width" Value="7" />
       <Setter Property="Height" Value="7" />
@@ -356,6 +387,23 @@
                       Spacing="6"
                       HorizontalAlignment="Right"
                       VerticalAlignment="Center">
+            <Border Classes="community-status-chip"
+                    Classes.stale="{Binding IsCommunityStatusStale}"
+                    Classes.on="{Binding CommunityStatusIsOn}"
+                    Classes.off="{Binding CommunityStatusIsOff}"
+                    Classes.telem="{Binding CommunityStatusIsTelem}"
+                    Classes.unknown="{Binding CommunityStatusIsUnknown}"
+                    IsVisible="{Binding ShowCommunityStatus}"
+                    ToolTip.Tip="{Binding CommunityStatusToolTip}"
+                    VerticalAlignment="Center"
+                    Margin="0,0,2,0">
+              <StackPanel Orientation="Horizontal" Spacing="5">
+                <Ellipse Width="8" Height="8" Classes="community-status-dot" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding CommunityStatusText}"
+                           Classes="community-status-label"
+                           VerticalAlignment="Center" />
+              </StackPanel>
+            </Border>
             <Button Classes="operating-style-header"
                     Content="{loc:Localize Key=Freq.ReportStatus}"
                     ToolTip.Tip="{loc:Localize Key=Freq.ReportStatusToolTip}"

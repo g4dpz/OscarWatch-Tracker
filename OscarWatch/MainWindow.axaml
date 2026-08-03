@@ -659,6 +659,16 @@
                                      FontFamily="Consolas,Courier New,monospace"
                                      Foreground="{Binding Highlight, Converter={x:Static theme:PassRowBadgeForegroundConverter.Instance}}" />
                         </Border>
+                        <Ellipse DockPanel.Dock="Left"
+                                 Width="8"
+                                 Height="8"
+                                 Margin="0,0,8,0"
+                                 VerticalAlignment="Center"
+                                 IsVisible="{Binding ShowCommunityStatusDot}"
+                                 Opacity="{Binding CommunityStatusDotOpacity}"
+                                 ToolTip.Tip="{Binding CommunityStatusToolTip}"
+                                 AutomationProperties.Name="{Binding CommunityStatusAutomationName}"
+                                 Fill="{Binding CommunityStatusKind, Converter={x:Static theme:CommunityStatusDotFillConverter.Instance}}" />
                         <TextBlock Text="{Binding SatelliteName}"
                                    FontWeight="SemiBold"
                                    FontSize="16"

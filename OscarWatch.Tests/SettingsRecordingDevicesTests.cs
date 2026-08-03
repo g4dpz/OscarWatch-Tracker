@@ -241,5 +241,10 @@ public sealed class SettingsRecordingDevicesTests
             SatelliteStatusReportRequest request,
             CancellationToken cancellationToken = default) =>
             Task.FromResult(new SatelliteStatusReportResult(true, true, "ok", 201));
+
+        public Task<SatelliteStatusFetchResult> FetchCommunityAsync(
+            SatelliteStatusSettings settings,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(new SatelliteStatusFetchResult(true, false, null, "ok", 200));
     }
 }

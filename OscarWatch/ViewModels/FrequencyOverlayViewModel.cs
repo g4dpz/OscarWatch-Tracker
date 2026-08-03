@@ -208,6 +208,30 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     [ObservableProperty]
     private bool _canReportSatelliteStatus;
 
+    [ObservableProperty]
+    private bool _showCommunityStatus;
+
+    [ObservableProperty]
+    private string _communityStatusText = "?";
+
+    [ObservableProperty]
+    private string _communityStatusToolTip = "";
+
+    [ObservableProperty]
+    private bool _isCommunityStatusStale;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CommunityStatusIsOn))]
+    [NotifyPropertyChangedFor(nameof(CommunityStatusIsOff))]
+    [NotifyPropertyChangedFor(nameof(CommunityStatusIsTelem))]
+    [NotifyPropertyChangedFor(nameof(CommunityStatusIsUnknown))]
+    private SatelliteCommunityStatusKind _communityStatusKind = SatelliteCommunityStatusKind.Unknown;
+
+    public bool CommunityStatusIsOn => CommunityStatusKind == SatelliteCommunityStatusKind.On;
+    public bool CommunityStatusIsOff => CommunityStatusKind == SatelliteCommunityStatusKind.Off;
+    public bool CommunityStatusIsTelem => CommunityStatusKind == SatelliteCommunityStatusKind.TelemetryOnly;
+    public bool CommunityStatusIsUnknown => CommunityStatusKind == SatelliteCommunityStatusKind.Unknown;
+
     public ObservableCollection<SatelliteTransponderMode> AvailableModes { get; } = [];
 
     /// <summary>Raised when the operator requests a satellite status report from the frequency overlay.</summary>
@@ -263,6 +287,23 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
 
     /// <summary>Elevation of the track state last applied to the overlay, if known.</summary>
     public double? TryGetFocusedElevationDeg() => _lastTrackState?.LookAngles?.ElevationDeg;
+
+    public void ApplyCommunityStatus(
+        bool show,
+        SatelliteCommunityStatusKind kind,
+        string shortText,
+        string toolTip,
+        bool stale)
+    {
+        ShowCommunityStatus = show;
+        CommunityStatusKind = kind;
+        CommunityStatusText = shortText;
+        CommunityStatusToolTip = toolTip;
+        IsCommunityStatusStale = stale;
+    }
+
+    public void ClearCommunityStatus() =>
+        ApplyCommunityStatus(false, SatelliteCommunityStatusKind.Unknown, "?", "", false);
 
     private void UpdateCanReportSatelliteStatus()
     {
@@ -545,6 +586,9 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     /// <summary>TX/RX micro-adjust offsets changed — rig should refresh CAT promptly.</summary>
     /// <remarks>Event arg is <c>true</c> when transponder mode changed (full pass re-init); <c>false</c> for RX offset edits only.</remarks>
     public event EventHandler<bool>? OffsetsChanged;
+
+    /// <summary>Raised when the overlay satellite or loaded modes change (community status chip should refresh from cache).</summary>
+    public event EventHandler? CommunityStatusContextChanged;
 
     public event EventHandler? CtcssChanged;
 
@@ -898,6 +942,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
         {
             _isLoadingSelection = false;
             RequestOverlayReclamp();
+            CommunityStatusContextChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 

@@ -112,6 +112,139 @@ public sealed class SatelliteStatusReportService : ISatelliteStatusReportService
         }
     }
 
+    public async Task<SatelliteStatusFetchResult> FetchCommunityAsync(
+        SatelliteStatusSettings settings,
+        CancellationToken cancellationToken = default)
+    {
+        if (!TryBuildUri(settings.BaseUrl, "/api/v1/satellite-status", out var uri, out var urlError))
+            return new SatelliteStatusFetchResult(false, false, null, urlError, 0);
+
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, uri);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            using var response = await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            var body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            var code = (int)response.StatusCode;
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return new SatelliteStatusFetchResult(false, true, null, FormatError(response.StatusCode, body), code);
+
+            if (!response.IsSuccessStatusCode)
+                return new SatelliteStatusFetchResult(false, false, null, FormatError(response.StatusCode, body), code);
+
+            var catalog = ParseCommunityCatalog(body, DateTime.UtcNow);
+            if (catalog is null)
+                return new SatelliteStatusFetchResult(false, false, null, "Invalid community status response.", code);
+
+            return new SatelliteStatusFetchResult(true, false, catalog, "OK", code);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or UriFormatException or JsonException)
+        {
+            return new SatelliteStatusFetchResult(false, false, null, ex.Message, 0);
+        }
+    }
+
+    internal static SatelliteCommunityCatalog? ParseCommunityCatalog(string body, DateTime fetchedAtUtc)
+    {
+        using var doc = JsonDocument.Parse(body);
+        var root = doc.RootElement;
+        if (root.ValueKind != JsonValueKind.Object)
+            return null;
+
+        var windowHours = root.TryGetProperty("window_hours", out var wh) && wh.TryGetInt32(out var whInt)
+            ? whInt
+            : 24;
+
+        var serverTime = DateTime.UtcNow;
+        if (root.TryGetProperty("server_time_utc", out var st) && st.ValueKind == JsonValueKind.String
+            && DateTime.TryParse(st.GetString(), null, System.Globalization.DateTimeStyles.RoundtripKind, out var parsedServer))
+        {
+            serverTime = parsedServer.ToUniversalTime();
+        }
+
+        var satellites = new List<SatelliteCommunitySatelliteStatus>();
+        if (root.TryGetProperty("satellites", out var sats) && sats.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var satEl in sats.EnumerateArray())
+            {
+                var name = satEl.TryGetProperty("name", out var n) ? n.GetString()?.Trim() ?? "" : "";
+                if (name.Length == 0)
+                    continue;
+
+                var modes = new List<SatelliteCommunityModeStatus>();
+                if (satEl.TryGetProperty("modes", out var modesEl) && modesEl.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var modeEl in modesEl.EnumerateArray())
+                    {
+                        var type = modeEl.TryGetProperty("type", out var t) ? t.GetString()?.Trim() ?? "" : "";
+                        if (type.Length == 0)
+                            continue;
+
+                        string? statusRaw = null;
+                        if (modeEl.TryGetProperty("status", out var statusEl)
+                            && statusEl.ValueKind == JsonValueKind.String)
+                        {
+                            statusRaw = statusEl.GetString();
+                        }
+
+                        var kind = SatelliteStatusReportFormatting.ParseCommunityStatus(statusRaw);
+                        var label = modeEl.TryGetProperty("status_label", out var sl)
+                                    && sl.ValueKind == JsonValueKind.String
+                            ? sl.GetString()
+                            : null;
+                        var reportCount = modeEl.TryGetProperty("report_count", out var rc) && rc.TryGetInt32(out var rci)
+                            ? rci
+                            : 0;
+
+                        var recent = new List<SatelliteCommunityRecentReport>();
+                        DateTime? newest = null;
+                        if (modeEl.TryGetProperty("recent_reports", out var rr) && rr.ValueKind == JsonValueKind.Array)
+                        {
+                            foreach (var reportEl in rr.EnumerateArray())
+                            {
+                                var call = reportEl.TryGetProperty("callsign", out var c) ? c.GetString() ?? "" : "";
+                                var grid = reportEl.TryGetProperty("gridsquare", out var g) ? g.GetString() ?? "" : "";
+                                var rStatus = reportEl.TryGetProperty("status", out var rs) && rs.ValueKind == JsonValueKind.String
+                                    ? rs.GetString()
+                                    : null;
+                                var rKind = SatelliteStatusReportFormatting.ParseCommunityStatus(rStatus);
+                                DateTime observed = default;
+                                if (reportEl.TryGetProperty("observed_at", out var oa)
+                                    && oa.ValueKind == JsonValueKind.String
+                                    && DateTime.TryParse(
+                                        oa.GetString(),
+                                        null,
+                                        System.Globalization.DateTimeStyles.RoundtripKind,
+                                        out var observedParsed))
+                                {
+                                    observed = observedParsed.ToUniversalTime();
+                                    if (newest is null || observed > newest)
+                                        newest = observed;
+                                }
+
+                                recent.Add(new SatelliteCommunityRecentReport(call, grid, rKind, observed));
+                            }
+                        }
+
+                        modes.Add(new SatelliteCommunityModeStatus(
+                            type,
+                            kind,
+                            label,
+                            reportCount,
+                            newest,
+                            recent));
+                    }
+                }
+
+                satellites.Add(new SatelliteCommunitySatelliteStatus(name, modes));
+            }
+        }
+
+        return new SatelliteCommunityCatalog(satellites, windowHours, serverTime, fetchedAtUtc.ToUniversalTime());
+    }
+
     private static string ToApiStatus(SatelliteStatusValue status) => status switch
     {
         SatelliteStatusValue.On => "on",

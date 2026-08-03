@@ -1612,13 +1612,61 @@
     <value>衛星ステータス報告を保存しました。</value>
   </data>
   <data name="SatStatus.Report.Duplicate">
-    <value>重複報告 — 最近すでに保存されています。</value>
+    <value>重複報告: 最近すでに保存されています。</value>
   </data>
   <data name="SatStatus.Report.Failed">
-    <value>衛星ステータス報告に失敗 — {0}</value>
+    <value>衛星ステータス報告に失敗: {0}</value>
   </data>
   <data name="SatStatus.Report.BelowElevation">
     <value>衛星ステータスは仰角が −1° 以上のときのみ報告できます。</value>
+  </data>
+  <data name="SatStatus.Community.OverlayTitle">
+    <value>コミュニティ状況（選択中のモード）</value>
+  </data>
+  <data name="SatStatus.Community.PassTitle">
+    <value>{0} · コミュニティ状況（{1}時間）</value>
+  </data>
+  <data name="SatStatus.Community.ReportCount">
+    <value>期間内の報告数: {0}</value>
+  </data>
+  <data name="SatStatus.Community.LastReport">
+    <value>最新報告 {0}</value>
+  </data>
+  <data name="SatStatus.Community.LastReportInline">
+    <value>最新報告 {0}</value>
+  </data>
+  <data name="SatStatus.Community.StaleNote">
+    <value>最新報告から3時間以上経過</value>
+  </data>
+  <data name="SatStatus.Community.WindowNote">
+    <value>コミュニティ報告（過去{0}時間）</value>
+  </data>
+  <data name="SatStatus.Community.NoModeData">
+    <value>モードデータなし</value>
+  </data>
+  <data name="SatStatus.Community.YourSelection">
+    <value>前回の選択</value>
+  </data>
+  <data name="SatStatus.Community.DefaultMode">
+    <value>既定</value>
+  </data>
+  <data name="SatStatus.Community.PassAutomation">
+    <value>{0}、{1}: {2}</value>
+  </data>
+  <data name="SatStatus.Community.Short.On">
+    <value>On</value>
+  </data>
+  <data name="SatStatus.Community.Short.Off">
+    <value>Off</value>
+  </data>
+  <data name="SatStatus.Community.Short.Telem">
+    <value>Telem.</value>
+  </data>
+  <data name="SatStatus.Community.Short.Unknown">
+    <value>?</value>
+  </data>
+  <data name="SatStatus.Community.NoRecentReports">
+    <value>最近の報告なし</value>
   </data>
   <data name="Settings.SatelliteLink.Section">
     <value>Satellite link</value>
