@@ -4,7 +4,15 @@ namespace OscarWatch.Core.Services;
 
 public static class SatelliteStatusCommunityPresentation
 {
+    /// <summary>How long a successful fetch may be shown / kept after a soft failure.</summary>
     public static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(10);
+
+    /// <summary>
+    /// How often to poll the community status API.
+    /// Shorter than <see cref="CacheTtl"/> so a timer tick refetches before the display cache expires.
+    /// </summary>
+    public static readonly TimeSpan RefreshInterval = TimeSpan.FromMinutes(5);
+
     public static readonly TimeSpan StaleAfter = TimeSpan.FromHours(3);
 
     public static bool IsStale(DateTime? newestReportUtc, DateTime utcNow) =>
@@ -12,6 +20,10 @@ public static class SatelliteStatusCommunityPresentation
 
     public static bool IsCacheFresh(DateTime fetchedAtUtc, DateTime utcNow) =>
         utcNow - fetchedAtUtc.ToUniversalTime() <= CacheTtl;
+
+    /// <summary>True when a new network fetch should run (cache age at or past the refresh interval).</summary>
+    public static bool IsRefreshDue(DateTime fetchedAtUtc, DateTime utcNow) =>
+        utcNow - fetchedAtUtc.ToUniversalTime() >= RefreshInterval;
 
     public static string ShortLabel(SatelliteCommunityStatusKind kind) => kind switch
     {

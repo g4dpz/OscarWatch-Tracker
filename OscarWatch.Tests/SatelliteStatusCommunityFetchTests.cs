@@ -127,6 +127,37 @@ public sealed class SatelliteStatusCommunityFetchTests
     }
 
     [Fact]
+    public void RefreshInterval_is_shorter_than_cache_ttl()
+    {
+        Assert.True(
+            SatelliteStatusCommunityPresentation.RefreshInterval < SatelliteStatusCommunityPresentation.CacheTtl);
+    }
+
+    [Theory]
+    [InlineData(0, true)]
+    [InlineData(5, true)]
+    [InlineData(10, true)]
+    [InlineData(10.1, false)]
+    public void IsCacheFresh_uses_ten_minute_ttl(double minutesAgo, bool expectedFresh)
+    {
+        var now = new DateTime(2026, 7, 14, 21, 0, 0, DateTimeKind.Utc);
+        var fetchedAt = now.AddMinutes(-minutesAgo);
+        Assert.Equal(expectedFresh, SatelliteStatusCommunityPresentation.IsCacheFresh(fetchedAt, now));
+    }
+
+    [Theory]
+    [InlineData(0, false)]
+    [InlineData(4.9, false)]
+    [InlineData(5, true)]
+    [InlineData(10, true)]
+    public void IsRefreshDue_uses_five_minute_interval(double minutesAgo, bool expectedDue)
+    {
+        var now = new DateTime(2026, 7, 14, 21, 0, 0, DateTimeKind.Utc);
+        var fetchedAt = now.AddMinutes(-minutesAgo);
+        Assert.Equal(expectedDue, SatelliteStatusCommunityPresentation.IsRefreshDue(fetchedAt, now));
+    }
+
+    [Fact]
     public void ResolvePassRowModeType_prefers_frequency_selection()
     {
         var database = new StubDatabase(

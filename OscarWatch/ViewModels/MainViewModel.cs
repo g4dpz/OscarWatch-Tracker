@@ -2203,9 +2203,11 @@ public partial class MainViewModel : ViewModelBase
 
         _satelliteStatusRefreshTimer = new DispatcherTimer
         {
-            Interval = SatelliteStatusCommunityPresentation.CacheTtl
+            Interval = SatelliteStatusCommunityPresentation.RefreshInterval
         };
-        _satelliteStatusRefreshTimer.Tick += (_, _) => _ = RefreshCommunityStatusAsync();
+        // When the API previously returned 404, force retries so a temporary outage can recover.
+        _satelliteStatusRefreshTimer.Tick += (_, _) =>
+            _ = RefreshCommunityStatusAsync(force: _communityStatusFeatureUnavailable);
         _satelliteStatusRefreshTimer.Start();
     }
 
@@ -2218,15 +2220,12 @@ public partial class MainViewModel : ViewModelBase
         }
 
         if (_communityStatusFeatureUnavailable && !force)
-        {
-            ClearCommunityStatusUi();
             return;
-        }
 
         var now = DateTime.UtcNow;
         if (!force
             && _communityStatusCatalog is not null
-            && SatelliteStatusCommunityPresentation.IsCacheFresh(_communityStatusFetchedAtUtc, now))
+            && !SatelliteStatusCommunityPresentation.IsRefreshDue(_communityStatusFetchedAtUtc, now))
         {
             UpdateCommunityStatusDisplays();
             return;
@@ -2248,6 +2247,11 @@ public partial class MainViewModel : ViewModelBase
                     _communityStatusFeatureUnavailable = true;
                     _communityStatusCatalog = null;
                     ClearCommunityStatusUi();
+                    LogCommunityStatusWarn(
+                        now,
+                        "Community satellite status unavailable (HTTP {StatusCode}): {Message}",
+                        result.HttpStatusCode,
+                        result.Message);
                     return;
                 }
 
@@ -2257,37 +2261,67 @@ public partial class MainViewModel : ViewModelBase
                     _communityStatusCatalog = result.Catalog;
                     _communityStatusFetchedAtUtc = result.Catalog.FetchedAtUtc;
                     UpdateCommunityStatusDisplays();
+                    Log.Information(
+                        "Community satellite status refreshed: satellites={Count}, windowHours={WindowHours}, http={StatusCode}",
+                        result.Catalog.Satellites.Count,
+                        result.Catalog.WindowHours,
+                        result.HttpStatusCode);
                     return;
                 }
 
-                // Soft fail: keep last-good while still within TTL.
-                if (_communityStatusCatalog is not null
-                    && SatelliteStatusCommunityPresentation.IsCacheFresh(_communityStatusFetchedAtUtc, DateTime.UtcNow))
-                {
-                    UpdateCommunityStatusDisplays();
-                }
-                else
-                {
-                    _communityStatusCatalog = null;
-                    ClearCommunityStatusUi();
-                }
-
-                if (now - _communityStatusLastWarnUtc > TimeSpan.FromMinutes(5))
-                {
-                    _communityStatusLastWarnUtc = now;
-                    Log.Warning("Community satellite status fetch failed: {Message}", result.Message);
-                }
+                // Soft fail: keep last-good while still within TTL; only clear once the cache expires.
+                ApplyCommunityStatusSoftFailure(now, result.Message, result.HttpStatusCode, log: true);
             });
         }
         catch (Exception ex)
         {
             Log.Warning(ex, "Community satellite status fetch failed");
-            await Dispatcher.UIThread.InvokeAsync(ClearCommunityStatusUi);
+            await Dispatcher.UIThread.InvokeAsync(() =>
+                ApplyCommunityStatusSoftFailure(DateTime.UtcNow, ex.Message, httpStatusCode: 0, log: false));
         }
         finally
         {
             _communityStatusFetchInFlight = false;
         }
+    }
+
+    private void ApplyCommunityStatusSoftFailure(DateTime nowUtc, string message, int httpStatusCode, bool log)
+    {
+        if (_communityStatusCatalog is not null
+            && SatelliteStatusCommunityPresentation.IsCacheFresh(_communityStatusFetchedAtUtc, nowUtc))
+        {
+            UpdateCommunityStatusDisplays();
+            if (log)
+            {
+                LogCommunityStatusWarn(
+                    nowUtc,
+                    "Community satellite status fetch failed (keeping last-good): http={StatusCode}, {Message}",
+                    httpStatusCode,
+                    message);
+            }
+
+            return;
+        }
+
+        _communityStatusCatalog = null;
+        ClearCommunityStatusUi();
+        if (log)
+        {
+            LogCommunityStatusWarn(
+                nowUtc,
+                "Community satellite status fetch failed (cleared stale cache): http={StatusCode}, {Message}",
+                httpStatusCode,
+                message);
+        }
+    }
+
+    private void LogCommunityStatusWarn(DateTime nowUtc, string template, int httpStatusCode, string message)
+    {
+        if (nowUtc - _communityStatusLastWarnUtc <= TimeSpan.FromMinutes(5))
+            return;
+
+        _communityStatusLastWarnUtc = nowUtc;
+        Log.Warning(template, httpStatusCode, message);
     }
 
     private void ClearCommunityStatusUi()
@@ -2299,10 +2333,11 @@ public partial class MainViewModel : ViewModelBase
 
     private void UpdateCommunityStatusDisplays()
     {
+        // Keep painting last-good data even when the fetch cache is past TTL; RefreshCommunityStatusAsync
+        // clears the catalog only after a failed refresh once the TTL has expired.
         if (!_settings.Current.SatelliteStatus.Enabled
             || _communityStatusFeatureUnavailable
-            || _communityStatusCatalog is null
-            || !SatelliteStatusCommunityPresentation.IsCacheFresh(_communityStatusFetchedAtUtc, DateTime.UtcNow))
+            || _communityStatusCatalog is null)
         {
             ClearCommunityStatusUi();
             return;
