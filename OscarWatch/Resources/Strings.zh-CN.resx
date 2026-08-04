@@ -2089,10 +2089,13 @@
     <value>Enter a valid host and port.</value>
   </data>
   <data name="Settings.Radio.FlexConnectionOk">
-    <value>SmartSDR connection OK.</value>
+    <value>SmartSDR 连接成功。</value>
+  </data>
+  <data name="Settings.Radio.FlexConnectionOkWithAntennas">
+    <value>SmartSDR 连接成功。已从电台刷新天线端口（{0}）。</value>
   </data>
   <data name="Settings.Radio.FlexConnectionFailed">
-    <value>SmartSDR connection failed: {0}</value>
+    <value>SmartSDR 连接失败：{0}</value>
   </data>
   <data name="Settings.Radio.FlexDiscoveryListening">
     <value>Listening for Flex radios on UDP 4992...</value>
@@ -2104,10 +2107,31 @@
     <value>Flex discovery failed: {0}</value>
   </data>
   <data name="Settings.Radio.FlexHint">
-    <value>Pick a discovered radio or enter the IP manually (TCP port 4992). OscarWatch connects directly to the radio over the SmartSDR TCP/IP API (not by automating SmartSDR for Windows), enables full duplex, and drives separate RX/TX slices for Doppler. Use the antenna port map below when transverters use different RX A/RX B or ANT/XVTR paths per band. Dual-SCU models are required for true full duplex (e.g. 8600/8600M; also 6600/6700).</value>
+    <value>选择已发现的电台或手动输入 IP（TCP 端口 4992）。OscarWatch 通过 SmartSDR TCP/IP API 直接连接电台（不会操控 SmartSDR for Windows），启用全双工，并为多普勒分别控制 RX/TX 切片。当变频器按频段使用不同的 RX A/RX B 或 ANT/XVTR A/XVTR B 路径时，请使用下方天线端口映射。真正的全双工需要双 SCU 机型（例如 8600/8600M，以及 6600/6700）。使用“测试 SmartSDR 连接”可从电台刷新端口列表。</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPorts">
+    <value>按频段的天线端口</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPortsHint">
+    <value>在 U/V ↔ V/U 卫星之间切换时，OscarWatch 会根据下行和上行频段设置电台的 RX/TX 端口（在聚焦卫星 / 准备过境时，不仅限于地平线以上）。“保持不变”会保留电台当前端口。RX A 和 RX B 仅用于接收；请按接线将 TX 映射到 ANT、XVTR A 或 XVTR B。离线时显示常见端口；“测试 SmartSDR 连接”会从电台刷新列表（包括 6600 类电台的双 XVTR A/B）。</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaLeaveUnchanged">
+    <value>保持不变</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfRxAnt">
+    <value>VHF 接收（2 m）</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfRxAnt">
+    <value>UHF 接收（70 cm+）</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfTxAnt">
+    <value>VHF 发射（2 m）</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfTxAnt">
+    <value>UHF 发射（70 cm+）</value>
   </data>
   <data name="Settings.Radio.FlexDuplexWarning">
-    <value>This model may not support full duplex (single SCU). Satellite use typically needs a dual-SCU Flex such as an 8600/8600M (or a dual-SCU 6000-series radio) with suitable isolation or transverters.</value>
+    <value>此机型可能不支持全双工（单 SCU）。卫星使用通常需要双 SCU 的 Flex（例如 8600/8600M，或双 SCU 的 6000 系列），并具备合适的隔离或变频器。</value>
   </data>
   <data name="Settings.Radio.Uplink">
     <value>上行电台</value>

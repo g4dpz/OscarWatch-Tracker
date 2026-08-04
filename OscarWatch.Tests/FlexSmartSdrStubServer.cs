@@ -241,6 +241,13 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
             return;
         }
 
+        if (body.Equals("ant list", StringComparison.OrdinalIgnoreCase))
+        {
+            await writer.WriteLineAsync($"R{seq}|0|ANT1,ANT2,RX_A,RX_B,XVTA,XVTB")
+                .ConfigureAwait(false);
+            return;
+        }
+
         if (body.StartsWith("sub slice", StringComparison.OrdinalIgnoreCase)
             || body.StartsWith("sub radio", StringComparison.OrdinalIgnoreCase)
             || body.StartsWith("sub pan", StringComparison.OrdinalIgnoreCase))

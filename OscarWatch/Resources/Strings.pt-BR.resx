@@ -2089,10 +2089,13 @@ Continuar?</value>
     <value>Enter a valid host and port.</value>
   </data>
   <data name="Settings.Radio.FlexConnectionOk">
-    <value>SmartSDR connection OK.</value>
+    <value>Conexão SmartSDR OK.</value>
+  </data>
+  <data name="Settings.Radio.FlexConnectionOkWithAntennas">
+    <value>Conexão SmartSDR OK. Portas de antena atualizadas a partir do rádio ({0}).</value>
   </data>
   <data name="Settings.Radio.FlexConnectionFailed">
-    <value>SmartSDR connection failed: {0}</value>
+    <value>Falha na conexão SmartSDR: {0}</value>
   </data>
   <data name="Settings.Radio.FlexDiscoveryListening">
     <value>Listening for Flex radios on UDP 4992...</value>
@@ -2104,10 +2107,31 @@ Continuar?</value>
     <value>Flex discovery failed: {0}</value>
   </data>
   <data name="Settings.Radio.FlexHint">
-    <value>Pick a discovered radio or enter the IP manually (TCP port 4992). OscarWatch connects directly to the radio over the SmartSDR TCP/IP API (not by automating SmartSDR for Windows), enables full duplex, and drives separate RX/TX slices for Doppler. Use the antenna port map below when transverters use different RX A/RX B or ANT/XVTR paths per band. Dual-SCU models are required for true full duplex (e.g. 8600/8600M; also 6600/6700).</value>
+    <value>Escolha um rádio encontrado ou digite o IP manualmente (porta TCP 4992). O OscarWatch liga-se diretamente ao rádio pela API TCP/IP do SmartSDR (não automatiza o SmartSDR for Windows), ativa full duplex e controla slices RX/TX separados para Doppler. Use o mapa de portas de antena abaixo quando os transverters usarem caminhos RX A/RX B ou ANT/XVTR A/XVTR B diferentes por banda. Modelos dual-SCU são necessários para full duplex verdadeiro (ex.: 8600/8600M; também 6600/6700). Use Testar conexão SmartSDR para atualizar a lista de portas a partir do rádio.</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPorts">
+    <value>Portas de antena por banda</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPortsHint">
+    <value>Ao alternar satélites U/V ↔ V/U, o OscarWatch define as portas RX/TX do rádio conforme as bandas de downlink e uplink (no foco do satélite / preparação da passagem, não só quando está acima do horizonte). Manter inalterado preserva a porta atual do rádio. RX A e RX B são só recepção; mapeie TX para ANT, XVTR A ou XVTR B conforme a cablagem. Offline, as opções incluem portas comuns; Testar conexão SmartSDR atualiza a lista a partir do rádio (incluindo XVTR A/B dual em rádios da classe 6600).</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaLeaveUnchanged">
+    <value>Manter inalterado</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfRxAnt">
+    <value>Recepção VHF (2 m)</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfRxAnt">
+    <value>Recepção UHF (70 cm+)</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfTxAnt">
+    <value>Transmissão VHF (2 m)</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfTxAnt">
+    <value>Transmissão UHF (70 cm+)</value>
   </data>
   <data name="Settings.Radio.FlexDuplexWarning">
-    <value>This model may not support full duplex (single SCU). Satellite use typically needs a dual-SCU Flex such as an 8600/8600M (or a dual-SCU 6000-series radio) with suitable isolation or transverters.</value>
+    <value>Este modelo pode não suportar full duplex (SCU único). O uso satélite normalmente precisa de um Flex dual-SCU como 8600/8600M (ou um 6000 dual-SCU) com isolamento ou transverters adequados.</value>
   </data>
   <data name="Settings.Radio.Uplink">
     <value>Rádio de uplink</value>

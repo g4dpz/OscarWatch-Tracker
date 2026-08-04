@@ -171,6 +171,13 @@ public sealed class FlexRadioDriver : IRigDriver
     }
 
     /// <summary>
+    /// Queries the radio for available antenna ports (<c>ant list</c>).
+    /// Returns null if disconnected or the query fails.
+    /// </summary>
+    public IReadOnlyList<string>? QueryAntennaList() =>
+        _client.IsConnected ? _client.QueryAntennaList() : null;
+
+    /// <summary>
     /// Stores band→port settings used when creating slices and applying antenna ports.
     /// </summary>
     public void ConfigureAntennaPorts(RigSettings settings) =>

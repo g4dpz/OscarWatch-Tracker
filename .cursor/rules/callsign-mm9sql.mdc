@@ -1,0 +1,15 @@
+---
+description: Operator callsign is always MM9SQL
+alwaysApply: true
+---
+
+# Callsign MM9SQL
+
+Peter’s amateur radio callsign is **MM9SQL**.
+
+When writing as or for Peter (issue replies, commit messages, release notes, help text, “73” sign-offs, docs, or any operator-facing attribution):
+
+- Always use **MM9SQL**
+- Never use other callsigns for him (including older ones such as M0NPT)
+
+Example: `73 de MM9SQL Peter`

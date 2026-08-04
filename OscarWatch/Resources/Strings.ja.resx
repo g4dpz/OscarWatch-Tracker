@@ -1228,10 +1228,13 @@
     <value>Enter a valid host and port.</value>
   </data>
   <data name="Settings.Radio.FlexConnectionOk">
-    <value>SmartSDR connection OK.</value>
+    <value>SmartSDR接続に成功しました。</value>
+  </data>
+  <data name="Settings.Radio.FlexConnectionOkWithAntennas">
+    <value>SmartSDR接続に成功しました。アンテナポートを無線機から更新しました（{0}）。</value>
   </data>
   <data name="Settings.Radio.FlexConnectionFailed">
-    <value>SmartSDR connection failed: {0}</value>
+    <value>SmartSDR接続に失敗しました: {0}</value>
   </data>
   <data name="Settings.Radio.FlexDiscoveryListening">
     <value>Listening for Flex radios on UDP 4992...</value>
@@ -1243,10 +1246,31 @@
     <value>Flex discovery failed: {0}</value>
   </data>
   <data name="Settings.Radio.FlexHint">
-    <value>Pick a discovered radio or enter the IP manually (TCP port 4992). OscarWatch connects directly to the radio over the SmartSDR TCP/IP API (not by automating SmartSDR for Windows), enables full duplex, and drives separate RX/TX slices for Doppler. Use the antenna port map below when transverters use different RX A/RX B or ANT/XVTR paths per band. Dual-SCU models are required for true full duplex (e.g. 8600/8600M; also 6600/6700).</value>
+    <value>検出された無線機を選ぶか、IPを手動入力してください（TCPポート4992）。OscarWatchはSmartSDR for Windowsを操作せず、無線機のSmartSDR TCP/IP APIに直接接続し、フルデュプレックスを有効にしてドップラー用にRX/TXスライスを個別制御します。バンドごとにRX A/RX BやANT/XVTR A/XVTR Bが異なるトランスバーター構成では、下のアンテナポート対応を使います。真のフルデュプレックスにはデュアルSCU機種が必要です（例: 8600/8600M、6600/6700）。「SmartSDR接続をテスト」で無線機からポート一覧を更新できます。</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPorts">
+    <value>バンド別アンテナポート</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPortsHint">
+    <value>U/V ↔ V/U衛星を切り替えると、OscarWatchは下り/上りバンドに応じて無線機のRX/TXポートを設定します（衛星フォーカス／パス設定時。地平線上である必要はありません）。「変更しない」は無線機の現在のポートを維持します。RX A/RX Bは受信専用です。TXは配線に合わせてANT、XVTR A、XVTR Bへ。オフライン時は一般的なポートを表示し、「SmartSDR接続をテスト」で無線機の一覧（6600系のデュアルXVTR A/Bを含む）に更新します。</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaLeaveUnchanged">
+    <value>変更しない</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfRxAnt">
+    <value>VHF受信（2 m）</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfRxAnt">
+    <value>UHF受信（70 cm+）</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfTxAnt">
+    <value>VHF送信（2 m）</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfTxAnt">
+    <value>UHF送信（70 cm+）</value>
   </data>
   <data name="Settings.Radio.FlexDuplexWarning">
-    <value>This model may not support full duplex (single SCU). Satellite use typically needs a dual-SCU Flex such as an 8600/8600M (or a dual-SCU 6000-series radio) with suitable isolation or transverters.</value>
+    <value>この機種はフルデュプレックス非対応（シングルSCU）の可能性があります。衛星運用には通常、適切なアイソレーションまたはトランスバーター付きのデュアルSCU Flex（例: 8600/8600M、またはデュアルSCUの6000シリーズ）が必要です。</value>
   </data>
   <data name="Settings.Radio.Uplink">
     <value>アップリンク無線機</value>

@@ -627,7 +627,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
 
     public ObservableCollection<FlexDiscoveredRadioOption> DiscoveredFlexRadios { get; } = [];
 
-    public IReadOnlyList<FlexAntennaPortOption> FlexAntennaPortChoices { get; }
+    public ObservableCollection<FlexAntennaPortOption> FlexAntennaPortChoices { get; } = [];
 
     public bool ShowRigFt817CatHint =>
         DualRadioEnabled
@@ -846,7 +846,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             new(RigRegion.EU, "EU"),
             new(RigRegion.USA, "USA")
         ];
-        FlexAntennaPortChoices = BuildFlexAntennaPortChoices();
+        ReplaceFlexAntennaPortChoices(radioTokens: null);
         GpsConnectionChoices =
         [
             new(GpsConnectionKind.Serial, _l.Get("Settings.Gps.Connection.Serial")),
@@ -1658,14 +1658,22 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
                 return;
             }
 
-            await Task.Run(() =>
+            var host = RigNetworkHost.Trim();
+            var port = RigNetworkPort;
+            var catDelayMs = RigCatDelayMs;
+            var antennaPorts = await Task.Run(() =>
             {
-                using var driver = new FlexRadioDriver(RigNetworkHost.Trim(), RigNetworkPort, RigCatDelayMs);
+                using var driver = new FlexRadioDriver(host, port, catDelayMs);
                 driver.Open();
-                return driver.IsConnected;
+                if (!driver.IsConnected)
+                    return (IReadOnlyList<string>?)null;
+                return driver.QueryAntennaList();
             }).ConfigureAwait(true);
 
-            RigFlexTestStatus = _l.Get("Settings.Radio.FlexConnectionOk");
+            ReplaceFlexAntennaPortChoices(antennaPorts);
+            RigFlexTestStatus = antennaPorts is { Count: > 0 }
+                ? _l.Get("Settings.Radio.FlexConnectionOkWithAntennas", antennaPorts.Count)
+                : _l.Get("Settings.Radio.FlexConnectionOk");
         }
         catch (Exception ex)
         {
@@ -2006,18 +2014,23 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     partial void OnSelectedDownlinkComPortChanged(string? value) => RefreshComPortConflictIfReady();
     partial void OnSelectedUplinkComPortChanged(string? value) => RefreshComPortConflictIfReady();
 
-    private IReadOnlyList<FlexAntennaPortOption> BuildFlexAntennaPortChoices()
+    private void ReplaceFlexAntennaPortChoices(IEnumerable<string>? radioTokens)
     {
+        var previousVhfRx = SelectedFlexVhfRxAnt?.Token ?? "";
+        var previousUhfRx = SelectedFlexUhfRxAnt?.Token ?? "";
+        var previousVhfTx = SelectedFlexVhfTxAnt?.Token ?? "";
+        var previousUhfTx = SelectedFlexUhfTxAnt?.Token ?? "";
+
         var leaveUnchanged = _l.Get("Settings.Radio.FlexAntennaLeaveUnchanged");
-        return
-        [
-            new("", leaveUnchanged),
-            new("ANT1", "ANT1"),
-            new("ANT2", "ANT2"),
-            new("RX_A", "RX A"),
-            new("RX_B", "RX B"),
-            new("XVTR", "XVTR")
-        ];
+        FlexAntennaPortChoices.Clear();
+        FlexAntennaPortChoices.Add(new("", leaveUnchanged));
+        foreach (var token in FlexAntennaPortResolver.MergeAntennaTokens(radioTokens))
+            FlexAntennaPortChoices.Add(new(token, FlexAntennaPortResolver.FormatDisplayLabel(token)));
+
+        SelectedFlexVhfRxAnt = SelectFlexAntennaPortChoice(previousVhfRx);
+        SelectedFlexUhfRxAnt = SelectFlexAntennaPortChoice(previousUhfRx);
+        SelectedFlexVhfTxAnt = SelectFlexAntennaPortChoice(previousVhfTx);
+        SelectedFlexUhfTxAnt = SelectFlexAntennaPortChoice(previousUhfTx);
     }
 
     private FlexAntennaPortOption SelectFlexAntennaPortChoice(string? token)
