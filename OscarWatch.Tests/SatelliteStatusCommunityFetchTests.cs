@@ -69,6 +69,43 @@ public sealed class SatelliteStatusCommunityFetchTests
     }
 
     [Fact]
+    public void TryGetSatellite_duplicate_names_keep_first_entry()
+    {
+        var first = new SatelliteCommunitySatelliteStatus(
+            "AO-07",
+            [
+                new SatelliteCommunityModeStatus(
+                    "Mode B",
+                    SatelliteCommunityStatusKind.On,
+                    "On",
+                    1,
+                    null,
+                    [])
+            ]);
+        var duplicate = new SatelliteCommunitySatelliteStatus(
+            "ao-07",
+            [
+                new SatelliteCommunityModeStatus(
+                    "Mode B",
+                    SatelliteCommunityStatusKind.Off,
+                    "Off",
+                    2,
+                    null,
+                    [])
+            ]);
+        var catalog = new SatelliteCommunityCatalog(
+            [first, duplicate],
+            24,
+            DateTime.UtcNow,
+            DateTime.UtcNow);
+
+        var sat = catalog.TryGetSatellite("AO-07");
+        Assert.NotNull(sat);
+        Assert.Same(first, sat);
+        Assert.Equal(SatelliteCommunityStatusKind.On, catalog.TryGetMode("ao-07", "Mode B")?.Kind);
+    }
+
+    [Fact]
     public async Task FetchCommunityAsync_returns_catalog_on_200()
     {
         var handler = new StubHandler(SampleJson, HttpStatusCode.OK);

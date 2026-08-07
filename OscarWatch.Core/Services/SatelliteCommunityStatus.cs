@@ -37,7 +37,19 @@ public sealed record SatelliteCommunityCatalog(
     private Dictionary<string, SatelliteCommunitySatelliteStatus>? _index;
 
     private Dictionary<string, SatelliteCommunitySatelliteStatus> Index =>
-        _index ??= Satellites.ToDictionary(s => s.Name, StringComparer.OrdinalIgnoreCase);
+        _index ??= BuildIndex(Satellites);
+
+    // First name wins (case-insensitive), same as the old linear scan; duplicates must not throw.
+    private static Dictionary<string, SatelliteCommunitySatelliteStatus> BuildIndex(
+        IReadOnlyList<SatelliteCommunitySatelliteStatus> satellites)
+    {
+        var index = new Dictionary<string, SatelliteCommunitySatelliteStatus>(
+            satellites.Count,
+            StringComparer.OrdinalIgnoreCase);
+        foreach (var sat in satellites)
+            index.TryAdd(sat.Name, sat);
+        return index;
+    }
 
     public SatelliteCommunityModeStatus? TryGetMode(string satelliteName, string modeType)
     {
