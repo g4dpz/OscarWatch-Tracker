@@ -292,7 +292,8 @@ internal sealed class FlexSmartSdrClient : IDisposable
 
     /// <summary>
     /// Re-resolves VHF/UHF pan locks from live centres only when both bands are present.
-    /// Otherwise keeps the sticky locks — clearing them while both pans sit on one band causes an unrecoverable bind failure.
+    /// Clears locks whose live centres no longer match their band. When still collapsed,
+    /// keeps any remaining sticky lock only as a hint for recovery (does not invent bands).
     /// </summary>
     public bool TryRelockBandPansFromLiveCentres()
     {
@@ -300,6 +301,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
         {
             EnsureConnectedUnlocked();
             DrainPendingStatusUnlocked();
+            InvalidateStaleBandPanLocksUnlocked();
 
             if (!FlexPanBandResolver.TryResolveBandPans(_pans.Values, out var vhfPan, out var uhfPan)
                 || string.IsNullOrWhiteSpace(vhfPan)
@@ -308,7 +310,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
                 || !_pans.ContainsKey(uhfPan))
             {
                 Log.Warning(
-                    "FlexRadio keeping sticky pan locks; live centres do not show separate VHF and UHF pans: vhfPan={VhfPan}, uhfPan={UhfPan}, stickyVhf={StickyVhf}, stickyUhf={StickyUhf}",
+                    "FlexRadio cannot relock band pans from live centres; vhfPan={VhfPan}, uhfPan={UhfPan}, stickyVhf={StickyVhf}, stickyUhf={StickyUhf}",
                     vhfPan ?? "(missing)",
                     uhfPan ?? "(missing)",
                     _lockedVhfPanStreamId ?? "(none)",
@@ -319,6 +321,65 @@ internal sealed class FlexSmartSdrClient : IDisposable
             _lockedVhfPanStreamId = vhfPan;
             _lockedUhfPanStreamId = uhfPan;
             return true;
+        }
+    }
+
+    /// <summary>
+    /// Ensures separate live VHF and UHF panadapters exist and are locked.
+    /// When both pans have collapsed onto one band, recentres a candidate pan or creates a
+    /// new panafall on the missing band (AetherSDR-validated SmartSDR commands).
+    /// </summary>
+    public bool EnsureDualBandPanLayout(long vhfHz, long uhfHz)
+    {
+        lock (_gate)
+        {
+            EnsureConnectedUnlocked();
+            DrainPendingStatusUnlocked();
+            InvalidateStaleBandPanLocksUnlocked();
+
+            if (TryLockLiveDualBandPansUnlocked())
+                return true;
+
+            if (vhfHz <= 0 || uhfHz <= 0)
+            {
+                Log.Warning(
+                    "FlexRadio dual-band pan recovery needs VHF and UHF targets; vhfHz={VhfHz}, uhfHz={UhfHz}",
+                    vhfHz,
+                    uhfHz);
+                return false;
+            }
+
+            Log.Warning(
+                "FlexRadio dual-band pans missing or collapsed; attempting recovery: vhfPan={VhfPan}, uhfPan={UhfPan}",
+                _lockedVhfPanStreamId ?? "(missing)",
+                _lockedUhfPanStreamId ?? "(missing)");
+
+            RemoveAllInUseSlicesUnlocked();
+
+            FlexPanBandResolver.TryResolveBandPans(_pans.Values, out var liveVhf, out var liveUhf);
+            var missingVhf = string.IsNullOrWhiteSpace(liveVhf);
+            var missingUhf = string.IsNullOrWhiteSpace(liveUhf);
+
+            if (missingVhf)
+                TryRecoverMissingBandPanUnlocked(vhfHz, isVhf: true, keepPanStreamId: liveUhf);
+            if (missingUhf)
+                TryRecoverMissingBandPanUnlocked(uhfHz, isVhf: false, keepPanStreamId: liveVhf);
+
+            DrainPendingStatusUnlocked();
+            if (TryLockLiveDualBandPansUnlocked())
+            {
+                Log.Information(
+                    "FlexRadio dual-band pan layout restored: vhfPan={VhfPan}, uhfPan={UhfPan}",
+                    _lockedVhfPanStreamId,
+                    _lockedUhfPanStreamId);
+                return true;
+            }
+
+            Log.Warning(
+                "FlexRadio dual-band pan recovery failed; vhfPan={VhfPan}, uhfPan={UhfPan}",
+                _lockedVhfPanStreamId ?? "(missing)",
+                _lockedUhfPanStreamId ?? "(missing)");
+            return false;
         }
     }
 
@@ -348,6 +409,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
         {
             EnsureConnectedUnlocked();
             DrainPendingStatusUnlocked();
+            InvalidateStaleBandPanLocksUnlocked();
             EnsureLockedBandPansUnlocked();
 
             if (downlinkHz > 0)
@@ -494,13 +556,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
                 return false;
             }
 
-            var mhz = FlexSmartSdrCodec.HzToMhz(centerHz);
-            var ok = TrySendSliceCommandUnlocked(
-                seq => FlexSmartSdrCodec.BuildDisplayPanCenterCommand(seq, panStreamId, mhz),
-                out failureDetail);
-            if (ok)
-                UpdatePanCenterUnlocked(panStreamId, centerHz, autoCenter: false);
-            return ok;
+            return SetPanCenterUnlocked(panStreamId, centerHz, out failureDetail);
         }
     }
 
@@ -525,6 +581,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
         {
             EnsureConnectedUnlocked();
             DrainPendingStatusUnlocked();
+            InvalidateStaleBandPanLocksUnlocked();
             EnsureLockedBandPansUnlocked();
             ResolveDuplexSliceRolesUnlocked(ref rxSliceIndex, ref txSliceIndex);
 
@@ -713,6 +770,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
         {
             EnsureConnectedUnlocked();
             DrainPendingStatusUnlocked();
+            InvalidateStaleBandPanLocksUnlocked();
             EnsureLockedBandPansUnlocked();
 
             FlexPanBandResolver.ResolveTargetFrequencies(
@@ -1008,18 +1066,89 @@ internal sealed class FlexSmartSdrClient : IDisposable
         var ok = TrySendSliceCommandUnlocked(
             seq => FlexSmartSdrCodec.BuildDisplayPanCenterCommand(seq, panStreamId, mhz),
             out failureDetail);
-        if (ok)
+        if (!ok)
+            return false;
+
+        // Never invent a centre the radio did not take (silent cross-SCU rejects return R|0|).
+        DrainPendingStatusUnlocked();
+        if (!_pans.TryGetValue(panStreamId, out var live) || live.CenterHz <= 0)
         {
-            // Prefer live status when the radio emits it; fall back to the commanded centre.
-            UpdatePanCenterUnlocked(panStreamId, centerHz, autoCenter: false);
-            DrainPendingStatusUnlocked();
+            failureDetail =
+                $"no live pan centre after display pan set {panStreamId} center={mhz.ToString("0.######", CultureInfo.InvariantCulture)}";
+            return false;
         }
 
-        return ok;
+        if (!PanCenterMatchesFrequencyBand(live.CenterHz, centerHz))
+        {
+            failureDetail =
+                $"radio did not move pan {panStreamId} onto commanded band; live={live.CenterHz} Hz, commanded={centerHz} Hz";
+            Log.Warning(
+                "FlexRadio pan centre command succeeded but live centre stayed off-band: pan={PanStreamId}, liveHz={LiveHz}, commandedHz={CommandedHz}",
+                panStreamId,
+                live.CenterHz,
+                centerHz);
+            return false;
+        }
+
+        failureDetail = null;
+        return true;
+    }
+
+    /// <summary>
+    /// Clears sticky VHF/UHF locks whose live centres no longer sit on that band.
+    /// </summary>
+    private void InvalidateStaleBandPanLocksUnlocked()
+    {
+        if (!string.IsNullOrWhiteSpace(_lockedVhfPanStreamId))
+        {
+            if (!_pans.TryGetValue(_lockedVhfPanStreamId, out var vhfPan)
+                || vhfPan.CenterHz <= 0
+                || !RigSatModeHelper.IsVhfCenterKHz(vhfPan.CenterHz / 1000.0))
+            {
+                Log.Warning(
+                    "FlexRadio clearing stale VHF pan lock {PanStreamId}; liveCentreHz={CenterHz}",
+                    _lockedVhfPanStreamId,
+                    vhfPan?.CenterHz ?? 0);
+                _lockedVhfPanStreamId = null;
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(_lockedUhfPanStreamId))
+        {
+            if (!_pans.TryGetValue(_lockedUhfPanStreamId, out var uhfPan)
+                || uhfPan.CenterHz <= 0
+                || !RigSatModeHelper.IsUhfCenterKHz(uhfPan.CenterHz / 1000.0))
+            {
+                Log.Warning(
+                    "FlexRadio clearing stale UHF pan lock {PanStreamId}; liveCentreHz={CenterHz}",
+                    _lockedUhfPanStreamId,
+                    uhfPan?.CenterHz ?? 0);
+                _lockedUhfPanStreamId = null;
+            }
+        }
+    }
+
+    private bool TryLockLiveDualBandPansUnlocked()
+    {
+        InvalidateStaleBandPanLocksUnlocked();
+        if (!FlexPanBandResolver.TryResolveBandPans(_pans.Values, out var vhfPan, out var uhfPan)
+            || string.IsNullOrWhiteSpace(vhfPan)
+            || string.IsNullOrWhiteSpace(uhfPan)
+            || !_pans.ContainsKey(vhfPan)
+            || !_pans.ContainsKey(uhfPan))
+        {
+            return false;
+        }
+
+        _lockedVhfPanStreamId = vhfPan;
+        _lockedUhfPanStreamId = uhfPan;
+        return true;
     }
 
     private void EnsureLockedBandPansUnlocked()
     {
+        InvalidateStaleBandPanLocksUnlocked();
+
         if (!string.IsNullOrWhiteSpace(_lockedVhfPanStreamId)
             && !string.IsNullOrWhiteSpace(_lockedUhfPanStreamId)
             && _pans.ContainsKey(_lockedVhfPanStreamId)
@@ -1035,6 +1164,163 @@ internal sealed class FlexSmartSdrClient : IDisposable
             _lockedVhfPanStreamId = vhfPan;
         if (!string.IsNullOrWhiteSpace(uhfPan) && _pans.ContainsKey(uhfPan))
             _lockedUhfPanStreamId = uhfPan;
+    }
+
+    private void RemoveAllInUseSlicesUnlocked()
+    {
+        foreach (var index in _slices.Values.Where(s => s.InUse).Select(s => s.Index).OrderByDescending(i => i).ToList())
+        {
+            if (!RemoveSliceUnlocked(index, out var detail))
+            {
+                Log.Warning(
+                    "FlexRadio failed to remove slice {SliceIndex} during dual-band pan recovery: detail={Detail}",
+                    index,
+                    detail);
+            }
+        }
+
+        DrainPendingStatusUnlocked();
+    }
+
+    private void TryRecoverMissingBandPanUnlocked(long targetHz, bool isVhf, string? keepPanStreamId)
+    {
+        var candidate = FindPanCandidateForBandMoveUnlocked(isVhf, keepPanStreamId);
+        if (!string.IsNullOrWhiteSpace(candidate)
+            && SetPanCenterUnlocked(candidate, targetHz, out _))
+        {
+            DrainPendingStatusUnlocked();
+            if (PanMatchesBandUnlocked(candidate, isVhf))
+                return;
+        }
+
+        if (TryCreatePanafallOnBandUnlocked(targetHz, isVhf, out _))
+            return;
+
+        // Last resort: free a slice-less duplicate same-band pan, then create again.
+        if (TryRemoveSliceLessDuplicatePanUnlocked(removeFromVhfBand: !isVhf, keepPanStreamId)
+            && TryCreatePanafallOnBandUnlocked(targetHz, isVhf, out _))
+        {
+            return;
+        }
+
+        Log.Warning(
+            "FlexRadio could not restore {Band} pan at {CenterHz} Hz",
+            isVhf ? "VHF" : "UHF",
+            targetHz);
+    }
+
+    private string? FindPanCandidateForBandMoveUnlocked(bool needVhf, string? keepPanStreamId)
+    {
+        // Prefer pans with no/unknown centre, then pans on the opposite (duplicate) band.
+        var ordered = _pans.Values
+            .Where(p => !string.IsNullOrWhiteSpace(p.StreamId))
+            .Where(p => string.IsNullOrWhiteSpace(keepPanStreamId)
+                        || !string.Equals(p.StreamId, keepPanStreamId, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(p =>
+            {
+                if (p.CenterHz <= 0)
+                    return 0;
+                var onNeededBand = needVhf
+                    ? RigSatModeHelper.IsVhfCenterKHz(p.CenterHz / 1000.0)
+                    : RigSatModeHelper.IsUhfCenterKHz(p.CenterHz / 1000.0);
+                return onNeededBand ? 2 : 1;
+            })
+            .ThenBy(p => p.StreamId, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        return ordered.FirstOrDefault()?.StreamId;
+    }
+
+    private bool PanMatchesBandUnlocked(string panStreamId, bool isVhf)
+    {
+        if (!_pans.TryGetValue(panStreamId, out var pan) || pan.CenterHz <= 0)
+            return false;
+
+        return isVhf
+            ? RigSatModeHelper.IsVhfCenterKHz(pan.CenterHz / 1000.0)
+            : RigSatModeHelper.IsUhfCenterKHz(pan.CenterHz / 1000.0);
+    }
+
+    private bool TryCreatePanafallOnBandUnlocked(long targetHz, bool isVhf, out string? panStreamId)
+    {
+        panStreamId = null;
+        var response = SendAndWaitResponseUnlocked(FlexSmartSdrCodec.BuildDisplayPanafallCreateCommand);
+        if (response is null || !FlexSmartSdrCodec.IsSuccessResponse(response)
+            || !FlexSmartSdrCodec.TryParsePanafallCreatePanId(response.Body, out var createdPan))
+        {
+            response = SendAndWaitResponseUnlocked(FlexSmartSdrCodec.BuildPanadapterCreateCommand);
+            if (response is null || !FlexSmartSdrCodec.IsSuccessResponse(response)
+                || !FlexSmartSdrCodec.TryParsePanafallCreatePanId(response.Body, out createdPan))
+            {
+                Log.Warning(
+                    "FlexRadio panafall/panadapter create failed while restoring {Band} pan",
+                    isVhf ? "VHF" : "UHF");
+                return false;
+            }
+        }
+
+        DrainPendingStatusUnlocked();
+        if (!_pans.ContainsKey(createdPan))
+            UpdatePanCenterUnlocked(createdPan, 0, autoCenter: false);
+
+        if (!SetPanCenterUnlocked(createdPan, targetHz, out var centreFailure))
+        {
+            // Creating a pan often lands near HF; if centre failed, try once more after drain.
+            DrainPendingStatusUnlocked();
+            if (!SetPanCenterUnlocked(createdPan, targetHz, out centreFailure))
+            {
+                Log.Warning(
+                    "FlexRadio created pan {PanStreamId} but could not centre it on {Band}: detail={Detail}",
+                    createdPan,
+                    isVhf ? "VHF" : "UHF",
+                    centreFailure);
+                return false;
+            }
+        }
+
+        panStreamId = createdPan;
+        Log.Information(
+            "FlexRadio created {Band} pan {PanStreamId} at {CenterHz} Hz",
+            isVhf ? "VHF" : "UHF",
+            createdPan,
+            targetHz);
+        return true;
+    }
+
+    private bool TryRemoveSliceLessDuplicatePanUnlocked(bool removeFromVhfBand, string? keepPanStreamId)
+    {
+        var candidates = _pans.Values
+            .Where(p => !string.IsNullOrWhiteSpace(p.StreamId) && p.CenterHz > 0)
+            .Where(p => string.IsNullOrWhiteSpace(keepPanStreamId)
+                        || !string.Equals(p.StreamId, keepPanStreamId, StringComparison.OrdinalIgnoreCase))
+            .Where(p => removeFromVhfBand
+                ? RigSatModeHelper.IsVhfCenterKHz(p.CenterHz / 1000.0)
+                : RigSatModeHelper.IsUhfCenterKHz(p.CenterHz / 1000.0))
+            .Where(p => !_slices.Values.Any(s =>
+                s.InUse
+                && !string.IsNullOrWhiteSpace(s.PanStreamId)
+                && string.Equals(s.PanStreamId, p.StreamId, StringComparison.OrdinalIgnoreCase)))
+            .OrderBy(p => p.StreamId, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var victim = candidates.FirstOrDefault();
+        if (victim is null)
+            return false;
+
+        var removed = TrySendSliceCommandUnlocked(
+            seq => FlexSmartSdrCodec.BuildDisplayPanRemoveCommand(seq, victim.StreamId),
+            out _);
+        _ = TrySendSliceCommandUnlocked(
+            seq => FlexSmartSdrCodec.BuildDisplayPanafallRemoveCommand(seq, victim.StreamId),
+            out _);
+        if (removed)
+            _pans.Remove(victim.StreamId);
+
+        DrainPendingStatusUnlocked();
+        Log.Warning(
+            "FlexRadio removed slice-less duplicate pan {PanStreamId} to free capacity for dual-band recovery",
+            victim.StreamId);
+        return removed;
     }
 
     private string? ResolveLockedPanForFrequencyUnlocked(long hz)

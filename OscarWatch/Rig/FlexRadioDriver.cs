@@ -216,6 +216,43 @@ public sealed class FlexRadioDriver : IRigDriver
     }
 
     /// <summary>
+    /// Restores separate live VHF and UHF panadapters before slice bind.
+    /// Recovers from both-pans-on-one-band by recentring or creating a panafall.
+    /// </summary>
+    public bool EnsureDualBandPanLayout(long downlinkHz, long uplinkHz)
+    {
+        if (!_client.IsConnected || !_satelliteMode)
+            return false;
+
+        FlexPanBandResolver.ResolveTargetFrequencies(
+            downlinkHz,
+            uplinkHz,
+            _satelliteMode,
+            out var vhfHz,
+            out var uhfHz);
+
+        if (vhfHz <= 0 || uhfHz <= 0)
+        {
+            Log.Warning(
+                "FlexRadio dual-band pan ensure skipped; could not resolve VHF/UHF targets from downlinkHz={DownlinkHz}, uplinkHz={UplinkHz}",
+                downlinkHz,
+                uplinkHz);
+            return false;
+        }
+
+        var ok = _client.EnsureDualBandPanLayout(vhfHz, uhfHz);
+        if (!ok)
+        {
+            Log.Warning(
+                "FlexRadio failed to ensure separate VHF and UHF panadapters before bind: downlinkHz={DownlinkHz}, uplinkHz={UplinkHz}",
+                downlinkHz,
+                uplinkHz);
+        }
+
+        return ok;
+    }
+
+    /// <summary>
     /// Binds RX/TX slices to locked VHF/UHF panadapters before initial tune on band changes.
     /// </summary>
     /// <param name="forceRebind">
@@ -323,7 +360,7 @@ public sealed class FlexRadioDriver : IRigDriver
 
     /// <summary>
     /// After bind/tune/centre/modes, confirm live RX/TX layout. Retune and re-apply modes, and if needed
-    /// clear pan locks and force-rebind, when the radio did not land on the commanded pass.
+    /// restore dual-band pans and force-rebind, when the radio did not land on the commanded pass.
     /// </summary>
     public void EnsureDuplexPassFrequencies(
         long downlinkHz,
@@ -356,10 +393,10 @@ public sealed class FlexRadioDriver : IRigDriver
 
         DuplexFrequenciesVerified(downlinkHz, uplinkHz, out var afterRetune, expectedRxMode, expectedTxMode);
         Log.Warning(
-            "FlexRadio pass layout still wrong after light repair: {Detail}; force-rebinding while preserving band pan locks",
+            "FlexRadio pass layout still wrong after light repair: {Detail}; restoring dual-band pans and force-rebinding",
             afterRetune);
 
-        // Never clear sticky locks while both pans may sit on one band — re-resolve only if VHF+UHF are both live.
+        EnsureDualBandPanLayout(downlinkHz, uplinkHz);
         _client.TryRelockBandPansFromLiveCentres();
         BindDuplexSlicesToBandPans(downlinkHz, uplinkHz, forceRebind: true);
         ApplyDuplexLightRepair(downlinkHz, uplinkHz, expectedRxMode, expectedTxMode);
@@ -367,14 +404,14 @@ public sealed class FlexRadioDriver : IRigDriver
         if (DuplexFrequenciesVerified(downlinkHz, uplinkHz, out var stillWrong, expectedRxMode, expectedTxMode))
         {
             Log.Information(
-                "FlexRadio pass layout repaired by force rebind: RX={RxHz} Hz, TX={TxHz} Hz",
+                "FlexRadio pass layout repaired by dual-band recovery and force rebind: RX={RxHz} Hz, TX={TxHz} Hz",
                 downlinkHz,
                 uplinkHz);
         }
         else
         {
             Log.Warning(
-                "FlexRadio pass layout still incorrect after force rebind: {Detail}. If both panadapters are stuck on one band, load a SmartSDR Global Profile that restores separate VHF and UHF pans, then re-select the satellite in OscarWatch.",
+                "FlexRadio pass layout still incorrect after dual-band recovery: {Detail}. If the radio is at pan/SCU capacity or another client owns the pans, load a SmartSDR Global Profile that restores separate VHF and UHF pans, then re-select the satellite in OscarWatch.",
                 stillWrong);
         }
     }

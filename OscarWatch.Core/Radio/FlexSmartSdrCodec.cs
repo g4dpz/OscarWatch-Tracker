@@ -63,6 +63,20 @@ public static class FlexSmartSdrCodec
             sequence,
             $"display pan set {SanitizeToken(panStreamId)} center={centerMhz.ToString("0.######", CultureInfo.InvariantCulture)} autocenter=0");
 
+    /// <summary>Creates a panadapter + waterfall (SmartSDR / AetherSDR wire command).</summary>
+    public static string BuildDisplayPanafallCreateCommand(uint sequence) =>
+        BuildCommand(sequence, "display panafall create");
+
+    /// <summary>Legacy pan create used by older firmware when panafall create is unavailable.</summary>
+    public static string BuildPanadapterCreateCommand(uint sequence) =>
+        BuildCommand(sequence, "panadapter create");
+
+    public static string BuildDisplayPanRemoveCommand(uint sequence, string panStreamId) =>
+        BuildCommand(sequence, $"display pan remove {SanitizeToken(panStreamId)}");
+
+    public static string BuildDisplayPanafallRemoveCommand(uint sequence, string panStreamId) =>
+        BuildCommand(sequence, $"display panafall remove {SanitizeToken(panStreamId)}");
+
     public static string BuildSliceSetModeCommand(uint sequence, int sliceIndex, string mode) =>
         BuildCommand(
             sequence,
@@ -265,6 +279,61 @@ public static class FlexSmartSdrCodec
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Parses the pan stream id from a panafall/panadapter create response body
+    /// (<c>pan=0x…</c>, <c>id=0x…</c>, or a bare hex token).
+    /// </summary>
+    public static bool TryParsePanafallCreatePanId(string responseMessage, out string panStreamId)
+    {
+        panStreamId = "";
+        if (string.IsNullOrWhiteSpace(responseMessage))
+            return false;
+
+        var trimmed = responseMessage.Trim();
+        foreach (var token in trimmed.Split([' ', '|', '\t'], StringSplitOptions.RemoveEmptyEntries))
+        {
+            var eq = token.IndexOf('=');
+            if (eq > 0
+                && eq < token.Length - 1
+                && (token.AsSpan(0, eq).Equals("pan", StringComparison.OrdinalIgnoreCase)
+                    || token.AsSpan(0, eq).Equals("id", StringComparison.OrdinalIgnoreCase)))
+            {
+                var value = token[(eq + 1)..].Trim();
+                if (LooksLikePanStreamId(value))
+                {
+                    panStreamId = value;
+                    return true;
+                }
+            }
+
+            if (LooksLikePanStreamId(token))
+            {
+                panStreamId = token;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool LooksLikePanStreamId(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        var hex = value.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? value[2..] : value;
+        if (hex.Length is < 1 or > 16)
+            return false;
+
+        foreach (var c in hex)
+        {
+            if (!char.IsAsciiHexDigit(c))
+                return false;
+        }
+
+        return true;
     }
 
     private static bool TryParseResponse(string line, out FlexSmartSdrMessage message)

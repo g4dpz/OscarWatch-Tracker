@@ -121,15 +121,22 @@
       <h2>If both panadapters stick on one band</h2>
       <p>
         After rapid U/V ↔ V/U satellite switching, SmartSDR can occasionally leave both panadapters on VHF or both
-        on UHF. OscarWatch tries to detect and repair that, but if the displays stay stuck:
+        on UHF. OscarWatch detects that from live pan centres and tries to restore a dual-band layout over the API:
+        it frees the duplex slices, recentres a candidate pan when the radio will take the move, and if needed creates
+        a new panadapter with <code>display panafall create</code> on the missing band before rebinding RX/TX.
+        Continuous Doppler still uses <code>autopan=0</code> so those pans are not yanked again during the pass.
+      </p>
+      <p>
+        If recovery still fails (for example the radio is at pan/SCU capacity, or another Multi-Flex client owns the
+        only available pans):
       </p>
       <ol>
         <li>In SmartSDR for Windows, load a <strong>Global Profile</strong> that restores your normal dual-pan layout
-          (separate VHF and UHF pans — for example a “VU” or satellite profile you already use).</li>
+          (separate VHF and UHF pans, for example a “VU” or satellite profile you already use).</li>
         <li>Re-select the satellite in OscarWatch so pass setup runs again.</li>
       </ol>
       <p>
-        Keeping such a Global Profile handy is the fastest recovery for Flex operators. Antenna port mapping in
+        Keeping such a Global Profile handy remains useful as a last-resort recovery. Antenna port mapping in
         OscarWatch is optional and separate from this pan layout recovery.
       </p>
 
@@ -182,8 +189,9 @@
       <ul>
         <li>SmartSDR for Windows (or Maestro) is optional for panadapter display and audio. OscarWatch talks to the radio
           as a separate API client whether or not that GUI is open.</li>
-        <li>Keep a SmartSDR <strong>Global Profile</strong> with separate VHF and UHF pans. If both pans stick on one band
-          after satellite switching, load that profile, then re-select the satellite in OscarWatch (see above).</li>
+        <li>Keep a SmartSDR <strong>Global Profile</strong> with separate VHF and UHF pans as a last resort. OscarWatch
+          normally restores dual-band pans over the API when both displays collapse onto one band; if that cannot run
+          (capacity or another client owning the pans), load the profile, then re-select the satellite (see above).</li>
         <li>If <strong>Settings → Recording</strong> reports that audio is unavailable while SmartSDR for Windows is running, configure pass recording with that app closed — some DAX virtual audio devices fail PortAudio initialisation. OscarWatch probes audio in a separate process so this does not close the main application. Other Settings tabs are safe to use during a pass.</li>
         <li>This driver is <strong>not</strong> a dual-radio leg and is not Hamlib/rigctl.</li>
         <li>RF isolation and transverters remain your responsibility — OscarWatch controls frequency, mode, full duplex, tone, and optional antenna ports.</li>

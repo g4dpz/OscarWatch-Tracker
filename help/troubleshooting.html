@@ -128,7 +128,7 @@
         <li>Discovery alone does not test control. In <strong>Settings → Radio</strong>, select the FlexRadio and run <strong>Test SmartSDR connection</strong> (TCP port <strong>4992</strong> to the radio).</li>
         <li>Confirm the radio is enabled, <strong>Pause CAT</strong> is off, OscarWatch is not in Standby, and a satellite pass with both uplink and downlink is focused.</li>
         <li>A dual-SCU model is required (current series: <strong>8600</strong> / <strong>8600M</strong>; also dual-SCU 6000-series such as 6600/6700). At pass start the radio should have full duplex on and separate RX/TX slices.</li>
-        <li>If both panadapters stick on VHF or both on UHF, load a SmartSDR <strong>Global Profile</strong> with separate VHF/UHF pans, then re-select the satellite in OscarWatch. See the <a href="radio-flex.html">FlexRadio guide</a>.</li>
+        <li>If both panadapters stick on VHF or both on UHF, OscarWatch normally restores them over the API; if that fails, load a SmartSDR <strong>Global Profile</strong> with separate VHF/UHF pans, then re-select the satellite. See the <a href="radio-flex.html">FlexRadio guide</a>.</li>
         <li>If the status bar reports a FlexRadio satellite setup failure, open the logs folder and include the current log in your report. See the <a href="radio-flex.html">FlexRadio guide</a>.</li>
       </ul>
 

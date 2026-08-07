@@ -539,6 +539,106 @@ public class FlexRadioDriverTests
     }
 
     [Fact]
+    public void EnsureDualBandPanLayout_recovers_when_both_pans_collapsed_onto_uhf()
+    {
+        using var stub = new FlexSmartSdrStubServer(silentCrossScuCenterReject: true);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        stub.CollapseBothPansOntoBand(ontoUhf: true);
+        stub.ClearCommandBodies();
+
+        Assert.True(driver.EnsureDualBandPanLayout(435_640_000, 145_965_000));
+
+        var centres = stub.PanCentersHz;
+        Assert.Contains(centres, kv => RigSatModeHelper.IsVhfCenterKHz(kv.Value / 1000.0));
+        Assert.Contains(centres, kv => RigSatModeHelper.IsUhfCenterKHz(kv.Value / 1000.0));
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals("display panafall create", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void EnsureDualBandPanLayout_then_bind_places_slices_on_separate_band_pans()
+    {
+        using var stub = new FlexSmartSdrStubServer(silentCrossScuCenterReject: true);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        stub.CollapseBothPansOntoBand(ontoUhf: true);
+
+        Assert.True(driver.EnsureDualBandPanLayout(435_640_000, 145_965_000));
+        driver.BindDuplexSlicesToBandPans(435_640_000, 145_965_000, forceRebind: true);
+
+        var rxPan = stub.Slices[driver.RxSliceIndex].PanStreamId;
+        var txPan = stub.Slices[driver.TxSliceIndex].PanStreamId;
+        Assert.False(string.IsNullOrWhiteSpace(rxPan));
+        Assert.False(string.IsNullOrWhiteSpace(txPan));
+        Assert.NotEqual(rxPan, txPan, StringComparer.OrdinalIgnoreCase);
+
+        Assert.True(RigSatModeHelper.IsUhfCenterKHz(stub.PanCentersHz[rxPan!] / 1000.0));
+        Assert.True(RigSatModeHelper.IsVhfCenterKHz(stub.PanCentersHz[txPan!] / 1000.0));
+    }
+
+    [Fact]
+    public void EnsureDuplexPassFrequencies_recovers_collapsed_pans_instead_of_preserving_bad_locks()
+    {
+        using var stub = new FlexSmartSdrStubServer(silentCrossScuCenterReject: true);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        // Healthy bind first so sticky locks exist, then collapse (Mark's death spiral).
+        driver.EnsureDualBandPanLayout(435_640_000, 145_965_000);
+        driver.BindDuplexSlicesToBandPans(435_640_000, 145_965_000, forceRebind: true);
+        driver.SelectVfo(RigVfo.Main);
+        driver.SetFrequencyHz(435_640_000);
+        driver.SelectVfo(RigVfo.Sub);
+        driver.SetFrequencyHz(145_965_000);
+        driver.CenterBandPanadapters(435_640_000, 145_965_000);
+
+        stub.CollapseBothPansOntoBand(ontoUhf: true);
+        stub.ClearCommandBodies();
+
+        driver.EnsureDuplexPassFrequencies(435_640_000, 145_965_000, "USB", "USB");
+
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals("display panafall create", StringComparison.OrdinalIgnoreCase));
+
+        var rxPan = stub.Slices[driver.RxSliceIndex].PanStreamId;
+        var txPan = stub.Slices[driver.TxSliceIndex].PanStreamId;
+        Assert.NotEqual(rxPan, txPan, StringComparer.OrdinalIgnoreCase);
+        Assert.True(RigSatModeHelper.IsUhfCenterKHz(stub.PanCentersHz[rxPan!] / 1000.0));
+        Assert.True(RigSatModeHelper.IsVhfCenterKHz(stub.PanCentersHz[txPan!] / 1000.0));
+    }
+
+    [Fact]
+    public void CenterBandPanadapters_does_not_claim_success_when_radio_silently_rejects_cross_band()
+    {
+        using var stub = new FlexSmartSdrStubServer(silentCrossScuCenterReject: true);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        stub.CollapseBothPansOntoBand(ontoUhf: true);
+        // Without recovery, centring the sticky/missing VHF target cannot move a UHF pan.
+        driver.CenterBandPanadapters(435_640_000, 145_965_000);
+
+        Assert.All(stub.PanCentersHz.Values, hz => Assert.True(RigSatModeHelper.IsUhfCenterKHz(hz / 1000.0)));
+    }
+
+    [Fact]
     public void SupportsVfoExchange_IsFalse()
     {
         using var stub = new FlexSmartSdrStubServer();

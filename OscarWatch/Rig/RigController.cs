@@ -1413,6 +1413,7 @@ public sealed class RigController : IRigController, IDisposable
                 && !string.Equals(previousSatellite, context.TrackState.Name, StringComparison.OrdinalIgnoreCase);
             // Same-layout sat switches (e.g. RS-44↔ISS) must recreate; AlreadyBound alone can skip a needed reset.
             var forcePanRebind = layoutFlipped || satelliteChanged;
+            flexPreTune.EnsureDualBandPanLayout(rxHz, txHz);
             flexPreTune.BindDuplexSlicesToBandPans(rxHz, txHz, forcePanRebind);
             flexPreTune.ApplyBandAntennaPorts(settings, rxHz, txHz);
         }

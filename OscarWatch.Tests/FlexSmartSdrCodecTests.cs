@@ -120,6 +120,32 @@ public class FlexSmartSdrCodecTests
     }
 
     [Fact]
+    public void BuildDisplayPanafallCreateCommand_formats()
+    {
+        var cmd = FlexSmartSdrCodec.BuildDisplayPanafallCreateCommand(5);
+        Assert.Equal("C5|display panafall create\n", cmd);
+    }
+
+    [Fact]
+    public void BuildDisplayPanRemoveCommands_format_pair()
+    {
+        var pan = FlexSmartSdrCodec.BuildDisplayPanRemoveCommand(6, "0x40000002");
+        var panafall = FlexSmartSdrCodec.BuildDisplayPanafallRemoveCommand(7, "0x40000002");
+        Assert.Equal("C6|display pan remove 0x40000002\n", pan);
+        Assert.Equal("C7|display panafall remove 0x40000002\n", panafall);
+    }
+
+    [Theory]
+    [InlineData("pan=0x40000012", "0x40000012")]
+    [InlineData("id=0x4000000A", "0x4000000A")]
+    [InlineData("0x4000000B", "0x4000000B")]
+    public void TryParsePanafallCreatePanId_extracts_id(string body, string expected)
+    {
+        Assert.True(FlexSmartSdrCodec.TryParsePanafallCreatePanId(body, out var panId));
+        Assert.Equal(expected, panId);
+    }
+
+    [Fact]
     public void BuildSliceSetToneCommands_SeparateModeAndValue()
     {
         var on = FlexSmartSdrCodec.BuildSliceSetToneModeCommand(5, 1, toneOn: true);

@@ -12,4 +12,12 @@ When writing as or for Peter (issue replies, commit messages, release notes, hel
 - Always use **MM9SQL**
 - Never use other callsigns for him (including older ones such as M0NPT)
 
-Example: `73 de MM9SQL Peter`
+For “73” sign-offs, use this form (blank line after 73, then name and callsign):
+
+```text
+73,
+
+Peter MM9SQL
+```
+
+Do not use `73 de MM9SQL Peter` or other rearrangements unless the user asks for a different style in that message.

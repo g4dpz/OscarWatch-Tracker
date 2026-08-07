@@ -32,12 +32,14 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
     private readonly bool _rejectClientProgram;
     private readonly bool _suppressSliceSetStatus;
     private readonly bool _omitPanOnCreateStatus;
+    private readonly bool _silentCrossScuCenterReject;
     private readonly ConcurrentDictionary<string, long> _panCentersHz = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentQueue<string> _commandBodies = new();
     private string? _vhfPanStreamId;
     private string? _uhfPanStreamId;
     private int _nextPanSuffix;
     private int _activeSliceIndex;
+    private int _nextCreatedPanId = 0x40000010;
 
     public FlexSmartSdrStubServer(
         int initialSliceCount = 2,
@@ -51,7 +53,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         bool emitPartialSliceStatus = false,
         bool rejectClientProgram = false,
         bool suppressSliceSetStatus = false,
-        bool omitPanOnCreateStatus = false)
+        bool omitPanOnCreateStatus = false,
+        bool silentCrossScuCenterReject = false)
     {
         if (initialSliceCount >= 1)
             _slices[0] = new StubSlice(0, 145_900_000, "USB", Tx: false, PanStreamId: "0x40000000");
@@ -75,6 +78,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         _rejectClientProgram = rejectClientProgram;
         _suppressSliceSetStatus = suppressSliceSetStatus;
         _omitPanOnCreateStatus = omitPanOnCreateStatus;
+        _silentCrossScuCenterReject = silentCrossScuCenterReject;
         _nextPanSuffix = Math.Max(0, initialSliceCount);
 
         _listener = new TcpListener(IPAddress.Loopback, 0);
@@ -132,6 +136,41 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                 throw new InvalidOperationException("No SmartSDR stub client is connected.");
 
             _connectedWriter.WriteLine($"SABCDEF01|slice {index} RF_frequency={mhz}");
+            _connectedWriter.Flush();
+        }
+    }
+
+    /// <summary>
+    /// Collapses both panadapters onto one band (Mark's pan-lock failure mode).
+    /// </summary>
+    public void CollapseBothPansOntoBand(bool ontoUhf)
+    {
+        var centerHz = ontoUhf ? 435_000_000L : 145_900_000L;
+        foreach (var key in _panCentersHz.Keys.ToList())
+            _panCentersHz[key] = centerHz;
+
+        if (ontoUhf)
+        {
+            _uhfPanStreamId = _panCentersHz.Keys.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).FirstOrDefault();
+            _vhfPanStreamId = null;
+        }
+        else
+        {
+            _vhfPanStreamId = _panCentersHz.Keys.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).FirstOrDefault();
+            _uhfPanStreamId = null;
+        }
+
+        lock (_writerGate)
+        {
+            if (_connectedWriter is null)
+                return;
+
+            foreach (var entry in _panCentersHz.OrderBy(static p => p.Key, StringComparer.OrdinalIgnoreCase))
+            {
+                var mhz = FlexSmartSdrCodec.HzToMhz(entry.Value).ToString("0.######", CultureInfo.InvariantCulture);
+                _connectedWriter.WriteLine($"SABCDEF01|display pan {entry.Key} center={mhz}");
+            }
+
             _connectedWriter.Flush();
         }
     }
@@ -300,14 +339,56 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                 var centerHz = FlexSmartSdrCodec.MhzToHz(mhz);
                 if (IsCrossScuPanCenter(panId, centerHz))
                 {
+                    if (_silentCrossScuCenterReject)
+                    {
+                        // Match Mark's radio: R|0| with no centre change (optimistic clients poison locks).
+                        await writer.WriteLineAsync($"R{seq}|0|").ConfigureAwait(false);
+                        return;
+                    }
+
                     await writer.WriteLineAsync($"R{seq}|50000015|Pan centre band mismatch").ConfigureAwait(false);
                     return;
                 }
 
                 _panCentersHz[panId] = centerHz;
+                if (RigSatModeHelper.IsVhfCenterKHz(centerHz / 1000.0))
+                    _vhfPanStreamId = panId;
+                else if (RigSatModeHelper.IsUhfCenterKHz(centerHz / 1000.0))
+                    _uhfPanStreamId = panId;
+
                 await writer.WriteLineAsync(
                         $"SABCDEF01|display pan {panId} center={mhz.ToString("0.######", CultureInfo.InvariantCulture)} autocenter=0")
                     .ConfigureAwait(false);
+            }
+
+            await writer.WriteLineAsync($"R{seq}|0|").ConfigureAwait(false);
+            return;
+        }
+
+        if (body.Equals("display panafall create", StringComparison.OrdinalIgnoreCase)
+            || body.Equals("panadapter create", StringComparison.OrdinalIgnoreCase))
+        {
+            var panId = $"0x{Interlocked.Increment(ref _nextCreatedPanId) - 1:X8}";
+            // New pans start on HF until centred (matches real radio defaults).
+            _panCentersHz[panId] = 14_225_000;
+            var mhz = FlexSmartSdrCodec.HzToMhz(14_225_000).ToString("0.######", CultureInfo.InvariantCulture);
+            await writer.WriteLineAsync($"SABCDEF01|display pan {panId} center={mhz}").ConfigureAwait(false);
+            await writer.WriteLineAsync($"R{seq}|0|pan={panId}").ConfigureAwait(false);
+            return;
+        }
+
+        if (body.StartsWith("display pan remove ", StringComparison.OrdinalIgnoreCase)
+            || body.StartsWith("display panafall remove ", StringComparison.OrdinalIgnoreCase))
+        {
+            var parts = body.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length >= 4)
+            {
+                var panId = parts[^1];
+                _panCentersHz.TryRemove(panId, out _);
+                if (string.Equals(_vhfPanStreamId, panId, StringComparison.OrdinalIgnoreCase))
+                    _vhfPanStreamId = null;
+                if (string.Equals(_uhfPanStreamId, panId, StringComparison.OrdinalIgnoreCase))
+                    _uhfPanStreamId = null;
             }
 
             await writer.WriteLineAsync($"R{seq}|0|").ConfigureAwait(false);
@@ -541,15 +622,14 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         if (centerHz <= 0)
             return false;
 
-        var centerKHz = centerHz / 1000.0;
-        var targetIsVhf = RigSatModeHelper.IsVhfCenterKHz(centerKHz);
-        var targetIsUhf = RigSatModeHelper.IsUhfCenterKHz(centerKHz);
-        if (string.Equals(panStreamId, _vhfPanStreamId, StringComparison.OrdinalIgnoreCase))
-            return !targetIsVhf;
-        if (string.Equals(panStreamId, _uhfPanStreamId, StringComparison.OrdinalIgnoreCase))
-            return !targetIsUhf;
+        if (!_panCentersHz.TryGetValue(panStreamId, out var currentHz) || currentHz <= 0)
+            return false;
 
-        return false;
+        // Model Mark's radio: pans cannot jump between the VHF-group and UHF bands.
+        // New / HF pans (same VHF-group as 2 m) may still be recentred onto 2 m.
+        var currentIsUhf = RigSatModeHelper.IsUhfCenterKHz(currentHz / 1000.0);
+        var targetIsUhf = RigSatModeHelper.IsUhfCenterKHz(centerHz / 1000.0);
+        return currentIsUhf != targetIsUhf;
     }
 
     private void UpdateSlice(int index, Func<StubSlice, StubSlice> update)
