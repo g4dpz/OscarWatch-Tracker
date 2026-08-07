@@ -61,10 +61,21 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         if (initialSliceCount >= 2)
             _slices[1] = new StubSlice(1, 435_000_000, "USB", Tx: true, PanStreamId: "0x40000001");
 
-        _panCentersHz["0x40000000"] = 435_000_000;
-        _panCentersHz["0x40000001"] = 145_900_000;
-        _vhfPanStreamId = "0x40000001";
-        _uhfPanStreamId = "0x40000000";
+        if (initialSliceCount >= 2)
+        {
+            // Dual-pan startup: VHF + UHF (stream IDs match common SmartSDR layouts).
+            _panCentersHz["0x40000000"] = 435_000_000;
+            _panCentersHz["0x40000001"] = 145_900_000;
+            _vhfPanStreamId = "0x40000001";
+            _uhfPanStreamId = "0x40000000";
+        }
+        else if (initialSliceCount == 1)
+        {
+            // Single-pan startup (Mark's failure mode): only the VHF pan exists.
+            _panCentersHz["0x40000000"] = 145_900_000;
+            _vhfPanStreamId = "0x40000000";
+            _uhfPanStreamId = null;
+        }
 
         _nextSliceIndex = Math.Max(0, initialSliceCount);
         _rejectFullDuplex = rejectFullDuplex;
@@ -160,6 +171,38 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
             _uhfPanStreamId = null;
         }
 
+        EmitAllPanCenters();
+    }
+
+    /// <summary>
+    /// Swaps VHF/UHF pan centres in place (sticky lock lag after slice recreate).
+    /// </summary>
+    public void SwapPanBandCenters()
+    {
+        string? vhfId = null;
+        string? uhfId = null;
+        foreach (var entry in _panCentersHz)
+        {
+            if (RigSatModeHelper.IsVhfCenterKHz(entry.Value / 1000.0))
+                vhfId ??= entry.Key;
+            else if (RigSatModeHelper.IsUhfCenterKHz(entry.Value / 1000.0))
+                uhfId ??= entry.Key;
+        }
+
+        if (vhfId is null || uhfId is null)
+            throw new InvalidOperationException("SwapPanBandCenters requires live VHF and UHF pans.");
+
+        var vhfHz = _panCentersHz[vhfId];
+        var uhfHz = _panCentersHz[uhfId];
+        _panCentersHz[vhfId] = uhfHz;
+        _panCentersHz[uhfId] = vhfHz;
+        _vhfPanStreamId = uhfId;
+        _uhfPanStreamId = vhfId;
+        EmitAllPanCenters();
+    }
+
+    private void EmitAllPanCenters()
+    {
         lock (_writerGate)
         {
             if (_connectedWriter is null)
@@ -534,6 +577,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
 
             int index;
             string panId;
+            var createdNewPan = false;
+            var sliceHz = FlexSmartSdrCodec.MhzToHz(freq);
             lock (_gate)
             {
                 index = _nextSliceIndex++;
@@ -544,13 +589,33 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                     _nextPanSuffix++;
                 _slices[index] = new StubSlice(
                     index,
-                    FlexSmartSdrCodec.MhzToHz(freq),
+                    sliceHz,
                     mode,
                     Tx: false,
                     RxAnt: ant,
                     PanStreamId: panId);
                 if (!_panCentersHz.ContainsKey(panId))
-                    _panCentersHz[panId] = FlexSmartSdrCodec.MhzToHz(freq);
+                {
+                    _panCentersHz[panId] = sliceHz;
+                    createdNewPan = true;
+                    if (RigSatModeHelper.IsVhfCenterKHz(sliceHz / 1000.0))
+                        _vhfPanStreamId = panId;
+                    else if (RigSatModeHelper.IsUhfCenterKHz(sliceHz / 1000.0))
+                        _uhfPanStreamId = panId;
+                }
+                else if (!IsCrossScuPanCenter(panId, sliceHz))
+                {
+                    // Same-band create autopans the display (matches SmartSDR create behaviour).
+                    _panCentersHz[panId] = sliceHz;
+                }
+            }
+
+            if (createdNewPan || _panCentersHz.ContainsKey(panId))
+            {
+                var panMhz = FlexSmartSdrCodec.HzToMhz(_panCentersHz[panId])
+                    .ToString("0.######", CultureInfo.InvariantCulture);
+                await writer.WriteLineAsync($"SABCDEF01|display pan {panId} center={panMhz}")
+                    .ConfigureAwait(false);
             }
 
             if (!_omitSliceCreateStatus)
@@ -625,8 +690,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         if (!_panCentersHz.TryGetValue(panStreamId, out var currentHz) || currentHz <= 0)
             return false;
 
-        // Model Mark's radio: pans cannot jump between the VHF-group and UHF bands.
-        // New / HF pans (same VHF-group as 2 m) may still be recentred onto 2 m.
+        // Model Mark's radio: the VHF-group SCU (HF through 2 m) cannot jump to UHF and back.
+        // IsVhfCenterKHz treats HF as VHF-group, so panafall create (HF default) cannot centre onto UHF.
         var currentIsUhf = RigSatModeHelper.IsUhfCenterKHz(currentHz / 1000.0);
         var targetIsUhf = RigSatModeHelper.IsUhfCenterKHz(centerHz / 1000.0);
         return currentIsUhf != targetIsUhf;

@@ -219,7 +219,7 @@ public sealed class FlexRadioDriver : IRigDriver
     /// Restores separate live VHF and UHF panadapters before slice bind.
     /// Recovers from both-pans-on-one-band by recentring or creating a panafall.
     /// </summary>
-    public bool EnsureDualBandPanLayout(long downlinkHz, long uplinkHz)
+    public bool EnsureDualBandPanLayout(long downlinkHz, long uplinkHz, bool allowRemoveInUseSlices = true)
     {
         if (!_client.IsConnected || !_satelliteMode)
             return false;
@@ -240,7 +240,7 @@ public sealed class FlexRadioDriver : IRigDriver
             return false;
         }
 
-        var ok = _client.EnsureDualBandPanLayout(vhfHz, uhfHz);
+        var ok = _client.EnsureDualBandPanLayout(vhfHz, uhfHz, allowRemoveInUseSlices);
         if (!ok)
         {
             Log.Warning(
@@ -591,9 +591,25 @@ public sealed class FlexRadioDriver : IRigDriver
         if (slices.Count == 1)
         {
             _rxSliceIndex = slices[0].Index;
-            var createHz = _lastSubHz > 0 ? _lastSubHz : 435_000_000;
+            var existingHz = slices[0].FrequencyHz;
+            ResolveSinglePanBootstrapTargets(
+                existingHz,
+                out var createHz,
+                out var vhfHz,
+                out var uhfHz);
+
+            // Build a real VHF+UHF pan pair before the peer slice, instead of letting
+            // slice create invent a second pan that later fails cross-band centre/rebind.
+            // Do not strip the only live slice if recovery needs a second pass.
+            string? targetPan = null;
+            if (_client.EnsureDualBandPanLayout(vhfHz, uhfHz, allowRemoveInUseSlices: false))
+            {
+                _client.GetLockedBandPanStreamIds(out var vhfPan, out var uhfPan);
+                targetPan = RigSatModeHelper.IsVhfCenterKHz(createHz / 1000.0) ? vhfPan : uhfPan;
+            }
+
             // Create without ant=; ApplyBandAntennaPorts sets rxant/txant after bind.
-            var created = _client.CreateSlice(createHz, "USB");
+            var created = _client.CreateSlice(createHz, "USB", panStreamId: targetPan);
             if (created is null || created.Value == _rxSliceIndex)
                 return false;
 
@@ -621,6 +637,34 @@ public sealed class FlexRadioDriver : IRigDriver
         var slices = _client.GetInUseSlices();
         return slices.Any(s => s.Index == rxSliceIndex && s.FrequencyHz > 0)
             && slices.Any(s => s.Index == txSliceIndex && s.FrequencyHz > 0);
+    }
+
+    /// <summary>
+    /// Chooses an opposite-band peer frequency when starting from a single pan/slice.
+    /// </summary>
+    private void ResolveSinglePanBootstrapTargets(
+        long existingHz,
+        out long createHz,
+        out long vhfHz,
+        out long uhfHz)
+    {
+        if (RigSatModeHelper.IsUhfCenterKHz(existingHz / 1000.0))
+        {
+            createHz = _lastMainHz > 0 && RigSatModeHelper.IsVhfCenterKHz(_lastMainHz / 1000.0)
+                ? _lastMainHz
+                : 145_900_000;
+            uhfHz = existingHz;
+            vhfHz = createHz;
+            return;
+        }
+
+        createHz = _lastSubHz > 0 && RigSatModeHelper.IsUhfCenterKHz(_lastSubHz / 1000.0)
+            ? _lastSubHz
+            : 435_000_000;
+        vhfHz = existingHz > 0 && RigSatModeHelper.IsVhfCenterKHz(existingHz / 1000.0)
+            ? existingHz
+            : 145_900_000;
+        uhfHz = createHz;
     }
 
     private int SliceFor(RigVfo vfo) =>

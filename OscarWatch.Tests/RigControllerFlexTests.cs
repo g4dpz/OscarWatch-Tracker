@@ -407,7 +407,7 @@ public class RigControllerFlexTests
     }
 
     [Fact]
-    public void Flex_same_uv_layout_satellite_change_force_rebinds()
+    public void Flex_same_uv_layout_satellite_change_skips_rebind_when_already_healthy()
     {
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
@@ -451,16 +451,10 @@ public class RigControllerFlexTests
             satelliteName: "RS-44",
             ready: () => harness.Controller.GetStatus().IsTracking);
 
-        var bodies = stub.CommandBodies.ToList();
-        Assert.Contains(bodies, b => b.StartsWith("slice remove ", StringComparison.OrdinalIgnoreCase));
-        Assert.Contains(
-            bodies,
-            b => b.Contains("slice create ", StringComparison.OrdinalIgnoreCase)
-                 && b.Contains(" pan=0x40000000", StringComparison.OrdinalIgnoreCase));
-        Assert.Contains(
-            bodies,
-            b => b.Contains("slice create ", StringComparison.OrdinalIgnoreCase)
-                 && b.Contains(" pan=0x40000001", StringComparison.OrdinalIgnoreCase));
+        // Same-layout sat change must not tear down a healthy dual-band bind (Mark single-pan lock-up).
+        Assert.DoesNotContain(
+            stub.CommandBodies,
+            b => b.StartsWith("slice remove ", StringComparison.OrdinalIgnoreCase));
 
         var rxSlice = stub.Slices.Values.First(s => !s.Tx);
         var txSlice = stub.Slices.Values.First(s => s.Tx);
@@ -468,6 +462,83 @@ public class RigControllerFlexTests
         Assert.Equal("0x40000001", txSlice.PanStreamId);
         Assert.Equal("USB", rxSlice.Mode);
         Assert.Equal("LSB", txSlice.Mode);
+    }
+
+    [Fact]
+    public void Flex_single_pan_start_survives_vu_flip_then_same_layout_sat_change()
+    {
+        using var stub = new FlexSmartSdrStubServer(initialSliceCount: 1, silentCrossScuCenterReject: true);
+        stub.WaitUntilReady();
+        using var harness = CreateHarness(stub);
+
+        var ao73 = new SatelliteTransponderMode
+        {
+            Type = "SSB Transponder",
+            DownlinkKHz = 145_960,
+            UplinkKHz = 435_148,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "NOR"
+        };
+
+        PublishAndWait(
+            harness,
+            ao73,
+            DopplerFrequencyCalculator.Compute(ao73, 0, 0),
+            satelliteName: "AO-73",
+            ready: () => stub.FullDuplexEnabled);
+
+        Assert.Contains(stub.PanCentersHz.Values, hz => RigSatModeHelper.IsVhfCenterKHz(hz / 1000.0));
+        Assert.Contains(stub.PanCentersHz.Values, hz => RigSatModeHelper.IsUhfCenterKHz(hz / 1000.0));
+
+        var iss = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 437_800,
+            UplinkKHz = 145_990,
+            DownlinkMode = "FM",
+            UplinkMode = "FM",
+            Doppler = "NOR",
+            CtcssHz = 67.0
+        };
+
+        PublishAndWait(
+            harness,
+            iss,
+            DopplerFrequencyCalculator.Compute(iss, 0, 0),
+            selectedCtcssHz: 67.0,
+            satelliteName: "ISS",
+            ready: () => harness.Controller.GetStatus().IsTracking);
+
+        stub.ClearCommandBodies();
+
+        var fo29 = new SatelliteTransponderMode
+        {
+            Type = "SSB Transponder",
+            DownlinkKHz = 435_850.45,
+            UplinkKHz = 145_952.65,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "NOR"
+        };
+
+        PublishAndWait(
+            harness,
+            fo29,
+            DopplerFrequencyCalculator.Compute(fo29, 0, 0),
+            satelliteName: "FO-29",
+            ready: () => harness.Controller.GetStatus().IsTracking);
+
+        Assert.DoesNotContain(
+            stub.CommandBodies,
+            b => b.StartsWith("slice remove ", StringComparison.OrdinalIgnoreCase));
+
+        var rxSlice = stub.Slices.Values.First(s => !s.Tx);
+        var txSlice = stub.Slices.Values.First(s => s.Tx);
+        Assert.NotEqual(rxSlice.PanStreamId, txSlice.PanStreamId, StringComparer.OrdinalIgnoreCase);
+        Assert.True(RigSatModeHelper.IsUhfCenterKHz(stub.PanCentersHz[rxSlice.PanStreamId] / 1000.0));
+        Assert.True(RigSatModeHelper.IsVhfCenterKHz(stub.PanCentersHz[txSlice.PanStreamId] / 1000.0));
+        Assert.Equal(2, stub.Slices.Count);
     }
 
     [Fact]

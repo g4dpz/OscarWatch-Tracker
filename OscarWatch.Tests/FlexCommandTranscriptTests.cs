@@ -156,7 +156,7 @@ public class FlexCommandTranscriptTests
     }
 
     [Fact]
-    public void Force_rebind_recreates_even_when_pans_already_match()
+    public void Force_rebind_skips_recreate_when_pans_already_match()
     {
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
@@ -172,25 +172,11 @@ public class FlexCommandTranscriptTests
         driver.BindDuplexSlicesToBandPans(435_863_000, 145_943_000, forceRebind: true);
 
         var bodies = stub.CommandBodies.ToList();
-        Assert.Contains(bodies, b => b.StartsWith("slice remove ", StringComparison.OrdinalIgnoreCase));
-        Assert.Contains(
-            bodies,
-            b => b.Contains("slice create freq=435.863 pan=0x40000000", StringComparison.OrdinalIgnoreCase));
-        Assert.Contains(
-            bodies,
-            b => b.Contains("slice create freq=145.943 pan=0x40000001", StringComparison.OrdinalIgnoreCase));
-        Assert.Contains(
-            bodies,
-            b => b.StartsWith("slice tune ", StringComparison.OrdinalIgnoreCase)
-                 && b.Contains(" 435.863", StringComparison.OrdinalIgnoreCase));
-        Assert.Contains(
-            bodies,
-            b => b.StartsWith("slice tune ", StringComparison.OrdinalIgnoreCase)
-                 && b.Contains(" 145.943", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(bodies, b => b.StartsWith("slice remove ", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(bodies, b => b.StartsWith("slice create ", StringComparison.OrdinalIgnoreCase));
         Assert.Equal("0x40000000", stub.Slices[driver.RxSliceIndex].PanStreamId);
         Assert.Equal("0x40000001", stub.Slices[driver.TxSliceIndex].PanStreamId);
-        Assert.Equal(435_863_000, stub.Slices[driver.RxSliceIndex].FrequencyHz);
-        Assert.Equal(145_943_000, stub.Slices[driver.TxSliceIndex].FrequencyHz);
+        // Frequencies are retuned by pass init after bind; bind itself must not tear down a healthy layout.
     }
 
     [Fact]

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FlexRadio — OscarWatch Help</title>
+  <title>FlexRadio: OscarWatch Help</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -91,18 +91,19 @@
       </table>
       <p>
         Continuous Doppler uses <code>slice tune … autopan=0</code> so the radio does not yank both panadapters
-        onto one band every few seconds. When a satellite (or mode) is focused, OscarWatch rebinds each slice onto
-        the correct VHF or UHF panadapter by removing and recreating slices with <code>slice create … pan=</code>
-        (the API rejects <code>slice set … pan=</code>, and <code>slice m</code> cannot safely swap two occupied pans).
-        A V/U↔U/V layout flip, or a change of satellite, forces that recreate so a stale pan cache cannot leave RX/TX
-        on the wrong SCU. OscarWatch then tunes, then centres the
+        onto one band every few seconds. When a satellite (or mode) is focused, OscarWatch binds each slice onto
+        the correct VHF or UHF panadapter. A V/U↔U/V layout flip recreates slices with
+        <code>slice create … pan=</code> (the API rejects <code>slice set … pan=</code>, and <code>slice m</code>
+        cannot safely swap two occupied pans). Same-layout satellite changes keep a healthy bind and only retune.
+        If you start with a single panadapter, OscarWatch allocates the missing band pan over the API
+        (a short-lived opposite-band slice, or <code>display panafall create</code> when that can land on the
+        needed SCU) before binding the peer slice, then centres and locks VHF/UHF pans from live centres.
+        OscarWatch then tunes, centres the
         <strong>VHF and UHF panadapters</strong> once each (by locked SCU band, not by which slice happened to be attached),
         and sends <code>autocenter=0</code> so the radio does not recentre them during Doppler. Modes (USB downlink /
         LSB uplink on linear SSB) are applied next. OscarWatch then <strong>reads back</strong> live RX/TX slice
         frequencies, modes, TX roles, and pan attachments, and retunes / force-rebinds if anything landed wrong.
         FM CTCSS is programmed only on FM uplink modes.
-        Keep two panadapters active on the radio (typical dual-SCU layout) so VHF and UHF can stay available together —
-        especially when switching from V/U to U/V satellites.
       </p>
       <p>
         OscarWatch keeps <strong>band-locked</strong> pans: VHF frequencies stay on the VHF panadapter and UHF on the
@@ -122,9 +123,10 @@
       <p>
         After rapid U/V ↔ V/U satellite switching, SmartSDR can occasionally leave both panadapters on VHF or both
         on UHF. OscarWatch detects that from live pan centres and tries to restore a dual-band layout over the API:
-        it frees the duplex slices, recentres a candidate pan when the radio will take the move, and if needed creates
-        a new panadapter with <code>display panafall create</code> on the missing band before rebinding RX/TX.
-        Continuous Doppler still uses <code>autopan=0</code> so those pans are not yanked again during the pass.
+        it recentres a candidate pan when the radio will take the move, allocates a missing-band pan via a temporary
+        slice (or <code>display panafall create</code> when that SCU can take the band), and only removes duplex
+        slices if that first pass still cannot restore both bands. Continuous Doppler still uses
+        <code>autopan=0</code> so those pans are not yanked again during the pass.
       </p>
       <p>
         If recovery still fails (for example the radio is at pan/SCU capacity, or another Multi-Flex client owns the

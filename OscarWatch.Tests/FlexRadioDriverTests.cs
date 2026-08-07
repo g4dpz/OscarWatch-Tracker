@@ -183,6 +183,61 @@ public class FlexRadioDriverTests
     }
 
     [Fact]
+    public void SetSatelliteMode_FromSinglePan_CreatesOppositeBandPanThenPeerSlice()
+    {
+        using var stub = new FlexSmartSdrStubServer(initialSliceCount: 1, silentCrossScuCenterReject: true);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        stub.ClearCommandBodies();
+        driver.SetSatelliteMode(true);
+
+        Assert.True(driver.IsSatelliteModeActive);
+        // UHF SCU pan is allocated via a temporary slice (panafall create stays on VHF-group/HF).
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.StartsWith("slice create ", StringComparison.OrdinalIgnoreCase)
+                 && b.Contains("freq=435", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.StartsWith("slice create ", StringComparison.OrdinalIgnoreCase)
+                 && b.Contains(" pan=", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(stub.PanCentersHz.Values, hz => RigSatModeHelper.IsVhfCenterKHz(hz / 1000.0));
+        Assert.Contains(stub.PanCentersHz.Values, hz => RigSatModeHelper.IsUhfCenterKHz(hz / 1000.0));
+
+        var txPan = stub.Slices[driver.TxSliceIndex].PanStreamId;
+        Assert.False(string.IsNullOrWhiteSpace(txPan));
+        Assert.True(RigSatModeHelper.IsUhfCenterKHz(stub.PanCentersHz[txPan!] / 1000.0));
+    }
+
+    [Fact]
+    public void CenterBandPanadapters_relocks_and_retries_when_sticky_ids_lag_live_centres()
+    {
+        using var stub = new FlexSmartSdrStubServer(silentCrossScuCenterReject: true);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        driver.BindDuplexSlicesToBandPans(435_640_000, 145_965_000, forceRebind: true);
+        driver.CenterBandPanadapters(435_640_000, 145_965_000);
+
+        // Invert live centres while leaving sticky locks pointing at the old IDs.
+        stub.SwapPanBandCenters();
+        stub.ClearCommandBodies();
+
+        driver.CenterBandPanadapters(435_640_000, 145_965_000);
+
+        var centres = stub.PanCentersHz;
+        Assert.Contains(centres, kv => RigSatModeHelper.IsVhfCenterKHz(kv.Value / 1000.0));
+        Assert.Contains(centres, kv => RigSatModeHelper.IsUhfCenterKHz(kv.Value / 1000.0));
+        Assert.DoesNotContain(
+            stub.CommandBodies,
+            b => b.Equals("display panafall create", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void SetSatelliteMode_WhenTxSliceRejected_ThrowsAndDisablesFullDuplex()
     {
         using var stub = new FlexSmartSdrStubServer(rejectTxSlice: true);
@@ -556,9 +611,12 @@ public class FlexRadioDriverTests
         var centres = stub.PanCentersHz;
         Assert.Contains(centres, kv => RigSatModeHelper.IsVhfCenterKHz(kv.Value / 1000.0));
         Assert.Contains(centres, kv => RigSatModeHelper.IsUhfCenterKHz(kv.Value / 1000.0));
-        Assert.Contains(
-            stub.CommandBodies,
-            b => b.Equals("display panafall create", StringComparison.OrdinalIgnoreCase));
+        Assert.True(
+            stub.CommandBodies.Any(b =>
+                b.Equals("display panafall create", StringComparison.OrdinalIgnoreCase)
+                || (b.StartsWith("slice create ", StringComparison.OrdinalIgnoreCase)
+                    && b.Contains("freq=145.965", StringComparison.OrdinalIgnoreCase))),
+            "Expected temporary VHF slice allocate or panafall create during recovery");
     }
 
     [Fact]
@@ -610,9 +668,12 @@ public class FlexRadioDriverTests
 
         driver.EnsureDuplexPassFrequencies(435_640_000, 145_965_000, "USB", "USB");
 
-        Assert.Contains(
-            stub.CommandBodies,
-            b => b.Equals("display panafall create", StringComparison.OrdinalIgnoreCase));
+        Assert.True(
+            stub.CommandBodies.Any(b =>
+                b.Equals("display panafall create", StringComparison.OrdinalIgnoreCase)
+                || (b.StartsWith("slice create ", StringComparison.OrdinalIgnoreCase)
+                    && b.Contains("freq=145.965", StringComparison.OrdinalIgnoreCase))),
+            "Expected temporary VHF slice allocate or panafall create during recovery");
 
         var rxPan = stub.Slices[driver.RxSliceIndex].PanStreamId;
         var txPan = stub.Slices[driver.TxSliceIndex].PanStreamId;

@@ -1411,7 +1411,9 @@ public sealed class RigController : IRigController, IDisposable
                 && previousDownlinkOnVhf != downlinkOnVhf;
             var satelliteChanged = _lastPassSatelliteKey is string previousSatellite
                 && !string.Equals(previousSatellite, context.TrackState.Name, StringComparison.OrdinalIgnoreCase);
-            // Same-layout sat switches (e.g. RS-44↔ISS) must recreate; AlreadyBound alone can skip a needed reset.
+            // Layout flips always request recreate. Same-layout sat switches also request it, but
+            // BindDuplexSlicesToBandPans still short-circuits when slices are already on healthy
+            // dual-band pans (avoids the single-pan bootstrap lock-up from tearing down a good bind).
             var forcePanRebind = layoutFlipped || satelliteChanged;
             flexPreTune.EnsureDualBandPanLayout(rxHz, txHz);
             flexPreTune.BindDuplexSlicesToBandPans(rxHz, txHz, forcePanRebind);
