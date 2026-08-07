@@ -168,6 +168,8 @@ public sealed class SatelliteStatusCommunityFetchTests
     {
         Assert.True(
             SatelliteStatusCommunityPresentation.RefreshInterval < SatelliteStatusCommunityPresentation.CacheTtl);
+        Assert.True(
+            SatelliteStatusCommunityPresentation.MaxRefreshInterval < SatelliteStatusCommunityPresentation.CacheTtl);
     }
 
     [Theory]
@@ -184,14 +186,40 @@ public sealed class SatelliteStatusCommunityFetchTests
 
     [Theory]
     [InlineData(0, false)]
-    [InlineData(4.9, false)]
+    [InlineData(3.9, false)]
+    [InlineData(4.0, true)]
     [InlineData(5, true)]
     [InlineData(10, true)]
-    public void IsRefreshDue_uses_five_minute_interval(double minutesAgo, bool expectedDue)
+    public void IsRefreshDue_uses_minimum_jittered_interval(double minutesAgo, bool expectedDue)
     {
         var now = new DateTime(2026, 7, 14, 21, 0, 0, DateTimeKind.Utc);
         var fetchedAt = now.AddMinutes(-minutesAgo);
         Assert.Equal(expectedDue, SatelliteStatusCommunityPresentation.IsRefreshDue(fetchedAt, now));
+    }
+
+    [Fact]
+    public void NextRefreshDelay_stays_within_jitter_window()
+    {
+        var rng = new Random(42);
+        for (var i = 0; i < 200; i++)
+        {
+            var delay = SatelliteStatusCommunityPresentation.NextRefreshDelay(rng);
+            Assert.InRange(
+                delay,
+                SatelliteStatusCommunityPresentation.MinRefreshInterval,
+                SatelliteStatusCommunityPresentation.MaxRefreshInterval);
+        }
+    }
+
+    [Fact]
+    public void NextInitialFetchDelay_stays_within_startup_jitter_window()
+    {
+        var rng = new Random(7);
+        for (var i = 0; i < 200; i++)
+        {
+            var delay = SatelliteStatusCommunityPresentation.NextInitialFetchDelay(rng);
+            Assert.InRange(delay, TimeSpan.Zero, SatelliteStatusCommunityPresentation.InitialFetchJitterMax);
+        }
     }
 
     [Fact]

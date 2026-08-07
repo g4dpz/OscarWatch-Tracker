@@ -8,10 +8,22 @@ public static class SatelliteStatusCommunityPresentation
     public static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(10);
 
     /// <summary>
-    /// How often to poll the community status API.
+    /// Nominal community status poll interval.
     /// Shorter than <see cref="CacheTtl"/> so a timer tick refetches before the display cache expires.
     /// </summary>
     public static readonly TimeSpan RefreshInterval = TimeSpan.FromMinutes(5);
+
+    /// <summary>
+    /// Half-range applied to <see cref="RefreshInterval"/> so clients do not poll in lock-step.
+    /// Effective delay is uniform in [<see cref="MinRefreshInterval"/>, <see cref="MaxRefreshInterval"/>].
+    /// </summary>
+    public static readonly TimeSpan RefreshJitter = TimeSpan.FromMinutes(1);
+
+    /// <summary>Earliest age at which a non-forced fetch may hit the network.</summary>
+    public static TimeSpan MinRefreshInterval => RefreshInterval - RefreshJitter;
+
+    /// <summary>Latest delay used when scheduling the next poll.</summary>
+    public static TimeSpan MaxRefreshInterval => RefreshInterval + RefreshJitter;
 
     public static readonly TimeSpan StaleAfter = TimeSpan.FromHours(3);
 
@@ -21,9 +33,38 @@ public static class SatelliteStatusCommunityPresentation
     public static bool IsCacheFresh(DateTime fetchedAtUtc, DateTime utcNow) =>
         utcNow - fetchedAtUtc.ToUniversalTime() <= CacheTtl;
 
-    /// <summary>True when a new network fetch should run (cache age at or past the refresh interval).</summary>
+    /// <summary>
+    /// True when a new network fetch should run (cache age at or past the minimum refresh interval).
+    /// The timer uses a jittered delay; this floor stops UI-triggered calls from hammering the API early.
+    /// </summary>
     public static bool IsRefreshDue(DateTime fetchedAtUtc, DateTime utcNow) =>
-        utcNow - fetchedAtUtc.ToUniversalTime() >= RefreshInterval;
+        utcNow - fetchedAtUtc.ToUniversalTime() >= MinRefreshInterval;
+
+    /// <summary>
+    /// Upper bound for the random delay before the first community status fetch after startup
+    /// or settings apply, so many clients do not hit the API in the same second.
+    /// </summary>
+    public static readonly TimeSpan InitialFetchJitterMax = TimeSpan.FromSeconds(30);
+
+    /// <summary>Next poll delay: <see cref="RefreshInterval"/> ± <see cref="RefreshJitter"/>.</summary>
+    public static TimeSpan NextRefreshDelay(Random? random = null)
+    {
+        random ??= Random.Shared;
+        var offsetSeconds = (random.NextDouble() * 2.0 - 1.0) * RefreshJitter.TotalSeconds;
+        var delay = RefreshInterval + TimeSpan.FromSeconds(offsetSeconds);
+        if (delay < MinRefreshInterval)
+            return MinRefreshInterval;
+        if (delay > MaxRefreshInterval)
+            return MaxRefreshInterval;
+        return delay;
+    }
+
+    /// <summary>Delay before the first fetch: uniform in [0, <see cref="InitialFetchJitterMax"/>].</summary>
+    public static TimeSpan NextInitialFetchDelay(Random? random = null)
+    {
+        random ??= Random.Shared;
+        return TimeSpan.FromSeconds(random.NextDouble() * InitialFetchJitterMax.TotalSeconds);
+    }
 
     public static string ShortLabel(SatelliteCommunityStatusKind kind) => kind switch
     {

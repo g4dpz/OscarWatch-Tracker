@@ -736,7 +736,7 @@ public partial class MainViewModel : ViewModelBase
         ConfigurePassListRefreshTimer();
         ConfigureHamsAtRefreshTimer();
         ConfigureSatelliteStatusRefreshTimer();
-        _ = RefreshCommunityStatusAsync();
+        _ = RefreshCommunityStatusSoonAsync();
         _liveDisplayTimer?.Start();
 
         // Phase 3: Fire pass prediction on background thread (non-blocking)
@@ -2201,14 +2201,34 @@ public partial class MainViewModel : ViewModelBase
 
         _communityStatusFeatureUnavailable = false;
 
-        _satelliteStatusRefreshTimer = new DispatcherTimer
-        {
-            Interval = SatelliteStatusCommunityPresentation.RefreshInterval
-        };
+        _satelliteStatusRefreshTimer = new DispatcherTimer();
         // When the API previously returned 404, force retries so a temporary outage can recover.
+        // Reschedule with a fresh jittered delay each tick so clients do not stay phase-locked.
         _satelliteStatusRefreshTimer.Tick += (_, _) =>
+        {
+            ScheduleNextCommunityStatusRefresh();
             _ = RefreshCommunityStatusAsync(force: _communityStatusFeatureUnavailable);
+        };
+        ScheduleNextCommunityStatusRefresh();
+    }
+
+    private void ScheduleNextCommunityStatusRefresh()
+    {
+        if (_satelliteStatusRefreshTimer is null)
+            return;
+
+        _satelliteStatusRefreshTimer.Stop();
+        _satelliteStatusRefreshTimer.Interval = SatelliteStatusCommunityPresentation.NextRefreshDelay();
         _satelliteStatusRefreshTimer.Start();
+    }
+
+    /// <summary>First fetch after startup/settings: short random delay to spread load across clients.</summary>
+    private async Task RefreshCommunityStatusSoonAsync()
+    {
+        var delay = SatelliteStatusCommunityPresentation.NextInitialFetchDelay();
+        if (delay > TimeSpan.Zero)
+            await Task.Delay(delay).ConfigureAwait(false);
+        await RefreshCommunityStatusAsync().ConfigureAwait(false);
     }
 
     private async Task RefreshCommunityStatusAsync(bool force = false)
@@ -2521,7 +2541,7 @@ public partial class MainViewModel : ViewModelBase
         ConfigureHamsAtRefreshTimer();
         await RefreshHamsAtRovesAsync().ConfigureAwait(true);
         ConfigureSatelliteStatusRefreshTimer();
-        _ = RefreshCommunityStatusAsync();
+        _ = RefreshCommunityStatusSoonAsync();
         await ReloadTleCatalogAfterSettingsAsync().ConfigureAwait(true);
         _liveTracking.RequestReload();
         _rotator.Disconnect();
