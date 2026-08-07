@@ -26,6 +26,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
     private readonly bool _rejectSliceCreate;
     private int _rejectSliceCreateRemaining;
     private readonly bool _omitSliceCreateIndex;
+    private readonly bool _omitSliceCreateStatus;
+    private readonly bool _emitGhostPartialSliceOnSubscribe;
     private readonly bool _emitPartialSliceStatus;
     private readonly bool _rejectClientProgram;
     private readonly bool _suppressSliceSetStatus;
@@ -44,6 +46,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         bool rejectSliceCreate = false,
         int rejectSliceCreateCount = 0,
         bool omitSliceCreateIndex = false,
+        bool omitSliceCreateStatus = false,
+        bool emitGhostPartialSliceOnSubscribe = false,
         bool emitPartialSliceStatus = false,
         bool rejectClientProgram = false,
         bool suppressSliceSetStatus = false,
@@ -65,6 +69,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         _rejectSliceCreate = rejectSliceCreate;
         _rejectSliceCreateRemaining = Math.Max(0, rejectSliceCreateCount);
         _omitSliceCreateIndex = omitSliceCreateIndex;
+        _omitSliceCreateStatus = omitSliceCreateStatus;
+        _emitGhostPartialSliceOnSubscribe = emitGhostPartialSliceOnSubscribe;
         _emitPartialSliceStatus = emitPartialSliceStatus;
         _rejectClientProgram = rejectClientProgram;
         _suppressSliceSetStatus = suppressSliceSetStatus;
@@ -253,7 +259,15 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
             || body.StartsWith("sub pan", StringComparison.OrdinalIgnoreCase))
         {
             if (body.StartsWith("sub slice", StringComparison.OrdinalIgnoreCase))
+            {
                 await EmitSlicesAsync(writer).ConfigureAwait(false);
+                if (_emitGhostPartialSliceOnSubscribe)
+                {
+                    // Frequency/mode-only status without in_use must not invent a duplex peer.
+                    await writer.WriteLineAsync("SABCDEF01|slice 9 RF_frequency=14.200000 mode=USB")
+                        .ConfigureAwait(false);
+                }
+            }
             if (body.StartsWith("sub pan", StringComparison.OrdinalIgnoreCase))
                 await EmitPansAsync(writer).ConfigureAwait(false);
 
@@ -465,7 +479,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                     _panCentersHz[panId] = FlexSmartSdrCodec.MhzToHz(freq);
             }
 
-            await EmitSliceAsync(writer, index, omitPan: _omitPanOnCreateStatus).ConfigureAwait(false);
+            if (!_omitSliceCreateStatus)
+                await EmitSliceAsync(writer, index, omitPan: _omitPanOnCreateStatus).ConfigureAwait(false);
             await writer.WriteLineAsync(_omitSliceCreateIndex ? $"R{seq}|0|" : $"R{seq}|0|{index}")
                 .ConfigureAwait(false);
             return;

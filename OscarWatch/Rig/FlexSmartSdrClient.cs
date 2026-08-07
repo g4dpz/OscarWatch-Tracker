@@ -925,15 +925,53 @@ internal sealed class FlexSmartSdrClient : IDisposable
         var mhz = FlexSmartSdrCodec.HzToMhz(hz);
         var response = SendAndWaitResponseUnlocked(seq =>
             FlexSmartSdrCodec.BuildSliceCreateCommand(seq, mhz, mode, ant, panStreamId));
-        if (response is null || !FlexSmartSdrCodec.IsSuccessResponse(response))
+        if (response is null)
+        {
+            Log.Warning(
+                "FlexRadio slice create timed out: freqHz={FrequencyHz}, mode={Mode}, pan={PanStreamId}, ant={Ant}",
+                hz,
+                mode,
+                panStreamId ?? "(none)",
+                ant ?? "(none)");
             return null;
+        }
 
-        var responseIndex = FlexSmartSdrCodec.TryParseSliceCreateIndex(response.Body, out var index)
-            ? index
-            : (int?)null;
-        var created = WaitForCreatedSliceUnlocked(existingIndexes, responseIndex);
-        if (created is null)
+        if (!FlexSmartSdrCodec.IsSuccessResponse(response))
+        {
+            Log.Warning(
+                "FlexRadio slice create failed: detail=hex=0x{Hex:X8}, body={Body}, freqHz={FrequencyHz}, mode={Mode}, pan={PanStreamId}, ant={Ant}",
+                response.HexResponse,
+                TruncateForLog(response.Body),
+                hz,
+                mode,
+                panStreamId ?? "(none)",
+                ant ?? "(none)");
             return null;
+        }
+
+        int? created;
+        if (FlexSmartSdrCodec.TryParseSliceCreateIndex(response.Body, out var index))
+        {
+            // Trust the successful R body even when MultiFlex status lags behind the create ack.
+            SeedCreatedSliceUnlocked(index, hz, mode, panStreamId);
+            created = index;
+            DrainPendingStatusUnlocked();
+        }
+        else
+        {
+            created = WaitForCreatedSliceUnlocked(existingIndexes, responseIndex: null);
+            if (created is null)
+            {
+                Log.Warning(
+                    "FlexRadio slice create succeeded but no slice index was confirmed: body={Body}, freqHz={FrequencyHz}, mode={Mode}, pan={PanStreamId}, ant={Ant}",
+                    TruncateForLog(response.Body),
+                    hz,
+                    mode,
+                    panStreamId ?? "(none)",
+                    ant ?? "(none)");
+                return null;
+            }
+        }
 
         // Create status can omit RF or reuse a slice index with a stale frequency — force the commanded tune.
         UpdateSliceFrequencyUnlocked(created.Value, hz);
@@ -952,6 +990,39 @@ internal sealed class FlexSmartSdrClient : IDisposable
 
         DrainPendingStatusUnlocked();
         return created;
+    }
+
+    private void SeedCreatedSliceUnlocked(int sliceIndex, long hz, string mode, string? panStreamId)
+    {
+        if (_slices.TryGetValue(sliceIndex, out var existing))
+        {
+            _slices[sliceIndex] = existing with
+            {
+                InUse = true,
+                FrequencyHz = hz > 0 ? hz : existing.FrequencyHz,
+                Mode = string.IsNullOrWhiteSpace(mode) ? existing.Mode : mode,
+                PanStreamId = string.IsNullOrWhiteSpace(panStreamId)
+                    ? existing.PanStreamId
+                    : panStreamId
+            };
+        }
+        else
+        {
+            _slices[sliceIndex] = new FlexSliceState(
+                sliceIndex,
+                InUse: true,
+                FrequencyHz: hz,
+                Mode: mode ?? "",
+                IsTransmit: false,
+                IsActive: false,
+                FmToneMode: "",
+                FmToneHz: 0,
+                PanStreamId: panStreamId ?? "");
+        }
+
+        if (hz > 0)
+            _sliceFrequencyRevisions[sliceIndex] =
+                _sliceFrequencyRevisions.GetValueOrDefault(sliceIndex) + 1;
     }
 
     private bool SetPanCenterUnlocked(string panStreamId, long centerHz, out string? failureDetail)
@@ -1260,6 +1331,11 @@ internal sealed class FlexSmartSdrClient : IDisposable
                         ? slice.PanStreamId
                         : existing.PanStreamId
                 };
+            }
+            else if (!HasSliceField(body, "in_use"))
+            {
+                // Brand-new cache entry without in_use must not become a ghost duplex slice.
+                slice = slice with { InUse = false };
             }
 
             _slices[slice.Index] = slice;

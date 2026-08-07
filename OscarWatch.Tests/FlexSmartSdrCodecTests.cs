@@ -119,6 +119,18 @@ public class FlexSmartSdrCodecTests
         Assert.Equal("ctcss_tx", slice.FmToneMode);
         Assert.Equal(67.0, slice.FmToneHz);
         Assert.Equal("0x40000001", slice.PanStreamId);
+        Assert.True(slice.InUse);
+    }
+
+    [Fact]
+    public void TryParseSliceStatus_missing_in_use_defaults_to_not_in_use()
+    {
+        const string body = "slice 9 RF_frequency=14.200000 mode=USB";
+
+        Assert.True(FlexSmartSdrCodec.TryParseSliceStatus(body, out var slice));
+        Assert.Equal(9, slice.Index);
+        Assert.Equal(14_200_000, slice.FrequencyHz);
+        Assert.False(slice.InUse);
     }
 
     [Fact]

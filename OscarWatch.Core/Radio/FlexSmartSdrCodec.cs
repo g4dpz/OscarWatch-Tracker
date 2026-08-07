@@ -210,7 +210,8 @@ public static class FlexSmartSdrCodec
             return false;
 
         var fields = ParseKeyValues(rest[(space + 1)..]);
-        var inUse = GetInt(fields, "in_use", 1) != 0;
+        // Missing in_use must not invent ghost in-use slices from frequency/mode-only status.
+        var inUse = GetInt(fields, "in_use", 0) != 0;
         var freqMhz = GetDouble(fields, "RF_frequency", 0);
         if (freqMhz <= 0)
             freqMhz = GetDouble(fields, "freq", 0);

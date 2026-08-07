@@ -536,7 +536,10 @@ public sealed class FlexRadioDriver : IRigDriver
 
     private bool TryEnsureDuplexSlices()
     {
-        var slices = _client.GetInUseSlices();
+        // Frequency-less in-use flags are treated as ghosts (partial status without RF).
+        var slices = _client.GetInUseSlices()
+            .Where(s => s.FrequencyHz > 0)
+            .ToList();
         var tx = slices.FirstOrDefault(s => s.IsTransmit);
 
         if (slices.Count >= 2)
@@ -552,40 +555,42 @@ public sealed class FlexRadioDriver : IRigDriver
                 _txSliceIndex = slices[1].Index;
             }
 
-            return _rxSliceIndex != _txSliceIndex;
+            return DuplexSlicePairIsUsable(_rxSliceIndex, _txSliceIndex);
         }
 
         if (slices.Count == 1)
         {
             _rxSliceIndex = slices[0].Index;
             var createHz = _lastSubHz > 0 ? _lastSubHz : 435_000_000;
-            var created = _client.CreateSlice(
-                createHz,
-                "USB",
-                FlexAntennaPortResolver.ResolveTxPort(_antennaPortSettings, createHz));
+            // Create without ant=; ApplyBandAntennaPorts sets rxant/txant after bind.
+            var created = _client.CreateSlice(createHz, "USB");
             if (created is null || created.Value == _rxSliceIndex)
                 return false;
 
             _txSliceIndex = created.Value;
-            return _client.GetInUseSlices().Select(s => s.Index).Distinct().Count() >= 2;
+            return DuplexSlicePairIsUsable(_rxSliceIndex, _txSliceIndex);
         }
 
         var rxCreateHz = _lastMainHz > 0 ? _lastMainHz : 145_900_000;
         var txCreateHz = _lastSubHz > 0 ? _lastSubHz : 435_000_000;
-        var rxCreated = _client.CreateSlice(
-            rxCreateHz,
-            "USB",
-            FlexAntennaPortResolver.ResolveRxPort(_antennaPortSettings, rxCreateHz));
-        var txCreated = _client.CreateSlice(
-            txCreateHz,
-            "USB",
-            FlexAntennaPortResolver.ResolveTxPort(_antennaPortSettings, txCreateHz));
+        var rxCreated = _client.CreateSlice(rxCreateHz, "USB");
+        var txCreated = _client.CreateSlice(txCreateHz, "USB");
         if (rxCreated is null || txCreated is null || rxCreated.Value == txCreated.Value)
             return false;
 
         _rxSliceIndex = rxCreated.Value;
         _txSliceIndex = txCreated.Value;
-        return _client.GetInUseSlices().Select(s => s.Index).Distinct().Count() >= 2;
+        return DuplexSlicePairIsUsable(_rxSliceIndex, _txSliceIndex);
+    }
+
+    private bool DuplexSlicePairIsUsable(int rxSliceIndex, int txSliceIndex)
+    {
+        if (rxSliceIndex == txSliceIndex)
+            return false;
+
+        var slices = _client.GetInUseSlices();
+        return slices.Any(s => s.Index == rxSliceIndex && s.FrequencyHz > 0)
+            && slices.Any(s => s.Index == txSliceIndex && s.FrequencyHz > 0);
     }
 
     private int SliceFor(RigVfo vfo) =>

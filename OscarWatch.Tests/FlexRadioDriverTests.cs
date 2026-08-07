@@ -119,6 +119,70 @@ public class FlexRadioDriverTests
     }
 
     [Fact]
+    public void SetSatelliteMode_AcceptsCreateIndexWhenStatusIsDelayed()
+    {
+        using var stub = new FlexSmartSdrStubServer(initialSliceCount: 1, omitSliceCreateStatus: true);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        Assert.True(driver.IsSatelliteModeActive);
+        Assert.NotEqual(driver.RxSliceIndex, driver.TxSliceIndex);
+        Assert.Equal(2, stub.Slices.Count);
+        Assert.True(stub.Slices[driver.TxSliceIndex].Tx);
+    }
+
+    [Fact]
+    public void SetSatelliteMode_IgnoresPartialStatusGhostSlicesWithoutInUse()
+    {
+        using var stub = new FlexSmartSdrStubServer(
+            initialSliceCount: 1,
+            emitGhostPartialSliceOnSubscribe: true);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        stub.ClearCommandBodies();
+        driver.SetSatelliteMode(true);
+
+        Assert.True(driver.IsSatelliteModeActive);
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.StartsWith("slice create ", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(stub.Slices.Keys, index => index == 9);
+        Assert.Equal(2, stub.Slices.Count);
+        Assert.NotEqual(driver.RxSliceIndex, driver.TxSliceIndex);
+    }
+
+    [Fact]
+    public void SetSatelliteMode_CreatesSecondSliceWithoutAntParameter()
+    {
+        using var stub = new FlexSmartSdrStubServer(initialSliceCount: 1);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        driver.ConfigureAntennaPorts(new RigSettings
+        {
+            FlexVhfRxAnt = "RX_B",
+            FlexUhfRxAnt = "RX_A",
+            FlexVhfTxAnt = "XVTR",
+            FlexUhfTxAnt = "ANT1"
+        });
+        stub.ClearCommandBodies();
+        driver.SetSatelliteMode(true);
+
+        var creates = stub.CommandBodies
+            .Where(b => b.StartsWith("slice create ", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        Assert.NotEmpty(creates);
+        Assert.All(creates, b => Assert.DoesNotContain("ant=", b, StringComparison.OrdinalIgnoreCase));
+        Assert.True(driver.IsSatelliteModeActive);
+    }
+
+    [Fact]
     public void SetSatelliteMode_WhenTxSliceRejected_ThrowsAndDisablesFullDuplex()
     {
         using var stub = new FlexSmartSdrStubServer(rejectTxSlice: true);
