@@ -33,21 +33,24 @@ public sealed record SatelliteCommunityCatalog(
     DateTime ServerTimeUtc,
     DateTime FetchedAtUtc)
 {
+    // O(1) lookup index built lazily on first access.
+    private Dictionary<string, SatelliteCommunitySatelliteStatus>? _index;
+
+    private Dictionary<string, SatelliteCommunitySatelliteStatus> Index =>
+        _index ??= Satellites.ToDictionary(s => s.Name, StringComparer.OrdinalIgnoreCase);
+
     public SatelliteCommunityModeStatus? TryGetMode(string satelliteName, string modeType)
     {
         if (string.IsNullOrWhiteSpace(satelliteName) || string.IsNullOrWhiteSpace(modeType))
             return null;
 
-        foreach (var sat in Satellites)
-        {
-            if (!string.Equals(sat.Name, satelliteName.Trim(), StringComparison.OrdinalIgnoreCase))
-                continue;
+        if (!Index.TryGetValue(satelliteName.Trim(), out var sat))
+            return null;
 
-            foreach (var mode in sat.Modes)
-            {
-                if (string.Equals(mode.ModeType, modeType.Trim(), StringComparison.OrdinalIgnoreCase))
-                    return mode;
-            }
+        foreach (var mode in sat.Modes)
+        {
+            if (string.Equals(mode.ModeType, modeType.Trim(), StringComparison.OrdinalIgnoreCase))
+                return mode;
         }
 
         return null;
@@ -58,13 +61,7 @@ public sealed record SatelliteCommunityCatalog(
         if (string.IsNullOrWhiteSpace(satelliteName))
             return null;
 
-        foreach (var sat in Satellites)
-        {
-            if (string.Equals(sat.Name, satelliteName.Trim(), StringComparison.OrdinalIgnoreCase))
-                return sat;
-        }
-
-        return null;
+        return Index.GetValueOrDefault(satelliteName.Trim());
     }
 }
 
