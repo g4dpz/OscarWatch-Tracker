@@ -73,8 +73,8 @@
         <li>Choose <strong>FlexRadio (SmartSDR)</strong>.</li>
         <li>Click <strong>Refresh</strong> next to Discovered radios (UDP discovery on port 4992).</li>
         <li>Select your radio — host and port fill in automatically (or type the IP yourself).</li>
-        <li>Configure <strong>Antenna ports by band</strong> if you use separate RX A/RX B or ANT/XVTR A/XVTR B paths for 2&nbsp;m and 70&nbsp;cm (optional; see below).</li>
-        <li>Click <strong>Test SmartSDR connection</strong> to confirm the TCP API handshake and refresh the antenna port list from the radio.</li>
+        <li>Configure <strong>Antenna ports by band</strong> if you use separate RX A/RX B or ANT/XVTR paths for 2&nbsp;m and 70&nbsp;cm (optional; see below).</li>
+        <li>Click <strong>Test SmartSDR connection</strong> to confirm the TCP API handshake with the radio.</li>
         <li>Track a pass — OscarWatch enables full duplex and drives RX/TX slices on the radio.</li>
       </ol>
 
@@ -154,28 +154,13 @@
       </ul>
       <p>
         Choose <strong>Leave unchanged</strong> for any row you do not want OscarWatch to touch (the default for all four).
-        Valid API port tokens include <code>ANT1</code>, <code>ANT2</code>, <code>RX_A</code>, <code>RX_B</code>,
-        <code>XVTA</code> (XVTR A), <code>XVTB</code> (XVTR B), and legacy <code>XVTR</code>
-        (shown in Settings as RX A / RX B / XVTR A / XVTR B). Offline Settings lists these common ports;
-        <strong>Test SmartSDR connection</strong> refreshes the dropdown from the radio’s <code>ant list</code>
-        so dual-XVTR hardware (for example a FLEX-6600) shows the ports that radio actually has.
+        Valid API port tokens are <code>ANT1</code>, <code>ANT2</code>, <code>RX_A</code>, <code>RX_B</code>, and <code>XVTR</code>
+        (shown in Settings as RX A / RX B).
       </p>
       <p>
-        <strong>RX A</strong> and <strong>RX B</strong> are <em>receive-only</em> auxiliary ports (typical for transverter IF inputs).
-        Transmit paths usually use <code>ANT1</code>, <code>ANT2</code>, <code>XVTA</code>, or <code>XVTB</code>;
-        map TX only if your station switches those by band.
-        On dual-XVTR radios, XVTR A and RX A typically share one SCU, and XVTR B and RX B the other.
+        <strong>RX A</strong> and <strong>RX B</strong> are <em>receive-only</em> auxiliary ports — typical for transverter IF inputs.
+        Transmit paths usually use <code>ANT1</code>, <code>ANT2</code>, or <code>XVTR</code>; map TX only if your station switches those by band.
       </p>
-      <h3>Example (dual transverters on XVTR A / XVTR B)</h3>
-      <table>
-        <thead>
-          <tr><th>Setting</th><th>Value</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>VHF receive / transmit</td><td>XVTR A (or RX B + XVTR A for split IF)</td></tr>
-          <tr><td>UHF receive / transmit</td><td>XVTR B (or RX A + XVTR B for split IF)</td></tr>
-        </tbody>
-      </table>
       <h3>Example (transverters on RX A / RX B)</h3>
       <table>
         <thead>
@@ -184,7 +169,7 @@
         <tbody>
           <tr><td>VHF receive</td><td>RX B</td></tr>
           <tr><td>UHF receive</td><td>RX A</td></tr>
-          <tr><td>VHF / UHF transmit</td><td>Leave unchanged (or ANT / XVTR A / XVTR B as wired)</td></tr>
+          <tr><td>VHF / UHF transmit</td><td>Leave unchanged (or ANT/XVTR as wired)</td></tr>
         </tbody>
       </table>
       <p>

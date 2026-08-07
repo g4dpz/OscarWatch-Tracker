@@ -104,41 +104,6 @@ public static class FlexSmartSdrCodec
             sequence,
             $"slice s {sliceIndex.ToString(CultureInfo.InvariantCulture)} fm_tone_value={toneHz.ToString("0.0", CultureInfo.InvariantCulture)}");
 
-    /// <summary>Retrieve available antenna ports (<c>ant list</c>).</summary>
-    public static string BuildAntListCommand(uint sequence) =>
-        BuildCommand(sequence, "ant list");
-
-    /// <summary>
-    /// Parses a successful <c>ant list</c> response body (comma-separated ports), e.g.
-    /// <c>ANT1,ANT2,RX_A,RX_B,XVTA,XVTB</c>.
-    /// </summary>
-    public static bool TryParseAntList(string responseBody, out IReadOnlyList<string> antennas)
-    {
-        antennas = Array.Empty<string>();
-        if (string.IsNullOrWhiteSpace(responseBody))
-            return false;
-
-        var tokens = new List<string>();
-        foreach (var raw in responseBody.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-        {
-            if (string.IsNullOrWhiteSpace(raw))
-                continue;
-
-            // Drop trailing pipe/message fragments some firmwares append.
-            var token = raw.Split('|', 2, StringSplitOptions.TrimEntries)[0];
-            if (string.IsNullOrWhiteSpace(token))
-                continue;
-
-            tokens.Add(token.ToUpperInvariant());
-        }
-
-        if (tokens.Count == 0)
-            return false;
-
-        antennas = tokens;
-        return true;
-    }
-
     public static long MhzToHz(double mhz) =>
         (long)Math.Round(mhz * 1_000_000d, MidpointRounding.AwayFromZero);
 

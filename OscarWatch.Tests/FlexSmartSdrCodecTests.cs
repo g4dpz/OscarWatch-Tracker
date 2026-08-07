@@ -82,29 +82,6 @@ public class FlexSmartSdrCodecTests
     }
 
     [Fact]
-    public void BuildAntListCommand_formats_body()
-    {
-        Assert.Equal("C8|ant list\n", FlexSmartSdrCodec.BuildAntListCommand(8));
-    }
-
-    [Theory]
-    [InlineData("ANT1,ANT2,RX_A,RX_B,XVTA,XVTB", new[] { "ANT1", "ANT2", "RX_A", "RX_B", "XVTA", "XVTB" })]
-    [InlineData("ANT1, ANT2, XVTR", new[] { "ANT1", "ANT2", "XVTR" })]
-    [InlineData("ANT1,ANT2|OK", new[] { "ANT1", "ANT2" })]
-    public void TryParseAntList_parses_comma_separated_ports(string body, string[] expected)
-    {
-        Assert.True(FlexSmartSdrCodec.TryParseAntList(body, out var antennas));
-        Assert.Equal(expected, antennas);
-    }
-
-    [Fact]
-    public void TryParseAntList_rejects_empty()
-    {
-        Assert.False(FlexSmartSdrCodec.TryParseAntList("", out _));
-        Assert.False(FlexSmartSdrCodec.TryParseAntList("   ", out _));
-    }
-
-    [Fact]
     public void TryParseSliceStatus_ExtractsFields()
     {
         const string body =

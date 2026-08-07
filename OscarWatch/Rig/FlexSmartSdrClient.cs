@@ -256,29 +256,6 @@ internal sealed class FlexSmartSdrClient : IDisposable
         }
     }
 
-    /// <summary>Queries <c>ant list</c>; returns null if the command fails or the body cannot be parsed.</summary>
-    public IReadOnlyList<string>? QueryAntennaList()
-    {
-        lock (_gate)
-        {
-            EnsureConnectedUnlocked();
-            var response = SendAndWaitResponseUnlocked(FlexSmartSdrCodec.BuildAntListCommand);
-            if (response is null || !FlexSmartSdrCodec.IsSuccessResponse(response))
-            {
-                Log.Warning("Flex SmartSDR ant list failed or timed out");
-                return null;
-            }
-
-            if (!FlexSmartSdrCodec.TryParseAntList(response.Body, out var antennas))
-            {
-                Log.Warning("Flex SmartSDR ant list response could not be parsed: {Body}", response.Body);
-                return null;
-            }
-
-            return antennas;
-        }
-    }
-
     public string? GetSlicePanStreamId(int sliceIndex)
     {
         lock (_gate)

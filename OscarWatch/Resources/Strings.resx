@@ -2184,9 +2184,6 @@ Continue?</value>
   <data name="Settings.Radio.FlexConnectionOk">
     <value>SmartSDR connection OK.</value>
   </data>
-  <data name="Settings.Radio.FlexConnectionOkWithAntennas">
-    <value>SmartSDR connection OK. Antenna ports refreshed from the radio ({0}).</value>
-  </data>
   <data name="Settings.Radio.FlexConnectionFailed">
     <value>SmartSDR connection failed: {0}</value>
   </data>
@@ -2200,13 +2197,13 @@ Continue?</value>
     <value>Flex discovery failed: {0}</value>
   </data>
   <data name="Settings.Radio.FlexHint">
-    <value>Pick a discovered radio or enter the IP manually (TCP port 4992). OscarWatch connects directly to the radio over the SmartSDR TCP/IP API (not by automating SmartSDR for Windows), enables full duplex, and drives separate RX/TX slices for Doppler. Use the antenna port map below when transverters use different RX A/RX B or ANT/XVTR A/XVTR B paths per band. Dual-SCU models are required for true full duplex (e.g. 8600/8600M; also 6600/6700). Use Test SmartSDR connection to refresh the port list from the radio.</value>
+    <value>Pick a discovered radio or enter the IP manually (TCP port 4992). OscarWatch connects directly to the radio over the SmartSDR TCP/IP API (not by automating SmartSDR for Windows), enables full duplex, and drives separate RX/TX slices for Doppler. Use the antenna port map below when transverters use different RX A/RX B or ANT/XVTR paths per band. Dual-SCU models are required for true full duplex (e.g. 8600/8600M; also 6600/6700).</value>
   </data>
   <data name="Settings.Radio.FlexAntennaPorts">
     <value>Antenna ports by band</value>
   </data>
   <data name="Settings.Radio.FlexAntennaPortsHint">
-    <value>When switching U/V ↔ V/U satellites, OscarWatch sets the radio’s RX/TX ports from the downlink and uplink bands (on satellite focus / pass setup, not only when the bird is above the horizon). Leave unchanged keeps the radio’s current port. RX A and RX B are receive-only; map TX to ANT, XVTR A, or XVTR B as wired. Offline choices include common ports; Test SmartSDR connection refreshes the list from the radio (including dual XVTR A/B on 6600-class radios).</value>
+    <value>When switching U/V ↔ V/U satellites, OscarWatch sets the radio’s RX/TX ports from the downlink and uplink bands (on satellite focus / pass setup — not only when the bird is above the horizon). Leave unchanged keeps the radio’s current port. RX A and RX B are receive-only; map TX to ANT or XVTR as wired.</value>
   </data>
   <data name="Settings.Radio.FlexAntennaLeaveUnchanged">
     <value>Leave unchanged</value>

@@ -75,51 +75,6 @@ public class FlexCommandTranscriptTests
     }
 
     [Fact]
-    public void Antenna_ports_send_XVTA_and_XVTB()
-    {
-        using var stub = new FlexSmartSdrStubServer();
-        stub.WaitUntilReady();
-
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
-        driver.Open();
-        driver.SetSatelliteMode(true);
-        stub.ClearCommandBodies();
-
-        driver.ApplyBandAntennaPorts(
-            new RigSettings
-            {
-                FlexVhfRxAnt = "XVTA",
-                FlexUhfRxAnt = "XVTB",
-                FlexVhfTxAnt = "XVTA",
-                FlexUhfTxAnt = "XVTB"
-            },
-            downlinkHz: 145_900_000,
-            uplinkHz: 435_150_000);
-
-        Assert.Contains(
-            stub.CommandBodies,
-            b => b.Equals("slice set 0 rxant=XVTA", StringComparison.OrdinalIgnoreCase));
-        Assert.Contains(
-            stub.CommandBodies,
-            b => b.Equals("slice set 1 txant=XVTB", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [Fact]
-    public void QueryAntennaList_returns_stub_ports()
-    {
-        using var stub = new FlexSmartSdrStubServer();
-        stub.WaitUntilReady();
-
-        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
-        driver.Open();
-
-        var ports = driver.QueryAntennaList();
-        Assert.NotNull(ports);
-        Assert.Equal(["ANT1", "ANT2", "RX_A", "RX_B", "XVTA", "XVTB"], ports);
-        Assert.Contains(stub.CommandBodies, b => b.Equals("ant list", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [Fact]
     public void Legacy_saved_RXA_token_is_sent_as_RX_A()
     {
         using var stub = new FlexSmartSdrStubServer();
