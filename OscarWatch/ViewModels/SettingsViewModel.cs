@@ -829,7 +829,9 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             new(RigType.IcomIc905, "ICOM IC-905"),
             new(RigType.IcomIc706, "ICOM IC-706"),
             new(RigType.IcomIc706Mkii, "ICOM IC-706MKII"),
-            new(RigType.IcomIc706MkiiG, "ICOM IC-706MKIIG")
+            new(RigType.IcomIc706MkiiG, "ICOM IC-706MKIIG"),
+            new(RigType.KenwoodThD74, "Kenwood TH-D74"),
+            new(RigType.KenwoodThD75, "Kenwood TH-D75")
         ];
         RigDualDownlinkTypeChoices =
         [
@@ -2100,6 +2102,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
 
         if (value.Value == RigType.YaesuFtx1)
             DownlinkBaudRate = RigSettings.Ftx1DefaultBaudRate;
+        if (RigSettings.IsKenwoodThD7xEndpoint(value.Value))
+            DownlinkBaudRate = RigSettings.KenwoodThD7xDefaultBaudRate;
 
         if (value.Value == RigType.IcomIc705)
         {
@@ -2160,6 +2164,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
 
         if (value.Value == RigType.YaesuFtx1)
             UplinkBaudRate = RigSettings.Ftx1DefaultBaudRate;
+        if (RigSettings.IsKenwoodThD7xEndpoint(value.Value))
+            UplinkBaudRate = RigSettings.KenwoodThD7xDefaultBaudRate;
 
         if (value.Value == RigType.IcomIc705)
         {

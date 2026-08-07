@@ -53,6 +53,8 @@ public static class RigDriverFactory
             endpoint.Port, endpoint.BaudRate, ResolveEndpointCivAddress(endpoint), endpoint.CatDelayMs),
         RigType.IcomIc706 or RigType.IcomIc706Mkii or RigType.IcomIc706MkiiG =>
             CreateIc706SeriesDriver(endpoint),
+        RigType.KenwoodThD74 or RigType.KenwoodThD75 => new KenwoodThD7xDriver(
+            endpoint.Type, endpoint.Port, endpoint.BaudRate, endpoint.CatDelayMs),
         _ => CreateSingle(
             endpoint.Type,
             endpoint.Port,
@@ -122,6 +124,8 @@ public static class RigDriverFactory
                 throw new InvalidOperationException("FT-991/FT-991A require Settings → Radio → Dual radio."),
             RigType.YaesuFtx1 =>
                 throw new InvalidOperationException("FTX-1 series radios require Settings → Radio → Dual radio."),
+            RigType.KenwoodThD74 or RigType.KenwoodThD75 =>
+                throw new InvalidOperationException("TH-D74/TH-D75 require Settings → Radio → Dual radio."),
             RigType.KenwoodTs2000 => new KenwoodTs2000Driver(
                 port,
                 baudRate,

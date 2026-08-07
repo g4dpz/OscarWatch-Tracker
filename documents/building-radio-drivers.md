@@ -310,11 +310,31 @@ Covers **FTX-1 Field** and **FTX-1optima** (same field head). Downlink uses VFO-
 
 ### Hardware checklist (TS-2000)
 
-- On the radio: select **SAT** mode and turn **memory mode off** before OscarWatch tracking (manual steps — CAT alone is not enough).
+- On the radio: select **SAT** mode and turn **memory mode off** before OscarWatch tracking (manual steps; CAT alone is not enough).
 - PC CAT port **57600 8N1** with **hardware RTS** by default (matches Settings; RTS must be asserted on full cables or the radio will not reply). Operators with cables that lack RTS/CTS can turn off **Hardware RTS** in Settings → Radio.
 - **TRACE / TRACE REV** in SATL SA commands is on by default; turn off **TRACE / TRACE REV in SATL** in Settings when OscarWatch alone should manage Doppler.
 - Close any front-panel menu before tracking; press **SAT** on the front panel and turn memory mode off (CAT `SA` alone is not enough). CAT delay ~20–30 ms helps on the TS-2000.
 - On a real pass: RX/TX doppler on `FA`/`FB`, uplink CTCSS on Sub.
+
+## Reference: Kenwood TH-D74 / TH-D75 (shipped, dual radio only)
+
+| Piece | Path |
+|-------|------|
+| CAT codec | [`OscarWatch.Core/Radio/KenwoodThD7xCatCodec.cs`](../OscarWatch.Core/Radio/KenwoodThD7xCatCodec.cs) |
+| Serial transport | [`OscarWatch/Rig/KenwoodHtTransport.cs`](../OscarWatch/Rig/KenwoodHtTransport.cs) — **8N1**, CR-terminated ASCII, no RTS/CTS |
+| Driver | [`OscarWatch/Rig/KenwoodThD7xDriver.cs`](../OscarWatch/Rig/KenwoodThD7xDriver.cs) |
+
+- **Dual radio only** (`RigSettings.DualRadioEnabled`): TH-D74/TH-D75 are not offered in the single-radio driver list. Each endpoint is one physical HT on **Band B** (all-mode receiver).
+- Different dialect from the TS-2000: CR framing, `FQ`/`FO`/`MD`/`VM`/`BC`/`FT`/`FS` (not semicolon `FA`/`FB` SATL).
+- Session once after open: `VM 1,0` then `BC 1`. FM/data-FM uses NFM (`MD` code 6) on a **5 kHz** grid; USB/LSB/CW/AM use fine tune + **20 Hz** step. Cross-band `FQ` re-applies `FT`/`FS` because the HT stores step per band.
+- `SupportsVfoExchange` is **false**. CTCSS CAT is intentionally a no-op until hardware-validated; set uplink tone on the radio manually for FM satellites.
+- Protocol behaviour follows CardSat’s bench-tested TH-D7x subset (`LEGF_KWHT`).
+
+### Hardware checklist (TH-D74 / TH-D75 dual)
+
+- Enable **Settings → Radio → Dual radio**; choose TH-D74 or TH-D75 on each leg with the USB/PC COM port at **9600** 8N1 (user-selectable).
+- Use normal PC-command mode (not KISS/TNC). Disable unsolicited GPS PC output if enabled.
+- On a real pass: Doppler on Band B; for FM uplinks needing CTCSS, set the tone on the HT yourself for now.
 
 ## Reference: FlexRadio SmartSDR (shipped)
 

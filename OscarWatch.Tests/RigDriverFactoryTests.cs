@@ -142,6 +142,33 @@ public sealed class RigDriverFactoryTests
         }));
     }
 
+    [Theory]
+    [InlineData(RigType.KenwoodThD74)]
+    [InlineData(RigType.KenwoodThD75)]
+    public void Create_endpoint_thd7x_returns_driver(RigType rigType)
+    {
+        var driver = RigDriverFactory.Create(new RigEndpointSettings
+        {
+            Type = rigType,
+            Port = "COM_THD7X",
+            BaudRate = RigSettings.KenwoodThD7xDefaultBaudRate
+        });
+
+        Assert.Equal(rigType, driver.RigType);
+    }
+
+    [Theory]
+    [InlineData(RigType.KenwoodThD74)]
+    [InlineData(RigType.KenwoodThD75)]
+    public void Create_settings_thd7x_when_not_dual_throws(RigType rigType)
+    {
+        Assert.Throws<InvalidOperationException>(() => RigDriverFactory.Create(new RigSettings
+        {
+            Type = rigType,
+            Port = "COM_THD7X"
+        }));
+    }
+
     [Fact]
     public void Create_settings_ft817_when_dual_enabled_throws()
     {

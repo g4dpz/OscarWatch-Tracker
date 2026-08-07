@@ -19,6 +19,11 @@ public sealed class RigSettings
 
     /// <summary>Typical menu CAT-1 RATE for FTX-1 series (4800–115200 supported).</summary>
     public const int Ftx1DefaultBaudRate = 38400;
+    /// <summary>Kenwood TH-D74/TH-D75 PC command port default (8N1, CR-terminated ASCII).</summary>
+    public const int KenwoodThD7xDefaultBaudRate = 9600;
+
+    public static bool IsKenwoodThD7xEndpoint(RigType type) =>
+        type is RigType.KenwoodThD74 or RigType.KenwoodThD75;
 
     public static bool IsYaesuNewCatDualEndpoint(RigType type) =>
         type is RigType.YaesuFt991 or RigType.YaesuFt991a or RigType.YaesuFtx1;
@@ -138,7 +143,8 @@ public sealed class RigSettings
         type is RigType.YaesuFt817 or RigType.YaesuFt818 or RigType.YaesuFtx1
             or RigType.YaesuFt991 or RigType.YaesuFt991a
             or RigType.IcomIc705 or RigType.IcomIc7300 or RigType.IcomIc905
-            or RigType.IcomIc706 or RigType.IcomIc706Mkii or RigType.IcomIc706MkiiG;
+            or RigType.IcomIc706 or RigType.IcomIc706Mkii or RigType.IcomIc706MkiiG
+            or RigType.KenwoodThD74 or RigType.KenwoodThD75;
 
     public static bool IsSdrDownlinkEndpoint(RigType type) => type == RigType.SdrRigCtlTcp;
 

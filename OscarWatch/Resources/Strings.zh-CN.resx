@@ -1963,7 +1963,7 @@
     <value>启用电台控制</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>双电台（独立的下行和上行 - FT-817/818、FT-991(A)、IC-705、IC-7300、IC-905、IC-706 系列或混合）</value>
+    <value>双电台（独立的下行和上行: FT-817/818、FT-991(A)、IC-705、IC-7300、IC-905、IC-706 系列、TH-D74/D75 或混合）</value>
   </data>
   <data name="Settings.Radio.DualIncompleteBoth">
     <value>请为下行和上行电台选择 COM 端口。</value>

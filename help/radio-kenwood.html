@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Kenwood TS-2000 — OscarWatch Help</title>
+  <title>Kenwood radios - OscarWatch Help</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -12,8 +12,8 @@
       <div class="brand">
         <a href="index.html" class="brand-home" title="Home"><img src="oscarwatch-icon.png" alt="" class="brand-icon" width="56" height="56" /></a>
         <div class="brand-text">
-          <h1>Kenwood TS-2000</h1>
-          <p class="tagline">SATL and CAT setup (Beta)</p>
+          <h1>Kenwood radios</h1>
+          <p class="tagline">TS-2000 SATL (Beta) and dual TH-D74 / TH-D75</p>
         </div>
       </div>
       <nav aria-label="Help topics">
@@ -46,6 +46,12 @@
 
     <main>
       <p class="lead">
+        Kenwood support covers the <strong>TS-2000</strong> as a one-box satellite radio (Beta), and the
+        <strong>TH-D74 / TH-D75</strong> as <strong>downlink or uplink legs</strong> in a dual-radio station.
+      </p>
+
+      <h2 id="ts-2000">TS-2000 (single radio)</h2>
+      <p>
         The TS-2000 is supported as a <strong>single</strong> satellite radio (Beta). OscarWatch drives
         <strong>SATL</strong> over Kenwood ASCII CAT (SatPC32-style <code>SA</code> / <code>FA</code> / <code>FB</code>),
         including entry on pass start and exit when you quit or disconnect.
@@ -105,7 +111,35 @@
         </li>
       </ul>
       <p>
-        See also <a href="radio-rotator.html#beacon-receive-only">receive-only overview</a> (ICOM behaviour differs — sat mode off for beacons).
+        See also <a href="radio-rotator.html#beacon-receive-only">receive-only overview</a> (ICOM behaviour differs; sat mode off for beacons).
+      </p>
+
+      <h2 id="dual-radio">Dual radio: TH-D74 and TH-D75</h2>
+      <p>
+        These handhelds do <strong>not</strong> appear as a single-rig type. Enable
+        <strong>Settings → Radio → Dual radio</strong> and assign each leg a type and COM port.
+        OscarWatch drives <strong>Band B</strong> (the all-mode path for SSB/CW/AM and narrow FM).
+        The PC-command dialect is CR-terminated and is <strong>not</strong> the same as TS-2000 SATL.
+      </p>
+
+      <h3>Setup checklist</h3>
+      <ol>
+        <li>Tick <strong>Dual radio</strong>.</li>
+        <li>Choose <strong>TH-D74</strong> or <strong>TH-D75</strong> and the USB/PC COM port for downlink and/or uplink.</li>
+        <li>Start at <strong>9600</strong> baud 8N1 (OscarWatch default); change if your radio menu uses another rate.</li>
+        <li>Use normal <strong>PC-command</strong> mode (not KISS/TNC). Disable unsolicited GPS PC output if it is enabled.</li>
+        <li>Close other CAT programs on that port.</li>
+      </ol>
+
+      <h3>What OscarWatch controls</h3>
+      <ul>
+        <li>Band B VFO session (<code>VM</code> / <code>BC</code>), frequency (<code>FQ</code> / <code>FO</code>), and mode (<code>MD</code>).</li>
+        <li>Fine tuning for linear modes (about 20&nbsp;Hz steps) and a 5&nbsp;kHz grid for NFM / data-FM.</li>
+        <li>Re-applies fine-step settings after a coarse band jump (HF / VHF / UHF), because the HT stores step per band.</li>
+      </ul>
+      <p>
+        OscarWatch does <strong>not</strong> change RF power, and does <strong>not</strong> program CTCSS over CAT yet.
+        For FM satellite uplinks that need a tone, set CTCSS on the handheld yourself until a hardware-validated tone path is added.
       </p>
 
       <p><a href="radio-rotator.html">← Back to radio overview</a></p>

@@ -1963,7 +1963,7 @@ Continuar?</value>
     <value>Habilitar controle de rádio</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>Dois rádios (downlink e uplink separados — FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, série IC-706 ou misto)</value>
+    <value>Dois rádios (downlink e uplink separados: FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, série IC-706, TH-D74/D75 ou misto)</value>
   </data>
   <data name="Settings.Radio.DualIncompleteBoth">
     <value>Selecione portas COM para os rádios de downlink e uplink.</value>
