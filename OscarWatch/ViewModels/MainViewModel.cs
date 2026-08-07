@@ -736,7 +736,7 @@ public partial class MainViewModel : ViewModelBase
         ConfigurePassListRefreshTimer();
         ConfigureHamsAtRefreshTimer();
         ConfigureSatelliteStatusRefreshTimer();
-        _ = RefreshCommunityStatusSoonAsync();
+        _ = RefreshCommunityStatusAsync();
         _liveDisplayTimer?.Start();
 
         // Phase 3: Fire pass prediction on background thread (non-blocking)
@@ -2222,15 +2222,6 @@ public partial class MainViewModel : ViewModelBase
         _satelliteStatusRefreshTimer.Start();
     }
 
-    /// <summary>First fetch after startup/settings: short random delay to spread load across clients.</summary>
-    private async Task RefreshCommunityStatusSoonAsync()
-    {
-        var delay = SatelliteStatusCommunityPresentation.NextInitialFetchDelay();
-        if (delay > TimeSpan.Zero)
-            await Task.Delay(delay).ConfigureAwait(false);
-        await RefreshCommunityStatusAsync().ConfigureAwait(false);
-    }
-
     private async Task RefreshCommunityStatusAsync(bool force = false)
     {
         if (!_settings.Current.SatelliteStatus.Enabled)
@@ -2247,7 +2238,7 @@ public partial class MainViewModel : ViewModelBase
             && _communityStatusCatalog is not null
             && !SatelliteStatusCommunityPresentation.IsRefreshDue(_communityStatusFetchedAtUtc, now))
         {
-            UpdateCommunityStatusDisplays();
+            await Dispatcher.UIThread.InvokeAsync(UpdateCommunityStatusDisplays);
             return;
         }
 
@@ -2541,7 +2532,7 @@ public partial class MainViewModel : ViewModelBase
         ConfigureHamsAtRefreshTimer();
         await RefreshHamsAtRovesAsync().ConfigureAwait(true);
         ConfigureSatelliteStatusRefreshTimer();
-        _ = RefreshCommunityStatusSoonAsync();
+        _ = RefreshCommunityStatusAsync();
         await ReloadTleCatalogAfterSettingsAsync().ConfigureAwait(true);
         _liveTracking.RequestReload();
         _rotator.Disconnect();

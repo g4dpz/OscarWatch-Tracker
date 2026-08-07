@@ -212,17 +212,6 @@ public sealed class SatelliteStatusCommunityFetchTests
     }
 
     [Fact]
-    public void NextInitialFetchDelay_stays_within_startup_jitter_window()
-    {
-        var rng = new Random(7);
-        for (var i = 0; i < 200; i++)
-        {
-            var delay = SatelliteStatusCommunityPresentation.NextInitialFetchDelay(rng);
-            Assert.InRange(delay, TimeSpan.Zero, SatelliteStatusCommunityPresentation.InitialFetchJitterMax);
-        }
-    }
-
-    [Fact]
     public void ResolvePassRowModeType_prefers_frequency_selection()
     {
         var database = new StubDatabase(
