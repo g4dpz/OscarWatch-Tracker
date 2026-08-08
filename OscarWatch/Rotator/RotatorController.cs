@@ -54,8 +54,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private string? _connectionDetail;
     private RotatorPositionStatus _positionStatus = new(false, null, null);
 
-    // Keyhole avoidance state
+    // Keyhole avoidance + Smart 450 pass planning state
     private KeyholePlan? _keyholePlan;
+    private SmartAzimuthPassPlan? _smartAzimuthPlan;
     private bool _keyholeFlippedActive;
     private bool _isPrePositioning;
     private PassInfo? _activePassInfo;
@@ -102,7 +103,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
     public void DisconnectAndWait() =>
         EnqueueAndWait(new RotatorCommand(RotatorCommandKind.Disconnect), TimeSpan.FromSeconds(3));
 
-    /// <summary>Supply the active pass for keyhole avoidance planning. Call when the pass changes or becomes known.</summary>
+    /// <summary>Supply the active pass for keyhole and Smart 450° AOS–LOS planning. Call when the pass changes or becomes known.</summary>
     public void SetActivePass(PassInfo? pass) =>
         Enqueue(new RotatorCommand(RotatorCommandKind.SetActivePass, passInfo: pass));
 
@@ -117,8 +118,14 @@ public sealed class RotatorController : IRotatorController, IDisposable
     /// <summary>The current keyhole plan computed on target change (exposed for testing).</summary>
     internal KeyholePlan? CurrentKeyholePlan => _keyholePlan;
 
+    /// <summary>The current Smart 450° AOS–LOS band plan (exposed for testing).</summary>
+    internal SmartAzimuthPassPlan? CurrentSmartAzimuthPlan => _smartAzimuthPlan;
+
     /// <summary>Inject a keyhole plan directly for unit testing (bypasses planner).</summary>
     internal void SetKeyholePlanForTests(KeyholePlan? plan) => _keyholePlan = plan;
+
+    /// <summary>Inject a Smart 450° plan directly for unit testing (bypasses planner).</summary>
+    internal void SetSmartAzimuthPlanForTests(SmartAzimuthPassPlan? plan) => _smartAzimuthPlan = plan;
 
     /// <summary>Whether flipped tracking is currently active (exposed for testing).</summary>
     internal bool IsKeyholeFlippedActive => _keyholeFlippedActive;
@@ -267,7 +274,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
                 case RotatorCommandKind.SetActivePass:
                     _activePassInfo = command.PassInfo;
-                    RecomputeKeyholePlan(_cachedSettings);
+                    RecomputePassRotatorPlans(_cachedSettings);
                     break;
 
                 case RotatorCommandKind.Disconnect:
@@ -342,7 +349,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _lastElevation = null;
             _parked = false;
             ClearTrackingAzimuthDisplay();
-            RecomputeKeyholePlan(settings);
+            RecomputePassRotatorPlans(settings);
         }
 
         if (_manualParkActive)
@@ -543,8 +550,10 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _displayCommandedElevation = null;
         _displayCompassAzimuth = null;
         _keyholePlan = null;
+        _smartAzimuthPlan = null;
         _keyholeFlippedActive = false;
         _isPrePositioning = false;
+        _activePassInfo = null;
     }
 
     private void RefreshPositionSnapshot()
@@ -573,42 +582,69 @@ public sealed class RotatorController : IRotatorController, IDisposable
     }
 
     /// <summary>
-    /// Recomputes the keyhole plan based on current settings, active pass, and target.
-    /// If keyhole avoidance is disabled, the propagator is unavailable, or no active pass is set,
-    /// the plan is cleared and normal tracking proceeds.
+    /// Rebuilds keyhole and/or Smart 450° AOS–LOS plans from one pass profile when possible.
     /// </summary>
-    private void RecomputeKeyholePlan(RotatorSettings settings)
+    private void RecomputePassRotatorPlans(RotatorSettings settings)
     {
         _keyholeFlippedActive = false;
 
-        if (!settings.KeyholeAvoidanceEnabled
-            || settings.ElevationRange != RotatorElevationRange.Deg180
-            || _propagator is null
-            || _activePassInfo is null)
+        var wantKeyhole = settings.KeyholeAvoidanceEnabled
+            && settings.ElevationRange == RotatorElevationRange.Deg180;
+        var wantSmartAz = settings.SmartAzimuth450 && settings.MaxAzimuthDeg > 360;
+
+        if (_propagator is null || _activePassInfo is null || _cachedTarget is null)
         {
             _keyholePlan = null;
+            _smartAzimuthPlan = null;
+            return;
+        }
+
+        if (!wantKeyhole && !wantSmartAz)
+        {
+            _keyholePlan = null;
+            _smartAzimuthPlan = null;
             return;
         }
 
         var target = _cachedTarget;
-        if (target is null)
+        var site = _settingsService?.Current.GroundStation ?? new GroundStation();
+
+        PassProfile? profile;
+        try
         {
+            profile = PassProfileBuilder.Build(_activePassInfo, target.NoradId, site, _propagator);
+            if (profile is null)
+            {
+                Log.Information(
+                    "Pass rotator planning: profile build returned null (too many propagation failures)");
+                _keyholePlan = null;
+                _smartAzimuthPlan = null;
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Pass rotator profile build failed");
             _keyholePlan = null;
+            _smartAzimuthPlan = null;
             return;
         }
 
-        var site = _settingsService?.Current.GroundStation ?? new GroundStation();
+        if (wantKeyhole)
+            AnalyseKeyholePlan(profile, settings, target.NoradId);
+        else
+            _keyholePlan = null;
 
+        if (wantSmartAz)
+            AnalyseSmartAzimuthPlan(profile, settings);
+        else
+            _smartAzimuthPlan = null;
+    }
+
+    private void AnalyseKeyholePlan(PassProfile profile, RotatorSettings settings, string noradId)
+    {
         try
         {
-            var profile = PassProfileBuilder.Build(_activePassInfo, target.NoradId, site, _propagator);
-            if (profile is null)
-            {
-                Log.Information("Keyhole planning: profile build returned null (too many propagation failures), falling back to normal tracking");
-                _keyholePlan = null;
-                return;
-            }
-
             var plannerSettings = new KeyholePlannerSettings(
                 settings.KeyholeThresholdDeg,
                 settings.SlewRateDegPerSec,
@@ -624,7 +660,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             {
                 Log.Information(
                     "Keyhole planning: FlippedStart recommended for {NoradId}, flipped az={FlippedAz:F1}°, lead time={LeadTime}",
-                    target.NoradId,
+                    noradId,
                     _keyholePlan.FlippedStartAzimuthDeg,
                     _keyholePlan.PrePositionLeadTime);
             }
@@ -633,6 +669,46 @@ public sealed class RotatorController : IRotatorController, IDisposable
         {
             Log.Warning(ex, "Keyhole planning failed, falling back to normal tracking");
             _keyholePlan = null;
+        }
+    }
+
+    private void AnalyseSmartAzimuthPlan(PassProfile profile, RotatorSettings settings)
+    {
+        try
+        {
+            var now = DateTime.UtcNow;
+            var planningProfile = now > profile.Pass.AosUtc
+                ? SmartAzimuthPassPlanner.SliceFrom(profile, now) ?? profile
+                : profile;
+
+            var startAz = RotatorAzimuthPlanner.ResolveEffectiveLastAzimuth(
+                    _lastAzimuth,
+                    _displayAzimuth)
+                ?? settings.ParkAzimuthDeg;
+
+            _smartAzimuthPlan = SmartAzimuthPassPlanner.Analyse(
+                planningProfile,
+                settings.MaxAzimuthDeg,
+                startAz);
+
+            if (_smartAzimuthPlan is null)
+            {
+                Log.Debug("Smart 450° AOS–LOS planning produced no plan; tick heuristics remain active");
+            }
+            else
+            {
+                Log.Information(
+                    "Smart 450° AOS–LOS plan ready for {NoradId}: {SampleCount} samples from {Aos:u} to {Los:u}",
+                    profile.Pass.NoradId,
+                    _smartAzimuthPlan.Samples.Count,
+                    _smartAzimuthPlan.AosUtc,
+                    _smartAzimuthPlan.LosUtc);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Smart 450° AOS–LOS planning failed; tick heuristics remain active");
+            _smartAzimuthPlan = null;
         }
     }
 
@@ -782,9 +858,16 @@ public sealed class RotatorController : IRotatorController, IDisposable
         var effectiveLastAzimuth = RotatorAzimuthPlanner.ResolveEffectiveLastAzimuth(
             _lastAzimuth,
             _displayAzimuth);
+        var preferredBand = useSmartAzimuth
+            ? SmartAzimuthPassPlanner.LookupBand(_smartAzimuthPlan, DateTime.UtcNow)
+            : null;
         var commandAz = useSmartAzimuth
             ? RotatorAzimuthPlanner.ResolveCommandAz(
-                effectiveLastAzimuth, commandAzInput, settings.MaxAzimuthDeg, aheadForPlanner)
+                effectiveLastAzimuth,
+                commandAzInput,
+                settings.MaxAzimuthDeg,
+                aheadForPlanner,
+                preferredBand)
             : commandAzInput;
 
         _displayCommandedAzimuth = (int)Math.Round(commandAz);

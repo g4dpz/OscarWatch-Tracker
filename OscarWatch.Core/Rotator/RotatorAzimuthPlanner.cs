@@ -1,3 +1,5 @@
+using OscarWatch.Core.Models;
+
 namespace OscarWatch.Core.Rotator;
 
 /// <summary>
@@ -5,6 +7,8 @@ namespace OscarWatch.Core.Rotator;
 /// on extended-range rotators for shortest-path slewing over north when the track
 /// is heading west. Eastbound (N→SE) tracks stay on 0–360° to avoid climbing to the
 /// mechanical stop and unwinding mid-pass.
+/// When a pass-level <see cref="SmartAzimuthBand"/> is supplied, that band is forced
+/// and tick heuristics are skipped.
 /// </summary>
 public static class RotatorAzimuthPlanner
 {
@@ -34,13 +38,21 @@ public static class RotatorAzimuthPlanner
     /// <param name="targetCompassAzDeg">Satellite look azimuth (compass, 0–360°).</param>
     /// <param name="maxAzimuthDeg">Rotator maximum (360 or 450).</param>
     /// <param name="nextCompassAzDeg">Optional short-horizon compass azimuth for wrap direction.</param>
+    /// <param name="preferredBand">
+    /// When set (AOS–LOS pass plan), forces Primary or Extended and skips tick heuristics.
+    /// </param>
     public static double ResolveCommandAz(
         double? lastCommandedAzDeg,
         double targetCompassAzDeg,
         double maxAzimuthDeg,
-        double? nextCompassAzDeg = null)
+        double? nextCompassAzDeg = null,
+        SmartAzimuthBand? preferredBand = null)
     {
         var target = Normalize360(targetCompassAzDeg);
+
+        if (preferredBand is { } band && maxAzimuthDeg > 360)
+            return ResolveWithPreferredBand(target, maxAzimuthDeg, band);
+
         var westboundPredicted = IsWestboundNorthWrapPredicted(target, nextCompassAzDeg);
         var eastboundSe = lastCommandedAzDeg is { } lastForDir
             && IsEastboundSeContinuation(lastForDir, target, nextCompassAzDeg);
@@ -103,6 +115,16 @@ public static class RotatorAzimuthPlanner
         return ClampExtendedUnlessWestbound(best, target, westboundPredicted, maxAzimuthDeg);
     }
 
+    private static double ResolveWithPreferredBand(
+        double target,
+        double maxAzimuthDeg,
+        SmartAzimuthBand band)
+    {
+        if (band == SmartAzimuthBand.Extended && target + 360 <= maxAzimuthDeg)
+            return target + 360;
+
+        return target;
+    }
     /// <summary>
     /// True when compass motion is continuing east/southeast rather than wrapping west over north.
     /// </summary>

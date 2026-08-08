@@ -137,7 +137,7 @@ Rig and rotator cannot share the same COM port when the rotator uses local seria
 
 ## Smart azimuth (450° rotators)
 
-Drivers do **not** implement shortest-path logic. [`RotatorAzimuthPlanner`](../OscarWatch.Core/Rotator/RotatorAzimuthPlanner.cs) maps compass azimuth to command azimuth (including 361–450° for westbound north wraps; eastbound legs stay on 0–360°). Your driver must accept commanded values up to `settings.MaxAzimuthDeg` and format them correctly (GS-232 uses three-digit azimuth, e.g. `W370 045`).
+Drivers do **not** implement shortest-path logic. [`RotatorAzimuthPlanner`](../OscarWatch.Core/Rotator/RotatorAzimuthPlanner.cs) maps compass azimuth to command azimuth. When Smart 450° has an AOS–LOS plan from [`SmartAzimuthPassPlanner`](../OscarWatch.Core/Rotator/SmartAzimuthPassPlanner.cs), the controller forces Primary (0–360°) or Extended (361–450°) per sample; otherwise tick heuristics apply. Your driver must accept commanded values up to `settings.MaxAzimuthDeg` and format them correctly (GS-232 uses three-digit azimuth, e.g. `W370 045`).
 
 ## Checklist
 

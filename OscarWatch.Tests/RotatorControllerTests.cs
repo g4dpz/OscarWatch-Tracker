@@ -733,6 +733,65 @@ public sealed class RotatorControllerTests
         Assert.Equal(120, rotator.LastAzimuthDeg);
     }
 
+    [Fact]
+    public void Smart450_pass_plan_primary_band_forces_compass_azimuth()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            AzimuthRange = RotatorAzimuthRange.Deg450,
+            SmartAzimuth450 = true,
+            TrackStartElevationDeg = 5
+        };
+
+        var aos = DateTime.UtcNow.AddMinutes(-1);
+        var plan = new SmartAzimuthPassPlan(
+            aos,
+            aos.AddMinutes(10),
+            [
+                new SmartAzimuthPassSample(aos, SmartAzimuthBand.Primary),
+                new SmartAzimuthPassSample(aos.AddMinutes(5), SmartAzimuthBand.Primary)
+            ]);
+
+        controller.UpdateSynchronously(settings, TrackTarget("44909", 350, 20));
+        controller.SetSmartAzimuthPlanForTests(plan);
+        // Without a plan, 350→10 would use 370; Primary plan keeps compass 10.
+        controller.UpdateSynchronously(settings, TrackTarget("44909", 10, 20));
+        Assert.Equal(10, rotator.LastAzimuthDeg);
+    }
+
+    [Fact]
+    public void Smart450_pass_plan_extended_band_forces_overlap()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            AzimuthRange = RotatorAzimuthRange.Deg450,
+            SmartAzimuth450 = true,
+            TrackStartElevationDeg = 5
+        };
+
+        var aos = DateTime.UtcNow.AddMinutes(-1);
+        var plan = new SmartAzimuthPassPlan(
+            aos,
+            aos.AddMinutes(10),
+            [
+                new SmartAzimuthPassSample(aos, SmartAzimuthBand.Extended),
+                new SmartAzimuthPassSample(aos.AddMinutes(5), SmartAzimuthBand.Extended)
+            ]);
+
+        controller.UpdateSynchronously(settings, TrackTarget("44909", 135, 20));
+        controller.SetSmartAzimuthPlanForTests(plan);
+        controller.UpdateSynchronously(settings, TrackTarget("44909", 15, 25));
+        Assert.Equal(375, rotator.LastAzimuthDeg);
+    }
+
     private static SatelliteTrackState TrackTarget(
         string noradId,
         double azimuthDeg,

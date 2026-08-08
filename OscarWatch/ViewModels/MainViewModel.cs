@@ -251,6 +251,9 @@ public partial class MainViewModel : ViewModelBase
 
     private string? _ts2000SatlWarningPassKey;
 
+    /// <summary>Last pass identity pushed to the rotator (<c>NoradId|AosUtc</c> ticks).</summary>
+    private string? _rotatorActivePassKey;
+
     public ObservableCollection<IPassListItem> Passes { get; } = [];
 
     [ObservableProperty]
@@ -869,7 +872,9 @@ public partial class MainViewModel : ViewModelBase
         UpdateComPortConflictState();
         TryApplyGpsStationUpdate();
         UpdateGpsStatusDisplay();
+        // Publish target before active pass so the worker has _cachedTarget when planning.
         _rotator.Update(_settings.Current.Rotator, EnrichRotatorTarget(focusedForOps));
+        PublishActivePassForRotator(focusedForOps);
         UpdateRotatorDisplay();
 
         if (ShowComPortConflict)
@@ -1653,6 +1658,32 @@ public partial class MainViewModel : ViewModelBase
                 && (i + 1 >= Passes.Count || Passes[i + 1] is PassDayHeaderViewModel))
                 Passes.RemoveAt(i);
         }
+    }
+
+    private void PublishActivePassForRotator(SatelliteTrackState? focused)
+    {
+        if (!_settings.Current.Rotator.Enabled)
+        {
+            if (_rotatorActivePassKey is not null)
+            {
+                _rotatorActivePassKey = null;
+                _rotator.SetActivePass(null);
+            }
+
+            return;
+        }
+
+        var noradId = focused?.NoradId ?? FocusedNoradId;
+        var pass = FindSkyPlotPass(noradId);
+        var key = pass is null
+            ? null
+            : $"{pass.NoradId}|{pass.AosUtc.Ticks}";
+
+        if (string.Equals(key, _rotatorActivePassKey, StringComparison.Ordinal))
+            return;
+
+        _rotatorActivePassKey = key;
+        _rotator.SetActivePass(pass);
     }
 
     private SatelliteTrackState? EnrichRotatorTarget(SatelliteTrackState? state)
