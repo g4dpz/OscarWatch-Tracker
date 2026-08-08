@@ -178,6 +178,7 @@ public sealed class FlexRadioDriver : IRigDriver
 
     /// <summary>
     /// Applies configured VHF/UHF RX and TX antenna ports for the current duplex slices.
+    /// Receive ports are applied by band to each slice's <c>rxant</c>; transmit ports apply to the uplink slice's <c>txant</c>.
     /// Empty settings leave SmartSDR ports unchanged.
     /// </summary>
     public void ApplyBandAntennaPorts(RigSettings settings, long downlinkHz, long uplinkHz)
@@ -186,15 +187,15 @@ public sealed class FlexRadioDriver : IRigDriver
         if (!_client.IsConnected)
             return;
 
-        var rxAnt = FlexAntennaPortResolver.ResolveRxPort(settings, downlinkHz);
-        if (rxAnt is not null)
+        var downlinkRxAnt = FlexAntennaPortResolver.ResolveRxPort(settings, downlinkHz);
+        if (downlinkRxAnt is not null)
         {
-            if (!_client.SetSliceRxAnt(_rxSliceIndex, rxAnt, out var rxFailure))
+            if (!_client.SetSliceRxAnt(_rxSliceIndex, downlinkRxAnt, out var rxFailure))
             {
                 Log.Warning(
                     "FlexRadio failed to set RX antenna on slice {SliceIndex}: port={Port}, downlinkHz={DownlinkHz}, detail={Detail}",
                     _rxSliceIndex,
-                    rxAnt,
+                    downlinkRxAnt,
                     downlinkHz,
                     rxFailure);
             }
@@ -202,6 +203,20 @@ public sealed class FlexRadioDriver : IRigDriver
 
         if (!_satelliteMode || uplinkHz <= 0)
             return;
+
+        var uplinkRxAnt = FlexAntennaPortResolver.ResolveRxPort(settings, uplinkHz);
+        if (uplinkRxAnt is not null)
+        {
+            if (!_client.SetSliceRxAnt(_txSliceIndex, uplinkRxAnt, out var uplinkRxFailure))
+            {
+                Log.Warning(
+                    "FlexRadio failed to set RX antenna on slice {SliceIndex}: port={Port}, uplinkHz={UplinkHz}, detail={Detail}",
+                    _txSliceIndex,
+                    uplinkRxAnt,
+                    uplinkHz,
+                    uplinkRxFailure);
+            }
+        }
 
         var txAnt = FlexAntennaPortResolver.ResolveTxPort(settings, uplinkHz);
         if (txAnt is not null && !_client.SetSliceTxAnt(_txSliceIndex, txAnt, out var txFailure))
@@ -314,6 +329,17 @@ public sealed class FlexRadioDriver : IRigDriver
             out var uhfHz);
 
         var centred = _client.CenterBandPans(downlinkHz, uplinkHz, _satelliteMode);
+        if (!centred && _satelliteMode && downlinkHz > 0 && uplinkHz > 0 && vhfHz > 0 && uhfHz > 0)
+        {
+            Log.Warning(
+                "FlexRadio pan centre failed; restoring dual-band pans and retrying centre: downlinkHz={DownlinkHz}, uplinkHz={UplinkHz}",
+                downlinkHz,
+                uplinkHz);
+            EnsureDualBandPanLayout(downlinkHz, uplinkHz);
+            _client.TryRelockBandPansFromLiveCentres();
+            centred = _client.CenterBandPans(downlinkHz, uplinkHz, _satelliteMode);
+        }
+
         _client.GetLockedBandPanStreamIds(out var lockedVhf, out var lockedUhf);
 
         if (!centred)
@@ -388,6 +414,8 @@ public sealed class FlexRadioDriver : IRigDriver
                 "FlexRadio pass layout repaired without rebind: RX={RxHz} Hz, TX={TxHz} Hz",
                 downlinkHz,
                 uplinkHz);
+            // Pan recovery during light repair may have recreated slices; restore band ports.
+            ApplyBandAntennaPorts(_antennaPortSettings, downlinkHz, uplinkHz);
             return;
         }
 
@@ -414,6 +442,9 @@ public sealed class FlexRadioDriver : IRigDriver
                 "FlexRadio pass layout still incorrect after dual-band recovery: {Detail}. If the radio is at pan/SCU capacity or another client owns the pans, load a SmartSDR Global Profile that restores separate VHF and UHF pans, then re-select the satellite in OscarWatch.",
                 stillWrong);
         }
+
+        // Slice recreate during force rebind drops rxant/txant; re-apply band ports.
+        ApplyBandAntennaPorts(_antennaPortSettings, downlinkHz, uplinkHz);
     }
 
     private bool DuplexFrequenciesVerified(

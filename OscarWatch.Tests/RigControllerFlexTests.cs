@@ -84,7 +84,57 @@ public class RigControllerFlexTests
         var rxSlice = stub.Slices[harness.Driver!.RxSliceIndex];
         var txSlice = stub.Slices[harness.Driver.TxSliceIndex];
         Assert.Equal("RX_A", rxSlice.RxAnt);
+        Assert.Equal("RX_B", txSlice.RxAnt);
         Assert.Equal("XVTR", txSlice.TxAnt);
+    }
+
+    [Fact]
+    public void Flex_dual_hf_startup_pass_applies_both_slice_rxants()
+    {
+        using var stub = new FlexSmartSdrStubServer(dualHfPanStartup: true);
+        stub.WaitUntilReady();
+        using var harness = CreateHarness(stub);
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "Linear",
+            DownlinkKHz = 145_950,
+            UplinkKHz = 432_146,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        PublishAndWait(
+            harness,
+            mode,
+            DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            settings: new RigSettings
+            {
+                Enabled = true,
+                Type = RigType.FlexSmartSdr,
+                NetworkHost = "127.0.0.1",
+                NetworkPort = harness.Stub.Port,
+                DopplerThresholdFmHz = 200,
+                CatDelayMs = 50,
+                FlexVhfRxAnt = "RX_B",
+                FlexUhfRxAnt = "RX_A",
+                FlexVhfTxAnt = "XVTR",
+                FlexUhfTxAnt = "ANT1"
+            },
+            ready: () => stub.FullDuplexEnabled
+                && stub.Slices.TryGetValue(harness.Driver!.RxSliceIndex, out var rx)
+                && stub.Slices.TryGetValue(harness.Driver.TxSliceIndex, out var tx)
+                && rx.RxAnt == "RX_B"
+                && tx.RxAnt == "RX_A");
+
+        var rxSlice = stub.Slices[harness.Driver!.RxSliceIndex];
+        var txSlice = stub.Slices[harness.Driver.TxSliceIndex];
+        Assert.Equal("RX_B", rxSlice.RxAnt);
+        Assert.Equal("RX_A", txSlice.RxAnt);
+        Assert.Equal("ANT1", txSlice.TxAnt);
+        Assert.Contains(stub.PanCentersHz.Values, hz => RigSatModeHelper.IsVhfCenterKHz(hz / 1000.0));
+        Assert.Contains(stub.PanCentersHz.Values, hz => RigSatModeHelper.IsUhfCenterKHz(hz / 1000.0));
     }
 
     [Fact]

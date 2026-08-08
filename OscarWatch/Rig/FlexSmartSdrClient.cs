@@ -779,6 +779,22 @@ internal sealed class FlexSmartSdrClient : IDisposable
             DrainPendingStatusUnlocked();
             TryLockLiveDualBandPansUnlocked();
 
+            if (!DuplexSlicePanBandsHealthyUnlocked(
+                    rxSliceIndex,
+                    txSliceIndex,
+                    downlinkHz,
+                    uplinkHz,
+                    satelliteMode))
+            {
+                Log.Warning(
+                    "FlexRadio pan rebind left slice pan centres on the wrong SCU band: rxSlice={RxSlice}, txSlice={TxSlice}, downlinkHz={DownlinkHz}, uplinkHz={UplinkHz}",
+                    rxSliceIndex,
+                    txSliceIndex,
+                    downlinkHz,
+                    uplinkHz);
+                return false;
+            }
+
             Log.Information(
                 "FlexRadio rebound duplex slices onto band pans: rxSlice={RxSlice} pan={RxPan}, txSlice={TxSlice} pan={TxPan}, forceRebind={ForceRebind}",
                 rxSliceIndex,
@@ -788,6 +804,40 @@ internal sealed class FlexSmartSdrClient : IDisposable
                 forceRebind);
             return true;
         }
+    }
+
+    /// <summary>
+    /// True when each duplex slice's live pan centre sits on that slice's frequency band.
+    /// </summary>
+    private bool DuplexSlicePanBandsHealthyUnlocked(
+        int rxSliceIndex,
+        int txSliceIndex,
+        long downlinkHz,
+        long uplinkHz,
+        bool satelliteMode)
+    {
+        if (downlinkHz > 0
+            && _slices.TryGetValue(rxSliceIndex, out var rx)
+            && !string.IsNullOrWhiteSpace(rx.PanStreamId)
+            && _pans.TryGetValue(rx.PanStreamId, out var rxPan)
+            && rxPan.CenterHz > 0
+            && !PanCenterMatchesFrequencyBand(rxPan.CenterHz, downlinkHz))
+        {
+            return false;
+        }
+
+        if (satelliteMode
+            && uplinkHz > 0
+            && _slices.TryGetValue(txSliceIndex, out var tx)
+            && !string.IsNullOrWhiteSpace(tx.PanStreamId)
+            && _pans.TryGetValue(tx.PanStreamId, out var txPan)
+            && txPan.CenterHz > 0
+            && !PanCenterMatchesFrequencyBand(txPan.CenterHz, uplinkHz))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     /// <summary>Re-reads in-use slices and assigns RX/TX indices from the live <c>tx=1</c> flag.</summary>
@@ -1121,6 +1171,22 @@ internal sealed class FlexSmartSdrClient : IDisposable
 
     private bool SetPanCenterUnlocked(string panStreamId, long centerHz, out string? failureDetail)
     {
+        // Never send a cross-SCU centre: inverted sticky locks would drag the only UHF pan
+        // onto VHF-group (Mark's collapse). HF through 2 m share one SCU; UHF is another.
+        if (_pans.TryGetValue(panStreamId, out var before)
+            && before.CenterHz > 0
+            && IsCrossScuPanCenter(before.CenterHz, centerHz))
+        {
+            failureDetail =
+                $"refusing cross-SCU pan centre; pan={panStreamId}, live={before.CenterHz} Hz, commanded={centerHz} Hz";
+            Log.Warning(
+                "FlexRadio refusing cross-SCU pan centre: pan={PanStreamId}, liveHz={LiveHz}, commandedHz={CommandedHz}",
+                panStreamId,
+                before.CenterHz,
+                centerHz);
+            return false;
+        }
+
         var mhz = FlexSmartSdrCodec.HzToMhz(centerHz);
         var ok = TrySendSliceCommandUnlocked(
             seq => FlexSmartSdrCodec.BuildDisplayPanCenterCommand(seq, panStreamId, mhz),
@@ -1151,6 +1217,19 @@ internal sealed class FlexSmartSdrClient : IDisposable
 
         failureDetail = null;
         return true;
+    }
+
+    /// <summary>
+    /// True when live and commanded centres sit on different Flex SCUs (VHF-group vs UHF).
+    /// </summary>
+    private static bool IsCrossScuPanCenter(long liveCenterHz, long commandedHz)
+    {
+        if (liveCenterHz <= 0 || commandedHz <= 0)
+            return false;
+
+        var liveUhf = RigSatModeHelper.IsUhfCenterKHz(liveCenterHz / 1000.0);
+        var commandedUhf = RigSatModeHelper.IsUhfCenterKHz(commandedHz / 1000.0);
+        return liveUhf != commandedUhf;
     }
 
     /// <summary>
@@ -1243,6 +1322,15 @@ internal sealed class FlexSmartSdrClient : IDisposable
 
     private void TryRecoverMissingBandPanUnlocked(long targetHz, bool isVhf, string? keepPanStreamId)
     {
+        // Dual-HF (or all VHF-group) start: every pan is on the HF/2 m SCU. Centring to UHF is a
+        // cross-SCU reject, and panafall create also lands on VHF-group. Free capacity then allocate
+        // UHF via a temporary slice (Mark's two-HF-pan failure mode).
+        if (!isVhf && AllLivePansAreVhfGroupUnlocked())
+        {
+            TryRecoverMissingUhfPanFromVhfGroupUnlocked(targetHz, keepPanStreamId);
+            return;
+        }
+
         var candidate = FindPanCandidateForBandMoveUnlocked(isVhf, keepPanStreamId);
         if (!string.IsNullOrWhiteSpace(candidate)
             && SetPanCenterUnlocked(candidate, targetHz, out _))
@@ -1257,13 +1345,13 @@ internal sealed class FlexSmartSdrClient : IDisposable
         if (TryCreateBandPanViaTemporarySliceUnlocked(targetHz, isVhf, out _))
             return;
 
-        if (TryCreatePanafallOnBandUnlocked(targetHz, isVhf, out _))
+        if (isVhf && TryCreatePanafallOnBandUnlocked(targetHz, isVhf: true, out _))
             return;
 
         // Last resort: free a slice-less duplicate same-band pan, then create again.
         if (TryRemoveSliceLessDuplicatePanUnlocked(removeFromVhfBand: !isVhf, keepPanStreamId)
             && (TryCreateBandPanViaTemporarySliceUnlocked(targetHz, isVhf, out _)
-                || TryCreatePanafallOnBandUnlocked(targetHz, isVhf, out _)))
+                || (isVhf && TryCreatePanafallOnBandUnlocked(targetHz, isVhf: true, out _))))
         {
             return;
         }
@@ -1272,6 +1360,31 @@ internal sealed class FlexSmartSdrClient : IDisposable
             "FlexRadio could not restore {Band} pan at {CenterHz} Hz",
             isVhf ? "VHF" : "UHF",
             targetHz);
+    }
+
+    private void TryRecoverMissingUhfPanFromVhfGroupUnlocked(long targetHz, string? keepPanStreamId)
+    {
+        var atPanCapacity = _pans.Count >= 2;
+        if (!atPanCapacity && TryCreateBandPanViaTemporarySliceUnlocked(targetHz, isVhf: false, out _))
+            return;
+
+        // At two VHF-group pans the radio rejects a third (0x50000007). Free one, then allocate UHF.
+        if (TryRemoveSliceLessDuplicatePanUnlocked(removeFromVhfBand: true, keepPanStreamId)
+            && TryCreateBandPanViaTemporarySliceUnlocked(targetHz, isVhf: false, out _))
+        {
+            return;
+        }
+
+        Log.Warning(
+            "FlexRadio could not restore UHF pan at {CenterHz} Hz from VHF-group-only layout",
+            targetHz);
+    }
+
+    private bool AllLivePansAreVhfGroupUnlocked()
+    {
+        var live = _pans.Values.Where(p => !string.IsNullOrWhiteSpace(p.StreamId) && p.CenterHz > 0).ToList();
+        return live.Count > 0
+               && live.All(p => RigSatModeHelper.IsVhfCenterKHz(p.CenterHz / 1000.0));
     }
 
     /// <summary>

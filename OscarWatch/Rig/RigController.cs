@@ -1453,6 +1453,8 @@ public sealed class RigController : IRigController, IDisposable
                 txHz,
                 FlexModeMapper.ToSmartSdrMode(context.EffectiveDownlinkMode),
                 FlexModeMapper.ToSmartSdrMode(context.EffectiveUplinkMode));
+            // EnsureDuplexPassFrequencies may recreate slices after the pre-tune apply; set ports again.
+            flexPostInit.ApplyBandAntennaPorts(settings, rxHz, txHz);
             ApplyCtcss(settings, context, force: true);
         }
         else if (settings.Type == RigType.FlexSmartSdr && _driver is FlexRadioDriver flexBeaconDriver)

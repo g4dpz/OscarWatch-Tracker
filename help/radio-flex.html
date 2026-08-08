@@ -123,9 +123,12 @@
       <p>
         After rapid U/V ↔ V/U satellite switching, SmartSDR can occasionally leave both panadapters on VHF or both
         on UHF. OscarWatch detects that from live pan centres and tries to restore a dual-band layout over the API:
-        it recentres a candidate pan when the radio will take the move, allocates a missing-band pan via a temporary
-        slice (or <code>display panafall create</code> when that SCU can take the band), and only removes duplex
-        slices if that first pass still cannot restore both bands. Continuous Doppler still uses
+        it recentres a candidate pan when the radio will take the move (never sending a cross-SCU centre that would
+        collapse the only UHF pan onto 2 m), allocates a missing-band pan via a temporary slice
+        (or <code>display panafall create</code> when that SCU can take the band), and only removes duplex
+        slices if that first pass still cannot restore both bands. If you start with two panadapters already on
+        different HF bands (both on the VHF-group SCU), OscarWatch frees one pan then allocates a UHF pan the same
+        way. Continuous Doppler still uses
         <code>autopan=0</code> so those pans are not yanked again during the pass.
       </p>
       <p>
@@ -150,7 +153,7 @@
         initialises the duplex layout.
       </p>
       <p>
-        Ports are applied whenever a satellite (or mode) is focused and CAT pass setup runs — including below the
+        Ports are applied whenever a satellite (or mode) is focused and CAT pass setup runs, including below the
         horizon when you swap birds for testing. You do <em>not</em> need the satellite to be above the horizon.
       </p>
       <p>
@@ -158,8 +161,8 @@
         four optional mappings:
       </p>
       <ul>
-        <li><strong>VHF receive (2&nbsp;m)</strong> and <strong>UHF receive (70&nbsp;cm+)</strong> — applied to the downlink slice (<code>rxant</code>).</li>
-        <li><strong>VHF transmit (2&nbsp;m)</strong> and <strong>UHF transmit (70&nbsp;cm+)</strong> — applied to the uplink slice (<code>txant</code>).</li>
+        <li><strong>VHF receive (2&nbsp;m)</strong> and <strong>UHF receive (70&nbsp;cm+)</strong>: applied by band to each slice's <code>rxant</code> (the VHF slice and the UHF slice).</li>
+        <li><strong>VHF transmit (2&nbsp;m)</strong> and <strong>UHF transmit (70&nbsp;cm+)</strong>: applied to the uplink slice (<code>txant</code>).</li>
       </ul>
       <p>
         Choose <strong>Leave unchanged</strong> for any row you do not want OscarWatch to touch (the default for all four).
@@ -167,7 +170,7 @@
         (shown in Settings as RX A / RX B).
       </p>
       <p>
-        <strong>RX A</strong> and <strong>RX B</strong> are <em>receive-only</em> auxiliary ports — typical for transverter IF inputs.
+        <strong>RX A</strong> and <strong>RX B</strong> are <em>receive-only</em> auxiliary ports, typical for transverter IF inputs.
         Transmit paths usually use <code>ANT1</code>, <code>ANT2</code>, or <code>XVTR</code>; map TX only if your station switches those by band.
       </p>
       <h3>Example (transverters on RX A / RX B)</h3>
@@ -182,7 +185,7 @@
         </tbody>
       </table>
       <p>
-        Wiring is station-specific — dual-SCU models such as the <strong>8600</strong> / <strong>8600M</strong>
+        Wiring is station-specific. Dual-SCU models such as the <strong>8600</strong> / <strong>8600M</strong>
         (and dual-SCU 6000-series radios) can expose RX A/RX B when fitted, but which band goes to which port is yours
         to configure.
       </p>

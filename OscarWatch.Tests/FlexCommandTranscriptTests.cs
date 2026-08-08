@@ -62,6 +62,9 @@ public class FlexCommandTranscriptTests
             b => b.Equals("slice set 0 rxant=RX_A", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(
             stub.CommandBodies,
+            b => b.Equals("slice set 1 rxant=RX_B", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            stub.CommandBodies,
             b => b.Equals("slice set 1 txant=XVTR", StringComparison.OrdinalIgnoreCase));
 
         Assert.DoesNotContain(

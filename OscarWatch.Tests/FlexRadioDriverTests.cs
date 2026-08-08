@@ -379,18 +379,61 @@ public class FlexRadioDriverTests
         };
 
         stub.ClearCommandBodies();
+        // U/V: downlink UHF → RX_A on RX slice; uplink VHF → RX_B on TX slice + XVTR txant
         driver.ApplyBandAntennaPorts(settings, 435_300_000, 145_800_000);
 
         var rx = stub.Slices[driver.RxSliceIndex];
         var tx = stub.Slices[driver.TxSliceIndex];
         Assert.Equal("RX_A", rx.RxAnt);
+        Assert.Equal("RX_B", tx.RxAnt);
         Assert.Equal("XVTR", tx.TxAnt);
         Assert.Contains(
             stub.CommandBodies,
             b => b.Equals("slice set 0 rxant=RX_A", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(
             stub.CommandBodies,
+            b => b.Equals("slice set 1 rxant=RX_B", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            stub.CommandBodies,
             b => b.Equals("slice set 1 txant=XVTR", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void ApplyBandAntennaPorts_sets_both_slice_rxants_for_vhf_downlink_layout()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        var settings = new RigSettings
+        {
+            FlexVhfRxAnt = "RX_B",
+            FlexUhfRxAnt = "RX_A",
+            FlexVhfTxAnt = "XVTR",
+            FlexUhfTxAnt = "ANT1"
+        };
+
+        stub.ClearCommandBodies();
+        // V/U: downlink VHF → RX_B; uplink UHF → RX_A + ANT1 txant
+        driver.ApplyBandAntennaPorts(settings, 145_900_000, 435_300_000);
+
+        var rx = stub.Slices[driver.RxSliceIndex];
+        var tx = stub.Slices[driver.TxSliceIndex];
+        Assert.Equal("RX_B", rx.RxAnt);
+        Assert.Equal("RX_A", tx.RxAnt);
+        Assert.Equal("ANT1", tx.TxAnt);
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals("slice set 0 rxant=RX_B", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals("slice set 1 rxant=RX_A", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals("slice set 1 txant=ANT1", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -693,10 +736,137 @@ public class FlexRadioDriverTests
         driver.SetSatelliteMode(true);
 
         stub.CollapseBothPansOntoBand(ontoUhf: true);
-        // Without recovery, centring the sticky/missing VHF target cannot move a UHF pan.
+        // Centre failure now restores dual-band pans (temp-slice / panafall) then retries.
         driver.CenterBandPanadapters(435_640_000, 145_965_000);
 
-        Assert.All(stub.PanCentersHz.Values, hz => Assert.True(RigSatModeHelper.IsUhfCenterKHz(hz / 1000.0)));
+        Assert.Contains(stub.PanCentersHz.Values, hz => RigSatModeHelper.IsVhfCenterKHz(hz / 1000.0));
+        Assert.Contains(stub.PanCentersHz.Values, hz => RigSatModeHelper.IsUhfCenterKHz(hz / 1000.0));
+    }
+
+    [Fact]
+    public void EnsureDualBandPanLayout_recovers_from_dual_hf_pans_via_remove_then_temp_slice()
+    {
+        using var stub = new FlexSmartSdrStubServer(dualHfPanStartup: true);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        stub.ClearCommandBodies();
+
+        Assert.True(driver.EnsureDualBandPanLayout(145_950_000, 432_146_000));
+
+        Assert.Contains(stub.PanCentersHz.Values, hz => RigSatModeHelper.IsVhfCenterKHz(hz / 1000.0));
+        Assert.Contains(stub.PanCentersHz.Values, hz => RigSatModeHelper.IsUhfCenterKHz(hz / 1000.0));
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.StartsWith("display pan remove ", StringComparison.OrdinalIgnoreCase)
+                 || b.StartsWith("display panafall remove ", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.StartsWith("slice create ", StringComparison.OrdinalIgnoreCase)
+                 && b.Contains("freq=432.146", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(
+            stub.CommandBodies,
+            b => b.Contains("display pan set ", StringComparison.OrdinalIgnoreCase)
+                 && b.Contains("center=432.146", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CenterBandPanadapters_refuses_cross_scu_centre_when_sticky_locks_inverted()
+    {
+        using var stub = new FlexSmartSdrStubServer(
+            silentCrossScuCenterReject: true,
+            allowUhfToVhfCenter: true);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        driver.BindDuplexSlicesToBandPans(435_640_000, 145_965_000, forceRebind: true);
+        driver.CenterBandPanadapters(435_640_000, 145_965_000);
+
+        // Invert live centres while sticky locks still point at the old stream IDs.
+        // Without client-side refuse, UHF→VHF centre would collapse both pans onto VHF-group.
+        stub.SwapPanBandCenters();
+        stub.ClearCommandBodies();
+
+        driver.CenterBandPanadapters(435_640_000, 145_965_000);
+
+        Assert.Contains(stub.PanCentersHz.Values, hz => RigSatModeHelper.IsVhfCenterKHz(hz / 1000.0));
+        Assert.Contains(stub.PanCentersHz.Values, hz => RigSatModeHelper.IsUhfCenterKHz(hz / 1000.0));
+        // With allowUhfToVhfCenter, a naive centre on inverted locks would collapse UHF onto VHF.
+        Assert.Equal(1, stub.PanCentersHz.Values.Count(hz => RigSatModeHelper.IsUhfCenterKHz(hz / 1000.0)));
+    }
+
+    [Fact]
+    public void Ao07_then_iss_after_dual_hf_recovery_keeps_separate_band_pans()
+    {
+        using var stub = new FlexSmartSdrStubServer(dualHfPanStartup: true);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        // AO-07 V/U
+        Assert.True(driver.EnsureDualBandPanLayout(145_950_000, 432_146_000));
+        driver.BindDuplexSlicesToBandPans(145_950_000, 432_146_000, forceRebind: true);
+        driver.CenterBandPanadapters(145_950_000, 432_146_000);
+
+        // ISS U/V layout flip
+        Assert.True(driver.EnsureDualBandPanLayout(437_800_000, 145_990_000));
+        driver.BindDuplexSlicesToBandPans(437_800_000, 145_990_000, forceRebind: true);
+        driver.CenterBandPanadapters(437_800_000, 145_990_000);
+
+        var rxPan = stub.Slices[driver.RxSliceIndex].PanStreamId;
+        var txPan = stub.Slices[driver.TxSliceIndex].PanStreamId;
+        Assert.False(string.IsNullOrWhiteSpace(rxPan));
+        Assert.False(string.IsNullOrWhiteSpace(txPan));
+        Assert.NotEqual(rxPan, txPan, StringComparer.OrdinalIgnoreCase);
+        Assert.True(RigSatModeHelper.IsUhfCenterKHz(stub.PanCentersHz[rxPan!] / 1000.0));
+        Assert.True(RigSatModeHelper.IsVhfCenterKHz(stub.PanCentersHz[txPan!] / 1000.0));
+        Assert.Contains(stub.PanCentersHz.Values, hz => RigSatModeHelper.IsVhfCenterKHz(hz / 1000.0));
+        Assert.Contains(stub.PanCentersHz.Values, hz => RigSatModeHelper.IsUhfCenterKHz(hz / 1000.0));
+    }
+
+    [Fact]
+    public void EnsureDuplexPassFrequencies_after_dual_hf_rebind_reapplies_both_rxants()
+    {
+        using var stub = new FlexSmartSdrStubServer(dualHfPanStartup: true);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        var settings = new RigSettings
+        {
+            FlexVhfRxAnt = "RX_B",
+            FlexUhfRxAnt = "RX_A",
+            FlexVhfTxAnt = "XVTR",
+            FlexUhfTxAnt = "ANT1"
+        };
+        driver.ConfigureAntennaPorts(settings);
+
+        const long downlinkHz = 145_950_000;
+        const long uplinkHz = 432_146_000;
+        Assert.True(driver.EnsureDualBandPanLayout(downlinkHz, uplinkHz));
+        driver.BindDuplexSlicesToBandPans(downlinkHz, uplinkHz, forceRebind: true);
+
+        // Fresh creates leave rxant empty (HF-start / rebind without ant=).
+        Assert.Equal("", stub.Slices[driver.RxSliceIndex].RxAnt);
+        Assert.Equal("", stub.Slices[driver.TxSliceIndex].RxAnt);
+
+        // Detune so EnsureDuplexPassFrequencies must repair and then re-apply band ports.
+        stub.SetSliceFrequencyFromOperator(driver.RxSliceIndex, 14_225_000);
+        driver.EnsureDuplexPassFrequencies(downlinkHz, uplinkHz, expectedRxMode: "USB", expectedTxMode: "LSB");
+
+        var rx = stub.Slices[driver.RxSliceIndex];
+        var tx = stub.Slices[driver.TxSliceIndex];
+        Assert.Equal("RX_B", rx.RxAnt);
+        Assert.Equal("RX_A", tx.RxAnt);
+        Assert.Equal("ANT1", tx.TxAnt);
     }
 
     [Fact]
