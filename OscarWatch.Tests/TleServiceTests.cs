@@ -171,6 +171,8 @@ public sealed class TleServiceTests : IDisposable
             TleSource = new TleSourceSettings { Mode = TleSourceMode.OscarWatch }
         };
 
+        public string? LoadError => null;
+        public bool CanPersist => true;
         public string SettingsPath { get; } = Path.Combine(Path.GetTempPath(), "oscarwatch-tle-service-test.json");
         public string SerializeCurrent() => "{}";
         public Task ReplaceAndSaveAsync(AppSettings imported, CancellationToken cancellationToken = default) => Task.CompletedTask;

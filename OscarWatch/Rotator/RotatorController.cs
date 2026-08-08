@@ -61,6 +61,15 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private bool _isPrePositioning;
     private PassInfo? _activePassInfo;
 
+    /// <summary>True after a successful track command for the current target (park grace).</summary>
+    private bool _trackEngaged;
+
+    /// <summary>Consecutive worker ticks with missing target/look angles while track-engaged.</summary>
+    private int _missingLookAnglesTicks;
+
+    /// <summary>Allow a brief gap in look angles before auto-park after tracking has started.</summary>
+    internal const int MissingLookAnglesParkGraceTicks = 3;
+
     public RotatorController(
         Func<RotatorSettings, IRotatorDriver>? driverFactory = null,
         IOrbitPropagator? propagator = null,
@@ -348,9 +357,14 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _lastAzimuth = null;
             _lastElevation = null;
             _parked = false;
+            _trackEngaged = false;
+            _missingLookAnglesTicks = 0;
             ClearTrackingAzimuthDisplay();
             RecomputePassRotatorPlans(settings);
         }
+
+        // If pass is known but Smart 450 plan is not yet ready, build it before the first track.
+        EnsureSmartAzimuthPlanBeforeTrack(settings);
 
         if (_manualParkActive)
         {
@@ -372,6 +386,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
         if (target?.LookAngles is { } lookAngles)
         {
+            _missingLookAnglesTicks = 0;
+
             if (lookAngles.ElevationDeg >= settings.TrackStartElevationDeg)
             {
                 var az = lookAngles.AzimuthDeg;
@@ -397,7 +413,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
                 TryPark(settings, afterPass: true);
         }
         else
-            TryPark(settings, afterPass: true);
+            TryParkAfterMissingLookAngles(settings);
     }
 
     private void ParkOnWorker(RotatorSettings settings)
@@ -554,6 +570,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _keyholeFlippedActive = false;
         _isPrePositioning = false;
         _activePassInfo = null;
+        _trackEngaged = false;
+        _missingLookAnglesTicks = 0;
     }
 
     private void RefreshPositionSnapshot()
@@ -583,6 +601,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
     /// <summary>
     /// Rebuilds keyhole and/or Smart 450° AOS–LOS plans from one pass profile when possible.
+    /// Uses the active pass NORAD id so planning can run before the first track target arrives.
     /// </summary>
     private void RecomputePassRotatorPlans(RotatorSettings settings)
     {
@@ -592,7 +611,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             && settings.ElevationRange == RotatorElevationRange.Deg180;
         var wantSmartAz = settings.SmartAzimuth450 && settings.MaxAzimuthDeg > 360;
 
-        if (_propagator is null || _activePassInfo is null || _cachedTarget is null)
+        if (_propagator is null || _activePassInfo is null)
         {
             _keyholePlan = null;
             _smartAzimuthPlan = null;
@@ -606,13 +625,20 @@ public sealed class RotatorController : IRotatorController, IDisposable
             return;
         }
 
-        var target = _cachedTarget;
+        var noradId = _activePassInfo.NoradId;
+        if (string.IsNullOrEmpty(noradId))
+        {
+            _keyholePlan = null;
+            _smartAzimuthPlan = null;
+            return;
+        }
+
         var site = _settingsService?.Current.GroundStation ?? new GroundStation();
 
         PassProfile? profile;
         try
         {
-            profile = PassProfileBuilder.Build(_activePassInfo, target.NoradId, site, _propagator);
+            profile = PassProfileBuilder.Build(_activePassInfo, noradId, site, _propagator);
             if (profile is null)
             {
                 Log.Information(
@@ -631,7 +657,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         }
 
         if (wantKeyhole)
-            AnalyseKeyholePlan(profile, settings, target.NoradId);
+            AnalyseKeyholePlan(profile, settings, noradId);
         else
             _keyholePlan = null;
 
@@ -639,6 +665,34 @@ public sealed class RotatorController : IRotatorController, IDisposable
             AnalyseSmartAzimuthPlan(profile, settings);
         else
             _smartAzimuthPlan = null;
+    }
+
+    private void EnsureSmartAzimuthPlanBeforeTrack(RotatorSettings settings)
+    {
+        if (!settings.SmartAzimuth450 || settings.MaxAzimuthDeg <= 360)
+            return;
+
+        if (_activePassInfo is null || _smartAzimuthPlan is not null || _propagator is null)
+            return;
+
+        RecomputePassRotatorPlans(settings);
+    }
+
+    /// <summary>
+    /// After tracking has started, tolerate a few missing look-angles ticks before auto-park
+    /// so a single null sample does not slam elevation to park (typically 0°).
+    /// </summary>
+    private void TryParkAfterMissingLookAngles(RotatorSettings settings)
+    {
+        if (!_trackEngaged)
+        {
+            TryPark(settings, afterPass: true);
+            return;
+        }
+
+        _missingLookAnglesTicks++;
+        if (_missingLookAnglesTicks >= MissingLookAnglesParkGraceTicks)
+            TryPark(settings, afterPass: true);
     }
 
     private void AnalyseKeyholePlan(PassProfile profile, RotatorSettings settings, string noradId)
@@ -887,6 +941,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _lastAzimuth = Math.Round(commandAz);
             _lastElevation = Math.Round(commandEl);
             _parked = false;
+            _trackEngaged = true;
+            _missingLookAnglesTicks = 0;
             // Poll before the worker signals command completion so GetPositionStatus
             // reflects commanded az/el without waiting for the next loop iteration.
             PollPosition();
@@ -915,6 +971,11 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _lastElevation = el;
             _parked = true;
             ClearTrackingAzimuthDisplay();
+            if (afterPass)
+            {
+                _trackEngaged = false;
+                _missingLookAnglesTicks = 0;
+            }
         }
         catch (Exception ex)
         {

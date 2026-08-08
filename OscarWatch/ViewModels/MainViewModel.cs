@@ -872,9 +872,10 @@ public partial class MainViewModel : ViewModelBase
         UpdateComPortConflictState();
         TryApplyGpsStationUpdate();
         UpdateGpsStatusDisplay();
-        // Publish target before active pass so the worker has _cachedTarget when planning.
-        _rotator.Update(_settings.Current.Rotator, EnrichRotatorTarget(focusedForOps));
+        // Publish active pass before target so Smart 450° / keyhole plans can build
+        // from the pass NORAD id before the first track command.
         PublishActivePassForRotator(focusedForOps);
+        _rotator.Update(_settings.Current.Rotator, EnrichRotatorTarget(focusedForOps));
         UpdateRotatorDisplay();
 
         if (ShowComPortConflict)

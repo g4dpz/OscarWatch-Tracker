@@ -80,6 +80,11 @@ public static class SmartAzimuthPassPlanner
                         ? extendedCmd[i - 1]
                         : primaryCmd[i - 1];
                     var edge = Math.Abs(cmd - prevCmd);
+                    // Forbid catastrophic mid-pass dial jumps (e.g. Extended climb then unwrap).
+                    // Start→first-sample cost is uncapped so one early unwrap remains allowed.
+                    if (edge > 180)
+                        continue;
+
                     var total = cost[i - 1, prevBand] + edge;
                     if (total < cost[i, band])
                     {

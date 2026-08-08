@@ -25,6 +25,12 @@ public static class RotatorAzimuthPlanner
     internal const double ExtendedBandCeilingDeg = 420;
 
     /// <summary>
+    /// When a preferred pass-plan band would move the dial more than this from the last
+    /// commanded position, fall back to tick heuristics instead of forcing the jump.
+    /// </summary>
+    internal const double PreferredBandMaxForceJumpDeg = 180;
+
+    /// <summary>
     /// When polled vs last-commanded compass azimuth differ by at least this much,
     /// prefer the polled position (operator moved the mast outside OscarWatch).
     /// </summary>
@@ -51,7 +57,16 @@ public static class RotatorAzimuthPlanner
         var target = Normalize360(targetCompassAzDeg);
 
         if (preferredBand is { } band && maxAzimuthDeg > 360)
-            return ResolveWithPreferredBand(target, maxAzimuthDeg, band);
+        {
+            var forced = ResolveWithPreferredBand(target, maxAzimuthDeg, band);
+            // Avoid AOS thrash: do not yank ~360° when the plan disagrees with the current dial.
+            if (lastCommandedAzDeg is null
+                || Math.Abs(forced - lastCommandedAzDeg.Value) <= PreferredBandMaxForceJumpDeg)
+            {
+                return forced;
+            }
+            // Fall through to tick heuristics for this sample.
+        }
 
         var westboundPredicted = IsWestboundNorthWrapPredicted(target, nextCompassAzDeg);
         var eastboundSe = lastCommandedAzDeg is { } lastForDir

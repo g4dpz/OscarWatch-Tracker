@@ -734,7 +734,7 @@ public sealed class RotatorControllerTests
     }
 
     [Fact]
-    public void Smart450_pass_plan_primary_band_forces_compass_azimuth()
+    public void Smart450_pass_plan_primary_band_does_not_force_catastrophic_jump()
     {
         var rotator = new RecordingRotatorDriver();
         var controller = new RotatorController(_ => rotator);
@@ -758,9 +758,9 @@ public sealed class RotatorControllerTests
 
         controller.UpdateSynchronously(settings, TrackTarget("44909", 350, 20));
         controller.SetSmartAzimuthPlanForTests(plan);
-        // Without a plan, 350→10 would use 370; Primary plan keeps compass 10.
+        // Preferred Primary would command 10 (|10−350|>180); fall back to tick resolve (370).
         controller.UpdateSynchronously(settings, TrackTarget("44909", 10, 20));
-        Assert.Equal(10, rotator.LastAzimuthDeg);
+        Assert.Equal(370, rotator.LastAzimuthDeg);
     }
 
     [Fact]
@@ -786,10 +786,102 @@ public sealed class RotatorControllerTests
                 new SmartAzimuthPassSample(aos.AddMinutes(5), SmartAzimuthBand.Extended)
             ]);
 
-        controller.UpdateSynchronously(settings, TrackTarget("44909", 135, 20));
+        // Last command near north so Extended (375) is a short dial step, not a >180° yank.
+        controller.UpdateSynchronously(settings, TrackTarget("44909", 350, 20));
         controller.SetSmartAzimuthPlanForTests(plan);
         controller.UpdateSynchronously(settings, TrackTarget("44909", 15, 25));
         Assert.Equal(375, rotator.LastAzimuthDeg);
+    }
+
+    [Fact]
+    public void Smart450_aos_handoff_primary_plan_keeps_southeast_on_primary()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            AzimuthRange = RotatorAzimuthRange.Deg450,
+            SmartAzimuth450 = true,
+            TrackStartElevationDeg = -3,
+            ParkAzimuthDeg = 135,
+            ParkElevationDeg = 0
+        };
+
+        var aos = DateTime.UtcNow.AddMinutes(-1);
+        var plan = new SmartAzimuthPassPlan(
+            aos,
+            aos.AddMinutes(10),
+            [
+                new SmartAzimuthPassSample(aos, SmartAzimuthBand.Primary),
+                new SmartAzimuthPassSample(aos.AddMinutes(5), SmartAzimuthBand.Primary)
+            ]);
+
+        // Pass plan before first track (production order after MainViewModel change).
+        controller.SetSmartAzimuthPlanForTests(plan);
+        controller.UpdateSynchronously(settings, TrackTarget("44909", 3, 5, aheadAzimuthDeg: 10));
+        Assert.Equal(3, rotator.LastAzimuthDeg);
+
+        controller.UpdateSynchronously(settings, TrackTarget("44909", 15, 10, aheadAzimuthDeg: 25));
+        controller.UpdateSynchronously(settings, TrackTarget("44909", 45, 15, aheadAzimuthDeg: 60));
+        Assert.Equal(45, rotator.LastAzimuthDeg);
+        Assert.All(rotator.AzimuthHistory, az => Assert.True(az <= 360));
+    }
+
+    [Fact]
+    public void Missing_look_angles_after_track_waits_grace_before_park()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            TrackStartElevationDeg = -3,
+            ParkAzimuthDeg = 180,
+            ParkElevationDeg = 0,
+            ParkAfterPass = true
+        };
+
+        controller.UpdateSynchronously(settings, TrackTarget("25544", 45, 10));
+        Assert.Equal(45, rotator.LastAzimuthDeg);
+        Assert.Equal(10, rotator.LastElevationDeg);
+
+        var callsAfterTrack = rotator.SetPositionCallCount;
+
+        // One missing look-angles tick must not slam El to park.
+        controller.UpdateSynchronously(settings, TargetWithoutLookAngles("25544"));
+        Assert.Equal(callsAfterTrack, rotator.SetPositionCallCount);
+        Assert.Equal(10, rotator.LastElevationDeg);
+
+        for (var i = 1; i < RotatorController.MissingLookAnglesParkGraceTicks; i++)
+            controller.UpdateSynchronously(settings, TargetWithoutLookAngles("25544"));
+
+        Assert.Equal(180, rotator.LastAzimuthDeg);
+        Assert.Equal(0, rotator.LastElevationDeg);
+        Assert.True(controller.GetPositionStatus().IsParked);
+    }
+
+    [Fact]
+    public void Missing_look_angles_before_track_still_parks_immediately()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            TrackStartElevationDeg = -3,
+            ParkAzimuthDeg = 180,
+            ParkElevationDeg = 0,
+            ParkAfterPass = true
+        };
+
+        controller.UpdateSynchronously(settings, TargetWithoutLookAngles("25544"));
+        Assert.Equal(180, rotator.LastAzimuthDeg);
+        Assert.Equal(0, rotator.LastElevationDeg);
+        Assert.True(controller.GetPositionStatus().IsParked);
     }
 
     private static SatelliteTrackState TrackTarget(
@@ -804,5 +896,14 @@ public sealed class RotatorControllerTests
             Subpoint = new GeoCoordinate(0, 0),
             LookAngles = new LookAngles(azimuthDeg, elevationDeg, 800, 0),
             AheadAzimuthDeg = aheadAzimuthDeg
+        };
+
+    private static SatelliteTrackState TargetWithoutLookAngles(string noradId) =>
+        new()
+        {
+            Name = "TEST",
+            NoradId = noradId,
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = null
         };
 }

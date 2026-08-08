@@ -162,9 +162,7 @@ public sealed class SettingsServiceTests
         }
         finally
         {
-            DeleteIfExists(path);
-            DeleteIfExists(path + ".tmp");
-            DeleteIfExists(path + ".bak");
+            CleanupSettingsArtifacts(path);
         }
     }
 
@@ -193,9 +191,7 @@ public sealed class SettingsServiceTests
         }
         finally
         {
-            DeleteIfExists(path);
-            DeleteIfExists(path + ".tmp");
-            DeleteIfExists(path + ".bak");
+            CleanupSettingsArtifacts(path);
         }
     }
 
@@ -207,17 +203,192 @@ public sealed class SettingsServiceTests
         try
         {
             File.WriteAllText(path, "{ \"old\": true }");
-            SettingsService.WriteAtomic(path, "{ \"new\": true }");
+            SettingsService.WriteAtomic(path, "{ \"new\": true, \"pad\": \"xxxxxxxx\" }");
 
             var json = File.ReadAllText(path);
             Assert.Contains("\"new\": true", json);
             Assert.DoesNotContain("\"old\": true", json);
+            Assert.True(File.Exists(path + ".bak"));
         }
         finally
         {
-            DeleteIfExists(path);
-            DeleteIfExists(path + ".tmp");
-            DeleteIfExists(path + ".bak");
+            CleanupSettingsArtifacts(path);
+        }
+    }
+
+    [Fact]
+    public void WriteAtomic_creates_timestamped_backup_before_replace()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"oscarwatch-atomic-bak-{Guid.NewGuid():N}.json");
+
+        try
+        {
+            File.WriteAllText(path, """{ "gridSquare": "IO87jp", "pad": "xxxxxxxx" }""");
+            SettingsService.WriteAtomic(path, """{ "gridSquare": "IO91wm", "pad": "yyyyyyyy" }""");
+
+            var dated = Directory.GetFiles(Path.GetDirectoryName(path)!, Path.GetFileName(path) + ".bak-*");
+            Assert.NotEmpty(dated);
+            Assert.Contains("IO87jp", File.ReadAllText(dated[0]), StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("IO91wm", File.ReadAllText(path), StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            CleanupSettingsArtifacts(path);
+        }
+    }
+
+    [Fact]
+    public void WriteAtomic_rejects_empty_payload()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"oscarwatch-atomic-empty-{Guid.NewGuid():N}.json");
+        File.WriteAllText(path, """{ "gridSquare": "IO87jp", "pad": "xxxxxxxx" }""");
+
+        try
+        {
+            Assert.Throws<InvalidOperationException>(() => SettingsService.WriteAtomic(path, " "));
+            Assert.Contains("IO87jp", File.ReadAllText(path), StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            CleanupSettingsArtifacts(path);
+        }
+    }
+
+    [Fact]
+    public async Task Load_corrupt_file_preserves_disk_and_blocks_save()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"oscarwatch-corrupt-{Guid.NewGuid():N}.json");
+        await File.WriteAllTextAsync(path, "{ this is not json");
+
+        using var service = new SettingsService(path);
+        try
+        {
+            service.Load();
+
+            Assert.False(service.CanPersist);
+            Assert.False(string.IsNullOrWhiteSpace(service.LoadError));
+            Assert.Equal("{ this is not json", await File.ReadAllTextAsync(path));
+
+            service.Current.GroundStation.GridSquare = "IO91wm";
+            service.RequestSave();
+            await Task.Delay(800);
+            Assert.Equal("{ this is not json", await File.ReadAllTextAsync(path));
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveAsync());
+            Assert.Equal("{ this is not json", await File.ReadAllTextAsync(path));
+
+            var corruptSnapshots = Directory.GetFiles(
+                Path.GetDirectoryName(path)!,
+                Path.GetFileName(path) + ".corrupt-*");
+            Assert.NotEmpty(corruptSnapshots);
+        }
+        finally
+        {
+            CleanupSettingsArtifacts(path);
+        }
+    }
+
+    [Fact]
+    public async Task ReplaceAndSaveAsync_re_enables_persist_after_corrupt_load()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"oscarwatch-repair-{Guid.NewGuid():N}.json");
+        await File.WriteAllTextAsync(path, "{ broken");
+
+        using var service = new SettingsService(path);
+        try
+        {
+            service.Load();
+            Assert.False(service.CanPersist);
+
+            await service.ReplaceAndSaveAsync(new AppSettings
+            {
+                GroundStation = new GroundStation
+                {
+                    DisplayName = "Home",
+                    LatitudeDeg = 57.1,
+                    LongitudeDeg = -2.1,
+                    GridSquare = "IO87jp"
+                }
+            });
+
+            Assert.True(service.CanPersist);
+            Assert.Null(service.LoadError);
+            Assert.Contains("IO87jp", await File.ReadAllTextAsync(path), StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            CleanupSettingsArtifacts(path);
+        }
+    }
+
+    [Fact]
+    public async Task SaveAsync_refuses_factory_defaults_over_personalized_disk()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"oscarwatch-guard-{Guid.NewGuid():N}.json");
+        using var service = new SettingsService(path);
+        try
+        {
+            service.Current.GroundStation = new GroundStation
+            {
+                DisplayName = "Home",
+                LatitudeDeg = 57.64583,
+                LongitudeDeg = -3.20833,
+                GridSquare = "IO87jp"
+            };
+            await service.SaveAsync();
+
+            service.Current.GroundStation = new GroundStation(); // factory IO91wm
+            await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveAsync());
+            Assert.Contains("IO87jp", await File.ReadAllTextAsync(path), StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            CleanupSettingsArtifacts(path);
+        }
+    }
+
+    [Fact]
+    public async Task Load_restores_personalized_bak_when_live_file_is_factory_defaults()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"oscarwatch-autobak-{Guid.NewGuid():N}.json");
+        using var service = new SettingsService(path);
+        try
+        {
+            service.Current.GroundStation = new GroundStation
+            {
+                DisplayName = "Home",
+                LatitudeDeg = 57.64583,
+                LongitudeDeg = -3.20833,
+                GridSquare = "IO87jp"
+            };
+            await service.SaveAsync();
+
+            // Live file becomes factory defaults; .bak keeps the real QTH (from WriteAtomic).
+            await File.WriteAllTextAsync(path, new SettingsService(path + ".factory-src").SerializeCurrent());
+            await File.WriteAllTextAsync(path + ".bak", """
+                {
+                  "groundStation": {
+                    "displayName": "Home",
+                    "latitudeDeg": 57.64583,
+                    "longitudeDeg": -3.20833,
+                    "altitudeMetersAsl": 50,
+                    "gridSquare": "IO87jp"
+                  },
+                  "savedStations": [],
+                  "enabledSatelliteNames": ["ISS"],
+                  "enabledSatelliteNoradIds": []
+                }
+                """);
+
+            using var reader = new SettingsService(path);
+            reader.Load();
+            Assert.Equal("IO87jp", reader.Current.GroundStation.GridSquare, ignoreCase: true);
+            Assert.Contains("IO87jp", await File.ReadAllTextAsync(path), StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            CleanupSettingsArtifacts(path);
+            CleanupSettingsArtifacts(path + ".factory-src");
         }
     }
 
@@ -283,5 +454,18 @@ public sealed class SettingsServiceTests
     {
         if (File.Exists(path))
             File.Delete(path);
+    }
+
+    private static void CleanupSettingsArtifacts(string path)
+    {
+        DeleteIfExists(path);
+        DeleteIfExists(path + ".tmp");
+        DeleteIfExists(path + ".bak");
+        var directory = Path.GetDirectoryName(path);
+        if (string.IsNullOrEmpty(directory))
+            return;
+
+        foreach (var extra in Directory.EnumerateFiles(directory, Path.GetFileName(path) + ".*"))
+            DeleteIfExists(extra);
     }
 }

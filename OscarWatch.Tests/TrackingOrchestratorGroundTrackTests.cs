@@ -127,6 +127,8 @@ public sealed class TrackingOrchestratorGroundTrackTests
     private sealed class TestSettingsService : ISettingsService
     {
         public AppSettings Current { get; } = new();
+        public string? LoadError => null;
+        public bool CanPersist => true;
         public string SettingsPath { get; } = Path.Combine(Path.GetTempPath(), "ground-track-test-settings.json");
         public string SerializeCurrent() => "{}";
         public Task ReplaceAndSaveAsync(AppSettings imported, CancellationToken cancellationToken = default) => Task.CompletedTask;

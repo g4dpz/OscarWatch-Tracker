@@ -89,6 +89,8 @@ public sealed class DiagnosticsBundleBuilderTests
     private sealed class StubSettingsService : ISettingsService
     {
         public AppSettings Current { get; } = new();
+        public string? LoadError => null;
+        public bool CanPersist => true;
         public string SettingsPath { get; } = Path.Combine(Path.GetTempPath(), "diagnostics-bundle-test.json");
         public string SerializeCurrent() => "{}";
         public Task ReplaceAndSaveAsync(AppSettings imported, CancellationToken cancellationToken = default) => Task.CompletedTask;

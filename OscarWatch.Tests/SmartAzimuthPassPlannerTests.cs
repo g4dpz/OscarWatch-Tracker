@@ -45,6 +45,18 @@ public sealed class SmartAzimuthPassPlannerTests
     }
 
     [Fact]
+    public void Analyse_extended_start_southeast_pass_stays_primary()
+    {
+        // Mast already in overlap: DP must unwrap early (Primary), not climb to 450 then jump.
+        var aos = new DateTime(2026, 8, 8, 12, 0, 0, DateTimeKind.Utc);
+        var profile = ProfileFromAzimuths(aos, 10, 20, 45, 90, 135);
+        var plan = SmartAzimuthPassPlanner.Analyse(profile, maxAzimuthDeg: 450, startCommandAzDeg: 370);
+
+        Assert.NotNull(plan);
+        Assert.All(plan.Samples, s => Assert.Equal(SmartAzimuthBand.Primary, s.Band));
+    }
+
+    [Fact]
     public void Analyse_westbound_north_wrap_uses_extended()
     {
         var aos = new DateTime(2026, 8, 8, 12, 0, 0, DateTimeKind.Utc);
@@ -86,20 +98,47 @@ public sealed class SmartAzimuthPassPlannerTests
         Assert.Equal(
             375,
             RotatorAzimuthPlanner.ResolveCommandAz(
-                135,
+                350,
                 15,
                 450,
                 preferredBand: SmartAzimuthBand.Extended));
     }
 
     [Fact]
+    public void ResolveCommandAz_preferred_extended_skips_catastrophic_jump_from_southeast()
+    {
+        // From park SE, forcing Extended would yank ~240°; fall back to Primary.
+        Assert.Equal(
+            15,
+            RotatorAzimuthPlanner.ResolveCommandAz(
+                135,
+                15,
+                450,
+                nextCompassAzDeg: 25,
+                preferredBand: SmartAzimuthBand.Extended));
+    }
+
+    [Fact]
     public void ResolveCommandAz_preferred_primary_ignores_myopic_overlap()
     {
-        // Without preferred band, 370→20 would unwrap; with Primary forced, still primary.
+        // Preferred Primary wants 20; |20−370|>180 so fall back to tick resolve,
+        // which still unwraps on eastbound SE continuation from the overlap band.
         Assert.Equal(
             20,
             RotatorAzimuthPlanner.ResolveCommandAz(
                 370,
+                20,
+                450,
+                preferredBand: SmartAzimuthBand.Primary));
+    }
+
+    [Fact]
+    public void ResolveCommandAz_preferred_primary_applies_when_jump_is_small()
+    {
+        Assert.Equal(
+            20,
+            RotatorAzimuthPlanner.ResolveCommandAz(
+                25,
                 20,
                 450,
                 preferredBand: SmartAzimuthBand.Primary));

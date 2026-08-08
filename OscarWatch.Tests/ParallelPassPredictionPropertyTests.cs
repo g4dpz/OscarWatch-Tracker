@@ -187,6 +187,8 @@ public class ParallelPassPredictionPropertyTests
     private sealed class StubSettingsService : ISettingsService
     {
         public AppSettings Current { get; } = new();
+        public string? LoadError => null;
+        public bool CanPersist => true;
         public string SettingsPath { get; } = "";
         public string SerializeCurrent() => "{}";
         public Task ReplaceAndSaveAsync(AppSettings imported, CancellationToken cancellationToken = default) => Task.CompletedTask;
