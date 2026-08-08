@@ -25,6 +25,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     private readonly ILocalizationService _l;
     private readonly ISpeechService _speech;
     private readonly IAudioRecordingService _recording;
+    private readonly OscarWatch.Core.Recording.FfmpegLocator _ffmpegLocator;
     private readonly ICloudlogRadioSyncService _cloudlog;
     private readonly ICloudlogLookupService _cloudlogLookup;
     private readonly IHamsAtRovesService _hamsAtRoves;
@@ -167,6 +168,12 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     private RecordingFormatOption? _selectedRecordingFormat;
 
     [ObservableProperty]
+    private RecordingContainerOption? _selectedRecordingContainer;
+
+    [ObservableProperty]
+    private string _recordingFfmpegStatus = "";
+
+    [ObservableProperty]
     private string _recordingTestStatus = "";
 
     public ObservableCollection<RecordingDeviceOption> RecordingDeviceOptions { get; } = [];
@@ -188,6 +195,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         _recording.UnavailableReason ?? _l.Get("Settings.Recording.Unavailable");
 
     public IReadOnlyList<RecordingFormatOption> RecordingFormatOptions { get; }
+
+    public IReadOnlyList<RecordingContainerOption> RecordingContainerOptions { get; }
 
     [ObservableProperty]
     private bool _rotatorEnabled;
@@ -732,7 +741,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         IHamsAtRovesService hamsAtRoves,
         IGpsService gps,
         ISatelliteLinkBroadcastService satelliteLink,
-        ISatelliteStatusReportService satelliteStatus)
+        ISatelliteStatusReportService satelliteStatus,
+        OscarWatch.Core.Recording.FfmpegLocator? ffmpegLocator = null)
     {
         _l = localization;
         _cloudlogLookup = cloudlogLookup;
@@ -740,6 +750,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         _gps = gps;
         _satelliteLink = satelliteLink;
         _satelliteStatus = satelliteStatus;
+        _ffmpegLocator = ffmpegLocator ?? new OscarWatch.Core.Recording.FfmpegLocator();
         LanguageOptions =
         [
             new LanguageOption(LocalizationCulture.DefaultLanguage, _l.Get("Settings.Language.English")),
@@ -860,6 +871,11 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             new(RecordingFormatPreset.Mono48000, _l.Get("Settings.Recording.Format.Mono48000")),
             new(RecordingFormatPreset.Stereo44100, _l.Get("Settings.Recording.Format.Stereo44100"))
         ];
+        RecordingContainerOptions =
+        [
+            new(RecordingContainerFormat.Wav, _l.Get("Settings.Recording.FileFormat.Wav")),
+            new(RecordingContainerFormat.Mp3, _l.Get("Settings.Recording.FileFormat.Mp3"))
+        ];
         _settings = settings;
         _speech = speech;
         _recording = recording;
@@ -891,8 +907,17 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     /// <summary>Called when the Recording tab is selected; probes PortAudio only then.</summary>
     public void OnRecordingTabSelected()
     {
+        RefreshFfmpegStatus();
         if (!RecordingDevicesLoaded && !RecordingDevicesLoading)
             _ = RefreshRecordingDevicesAsync();
+    }
+
+    private void RefreshFfmpegStatus()
+    {
+        var probe = _ffmpegLocator.Probe(forceRefresh: true);
+        RecordingFfmpegStatus = probe.IsAvailable
+            ? _l.Get("Settings.Recording.FfmpegAvailable")
+            : _l.Get("Settings.Recording.FfmpegUnavailable");
     }
 
     [RelayCommand]
@@ -1093,6 +1118,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             DeviceId = SelectedRecordingDevice?.Id ?? "",
             DeviceDisplayName = SelectedRecordingDevice?.DisplayName ?? "",
             Format = SelectedRecordingFormat?.Value ?? RecordingFormatPreset.Mono44100,
+            Container = SelectedRecordingContainer?.Value ?? RecordingContainerFormat.Wav,
             StartElevationDeg = RecordingStartElevationDeg,
             StopElevationDeg = stopElevation,
             OutputFolder = RecordingOutputFolder.Trim()
@@ -1304,8 +1330,11 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             RecordingOutputFolder = recording.OutputFolder;
             SelectedRecordingFormat = RecordingFormatOptions.FirstOrDefault(o => o.Value == recording.Format)
                 ?? RecordingFormatOptions[0];
+            SelectedRecordingContainer = RecordingContainerOptions.FirstOrDefault(o => o.Value == recording.Container)
+                ?? RecordingContainerOptions[0];
             ApplySavedRecordingDevicePlaceholder(recording.DeviceId, recording.DeviceDisplayName);
             RecordingTestStatus = "";
+            RecordingFfmpegStatus = "";
 
             var rotator = _settings.Current.Rotator ?? new RotatorSettings();
             RotatorEnabled = rotator.Enabled;
@@ -1482,9 +1511,13 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         }
 
         var format = SelectedRecordingFormat?.Value ?? RecordingFormatPreset.Mono44100;
+        var container = SelectedRecordingContainer?.Value ?? RecordingContainerFormat.Wav;
         var tempDir = Path.Combine(Path.GetTempPath(), "OscarWatch-recording-test");
         Directory.CreateDirectory(tempDir);
-        var outputPath = Path.Combine(tempDir, $"test-{DateTime.UtcNow:yyyyMMdd-HHmmss}.wav");
+        var preferredPath = Path.Combine(
+            tempDir,
+            $"test-{DateTime.UtcNow:yyyyMMdd-HHmmss}{container.GetExtension()}");
+        var capturePath = RecordingFileNameFormat.GetCaptureWavPath(preferredPath);
 
         try
         {
@@ -1495,11 +1528,23 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
                 "Test",
                 SelectedRecordingDevice.Id,
                 format,
-                outputPath,
-                SelectedRecordingDevice.DisplayName).ConfigureAwait(true);
+                capturePath,
+                SelectedRecordingDevice.DisplayName,
+                container).ConfigureAwait(true);
             await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(true);
             await _recording.StopAsync().ConfigureAwait(true);
-            RecordingTestStatus = _l.Get("Settings.Recording.TestSaved", outputPath);
+            var savedPath = _recording.LastCompletedOutputPath ?? capturePath;
+            if (container == RecordingContainerFormat.Mp3
+                && !savedPath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase))
+            {
+                RecordingTestStatus = _ffmpegLocator.Probe().IsAvailable
+                    ? _l.Get("Settings.Recording.TestSavedMp3Failed", savedPath)
+                    : _l.Get("Settings.Recording.TestSavedMp3Fallback", savedPath);
+            }
+            else
+            {
+                RecordingTestStatus = _l.Get("Settings.Recording.TestSaved", savedPath);
+            }
         }
         catch (Exception ex)
         {
@@ -2535,6 +2580,8 @@ public sealed record RigRegionOption(RigRegion Value, string Label);
 public sealed record RecordingDeviceOption(string Id, string DisplayName);
 
 public sealed record RecordingFormatOption(RecordingFormatPreset Value, string Label);
+
+public sealed record RecordingContainerOption(RecordingContainerFormat Value, string Label);
 
 public sealed record CloudlogLogbookOption(string PublicSlug, string LogbookName, string? AccessLevel)
 {

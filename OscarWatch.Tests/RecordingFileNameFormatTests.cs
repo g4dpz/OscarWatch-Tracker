@@ -14,6 +14,14 @@ public sealed class RecordingFileNameFormatTests
     }
 
     [Fact]
+    public void BuildFileName_uses_mp3_extension_when_requested()
+    {
+        var utc = new DateTime(2026, 5, 24, 14, 30, 0, DateTimeKind.Utc);
+        var fileName = RecordingFileNameFormat.BuildFileName("SO-50", utc, RecordingContainerFormat.Mp3);
+        Assert.Equal("so-50-26-05-24-14-30.mp3", fileName);
+    }
+
+    [Fact]
     public void BuildFileName_sanitizes_invalid_characters()
     {
         var utc = new DateTime(2026, 1, 2, 3, 4, 0, DateTimeKind.Utc);
@@ -40,5 +48,33 @@ public sealed class RecordingFileNameFormatTests
             if (Directory.Exists(dir))
                 Directory.Delete(dir, recursive: true);
         }
+    }
+
+    [Fact]
+    public void ResolveUniquePath_treats_existing_mp3_as_taken_for_wav_preference()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "oscarwatch-rec-test-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            Directory.CreateDirectory(dir);
+            var utc = new DateTime(2026, 5, 24, 14, 30, 0, DateTimeKind.Utc);
+            File.WriteAllText(Path.Combine(dir, "iss-26-05-24-14-30.mp3"), "x");
+
+            var path = RecordingFileNameFormat.ResolveUniquePath(dir, "ISS", utc, RecordingContainerFormat.Wav);
+            Assert.Equal(Path.Combine(dir, "iss-26-05-24-14-30-2.wav"), path);
+        }
+        finally
+        {
+            if (Directory.Exists(dir))
+                Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void GetCaptureWavPath_changes_mp3_preferred_to_wav()
+    {
+        var preferred = Path.Combine("recordings", "so-50-26-05-24-14-30.mp3");
+        var capture = RecordingFileNameFormat.GetCaptureWavPath(preferred);
+        Assert.Equal(Path.Combine("recordings", "so-50-26-05-24-14-30.wav"), capture);
     }
 }

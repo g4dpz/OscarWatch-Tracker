@@ -1462,13 +1462,28 @@
     <value>自動パス録音を有効</value>
   </data>
   <data name="Settings.Recording.EnableNote">
-    <value>フォーカス衛星が開始仰角を超えている間、選択した入力デバイスからWAVを録音。ファイルはUTCタイムスタンプで保存。</value>
+    <value>フォーカス衛星が開始仰角を超えている間、選択した入力デバイスから録音。WAVまたはMP3を選択（MP3はPATH上のffmpegが必要）。ファイルはUTCタイムスタンプで保存。</value>
   </data>
   <data name="Settings.Recording.InputDevice">
     <value>入力デバイス</value>
   </data>
   <data name="Settings.Recording.Format">
-    <value>形式</value>
+    <value>サンプリング形式</value>
+  </data>
+  <data name="Settings.Recording.FileFormat">
+    <value>ファイル形式</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Wav">
+    <value>WAV</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Mp3">
+    <value>MP3</value>
+  </data>
+  <data name="Settings.Recording.FfmpegAvailable">
+    <value>PATH上にffmpegがあります。MP3変換が利用できます。</value>
+  </data>
+  <data name="Settings.Recording.FfmpegUnavailable">
+    <value>MP3にはPATH上のffmpegが必要です。ffmpegを入れるまでWAVのまま保存されます。</value>
   </data>
   <data name="Settings.Recording.StartElevation">
     <value>録音開始仰角 (°)</value>
@@ -1499,6 +1514,12 @@
   </data>
   <data name="Settings.Recording.TestSaved">
     <value>テストクリップを保存: {0}</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Fallback">
+    <value>WAVとして保存 ({0})。MP3変換にはPATH上のffmpegが必要です。</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Failed">
+    <value>WAVとして保存 ({0})。MP3変換に失敗しました。</value>
   </data>
   <data name="Settings.Recording.Format.Mono44100">
     <value>モノ 44.1 kHz</value>

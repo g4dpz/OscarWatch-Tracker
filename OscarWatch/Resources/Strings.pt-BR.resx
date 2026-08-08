@@ -2323,13 +2323,28 @@ Continuar?</value>
     <value>Habilitar gravação automática de passagens</value>
   </data>
   <data name="Settings.Recording.EnableNote">
-    <value>Grava áudio WAV do dispositivo de entrada selecionado enquanto o satélite selecionado está acima da elevação inicial mínima configurada. Os arquivos são salvos com carimbos de tempo UTC.</value>
+    <value>Grava áudio do dispositivo de entrada selecionado enquanto o satélite selecionado está acima da elevação inicial mínima configurada. Escolha WAV ou MP3 (MP3 precisa do ffmpeg no PATH). Os arquivos são salvos com carimbos de tempo UTC.</value>
   </data>
   <data name="Settings.Recording.InputDevice">
     <value>Dispositivo de entrada</value>
   </data>
   <data name="Settings.Recording.Format">
-    <value>Formato</value>
+    <value>Formato de amostragem</value>
+  </data>
+  <data name="Settings.Recording.FileFormat">
+    <value>Formato de arquivo</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Wav">
+    <value>WAV</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Mp3">
+    <value>MP3</value>
+  </data>
+  <data name="Settings.Recording.FfmpegAvailable">
+    <value>ffmpeg encontrado no PATH. A conversão para MP3 está disponível.</value>
+  </data>
+  <data name="Settings.Recording.FfmpegUnavailable">
+    <value>MP3 precisa do ffmpeg no PATH. As gravações permanecem em WAV até o ffmpeg ser instalado.</value>
   </data>
   <data name="Settings.Recording.StartElevation">
     <value>Iniciar gravação na elevação (°)</value>
@@ -2360,6 +2375,12 @@ Continuar?</value>
   </data>
   <data name="Settings.Recording.TestSaved">
     <value>Clipe de teste salvo em {0}</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Fallback">
+    <value>Salvo como WAV ({0}); a conversão para MP3 precisa do ffmpeg no PATH.</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Failed">
+    <value>Salvo como WAV ({0}); a conversão para MP3 falhou.</value>
   </data>
   <data name="Settings.Recording.Format.Mono44100">
     <value>Mono 44,1 kHz</value>

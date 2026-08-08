@@ -106,6 +106,7 @@ public sealed class SettingsRecordingDevicesTests
         public bool IsRecording => false;
         public string? ActiveNoradId => null;
         public string? ActiveOutputPath => null;
+        public string? LastCompletedOutputPath => null;
         public int TryInitializeCount { get; private set; }
         public int GetInputDevicesCount { get; private set; }
 
@@ -128,6 +129,7 @@ public sealed class SettingsRecordingDevicesTests
             RecordingFormatPreset format,
             string outputPath,
             string? deviceName = null,
+            RecordingContainerFormat container = RecordingContainerFormat.Wav,
             CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
 

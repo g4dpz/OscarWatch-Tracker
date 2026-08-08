@@ -2347,13 +2347,28 @@
     <value>Habilitar grabación automática</value>
   </data>
   <data name="Settings.Recording.EnableNote">
-    <value>Graba audio WAV del dispositivo de entrada seleccionado mientras el satélite enfocado está por encima de la elevación de inicio. Los archivos se guardan con marcas de tiempo UTC.</value>
+    <value>Graba audio del dispositivo de entrada seleccionado mientras el satélite enfocado está por encima de la elevación de inicio. Elija WAV o MP3 (MP3 necesita ffmpeg en el PATH). Los archivos se guardan con marcas de tiempo UTC.</value>
   </data>
   <data name="Settings.Recording.InputDevice">
     <value>Dispositivo de entrada</value>
   </data>
   <data name="Settings.Recording.Format">
-    <value>Formato de audio</value>
+    <value>Formato de muestreo</value>
+  </data>
+  <data name="Settings.Recording.FileFormat">
+    <value>Formato de archivo</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Wav">
+    <value>WAV</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Mp3">
+    <value>MP3</value>
+  </data>
+  <data name="Settings.Recording.FfmpegAvailable">
+    <value>ffmpeg encontrado en el PATH. La conversión a MP3 está disponible.</value>
+  </data>
+  <data name="Settings.Recording.FfmpegUnavailable">
+    <value>MP3 necesita ffmpeg en el PATH. Las grabaciones se quedan en WAV hasta que se instale ffmpeg.</value>
   </data>
   <data name="Settings.Recording.StartElevation">
     <value>Empezar a grabar a elevación (°)</value>
@@ -2384,6 +2399,12 @@
   </data>
   <data name="Settings.Recording.TestSaved">
     <value>Clip de prueba guardado en {0}</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Fallback">
+    <value>Guardado como WAV ({0}); la conversión a MP3 necesita ffmpeg en el PATH.</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Failed">
+    <value>Guardado como WAV ({0}); falló la conversión a MP3.</value>
   </data>
   <data name="Settings.Recording.Format.Mono44100">
     <value>Mono 44,1 kHz</value>

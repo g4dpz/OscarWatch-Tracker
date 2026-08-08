@@ -2323,13 +2323,28 @@
     <value>启用自动过境录音</value>
   </data>
   <data name="Settings.Recording.EnableNote">
-    <value>当聚焦卫星高于起始仰角时，从选定的输入设备录制 WAV 音频。文件以 UTC 时间戳命名。</value>
+    <value>当聚焦卫星高于起始仰角时，从选定的输入设备录音。可选择 WAV 或 MP3（MP3 需要 PATH 中的 ffmpeg）。文件以 UTC 时间戳命名。</value>
   </data>
   <data name="Settings.Recording.InputDevice">
     <value>输入设备</value>
   </data>
   <data name="Settings.Recording.Format">
-    <value>格式</value>
+    <value>采样格式</value>
+  </data>
+  <data name="Settings.Recording.FileFormat">
+    <value>文件格式</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Wav">
+    <value>WAV</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Mp3">
+    <value>MP3</value>
+  </data>
+  <data name="Settings.Recording.FfmpegAvailable">
+    <value>已在 PATH 中找到 ffmpeg。可以使用 MP3 转换。</value>
+  </data>
+  <data name="Settings.Recording.FfmpegUnavailable">
+    <value>MP3 需要 PATH 中的 ffmpeg。在安装 ffmpeg 之前，录音将保存为 WAV。</value>
   </data>
   <data name="Settings.Recording.StartElevation">
     <value>开始录音仰角（°）</value>
@@ -2360,6 +2375,12 @@
   </data>
   <data name="Settings.Recording.TestSaved">
     <value>测试片段已保存到 {0}</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Fallback">
+    <value>已保存为 WAV（{0}）；MP3 转换需要 PATH 中的 ffmpeg。</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Failed">
+    <value>已保存为 WAV（{0}）；MP3 转换失败。</value>
   </data>
   <data name="Settings.Recording.Format.Mono44100">
     <value>单声道 44.1 kHz</value>

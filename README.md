@@ -85,7 +85,7 @@ Plain-language help ships with the app: **Help → Operator guide** (also in the
 - **DX station monitor**: enter a remote Maidenhead grid on the map; see where that station is and live azimuth/elevation for the focused satellite from their QTH (compact draggable overlay)
 - **Live telemetry**: azimuth, elevation, range, and altitude updated every second (UTC)
 - **Voice announcements**: optional spoken “rising” alerts when a satellite crosses a configurable elevation while ascending (e.g. “Alpha Oscar Zero Seven is rising”); Settings → Voice
-- **Pass recording**: optional automatic WAV capture from a line-in or USB audio device while the **focused** satellite is above configurable elevation thresholds; Settings → Recording. Files save to `%AppData%/OscarWatch/recordings/` by default as `{sat-name}-{yy}-{MM}-{dd}-{HH}-{mm}.wav` (UTC). A red **REC** badge appears on the pass row while recording.
+- **Pass recording**: optional automatic audio capture (WAV, or MP3 when ffmpeg is on PATH) from a line-in or USB audio device while the **focused** satellite is above configurable elevation thresholds; Settings → Recording. Files save to `%AppData%/OscarWatch/recordings/` by default as `{sat-name}-{yy}-{MM}-{dd}-{HH}-{mm}.wav` or `.mp3` (UTC). A red **REC** badge appears on the pass row while recording.
 - **Doppler frequencies**: draggable overlay on the world map with transponder modes from the satellite database, live radio/sat uplink & downlink, RX offsets (separate stored values for Voice and CW on linear SSB), CTCSS (access/arm), and **Voice/CW** toggle for linear SSB (header buttons + **Ctrl+W**; CAT/Cloudlog follow **Settings → Radio → Linear CW: keep receive in USB/LSB**)
 - **Transponder database editor**: Satellites → Manage transponder database… (add satellites from your **TLE catalog** or a custom name, **Import/Export JSON**, edit modes); **Satellites → Update transponder database…** merges published modes from [tle.oscarwatch.org/satellite_database.json](https://tle.oscarwatch.org/satellite_database.json) (new entries added with your consent; local edits kept on conflicts unless you accept remote). See [documents/satellite-database.md](documents/satellite-database.md)
 - **Radio CAT**: doppler tracking, satellite/split setup, Main/Sub VFOs, uplink CTCSS where supported; Settings → Radio (see [Supported hardware](#supported-hardware))
@@ -212,7 +212,42 @@ Audio capture uses [PortAudio](https://www.portaudio.com/) (via PortAudioSharp2)
 | **Linux**   | Requires PulseAudio or ALSA; install `libasound2` / PulseAudio as needed for your distro                                                 |
 
 
-WAV files are uncompressed (~5 MB/min mono at 44.1 kHz). Use an external tool if you need MP3 later.
+WAV files are uncompressed (~5 MB/min mono at 44.1 kHz). Choose **File format → MP3** in Settings → Recording to convert finished clips with system [ffmpeg](https://ffmpeg.org/) (must be on PATH; uses libmp3lame). If ffmpeg is missing or conversion fails, the WAV is kept.
+
+#### Installing ffmpeg (for MP3)
+
+You only need this if you want MP3 output. After installing, restart OscarWatch and confirm Settings → Recording says ffmpeg was found. Check in a terminal with `ffmpeg -version`.
+
+**Windows (PowerShell):**
+
+```powershell
+winget install ffmpeg
+```
+
+Then close PowerShell, fully quit OscarWatch, and start it again. If `winget` is missing on older Windows, install [App Installer](https://apps.microsoft.com/detail/9nblggh4nns1) from the Microsoft Store, or use Chocolatey: `choco install ffmpeg`.
+
+**macOS (Homebrew):**
+
+```bash
+brew install ffmpeg
+```
+
+Install [Homebrew](https://brew.sh/) first if needed, then restart OscarWatch.
+
+**Linux:**
+
+```bash
+# Debian / Ubuntu / Mint
+sudo apt update && sudo apt install ffmpeg
+
+# Fedora
+sudo dnf install ffmpeg
+
+# Arch
+sudo pacman -S ffmpeg
+```
+
+Step-by-step operator notes: [help/settings.html#ffmpeg](help/settings.html#ffmpeg).
 
 ## Settings location
 

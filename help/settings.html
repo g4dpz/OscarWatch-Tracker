@@ -96,18 +96,19 @@
       <h2>Voice</h2>
       <p>Optional spoken alert when a satellite rises above a set elevation (e.g. “Alpha Oscar Zero Seven is rising”). Choose a voice and test it. On Linux, install <code>espeak-ng</code> (recommended) or legacy <code>espeak</code>; <code>speech-dispatcher</code> with <code>spd-say</code> is also supported if eSpeak is not installed.</p>
 
-      <h2>Recording</h2>
+      <h2 id="recording">Recording</h2>
       <p>
-        Optional automatic <strong>WAV</strong> capture from a line-in or USB audio device while you work a pass.
+        Optional automatic audio capture from a line-in or USB audio device while you work a pass.
         Open <strong>Settings → Recording</strong> to configure it.
       </p>
       <ul>
-        <li><strong>Enable automatic pass recording</strong> — turn recording on or off.</li>
-        <li><strong>Input device</strong> — choose the audio input that carries your radio audio (sound card line-in, USB interface, etc.). The selection is remembered by device name across restarts (USB cards often change PortAudio index after reboot). Press <strong>Refresh</strong> if you plug in hardware after opening Settings; re-select only if the OS renames the device or it is missing from the list.</li>
-        <li><strong>Format</strong> — mono 44.1 kHz is a good default for FM/SSB; stereo if your interface requires it.</li>
-        <li><strong>Start / stop elevation</strong> — recording begins when the <strong>focused</strong> satellite rises through the start elevation, and stops when it falls below the stop elevation. Keep stop at or below start to avoid flapping near the threshold.</li>
-        <li><strong>Output folder</strong> — leave blank to use the default <code>%AppData%\OscarWatch\recordings\</code>.</li>
-        <li><strong>Test recording (5 s)</strong> — saves a short clip so you can confirm levels and device selection before a pass.</li>
+        <li><strong>Enable automatic pass recording</strong>: turn recording on or off.</li>
+        <li><strong>Input device</strong>: choose the audio input that carries your radio audio (sound card line-in, USB interface, etc.). The selection is remembered by device name across restarts (USB cards often change PortAudio index after reboot). Press <strong>Refresh</strong> if you plug in hardware after opening Settings; re-select only if the OS renames the device or it is missing from the list.</li>
+        <li><strong>Sample format</strong>: mono 44.1 kHz is a good default for FM/SSB; stereo if your interface requires it.</li>
+        <li><strong>File format</strong>: WAV (always works) or MP3. MP3 needs <a href="#ffmpeg"><code>ffmpeg</code> installed</a> so OscarWatch can find it on your PATH. Capture is still WAV first; OscarWatch converts when the pass ends and deletes the intermediate WAV on success. If ffmpeg is missing or conversion fails, the WAV is kept.</li>
+        <li><strong>Start / stop elevation</strong>: recording begins when the <strong>focused</strong> satellite rises through the start elevation, and stops when it falls below the stop elevation. Keep stop at or below start to avoid flapping near the threshold.</li>
+        <li><strong>Output folder</strong>: leave blank to use the default <code>%AppData%\OscarWatch\recordings\</code>.</li>
+        <li><strong>Test recording (5 s)</strong>: saves a short clip so you can confirm levels and device selection before a pass.</li>
       </ul>
       <p>
         Other Settings tabs open immediately. The <strong>Recording</strong> tab loads audio devices when you select it.
@@ -117,13 +118,69 @@
         If the Recording tab reports that audio is unavailable, configure recording with SmartSDR for Windows closed, or use <strong>Refresh</strong> on the Recording tab after closing DAX streams you do not need.
       </p>
       <p>
-        Files are named in UTC: <code>{satellite-name}-{yy-MM-dd-HH-mm}.wav</code>
+        Files are named in UTC: <code>{satellite-name}-{yy-MM-dd-HH-mm}.wav</code> or <code>.mp3</code>
         (for example <code>so-50-26-05-24-14-30.wav</code>).
         Only the satellite you have <strong>selected</strong> on the map or pass list is recorded.
         If you switch to another satellite that is already above the start elevation, recording begins straight away.
         While recording, a red <strong>REC</strong> badge appears on that pass in the sidebar.
       </p>
-      <p>WAV files are uncompressed (~5 MB per minute mono at 44.1 kHz). Convert to MP3 elsewhere if you need smaller files.</p>
+      <p>WAV files are uncompressed (~5 MB per minute mono at 44.1 kHz). MP3 is much smaller when ffmpeg is available.</p>
+
+      <h3 id="ffmpeg">Installing ffmpeg for MP3 recordings</h3>
+      <p>
+        OscarWatch does not bundle ffmpeg. You only need it if you choose <strong>File format → MP3</strong>.
+        After installing, close and reopen OscarWatch (or reopen Settings → Recording) so it can see ffmpeg on your PATH.
+        The Recording tab should say that ffmpeg was found.
+      </p>
+      <p>
+        Check that it worked by opening a terminal and running <code>ffmpeg -version</code>.
+        You should see version text, not “command not found”.
+      </p>
+
+      <h4>Windows</h4>
+      <ol>
+        <li>Open <strong>Windows PowerShell</strong> (Start menu → type <code>PowerShell</code> → Open).</li>
+        <li>Run:
+          <pre><code>winget install ffmpeg</code></pre>
+        </li>
+        <li>If winget asks you to agree to source or package terms, accept them.</li>
+        <li>Close PowerShell, then fully quit and restart OscarWatch.</li>
+        <li>Optional check: in a <strong>new</strong> PowerShell window, run <code>ffmpeg -version</code>.</li>
+      </ol>
+      <p>
+        If <code>winget</code> is not available on older Windows builds, install
+        <a href="https://apps.microsoft.com/detail/9nblggh4nns1">App Installer</a> from the Microsoft Store,
+        or use <a href="https://chocolatey.org/">Chocolatey</a> with <code>choco install ffmpeg</code>.
+      </p>
+
+      <h4>macOS</h4>
+      <ol>
+        <li>Install <a href="https://brew.sh/">Homebrew</a> if you do not already have it (the brew.sh site shows the one-line install command).</li>
+        <li>Open <strong>Terminal</strong> and run:
+          <pre><code>brew install ffmpeg</code></pre>
+        </li>
+        <li>Quit and restart OscarWatch, then open Settings → Recording and confirm ffmpeg is found.</li>
+        <li>Optional check: run <code>ffmpeg -version</code> in Terminal.</li>
+      </ol>
+
+      <h4>Linux</h4>
+      <p>Use your distribution’s package manager (examples):</p>
+      <ul>
+        <li><strong>Debian / Ubuntu / Mint</strong>:
+          <pre><code>sudo apt update
+sudo apt install ffmpeg</code></pre>
+        </li>
+        <li><strong>Fedora</strong>:
+          <pre><code>sudo dnf install ffmpeg</code></pre>
+        </li>
+        <li><strong>Arch</strong>:
+          <pre><code>sudo pacman -S ffmpeg</code></pre>
+        </li>
+      </ul>
+      <p>
+        Then restart OscarWatch and confirm Settings → Recording reports that ffmpeg was found.
+        Optional check: <code>ffmpeg -version</code> in a terminal.
+      </p>
 
       <h2>Rotator &amp; Radio</h2>
       <p>

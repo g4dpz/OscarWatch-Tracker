@@ -1105,6 +1105,20 @@
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
+            <TextBlock Text="{loc:Localize Key=Settings.Recording.FileFormat}" Margin="0,8,0,0" />
+            <ComboBox ItemsSource="{Binding RecordingContainerOptions}"
+                      SelectedItem="{Binding SelectedRecordingContainer, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:RecordingContainerOption">
+                  <TextBlock Text="{Binding Label}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Text="{Binding RecordingFfmpegStatus}" />
             <TextBlock Text="{loc:Localize Key=Settings.Recording.StartElevation}" Margin="0,8,0,0" />
             <NumericUpDown Value="{Binding RecordingStartElevationDeg, Mode=TwoWay}"
                            Minimum="-10" Maximum="90"

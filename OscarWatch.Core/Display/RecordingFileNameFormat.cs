@@ -1,35 +1,49 @@
 using System.Diagnostics;
 using System.Text;
+using OscarWatch.Core.Models;
 
 namespace OscarWatch.Core.Display;
 
 public static class RecordingFileNameFormat
 {
-    public static string BuildFileName(string satelliteName, DateTime utcStart)
+    public static string BuildFileName(
+        string satelliteName,
+        DateTime utcStart,
+        RecordingContainerFormat container = RecordingContainerFormat.Wav)
     {
         var safeName = SanitizeSatelliteName(satelliteName);
         var stamp = utcStart.ToString("yy-MM-dd-HH-mm");
-        return $"{safeName}-{stamp}.wav";
+        return $"{safeName}-{stamp}{container.GetExtension()}";
     }
 
-    public static string ResolveUniquePath(string directory, string satelliteName, DateTime utcStart)
+    public static string ResolveUniquePath(
+        string directory,
+        string satelliteName,
+        DateTime utcStart,
+        RecordingContainerFormat container = RecordingContainerFormat.Wav)
     {
         Directory.CreateDirectory(directory);
-        var baseName = BuildFileName(satelliteName, utcStart);
+        var baseName = BuildFileName(satelliteName, utcStart, container);
         var path = Path.Combine(directory, baseName);
-        if (!File.Exists(path))
+        if (!StemTaken(directory, Path.GetFileNameWithoutExtension(baseName)))
             return path;
 
         var nameWithoutExt = Path.GetFileNameWithoutExtension(baseName);
         for (var suffix = 2; suffix < 1000; suffix++)
         {
-            path = Path.Combine(directory, $"{nameWithoutExt}-{suffix}.wav");
-            if (!File.Exists(path))
-                return path;
+            var candidateStem = $"{nameWithoutExt}-{suffix}";
+            if (!StemTaken(directory, candidateStem))
+                return Path.Combine(directory, candidateStem + container.GetExtension());
         }
 
-        return Path.Combine(directory, $"{nameWithoutExt}-{Guid.NewGuid():N}.wav");
+        return Path.Combine(directory, $"{nameWithoutExt}-{Guid.NewGuid():N}{container.GetExtension()}");
     }
+
+    /// <summary>
+    /// Capture always writes WAV; when the preferred container is MP3 this is the intermediate path.
+    /// </summary>
+    public static string GetCaptureWavPath(string preferredOutputPath) =>
+        Path.ChangeExtension(preferredOutputPath, ".wav");
 
     public static string GetDefaultOutputFolder() =>
         Path.Combine(
@@ -70,5 +84,15 @@ public static class RecordingFileNameFormat
 
         var sanitized = builder.ToString().Trim('-');
         return string.IsNullOrEmpty(sanitized) ? "satellite" : sanitized;
+    }
+
+    /// <summary>
+    /// Treat a stem as taken if either .wav or .mp3 already exists (avoid clobbering after conversion).
+    /// </summary>
+    private static bool StemTaken(string directory, string stemWithoutExtension)
+    {
+        var wav = Path.Combine(directory, stemWithoutExtension + ".wav");
+        var mp3 = Path.Combine(directory, stemWithoutExtension + ".mp3");
+        return File.Exists(wav) || File.Exists(mp3);
     }
 }

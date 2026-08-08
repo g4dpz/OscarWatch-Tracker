@@ -13,6 +13,7 @@ using OscarWatch.Orbit;
 using OscarWatch.Core.Models;
 using OscarWatch.ViewModels;
 using OscarWatch.Cloudlog;
+using OscarWatch.Core.Recording;
 using OscarWatch.Recording;
 using OscarWatch.Gps;
 using OscarWatch.Rig;
@@ -45,7 +46,11 @@ public partial class App : Application
         services.AddSingleton<ITleService>(sp =>
             new TleService(sp.GetRequiredService<ISettingsService>()));
         services.AddSingleton<ISpeechService, PlatformSpeechService>();
-        services.AddSingleton<PortAudioRecordingService>();
+        services.AddSingleton<FfmpegLocator>();
+        services.AddSingleton(sp => new FfmpegMp3Converter(locator: sp.GetRequiredService<FfmpegLocator>()));
+        services.AddSingleton(sp => new PortAudioRecordingService(
+            sp.GetRequiredService<FfmpegLocator>(),
+            sp.GetRequiredService<FfmpegMp3Converter>()));
         services.AddSingleton<IAudioRecordingService>(sp => sp.GetRequiredService<PortAudioRecordingService>());
         services.AddSingleton<IRecordingTaskScheduler, LoggingRecordingTaskScheduler>();
         services.AddSingleton<RisingPassAnnouncer>();

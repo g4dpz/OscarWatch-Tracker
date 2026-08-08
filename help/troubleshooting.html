@@ -50,6 +50,14 @@
         Tracking, passes, and radio/rotator control work without pass recording if you skip the PortAudio step.
       </p>
 
+      <h2 id="mp3-ffmpeg">MP3 recording says ffmpeg is missing</h2>
+      <ul>
+        <li>Install ffmpeg for your OS using the steps in <a href="settings.html#ffmpeg">Settings help: Installing ffmpeg</a>.</li>
+        <li>On Windows, prefer <code>winget install ffmpeg</code> in PowerShell, then fully quit and restart OscarWatch (a new terminal session is also needed for <code>ffmpeg -version</code> to work).</li>
+        <li>Confirm <code>ffmpeg -version</code> works in a terminal. If the command is not found, ffmpeg is not on your PATH yet.</li>
+        <li>WAV recording still works without ffmpeg. Open Settings → Recording and choose <strong>File format → WAV</strong> if you do not want to install it.</li>
+      </ul>
+
       <h2>Pass times look wrong</h2>
       <ul>
         <li>Refresh TLEs (<strong>Satellites → Refresh TLEs</strong>).</li>

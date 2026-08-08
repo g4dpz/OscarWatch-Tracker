@@ -2437,13 +2437,28 @@ Continue?</value>
     <value>Enable automatic pass recording</value>
   </data>
   <data name="Settings.Recording.EnableNote">
-    <value>Records WAV audio from the selected input device while the focused satellite is above the start elevation. Files are saved with UTC timestamps.</value>
+    <value>Records audio from the selected input device while the focused satellite is above the start elevation. Choose WAV or MP3 (MP3 needs ffmpeg on PATH). Files are saved with UTC timestamps.</value>
   </data>
   <data name="Settings.Recording.InputDevice">
     <value>Input device</value>
   </data>
   <data name="Settings.Recording.Format">
-    <value>Format</value>
+    <value>Sample format</value>
+  </data>
+  <data name="Settings.Recording.FileFormat">
+    <value>File format</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Wav">
+    <value>WAV</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Mp3">
+    <value>MP3</value>
+  </data>
+  <data name="Settings.Recording.FfmpegAvailable">
+    <value>ffmpeg found on PATH. MP3 conversion is available.</value>
+  </data>
+  <data name="Settings.Recording.FfmpegUnavailable">
+    <value>MP3 needs ffmpeg on PATH. Recordings stay as WAV until ffmpeg is installed.</value>
   </data>
   <data name="Settings.Recording.StartElevation">
     <value>Start recording at elevation (°)</value>
@@ -2477,6 +2492,12 @@ Continue?</value>
   </data>
   <data name="Settings.Recording.TestSaved">
     <value>Saved test clip to {0}</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Fallback">
+    <value>Saved as WAV ({0}); MP3 conversion needs ffmpeg on PATH.</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Failed">
+    <value>Saved as WAV ({0}); MP3 conversion failed.</value>
   </data>
   <data name="Settings.Recording.Format.Mono44100">
     <value>Mono 44.1 kHz</value>

@@ -83,18 +83,21 @@ public sealed class PassRecordingCoordinator
         IRecordingTaskScheduler tasks)
     {
         var outputFolder = RecordingFileNameFormat.ResolveOutputFolder(settings.OutputFolder);
-        var outputPath = RecordingFileNameFormat.ResolveUniquePath(
+        var preferredPath = RecordingFileNameFormat.ResolveUniquePath(
             outputFolder,
             focusedState.Name,
-            utcNow);
+            utcNow,
+            settings.Container);
+        var capturePath = RecordingFileNameFormat.GetCaptureWavPath(preferredPath);
         tasks.Schedule(
             () => recording.StartAsync(
                 focusedNoradId,
                 focusedState.Name,
                 settings.DeviceId,
                 settings.Format,
-                outputPath,
-                settings.DeviceDisplayName),
+                capturePath,
+                settings.DeviceDisplayName,
+                settings.Container),
             "start pass recording");
     }
 

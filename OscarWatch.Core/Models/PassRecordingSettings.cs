@@ -7,6 +7,8 @@ public sealed class PassRecordingSettings
     public string DeviceId { get; set; } = "";
     public string DeviceDisplayName { get; set; } = "";
     public RecordingFormatPreset Format { get; set; } = RecordingFormatPreset.Mono44100;
+    /// <summary>Preferred file container. MP3 requires ffmpeg on PATH; otherwise WAV is kept.</summary>
+    public RecordingContainerFormat Container { get; set; } = RecordingContainerFormat.Wav;
     public double StartElevationDeg { get; set; } = 5.0;
     public double StopElevationDeg { get; set; } = 3.0;
     public string OutputFolder { get; set; } = "";

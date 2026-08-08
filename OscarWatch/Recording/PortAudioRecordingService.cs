@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Recording;
 using OscarWatch.Core.Services;
 using PortAudioSharp;
 using Serilog;
@@ -23,6 +24,8 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
     private readonly SemaphoreSlim _operationLock = new(1, 1);
     private readonly object _initializationGate = new();
     private readonly object _streamGate = new();
+    private readonly FfmpegLocator _ffmpegLocator;
+    private readonly FfmpegMp3Converter _mp3Converter;
 
     private bool _initialized;
     private bool _initializationAttempted;
@@ -40,6 +43,15 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
     private long _lastWarnedDroppedBytes;
     private int _activeChannels = 1;
     private int _maxCallbackBytes;
+    private RecordingContainerFormat _activeContainer = RecordingContainerFormat.Wav;
+
+    public PortAudioRecordingService(
+        FfmpegLocator? ffmpegLocator = null,
+        FfmpegMp3Converter? mp3Converter = null)
+    {
+        _ffmpegLocator = ffmpegLocator ?? new FfmpegLocator();
+        _mp3Converter = mp3Converter ?? new FfmpegMp3Converter(locator: _ffmpegLocator);
+    }
 
     public bool IsAvailable => !_initializationAttempted || _initialized;
 
@@ -52,6 +64,7 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
     public bool IsRecording { get; private set; }
     public string? ActiveNoradId { get; private set; }
     public string? ActiveOutputPath { get; private set; }
+    public string? LastCompletedOutputPath { get; private set; }
 
     /// <summary>
     /// Initialises PortAudio on first recording use. In particular, do not enumerate Windows audio
@@ -144,6 +157,7 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
         RecordingFormatPreset format,
         string outputPath,
         string? deviceName = null,
+        RecordingContainerFormat container = RecordingContainerFormat.Wav,
         CancellationToken cancellationToken = default)
     {
         await _operationLock.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -155,6 +169,8 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
             if (IsRecording)
                 await StopCoreAsync().ConfigureAwait(false);
 
+            LastCompletedOutputPath = null;
+            _activeContainer = container;
             var (preferredSampleRate, channels) = format.GetFormat();
 
             var inputs = SnapshotInputDevices();
@@ -221,12 +237,13 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
             ActiveNoradId = noradId;
             ActiveOutputPath = outputPath;
             Log.Information(
-                "Recording started for {Satellite} ({NoradId}) on device '{Device}' (index={DeviceIndex}) -> {Path} (rate={SampleRate} Hz, frames={Frames}, channels={Channels}, ring={RingKb} KB)",
+                "Recording started for {Satellite} ({NoradId}) on device '{Device}' (index={DeviceIndex}) -> {Path} (container={Container}, rate={SampleRate} Hz, frames={Frames}, channels={Channels}, ring={RingKb} KB)",
                 satelliteName,
                 noradId,
                 deviceInfo.name,
                 deviceIndex,
                 outputPath,
+                container,
                 actualSampleRate,
                 framesPerBuffer,
                 _activeChannels,
@@ -257,31 +274,77 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
         }
     }
 
-    private Task StopCoreAsync()
+    private async Task StopCoreAsync()
     {
         if (!IsRecording)
-            return Task.CompletedTask;
+            return;
 
         var path = ActiveOutputPath;
+        var container = _activeContainer;
         try
         {
             StopCaptureAndDrain();
             LogRecordingStats(path, final: true);
-            Log.Information("Recording stopped -> {Path}", path);
+            LastCompletedOutputPath = await FinalizeOutputAsync(path, container).ConfigureAwait(false);
+            Log.Information("Recording stopped -> {Path}", LastCompletedOutputPath ?? path);
         }
         catch (Exception ex)
         {
             Log.Warning(ex, "Error while stopping recording -> {Path}", path);
             CleanupRecordingState();
+            if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                LastCompletedOutputPath = path;
         }
         finally
         {
             IsRecording = false;
             ActiveNoradId = null;
             ActiveOutputPath = null;
+            _activeContainer = RecordingContainerFormat.Wav;
+        }
+    }
+
+    private async Task<string?> FinalizeOutputAsync(string? wavPath, RecordingContainerFormat container)
+    {
+        if (string.IsNullOrEmpty(wavPath) || !File.Exists(wavPath))
+            return wavPath;
+
+        if (container != RecordingContainerFormat.Mp3)
+            return wavPath;
+
+        var probe = await _ffmpegLocator.ProbeAsync().ConfigureAwait(false);
+        if (!probe.IsAvailable)
+        {
+            Log.Information(
+                "MP3 preferred but ffmpeg is unavailable; keeping WAV {Path}. {Detail}",
+                wavPath,
+                probe.Detail ?? "ffmpeg was not found on PATH.");
+            return wavPath;
         }
 
-        return Task.CompletedTask;
+        try
+        {
+            var result = await _mp3Converter.ConvertWavToMp3Async(wavPath).ConfigureAwait(false);
+            if (result.Success && !string.IsNullOrEmpty(result.OutputPath))
+            {
+                if (!string.IsNullOrEmpty(result.Error))
+                    Log.Warning("MP3 conversion note for {Path}: {Detail}", result.OutputPath, result.Error);
+                else
+                    Log.Information("Converted pass recording to MP3 -> {Path}", result.OutputPath);
+                return result.OutputPath;
+            }
+
+            Log.Warning(
+                "MP3 conversion failed for {Path}; keeping WAV. {Detail}",
+                wavPath,
+                result.Error ?? "Unknown error.");
+            return wavPath;
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "MP3 conversion threw for {Path}; keeping WAV", wavPath);
+            return wavPath;
+        }
     }
 
     private void StopCaptureAndDrain()
@@ -636,6 +699,7 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
         IsRecording = false;
         ActiveNoradId = null;
         ActiveOutputPath = null;
+        _activeContainer = RecordingContainerFormat.Wav;
     }
 
     public void Dispose()

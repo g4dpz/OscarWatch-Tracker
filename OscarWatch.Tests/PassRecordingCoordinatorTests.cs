@@ -125,6 +125,38 @@ public sealed class PassRecordingCoordinatorTests
         Assert.Equal(AudioRecordingSessions.ManualTestNoradId, _recording.ActiveNoradId);
         Assert.Equal(0, _recording.StopCount);
     }
+
+    [Fact]
+    public void Starts_with_wav_capture_path_when_mp3_container_preferred()
+    {
+        var utc = new DateTime(2026, 5, 24, 14, 30, 0, DateTimeKind.Utc);
+        var settings = new PassRecordingSettings
+        {
+            Enabled = true,
+            DeviceId = "Fake Input",
+            DeviceDisplayName = "Fake Input",
+            StartElevationDeg = 5,
+            StopElevationDeg = 3,
+            Format = RecordingFormatPreset.Mono44100,
+            Container = RecordingContainerFormat.Mp3,
+            OutputFolder = Path.Combine(Path.GetTempPath(), "oscarwatch-mp3-coord-" + Guid.NewGuid().ToString("N"))
+        };
+
+        try
+        {
+            _coordinator.Process("25544", State("25544", 20.0), settings, _recording, utc);
+
+            Assert.True(_recording.IsRecording);
+            Assert.Equal(RecordingContainerFormat.Mp3, _recording.LastContainer);
+            Assert.EndsWith(".wav", _recording.ActiveOutputPath!, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("so-50-26-05-24-14-30", _recording.ActiveOutputPath!, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            if (Directory.Exists(settings.OutputFolder))
+                Directory.Delete(settings.OutputFolder, recursive: true);
+        }
+    }
 }
 
 internal sealed class FakeAudioRecordingService : IAudioRecordingService
@@ -134,10 +166,12 @@ internal sealed class FakeAudioRecordingService : IAudioRecordingService
     public bool IsRecording { get; private set; }
     public string? ActiveNoradId { get; private set; }
     public string? ActiveOutputPath { get; private set; }
+    public string? LastCompletedOutputPath { get; private set; }
     public int StartCount { get; private set; }
     public int StopCount { get; private set; }
     public int TryInitializeCount { get; private set; }
     public int GetInputDevicesCount { get; private set; }
+    public RecordingContainerFormat LastContainer { get; private set; }
 
     private bool _initializationFailed;
 
@@ -162,9 +196,12 @@ internal sealed class FakeAudioRecordingService : IAudioRecordingService
         RecordingFormatPreset format,
         string outputPath,
         string? deviceName = null,
+        RecordingContainerFormat container = RecordingContainerFormat.Wav,
         CancellationToken cancellationToken = default)
     {
         StartCount++;
+        LastContainer = container;
+        LastCompletedOutputPath = null;
         IsRecording = true;
         ActiveNoradId = noradId;
         ActiveOutputPath = outputPath;
@@ -174,6 +211,7 @@ internal sealed class FakeAudioRecordingService : IAudioRecordingService
     public Task StopAsync(CancellationToken cancellationToken = default)
     {
         StopCount++;
+        LastCompletedOutputPath = ActiveOutputPath;
         IsRecording = false;
         ActiveNoradId = null;
         ActiveOutputPath = null;

@@ -7,6 +7,11 @@ The default `OscarWatch/Assets/Maps/world_map.jpg` is an equirectangular Blue Ma
 - NASA Blue Marble / Visible Earth imagery — public domain ([NASA Earth Observatory](https://earthobservatory.nasa.gov/))
 - KDE Marble project — map tiling and `world_map.jpg` convention ([Marble](https://marble.kde.org/))
 
+## Audio
+
+- [PortAudio](https://www.portaudio.com/) via PortAudioSharp2 — cross-platform capture for pass recording
+- Optional [ffmpeg](https://ffmpeg.org/) on PATH — converts finished pass recordings to MP3 with libmp3lame when File format is MP3 (not bundled)
+
 ## Orbit propagation
 
 - [OrbitTools](http://www.zeptomoby.com/satellites/) by Michael F. Henry — NORAD SGP4/SDP4 (Public Edition via NuGet for non-commercial use)

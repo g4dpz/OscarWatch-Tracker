@@ -18,6 +18,9 @@ public interface IAudioRecordingService
     bool TryInitialize();
 
     IReadOnlyList<AudioInputDevice> GetInputDevices();
+    /// <summary>Path of the last completed recording (WAV or converted MP3). Cleared on the next start.</summary>
+    string? LastCompletedOutputPath { get; }
+
     Task StartAsync(
         string noradId,
         string satelliteName,
@@ -25,6 +28,7 @@ public interface IAudioRecordingService
         RecordingFormatPreset format,
         string outputPath,
         string? deviceName = null,
+        RecordingContainerFormat container = RecordingContainerFormat.Wav,
         CancellationToken cancellationToken = default);
     Task StopAsync(CancellationToken cancellationToken = default);
 }
