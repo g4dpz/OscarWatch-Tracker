@@ -779,7 +779,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
         var aheadForPlanner = RotatorCalibration.ApplyAzimuthOffset(aheadAzimuthDeg, settings);
 
         var useSmartAzimuth = settings.SmartAzimuth450 && settings.MaxAzimuthDeg > 360;
-        var effectiveLastAzimuth = _lastAzimuth ?? _displayAzimuth;
+        var effectiveLastAzimuth = RotatorAzimuthPlanner.ResolveEffectiveLastAzimuth(
+            _lastAzimuth,
+            _displayAzimuth);
         var commandAz = useSmartAzimuth
             ? RotatorAzimuthPlanner.ResolveCommandAz(
                 effectiveLastAzimuth, commandAzInput, settings.MaxAzimuthDeg, aheadForPlanner)

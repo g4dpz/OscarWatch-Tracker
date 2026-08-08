@@ -649,6 +649,90 @@ public sealed class RotatorControllerTests
         Assert.Equal(10, rotator.LastAzimuthDeg);
     }
 
+    [Fact]
+    public void Smart450_park_135_southeast_pass_stays_on_primary_band()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            AzimuthRange = RotatorAzimuthRange.Deg450,
+            SmartAzimuth450 = true,
+            TrackStartElevationDeg = 5,
+            ParkAzimuthDeg = 135,
+            ParkElevationDeg = 0
+        };
+
+        var norad = "44909";
+        // Mast already at park 135° (commanded/polled), then AOS from the north going SE.
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 135, 6));
+        Assert.Equal(135, rotator.LastAzimuthDeg);
+
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 3, 10, aheadAzimuthDeg: 10));
+        Assert.Equal(3, rotator.LastAzimuthDeg);
+
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 15, 20, aheadAzimuthDeg: 25));
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 45, 30, aheadAzimuthDeg: 60));
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 90, 25, aheadAzimuthDeg: 120));
+        Assert.Equal(90, rotator.LastAzimuthDeg);
+        Assert.All(rotator.AzimuthHistory, az => Assert.True(az <= 360));
+    }
+
+    [Fact]
+    public void Smart450_prefers_polled_position_when_mast_moved_outside_app()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            AzimuthRange = RotatorAzimuthRange.Deg450,
+            SmartAzimuth450 = true,
+            TrackStartElevationDeg = 5
+        };
+
+        var norad = "44909";
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 350, 20));
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 10, 20));
+        Assert.Equal(370, rotator.LastAzimuthDeg);
+
+        // Operator wind-parked to 135° without telling OscarWatch; last command still in overlap.
+        rotator.PolledAzimuthOverride = 135;
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 3, 15, aheadAzimuthDeg: 10));
+        Assert.Equal(3, rotator.LastAzimuthDeg);
+        Assert.DoesNotContain(363, rotator.AzimuthHistory);
+    }
+
+    [Fact]
+    public void Smart450_overlap_then_southeast_does_not_climb_to_450()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            AzimuthRange = RotatorAzimuthRange.Deg450,
+            SmartAzimuth450 = true,
+            TrackStartElevationDeg = 5
+        };
+
+        var norad = "44909";
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 350, 20));
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 10, 20));
+        Assert.Equal(370, rotator.LastAzimuthDeg);
+
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 25, 25, aheadAzimuthDeg: 40));
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 60, 30, aheadAzimuthDeg: 90));
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 120, 20, aheadAzimuthDeg: 135));
+
+        Assert.All(rotator.AzimuthHistory, az => Assert.True(az < 420));
+        Assert.Equal(120, rotator.LastAzimuthDeg);
+    }
+
     private static SatelliteTrackState TrackTarget(
         string noradId,
         double azimuthDeg,
