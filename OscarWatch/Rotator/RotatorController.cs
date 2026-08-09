@@ -54,21 +54,11 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private string? _connectionDetail;
     private RotatorPositionStatus _positionStatus = new(false, null, null);
 
-    // Keyhole avoidance + Smart 450 pass planning state
+    // Keyhole avoidance state
     private KeyholePlan? _keyholePlan;
-    private SmartAzimuthPassPlan? _smartAzimuthPlan;
     private bool _keyholeFlippedActive;
     private bool _isPrePositioning;
     private PassInfo? _activePassInfo;
-
-    /// <summary>True after a successful track command for the current target (park grace).</summary>
-    private bool _trackEngaged;
-
-    /// <summary>Consecutive worker ticks with missing target/look angles while track-engaged.</summary>
-    private int _missingLookAnglesTicks;
-
-    /// <summary>Allow a brief gap in look angles before auto-park after tracking has started.</summary>
-    internal const int MissingLookAnglesParkGraceTicks = 3;
 
     public RotatorController(
         Func<RotatorSettings, IRotatorDriver>? driverFactory = null,
@@ -112,7 +102,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
     public void DisconnectAndWait() =>
         EnqueueAndWait(new RotatorCommand(RotatorCommandKind.Disconnect), TimeSpan.FromSeconds(3));
 
-    /// <summary>Supply the active pass for keyhole and Smart 450° AOS–LOS planning. Call when the pass changes or becomes known.</summary>
+    /// <summary>Supply the active pass for keyhole avoidance planning. Call when the pass changes or becomes known.</summary>
     public void SetActivePass(PassInfo? pass) =>
         Enqueue(new RotatorCommand(RotatorCommandKind.SetActivePass, passInfo: pass));
 
@@ -127,14 +117,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
     /// <summary>The current keyhole plan computed on target change (exposed for testing).</summary>
     internal KeyholePlan? CurrentKeyholePlan => _keyholePlan;
 
-    /// <summary>The current Smart 450° AOS–LOS band plan (exposed for testing).</summary>
-    internal SmartAzimuthPassPlan? CurrentSmartAzimuthPlan => _smartAzimuthPlan;
-
     /// <summary>Inject a keyhole plan directly for unit testing (bypasses planner).</summary>
     internal void SetKeyholePlanForTests(KeyholePlan? plan) => _keyholePlan = plan;
-
-    /// <summary>Inject a Smart 450° plan directly for unit testing (bypasses planner).</summary>
-    internal void SetSmartAzimuthPlanForTests(SmartAzimuthPassPlan? plan) => _smartAzimuthPlan = plan;
 
     /// <summary>Whether flipped tracking is currently active (exposed for testing).</summary>
     internal bool IsKeyholeFlippedActive => _keyholeFlippedActive;
@@ -283,7 +267,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
                 case RotatorCommandKind.SetActivePass:
                     _activePassInfo = command.PassInfo;
-                    RecomputePassRotatorPlans(_cachedSettings);
+                    RecomputeKeyholePlan(_cachedSettings);
                     break;
 
                 case RotatorCommandKind.Disconnect:
@@ -357,14 +341,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _lastAzimuth = null;
             _lastElevation = null;
             _parked = false;
-            _trackEngaged = false;
-            _missingLookAnglesTicks = 0;
             ClearTrackingAzimuthDisplay();
-            RecomputePassRotatorPlans(settings);
+            RecomputeKeyholePlan(settings);
         }
-
-        // If pass is known but Smart 450 plan is not yet ready, build it before the first track.
-        EnsureSmartAzimuthPlanBeforeTrack(settings);
 
         if (_manualParkActive)
         {
@@ -386,8 +365,6 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
         if (target?.LookAngles is { } lookAngles)
         {
-            _missingLookAnglesTicks = 0;
-
             if (lookAngles.ElevationDeg >= settings.TrackStartElevationDeg)
             {
                 var az = lookAngles.AzimuthDeg;
@@ -413,7 +390,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
                 TryPark(settings, afterPass: true);
         }
         else
-            TryParkAfterMissingLookAngles(settings);
+            TryPark(settings, afterPass: true);
     }
 
     private void ParkOnWorker(RotatorSettings settings)
@@ -566,12 +543,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _displayCommandedElevation = null;
         _displayCompassAzimuth = null;
         _keyholePlan = null;
-        _smartAzimuthPlan = null;
         _keyholeFlippedActive = false;
         _isPrePositioning = false;
-        _activePassInfo = null;
-        _trackEngaged = false;
-        _missingLookAnglesTicks = 0;
     }
 
     private void RefreshPositionSnapshot()
@@ -600,105 +573,42 @@ public sealed class RotatorController : IRotatorController, IDisposable
     }
 
     /// <summary>
-    /// Rebuilds keyhole and/or Smart 450° AOS–LOS plans from one pass profile when possible.
-    /// Uses the active pass NORAD id so planning can run before the first track target arrives.
+    /// Recomputes the keyhole plan based on current settings, active pass, and target.
+    /// If keyhole avoidance is disabled, the propagator is unavailable, or no active pass is set,
+    /// the plan is cleared and normal tracking proceeds.
     /// </summary>
-    private void RecomputePassRotatorPlans(RotatorSettings settings)
+    private void RecomputeKeyholePlan(RotatorSettings settings)
     {
         _keyholeFlippedActive = false;
 
-        var wantKeyhole = settings.KeyholeAvoidanceEnabled
-            && settings.ElevationRange == RotatorElevationRange.Deg180;
-        var wantSmartAz = settings.SmartAzimuth450 && settings.MaxAzimuthDeg > 360;
-
-        if (_propagator is null || _activePassInfo is null)
+        if (!settings.KeyholeAvoidanceEnabled
+            || settings.ElevationRange != RotatorElevationRange.Deg180
+            || _propagator is null
+            || _activePassInfo is null)
         {
             _keyholePlan = null;
-            _smartAzimuthPlan = null;
             return;
         }
 
-        if (!wantKeyhole && !wantSmartAz)
+        var target = _cachedTarget;
+        if (target is null)
         {
             _keyholePlan = null;
-            _smartAzimuthPlan = null;
-            return;
-        }
-
-        var noradId = _activePassInfo.NoradId;
-        if (string.IsNullOrEmpty(noradId))
-        {
-            _keyholePlan = null;
-            _smartAzimuthPlan = null;
             return;
         }
 
         var site = _settingsService?.Current.GroundStation ?? new GroundStation();
 
-        PassProfile? profile;
         try
         {
-            profile = PassProfileBuilder.Build(_activePassInfo, noradId, site, _propagator);
+            var profile = PassProfileBuilder.Build(_activePassInfo, target.NoradId, site, _propagator);
             if (profile is null)
             {
-                Log.Information(
-                    "Pass rotator planning: profile build returned null (too many propagation failures)");
+                Log.Information("Keyhole planning: profile build returned null (too many propagation failures), falling back to normal tracking");
                 _keyholePlan = null;
-                _smartAzimuthPlan = null;
                 return;
             }
-        }
-        catch (Exception ex)
-        {
-            Log.Warning(ex, "Pass rotator profile build failed");
-            _keyholePlan = null;
-            _smartAzimuthPlan = null;
-            return;
-        }
 
-        if (wantKeyhole)
-            AnalyseKeyholePlan(profile, settings, noradId);
-        else
-            _keyholePlan = null;
-
-        if (wantSmartAz)
-            AnalyseSmartAzimuthPlan(profile, settings);
-        else
-            _smartAzimuthPlan = null;
-    }
-
-    private void EnsureSmartAzimuthPlanBeforeTrack(RotatorSettings settings)
-    {
-        if (!settings.SmartAzimuth450 || settings.MaxAzimuthDeg <= 360)
-            return;
-
-        if (_activePassInfo is null || _smartAzimuthPlan is not null || _propagator is null)
-            return;
-
-        RecomputePassRotatorPlans(settings);
-    }
-
-    /// <summary>
-    /// After tracking has started, tolerate a few missing look-angles ticks before auto-park
-    /// so a single null sample does not slam elevation to park (typically 0°).
-    /// </summary>
-    private void TryParkAfterMissingLookAngles(RotatorSettings settings)
-    {
-        if (!_trackEngaged)
-        {
-            TryPark(settings, afterPass: true);
-            return;
-        }
-
-        _missingLookAnglesTicks++;
-        if (_missingLookAnglesTicks >= MissingLookAnglesParkGraceTicks)
-            TryPark(settings, afterPass: true);
-    }
-
-    private void AnalyseKeyholePlan(PassProfile profile, RotatorSettings settings, string noradId)
-    {
-        try
-        {
             var plannerSettings = new KeyholePlannerSettings(
                 settings.KeyholeThresholdDeg,
                 settings.SlewRateDegPerSec,
@@ -714,7 +624,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             {
                 Log.Information(
                     "Keyhole planning: FlippedStart recommended for {NoradId}, flipped az={FlippedAz:F1}°, lead time={LeadTime}",
-                    noradId,
+                    target.NoradId,
                     _keyholePlan.FlippedStartAzimuthDeg,
                     _keyholePlan.PrePositionLeadTime);
             }
@@ -723,46 +633,6 @@ public sealed class RotatorController : IRotatorController, IDisposable
         {
             Log.Warning(ex, "Keyhole planning failed, falling back to normal tracking");
             _keyholePlan = null;
-        }
-    }
-
-    private void AnalyseSmartAzimuthPlan(PassProfile profile, RotatorSettings settings)
-    {
-        try
-        {
-            var now = DateTime.UtcNow;
-            var planningProfile = now > profile.Pass.AosUtc
-                ? SmartAzimuthPassPlanner.SliceFrom(profile, now) ?? profile
-                : profile;
-
-            var startAz = RotatorAzimuthPlanner.ResolveEffectiveLastAzimuth(
-                    _lastAzimuth,
-                    _displayAzimuth)
-                ?? settings.ParkAzimuthDeg;
-
-            _smartAzimuthPlan = SmartAzimuthPassPlanner.Analyse(
-                planningProfile,
-                settings.MaxAzimuthDeg,
-                startAz);
-
-            if (_smartAzimuthPlan is null)
-            {
-                Log.Debug("Smart 450° AOS–LOS planning produced no plan; tick heuristics remain active");
-            }
-            else
-            {
-                Log.Information(
-                    "Smart 450° AOS–LOS plan ready for {NoradId}: {SampleCount} samples from {Aos:u} to {Los:u}",
-                    profile.Pass.NoradId,
-                    _smartAzimuthPlan.Samples.Count,
-                    _smartAzimuthPlan.AosUtc,
-                    _smartAzimuthPlan.LosUtc);
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Warning(ex, "Smart 450° AOS–LOS planning failed; tick heuristics remain active");
-            _smartAzimuthPlan = null;
         }
     }
 
@@ -909,19 +779,10 @@ public sealed class RotatorController : IRotatorController, IDisposable
         var aheadForPlanner = RotatorCalibration.ApplyAzimuthOffset(aheadAzimuthDeg, settings);
 
         var useSmartAzimuth = settings.SmartAzimuth450 && settings.MaxAzimuthDeg > 360;
-        var effectiveLastAzimuth = RotatorAzimuthPlanner.ResolveEffectiveLastAzimuth(
-            _lastAzimuth,
-            _displayAzimuth);
-        var preferredBand = useSmartAzimuth
-            ? SmartAzimuthPassPlanner.LookupBand(_smartAzimuthPlan, DateTime.UtcNow)
-            : null;
+        var effectiveLastAzimuth = _lastAzimuth ?? _displayAzimuth;
         var commandAz = useSmartAzimuth
             ? RotatorAzimuthPlanner.ResolveCommandAz(
-                effectiveLastAzimuth,
-                commandAzInput,
-                settings.MaxAzimuthDeg,
-                aheadForPlanner,
-                preferredBand)
+                effectiveLastAzimuth, commandAzInput, settings.MaxAzimuthDeg, aheadForPlanner)
             : commandAzInput;
 
         _displayCommandedAzimuth = (int)Math.Round(commandAz);
@@ -941,8 +802,6 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _lastAzimuth = Math.Round(commandAz);
             _lastElevation = Math.Round(commandEl);
             _parked = false;
-            _trackEngaged = true;
-            _missingLookAnglesTicks = 0;
             // Poll before the worker signals command completion so GetPositionStatus
             // reflects commanded az/el without waiting for the next loop iteration.
             PollPosition();
@@ -971,11 +830,6 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _lastElevation = el;
             _parked = true;
             ClearTrackingAzimuthDisplay();
-            if (afterPass)
-            {
-                _trackEngaged = false;
-                _missingLookAnglesTicks = 0;
-            }
         }
         catch (Exception ex)
         {

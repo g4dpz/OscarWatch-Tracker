@@ -19,7 +19,6 @@ public interface IRotatorController
     void DisconnectAndWait();
 
     /// <summary>Supply the active pass for keyhole avoidance planning. Call when the pass changes or becomes known.</summary>
-    /// <summary>Supply the active pass for keyhole and Smart 450° AOS–LOS planning.</summary>
     void SetActivePass(PassInfo? pass);
     RotatorPositionStatus GetPositionStatus();
 }

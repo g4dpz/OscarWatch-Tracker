@@ -15,9 +15,6 @@ internal sealed class RecordingRotatorDriver : IRotatorDriver
     public int OpenCallCount { get; private set; }
     public int DisposeCallCount { get; private set; }
 
-    /// <summary>When set, <see cref="GetPosition"/> returns this az instead of last commanded.</summary>
-    public int? PolledAzimuthOverride { get; set; }
-
     public void Open() => OpenCallCount++;
 
     public void SetPosition(double azimuthDeg, double elevationDeg, RotatorSettings settings)
@@ -33,11 +30,8 @@ internal sealed class RecordingRotatorDriver : IRotatorDriver
     public (int? Azimuth, int? Elevation) GetPosition()
     {
         GetPositionCallCount++;
-        if (PolledAzimuthOverride is { } polledAz && LastElevationDeg is { } el)
-            return (polledAz, (int)Math.Round(el));
-
-        return LastAzimuthDeg is { } az && LastElevationDeg is { } elevation
-            ? ((int?)Math.Round(az), (int?)Math.Round(elevation))
+        return LastAzimuthDeg is { } az && LastElevationDeg is { } el
+            ? ((int?)Math.Round(az), (int?)Math.Round(el))
             : (null, null);
     }
 
