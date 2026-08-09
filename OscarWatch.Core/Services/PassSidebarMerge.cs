@@ -1,3 +1,4 @@
+using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
 
 namespace OscarWatch.Core.Services;
@@ -5,6 +6,12 @@ namespace OscarWatch.Core.Services;
 /// <summary>Sidebar pass list helpers — keep in-progress rows across refresh and match recording badges.</summary>
 public static class PassSidebarMerge
 {
+    /// <summary>
+    /// Recording may start slightly before listed AOS when elevation thresholds and the
+    /// coarse pass predictor disagree by a few seconds.
+    /// </summary>
+    public static readonly TimeSpan RecordingEarlyStartGrace = TimeSpan.FromMinutes(2);
+
     /// <summary>
     /// Re-adds passes that are still in progress when the predictor omits them (e.g. elevation dipped
     /// below the list threshold before the next 15-minute refresh).
@@ -17,10 +24,13 @@ public static class PassSidebarMerge
         if (inProgressToRetain.Count == 0)
             return predicted;
 
+        var now = PassUtc.Normalize(utcNow);
         var merged = predicted.ToList();
         foreach (var pass in inProgressToRetain)
         {
-            if (pass.AosUtc > utcNow || pass.LosUtc <= utcNow)
+            var aos = PassUtc.Normalize(pass.AosUtc);
+            var los = PassUtc.Normalize(pass.LosUtc);
+            if (aos > now || los <= now)
                 continue;
 
             if (merged.Any(p => PassesOverlap(p, pass)))
@@ -36,7 +46,7 @@ public static class PassSidebarMerge
 
     /// <summary>
     /// Picks the list row that owns an active recording. Never attaches to a future pass once recording
-    /// has already started.
+    /// has already started (except a short pre-AOS grace for the pass being recorded).
     /// </summary>
     public static PassInfo? FindPassForRecording(
         IReadOnlyList<PassInfo> passes,
@@ -44,6 +54,7 @@ public static class PassSidebarMerge
         DateTime utcNow,
         DateTime? recordingStartedUtc)
     {
+        var now = PassUtc.Normalize(utcNow);
         var rows = passes
             .Where(p => string.Equals(p.NoradId, noradId, StringComparison.Ordinal))
             .OrderBy(p => p.AosUtc)
@@ -52,20 +63,31 @@ public static class PassSidebarMerge
         if (rows.Count == 0)
             return null;
 
-        var inProgress = rows.LastOrDefault(p => utcNow >= p.AosUtc && utcNow <= p.LosUtc);
+        var inProgress = rows.LastOrDefault(p =>
+        {
+            var aos = PassUtc.Normalize(p.AosUtc);
+            var los = PassUtc.Normalize(p.LosUtc);
+            return now >= aos && now <= los;
+        });
         if (inProgress is not null)
             return inProgress;
 
-        if (recordingStartedUtc is { } started)
+        if (recordingStartedUtc is { } startedRaw)
         {
-            var atStart = rows.LastOrDefault(p => started >= p.AosUtc && started <= p.LosUtc);
+            var started = PassUtc.Normalize(startedRaw);
+            var atStart = rows.LastOrDefault(p =>
+            {
+                var aos = PassUtc.Normalize(p.AosUtc);
+                var los = PassUtc.Normalize(p.LosUtc);
+                return started >= aos - RecordingEarlyStartGrace && started <= los;
+            });
             if (atStart is not null)
                 return atStart;
 
             return null;
         }
 
-        return rows.FirstOrDefault(p => utcNow < p.LosUtc);
+        return rows.FirstOrDefault(p => now < PassUtc.Normalize(p.LosUtc));
     }
 
     /// <summary>
@@ -86,15 +108,24 @@ public static class PassSidebarMerge
             || !string.Equals(pass.NoradId, recordingNoradId, StringComparison.Ordinal))
             return false;
 
-        if (utcNow < pass.AosUtc || utcNow > pass.LosUtc)
+        var now = PassUtc.Normalize(utcNow);
+        var aos = PassUtc.Normalize(pass.AosUtc);
+        var los = PassUtc.Normalize(pass.LosUtc);
+
+        // Still show REC in the short pre-AOS window when capture already started.
+        if (now > los || now < aos - RecordingEarlyStartGrace)
             return false;
 
         if (recordingPassAosUtc is not null && pass.AosUtc == recordingPassAosUtc)
             return true;
 
-        return recordingStartedUtc is { } started
-            && started >= pass.AosUtc
-            && started <= pass.LosUtc;
+        if (recordingPassAosUtc is not null
+            && PassUtc.Normalize(recordingPassAosUtc.Value) == aos)
+            return true;
+
+        return recordingStartedUtc is { } startedRaw
+            && PassUtc.Normalize(startedRaw) >= aos - RecordingEarlyStartGrace
+            && PassUtc.Normalize(startedRaw) <= los;
     }
 
     private static bool PassesOverlap(PassInfo a, PassInfo b) =>

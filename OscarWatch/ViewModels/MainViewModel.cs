@@ -855,33 +855,50 @@ public partial class MainViewModel : ViewModelBase
 
     private void Tick()
     {
-        UpdateUtcClockDisplay();
-        MapDisplayUtc = DateTime.UtcNow + TimeSpan.FromMinutes(MapTimeOffsetMinutes);
-        MinimumElevationDeg = _settings.Current.MinimumElevationDeg;
-        var mapStates = _liveTracking.GetSnapshot();
+        try
+        {
+            UpdateUtcClockDisplay();
+            MapDisplayUtc = DateTime.UtcNow + TimeSpan.FromMinutes(MapTimeOffsetMinutes);
+            MinimumElevationDeg = _settings.Current.MinimumElevationDeg;
+            var mapStates = _liveTracking.GetSnapshot();
 
-        var operationalStates = IsMapTimeScrubbing
-            ? _liveTracking.GetLiveNowSnapshot()
-            : mapStates;
+            var operationalStates = IsMapTimeScrubbing
+                ? _liveTracking.GetLiveNowSnapshot()
+                : mapStates;
 
-        UpdateNextPassCountdown();
-        PruneExpiredPasses();
-        ProcessPassRecording(operationalStates);
-        UpdatePassHighlightState();
-        var focusedForOps = GetFocusedTrackState(operationalStates, FocusedNoradId);
-        UpdateComPortConflictState();
-        TryApplyGpsStationUpdate();
-        UpdateGpsStatusDisplay();
-        // Publish active pass before target so Smart 450° / keyhole plans can build
-        // from the pass NORAD id before the first track command.
-        PublishActivePassForRotator(focusedForOps);
-        _rotator.Update(_settings.Current.Rotator, EnrichRotatorTarget(focusedForOps));
-        UpdateRotatorDisplay();
+            // Keep pass-list maintenance first so a later failure cannot leave expired rows stuck.
+            UpdateNextPassCountdown();
+            PruneExpiredPasses();
+            ProcessPassRecording(operationalStates);
+            UpdatePassHighlightState();
+            var focusedForOps = GetFocusedTrackState(operationalStates, FocusedNoradId);
+            UpdateComPortConflictState();
+            TryApplyGpsStationUpdate();
+            UpdateGpsStatusDisplay();
+            // Publish active pass before target so Smart 450° / keyhole plans can build
+            // from the pass NORAD id before the first track command.
+            PublishActivePassForRotator(focusedForOps);
+            _rotator.Update(_settings.Current.Rotator, EnrichRotatorTarget(focusedForOps));
+            UpdateRotatorDisplay();
 
-        if (ShowComPortConflict)
-            _rig.Disconnect();
+            if (ShowComPortConflict)
+                _rig.Disconnect();
 
-        RefreshRigUi(focusedForOps);
+            RefreshRigUi(focusedForOps);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Main timer tick failed");
+            try
+            {
+                PruneExpiredPasses();
+                UpdatePassHighlightState();
+            }
+            catch (Exception pruneEx)
+            {
+                Log.Warning(pruneEx, "Pass list prune after tick failure also failed");
+            }
+        }
     }
 
     /// <summary>4 Hz: az/el/range readout and rig doppler context from the live tracking snapshot.</summary>
@@ -1637,12 +1654,12 @@ public partial class MainViewModel : ViewModelBase
 
     private void PruneExpiredPasses()
     {
-        var now = DateTime.UtcNow;
+        var now = PassUtc.Normalize(DateTime.UtcNow);
         var removedAny = false;
 
         for (var i = Passes.Count - 1; i >= 0; i--)
         {
-            if (Passes[i] is PassRowViewModel p && p.LosUtc < now)
+            if (Passes[i] is PassRowViewModel p && PassUtc.Normalize(p.LosUtc) <= now)
             {
                 Passes.RemoveAt(i);
                 removedAny = true;
@@ -3008,12 +3025,14 @@ public partial class MainViewModel : ViewModelBase
 
             void Apply()
             {
-                var utcNow = DateTime.UtcNow;
+                var utcNow = PassUtc.Normalize(DateTime.UtcNow);
                 var inProgress = Passes.OfType<PassRowViewModel>()
-                    .Where(p => p.AosUtc <= utcNow && p.LosUtc > utcNow)
+                    .Where(p => PassUtc.Normalize(p.AosUtc) <= utcNow && PassUtc.Normalize(p.LosUtc) > utcNow)
                     .Select(p => p.Source)
                     .ToList();
-                var merged = PassSidebarMerge.MergeInProgressPasses(passes, inProgress, utcNow);
+                var merged = PassSidebarMerge.MergeInProgressPasses(passes, inProgress, utcNow)
+                    .Where(p => PassUtc.Normalize(p.LosUtc) > utcNow)
+                    .ToList();
 
                 Passes.Clear();
                 DateOnly? currentDay = null;
@@ -3160,10 +3179,16 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
 
     public void UpdateHighlight(DateTime utcNow, TimeSpan imminentWindow)
     {
+        var now = PassUtc.Normalize(utcNow);
+        var aos = PassUtc.Normalize(AosUtc);
+        var los = PassUtc.Normalize(LosUtc);
+
         PassRowHighlight next;
-        if (utcNow >= AosUtc && utcNow <= LosUtc)
+        if (now > los)
+            next = PassRowHighlight.None;
+        else if (now >= aos)
             next = PassRowHighlight.InProgress;
-        else if (utcNow < AosUtc && AosUtc - utcNow <= imminentWindow)
+        else if (aos - now <= imminentWindow)
             next = PassRowHighlight.Imminent;
         else
             next = PassRowHighlight.None;
@@ -3175,7 +3200,7 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
         {
             case PassRowHighlight.Imminent:
             {
-                var countdown = PassDisplayFormat.FormatCountdownToAos(utcNow, AosUtc);
+                var countdown = PassDisplayFormat.FormatCountdownToAos(now, aos);
                 if (BadgeText != countdown)
                     BadgeText = countdown;
                 if (!ShowBadge)

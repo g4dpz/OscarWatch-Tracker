@@ -281,6 +281,12 @@ public sealed class PortAudioRecordingService : IAudioRecordingService, IDisposa
 
         var path = ActiveOutputPath;
         var container = _activeContainer;
+
+        // Drop the live-recording flags before MP3 finalisation so the sidebar can
+        // clear REC / prune the pass while ffmpeg runs (can take minutes).
+        IsRecording = false;
+        ActiveNoradId = null;
+
         try
         {
             StopCaptureAndDrain();

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
 using OscarWatch.ViewModels;
 
@@ -17,11 +18,12 @@ public sealed class PruneExpiredPassesTests
     /// </summary>
     private static void PruneExpiredPasses(ObservableCollection<IPassListItem> passes, DateTime utcNow)
     {
+        var now = PassUtc.Normalize(utcNow);
         var removedAny = false;
 
         for (var i = passes.Count - 1; i >= 0; i--)
         {
-            if (passes[i] is PassRowViewModel p && p.LosUtc < utcNow)
+            if (passes[i] is PassRowViewModel p && PassUtc.Normalize(p.LosUtc) <= now)
             {
                 passes.RemoveAt(i);
                 removedAny = true;
@@ -248,5 +250,44 @@ public sealed class PruneExpiredPassesTests
         Assert.Equal(2, passes.Count);
         Assert.Same(header1, passes[0]);
         Assert.Same(future1, passes[1]);
+    }
+
+    [Fact]
+    public void Pass_at_exact_los_is_pruned()
+    {
+        var now = new DateTime(2024, 7, 15, 12, 0, 0, DateTimeKind.Utc);
+        var header = MakeHeader("15 July 2024");
+        var ending = MakePass("ISS", now); // LosUtc == now
+        var future = MakePass("SO-50", now.AddMinutes(30));
+
+        var passes = new ObservableCollection<IPassListItem>
+        {
+            header, ending, future
+        };
+
+        PruneExpiredPasses(passes, now);
+
+        Assert.Equal(2, passes.Count);
+        Assert.Same(header, passes[0]);
+        Assert.Same(future, passes[1]);
+    }
+
+    [Fact]
+    public void Unspecified_los_treated_as_utc_is_pruned()
+    {
+        var now = new DateTime(2024, 7, 15, 12, 0, 0, DateTimeKind.Utc);
+        var header = MakeHeader("15 July 2024");
+        var expired = MakePass("ISS", new DateTime(2024, 7, 15, 11, 50, 0, DateTimeKind.Unspecified));
+        var future = MakePass("SO-50", now.AddMinutes(30));
+
+        var passes = new ObservableCollection<IPassListItem>
+        {
+            header, expired, future
+        };
+
+        PruneExpiredPasses(passes, now);
+
+        Assert.Equal(2, passes.Count);
+        Assert.Same(future, passes[1]);
     }
 }

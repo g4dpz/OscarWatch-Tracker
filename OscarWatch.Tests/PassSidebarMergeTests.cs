@@ -121,6 +121,51 @@ public sealed class PassSidebarMergeTests
             isRecording: true));
     }
 
+    [Fact]
+    public void FindPassForRecording_binds_when_recording_started_just_before_aos()
+    {
+        var upcoming = Pass("ISS", "25544", Base.AddMinutes(1), Base.AddMinutes(10));
+        var started = Base; // one minute before AOS
+
+        var match = PassSidebarMerge.FindPassForRecording(
+            [upcoming],
+            "25544",
+            Base,
+            recordingStartedUtc: started);
+
+        Assert.Equal(upcoming.AosUtc, match!.AosUtc);
+    }
+
+    [Fact]
+    public void IsPassRecordingTarget_shows_rec_in_pre_aos_grace_window()
+    {
+        var pass = Pass("ISS", "25544", Base.AddMinutes(1), Base.AddMinutes(10));
+        var started = Base;
+
+        Assert.True(PassSidebarMerge.IsPassRecordingTarget(
+            pass,
+            "25544",
+            pass.AosUtc,
+            started,
+            Base.AddSeconds(30),
+            isRecording: true));
+    }
+
+    [Fact]
+    public void IsPassRecordingTarget_hides_rec_after_los()
+    {
+        var pass = Pass("ISS", "25544", Base.AddMinutes(-10), Base.AddMinutes(-1));
+        var started = Base.AddMinutes(-8);
+
+        Assert.False(PassSidebarMerge.IsPassRecordingTarget(
+            pass,
+            "25544",
+            pass.AosUtc,
+            started,
+            Base,
+            isRecording: true));
+    }
+
     private static PassInfo Pass(string name, string norad, DateTime aos, DateTime los) => new()
     {
         SatelliteName = name,

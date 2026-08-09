@@ -1,3 +1,4 @@
+using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
 using Zeptomoby.OrbitTools;
@@ -89,10 +90,10 @@ public sealed class BruteForcePassPredictor : IPassPredictor
                         {
                             SatelliteName = satellite.Name,
                             NoradId = satellite.NoradId,
-                            AosUtc = aos!.Value,
-                            LosUtc = los,
+                            AosUtc = PassUtc.Normalize(aos!.Value),
+                            LosUtc = PassUtc.Normalize(los),
                             MaxElevationDeg = maxEl,
-                            MaxElevationUtc = maxElTime,
+                            MaxElevationUtc = PassUtc.Normalize(maxElTime),
                             AosAzimuthDeg = aosAz,
                             LosAzimuthDeg = losAz
                         });
