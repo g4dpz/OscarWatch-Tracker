@@ -44,10 +44,46 @@ public sealed class PassRecordingCoordinatorTests
         var utc = DateTime.UtcNow;
         _coordinator.Process("25544", State("25544", 4.0), EnabledSettings, _recording, utc);
         _coordinator.Process("25544", State("25544", 6.0), EnabledSettings, _recording, utc);
-        _coordinator.Process("25544", State("25544", 2.0), EnabledSettings, _recording, utc);
+        for (var i = 0; i < PassRecordingCoordinator.BelowStopConfirmTicks; i++)
+            _coordinator.Process("25544", State("25544", 2.0), EnabledSettings, _recording, utc);
 
         Assert.False(_recording.IsRecording);
         Assert.Equal(1, _recording.StopCount);
+    }
+
+    [Fact]
+    public void Does_not_stop_on_single_sample_below_stop_threshold()
+    {
+        var utc = DateTime.UtcNow;
+        _coordinator.Process("25544", State("25544", 4.0), EnabledSettings, _recording, utc);
+        _coordinator.Process("25544", State("25544", 6.0), EnabledSettings, _recording, utc);
+        _coordinator.Process("25544", State("25544", 2.0), EnabledSettings, _recording, utc);
+        _coordinator.Process("25544", State("25544", 8.0), EnabledSettings, _recording, utc);
+
+        Assert.True(_recording.IsRecording);
+        Assert.Equal(0, _recording.StopCount);
+    }
+
+    [Fact]
+    public void Does_not_stop_when_look_angles_briefly_missing()
+    {
+        var utc = DateTime.UtcNow;
+        _coordinator.Process("25544", State("25544", 4.0), EnabledSettings, _recording, utc);
+        _coordinator.Process("25544", State("25544", 6.0), EnabledSettings, _recording, utc);
+
+        var missingLook = new SatelliteTrackState
+        {
+            NoradId = "25544",
+            Name = "SO-50",
+            Subpoint = new GeoCoordinate(0, 0, 400),
+            LookAngles = null
+        };
+        _coordinator.Process("25544", missingLook, EnabledSettings, _recording, utc);
+        _coordinator.Process("25544", State("25544", 10.0), EnabledSettings, _recording, utc);
+
+        Assert.True(_recording.IsRecording);
+        Assert.Equal(0, _recording.StopCount);
+        Assert.Equal(1, _recording.StartCount);
     }
 
     [Fact]

@@ -9,6 +9,13 @@ public sealed class PassRecordingCoordinator
     private bool _hasSample;
     private double _previousElevationDeg = -90.0;
     private string? _trackedNoradId;
+    private int _belowStopTicks;
+
+    /// <summary>
+    /// Require this many consecutive below-stop samples (~1 Hz ticks) before ending a pass recording.
+    /// Avoids stopping on a single noisy elevation sample mid-pass.
+    /// </summary>
+    public const int BelowStopConfirmTicks = 3;
 
     public PassRecordingCoordinator(IRecordingTaskScheduler? taskScheduler = null) =>
         _tasks = taskScheduler ?? DefaultRecordingTaskScheduler.Instance;
@@ -48,24 +55,37 @@ public sealed class PassRecordingCoordinator
             _trackedNoradId = focusedNoradId;
         }
 
-        var elevation = focusedState.LookAngles?.ElevationDeg ?? -90.0;
+        // Propagation can miss a tick; do not treat missing look angles as -90° or we
+        // stop the recording and restart a few seconds later (REC → Passing → REC).
+        if (focusedState.LookAngles is null)
+            return;
+
+        var elevation = focusedState.LookAngles.ElevationDeg;
         var stopThreshold = settings.StopElevationDeg;
         var startThreshold = settings.StartElevationDeg;
 
         if (elevation < stopThreshold)
         {
-            if (recording.IsRecording
+            _belowStopTicks++;
+            if (_belowStopTicks >= BelowStopConfirmTicks
+                && recording.IsRecording
                 && string.Equals(recording.ActiveNoradId, focusedNoradId, StringComparison.Ordinal))
+            {
                 _tasks.Schedule(() => recording.StopAsync(), "stop recording (below stop elevation)");
+            }
         }
-        else if (!recording.IsRecording)
+        else
         {
-            var crossedStart = _hasSample
-                && _previousElevationDeg < startThreshold
-                && elevation >= startThreshold;
-            var alreadyAboveOnFirstSample = !_hasSample && elevation >= startThreshold;
-            if (crossedStart || alreadyAboveOnFirstSample)
-                TryStartRecording(focusedNoradId, focusedState, settings, recording, utcNow, _tasks);
+            _belowStopTicks = 0;
+            if (!recording.IsRecording)
+            {
+                var crossedStart = _hasSample
+                    && _previousElevationDeg < startThreshold
+                    && elevation >= startThreshold;
+                var alreadyAboveOnFirstSample = !_hasSample && elevation >= startThreshold;
+                if (crossedStart || alreadyAboveOnFirstSample)
+                    TryStartRecording(focusedNoradId, focusedState, settings, recording, utcNow, _tasks);
+            }
         }
 
         if (!_hasSample)
@@ -106,5 +126,6 @@ public sealed class PassRecordingCoordinator
         _hasSample = false;
         _previousElevationDeg = -90.0;
         _trackedNoradId = null;
+        _belowStopTicks = 0;
     }
 }

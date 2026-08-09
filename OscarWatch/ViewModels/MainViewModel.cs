@@ -1829,9 +1829,11 @@ public partial class MainViewModel : ViewModelBase
         _recordingStartedUtc ??= DateTime.UtcNow;
 
         // Re-bind after every pass-list refresh — predicted AOS can shift while recording continues.
+        // Keep the previous AOS if lookup briefly fails so the REC badge does not flicker to Passing.
         var pass = FindPassForRecording(noradId, DateTime.UtcNow);
         _recordingPassNoradId = noradId;
-        _recordingPassAosUtc = pass?.AosUtc;
+        if (pass is not null)
+            _recordingPassAosUtc = pass.AosUtc;
     }
 
     private void StopPassRecordingForStandby()
