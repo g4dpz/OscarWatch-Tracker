@@ -85,6 +85,7 @@ public sealed class RigController : IRigController, IDisposable
     private string? _statusPort;
     private string? _statusDetail;
     private bool _isTracking;
+    private int _missingLookAnglesTicks;
     private bool _catUpdatesPaused;
     private bool _passInitPending;
     private double? _lastAppliedCtcssHz;
@@ -112,6 +113,12 @@ public sealed class RigController : IRigController, IDisposable
     private string? _flexSatelliteSetupError;
     /// <summary>Prior loop horizon state; used to detect orbital AOS (below → above 0°).</summary>
     private bool? _wasAboveHorizon;
+
+    /// <summary>
+    /// Consecutive publishes without look angles before clearing Doppler tracking.
+    /// Matches rotator / pass-recording grace so a single propagation miss does not flap CAT.
+    /// </summary>
+    internal const int MissingLookAnglesClearTicks = 3;
 
     private RigSettings _cachedSettings = new();
     private RigTrackingContext? _cachedContext;
@@ -285,18 +292,16 @@ public sealed class RigController : IRigController, IDisposable
             {
                 case RigCommandKind.PublishContext:
                     _cachedSettings = command.Settings;
-                    _cachedContext = command.Context;
                     _cachedCatPausedOverride = command.CatPausedOverride;
-                    ApplyPublishState(_cachedSettings, _cachedContext, command.ReinitializePass, command.CatPausedOverride);
+                    ApplyPublishState(_cachedSettings, command.Context, command.ReinitializePass, command.CatPausedOverride);
                     if (!command.ReinitializePass && _forceFrequencyApply)
                         RunLoopIteration(ignoreDopplerSuspend: true);
                     break;
 
                 case RigCommandKind.UpdateSynchronously:
                     _cachedSettings = command.Settings;
-                    _cachedContext = command.Context;
                     _cachedCatPausedOverride = command.CatPausedOverride;
-                    ApplyPublishState(_cachedSettings, _cachedContext, catPausedOverride: command.CatPausedOverride);
+                    ApplyPublishState(_cachedSettings, command.Context, catPausedOverride: command.CatPausedOverride);
                     RunLoopIteration(ignoreDopplerSuspend: true);
                     break;
 
@@ -410,29 +415,31 @@ public sealed class RigController : IRigController, IDisposable
         var resumingFromCatPause = wasPaused && !effectivePaused;
         _catUpdatesPaused = effectivePaused;
 
-        if (context is not null && context.TrackState.LookAngles is not null)
-            SyncDisplayFrequencies(ComputeDoppler(context));
-
-        if (context is null || context.TrackState.LookAngles is null)
+        if (!TryResolveTrackingContext(ref context))
         {
             EndDopplerPassLog("context_cleared");
             _isTracking = false;
+            _cachedContext = null;
             SetRigStatus(effectivePaused ? RigStatusKind.CatPaused : RigStatusKind.Connected);
             return;
         }
 
-        _isBeaconOnly = context.Mode.IsBeaconOnly;
+        // Non-null look angles guaranteed by TryResolveTrackingContext.
+        var resolved = context!;
+        SyncDisplayFrequencies(ComputeDoppler(resolved));
+
+        _isBeaconOnly = resolved.Mode.IsBeaconOnly;
 
         if (!SupportsTracking())
             return;
 
-        var newPassKey = PassKey(context);
+        var newPassKey = PassKey(resolved);
         var passKeyChanged = !string.Equals(_passKey, newPassKey, StringComparison.Ordinal);
         if (passKeyChanged || reinitializePass || resumingFromCatPause)
             _flexSatelliteSetupError = null;
 
         if (passKeyChanged)
-            BeginNewPass(settings, context, newPassKey, effectivePaused);
+            BeginNewPass(settings, resolved, newPassKey, effectivePaused);
 
         if (_flexSatelliteSetupError is not null)
         {
@@ -448,7 +455,7 @@ public sealed class RigController : IRigController, IDisposable
             {
                 if (settings.Type == RigType.FlexSmartSdr)
                     Log.Information("FlexRadio CAT updates paused; Doppler control is suspended");
-                LogDopplerPauseTransition(settings, context, "cat_pause_start");
+                LogDopplerPauseTransition(settings, resolved, "cat_pause_start");
             }
             SetRigStatus(RigStatusKind.CatPaused);
             return;
@@ -458,25 +465,52 @@ public sealed class RigController : IRigController, IDisposable
         {
             if (settings.Type == RigType.FlexSmartSdr)
                 Log.Information("FlexRadio CAT updates resumed; reinitialising satellite control");
-            LogDopplerPauseTransition(settings, context, "cat_pause_end");
+            LogDopplerPauseTransition(settings, resolved, "cat_pause_end");
         }
 
         if (resumingFromCatPause || _passInitPending)
         {
-            RunPassInit(settings, context);
+            RunPassInit(settings, resolved);
             _passInitPending = false;
         }
         else if (reinitializePass && !passKeyChanged)
-            RunPassInit(settings, context);
-        else if (context.SelectedCtcssHz is > 0)
-            ApplyCtcss(settings, context, force: false);
+            RunPassInit(settings, resolved);
+        else if (resolved.SelectedCtcssHz is > 0)
+            ApplyCtcss(settings, resolved, force: false);
 
-        NoteContextOffsetChange(context);
-        NoteContextDopplerStrategyChange(context);
+        NoteContextOffsetChange(resolved);
+        NoteContextDopplerStrategyChange(resolved);
         _isTracking = true;
         SetRigStatus(ResolveTrackingStatusKind(settings));
-        TryClearPassbandOnOrbitalAos(settings, context);
-        UpdateDopplerPassLogHorizon(settings, context);
+        TryClearPassbandOnOrbitalAos(settings, resolved);
+        UpdateDopplerPassLogHorizon(settings, resolved);
+    }
+
+    /// <summary>
+    /// Accepts a fresh context with look angles, or holds the last good context for a few
+    /// missing-angle publishes so Doppler CAT does not flap on a single propagation miss.
+    /// </summary>
+    /// <returns>True when <paramref name="context"/> is usable (non-null look angles).</returns>
+    private bool TryResolveTrackingContext(ref RigTrackingContext? context)
+    {
+        if (context?.TrackState.LookAngles is not null)
+        {
+            _missingLookAnglesTicks = 0;
+            _cachedContext = context;
+            return true;
+        }
+
+        if (_isTracking
+            && _cachedContext?.TrackState.LookAngles is not null
+            && _missingLookAnglesTicks + 1 < MissingLookAnglesClearTicks)
+        {
+            _missingLookAnglesTicks++;
+            context = _cachedContext;
+            return true;
+        }
+
+        _missingLookAnglesTicks = 0;
+        return false;
     }
 
     private RigStatusKind ResolveTrackingStatusKind(RigSettings settings) =>
@@ -550,6 +584,7 @@ public sealed class RigController : IRigController, IDisposable
         _displayRxHz = 0;
         _displayTxHz = 0;
         _isTracking = false;
+        _missingLookAnglesTicks = 0;
         ClearDialHistory();
         _passInitPending = false;
         _catUpdatesPaused = false;

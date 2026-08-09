@@ -723,6 +723,106 @@ public class RigControllerTests
     }
 
     [Fact]
+    public void Brief_null_look_angles_keeps_doppler_tracking()
+    {
+        var controller = new RigController();
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 145950,
+            UplinkKHz = 145850,
+            DownlinkMode = "FMN",
+            UplinkMode = "FMN"
+        };
+
+        RigTrackingContext Good(double elevationDeg) => new()
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "SO-50",
+                NoradId = "25544",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, elevationDeg, 800, 0)
+            },
+            Mode = mode,
+            Corrected = new CorrectedFrequencies(145850, 145950, 145850, 145950, 0, false)
+        };
+
+        var missingAngles = new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "SO-50",
+                NoradId = "25544",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = null
+            },
+            Mode = mode,
+            Corrected = new CorrectedFrequencies(145850, 145950, 145850, 145950, 0, false)
+        };
+
+        controller.Update(settings, Good(20));
+        Assert.True(controller.GetStatus().IsTracking);
+
+        for (var i = 1; i < RigController.MissingLookAnglesClearTicks; i++)
+        {
+            controller.Update(settings, missingAngles);
+            Assert.True(controller.GetStatus().IsTracking, $"tick {i} should hold last-good context");
+            Assert.Equal(RigStatusKind.Tracking, controller.GetStatus().StatusKind);
+        }
+
+        controller.Update(settings, Good(22));
+        Assert.True(controller.GetStatus().IsTracking);
+    }
+
+    [Fact]
+    public void Sustained_null_look_angles_clears_doppler_tracking()
+    {
+        var controller = new RigController();
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.Dummy
+        };
+
+        var mode = new SatelliteTransponderMode
+        {
+            DownlinkKHz = 145950,
+            UplinkKHz = 145850,
+            DownlinkMode = "FMN",
+            UplinkMode = "FMN"
+        };
+
+        var good = new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "SO-50",
+                NoradId = "25544",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 20, 800, 0)
+            },
+            Mode = mode,
+            Corrected = new CorrectedFrequencies(145850, 145950, 145850, 145950, 0, false)
+        };
+
+        controller.Update(settings, good);
+        Assert.True(controller.GetStatus().IsTracking);
+
+        for (var i = 0; i < RigController.MissingLookAnglesClearTicks; i++)
+            controller.Update(settings, null);
+
+        var status = controller.GetStatus();
+        Assert.False(status.IsTracking);
+        Assert.Equal(RigStatusKind.Connected, status.StatusKind);
+    }
+
+    [Fact]
     public void Rx_offset_shifts_downlink_not_uplink_on_rev_satellite()
     {
         var rig = new RecordingRigDriver();
