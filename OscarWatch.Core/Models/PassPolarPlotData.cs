@@ -24,6 +24,11 @@ public sealed class PassPolarPlotSample
     public DateTime Utc { get; init; }
     public double AzimuthDeg { get; init; }
     public double ElevationDeg { get; init; }
+
+    /// <summary>
+    /// Predicted Smart450 command azimuth (0–max), when filled by SmartAzimuthPassPreview.
+    /// </summary>
+    public double? CommandAzimuthDeg { get; set; }
 }
 
 public sealed class PassPolarPlotData

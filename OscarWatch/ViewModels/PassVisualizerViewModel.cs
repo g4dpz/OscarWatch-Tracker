@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
+using OscarWatch.Core.Rotator;
 using OscarWatch.Core.Services;
 using OscarWatch.Localization;
 using OscarWatch.Orbit;
@@ -12,6 +13,7 @@ public partial class PassVisualizerViewModel : ViewModelBase
 {
     private readonly ITleService _tleService;
     private readonly IOrbitPropagator _propagator;
+    private readonly ISettingsService _settings;
     private readonly ILocalizationService _l;
 
     private PassInfo? _pass;
@@ -21,10 +23,12 @@ public partial class PassVisualizerViewModel : ViewModelBase
     public PassVisualizerViewModel(
         ITleService tleService,
         IOrbitPropagator propagator,
+        ISettingsService settings,
         ILocalizationService localization)
     {
         _tleService = tleService;
         _propagator = propagator;
+        _settings = settings;
         _l = localization;
     }
 
@@ -66,15 +70,7 @@ public partial class PassVisualizerViewModel : ViewModelBase
         MinimumElevationDeg = minimumElevationDeg;
         HorizonMask = site.HorizonMask;
 
-        var clockFormat = PassDisplayFormat.FromSettings(use24HourClock);
-        var stationLabel = StationLabel(site);
-
-        HeadingText = _l.Get("Pass.Visualizer.Heading", pass.SatelliteName, stationLabel);
-        SubtitleText = _l.Get(
-            "Pass.Visualizer.Subtitle",
-            PassDisplayFormat.FormatDurationLong(pass.Duration),
-            PassDisplayFormat.FormatPlannerAosLosLine(pass.AosUtc, pass.LosUtc, useUtc: useUtcTime, clockFormat: clockFormat),
-            PassDisplayFormat.FormatTimeZoneLabel(useUtcTime));
+        HeadingText = _l.Get("Pass.Visualizer.Heading", pass.SatelliteName, StationLabel(site));
 
         _satellite = _tleService.Catalog.FirstOrDefault(s => s.NoradId == pass.NoradId);
         if (_satellite is not null)
@@ -89,10 +85,22 @@ public partial class PassVisualizerViewModel : ViewModelBase
         {
             PlotData = null;
             PlotHeader = "";
+            SubtitleText = "";
             return;
         }
 
-        PlotData = PassPolarPlotBuilder.Build(
+        var clockFormat = PassDisplayFormat.FromSettings(Use24HourClock);
+        SubtitleText = _l.Get(
+            "Pass.Visualizer.Subtitle",
+            PassDisplayFormat.FormatDurationLong(_pass.Duration),
+            PassDisplayFormat.FormatPlannerAosLosLine(
+                _pass.AosUtc,
+                _pass.LosUtc,
+                useUtc: UseUtcTime,
+                clockFormat: clockFormat),
+            PassDisplayFormat.FormatTimeZoneLabel(UseUtcTime));
+
+        var plotData = PassPolarPlotBuilder.Build(
             _satellite,
             _propagator,
             _site,
@@ -103,12 +111,31 @@ public partial class PassVisualizerViewModel : ViewModelBase
             MinimumElevationDeg,
             includeMutualMarkers: false);
 
+        ApplySmart450Preview(plotData);
+
+        PlotData = plotData;
         PlotHeader = _l.Get(
             "Mutual.Visualizer.StationStats",
             PlotData.StationLabel,
             PlotData.AosAzimuthDeg,
             PlotData.MaxElevationDeg,
             PlotData.LosAzimuthDeg);
+    }
+
+    private void ApplySmart450Preview(PassPolarPlotData plotData)
+    {
+        var rotator = _settings.Current.Rotator ?? new RotatorSettings();
+        if (!SmartAzimuthPassPreview.TryApply(
+                plotData.Samples,
+                rotator.SmartAzimuth450,
+                rotator.MaxAzimuthDeg))
+            return;
+
+        var smartLine = SmartAzimuthPassPreview.UsesExtendedBand(plotData.Samples)
+            ? _l.Get("Pass.Visualizer.Smart450.Extended")
+            : _l.Get("Pass.Visualizer.Smart450.Primary");
+
+        SubtitleText = SubtitleText + Environment.NewLine + smartLine;
     }
 
     private static string StationLabel(GroundStation site) =>

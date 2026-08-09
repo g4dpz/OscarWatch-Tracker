@@ -7,7 +7,11 @@ internal static class PassPolarPlotHitTest
 {
     private const double HitRadiusPx = 14;
 
-    internal readonly record struct HoverPoint(DateTime Utc, double AzimuthDeg, double ElevationDeg);
+    internal readonly record struct HoverPoint(
+        DateTime Utc,
+        double AzimuthDeg,
+        double ElevationDeg,
+        double? CommandAzimuthDeg);
 
     public static HoverPoint? TryHit(
         PassPolarPlotData data,
@@ -32,7 +36,11 @@ internal static class PassPolarPlotHitTest
             if (dist < bestDist)
             {
                 bestDist = dist;
-                best = new HoverPoint(sample.Utc, sample.AzimuthDeg, sample.ElevationDeg);
+                best = new HoverPoint(
+                    sample.Utc,
+                    sample.AzimuthDeg,
+                    sample.ElevationDeg,
+                    sample.CommandAzimuthDeg);
             }
         }
 
@@ -52,7 +60,9 @@ internal static class PassPolarPlotHitTest
             var utc = a.Utc + TimeSpan.FromTicks((long)((b.Utc - a.Utc).Ticks * t));
             var az = a.AzimuthDeg + (b.AzimuthDeg - a.AzimuthDeg) * t;
             var el = a.ElevationDeg + (b.ElevationDeg - a.ElevationDeg) * t;
-            best = new HoverPoint(utc, az, el);
+            // Prefer nearer sample's command az (do not lerp Primary↔Extended).
+            var command = t < 0.5 ? a.CommandAzimuthDeg : b.CommandAzimuthDeg;
+            best = new HoverPoint(utc, az, el, command);
         }
 
         return best;

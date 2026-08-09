@@ -205,6 +205,12 @@
   <data name="Pass.Visualizer.Subtitle">
     <value>Duration {0} · {1} ({2})</value>
   </data>
+  <data name="Pass.Visualizer.Smart450.Extended">
+    <value>Smart450 uses extended band (361–450°) on this pass.</value>
+  </data>
+  <data name="Pass.Visualizer.Smart450.Primary">
+    <value>Smart450 stays in primary band (0–360°) on this pass.</value>
+  </data>
   <data name="Pass.TimeRange">
     <value>{0} to {1}</value>
   </data>
@@ -2395,7 +2401,7 @@ Continue?</value>
     <value>Start tracking at elevation (°)</value>
   </data>
   <data name="Settings.Rotator.TrackStartNote">
-    <value>Default is -3° (below horizon). Range -90° to 90°. The rotator begins slewing when the tracked satellite rises above this elevation, and parks once it drops below.</value>
+    <value>Default is -3° (below horizon). Range -90° to 90°. The rotator begins slewing when the tracked satellite rises above this elevation, and parks once it drops below (after a short confirm so a single glitch tick cannot interrupt the pass).</value>
   </data>
   <data name="Settings.Rotator.ParkAzimuth">
     <value>Park azimuth (°)</value>
@@ -3107,6 +3113,9 @@ Continue?</value>
   </data>
   <data name="Mutual.Visualizer.PlotTooltip">
     <value>{0} · Az: {1:F1}° · El: {2:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.PlotTooltipWithRotor">
+    <value>{0} · Az: {1:F1}° · Rotor: {2:F0}° · El: {3:F1}°</value>
   </data>
   <data name="Mutual.Visualizer.Legend.Aos">
     <value>AOS (mutual window start)</value>

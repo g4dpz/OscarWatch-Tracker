@@ -288,13 +288,29 @@ public class PassPolarPlotControl : ThemeAwareControl
             hit.Value.Utc,
             UseUtcTime,
             PassDisplayFormat.FromSettings(Use24HourClock));
-        ToolTip.SetTip(
-            this,
-            LocalizationService.Instance.Get(
-                "Mutual.Visualizer.PlotTooltip",
-                timeText,
-                hit.Value.AzimuthDeg,
-                hit.Value.ElevationDeg));
+
+        // Extended Smart450 band only: Primary matches compass az, so keep the short tip.
+        if (hit.Value.CommandAzimuthDeg is > 360)
+        {
+            ToolTip.SetTip(
+                this,
+                LocalizationService.Instance.Get(
+                    "Mutual.Visualizer.PlotTooltipWithRotor",
+                    timeText,
+                    hit.Value.AzimuthDeg,
+                    hit.Value.CommandAzimuthDeg.Value,
+                    hit.Value.ElevationDeg));
+        }
+        else
+        {
+            ToolTip.SetTip(
+                this,
+                LocalizationService.Instance.Get(
+                    "Mutual.Visualizer.PlotTooltip",
+                    timeText,
+                    hit.Value.AzimuthDeg,
+                    hit.Value.ElevationDeg));
+        }
     }
 
     private void OnPointerExited(object? sender, PointerEventArgs e) => ClearHover();

@@ -16,6 +16,13 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private static readonly TimeSpan LoopInterval = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan CommandWaitTimeout = TimeSpan.FromSeconds(10);
 
+    /// <summary>
+    /// Consecutive below-threshold / missing-target ticks required before park-after-pass
+    /// once this pass has already been tracking. Prevents a single glitch tick at AOS from
+    /// slewing home and then resuming.
+    /// </summary>
+    internal const int ParkAfterPassConfirmTicks = 3;
+
     private readonly Func<RotatorSettings, IRotatorDriver>? _driverFactory;
     private readonly IOrbitPropagator? _propagator;
     private readonly ISettingsService? _settingsService;
@@ -42,6 +49,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private bool _standbyActive;
     private bool _standbyManualActive;
     private bool _trackingHoldAfterStop;
+    /// <summary>True after we have commanded track for the current pass (el ≥ track start).</summary>
+    private bool _passTrackingActive;
+    private int _parkAfterPassStreak;
     private int? _displayAzimuth;
     private int? _displayElevation;
     private int? _displayCommandedAzimuth;
@@ -197,16 +207,20 @@ public sealed class RotatorController : IRotatorController, IDisposable
         {
             while (!_shutdownRequested)
             {
+                var ranSynchronousTracking = false;
                 if (_commands!.TryTake(out var command, LoopInterval))
                 {
-                    ProcessCommand(command);
-                    DrainPendingCommands();
+                    ranSynchronousTracking = ProcessCommand(command);
+                    ranSynchronousTracking |= DrainPendingCommands();
                 }
 
                 if (_shutdownRequested)
                     break;
 
-                RunTrackingIteration();
+                // UpdateSynchronously already ran tracking for this wake; do not double-count
+                // park-after-pass confirm ticks (or send a duplicate track/park).
+                if (!ranSynchronousTracking)
+                    RunTrackingIteration();
                 RefreshPositionSnapshot();
             }
         }
@@ -217,14 +231,18 @@ public sealed class RotatorController : IRotatorController, IDisposable
         }
     }
 
-    private void DrainPendingCommands()
+    private bool DrainPendingCommands()
     {
+        var ranSynchronousTracking = false;
         while (_commands!.TryTake(out var command, 0))
-            ProcessCommand(command);
+            ranSynchronousTracking |= ProcessCommand(command);
+        return ranSynchronousTracking;
     }
 
-    private void ProcessCommand(RotatorCommand command)
+    /// <returns>True when this command already ran <see cref="RunTrackingIteration"/>.</returns>
+    private bool ProcessCommand(RotatorCommand command)
     {
+        var ranSynchronousTracking = false;
         try
         {
             switch (command.Kind)
@@ -238,6 +256,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
                     _cachedSettings = command.Settings;
                     _cachedTarget = command.Target;
                     RunTrackingIteration();
+                    ranSynchronousTracking = true;
                     break;
 
                 case RotatorCommandKind.Park:
@@ -293,6 +312,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
             RefreshPositionSnapshot();
             command.Completed?.Set();
         }
+
+        return ranSynchronousTracking;
     }
 
     private void RunTrackingIteration()
@@ -337,12 +358,25 @@ public sealed class RotatorController : IRotatorController, IDisposable
         var target = _cachedTarget;
         if (target?.NoradId != _lastTargetNoradId)
         {
+            var switchedSatellite = target?.NoradId is { } newId
+                && _lastTargetNoradId is { } oldId
+                && !string.Equals(newId, oldId, StringComparison.Ordinal);
+            var acquiredFocus = target?.NoradId is not null && _lastTargetNoradId is null;
+
             _lastTargetNoradId = target?.NoradId;
             _lastAzimuth = null;
             _lastElevation = null;
             _parked = false;
             ClearTrackingAzimuthDisplay();
             RecomputeKeyholePlan(settings);
+
+            // Do not clear pass-tracking when the target briefly becomes null (glitch tick);
+            // that is handled by park-after-pass confirm streak instead.
+            if (switchedSatellite || acquiredFocus)
+            {
+                _passTrackingActive = false;
+                _parkAfterPassStreak = 0;
+            }
         }
 
         if (_manualParkActive)
@@ -367,6 +401,9 @@ public sealed class RotatorController : IRotatorController, IDisposable
         {
             if (lookAngles.ElevationDeg >= settings.TrackStartElevationDeg)
             {
+                _parkAfterPassStreak = 0;
+                _passTrackingActive = true;
+
                 var az = lookAngles.AzimuthDeg;
                 var ahead = target.AheadAzimuthDeg;
 
@@ -387,10 +424,39 @@ public sealed class RotatorController : IRotatorController, IDisposable
                 TryTrack(settings, az, lookAngles.ElevationDeg, ahead);
             }
             else
-                TryPark(settings, afterPass: true);
+                ConsiderParkAfterPass(settings);
         }
         else
+            ConsiderParkAfterPass(settings);
+    }
+
+    /// <summary>
+    /// Parks when the satellite is below track-start (or target is missing).
+    /// Before this pass has tracked, parks immediately (idle / waiting for AOS).
+    /// After tracking has started, requires <see cref="ParkAfterPassConfirmTicks"/> consecutive
+    /// end-of-pass ticks so a single bad sample cannot interrupt the pass.
+    /// </summary>
+    private void ConsiderParkAfterPass(RotatorSettings settings)
+    {
+        if (!settings.ParkAfterPass)
+        {
+            _parkAfterPassStreak = 0;
+            return;
+        }
+
+        if (!_passTrackingActive)
+        {
             TryPark(settings, afterPass: true);
+            return;
+        }
+
+        _parkAfterPassStreak++;
+        if (_parkAfterPassStreak < ParkAfterPassConfirmTicks)
+            return;
+
+        TryPark(settings, afterPass: true);
+        _passTrackingActive = false;
+        _parkAfterPassStreak = 0;
     }
 
     private void ParkOnWorker(RotatorSettings settings)
@@ -416,6 +482,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
         _manualParkActive = true;
         _parked = false;
+        _passTrackingActive = false;
+        _parkAfterPassStreak = 0;
         TryPark(settings, force: true);
         PollPosition();
     }
@@ -497,6 +565,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _manualParkActive = false;
             _standbyManualActive = false;
             _trackingHoldAfterStop = false;
+            _passTrackingActive = false;
+            _parkAfterPassStreak = 0;
             return;
         }
 
@@ -537,6 +607,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _standbyActive = false;
         _standbyManualActive = false;
         _trackingHoldAfterStop = false;
+        _passTrackingActive = false;
+        _parkAfterPassStreak = 0;
         _displayAzimuth = null;
         _displayElevation = null;
         _displayCommandedAzimuth = null;

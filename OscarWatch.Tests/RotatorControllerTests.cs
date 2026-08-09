@@ -63,6 +63,96 @@ public sealed class RotatorControllerTests
     }
 
     [Fact]
+    public void Update_does_not_park_on_single_tick_below_track_start_after_tracking()
+    {
+        var rotator = new RecordingRotatorDriver();
+        using var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            TrackStartElevationDeg = -3,
+            ParkAzimuthDeg = 180,
+            ParkElevationDeg = 0,
+            ParkAfterPass = true,
+            MovementThresholdDeg = 0
+        };
+
+        controller.UpdateSynchronously(settings, TrackTarget("25544", 45, 5));
+        Assert.False(controller.GetPositionStatus().IsParked);
+        Assert.Equal(45, rotator.LastAzimuthDeg);
+
+        var callsAfterTrack = rotator.SetPositionCallCount;
+        controller.UpdateSynchronously(settings, TrackTarget("25544", 50, -5));
+        Assert.False(controller.GetPositionStatus().IsParked);
+        Assert.Equal(callsAfterTrack, rotator.SetPositionCallCount);
+        Assert.Equal(45, rotator.LastAzimuthDeg);
+
+        controller.UpdateSynchronously(settings, TrackTarget("25544", 55, 6));
+        Assert.False(controller.GetPositionStatus().IsParked);
+        Assert.Equal(55, rotator.LastAzimuthDeg);
+    }
+
+    [Fact]
+    public void Update_does_not_park_on_single_missing_target_tick_after_tracking()
+    {
+        var rotator = new RecordingRotatorDriver();
+        using var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            TrackStartElevationDeg = -3,
+            ParkAzimuthDeg = 180,
+            ParkElevationDeg = 0,
+            ParkAfterPass = true,
+            MovementThresholdDeg = 0
+        };
+
+        controller.UpdateSynchronously(settings, TrackTarget("25544", 45, 5));
+        var callsAfterTrack = rotator.SetPositionCallCount;
+
+        controller.UpdateSynchronously(settings, null);
+        Assert.False(controller.GetPositionStatus().IsParked);
+        Assert.Equal(callsAfterTrack, rotator.SetPositionCallCount);
+
+        controller.UpdateSynchronously(settings, TrackTarget("25544", 50, 6));
+        Assert.False(controller.GetPositionStatus().IsParked);
+        Assert.Equal(50, rotator.LastAzimuthDeg);
+    }
+
+    [Fact]
+    public void Update_parks_after_confirmed_below_track_start_streak()
+    {
+        var rotator = new RecordingRotatorDriver();
+        using var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            TrackStartElevationDeg = -3,
+            ParkAzimuthDeg = 180,
+            ParkElevationDeg = 0,
+            ParkAfterPass = true,
+            MovementThresholdDeg = 0
+        };
+
+        controller.UpdateSynchronously(settings, TrackTarget("25544", 45, 5));
+        Assert.False(controller.GetPositionStatus().IsParked);
+
+        for (var i = 0; i < RotatorController.ParkAfterPassConfirmTicks - 1; i++)
+        {
+            controller.UpdateSynchronously(settings, TrackTarget("25544", 50, -5));
+            Assert.False(controller.GetPositionStatus().IsParked);
+        }
+
+        controller.UpdateSynchronously(settings, TrackTarget("25544", 50, -5));
+        Assert.True(controller.GetPositionStatus().IsParked);
+        Assert.Equal(180, rotator.LastAzimuthDeg);
+        Assert.Equal(0, rotator.LastElevationDeg);
+    }
+
+    [Fact]
     public void Update_skips_automatic_park_after_pass_when_disabled()
     {
         var rotator = new RecordingRotatorDriver();
@@ -576,7 +666,10 @@ public sealed class RotatorControllerTests
         var norad = "25544";
         controller.UpdateSynchronously(settings, TrackTarget(norad, 15, 45));
         controller.UpdateSynchronously(settings, TrackTarget(norad, 330, 30));
-        Assert.Contains(375, rotator.AzimuthHistory);
+        Assert.Equal(375, rotator.LastAzimuthDeg);
+
+        // Next tick: already in extended, shortest path to west is primary 330°.
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 330, 30));
         Assert.Equal(330, rotator.LastAzimuthDeg);
     }
 
@@ -598,7 +691,9 @@ public sealed class RotatorControllerTests
         controller.UpdateSynchronously(settings, TrackTarget("other", 180, 30));
         controller.UpdateSynchronously(settings, TrackTarget(norad, 34, 25));
         controller.UpdateSynchronously(settings, TrackTarget(norad, 330, 20, aheadAzimuthDeg: 325));
-        Assert.Contains(394, rotator.AzimuthHistory);
+        Assert.Equal(394, rotator.LastAzimuthDeg);
+
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 330, 20, aheadAzimuthDeg: 325));
         Assert.Equal(330, rotator.LastAzimuthDeg);
     }
 

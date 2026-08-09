@@ -205,6 +205,12 @@
   <data name="Pass.Visualizer.Subtitle">
     <value>持续时间 {0} · {1}（{2}）</value>
   </data>
+  <data name="Pass.Visualizer.Smart450.Extended">
+    <value>此过境 Smart450 使用扩展带（361–450°）。</value>
+  </data>
+  <data name="Pass.Visualizer.Smart450.Primary">
+    <value>此过境 Smart450 保持在主带（0–360°）。</value>
+  </data>
   <data name="Pass.TimeRange">
     <value>{0} — {1}</value>
   </data>
@@ -2281,7 +2287,7 @@
     <value>开始跟踪仰角（°）</value>
   </data>
   <data name="Settings.Rotator.TrackStartNote">
-    <value>默认为 -3°（地平线以下）。范围 -90° 至 90°。当跟踪的卫星上升到该仰角以上时，旋转器开始转动，一旦下降到该仰角以下就停止。</value>
+    <value>默认为 -3°（地平线以下）。范围 -90° 至 90°。当跟踪的卫星上升到该仰角以上时，旋转器开始转动，一旦下降到该仰角以下就停止（经短暂确认，避免单次抖动中断跟踪）。</value>
   </data>
   <data name="Settings.Rotator.ParkAzimuth">
     <value>停靠方位角（°）</value>
@@ -2990,6 +2996,9 @@
   </data>
   <data name="Mutual.Visualizer.PlotTooltip">
     <value>{0} · 方位: {1:F1}° · 仰角: {2:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.PlotTooltipWithRotor">
+    <value>{0} · 方位: {1:F1}° · 转子: {2:F0}° · 仰角: {3:F1}°</value>
   </data>
   <data name="Mutual.Visualizer.Legend.Aos">
     <value>AOS（双向窗口开始）</value>
