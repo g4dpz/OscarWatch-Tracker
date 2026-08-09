@@ -19,6 +19,19 @@ public partial class PassPlanningWindow : Window
             await vm.RefreshPassesCommand.ExecuteAsync(null);
     }
 
+    private async void OnEditHorizonMaskClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not PassPlanningViewModel vm)
+            return;
+
+        var window = new HorizonMaskEditorWindow
+        {
+            DataContext = vm
+        };
+        await window.ShowDialog(this);
+        await vm.RefreshPassesCommand.ExecuteAsync(null);
+    }
+
     private async void OnExportSatelliteClick(object? sender, RoutedEventArgs e)
     {
         if (sender is not Button { Tag: PassPlanningPassRow row }

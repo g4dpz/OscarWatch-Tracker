@@ -1,10 +1,8 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:OscarWatch.ViewModels"
         xmlns:loc="using:OscarWatch.Localization"
         xmlns:ctrl="using:OscarWatch.Controls"
         x:Class="OscarWatch.Views.HorizonMaskEditorWindow"
-        x:DataType="vm:SettingsViewModel"
         Title="{loc:Localize Key=Window.HorizonMaskEditor.Title}"
         Width="520"
         Height="640"
@@ -23,7 +21,7 @@
               Click="OnCloseClick" />
     </Border>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-      <ctrl:HorizonMaskEditorControl Points="{Binding HorizonMaskPoints}" />
+      <ctrl:HorizonMaskEditorControl Points="{ReflectionBinding HorizonMaskPoints}" />
     </ScrollViewer>
   </DockPanel>
 </Window>

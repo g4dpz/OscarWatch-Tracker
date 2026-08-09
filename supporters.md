@@ -20,6 +20,7 @@ Thank you to everyone who has donated to support OscarWatch development.
 | Mark                     | K0JM           |
 | Dale                     | MM0INH         |
 | Magne                    | LA2XNA         |
+| Carlo                    | IK4JQQ         |
 
 
 If you donate and would like to be listed here, let Peter know your name and callsign.

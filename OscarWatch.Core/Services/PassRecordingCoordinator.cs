@@ -41,13 +41,17 @@ public sealed class PassRecordingCoordinator
         if (!settings.Enabled
             || string.IsNullOrWhiteSpace(focusedNoradId)
             || (string.IsNullOrWhiteSpace(settings.DeviceId)
-                && string.IsNullOrWhiteSpace(settings.DeviceDisplayName))
-            || focusedState is null
-            || !string.Equals(focusedState.NoradId, focusedNoradId, StringComparison.Ordinal))
+                && string.IsNullOrWhiteSpace(settings.DeviceDisplayName)))
         {
             ResetTracking();
             return;
         }
+
+        // Focused sat briefly missing from the live snapshot (propagation glitch): keep elevation
+        // history and leave any active recording alone so REC does not stop/restart.
+        if (focusedState is null
+            || !string.Equals(focusedState.NoradId, focusedNoradId, StringComparison.Ordinal))
+            return;
 
         if (!string.Equals(_trackedNoradId, focusedNoradId, StringComparison.Ordinal))
         {

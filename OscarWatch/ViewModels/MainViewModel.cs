@@ -972,7 +972,7 @@ public partial class MainViewModel : ViewModelBase
         if (rows.Count == 0)
             return;
 
-        Passes.Clear();
+        var items = new List<IPassListItem>(rows.Count + 4);
         DateOnly? currentDay = null;
         foreach (var row in rows)
         {
@@ -980,16 +980,17 @@ public partial class MainViewModel : ViewModelBase
             if (currentDay != day)
             {
                 currentDay = day;
-                Passes.Add(new PassDayHeaderViewModel
+                items.Add(new PassDayHeaderViewModel
                 {
                     DateLabel = PassDisplayFormat.FormatDayHeader(row.AosUtc, useUtc: useUtc)
                 });
             }
 
-            Passes.Add(row.WithTimeDisplay(clockFormat, useUtc));
+            items.Add(row.WithTimeDisplay(clockFormat, useUtc));
         }
 
-        UpdatePassHighlightState();
+        ApplyPassListHighlights(items);
+        ReplacePassList(items);
         UpdateCommunityStatusDisplays();
     }
 
@@ -1799,8 +1800,37 @@ public partial class MainViewModel : ViewModelBase
             pass.UpdateDisplay(now, ImminentPassWindow, IsPassBeingRecorded(pass));
     }
 
+    /// <summary>
+    /// Apply REC / pass badges to rows before they hit the bound collection so a list rebuild
+    /// cannot flash an empty or non-REC badge for a frame.
+    /// </summary>
+    private void ApplyPassListHighlights(IReadOnlyList<IPassListItem> items)
+    {
+        var rows = items.OfType<PassRowViewModel>().ToList();
+        SyncRecordingPassIdentity(rows.Select(p => p.Source).ToList());
+        var now = DateTime.UtcNow;
+        foreach (var pass in rows)
+            pass.UpdateDisplay(now, ImminentPassWindow, IsPassBeingRecorded(pass));
+    }
+
+    private void ReplacePassList(IReadOnlyList<IPassListItem> items)
+    {
+        var common = Math.Min(Passes.Count, items.Count);
+        for (var i = 0; i < common; i++)
+        {
+            if (!ReferenceEquals(Passes[i], items[i]))
+                Passes[i] = items[i];
+        }
+
+        for (var i = common; i < items.Count; i++)
+            Passes.Add(items[i]);
+
+        for (var i = Passes.Count - 1; i >= items.Count; i--)
+            Passes.RemoveAt(i);
+    }
+
     /// <summary>Remember which list row started recording so later passes with the same name stay unhighlighted.</summary>
-    private void SyncRecordingPassIdentity()
+    private void SyncRecordingPassIdentity(IReadOnlyList<PassInfo>? candidatePasses = null)
     {
         if (!_recording.IsRecording || AudioRecordingSessions.IsManualTest(_recording))
         {
@@ -1830,7 +1860,7 @@ public partial class MainViewModel : ViewModelBase
 
         // Re-bind after every pass-list refresh — predicted AOS can shift while recording continues.
         // Keep the previous AOS if lookup briefly fails so the REC badge does not flicker to Passing.
-        var pass = FindPassForRecording(noradId, DateTime.UtcNow);
+        var pass = FindPassForRecording(noradId, DateTime.UtcNow, candidatePasses);
         _recordingPassNoradId = noradId;
         if (pass is not null)
             _recordingPassAosUtc = pass.AosUtc;
@@ -1854,16 +1884,14 @@ public partial class MainViewModel : ViewModelBase
                 && _recording.IsRecording
                 && !AudioRecordingSessions.IsManualTest(_recording));
 
-    private PassRowViewModel? FindPassForRecording(string noradId, DateTime utcNow)
+    private PassInfo? FindPassForRecording(
+        string noradId,
+        DateTime utcNow,
+        IReadOnlyList<PassInfo>? candidatePasses = null)
     {
-        var rows = Passes.OfType<PassRowViewModel>().Select(p => p.Source).ToList();
-        var match = PassSidebarMerge.FindPassForRecording(rows, noradId, utcNow, _recordingStartedUtc);
-        if (match is null)
-            return null;
-
-        return Passes.OfType<PassRowViewModel>()
-            .FirstOrDefault(p => string.Equals(p.NoradId, match.NoradId, StringComparison.Ordinal)
-                && p.AosUtc == match.AosUtc);
+        var rows = candidatePasses
+            ?? Passes.OfType<PassRowViewModel>().Select(p => p.Source).ToList();
+        return PassSidebarMerge.FindPassForRecording(rows, noradId, utcNow, _recordingStartedUtc);
     }
 
     private void ProcessPassRecording(IReadOnlyList<SatelliteTrackState> states)
@@ -3036,29 +3064,31 @@ public partial class MainViewModel : ViewModelBase
                     .Where(p => PassUtc.Normalize(p.LosUtc) > utcNow)
                     .ToList();
 
-                Passes.Clear();
-                DateOnly? currentDay = null;
                 var useUtc = _settings.Current.DisplayTimesInUtc;
                 var clockFormat = PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock);
+                var items = new List<IPassListItem>(Math.Min(merged.Count, 50) + 8);
+                DateOnly? currentDay = null;
                 foreach (var p in merged.Take(50))
                 {
                     var day = PassDisplayFormat.GetDisplayDate(p.AosUtc, useUtc);
                     if (currentDay != day)
                     {
                         currentDay = day;
-                        Passes.Add(new PassDayHeaderViewModel
+                        items.Add(new PassDayHeaderViewModel
                         {
                             DateLabel = PassDisplayFormat.FormatDayHeader(p.AosUtc, useUtc: useUtc)
                         });
                     }
 
-                    Passes.Add(PassRowViewModel.From(p, clockFormat, useUtc));
+                    items.Add(PassRowViewModel.From(p, clockFormat, useUtc));
                 }
+
+                ApplyPassListHighlights(items);
+                ReplacePassList(items);
 
                 if (selectedNorad is not null)
                     SelectedListItem = Passes.OfType<PassRowViewModel>().FirstOrDefault(p => p.NoradId == selectedNorad);
 
-                UpdatePassHighlightState();
                 UpdateCommunityStatusDisplays();
 
                 // Update the timeline passes for the elevation timeline control
