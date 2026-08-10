@@ -1068,6 +1068,9 @@ Continue?</value>
   <data name="Logbook.Status.Deleted">
     <value>Deleted logbook “{0}”.</value>
   </data>
+  <data name="Logbook.Status.StationUnavailable">
+    <value>Wait until tracking shows a satellite and mode before adding a QSO.</value>
+  </data>
   <data name="Logbook.Status.Added">
     <value>Logged {0} at {1} UTC.</value>
   </data>

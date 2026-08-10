@@ -987,6 +987,9 @@ Continuar?</value>
   <data name="Logbook.Status.Deleted">
     <value>Livro “{0}” excluído.</value>
   </data>
+  <data name="Logbook.Status.StationUnavailable">
+    <value>Aguarde o rastreamento mostrar um satélite e um modo antes de adicionar um QSO.</value>
+  </data>
   <data name="Logbook.Status.Added">
     <value>{0} registrado às {1} UTC.</value>
   </data>

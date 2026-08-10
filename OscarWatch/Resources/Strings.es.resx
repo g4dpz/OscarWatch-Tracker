@@ -1011,6 +1011,9 @@
   <data name="Logbook.Status.Deleted">
     <value>Libro “{0}” eliminado.</value>
   </data>
+  <data name="Logbook.Status.StationUnavailable">
+    <value>Espere a que el seguimiento muestre un satélite y un modo antes de añadir un QSO.</value>
+  </data>
   <data name="Logbook.Status.Added">
     <value>{0} registrado a las {1} UTC.</value>
   </data>

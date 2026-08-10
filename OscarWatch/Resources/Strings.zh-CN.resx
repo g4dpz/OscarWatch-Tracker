@@ -987,6 +987,9 @@
   <data name="Logbook.Status.Deleted">
     <value>已删除日志“{0}”。</value>
   </data>
+  <data name="Logbook.Status.StationUnavailable">
+    <value>请等到跟踪显示卫星和模式后再添加 QSO。</value>
+  </data>
   <data name="Logbook.Status.Added">
     <value>已于 {1} UTC 记录 {0}。</value>
   </data>

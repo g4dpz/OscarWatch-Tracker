@@ -38,7 +38,9 @@ public sealed class LiveTrackerSnapshotProvider : ILiveTrackerSnapshotProvider
         var context = _frequencies.TryBuildRigTrackingContext(state);
         if (context is null)
         {
-            var name = _frequencies.SatelliteName;
+            // Prefer the focused track name. The overlay SatelliteName can lag after a focus
+            // change and must not stamp the previous satellite onto a QSO.
+            var name = state.Name;
             return string.IsNullOrWhiteSpace(name)
                 ? LiveTrackerSnapshot.Empty
                 : new LiveTrackerSnapshot(name.Trim(), "", "", 0, 0, "", "", modeType, elevationDeg);

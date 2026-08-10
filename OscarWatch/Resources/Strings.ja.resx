@@ -2049,6 +2049,9 @@
   <data name="Logbook.Status.Deleted">
     <value>ログブック「{0}」を削除しました。</value>
   </data>
+  <data name="Logbook.Status.StationUnavailable">
+    <value>QSO を追加する前に、追跡で衛星とモードが表示されるまで待ってください。</value>
+  </data>
   <data name="Logbook.Status.Added">
     <value>{0} を {1} UTC に記録しました。</value>
   </data>

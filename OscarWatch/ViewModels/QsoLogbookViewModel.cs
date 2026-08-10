@@ -141,12 +141,20 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
     private string _stationStatusText = "";
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(CommitQsoCommand))]
+    [NotifyCanExecuteChangedFor(nameof(AddQsoCommand))]
     private bool _stationAvailable;
 
     public bool CanAddQso =>
-        SelectedLogbook is not null && !string.IsNullOrWhiteSpace(Call);
+        SelectedLogbook is not null
+        && !string.IsNullOrWhiteSpace(Call)
+        && StationAvailable;
 
-    public bool CanCommitQso => CanAddQso && GridIsValid != false;
+    public bool CanCommitQso =>
+        SelectedLogbook is not null
+        && !string.IsNullOrWhiteSpace(Call)
+        && GridIsValid != false
+        && (IsEditingQso || StationAvailable);
 
     public bool CanDeleteLogbook => SelectedLogbook is not null;
 
@@ -317,6 +325,13 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
             return;
 
         var snapshot = _tracker.GetCurrent();
+        if (!snapshot.IsAvailable)
+        {
+            StatusText = _l.Get("Logbook.Status.StationUnavailable");
+            StationAvailable = false;
+            return;
+        }
+
         var qsoUtc = DateTime.UtcNow;
         var cloudlogUpload = SelectedLogbook.CloudlogAutoUpload && SelectedLogbook.CloudlogStationProfileId.HasValue
             ? CloudlogUploadStatus.Pending
