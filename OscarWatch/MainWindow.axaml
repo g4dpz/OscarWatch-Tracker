@@ -391,7 +391,8 @@
                   <Run Text="{loc:Localize Key=Main.Alt}" /><Run Text="{Binding AltitudeText}" />
                 </TextBlock>
                 <TextBlock Text="{Binding NextPassText}"
-                           FontSize="12"
+                           FontSize="13"
+                           FontWeight="SemiBold"
                            TextWrapping="Wrap"
                            Foreground="{DynamicResource PassHighlightBrush}" />
               </StackPanel>

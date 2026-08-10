@@ -2033,19 +2033,30 @@ public partial class MainViewModel : ViewModelBase
 
     private void UpdateNextPassCountdown()
     {
-        var next = Passes.OfType<PassRowViewModel>().FirstOrDefault();
-        if (next is null)
+        var now = DateTime.UtcNow;
+        var rows = Passes.OfType<PassRowViewModel>();
+        PassRowViewModel? next = null;
+        if (!string.IsNullOrEmpty(FocusedNoradId))
+        {
+            next = rows.FirstOrDefault(p =>
+                string.Equals(p.NoradId, FocusedNoradId, StringComparison.Ordinal)
+                && PassUtc.Normalize(p.LosUtc) >= PassUtc.Normalize(now));
+        }
+
+        next ??= rows.FirstOrDefault(p => PassUtc.Normalize(p.LosUtc) >= PassUtc.Normalize(now))
+                 ?? rows.FirstOrDefault();
+
+        if (next is null
+            || !PassDisplayFormat.TryGetSidebarCountdown(now, next.AosUtc, next.LosUtc, out var toLos, out var remaining))
         {
             NextPassText = _l.Get("Main.Pass.None");
             return;
         }
 
-        var aos = next.AosUtc;
-        var delta = aos - DateTime.UtcNow;
-        if (delta.TotalSeconds < 0)
-            NextPassText = _l.Get("Main.Pass.InProgress", next.SatelliteName);
-        else
-            NextPassText = _l.Get("Main.Pass.AosIn", next.SatelliteName, PassDisplayFormat.FormatCountdownHms(delta));
+        var countdown = PassDisplayFormat.FormatCountdownHms(remaining);
+        NextPassText = toLos
+            ? _l.Get("Main.Pass.LosIn", next.SatelliteName, countdown)
+            : _l.Get("Main.Pass.AosIn", next.SatelliteName, countdown);
     }
 
     private void UpdateStatus()

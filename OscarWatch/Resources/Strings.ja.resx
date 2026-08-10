@@ -88,6 +88,9 @@
   <data name="Main.Pass.AosIn">
     <value>{0} AOSまで {1}</value>
   </data>
+  <data name="Main.Pass.LosIn">
+    <value>{0} LOSまで {1}</value>
+  </data>
   <data name="Main.Pass.InProgress">
     <value>{0} — 進行中</value>
   </data>

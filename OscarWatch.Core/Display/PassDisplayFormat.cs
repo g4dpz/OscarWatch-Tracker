@@ -320,6 +320,39 @@ public static class PassDisplayFormat
         return $"{(int)delta.TotalHours}:{delta.Minutes:D2}:{delta.Seconds:D2}";
     }
 
+    /// <summary>
+    /// Sidebar countdown phase for a pass: AOS before rise, LOS while above horizon.
+    /// Returns false when the pass has already ended.
+    /// </summary>
+    public static bool TryGetSidebarCountdown(
+        DateTime utcNow,
+        DateTime aosUtc,
+        DateTime losUtc,
+        out bool toLos,
+        out TimeSpan remaining)
+    {
+        var now = PassUtc.Normalize(utcNow);
+        var aos = PassUtc.Normalize(aosUtc);
+        var los = PassUtc.Normalize(losUtc);
+        toLos = false;
+        remaining = TimeSpan.Zero;
+
+        if (now < aos)
+        {
+            remaining = aos - now;
+            return true;
+        }
+
+        if (now <= los)
+        {
+            toLos = true;
+            remaining = los - now;
+            return true;
+        }
+
+        return false;
+    }
+
     public static ClockDisplayFormat FromSettings(bool use24HourClock) =>
         use24HourClock ? ClockDisplayFormat.TwentyFourHour : ClockDisplayFormat.TwelveHour;
 

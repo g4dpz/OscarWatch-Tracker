@@ -91,4 +91,12 @@ public sealed class LocalizationServiceTests
         var text = LocalizationService.Instance.Get("Main.Pass.AosIn", "ISS", "00:12:34");
         Assert.Equal("ISS AOS in 00:12:34", text);
     }
+
+    [Fact]
+    public void Get_formats_los_countdown()
+    {
+        using var _ = TestUiCulture.Apply(LocalizationCulture.DefaultLanguage);
+        var text = LocalizationService.Instance.Get("Main.Pass.LosIn", "AO-07", "0:04:12");
+        Assert.Equal("AO-07 LOS in 0:04:12", text);
+    }
 }

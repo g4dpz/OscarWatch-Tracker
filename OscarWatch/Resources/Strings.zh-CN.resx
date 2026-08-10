@@ -148,6 +148,9 @@
   <data name="Main.Pass.AosIn">
     <value>{0} 将在 {1} 后升起</value>
   </data>
+  <data name="Main.Pass.LosIn">
+    <value>{0} 将在 {1} 后落下</value>
+  </data>
   <data name="Main.Pass.InProgress">
     <value>{0} - 过境中</value>
   </data>

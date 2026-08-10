@@ -65,6 +65,40 @@ public class PassDisplayFormatTests
     }
 
     [Fact]
+    public void TryGetSidebarCountdown_before_aos_counts_down_to_aos()
+    {
+        var aos = new DateTime(2026, 8, 10, 12, 0, 0, DateTimeKind.Utc);
+        var los = aos.AddMinutes(10);
+        var now = aos.AddMinutes(-5);
+
+        Assert.True(PassDisplayFormat.TryGetSidebarCountdown(now, aos, los, out var toLos, out var remaining));
+        Assert.False(toLos);
+        Assert.Equal(TimeSpan.FromMinutes(5), remaining);
+    }
+
+    [Fact]
+    public void TryGetSidebarCountdown_during_pass_counts_down_to_los()
+    {
+        var aos = new DateTime(2026, 8, 10, 12, 0, 0, DateTimeKind.Utc);
+        var los = aos.AddMinutes(10);
+        var now = aos.AddMinutes(4);
+
+        Assert.True(PassDisplayFormat.TryGetSidebarCountdown(now, aos, los, out var toLos, out var remaining));
+        Assert.True(toLos);
+        Assert.Equal(TimeSpan.FromMinutes(6), remaining);
+    }
+
+    [Fact]
+    public void TryGetSidebarCountdown_after_los_returns_false()
+    {
+        var aos = new DateTime(2026, 8, 10, 12, 0, 0, DateTimeKind.Utc);
+        var los = aos.AddMinutes(10);
+        var now = los.AddSeconds(1);
+
+        Assert.False(PassDisplayFormat.TryGetSidebarCountdown(now, aos, los, out _, out _));
+    }
+
+    [Fact]
     public void FormatAxisTime_respects_12_and_24_hour()
     {
         var utc = new DateTime(2026, 6, 4, 15, 30, 0, DateTimeKind.Utc);
