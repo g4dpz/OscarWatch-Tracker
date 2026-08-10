@@ -71,7 +71,7 @@ public static class AccessibilityThemeResources
             isDark ? Color.Parse("#26282C") : Color.Parse("#F6F7F8"));
         resources[PassImminentBadgeBackgroundKey] = new SolidColorBrush(
             isDark ? Color.Parse("#E09A20") : Color.Parse("#E89B1E"));
-        resources[PassImminentBadgeForegroundKey] = new SolidColorBrush(Color.Parse("#1A1A1A"));
+        resources[PassImminentBadgeForegroundKey] = new SolidColorBrush(Colors.White);
         resources[PassInProgressBadgeBackgroundKey] = new SolidColorBrush(
             isDark ? Color.Parse("#45A338") : Color.Parse("#2B6E1F"));
         resources[PassInProgressBadgeForegroundKey] = new SolidColorBrush(Colors.White);
