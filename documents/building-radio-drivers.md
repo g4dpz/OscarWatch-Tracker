@@ -321,12 +321,12 @@ Covers **FTX-1 Field** and **FTX-1optima** (same field head). Downlink uses VFO-
 | Piece | Path |
 |-------|------|
 | CAT codec | [`OscarWatch.Core/Radio/KenwoodThD7xCatCodec.cs`](../OscarWatch.Core/Radio/KenwoodThD7xCatCodec.cs) |
-| Serial transport | [`OscarWatch/Rig/KenwoodHtTransport.cs`](../OscarWatch/Rig/KenwoodHtTransport.cs) — **8N1**, CR-terminated ASCII, no RTS/CTS |
+| Serial transport | [`OscarWatch/Rig/KenwoodHtTransport.cs`](../OscarWatch/Rig/KenwoodHtTransport.cs) — **8N1**, CR-terminated ASCII, no RTS/CTS handshake; DTR/RTS modem lines asserted for USB CDC |
 | Driver | [`OscarWatch/Rig/KenwoodThD7xDriver.cs`](../OscarWatch/Rig/KenwoodThD7xDriver.cs) |
 
 - **Dual radio only** (`RigSettings.DualRadioEnabled`): TH-D74/TH-D75 are not offered in the single-radio driver list. Each endpoint is one physical HT on **Band B** (all-mode receiver).
 - Different dialect from the TS-2000: CR framing, `FQ`/`FO`/`MD`/`VM`/`BC`/`FT`/`FS` (not semicolon `FA`/`FB` SATL).
-- Session once after open: `VM 1,0` then `BC 1`. FM/data-FM uses NFM (`MD` code 6) on a **5 kHz** grid; USB/LSB/CW/AM use fine tune + **20 Hz** step. Cross-band `FQ` re-applies `FT`/`FS` because the HT stores step per band.
+- On open: assert DTR/RTS, settle briefly, then `VM 1,0`, `BC 1`, and a verified `FO 1` read before reporting connected. FM/data-FM uses NFM (`MD` code 6) on a **5 kHz** grid; USB/LSB/CW/AM use fine tune + **20 Hz** step. Cross-band `FQ` re-applies `FT`/`FS` because the HT stores step per band.
 - `SupportsVfoExchange` is **false**. CTCSS CAT is intentionally a no-op until hardware-validated; set uplink tone on the radio manually for FM satellites.
 - Protocol behaviour follows CardSat’s bench-tested TH-D7x subset (`LEGF_KWHT`).
 
@@ -334,6 +334,7 @@ Covers **FTX-1 Field** and **FTX-1optima** (same field head). Downlink uses VFO-
 
 - Enable **Settings → Radio → Dual radio**; choose TH-D74 or TH-D75 on each leg with the USB/PC COM port at **9600** 8N1 (user-selectable).
 - Use normal PC-command mode (not KISS/TNC). Disable unsolicited GPS PC output if enabled.
+- On macOS select the radio’s `/dev/cu.*` device (not `/dev/tty.*`); OscarWatch treats a silent FO reply as a failed connection.
 - On a real pass: Doppler on Band B; for FM uplinks needing CTCSS, set the tone on the HT yourself for now.
 
 ## Reference: FlexRadio SmartSDR (shipped)

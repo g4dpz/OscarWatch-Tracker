@@ -44,6 +44,25 @@ public sealed class KenwoodThD7xDriver : IRigDriver
         _transport.Open();
         _sessionReady = false;
         _lastFrequencyBand = -1;
+
+        // Do not report a successful connection merely because macOS allowed
+        // the /dev/cu.* device to be opened. Put Band B into the expected CAT
+        // state and require a valid FO response from the radio. The larger
+        // startup delay gives USB CDC devices a full transaction budget.
+        if (!EnsureSession())
+            throw new InvalidOperationException($"{_rigType} opened, but CAT session setup failed.");
+
+        var response = _transport.Transact(
+            KenwoodThD7xCatCodec.BuildReadFrequencyCommand(),
+            Math.Max(600, _catDelayMs));
+
+        if (response is null || !KenwoodThD7xCatCodec.TryParseFrequencyHz(response, out var hz))
+            throw new InvalidOperationException(
+                $"{_rigType} serial port opened, but the radio did not return a valid FO 1 response. " +
+                "On macOS select the /dev/cu.* device for the radio and verify PC command mode is enabled.");
+
+        _lastFrequencyHz = hz;
+        Log.Information("Connected to {RigType}; initial Band B frequency {FrequencyHz} Hz", _rigType, hz);
     }
 
     public long? ReadFrequencyHz(RigVfo vfo)

@@ -16,10 +16,12 @@ internal sealed class KenwoodHtTransport : IKenwoodHtTransport
         _port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One)
         {
             Handshake = Handshake.None,
-            ReadTimeout = 250,
-            WriteTimeout = 1000,
-            DtrEnable = false,
-            RtsEnable = false,
+            // The TH-D74/D75 USB CDC interface needs the modem-control lines
+            // asserted on macOS. This also matches the CardSat TH-D75 probe.
+            ReadTimeout = 400,
+            WriteTimeout = 2000,
+            DtrEnable = true,
+            RtsEnable = true,
             NewLine = "\r"
         };
     }
@@ -28,8 +30,18 @@ internal sealed class KenwoodHtTransport : IKenwoodHtTransport
 
     public void Open()
     {
-        if (!_port.IsOpen)
-            _port.Open();
+        if (_port.IsOpen)
+            return;
+
+        _port.Open();
+
+        // System.IO.Ports can open the macOS /dev/cu.* node before the radio's
+        // USB CDC command channel is ready. Reassert the lines after Open() and
+        // allow the TH-D7x time to settle before the first CAT transaction.
+        _port.DtrEnable = true;
+        _port.RtsEnable = true;
+        Thread.Sleep(200);
+        DrainInput();
     }
 
     public bool SendCommand(string command, int postDelayMs = 50)
@@ -71,7 +83,7 @@ internal sealed class KenwoodHtTransport : IKenwoodHtTransport
                 return null;
             DrainInput();
             _port.Write(Normalize(command));
-            return ReadUntilCr(Math.Max(220, postDelayMs + 170));
+            return ReadUntilCr(Math.Max(500, postDelayMs + 400));
         }
         catch (Exception ex)
         {
@@ -86,7 +98,30 @@ internal sealed class KenwoodHtTransport : IKenwoodHtTransport
 
     public void Dispose()
     {
-        try { if (_port.IsOpen) _port.Close(); } catch { }
+        try
+        {
+            if (_port.IsOpen)
+            {
+                // Drop the CDC control lines explicitly so a subsequent open
+                // starts a clean TH-D7x PC-command session on macOS.
+                try
+                {
+                    _port.DtrEnable = false;
+                    _port.RtsEnable = false;
+                }
+                catch
+                {
+                    // Best effort; closing the port is still required.
+                }
+
+                _port.Close();
+            }
+        }
+        catch
+        {
+            // Best effort during shutdown.
+        }
+
         _port.Dispose();
         _gate.Dispose();
     }
