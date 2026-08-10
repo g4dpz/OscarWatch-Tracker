@@ -103,6 +103,9 @@
         and sends <code>autocenter=0</code> so the radio does not recentre them during Doppler. Modes (USB downlink /
         LSB uplink on linear SSB) are applied next. OscarWatch then <strong>reads back</strong> live RX/TX slice
         frequencies, modes, TX roles, and pan attachments, and retunes / force-rebinds if anything landed wrong.
+        Pan centres are checked against the pass frequencies (not only the band), and recentred when a slice would
+        sit visibly off-pan. After setup it marks the downlink slice <code>active=1</code> so SmartSDR focus stays
+        on RX for click-to-tune (uplink remains <code>tx=1</code>).
         FM CTCSS is programmed only on FM uplink modes.
       </p>
       <p>

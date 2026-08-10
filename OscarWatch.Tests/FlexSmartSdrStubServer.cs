@@ -175,6 +175,36 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
     }
 
     /// <summary>
+    /// Moves one panadapter centre without a client command (on-band but off-slice cases).
+    /// </summary>
+    public void SetPanCenterFromOperator(string panStreamId, long centerHz)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(panStreamId);
+        if (centerHz <= 0)
+            throw new ArgumentOutOfRangeException(nameof(centerHz));
+
+        _panCentersHz[panStreamId] = centerHz;
+        lock (_writerGate)
+        {
+            if (_connectedWriter is null)
+                throw new InvalidOperationException("No SmartSDR stub client is connected.");
+
+            var mhz = FlexSmartSdrCodec.HzToMhz(centerHz).ToString("0.######", CultureInfo.InvariantCulture);
+            _connectedWriter.WriteLine($"SABCDEF01|display pan {panStreamId} center={mhz}");
+            _connectedWriter.Flush();
+        }
+    }
+
+    public int ActiveSliceIndex
+    {
+        get
+        {
+            lock (_gate)
+                return _activeSliceIndex;
+        }
+    }
+
+    /// <summary>
     /// Collapses both panadapters onto one band (Mark's pan-lock failure mode).
     /// </summary>
     public void CollapseBothPansOntoBand(bool ontoUhf)
@@ -537,6 +567,14 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                     lock (_gate)
                         _activeSliceIndex = index;
                 }
+                else if (args.Contains("active=0", StringComparison.OrdinalIgnoreCase))
+                {
+                    lock (_gate)
+                    {
+                        if (_activeSliceIndex == index)
+                            _activeSliceIndex = -1;
+                    }
+                }
 
                 if (_rejectTxSlice && args.Contains("tx=1", StringComparison.OrdinalIgnoreCase))
                 {
@@ -790,7 +828,7 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         }
 
         await writer.WriteLineAsync(
-                $"SABCDEF01|slice {index} in_use=1 RF_frequency={mhz} mode={slice.Mode} tx={(slice.Tx ? "1" : "0")} active=0{panField} fm_tone_mode={tone} fm_tone_value={toneHz}")
+                $"SABCDEF01|slice {index} in_use=1 RF_frequency={mhz} mode={slice.Mode} tx={(slice.Tx ? "1" : "0")} active={(index == _activeSliceIndex ? "1" : "0")}{panField} fm_tone_mode={tone} fm_tone_value={toneHz}")
             .ConfigureAwait(false);
     }
 

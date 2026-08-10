@@ -211,6 +211,12 @@ internal sealed class FlexSmartSdrClient : IDisposable
         }
     }
 
+    /// <summary>
+    /// Maximum acceptable offset between a panadapter centre and the commanded / slice frequency.
+    /// Band-only checks are not enough: a pan can sit on the right SCU but leave the slice off-screen.
+    /// </summary>
+    public const long PanCenterToleranceHz = 5_000;
+
     public bool SetSliceTx(int sliceIndex, bool tx)
     {
         lock (_gate)
@@ -228,6 +234,32 @@ internal sealed class FlexSmartSdrClient : IDisposable
                     _slices[key] = slice with { IsTransmit = tx };
                 else if (tx && slice.IsTransmit)
                     _slices[key] = slice with { IsTransmit = false };
+            }
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// Sets SmartSDR slice focus (<c>active=1</c>). When enabling, clears active on other slices.
+    /// </summary>
+    public bool SetSliceActive(int sliceIndex, bool active)
+    {
+        lock (_gate)
+        {
+            EnsureConnectedUnlocked();
+            var ok = SendAndWaitUnlocked(seq => FlexSmartSdrCodec.BuildSliceSetActiveCommand(seq, sliceIndex, active));
+            if (!ok)
+                return false;
+
+            var keys = new List<int>(_slices.Keys);
+            foreach (var key in keys)
+            {
+                var slice = _slices[key];
+                if (key == sliceIndex)
+                    _slices[key] = slice with { IsActive = active };
+                else if (active && slice.IsActive)
+                    _slices[key] = slice with { IsActive = false };
             }
 
             return true;
@@ -472,12 +504,21 @@ internal sealed class FlexSmartSdrClient : IDisposable
 
                 if (!string.IsNullOrWhiteSpace(rx.PanStreamId)
                     && _pans.TryGetValue(rx.PanStreamId, out var rxPan)
-                    && rxPan.CenterHz > 0
-                    && !PanCenterMatchesFrequencyBand(rxPan.CenterHz, downlinkHz))
+                    && rxPan.CenterHz > 0)
                 {
-                    detail =
-                        $"RX pan {rx.PanStreamId} centre {rxPan.CenterHz} Hz is not on the downlink band ({downlinkHz} Hz)";
-                    return false;
+                    if (!PanCenterMatchesFrequencyBand(rxPan.CenterHz, downlinkHz))
+                    {
+                        detail =
+                            $"RX pan {rx.PanStreamId} centre {rxPan.CenterHz} Hz is not on the downlink band ({downlinkHz} Hz)";
+                        return false;
+                    }
+
+                    if (!PanCenterNearFrequency(rxPan.CenterHz, downlinkHz))
+                    {
+                        detail =
+                            $"RX pan {rx.PanStreamId} centre {rxPan.CenterHz} Hz is more than {PanCenterToleranceHz} Hz from downlink {downlinkHz} Hz";
+                        return false;
+                    }
                 }
             }
 
@@ -527,12 +568,21 @@ internal sealed class FlexSmartSdrClient : IDisposable
 
                 if (!string.IsNullOrWhiteSpace(tx.PanStreamId)
                     && _pans.TryGetValue(tx.PanStreamId, out var txPan)
-                    && txPan.CenterHz > 0
-                    && !PanCenterMatchesFrequencyBand(txPan.CenterHz, uplinkHz))
+                    && txPan.CenterHz > 0)
                 {
-                    detail =
-                        $"TX pan {tx.PanStreamId} centre {txPan.CenterHz} Hz is not on the uplink band ({uplinkHz} Hz)";
-                    return false;
+                    if (!PanCenterMatchesFrequencyBand(txPan.CenterHz, uplinkHz))
+                    {
+                        detail =
+                            $"TX pan {tx.PanStreamId} centre {txPan.CenterHz} Hz is not on the uplink band ({uplinkHz} Hz)";
+                        return false;
+                    }
+
+                    if (!PanCenterNearFrequency(txPan.CenterHz, uplinkHz))
+                    {
+                        detail =
+                            $"TX pan {tx.PanStreamId} centre {txPan.CenterHz} Hz is more than {PanCenterToleranceHz} Hz from uplink {uplinkHz} Hz";
+                        return false;
+                    }
                 }
 
                 if (downlinkHz > 0
@@ -553,6 +603,12 @@ internal sealed class FlexSmartSdrClient : IDisposable
 
     internal static bool FrequenciesNearlyEqual(long actualHz, long expectedHz, long toleranceHz = 1000) =>
         Math.Abs(actualHz - expectedHz) <= toleranceHz;
+
+    internal static bool PanCenterNearFrequency(
+        long panCenterHz,
+        long frequencyHz,
+        long toleranceHz = PanCenterToleranceHz) =>
+        Math.Abs(panCenterHz - frequencyHz) <= toleranceHz;
 
     private static bool PanCenterMatchesFrequencyBand(long panCenterHz, long frequencyHz)
     {
@@ -1212,6 +1268,19 @@ internal sealed class FlexSmartSdrClient : IDisposable
                 panStreamId,
                 live.CenterHz,
                 centerHz);
+            return false;
+        }
+
+        if (!PanCenterNearFrequency(live.CenterHz, centerHz))
+        {
+            failureDetail =
+                $"radio pan {panStreamId} centre {live.CenterHz} Hz is more than {PanCenterToleranceHz} Hz from commanded {centerHz} Hz";
+            Log.Warning(
+                "FlexRadio pan centre command succeeded but live centre stayed off-target: pan={PanStreamId}, liveHz={LiveHz}, commandedHz={CommandedHz}, toleranceHz={ToleranceHz}",
+                panStreamId,
+                live.CenterHz,
+                centerHz,
+                PanCenterToleranceHz);
             return false;
         }
 

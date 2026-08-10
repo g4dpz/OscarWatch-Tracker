@@ -1499,6 +1499,7 @@ public sealed class RigController : IRigController, IDisposable
                 flexBeaconDriver.ApplyBandAntennaPorts(settings, rxHz, 0);
             if (rxHz > 0)
                 flexBeaconDriver.CenterBandPanadapters(rxHz, 0);
+            flexBeaconDriver.EnsureReceiveSliceActive();
         }
 
         _lastPassDownlinkOnVhf = RigSatModeHelper.IsVhfCenterKHz(context.Mode.DownlinkKHz);

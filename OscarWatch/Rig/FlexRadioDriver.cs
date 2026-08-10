@@ -164,10 +164,31 @@ public sealed class FlexRadioDriver : IRigDriver
         }
 
         _satelliteMode = true;
+        EnsureReceiveSliceActive();
         Log.Information(
             "FlexRadio satellite mode enabled; full duplex=true, RX slice={RxSliceIndex}, TX slice={TxSliceIndex}",
             _rxSliceIndex,
             _txSliceIndex);
+    }
+
+    /// <summary>
+    /// Marks the downlink (RX) slice as SmartSDR-active so click-to-tune stays on receive after <c>tx=1</c>.
+    /// Best-effort: failure is logged and does not abort pass init.
+    /// </summary>
+    public void EnsureReceiveSliceActive()
+    {
+        if (!_client.IsConnected)
+            return;
+
+        if (_satelliteMode)
+            _client.ResolveDuplexSliceRoles(ref _rxSliceIndex, ref _txSliceIndex);
+
+        if (!_client.SetSliceActive(_rxSliceIndex, true))
+        {
+            Log.Warning(
+                "FlexRadio failed to mark RX slice {SliceIndex} active",
+                _rxSliceIndex);
+        }
     }
 
     /// <summary>
@@ -292,7 +313,10 @@ public sealed class FlexRadioDriver : IRigDriver
                     uplinkHz,
                     _satelliteMode,
                     forceRebind))
+            {
+                EnsureReceiveSliceActive();
                 return;
+            }
 
             if (attempt < maxAttempts)
             {
@@ -400,7 +424,10 @@ public sealed class FlexRadioDriver : IRigDriver
         _client.ResolveDuplexSliceRoles(ref _rxSliceIndex, ref _txSliceIndex);
 
         if (DuplexFrequenciesVerified(downlinkHz, uplinkHz, out var mismatch, expectedRxMode, expectedTxMode))
+        {
+            EnsureReceiveSliceActive();
             return;
+        }
 
         Log.Warning(
             "FlexRadio pass layout mismatch after init: {Detail}; retuning, recentring, and reapplying modes",
@@ -416,6 +443,7 @@ public sealed class FlexRadioDriver : IRigDriver
                 uplinkHz);
             // Pan recovery during light repair may have recreated slices; restore band ports.
             ApplyBandAntennaPorts(_antennaPortSettings, downlinkHz, uplinkHz);
+            EnsureReceiveSliceActive();
             return;
         }
 
@@ -445,6 +473,7 @@ public sealed class FlexRadioDriver : IRigDriver
 
         // Slice recreate during force rebind drops rxant/txant; re-apply band ports.
         ApplyBandAntennaPorts(_antennaPortSettings, downlinkHz, uplinkHz);
+        EnsureReceiveSliceActive();
     }
 
     private bool DuplexFrequenciesVerified(

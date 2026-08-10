@@ -870,6 +870,58 @@ public class FlexRadioDriverTests
     }
 
     [Fact]
+    public void SetSatelliteMode_marks_rx_slice_active()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        Assert.Equal(driver.RxSliceIndex, stub.ActiveSliceIndex);
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals($"slice set {driver.RxSliceIndex} active=1", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void EnsureDuplexPassFrequencies_recentres_when_pan_on_band_but_off_slice()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        const long downlinkHz = 145_950_000;
+        const long uplinkHz = 432_146_000;
+        driver.BindDuplexSlicesToBandPans(downlinkHz, uplinkHz);
+        driver.SelectVfo(RigVfo.Main);
+        driver.SetFrequencyHz(downlinkHz);
+        driver.SelectVfo(RigVfo.Sub);
+        driver.SetFrequencyHz(uplinkHz);
+        driver.CenterBandPanadapters(downlinkHz, uplinkHz);
+
+        var rxPan = stub.Slices[driver.RxSliceIndex].PanStreamId!;
+        // Still VHF, but far enough that the slice sits off-pan (Mark's occasional miss).
+        stub.SetPanCenterFromOperator(rxPan, 145_850_000);
+        Assert.True(Math.Abs(stub.PanCentersHz[rxPan] - downlinkHz) > FlexSmartSdrClient.PanCenterToleranceHz);
+
+        stub.ClearCommandBodies();
+        driver.EnsureDuplexPassFrequencies(downlinkHz, uplinkHz);
+
+        Assert.True(
+            Math.Abs(stub.PanCentersHz[rxPan] - downlinkHz) <= FlexSmartSdrClient.PanCenterToleranceHz);
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.StartsWith("display pan set ", StringComparison.OrdinalIgnoreCase)
+                 && b.Contains("center=145.95", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal(driver.RxSliceIndex, stub.ActiveSliceIndex);
+    }
+
+    [Fact]
     public void SupportsVfoExchange_IsFalse()
     {
         using var stub = new FlexSmartSdrStubServer();

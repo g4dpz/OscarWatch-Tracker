@@ -125,6 +125,23 @@ public class FlexCommandTranscriptTests
     }
 
     [Fact]
+    public void SetSatelliteMode_sends_slice_set_active_on_rx()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        stub.ClearCommandBodies();
+        driver.SetSatelliteMode(true);
+
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.Equals($"slice set {driver.RxSliceIndex} active=1", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal(driver.RxSliceIndex, stub.ActiveSliceIndex);
+    }
+
+    [Fact]
     public void Ao07_layout_binds_slices_to_band_pans_before_tune()
     {
         using var stub = new FlexSmartSdrStubServer();
