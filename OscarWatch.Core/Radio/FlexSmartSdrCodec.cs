@@ -53,10 +53,14 @@ public static class FlexSmartSdrCodec
             sequence,
             $"slice remove {sliceIndex.ToString(CultureInfo.InvariantCulture)}");
 
-    public static string BuildSliceTuneCommand(uint sequence, int sliceIndex, double freqMhz) =>
+    public static string BuildSliceTuneCommand(
+        uint sequence,
+        int sliceIndex,
+        double freqMhz,
+        bool autoPan = false) =>
         BuildCommand(
             sequence,
-            $"slice tune {sliceIndex.ToString(CultureInfo.InvariantCulture)} {freqMhz.ToString("0.######", CultureInfo.InvariantCulture)} autopan=0");
+            $"slice tune {sliceIndex.ToString(CultureInfo.InvariantCulture)} {freqMhz.ToString("0.######", CultureInfo.InvariantCulture)} autopan={(autoPan ? "1" : "0")}");
 
     public static string BuildDisplayPanCenterCommand(uint sequence, string panStreamId, double centerMhz) =>
         BuildCommand(

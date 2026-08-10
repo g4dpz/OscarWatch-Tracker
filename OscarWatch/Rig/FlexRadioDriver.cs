@@ -661,14 +661,24 @@ public sealed class FlexRadioDriver : IRigDriver
             // Build a real VHF+UHF pan pair before the peer slice, instead of letting
             // slice create invent a second pan that later fails cross-band centre/rebind.
             // Do not strip the only live slice if recovery needs a second pass.
+            // Never pass a stale/missing pan= stream id (SmartSDR returns Invalid Stream ID).
             string? targetPan = null;
             if (_client.EnsureDualBandPanLayout(vhfHz, uhfHz, allowRemoveInUseSlices: false))
             {
                 _client.GetLockedBandPanStreamIds(out var vhfPan, out var uhfPan);
-                targetPan = RigSatModeHelper.IsVhfCenterKHz(createHz / 1000.0) ? vhfPan : uhfPan;
+                var candidate = RigSatModeHelper.IsVhfCenterKHz(createHz / 1000.0) ? vhfPan : uhfPan;
+                if (_client.IsLivePanStream(candidate))
+                    targetPan = candidate;
+                else if (!string.IsNullOrWhiteSpace(candidate))
+                {
+                    Log.Warning(
+                        "FlexRadio single-pan bootstrap ignored non-live target pan {PanStreamId}; creating peer slice without pan=",
+                        candidate);
+                }
             }
 
             // Create without ant=; ApplyBandAntennaPorts sets rxant/txant after bind.
+            // CreateSlice retries without pan= if the radio rejects a stale stream id.
             var created = _client.CreateSlice(createHz, "USB", panStreamId: targetPan);
             if (created is null || created.Value == _rxSliceIndex)
                 return false;

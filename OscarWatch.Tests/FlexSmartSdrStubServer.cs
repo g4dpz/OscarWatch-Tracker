@@ -34,6 +34,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
     private readonly bool _omitPanOnCreateStatus;
     private readonly bool _silentCrossScuCenterReject;
     private readonly bool _allowUhfToVhfCenter;
+    private readonly bool _emitGhostUhfPanOnSubscribe;
+    private readonly bool _stickyPanCenterUntilAutopan;
     private readonly int? _maxPanCount;
     private readonly ConcurrentDictionary<string, long> _panCentersHz = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentQueue<string> _commandBodies = new();
@@ -59,7 +61,9 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         bool silentCrossScuCenterReject = false,
         bool dualHfPanStartup = false,
         int? maxPanCount = null,
-        bool allowUhfToVhfCenter = false)
+        bool allowUhfToVhfCenter = false,
+        bool emitGhostUhfPanOnSubscribe = false,
+        bool stickyPanCenterUntilAutopan = false)
     {
         if (dualHfPanStartup)
         {
@@ -112,6 +116,8 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         _omitPanOnCreateStatus = omitPanOnCreateStatus;
         _silentCrossScuCenterReject = silentCrossScuCenterReject;
         _allowUhfToVhfCenter = allowUhfToVhfCenter;
+        _emitGhostUhfPanOnSubscribe = emitGhostUhfPanOnSubscribe;
+        _stickyPanCenterUntilAutopan = stickyPanCenterUntilAutopan;
         _maxPanCount = maxPanCount;
         _nextPanSuffix = Math.Max(0, initialSliceCount);
 
@@ -397,7 +403,15 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                 }
             }
             if (body.StartsWith("sub pan", StringComparison.OrdinalIgnoreCase))
+            {
                 await EmitPansAsync(writer).ConfigureAwait(false);
+                if (_emitGhostUhfPanOnSubscribe)
+                {
+                    // Status-only pan that SmartSDR will not accept on slice create (Invalid Stream ID).
+                    await writer.WriteLineAsync("SABCDEF01|display pan 0x40000001 center=435")
+                        .ConfigureAwait(false);
+                }
+            }
 
             await writer.WriteLineAsync($"R{seq}|0|").ConfigureAwait(false);
             return;
@@ -456,12 +470,14 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                     }
                 }
 
-                _panCentersHz[panId] = centerHz;
-                if (RigSatModeHelper.IsVhfCenterKHz(centerHz / 1000.0))
-                    _vhfPanStreamId = panId;
-                else if (RigSatModeHelper.IsUhfCenterKHz(centerHz / 1000.0))
-                    _uhfPanStreamId = panId;
+                if (_stickyPanCenterUntilAutopan)
+                {
+                    // Mark: display pan set centre ACKs but live centre stays parked (e.g. 14.1 MHz).
+                    await writer.WriteLineAsync($"R{seq}|0|").ConfigureAwait(false);
+                    return;
+                }
 
+                ApplyPanCenter(panId, centerHz);
                 await writer.WriteLineAsync(
                         $"SABCDEF01|display pan {panId} center={mhz.ToString("0.######", CultureInfo.InvariantCulture)} autocenter=0")
                     .ConfigureAwait(false);
@@ -514,7 +530,23 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                 && int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var index)
                 && double.TryParse(parts[3], NumberStyles.Float, CultureInfo.InvariantCulture, out var mhz))
             {
-                UpdateSlice(index, s => s with { FrequencyHz = FlexSmartSdrCodec.MhzToHz(mhz) });
+                var hz = FlexSmartSdrCodec.MhzToHz(mhz);
+                var autoPan = parts.Any(p =>
+                    p.Equals("autopan=1", StringComparison.OrdinalIgnoreCase));
+                UpdateSlice(index, s => s with { FrequencyHz = hz });
+                if (autoPan
+                    && Slices.TryGetValue(index, out var tuned)
+                    && !string.IsNullOrWhiteSpace(tuned.PanStreamId)
+                    && !IsCrossScuPanCenter(tuned.PanStreamId, hz))
+                {
+                    ApplyPanCenter(tuned.PanStreamId, hz);
+                    var panMhz = FlexSmartSdrCodec.HzToMhz(hz)
+                        .ToString("0.######", CultureInfo.InvariantCulture);
+                    await writer.WriteLineAsync(
+                            $"SABCDEF01|display pan {tuned.PanStreamId} center={panMhz}")
+                        .ConfigureAwait(false);
+                }
+
                 await EmitSliceAsync(writer, index).ConfigureAwait(false);
             }
 
@@ -656,8 +688,15 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
             string panId;
             var createdNewPan = false;
             var sliceHz = FlexSmartSdrCodec.MhzToHz(freq);
-            var needsNewPan = string.IsNullOrWhiteSpace(requestedPan)
-                || !_panCentersHz.ContainsKey(requestedPan);
+            if (!string.IsNullOrWhiteSpace(requestedPan) && !_panCentersHz.ContainsKey(requestedPan))
+            {
+                // Match SmartSDR: pan= must reference a live stream (Mark's 0x50000059 failures).
+                await writer.WriteLineAsync($"R{seq}|50000059|Invalid Stream ID ({requestedPan})")
+                    .ConfigureAwait(false);
+                return;
+            }
+
+            var needsNewPan = string.IsNullOrWhiteSpace(requestedPan);
             if (needsNewPan && _maxPanCount is int capacity && _panCentersHz.Count >= capacity)
             {
                 // Match Mark's dual-HF capacity: cannot allocate a third pan / UHF slice.
@@ -766,6 +805,15 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
         }
 
         return string.Empty;
+    }
+
+    private void ApplyPanCenter(string panId, long centerHz)
+    {
+        _panCentersHz[panId] = centerHz;
+        if (RigSatModeHelper.IsVhfCenterKHz(centerHz / 1000.0))
+            _vhfPanStreamId = panId;
+        else if (RigSatModeHelper.IsUhfCenterKHz(centerHz / 1000.0))
+            _uhfPanStreamId = panId;
     }
 
     private bool IsCrossScuPanCenter(string panStreamId, long centerHz)

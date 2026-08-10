@@ -212,10 +212,16 @@ internal sealed class FlexSmartSdrClient : IDisposable
     }
 
     /// <summary>
-    /// Maximum acceptable offset between a panadapter centre and the commanded / slice frequency.
-    /// Band-only checks are not enough: a pan can sit on the right SCU but leave the slice off-screen.
+    /// Ideal panadapter centre offset versus the commanded / slice frequency after a centre command.
     /// </summary>
     public const long PanCenterToleranceHz = 5_000;
+
+    /// <summary>
+    /// Layout verification tolerance: pan on the correct SCU band and close enough that the slice is
+    /// typically still on-screen. Tighter than this is best-effort (centre + slice-drag), not a reason
+    /// to tear down pans and force-rebind.
+    /// </summary>
+    public const long PanCenterDisplayToleranceHz = 250_000;
 
     public bool SetSliceTx(int sliceIndex, bool tx)
     {
@@ -445,6 +451,22 @@ internal sealed class FlexSmartSdrClient : IDisposable
     }
 
     /// <summary>
+    /// True when <paramref name="panStreamId"/> is present in the live pan status map.
+    /// Stale locked IDs (Mark's <c>Invalid Stream ID</c> create failures) return false.
+    /// </summary>
+    public bool IsLivePanStream(string? panStreamId)
+    {
+        lock (_gate)
+        {
+            DrainPendingStatusUnlocked();
+            return IsLivePanStreamUnlocked(panStreamId);
+        }
+    }
+
+    private bool IsLivePanStreamUnlocked(string? panStreamId) =>
+        !string.IsNullOrWhiteSpace(panStreamId) && _pans.ContainsKey(panStreamId);
+
+    /// <summary>
     /// After drain, checks RX/TX slice frequencies, TX roles, distinct locked pans, pan bands, and optional modes.
     /// </summary>
     public bool VerifyDuplexSliceFrequencies(
@@ -513,10 +535,10 @@ internal sealed class FlexSmartSdrClient : IDisposable
                         return false;
                     }
 
-                    if (!PanCenterNearFrequency(rxPan.CenterHz, downlinkHz))
+                    if (!PanCenterNearFrequency(rxPan.CenterHz, downlinkHz, PanCenterDisplayToleranceHz))
                     {
                         detail =
-                            $"RX pan {rx.PanStreamId} centre {rxPan.CenterHz} Hz is more than {PanCenterToleranceHz} Hz from downlink {downlinkHz} Hz";
+                            $"RX pan {rx.PanStreamId} centre {rxPan.CenterHz} Hz is more than {PanCenterDisplayToleranceHz} Hz from downlink {downlinkHz} Hz";
                         return false;
                     }
                 }
@@ -577,10 +599,10 @@ internal sealed class FlexSmartSdrClient : IDisposable
                         return false;
                     }
 
-                    if (!PanCenterNearFrequency(txPan.CenterHz, uplinkHz))
+                    if (!PanCenterNearFrequency(txPan.CenterHz, uplinkHz, PanCenterDisplayToleranceHz))
                     {
                         detail =
-                            $"TX pan {tx.PanStreamId} centre {txPan.CenterHz} Hz is more than {PanCenterToleranceHz} Hz from uplink {uplinkHz} Hz";
+                            $"TX pan {tx.PanStreamId} centre {txPan.CenterHz} Hz is more than {PanCenterDisplayToleranceHz} Hz from uplink {uplinkHz} Hz";
                         return false;
                     }
                 }
@@ -1121,6 +1143,34 @@ internal sealed class FlexSmartSdrClient : IDisposable
 
     private int? CreateSliceUnlocked(long hz, string mode, string? ant, string? panStreamId)
     {
+        if (!string.IsNullOrWhiteSpace(panStreamId) && !IsLivePanStreamUnlocked(panStreamId))
+        {
+            Log.Warning(
+                "FlexRadio ignoring non-live pan {PanStreamId} for slice create at {FrequencyHz} Hz; creating without pan=",
+                panStreamId,
+                hz);
+            panStreamId = null;
+        }
+
+        var created = TryCreateSliceOnceUnlocked(hz, mode, ant, panStreamId);
+        if (created is not null)
+            return created;
+
+        // SmartSDR rejects slice create with a vanished/stale pan stream id (0x50000059 Invalid Stream ID).
+        if (!string.IsNullOrWhiteSpace(panStreamId))
+        {
+            Log.Warning(
+                "FlexRadio slice create with pan {PanStreamId} failed; retrying without pan= at {FrequencyHz} Hz",
+                panStreamId,
+                hz);
+            return TryCreateSliceOnceUnlocked(hz, mode, ant, panStreamId: null);
+        }
+
+        return null;
+    }
+
+    private int? TryCreateSliceOnceUnlocked(long hz, string mode, string? ant, string? panStreamId)
+    {
         var existingIndexes = _slices.Keys.ToHashSet();
         var mhz = FlexSmartSdrCodec.HzToMhz(hz);
         var response = SendAndWaitResponseUnlocked(seq =>
@@ -1271,20 +1321,96 @@ internal sealed class FlexSmartSdrClient : IDisposable
             return false;
         }
 
-        if (!PanCenterNearFrequency(live.CenterHz, centerHz))
+        if (PanCenterNearFrequency(live.CenterHz, centerHz))
         {
-            failureDetail =
-                $"radio pan {panStreamId} centre {live.CenterHz} Hz is more than {PanCenterToleranceHz} Hz from commanded {centerHz} Hz";
-            Log.Warning(
-                "FlexRadio pan centre command succeeded but live centre stayed off-target: pan={PanStreamId}, liveHz={LiveHz}, commandedHz={CommandedHz}, toleranceHz={ToleranceHz}",
-                panStreamId,
-                live.CenterHz,
-                centerHz,
-                PanCenterToleranceHz);
-            return false;
+            failureDetail = null;
+            return true;
         }
 
-        failureDetail = null;
+        // Same-SCU centre can ACK while the display stays parked on HF (Mark: 14.1 MHz vs 145.9 MHz).
+        // Drag via a slice on this pan with autopan=1, then re-centre with autocenter=0.
+        var liveCenterHz = live.CenterHz;
+        if (TryDragPanViaSliceTuneUnlocked(panStreamId, centerHz))
+        {
+            TrySendSliceCommandUnlocked(
+                seq => FlexSmartSdrCodec.BuildDisplayPanCenterCommand(seq, panStreamId, mhz),
+                out _);
+            DrainPendingStatusUnlocked();
+            if (_pans.TryGetValue(panStreamId, out var afterDrag) && afterDrag.CenterHz > 0)
+            {
+                liveCenterHz = afterDrag.CenterHz;
+                if (PanCenterNearFrequency(liveCenterHz, centerHz))
+                {
+                    failureDetail = null;
+                    return true;
+                }
+
+                if (PanCenterMatchesFrequencyBand(liveCenterHz, centerHz)
+                    && PanCenterNearFrequency(liveCenterHz, centerHz, PanCenterDisplayToleranceHz))
+                {
+                    Log.Warning(
+                        "FlexRadio pan centre on-screen after slice drag but not tight: pan={PanStreamId}, liveHz={LiveHz}, commandedHz={CommandedHz}, toleranceHz={ToleranceHz}",
+                        panStreamId,
+                        liveCenterHz,
+                        centerHz,
+                        PanCenterDisplayToleranceHz);
+                    failureDetail = null;
+                    return true;
+                }
+            }
+        }
+        else if (PanCenterNearFrequency(liveCenterHz, centerHz, PanCenterDisplayToleranceHz))
+        {
+            // Mild offset on the right band: accept without dual-band recovery spam.
+            Log.Warning(
+                "FlexRadio pan centre command succeeded but live centre stayed mildly off-target: pan={PanStreamId}, liveHz={LiveHz}, commandedHz={CommandedHz}, toleranceHz={ToleranceHz}",
+                panStreamId,
+                liveCenterHz,
+                centerHz,
+                PanCenterDisplayToleranceHz);
+            failureDetail = null;
+            return true;
+        }
+
+        failureDetail =
+            $"radio pan {panStreamId} centre {liveCenterHz} Hz is more than {PanCenterDisplayToleranceHz} Hz from commanded {centerHz} Hz";
+        Log.Warning(
+            "FlexRadio pan centre command succeeded but live centre stayed off-target: pan={PanStreamId}, liveHz={LiveHz}, commandedHz={CommandedHz}, toleranceHz={ToleranceHz}",
+            panStreamId,
+            liveCenterHz,
+            centerHz,
+            PanCenterDisplayToleranceHz);
+        return false;
+    }
+
+    /// <summary>
+    /// Moves a pan that ignored <c>display pan set … center=</c> by tuning an attached slice with
+    /// <c>autopan=1</c>, then restores <c>autopan=0</c> for Doppler.
+    /// </summary>
+    private bool TryDragPanViaSliceTuneUnlocked(string panStreamId, long centerHz)
+    {
+        var slice = _slices.Values
+            .Where(s => s.InUse
+                        && !string.IsNullOrWhiteSpace(s.PanStreamId)
+                        && string.Equals(s.PanStreamId, panStreamId, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(s => s.IsTransmit ? 1 : 0)
+            .FirstOrDefault();
+        if (slice is null)
+            return false;
+
+        var mhz = FlexSmartSdrCodec.HzToMhz(centerHz);
+        var dragged = SendAndWaitUnlocked(seq =>
+            FlexSmartSdrCodec.BuildSliceTuneCommand(seq, slice.Index, mhz, autoPan: true));
+        if (!dragged)
+            return false;
+
+        UpdateSliceFrequencyUnlocked(slice.Index, centerHz);
+        DrainPendingStatusUnlocked();
+
+        // Keep continuous Doppler from yanking pans; autopan was only for this drag.
+        SendAndWaitUnlocked(seq =>
+            FlexSmartSdrCodec.BuildSliceTuneCommand(seq, slice.Index, mhz, autoPan: false));
+        DrainPendingStatusUnlocked();
         return true;
     }
 

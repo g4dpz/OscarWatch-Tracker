@@ -131,7 +131,10 @@
         (or <code>display panafall create</code> when that SCU can take the band), and only removes duplex
         slices if that first pass still cannot restore both bands. If you start with two panadapters already on
         different HF bands (both on the VHF-group SCU), OscarWatch frees one pan then allocates a UHF pan the same
-        way. Continuous Doppler still uses
+        way. A single HF pan/slice start is also supported: OscarWatch will not keep retrying
+        <code>slice create</code> against a stale pan stream id, and will drag a stuck HF pan onto 2&nbsp;m via a
+        short <code>autopan=1</code> slice tune when <code>display pan set … center=</code> ACKs but the display
+        does not move. Continuous Doppler still uses
         <code>autopan=0</code> so those pans are not yanked again during the pass.
       </p>
       <p>

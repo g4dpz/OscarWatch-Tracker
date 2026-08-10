@@ -886,7 +886,7 @@ public class FlexRadioDriverTests
     }
 
     [Fact]
-    public void EnsureDuplexPassFrequencies_recentres_when_pan_on_band_but_off_slice()
+    public void EnsureDuplexPassFrequencies_ignores_mild_on_band_pan_offset()
     {
         using var stub = new FlexSmartSdrStubServer();
         stub.WaitUntilReady();
@@ -905,20 +905,74 @@ public class FlexRadioDriverTests
         driver.CenterBandPanadapters(downlinkHz, uplinkHz);
 
         var rxPan = stub.Slices[driver.RxSliceIndex].PanStreamId!;
-        // Still VHF, but far enough that the slice sits off-pan (Mark's occasional miss).
-        stub.SetPanCenterFromOperator(rxPan, 145_850_000);
+        // On-band and on-screen, but outside the ideal 5 kHz centre. Must not force-rebind.
+        stub.SetPanCenterFromOperator(rxPan, downlinkHz - 100_000);
         Assert.True(Math.Abs(stub.PanCentersHz[rxPan] - downlinkHz) > FlexSmartSdrClient.PanCenterToleranceHz);
+        Assert.True(
+            Math.Abs(stub.PanCentersHz[rxPan] - downlinkHz) < FlexSmartSdrClient.PanCenterDisplayToleranceHz);
 
         stub.ClearCommandBodies();
         driver.EnsureDuplexPassFrequencies(downlinkHz, uplinkHz);
 
+        Assert.DoesNotContain(
+            stub.CommandBodies,
+            b => b.StartsWith("slice create", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal(driver.RxSliceIndex, stub.ActiveSliceIndex);
+    }
+
+    [Fact]
+    public void CenterBandPanadapters_drags_sticky_hf_pan_via_slice_autopan()
+    {
+        using var stub = new FlexSmartSdrStubServer(stickyPanCenterUntilAutopan: true);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        const long downlinkHz = 145_950_000;
+        const long uplinkHz = 432_146_000;
+        driver.BindDuplexSlicesToBandPans(downlinkHz, uplinkHz);
+        driver.SelectVfo(RigVfo.Main);
+        driver.SetFrequencyHz(downlinkHz);
+        driver.SelectVfo(RigVfo.Sub);
+        driver.SetFrequencyHz(uplinkHz);
+
+        var rxPan = stub.Slices[driver.RxSliceIndex].PanStreamId!;
+        stub.SetPanCenterFromOperator(rxPan, 14_100_000);
+
+        stub.ClearCommandBodies();
+        driver.CenterBandPanadapters(downlinkHz, uplinkHz);
+
         Assert.True(
-            Math.Abs(stub.PanCentersHz[rxPan] - downlinkHz) <= FlexSmartSdrClient.PanCenterToleranceHz);
+            Math.Abs(stub.PanCentersHz[rxPan] - downlinkHz) <= FlexSmartSdrClient.PanCenterDisplayToleranceHz);
         Assert.Contains(
             stub.CommandBodies,
-            b => b.StartsWith("display pan set ", StringComparison.OrdinalIgnoreCase)
-                 && b.Contains("center=145.95", StringComparison.OrdinalIgnoreCase));
+            b => b.StartsWith($"slice tune {driver.RxSliceIndex} ", StringComparison.OrdinalIgnoreCase)
+                 && b.Contains("autopan=1", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void SetSatelliteMode_single_pan_survives_ghost_uhf_pan_stream_id()
+    {
+        // Mark: status advertised pan 0x40000001 but slice create pan= returned Invalid Stream ID.
+        using var stub = new FlexSmartSdrStubServer(
+            initialSliceCount: 1,
+            emitGhostUhfPanOnSubscribe: true);
+        stub.WaitUntilReady();
+
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+
+        Assert.True(driver.IsSatelliteModeActive);
+        Assert.NotEqual(driver.RxSliceIndex, driver.TxSliceIndex);
+        Assert.Equal(2, stub.Slices.Count);
         Assert.Equal(driver.RxSliceIndex, stub.ActiveSliceIndex);
+        Assert.Contains(
+            stub.CommandBodies,
+            b => b.StartsWith("slice create", StringComparison.OrdinalIgnoreCase)
+                 && !b.Contains("pan=", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
