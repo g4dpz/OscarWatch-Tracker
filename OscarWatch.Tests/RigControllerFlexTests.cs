@@ -681,6 +681,68 @@ public class RigControllerFlexTests
         Assert.Null(status.LastTransmitHz);
     }
 
+    [Fact]
+    public void DisconnectAndWait_aborts_in_flight_flex_pass_init()
+    {
+        using var stub = new FlexSmartSdrStubServer(
+            initialSliceCount: 1,
+            stickyPanCenterUntilAutopan: true);
+        stub.WaitUntilReady();
+        using var harness = CreateHarness(stub);
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 435_850.45,
+            UplinkKHz = 145_952.65,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "NOR"
+        };
+
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.FlexSmartSdr,
+            NetworkHost = "127.0.0.1",
+            NetworkPort = harness.Stub.Port,
+            DopplerThresholdFmHz = 200,
+            CatDelayMs = 50
+        };
+
+        var ctx = new RigTrackingContext
+        {
+            TrackState = new SatelliteTrackState
+            {
+                Name = "FO-29",
+                NoradId = "24278",
+                Subpoint = new GeoCoordinate(0, 0),
+                LookAngles = new LookAngles(180, 25, 900, 1.5)
+            },
+            Mode = mode,
+            Corrected = DopplerFrequencyCalculator.Compute(mode, 0, 0)
+        };
+
+        var publishStarted = new ManualResetEventSlim(false);
+        var publishTask = Task.Run(() =>
+        {
+            publishStarted.Set();
+            harness.Controller.PublishContext(settings, ctx, reinitializePass: true);
+            harness.Controller.DrainCommandQueueForTests();
+        });
+
+        Assert.True(publishStarted.Wait(TimeSpan.FromSeconds(2)));
+        Thread.Sleep(50);
+
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        harness.Controller.DisconnectAndWait();
+        sw.Stop();
+
+        publishTask.Wait(TimeSpan.FromSeconds(5));
+        Assert.True(sw.Elapsed < TimeSpan.FromSeconds(10));
+        Assert.False(harness.Driver?.IsConnected ?? true);
+    }
+
     private static FlexHarness CreateHarness(FlexSmartSdrStubServer stub)
     {
         FlexRadioDriver? driver = null;

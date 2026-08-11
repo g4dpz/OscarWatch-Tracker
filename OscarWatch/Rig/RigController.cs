@@ -53,6 +53,7 @@ public sealed class RigController : IRigController, IDisposable
     private Thread? _worker;
     private int _disposed;
     private volatile bool _shutdownRequested;
+    private volatile bool _disconnectRequested;
 
     private IRigDriver? _driver;
     private IRigDriver? _downlinkDriver;
@@ -165,12 +166,18 @@ public sealed class RigController : IRigController, IDisposable
         Enqueue(new RigCommand(RigCommandKind.ApplySelectedCtcss, settings, context));
     }
 
-    public void Disconnect() =>
+    public void Disconnect()
+    {
+        _disconnectRequested = true;
         Enqueue(new RigCommand(RigCommandKind.Disconnect));
+    }
 
     /// <summary>Disconnect and block until the rig worker has torn down drivers and cleared tracking state.</summary>
-    public void DisconnectAndWait() =>
+    public void DisconnectAndWait()
+    {
+        _disconnectRequested = true;
         EnqueueAndWait(new RigCommand(RigCommandKind.Disconnect), TimeSpan.FromSeconds(30));
+    }
 
     /// <summary>Blocks until queued commands are processed (unit tests).</summary>
     internal void DrainCommandQueueForTests() =>
@@ -318,6 +325,7 @@ public sealed class RigController : IRigController, IDisposable
                     TearDownRig();
                     ResetTrackingState();
                     _suspendConnectUntilUtc = DateTime.MinValue;
+                    _disconnectRequested = false;
                     break;
 
                 case RigCommandKind.Drain:
@@ -1156,6 +1164,14 @@ public sealed class RigController : IRigController, IDisposable
     private bool EnsureConnected(RigSettings settings) =>
         settings.DualRadioEnabled ? EnsureDualConnected(settings) : EnsureSingleConnected(settings);
 
+    private void ConfigureFlexPassInitCancellation(IRigDriver driver)
+    {
+        if (driver is FlexRadioDriver flex)
+            flex.PassInitCancelled = () => _disconnectRequested || _shutdownRequested;
+    }
+
+    private bool PassInitAborted => _disconnectRequested || _shutdownRequested;
+
     private bool EnsureSingleConnected(RigSettings settings)
     {
         if (DateTime.UtcNow < _suspendConnectUntilUtc)
@@ -1173,6 +1189,7 @@ public sealed class RigController : IRigController, IDisposable
             _driver = (_driverFactory ?? RigDriverFactory.Create)(settings);
             _driver.Open();
             _connectedKey = key;
+            ConfigureFlexPassInitCancellation(_driver);
             if (_driver.IsConnected)
             {
                 Log.Information("Rig connected: type={RigType}, endpoint={Endpoint}", settings.Type, FormatSingleEndpoint(settings));
@@ -1440,6 +1457,9 @@ public sealed class RigController : IRigController, IDisposable
 
         if (isFlexSatPass && _driver is FlexRadioDriver flexPreTune)
         {
+            if (PassInitAborted)
+                return;
+
             flexPreTune.ConfigureAntennaPorts(settings);
             var downlinkOnVhf = RigSatModeHelper.IsVhfCenterKHz(context.Mode.DownlinkKHz);
             var layoutFlipped = _lastPassDownlinkOnVhf is bool previousDownlinkOnVhf
@@ -1481,6 +1501,9 @@ public sealed class RigController : IRigController, IDisposable
 
         if (isFlexSatPass && _driver is FlexRadioDriver flexPostInit)
         {
+            if (PassInitAborted)
+                return;
+
             flexPostInit.CenterBandPanadapters(rxHz, txHz);
             ConfigureVfoModes(context);
             flexPostInit.EnsureDuplexPassFrequencies(

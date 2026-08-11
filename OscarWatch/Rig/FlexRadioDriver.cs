@@ -27,6 +27,11 @@ public sealed class FlexRadioDriver : IRigDriver
     private double _toneHz = 67.0;
     private RigSettings _antennaPortSettings = new();
 
+    /// <summary>When true, in-flight Flex pass init should bail out (disconnect or shutdown).</summary>
+    internal Func<bool>? PassInitCancelled { get; set; }
+
+    private bool PassInitCancelledRequested => PassInitCancelled?.Invoke() == true;
+
     public FlexRadioDriver(string host, int port, int catDelayMs = 50)
         : this(new FlexSmartSdrClient(host, port, ResolveTimeoutMs(catDelayMs)), ownsClient: true)
     {
@@ -173,7 +178,7 @@ public sealed class FlexRadioDriver : IRigDriver
 
     /// <summary>
     /// Marks the downlink (RX) slice as SmartSDR-active so click-to-tune stays on receive after <c>tx=1</c>.
-    /// Best-effort: failure is logged and does not abort pass init.
+    /// Clears active on the uplink slice first when duplex. Best-effort: failure is logged and does not abort pass init.
     /// </summary>
     public void EnsureReceiveSliceActive()
     {
@@ -182,6 +187,15 @@ public sealed class FlexRadioDriver : IRigDriver
 
         if (_satelliteMode)
             _client.ResolveDuplexSliceRoles(ref _rxSliceIndex, ref _txSliceIndex);
+
+        if (_satelliteMode
+            && _rxSliceIndex != _txSliceIndex
+            && !_client.SetSliceActive(_txSliceIndex, false))
+        {
+            Log.Warning(
+                "FlexRadio failed to clear active on TX slice {SliceIndex}",
+                _txSliceIndex);
+        }
 
         if (!_client.SetSliceActive(_rxSliceIndex, true))
         {
@@ -342,7 +356,7 @@ public sealed class FlexRadioDriver : IRigDriver
     /// </summary>
     public void CenterBandPanadapters(long downlinkHz, long uplinkHz)
     {
-        if (!_client.IsConnected)
+        if (!_client.IsConnected || PassInitCancelledRequested)
             return;
 
         FlexPanBandResolver.ResolveTargetFrequencies(
@@ -418,7 +432,7 @@ public sealed class FlexRadioDriver : IRigDriver
         string? expectedRxMode = null,
         string? expectedTxMode = null)
     {
-        if (!_client.IsConnected || !_satelliteMode)
+        if (!_client.IsConnected || !_satelliteMode || PassInitCancelledRequested)
             return;
 
         _client.ResolveDuplexSliceRoles(ref _rxSliceIndex, ref _txSliceIndex);
@@ -429,11 +443,17 @@ public sealed class FlexRadioDriver : IRigDriver
             return;
         }
 
+        if (PassInitCancelledRequested)
+            return;
+
         Log.Warning(
             "FlexRadio pass layout mismatch after init: {Detail}; retuning, recentring, and reapplying modes",
             mismatch);
 
         ApplyDuplexLightRepair(downlinkHz, uplinkHz, expectedRxMode, expectedTxMode);
+
+        if (PassInitCancelledRequested)
+            return;
 
         if (DuplexFrequenciesVerified(downlinkHz, uplinkHz, out _, expectedRxMode, expectedTxMode))
         {
@@ -447,15 +467,27 @@ public sealed class FlexRadioDriver : IRigDriver
             return;
         }
 
+        if (PassInitCancelledRequested)
+            return;
+
         DuplexFrequenciesVerified(downlinkHz, uplinkHz, out var afterRetune, expectedRxMode, expectedTxMode);
         Log.Warning(
             "FlexRadio pass layout still wrong after light repair: {Detail}; restoring dual-band pans and force-rebinding",
             afterRetune);
 
         EnsureDualBandPanLayout(downlinkHz, uplinkHz);
+        if (PassInitCancelledRequested)
+            return;
+
         _client.TryRelockBandPansFromLiveCentres();
         BindDuplexSlicesToBandPans(downlinkHz, uplinkHz, forceRebind: true);
+        if (PassInitCancelledRequested)
+            return;
+
         ApplyDuplexLightRepair(downlinkHz, uplinkHz, expectedRxMode, expectedTxMode);
+
+        if (PassInitCancelledRequested)
+            return;
 
         if (DuplexFrequenciesVerified(downlinkHz, uplinkHz, out var stillWrong, expectedRxMode, expectedTxMode))
         {
@@ -498,6 +530,9 @@ public sealed class FlexRadioDriver : IRigDriver
         string? expectedRxMode,
         string? expectedTxMode)
     {
+        if (PassInitCancelledRequested)
+            return;
+
         // Centre pans onto the target bands first, then tune slices, then centre again so a stale
         // pan centre cannot leave both displays on one band after a layout flip.
         CenterBandPanadapters(downlinkHz, uplinkHz);

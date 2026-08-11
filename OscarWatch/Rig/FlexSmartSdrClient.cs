@@ -526,21 +526,12 @@ internal sealed class FlexSmartSdrClient : IDisposable
 
                 if (!string.IsNullOrWhiteSpace(rx.PanStreamId)
                     && _pans.TryGetValue(rx.PanStreamId, out var rxPan)
-                    && rxPan.CenterHz > 0)
+                    && rxPan.CenterHz > 0
+                    && !PanCenterMatchesFrequencyBand(rxPan.CenterHz, downlinkHz))
                 {
-                    if (!PanCenterMatchesFrequencyBand(rxPan.CenterHz, downlinkHz))
-                    {
-                        detail =
-                            $"RX pan {rx.PanStreamId} centre {rxPan.CenterHz} Hz is not on the downlink band ({downlinkHz} Hz)";
-                        return false;
-                    }
-
-                    if (!PanCenterNearFrequency(rxPan.CenterHz, downlinkHz, PanCenterDisplayToleranceHz))
-                    {
-                        detail =
-                            $"RX pan {rx.PanStreamId} centre {rxPan.CenterHz} Hz is more than {PanCenterDisplayToleranceHz} Hz from downlink {downlinkHz} Hz";
-                        return false;
-                    }
+                    detail =
+                        $"RX pan {rx.PanStreamId} centre {rxPan.CenterHz} Hz is not on the downlink band ({downlinkHz} Hz)";
+                    return false;
                 }
             }
 
@@ -590,21 +581,12 @@ internal sealed class FlexSmartSdrClient : IDisposable
 
                 if (!string.IsNullOrWhiteSpace(tx.PanStreamId)
                     && _pans.TryGetValue(tx.PanStreamId, out var txPan)
-                    && txPan.CenterHz > 0)
+                    && txPan.CenterHz > 0
+                    && !PanCenterMatchesFrequencyBand(txPan.CenterHz, uplinkHz))
                 {
-                    if (!PanCenterMatchesFrequencyBand(txPan.CenterHz, uplinkHz))
-                    {
-                        detail =
-                            $"TX pan {tx.PanStreamId} centre {txPan.CenterHz} Hz is not on the uplink band ({uplinkHz} Hz)";
-                        return false;
-                    }
-
-                    if (!PanCenterNearFrequency(txPan.CenterHz, uplinkHz, PanCenterDisplayToleranceHz))
-                    {
-                        detail =
-                            $"TX pan {tx.PanStreamId} centre {txPan.CenterHz} Hz is more than {PanCenterDisplayToleranceHz} Hz from uplink {uplinkHz} Hz";
-                        return false;
-                    }
+                    detail =
+                        $"TX pan {tx.PanStreamId} centre {txPan.CenterHz} Hz is not on the uplink band ({uplinkHz} Hz)";
+                    return false;
                 }
 
                 if (downlinkHz > 0
@@ -1386,6 +1368,8 @@ internal sealed class FlexSmartSdrClient : IDisposable
     /// <summary>
     /// Moves a pan that ignored <c>display pan set … center=</c> by tuning an attached slice with
     /// <c>autopan=1</c>, then restores <c>autopan=0</c> for Doppler.
+    /// When the slice is already on the target frequency, nudges off-target first because SmartSDR
+    /// often ignores <c>autopan=1</c> when the tune is a no-op.
     /// </summary>
     private bool TryDragPanViaSliceTuneUnlocked(string panStreamId, long centerHz)
     {
@@ -1398,9 +1382,25 @@ internal sealed class FlexSmartSdrClient : IDisposable
         if (slice is null)
             return false;
 
-        var mhz = FlexSmartSdrCodec.HzToMhz(centerHz);
+        long? panCenterHz = null;
+        if (_pans.TryGetValue(panStreamId, out var pan) && pan.CenterHz > 0)
+            panCenterHz = pan.CenterHz;
+
+        var targetMhz = FlexSmartSdrCodec.HzToMhz(centerHz);
+        if (FrequenciesNearlyEqual(slice.FrequencyHz, centerHz))
+        {
+            var nudgeHz = ComputePanDragNudgeHz(centerHz, panCenterHz);
+            var nudgeMhz = FlexSmartSdrCodec.HzToMhz(nudgeHz);
+            if (!SendAndWaitUnlocked(seq =>
+                    FlexSmartSdrCodec.BuildSliceTuneCommand(seq, slice.Index, nudgeMhz, autoPan: false)))
+                return false;
+
+            UpdateSliceFrequencyUnlocked(slice.Index, nudgeHz);
+            DrainPendingStatusUnlocked();
+        }
+
         var dragged = SendAndWaitUnlocked(seq =>
-            FlexSmartSdrCodec.BuildSliceTuneCommand(seq, slice.Index, mhz, autoPan: true));
+            FlexSmartSdrCodec.BuildSliceTuneCommand(seq, slice.Index, targetMhz, autoPan: true));
         if (!dragged)
             return false;
 
@@ -1409,9 +1409,28 @@ internal sealed class FlexSmartSdrClient : IDisposable
 
         // Keep continuous Doppler from yanking pans; autopan was only for this drag.
         SendAndWaitUnlocked(seq =>
-            FlexSmartSdrCodec.BuildSliceTuneCommand(seq, slice.Index, mhz, autoPan: false));
+            FlexSmartSdrCodec.BuildSliceTuneCommand(seq, slice.Index, targetMhz, autoPan: false));
         DrainPendingStatusUnlocked();
         return true;
+    }
+
+    /// <summary>
+    /// Off-target Hz on the same SCU band as <paramref name="centerHz"/> for a pre-drag nudge.
+    /// </summary>
+    private static long ComputePanDragNudgeHz(long centerHz, long? panCenterHz)
+    {
+        const long nudgeOffsetHz = 500_000;
+
+        if (panCenterHz is > 0
+            && PanCenterMatchesFrequencyBand(panCenterHz.Value, centerHz)
+            && !FrequenciesNearlyEqual(panCenterHz.Value, centerHz, nudgeOffsetHz / 2))
+            return panCenterHz.Value;
+
+        var lowered = centerHz - nudgeOffsetHz;
+        if (PanCenterMatchesFrequencyBand(lowered, centerHz))
+            return lowered;
+
+        return centerHz + nudgeOffsetHz;
     }
 
     /// <summary>

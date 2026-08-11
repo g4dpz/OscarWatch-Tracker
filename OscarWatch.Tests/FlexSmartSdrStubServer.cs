@@ -533,11 +533,13 @@ internal sealed class FlexSmartSdrStubServer : IDisposable
                 var hz = FlexSmartSdrCodec.MhzToHz(mhz);
                 var autoPan = parts.Any(p =>
                     p.Equals("autopan=1", StringComparison.OrdinalIgnoreCase));
+                var priorHz = Slices.TryGetValue(index, out var priorSlice) ? priorSlice.FrequencyHz : 0L;
                 UpdateSlice(index, s => s with { FrequencyHz = hz });
                 if (autoPan
                     && Slices.TryGetValue(index, out var tuned)
                     && !string.IsNullOrWhiteSpace(tuned.PanStreamId)
-                    && !IsCrossScuPanCenter(tuned.PanStreamId, hz))
+                    && !IsCrossScuPanCenter(tuned.PanStreamId, hz)
+                    && (!_stickyPanCenterUntilAutopan || priorHz != hz))
                 {
                     ApplyPanCenter(tuned.PanStreamId, hz);
                     var panMhz = FlexSmartSdrCodec.HzToMhz(hz)
