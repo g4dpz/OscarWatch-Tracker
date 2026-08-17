@@ -190,6 +190,24 @@
   <data name="Main.HamsAtRoves.LoadFailed">
     <value>No se pudieron cargar las expediciones desde hams.at.</value>
   </data>
+  <data name="Main.HamsAtRoves.Unavailable">
+    <value>hams.at no está disponible temporalmente. Las expediciones se actualizarán automáticamente.</value>
+  </data>
+  <data name="Main.HamsAtRoves.InvalidApiKey">
+    <value>Clave API de hams.at no válida. Compruébala en Configuración.</value>
+  </data>
+  <data name="Main.HamsAtRoves.RateLimited">
+    <value>hams.at ha limitado las solicitudes. Inténtalo más tarde.</value>
+  </data>
+  <data name="Main.HamsAtRoves.Timeout">
+    <value>hams.at no respondió a tiempo. Inténtalo más tarde.</value>
+  </data>
+  <data name="Main.HamsAtRoves.Network">
+    <value>No se pudo contactar con hams.at. Comprueba tu conexión a Internet.</value>
+  </data>
+  <data name="Main.HamsAtRoves.UnexpectedResponse">
+    <value>hams.at devolvió una respuesta inesperada. Inténtalo más tarde.</value>
+  </data>
   <data name="Main.HamsAtRoves.ResizeGrip">
     <value>Arrastra para cambiar el tamaño de la lista de expediciones</value>
   </data>
@@ -2284,7 +2302,7 @@
     <value>Acimut inteligente 450° (ruta más corta por el norte)</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuthNote">
-    <value>En rotores de 450° (p. ej. Yaesu G-5500), los comandos 361–450° evitan un giro largo de vuelta por 0° al seguir pases por el norte.</value>
+    <value>En rotores de 450° (p. ej. Yaesu G-5500), los comandos 361–450° evitan un giro largo de vuelta por 0° cuando el pase cruzará el norte. Los pases que van al norte pero se quedan al este de 0° permanecen en la banda primaria.</value>
   </data>
   <data name="Settings.Rotator.ElevationRange">
     <value>Rango de elevación</value>

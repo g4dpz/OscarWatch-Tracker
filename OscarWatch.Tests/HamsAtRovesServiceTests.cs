@@ -93,6 +93,7 @@ public sealed class HamsAtRovesServiceTests
         var result = await service.FetchUpcomingAsync(settings, bypassCache: true);
 
         Assert.False(result.Ok);
+        Assert.Equal(HamsAtFetchErrorKind.InvalidApiKey, result.ErrorKind);
         Assert.Contains("API key", result.ErrorMessage, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -102,6 +103,68 @@ public sealed class HamsAtRovesServiceTests
         var service = new HamsAtRovesService(new HttpClient(new StubHandler(SampleJson)));
         var result = await service.FetchUpcomingAsync(new HamsAtSettings(), bypassCache: true);
         Assert.False(result.Ok);
+        Assert.Equal(HamsAtFetchErrorKind.MissingApiKey, result.ErrorKind);
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.InternalServerError)]
+    [InlineData(HttpStatusCode.BadGateway)]
+    [InlineData(HttpStatusCode.ServiceUnavailable)]
+    [InlineData(HttpStatusCode.GatewayTimeout)]
+    public async Task FetchUpcomingAsync_returns_unavailable_for_server_errors(HttpStatusCode status)
+    {
+        var service = new HamsAtRovesService(new HttpClient(new StubHandler("{}", status)));
+        var result = await service.FetchUpcomingAsync(
+            new HamsAtSettings { ApiKey = "test-key" },
+            bypassCache: true);
+
+        Assert.False(result.Ok);
+        Assert.Equal(HamsAtFetchErrorKind.Unavailable, result.ErrorKind);
+        Assert.Equal("hams.at is temporarily unavailable. Try again later.", result.ErrorMessage);
+        Assert.DoesNotContain("status code", result.ErrorMessage, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task FetchUpcomingAsync_returns_rate_limited()
+    {
+        var service = new HamsAtRovesService(new HttpClient(new StubHandler("{}", HttpStatusCode.TooManyRequests)));
+        var result = await service.FetchUpcomingAsync(
+            new HamsAtSettings { ApiKey = "test-key" },
+            bypassCache: true);
+
+        Assert.False(result.Ok);
+        Assert.Equal(HamsAtFetchErrorKind.RateLimited, result.ErrorKind);
+    }
+
+    [Fact]
+    public async Task FetchUpcomingAsync_returns_network_error_when_host_unreachable()
+    {
+        var service = new HamsAtRovesService(new HttpClient(new ThrowingHandler()));
+        var result = await service.FetchUpcomingAsync(
+            new HamsAtSettings { ApiKey = "test-key" },
+            bypassCache: true);
+
+        Assert.False(result.Ok);
+        Assert.Equal(HamsAtFetchErrorKind.Network, result.ErrorKind);
+        Assert.Contains("reach hams.at", result.ErrorMessage, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task TestConnectionAsync_uses_friendly_unavailable_message()
+    {
+        var service = new HamsAtRovesService(new HttpClient(new StubHandler("{}", HttpStatusCode.BadGateway)));
+        var (ok, message) = await service.TestConnectionAsync(new HamsAtSettings { ApiKey = "test-key" });
+
+        Assert.False(ok);
+        Assert.Equal("hams.at is temporarily unavailable. Try again later.", message);
+    }
+
+    private sealed class ThrowingHandler : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken) =>
+            throw new HttpRequestException("No such host is known.");
     }
 
     private sealed class StubHandler : HttpMessageHandler

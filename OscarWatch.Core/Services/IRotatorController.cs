@@ -18,7 +18,7 @@ public interface IRotatorController
     /// <summary>Disconnect and block until the rotator worker has closed the COM port.</summary>
     void DisconnectAndWait();
 
-    /// <summary>Supply the active pass for keyhole avoidance planning. Call when the pass changes or becomes known.</summary>
+    /// <summary>Supply the active pass for keyhole planning and Smart450 north-cross detection.</summary>
     void SetActivePass(PassInfo? pass);
     RotatorPositionStatus GetPositionStatus();
 }

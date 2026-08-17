@@ -1605,8 +1605,7 @@ public partial class MainViewModel : ViewModelBase
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                HamsAtRoves.Clear();
-                HamsAtRovesStatusText = result.ErrorMessage ?? _l.Get("Main.HamsAtRoves.LoadFailed");
+                HamsAtRovesStatusText = FormatHamsAtError(result);
             });
             return;
         }
@@ -1652,6 +1651,17 @@ public partial class MainViewModel : ViewModelBase
                 : "";
         });
     }
+
+    private string FormatHamsAtError(HamsAtFetchResult result) => result.ErrorKind switch
+    {
+        HamsAtFetchErrorKind.InvalidApiKey => _l.Get("Main.HamsAtRoves.InvalidApiKey"),
+        HamsAtFetchErrorKind.RateLimited => _l.Get("Main.HamsAtRoves.RateLimited"),
+        HamsAtFetchErrorKind.Timeout => _l.Get("Main.HamsAtRoves.Timeout"),
+        HamsAtFetchErrorKind.Unavailable => _l.Get("Main.HamsAtRoves.Unavailable"),
+        HamsAtFetchErrorKind.Network => _l.Get("Main.HamsAtRoves.Network"),
+        HamsAtFetchErrorKind.UnexpectedResponse => _l.Get("Main.HamsAtRoves.UnexpectedResponse"),
+        _ => _l.Get("Main.HamsAtRoves.LoadFailed")
+    };
 
     private void PruneExpiredPasses()
     {

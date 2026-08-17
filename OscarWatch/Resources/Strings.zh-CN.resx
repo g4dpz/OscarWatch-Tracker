@@ -190,6 +190,24 @@
   <data name="Main.HamsAtRoves.LoadFailed">
     <value>无法从 hams.at 加载 rove。</value>
   </data>
+  <data name="Main.HamsAtRoves.Unavailable">
+    <value>hams.at 暂时不可用。rove 列表将自动刷新。</value>
+  </data>
+  <data name="Main.HamsAtRoves.InvalidApiKey">
+    <value>hams.at API 密钥无效。请在设置中检查。</value>
+  </data>
+  <data name="Main.HamsAtRoves.RateLimited">
+    <value>hams.at 限制了请求频率。请稍后再试。</value>
+  </data>
+  <data name="Main.HamsAtRoves.Timeout">
+    <value>hams.at 未及时响应。请稍后再试。</value>
+  </data>
+  <data name="Main.HamsAtRoves.Network">
+    <value>无法连接 hams.at。请检查网络连接。</value>
+  </data>
+  <data name="Main.HamsAtRoves.UnexpectedResponse">
+    <value>hams.at 返回了意外响应。请稍后再试。</value>
+  </data>
   <data name="Main.HamsAtRoves.ResizeGrip">
     <value>拖动以调整 rove 列表大小</value>
   </data>
@@ -2260,7 +2278,7 @@
     <value>智能 450° 方位角（经北方最短路径）</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuthNote">
-    <value>对于 450° 旋转器（如 Yaesu G-5500），当跟踪经过正北时，361–450° 可避免长时间回转经过 0°。</value>
+    <value>对于 450° 旋转器（如 Yaesu G-5500），仅当过境将穿过正北时才使用 361–450°，以避免长时间回转经过 0°。朝北但始终停在 0° 以东的过境保持在主带。</value>
   </data>
   <data name="Settings.Rotator.ElevationRange">
     <value>仰角范围</value>

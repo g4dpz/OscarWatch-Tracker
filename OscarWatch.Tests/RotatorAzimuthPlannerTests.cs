@@ -53,14 +53,47 @@ public sealed class RotatorAzimuthPlannerTests
     [InlineData(34, 20, 450, 380)]
     [InlineData(15, 10, 450, 370)]
     [InlineData(80, 50, 450, 50)]
-    public void ResolveCommandAz_east_descent_commits_to_extended_band(
+    public void ResolveCommandAz_east_descent_commits_to_extended_when_pass_crosses_north(
         double last,
         double target,
         double maxAz,
         double expected)
     {
-        var result = RotatorAzimuthPlanner.ResolveCommandAz(last, target, maxAz);
+        var result = RotatorAzimuthPlanner.ResolveCommandAz(
+            last, target, maxAz, remainingPathCrossesNorth: true);
         Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData(80, 50, 50)]
+    [InlineData(50, 40, 40)]
+    [InlineData(45, 40, 40)]
+    [InlineData(34, 28, 28)]
+    [InlineData(25, 20, 20)]
+    public void ResolveCommandAz_northbound_without_north_crossing_stays_primary(
+        double last,
+        double target,
+        double expected)
+    {
+        // RS-44 2026-08-15 IO87JP: heading north through ~40°, LOS still east of 0°.
+        var result = RotatorAzimuthPlanner.ResolveCommandAz(
+            last, target, 450, remainingPathCrossesNorth: false);
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void ResolveCommandAz_rs44_northbound_sequence_never_uses_extended_band()
+    {
+        // Compact walk of the 2026-08-15 21:31 UTC RS-44 pass over IO87JP:
+        // AOS ~146° SE, TCA ~79° / 30° el, then north through 45° toward LOS ~20°.
+        double[] compass = [145, 112, 96, 78, 46, 40, 28, 20];
+        double? last = null;
+        foreach (var az in compass)
+        {
+            last = RotatorAzimuthPlanner.ResolveCommandAz(
+                last, az, 450, remainingPathCrossesNorth: false);
+            Assert.True(last <= 360, $"command {last} at compass {az} left primary band");
+        }
     }
 
     [Fact]

@@ -7,12 +7,18 @@ public sealed class HamsAtFetchResult
     public required bool Ok { get; init; }
     public IReadOnlyList<HamsAtUpcomingAlert> Alerts { get; init; } = [];
     public string? ErrorMessage { get; init; }
+    public HamsAtFetchErrorKind ErrorKind { get; init; }
 
     public static HamsAtFetchResult Success(IReadOnlyList<HamsAtUpcomingAlert> alerts) =>
-        new() { Ok = true, Alerts = alerts };
+        new() { Ok = true, Alerts = alerts, ErrorKind = HamsAtFetchErrorKind.None };
 
-    public static HamsAtFetchResult Failed(string message) =>
-        new() { Ok = false, ErrorMessage = message };
+    public static HamsAtFetchResult Failed(HamsAtFetchErrorKind kind) =>
+        new()
+        {
+            Ok = false,
+            ErrorKind = kind,
+            ErrorMessage = HamsAtErrorHelper.ToEnglish(kind)
+        };
 }
 
 public interface IHamsAtRovesService

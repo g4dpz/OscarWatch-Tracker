@@ -33,10 +33,9 @@ public sealed class SmartAzimuthPassPreviewTests
     }
 
     [Fact]
-    public void TryApply_east_descent_commits_to_extended_band()
+    public void TryApply_east_descent_commits_to_extended_when_samples_cross_north()
     {
-        // Matches ResolveCommandAz east-descent: last east-of-north, descending below 45°.
-        var samples = CreateSamples(80, 50, 25, 15);
+        var samples = CreateSamples(80, 50, 25, 15, 355);
         Assert.True(SmartAzimuthPassPreview.TryApply(samples, smartAzimuth450: true, maxAzimuthDeg: 450));
 
         Assert.Equal(80, samples[0].CommandAzimuthDeg);
@@ -44,6 +43,19 @@ public sealed class SmartAzimuthPassPreviewTests
         Assert.Equal(385, samples[2].CommandAzimuthDeg);
         Assert.Equal(375, samples[3].CommandAzimuthDeg);
         Assert.True(SmartAzimuthPassPreview.UsesExtendedBand(samples));
+    }
+
+    [Fact]
+    public void TryApply_northbound_without_north_crossing_stays_primary()
+    {
+        // RS-44-class: descending toward north, min az still east of 0°.
+        var samples = CreateSamples(145, 96, 78, 46, 40, 28, 20);
+        Assert.True(SmartAzimuthPassPreview.TryApply(samples, smartAzimuth450: true, maxAzimuthDeg: 450));
+
+        Assert.Equal(46, samples[3].CommandAzimuthDeg);
+        Assert.Equal(40, samples[4].CommandAzimuthDeg);
+        Assert.Equal(28, samples[5].CommandAzimuthDeg);
+        Assert.False(SmartAzimuthPassPreview.UsesExtendedBand(samples));
     }
 
     [Fact]

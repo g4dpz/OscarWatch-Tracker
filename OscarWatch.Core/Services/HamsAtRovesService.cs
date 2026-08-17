@@ -36,7 +36,7 @@ public sealed class HamsAtRovesService : IHamsAtRovesService
     {
         var apiKey = settings.ApiKey?.Trim() ?? "";
         if (string.IsNullOrEmpty(apiKey))
-            return HamsAtFetchResult.Failed("API key is required.");
+            return HamsAtFetchResult.Failed(HamsAtFetchErrorKind.MissingApiKey);
 
         if (!bypassCache && TryGetCached(apiKey, out var cached))
             return HamsAtFetchResult.Success(cached);
@@ -49,19 +49,19 @@ public sealed class HamsAtRovesService : IHamsAtRovesService
         }
         catch (HttpRequestException ex)
         {
-            return HamsAtFetchResult.Failed(DescribeHttpFailure(ex));
+            return HamsAtFetchResult.Failed(HamsAtErrorHelper.FromHttpException(ex));
         }
         catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            return HamsAtFetchResult.Failed("Request timed out.");
+            return HamsAtFetchResult.Failed(HamsAtFetchErrorKind.Timeout);
         }
         catch (JsonException)
         {
-            return HamsAtFetchResult.Failed("Unexpected response from hams.at.");
+            return HamsAtFetchResult.Failed(HamsAtFetchErrorKind.UnexpectedResponse);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            return HamsAtFetchResult.Failed(ex.Message);
+            return HamsAtFetchResult.Failed(HamsAtFetchErrorKind.Generic);
         }
     }
 
@@ -77,7 +77,7 @@ public sealed class HamsAtRovesService : IHamsAtRovesService
             return (true, $"{workable} workable alert(s) returned.");
         }
 
-        return (false, result.ErrorMessage ?? "Connection failed.");
+        return (false, result.ErrorMessage ?? HamsAtErrorHelper.ToEnglish(HamsAtFetchErrorKind.Generic));
     }
 
     private bool TryGetCached(string apiKey, out IReadOnlyList<HamsAtUpcomingAlert> alerts)
@@ -152,14 +152,6 @@ public sealed class HamsAtRovesService : IHamsAtRovesService
         DateTime.TryParse(value, null, System.Globalization.DateTimeStyles.RoundtripKind, out var utc)
             ? utc.ToUniversalTime()
             : DateTime.MinValue;
-
-    private static string DescribeHttpFailure(HttpRequestException ex) =>
-        ex.StatusCode switch
-        {
-            HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden => "Invalid API key.",
-            HttpStatusCode.TooManyRequests => "Rate limited by hams.at. Try again later.",
-            _ => string.IsNullOrWhiteSpace(ex.Message) ? "Network error." : ex.Message
-        };
 
     private static HttpClient CreateDefaultClient() =>
         OscarWatchHttpClients.Create(TimeSpan.FromSeconds(30));

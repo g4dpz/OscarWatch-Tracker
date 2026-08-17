@@ -30,12 +30,27 @@ public static class SmartAzimuthPassPreview
                 lastCommanded,
                 samples[i].AzimuthDeg,
                 maxAzimuthDeg,
-                nextCompass);
+                nextCompass,
+                RemainingSamplesCrossNorthEastToWest(samples, i));
             samples[i].CommandAzimuthDeg = command;
             lastCommanded = command;
         }
 
         return true;
+    }
+
+    internal static bool RemainingSamplesCrossNorthEastToWest(
+        IReadOnlyList<PassPolarPlotSample> samples,
+        int fromIndex)
+    {
+        for (var i = fromIndex; i < samples.Count - 1; i++)
+        {
+            if (RotatorAzimuthPlanner.IndicatesEastToWestNorthCrossing(
+                    samples[i].AzimuthDeg, samples[i + 1].AzimuthDeg))
+                return true;
+        }
+
+        return false;
     }
 
     public static bool UsesExtendedBand(IReadOnlyList<PassPolarPlotSample> samples)

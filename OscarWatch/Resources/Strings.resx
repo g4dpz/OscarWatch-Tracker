@@ -190,6 +190,24 @@
   <data name="Main.HamsAtRoves.LoadFailed">
     <value>Could not load roves from hams.at.</value>
   </data>
+  <data name="Main.HamsAtRoves.Unavailable">
+    <value>hams.at is temporarily unavailable. Roves will refresh automatically.</value>
+  </data>
+  <data name="Main.HamsAtRoves.InvalidApiKey">
+    <value>Invalid hams.at API key. Check it in Settings.</value>
+  </data>
+  <data name="Main.HamsAtRoves.RateLimited">
+    <value>hams.at rate-limited this request. Try again later.</value>
+  </data>
+  <data name="Main.HamsAtRoves.Timeout">
+    <value>hams.at did not respond in time. Try again later.</value>
+  </data>
+  <data name="Main.HamsAtRoves.Network">
+    <value>Could not reach hams.at. Check your internet connection.</value>
+  </data>
+  <data name="Main.HamsAtRoves.UnexpectedResponse">
+    <value>hams.at returned an unexpected response. Try again later.</value>
+  </data>
   <data name="Main.HamsAtRoves.ResizeGrip">
     <value>Drag to resize the roves list</value>
   </data>
@@ -2374,7 +2392,7 @@ Continue?</value>
     <value>Smart 450° azimuth (shortest path over north)</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuthNote">
-    <value>On 450° rotators (e.g. Yaesu G-5500), commands 361–450° avoid a long slew back through 0° when tracking passes over north.</value>
+    <value>On 450° rotators (e.g. Yaesu G-5500), commands 361–450° avoid a long slew back through 0° when the pass will cross north. Passes that head north but stay east of 0° remain in the primary band.</value>
   </data>
   <data name="Settings.Rotator.ElevationRange">
     <value>Elevation range</value>

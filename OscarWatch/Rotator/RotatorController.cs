@@ -112,7 +112,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
     public void DisconnectAndWait() =>
         EnqueueAndWait(new RotatorCommand(RotatorCommandKind.Disconnect), TimeSpan.FromSeconds(3));
 
-    /// <summary>Supply the active pass for keyhole avoidance planning. Call when the pass changes or becomes known.</summary>
+    /// <summary>Supply the active pass for keyhole planning and Smart450 north-cross detection.</summary>
     public void SetActivePass(PassInfo? pass) =>
         Enqueue(new RotatorCommand(RotatorCommandKind.SetActivePass, passInfo: pass));
 
@@ -849,12 +849,24 @@ public sealed class RotatorController : IRotatorController, IDisposable
             0,
             settings.MaxElevationDeg);
         var aheadForPlanner = RotatorCalibration.ApplyAzimuthOffset(aheadAzimuthDeg, settings);
+        var remainingPathCrossesNorth = false;
+        if (_activePassInfo is not null)
+        {
+            var losCompass = RotatorCalibration.ApplyAzimuthOffset(
+                _activePassInfo.LosAzimuthDeg, settings);
+            remainingPathCrossesNorth = losCompass is { } losAz
+                && RotatorAzimuthPlanner.IndicatesEastToWestNorthCrossing(commandAzInput, losAz);
+        }
 
         var useSmartAzimuth = settings.SmartAzimuth450 && settings.MaxAzimuthDeg > 360;
         var effectiveLastAzimuth = _lastAzimuth ?? _displayAzimuth;
         var commandAz = useSmartAzimuth
             ? RotatorAzimuthPlanner.ResolveCommandAz(
-                effectiveLastAzimuth, commandAzInput, settings.MaxAzimuthDeg, aheadForPlanner)
+                effectiveLastAzimuth,
+                commandAzInput,
+                settings.MaxAzimuthDeg,
+                aheadForPlanner,
+                remainingPathCrossesNorth)
             : commandAzInput;
 
         _displayCommandedAzimuth = (int)Math.Round(commandAz);

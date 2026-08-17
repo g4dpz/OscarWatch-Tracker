@@ -18,11 +18,17 @@ public static class RotatorAzimuthPlanner
     /// <param name="lastCommandedAzDeg">Last commanded azimuth, or null on first command after reset.</param>
     /// <param name="targetCompassAzDeg">Satellite look azimuth (compass, 0–360°).</param>
     /// <param name="maxAzimuthDeg">Rotator maximum (360 or 450).</param>
+    /// <param name="nextCompassAzDeg">Compass azimuth a few seconds ahead, when known.</param>
+    /// <param name="remainingPathCrossesNorth">
+    /// True when the rest of this pass will jump east-of-north to west-of-north (cross 0°).
+    /// Without this, a northbound pass that turns around before 0° must stay in the primary band.
+    /// </param>
     public static double ResolveCommandAz(
         double? lastCommandedAzDeg,
         double targetCompassAzDeg,
         double maxAzimuthDeg,
-        double? nextCompassAzDeg = null)
+        double? nextCompassAzDeg = null,
+        bool remainingPathCrossesNorth = false)
     {
         var target = Normalize360(targetCompassAzDeg);
 
@@ -30,7 +36,8 @@ public static class RotatorAzimuthPlanner
         {
             if (target + 360 <= maxAzimuthDeg)
             {
-                if (ShouldCommitEastSideNorthWrap(target, lastCommandedAzDeg, maxAzimuthDeg))
+                if (ShouldCommitEastSideNorthWrap(
+                        target, lastCommandedAzDeg, maxAzimuthDeg, remainingPathCrossesNorth))
                     return target + 360;
 
                 if (nextCompassAzDeg is { } next
@@ -75,13 +82,16 @@ public static class RotatorAzimuthPlanner
     /// <summary>
     /// East-of-north descent (e.g. 80° → 20° → 0° → 355°): commit to 361–450° while azimuth
     /// is still low so the post-north jump to ~355° is a short move on the extended dial.
+    /// Only when the remaining path will actually cross 0°. A northbound pass that bottoms
+    /// out east of north (e.g. RS-44 heading north, LOS still ~20°) must not unwind to 400°.
     /// </summary>
     internal static bool ShouldCommitEastSideNorthWrap(
         double targetCompassAzDeg,
         double? lastCommandedAzDeg,
-        double maxAzimuthDeg)
+        double maxAzimuthDeg,
+        bool remainingPathCrossesNorth = false)
     {
-        if (maxAzimuthDeg <= 360)
+        if (maxAzimuthDeg <= 360 || !remainingPathCrossesNorth)
             return false;
 
         var target = Normalize360(targetCompassAzDeg);
@@ -92,6 +102,17 @@ public static class RotatorAzimuthPlanner
             return false;
 
         return last < EastOfNorthMaxDeg && target <= last;
+    }
+
+    /// <summary>
+    /// True when the sky path from <paramref name="fromCompassAzDeg"/> to
+    /// <paramref name="toCompassAzDeg"/> jumps east-of-north to west-of-north (crosses 0°).
+    /// </summary>
+    public static bool IndicatesEastToWestNorthCrossing(double fromCompassAzDeg, double toCompassAzDeg)
+    {
+        var from = Normalize360(fromCompassAzDeg);
+        var to = Normalize360(toCompassAzDeg);
+        return from < EastOfNorthMaxDeg && to > 270;
     }
 
     /// <summary>Compass azimuth will soon jump from east of north to west (e.g. 20° → 355°).</summary>

@@ -698,6 +698,77 @@ public sealed class RotatorControllerTests
     }
 
     [Fact]
+    public void Smart450_northbound_without_north_crossing_stays_primary()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            AzimuthRange = RotatorAzimuthRange.Deg450,
+            SmartAzimuth450 = true,
+            TrackStartElevationDeg = 5
+        };
+
+        var aos = new DateTime(2026, 8, 15, 20, 31, 0, DateTimeKind.Utc);
+        controller.SetActivePassSynchronously(new PassInfo
+        {
+            SatelliteName = "RS-44",
+            NoradId = "44909",
+            AosUtc = aos,
+            LosUtc = aos.AddMinutes(16),
+            MaxElevationDeg = 30,
+            MaxElevationUtc = aos.AddMinutes(9),
+            AosAzimuthDeg = 146,
+            LosAzimuthDeg = 20
+        });
+
+        var norad = "44909";
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 80, 28));
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 50, 26));
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 40, 24));
+        Assert.Equal(40, rotator.LastAzimuthDeg);
+
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 28, 14));
+        Assert.Equal(28, rotator.LastAzimuthDeg);
+    }
+
+    [Fact]
+    public void Smart450_east_descent_commits_when_los_is_west_of_north()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            AzimuthRange = RotatorAzimuthRange.Deg450,
+            SmartAzimuth450 = true,
+            TrackStartElevationDeg = 5
+        };
+
+        var aos = new DateTime(2026, 8, 15, 12, 0, 0, DateTimeKind.Utc);
+        controller.SetActivePassSynchronously(new PassInfo
+        {
+            SatelliteName = "TEST",
+            NoradId = "25544",
+            AosUtc = aos,
+            LosUtc = aos.AddMinutes(12),
+            MaxElevationDeg = 45,
+            MaxElevationUtc = aos.AddMinutes(6),
+            AosAzimuthDeg = 80,
+            LosAzimuthDeg = 320
+        });
+
+        var norad = "25544";
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 80, 20));
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 50, 20));
+        controller.UpdateSynchronously(settings, TrackTarget(norad, 25, 20));
+        Assert.Equal(385, rotator.LastAzimuthDeg);
+    }
+
+    [Fact]
     public void Smart450_east_side_north_crossing_commits_before_compass_wrap()
     {
         var rotator = new RecordingRotatorDriver();

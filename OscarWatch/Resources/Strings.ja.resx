@@ -130,6 +130,24 @@
   <data name="Main.HamsAtRoves.LoadFailed">
     <value>hams.at からローブを読み込めませんでした。</value>
   </data>
+  <data name="Main.HamsAtRoves.Unavailable">
+    <value>hams.at は一時的に利用できません。ローブは自動的に再取得されます。</value>
+  </data>
+  <data name="Main.HamsAtRoves.InvalidApiKey">
+    <value>hams.at の APIキーが無効です。設定で確認してください。</value>
+  </data>
+  <data name="Main.HamsAtRoves.RateLimited">
+    <value>hams.at がリクエストを制限しています。しばらくしてから再試行してください。</value>
+  </data>
+  <data name="Main.HamsAtRoves.Timeout">
+    <value>hams.at が時間内に応答しませんでした。しばらくしてから再試行してください。</value>
+  </data>
+  <data name="Main.HamsAtRoves.Network">
+    <value>hams.at に接続できません。インターネット接続を確認してください。</value>
+  </data>
+  <data name="Main.HamsAtRoves.UnexpectedResponse">
+    <value>hams.at から予期しない応答が返されました。しばらくしてから再試行してください。</value>
+  </data>
   <data name="Main.HamsAtRoves.ResizeGrip">
     <value>ドラッグしてローブ一覧の高さを変更</value>
   </data>
@@ -1396,7 +1414,7 @@
     <value>スマート450°方位（北経由の最短経路）</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuthNote">
-    <value>450°ローテーター（例: Yaesu G-5500）では、361–450°コマンドで北側パス追跡時に0°を大回りするのを避けます。</value>
+    <value>450°ローテーター（例: Yaesu G-5500）では、パスが北（0°）を横切るときだけ 361–450° を使い、0° を大回りするのを避けます。北へ向かっても 0° より東で折り返すパスは主帯のままです。</value>
   </data>
   <data name="Settings.Rotator.ElevationRange">
     <value>仰角範囲</value>
