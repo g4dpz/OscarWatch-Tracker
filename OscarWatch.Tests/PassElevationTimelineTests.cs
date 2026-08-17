@@ -140,6 +140,19 @@ public class PassElevationTimelineTests
     }
 
     [Fact]
+    public void GetTimeAxisIntervalMinutes_adapts_to_window()
+    {
+        Assert.Equal(5, PassElevationTimelineControl.GetTimeAxisIntervalMinutes(30));
+        Assert.Equal(10, PassElevationTimelineControl.GetTimeAxisIntervalMinutes(45));
+        Assert.Equal(10, PassElevationTimelineControl.GetTimeAxisIntervalMinutes(60));
+        Assert.Equal(15, PassElevationTimelineControl.GetTimeAxisIntervalMinutes(90));
+        Assert.Equal(30, PassElevationTimelineControl.GetTimeAxisIntervalMinutes(120));
+        Assert.Equal(30, PassElevationTimelineControl.GetTimeAxisIntervalMinutes(180));
+        Assert.Equal(60, PassElevationTimelineControl.GetTimeAxisIntervalMinutes(240));
+        Assert.Equal(60, PassElevationTimelineControl.GetTimeAxisIntervalMinutes(360));
+    }
+
+    [Fact]
     public void FormatElevationLabel_uses_degree_symbol()
     {
         Assert.Equal("45°", PassElevationTimelineControl.FormatElevationLabel(45));

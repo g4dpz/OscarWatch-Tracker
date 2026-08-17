@@ -327,7 +327,7 @@ public partial class MainViewModel : ViewModelBase
     public bool IsTimelineDockedVisible => IsTimelineExpanded && !IsTimelineDetached;
 
     [ObservableProperty]
-    private int _timelineWindowMinutes = 120;
+    private int _timelineWindowMinutes = TimelineWindowLimits.DefaultMinutes;
 
     [ObservableProperty]
     private double _timelinePanelHeight = 110;
@@ -584,6 +584,13 @@ public partial class MainViewModel : ViewModelBase
 
     partial void OnTimelineWindowMinutesChanged(int value)
     {
+        var clamped = TimelineWindowLimits.Clamp(value);
+        if (clamped != value)
+        {
+            TimelineWindowMinutes = clamped;
+            return;
+        }
+
         _settings.Current.TimelineWindowMinutes = value;
         _settings.RequestSave();
     }
@@ -696,7 +703,7 @@ public partial class MainViewModel : ViewModelBase
             IsPassesExpanded = _settings.Current.PassesExpanded;
             IsTimelineExpanded = _settings.Current.IsTimelineExpanded;
             IsTimelineDetached = _settings.Current.IsTimelineDetached && IsTimelineExpanded;
-            TimelineWindowMinutes = _settings.Current.TimelineWindowMinutes;
+            TimelineWindowMinutes = TimelineWindowLimits.Clamp(_settings.Current.TimelineWindowMinutes);
             TimelinePanelHeight = Math.Clamp(
                 _settings.Current.TimelinePanelHeightPx,
                 TimelineMinPanelHeight,

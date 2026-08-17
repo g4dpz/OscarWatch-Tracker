@@ -38,7 +38,9 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         AvaloniaProperty.Register<PassElevationTimelineControl, IReadOnlyList<PassInfo>?>(nameof(Passes));
 
     public static readonly StyledProperty<int> TimeWindowMinutesProperty =
-        AvaloniaProperty.Register<PassElevationTimelineControl, int>(nameof(TimeWindowMinutes), 120);
+        AvaloniaProperty.Register<PassElevationTimelineControl, int>(
+            nameof(TimeWindowMinutes),
+            TimelineWindowLimits.DefaultMinutes);
 
     public static readonly StyledProperty<string?> FocusedNoradIdProperty =
         AvaloniaProperty.Register<PassElevationTimelineControl, string?>(nameof(FocusedNoradId));
@@ -389,6 +391,28 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     internal static string FormatElevationLabel(int elevationDeg)
         => string.Create(CultureInfo.InvariantCulture, $"{elevationDeg}°");
 
+    internal static int GetTimeAxisIntervalMinutes(int windowMinutes)
+    {
+        if (windowMinutes <= 30)
+            return 5;
+        if (windowMinutes <= 60)
+            return 10;
+        if (windowMinutes <= 90)
+            return 15;
+        if (windowMinutes <= 180)
+            return 30;
+        return 60;
+    }
+
+    internal static string FormatTimeWindowLabel(int windowMinutes, ILocalizationService? localization = null)
+    {
+        var loc = localization ?? LocalizationService.Instance;
+        if (windowMinutes % 60 == 0)
+            return loc.Get("Main.Timeline.WindowHours", windowMinutes / 60);
+
+        return loc.Get("Main.Timeline.WindowMinutes", windowMinutes);
+    }
+
     internal static int[] GetElevationScaleTicks(double plotHeight)
     {
         if (plotHeight < 55)
@@ -415,7 +439,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
             _renderCache.GetBrush(palette.SkyPlotBackground),
             new Rect(0, 0, w, h));
 
-        var windowMinutes = Math.Clamp(TimeWindowMinutes, 30, 360);
+        var windowMinutes = TimelineWindowLimits.Clamp(TimeWindowMinutes);
         var (plotLeft, plotTop, plotBottom, plotWidth, plotHeight) = GetPlotLayout(w, h);
         var windowStartUtc = MapDisplayUtc;
         var liveUtc = DateTime.UtcNow;
@@ -457,8 +481,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         var gridColor = Color.FromArgb(64, palette.SkyPlotBorder.R, palette.SkyPlotBorder.G, palette.SkyPlotBorder.B);
         var gridPen = _renderCache.GetPen(gridColor, 1);
 
-        // Vertical grid lines at 30-minute intervals
-        var intervalMinutes = 30;
+        var intervalMinutes = GetTimeAxisIntervalMinutes(windowMinutes);
         for (var mins = intervalMinutes; mins < windowMinutes; mins += intervalMinutes)
         {
             var x = plotLeft + (double)mins / windowMinutes * plotWidth;
@@ -543,7 +566,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         var axisLabelY = plotBottom + Math.Max(0, (totalHeight - plotBottom - leftText.Height) / 2);
         context.DrawText(leftText, new Point(plotLeft + 2, axisLabelY));
 
-        var intervalMinutes = 30;
+        var intervalMinutes = GetTimeAxisIntervalMinutes(windowMinutes);
         for (var mins = intervalMinutes; mins < windowMinutes; mins += intervalMinutes)
         {
             var x = plotLeft + (double)mins / windowMinutes * plotWidth;
@@ -555,7 +578,12 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
 
         var zoneLabel = PassDisplayFormat.FormatTimeZoneLabel(useUtc);
         var zoneText = _labelCache.Get(zoneLabel, 8, palette);
-        context.DrawText(zoneText, new Point(Math.Max(0, width - zoneText.Width - 2), axisLabelY));
+        var windowLabel = FormatTimeWindowLabel(windowMinutes);
+        var windowText = _labelCache.Get(windowLabel, 8, palette);
+        var zoneX = Math.Max(0, width - zoneText.Width - 2);
+        var windowX = Math.Max(0, zoneX - windowText.Width - 8);
+        context.DrawText(windowText, new Point(windowX, axisLabelY));
+        context.DrawText(zoneText, new Point(zoneX, axisLabelY));
     }
 
     private void DrawMountains(
@@ -831,6 +859,21 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
 
     // --- Pointer interaction ---
 
+    protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
+    {
+        if (Math.Abs(e.Delta.Y) < 0.01)
+        {
+            base.OnPointerWheelChanged(e);
+            return;
+        }
+
+        var next = TimelineWindowLimits.Zoom(TimeWindowMinutes, Math.Sign(e.Delta.Y));
+        if (next != TimeWindowMinutes)
+            TimeWindowMinutes = next;
+
+        e.Handled = true;
+    }
+
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
@@ -880,7 +923,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         if (w <= 0 || _passEntries.Count == 0)
             return null;
 
-        var windowMinutes = Math.Clamp(TimeWindowMinutes, 30, 360);
+        var windowMinutes = TimelineWindowLimits.Clamp(TimeWindowMinutes);
         var (plotLeft, _, _, plotWidth, _) = GetPlotLayout(w, h);
         if (clickX < plotLeft || clickX > plotLeft + plotWidth)
             return null;
@@ -993,7 +1036,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         if (_passEntries.Count == 0)
             return LocalizationService.Instance.Get("Main.Pass.None");
 
-        var windowMinutes = Math.Clamp(TimeWindowMinutes, 30, 360);
+        var windowMinutes = TimelineWindowLimits.Clamp(TimeWindowMinutes);
         var windowStartUtc = MapDisplayUtc;
         var visible = _passEntries.Values
             .Where(e => GetMinutesFromWindowStart(e.Pass.LosUtc, windowStartUtc) > 0

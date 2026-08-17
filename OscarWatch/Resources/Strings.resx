@@ -170,7 +170,7 @@
     <value>Drag to resize the pass elevation timeline</value>
   </data>
   <data name="Main.Timeline.Description">
-    <value>Upcoming passes by elevation. Click a pass to focus that satellite on the map. Follows map time when you scrub forward or back.</value>
+    <value>Upcoming passes by elevation. Click a pass to focus that satellite on the map. Scroll the mouse wheel to zoom the time window (30 minutes to 6 hours). Follows map time when you scrub forward or back.</value>
   </data>
   <data name="Main.Timeline.Elevation45">
     <value>45°</value>
@@ -180,6 +180,12 @@
   </data>
   <data name="Main.Timeline.TimeAxisUtc">
     <value>UTC</value>
+  </data>
+  <data name="Main.Timeline.WindowMinutes">
+    <value>{0} min</value>
+  </data>
+  <data name="Main.Timeline.WindowHours">
+    <value>{0} h</value>
   </data>
   <data name="Main.HamsAtRoves">
     <value>Upcoming Roves</value>

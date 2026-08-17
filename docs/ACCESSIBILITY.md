@@ -87,7 +87,7 @@ Before release or after UI changes:
 - [ ] Dark theme: same
 - [ ] Simulate deuteranopia: still tell satellites apart on map + sky plot
 - [ ] Keyboard-only: select satellite, open Settings, close with Escape
-- [ ] Pass elevation timeline: click to focus; resize grip; hide/show via Window menu
+- [ ] Pass elevation timeline: click to focus; mouse-wheel zoom; resize grip; hide/show via Window menu
 - [ ] 125% OS display scaling: no clipped pass rows
 
 ## References

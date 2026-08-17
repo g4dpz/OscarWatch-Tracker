@@ -242,7 +242,7 @@
                                              HorizontalAlignment="Stretch"
                                              VerticalAlignment="Stretch"
                                              Passes="{Binding TimelinePasses}"
-                                             TimeWindowMinutes="{Binding TimelineWindowMinutes}"
+                                             TimeWindowMinutes="{Binding TimelineWindowMinutes, Mode=TwoWay}"
                                              FocusedNoradId="{Binding FocusedNoradId}"
                                              GroundStation="{Binding GroundStation}"
                                              MapDisplayUtc="{Binding MapDisplayUtc}"

@@ -74,7 +74,7 @@ Plain-language help ships with the app: **Help → Operator guide** (also in the
 ## Features
 
 - **World map**: equirectangular Earth texture with satellite subpoint, ground track, footprint overlays (optional motion arrows), your QTH, and an optional remote **DX station** grid marker; **map time** scrubbing from the status bar (hardware tracking stays live)
-- **Pass elevation timeline**: collapsible panel below the map showing up to 50 upcoming passes as filled elevation profiles on a UTC time axis; click a pass to focus that satellite; hover for AOS/LOS and max elevation; in-progress passes are highlighted from AOS to now; follows map-time scrubbing (vertical **now** line stays on wall-clock time); show/hide via **Window → Pass elevation timeline** or the panel **✕**; drag the top grip to resize (height remembered)
+- **Pass elevation timeline**: collapsible panel below the map showing up to 50 upcoming passes as filled elevation profiles on a time axis; click a pass to focus that satellite; hover for AOS/LOS and max elevation; scroll the mouse wheel to zoom the lookahead (30 minutes to 6 hours); in-progress passes are highlighted from AOS to now; follows map-time scrubbing (vertical **now** line stays on wall-clock time); show/hide via **Window → Pass elevation timeline** or the panel **✕**; drag the top grip to resize (height remembered)
 - **Sky plot**: polar view of satellite azimuth/elevation relative to your station; click to focus; expand/collapse state is remembered
 - **TLE catalog**: fetched from `https://tle.oscarwatch.org/`, cached under `%AppData%/OscarWatch/`
 - **TLE auto-update**: manual refresh, on startup (if stale), or every 6 hours while running (Settings → Tracking)
@@ -170,7 +170,7 @@ Open **Settings** from the menu. Tabs:
 
 Settings are stored in `%AppData%/OscarWatch/settings.json`.
 
-The pass elevation timeline also reads persisted keys in that file: `IsTimelineExpanded`, `IsTimelineDetached`, `TimelinePanelHeightPx`, `TimelineWindowMinutes` (lookahead 30–360 minutes, default 120), and `TimelineDetachedWindow*` bounds for the floating window. Panel show/hide, detach (via the docked panel control), redock on closing the floating window, and height are adjustable in the UI; edit `TimelineWindowMinutes` manually if you need a longer or shorter window.
+The pass elevation timeline also reads persisted keys in that file: `IsTimelineExpanded`, `IsTimelineDetached`, `TimelinePanelHeightPx`, `TimelineWindowMinutes` (lookahead 30–360 minutes, default 120), and `TimelineDetachedWindow*` bounds for the floating window. Panel show/hide, detach (via the docked panel control), redock on closing the floating window, height, and wheel-zoom window length are adjustable in the UI.
 
 ### GPS (serial or gpsd)
 

@@ -110,7 +110,7 @@
     <value>ドラッグしてパス仰角タイムラインの高さを変更</value>
   </data>
   <data name="Main.Timeline.Description">
-    <value>仰角別の今後のパスです。パスをクリックすると地図上でその衛星にフォーカスします。地図の時刻に合わせて前後にスクロールします。</value>
+    <value>仰角別の今後のパスです。パスをクリックすると地図上でその衛星にフォーカスします。マウスホイールで時間幅を拡大縮小します（30分～6時間）。地図の時刻に合わせて前後にスクロールします。</value>
   </data>
   <data name="Main.Timeline.Elevation45">
     <value>45°</value>
@@ -120,6 +120,12 @@
   </data>
   <data name="Main.Timeline.TimeAxisUtc">
     <value>UTC</value>
+  </data>
+  <data name="Main.Timeline.WindowMinutes">
+    <value>{0} 分</value>
+  </data>
+  <data name="Main.Timeline.WindowHours">
+    <value>{0} 時間</value>
   </data>
   <data name="Main.HamsAtRoves">
     <value>今後のローブ</value>

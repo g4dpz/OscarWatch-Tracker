@@ -53,18 +53,20 @@
       <h2 id="pass-elevation-timeline">Pass elevation timeline</h2>
       <p>
         Below the world map, a collapsible <strong>pass elevation timeline</strong> shows upcoming passes
-        as filled elevation shapes on a horizontal <strong>UTC</strong> time axis — sometimes called a
-        “mountain chart”. Each shape is one pass: height is elevation (0–90° on the left scale), width is
-        pass duration, and the satellite name sits at the peak.
+        as filled elevation shapes on a horizontal time axis (sometimes called a
+        “mountain chart”). Each shape is one pass: height is elevation (0–90° on the left scale), width is
+        pass duration, and the satellite name sits at the peak. Times follow your
+        <strong>local / UTC</strong> display setting.
       </p>
       <ul>
         <li><strong>Click</strong> a pass to focus that satellite on the map, sky plot, and sidebar (same as clicking a pass row).</li>
         <li><strong>Hover</strong> a pass for AOS, LOS, max elevation, and duration.</li>
+        <li><strong>Scroll the mouse wheel</strong> over the chart to zoom the time window. Scroll up for a shorter window (down to 30 minutes); scroll down for a longer window (up to 6 hours). The current length is shown on the time axis (for example <strong>2 h</strong>).</li>
         <li>The <strong>focused</strong> satellite’s pass is drawn on top with a stronger colour.</li>
         <li>During a pass in progress, the fill is brighter from <strong>AOS</strong> up to the current time.</li>
         <li>A vertical line marks <strong>now</strong> (solid when map time is live; dashed when you are previewing another time).</li>
         <li>A dashed <strong>45°</strong> grid line helps you spot high passes at a glance.</li>
-        <li>Only passes above your minimum elevation (<strong>Settings → Tracking</strong>) are shown — the same filter as the sidebar pass list.</li>
+        <li>Only passes above your minimum elevation (<strong>Settings → Tracking</strong>) are shown, the same filter as the sidebar pass list.</li>
         <li>Up to <strong>50</strong> passes are drawn within the lookahead window (default <strong>120 minutes</strong>).</li>
       </ul>
       <p>
@@ -79,15 +81,15 @@
         separate window you can drag to another screen; close that window (or untick <strong>Pass elevation
         timeline</strong>) to return it to the bottom of the main window. Drag the grip at the <strong>top</strong>
         of the docked panel to make it taller or shorter (about 80–280 pixels). OscarWatch remembers whether the
-        panel is open, whether it is detached, the floating window position/size, and how tall you left the docked
-        panel.
+        panel is open, whether it is detached, the floating window position/size, the zoomed time window, and how
+        tall you left the docked panel.
       </p>
       <p class="tip">
         <strong>Advanced:</strong> the lookahead window (default 120 minutes), panel height, open/closed state, and
         detach state are stored in <code>settings.json</code> as <code>TimelineWindowMinutes</code> (30–360),
         <code>TimelinePanelHeightPx</code>, <code>IsTimelineExpanded</code>, <code>IsTimelineDetached</code>, and
-        <code>TimelineDetachedWindow*</code> bounds. There is no Settings tab for the window length yet — edit the
-        file only while OscarWatch is closed.
+        <code>TimelineDetachedWindow*</code> bounds. Wheel zoom on the chart updates <code>TimelineWindowMinutes</code>
+        for the next session.
       </p>
 
       <h2 id="dx-station">DX station monitor</h2>

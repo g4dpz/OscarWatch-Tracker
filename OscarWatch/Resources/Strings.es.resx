@@ -170,7 +170,7 @@
     <value>Arrastre para cambiar el tamaño del cronograma de elevación de pases</value>
   </data>
   <data name="Main.Timeline.Description">
-    <value>Próximos pases por elevación. Haga clic en un pase para enfocar ese satélite en el mapa. Sigue la hora del mapa al avanzar o retroceder.</value>
+    <value>Próximos pases por elevación. Haga clic en un pase para enfocar ese satélite en el mapa. Use la rueda del ratón para acercar o alejar la ventana de tiempo (30 minutos a 6 horas). Sigue la hora del mapa al avanzar o retroceder.</value>
   </data>
   <data name="Main.Timeline.Elevation45">
     <value>45°</value>
@@ -180,6 +180,12 @@
   </data>
   <data name="Main.Timeline.TimeAxisUtc">
     <value>UTC</value>
+  </data>
+  <data name="Main.Timeline.WindowMinutes">
+    <value>{0} min</value>
+  </data>
+  <data name="Main.Timeline.WindowHours">
+    <value>{0} h</value>
   </data>
   <data name="Main.HamsAtRoves">
     <value>Próximas expediciones</value>

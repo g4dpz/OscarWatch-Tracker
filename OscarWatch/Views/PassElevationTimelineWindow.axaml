@@ -14,7 +14,7 @@
                                      VerticalAlignment="Stretch"
                                      Margin="4"
                                      Passes="{Binding TimelinePasses}"
-                                     TimeWindowMinutes="{Binding TimelineWindowMinutes}"
+                                     TimeWindowMinutes="{Binding TimelineWindowMinutes, Mode=TwoWay}"
                                      FocusedNoradId="{Binding FocusedNoradId}"
                                      GroundStation="{Binding GroundStation}"
                                      MapDisplayUtc="{Binding MapDisplayUtc}"

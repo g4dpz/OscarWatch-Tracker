@@ -57,8 +57,8 @@ public sealed class AppSettings
     public bool IsTimelineExpanded { get; set; } = true;
     /// <summary>When true, the pass elevation timeline is in a floating window instead of the docked panel.</summary>
     public bool IsTimelineDetached { get; set; }
-    /// <summary>Lookahead duration in minutes for the pass elevation timeline.</summary>
-    public int TimelineWindowMinutes { get; set; } = 120;
+    /// <summary>Lookahead duration in minutes for the pass elevation timeline (30–360). Updated by mouse-wheel zoom on the chart.</summary>
+    public int TimelineWindowMinutes { get; set; } = TimelineWindowLimits.DefaultMinutes;
     /// <summary>Height in pixels of the pass elevation timeline when expanded.</summary>
     public int TimelinePanelHeightPx { get; set; } = 110;
     /// <summary>Floating pass elevation timeline window width.</summary>

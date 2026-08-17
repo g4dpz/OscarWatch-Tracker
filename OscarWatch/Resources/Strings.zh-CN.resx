@@ -170,7 +170,7 @@
     <value>拖动以调整过境仰角时间线高度</value>
   </data>
   <data name="Main.Timeline.Description">
-    <value>按仰角显示即将过境。点击某次过境可在地图上聚焦该卫星。随地图时间前进或后退而同步。</value>
+    <value>按仰角显示即将过境。点击某次过境可在地图上聚焦该卫星。滚动鼠标滚轮可缩放时间窗口（30 分钟至 6 小时）。随地图时间前进或后退而同步。</value>
   </data>
   <data name="Main.Timeline.Elevation45">
     <value>45°</value>
@@ -180,6 +180,12 @@
   </data>
   <data name="Main.Timeline.TimeAxisUtc">
     <value>UTC</value>
+  </data>
+  <data name="Main.Timeline.WindowMinutes">
+    <value>{0} 分钟</value>
+  </data>
+  <data name="Main.Timeline.WindowHours">
+    <value>{0} 小时</value>
   </data>
   <data name="Main.HamsAtRoves">
     <value>即将进行的 rove</value>
