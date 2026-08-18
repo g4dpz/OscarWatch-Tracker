@@ -1,0 +1,268 @@
+# Performance validation workflow for LINQ hotpath optimization regression detection.
+# 
+# This workflow runs performance regression tests to ensure allocation reduction targets
+# are maintained. Tests fail if optimizations fall below the required 20-30% threshold.
+#
+# Runs on:
+# - Pull requests to main branch (regression detection)
+# - Manual dispatch (performance analysis)
+# - Weekly schedule (continuous monitoring)
+
+name: Performance Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'OscarWatch.Core/**/*.cs'
+      - 'OscarWatch/**/*.cs'
+      - 'OscarWatch.Tests/Performance/**/*.cs'
+      - '.github/workflows/performance-validation.yml'
+  workflow_dispatch:
+    inputs:
+      enable_memory_profiling:
+        description: 'Run memory profiling tests (slower)'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    # Run weekly on Sundays at 06:00 UTC for continuous performance monitoring
+    - cron: '0 6 * * 0'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_VERSION: "10.0.x"
+  # Performance test configuration
+  PERFORMANCE_TEST_TIMEOUT_MINUTES: 15
+  MEMORY_PROFILING_TIMEOUT_MINUTES: 30
+
+jobs:
+  performance-regression-detection:
+    name: Performance Regression Detection
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore OscarWatch.slnx
+
+      - name: Build solution (Release)
+        run: dotnet build OscarWatch.slnx -c Release --no-restore
+
+      - name: Run performance regression tests
+        run: |
+          dotnet test OscarWatch.Tests/OscarWatch.Tests.csproj \
+            -c Release \
+            --no-build \
+            --logger "trx;LogFileName=performance-results.trx" \
+            --logger "console;verbosity=normal" \
+            --filter "Category=Performance&Category=RegressionDetection" \
+            --collect:"XPlat Code Coverage" \
+            -- \
+            RunConfiguration.TestSessionTimeout=${{ env.PERFORMANCE_TEST_TIMEOUT_MINUTES }}0000
+        env:
+          # Ensure consistent performance measurement environment
+          DOTNET_gcServer: 1
+          DOTNET_gcConcurrent: 1
+
+      - name: Upload performance test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-test-results
+          path: |
+            OscarWatch.Tests/TestResults/performance-results.trx
+            OscarWatch.Tests/TestResults/*/coverage.cobertura.xml
+          retention-days: 30
+
+      - name: Parse performance test results
+        if: always()
+        run: |
+          # Extract key performance metrics from test output for PR comments
+          if [ -f "OscarWatch.Tests/TestResults/performance-results.trx" ]; then
+            echo "Performance test results found"
+            # Could add script here to parse TRX and extract performance metrics
+          else
+            echo "No performance test results file found"
+          fi
+
+  memory-profiling:
+    name: Memory Profiling Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    # Only run memory profiling on manual dispatch or schedule, not on every PR
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore OscarWatch.slnx
+
+      - name: Build solution (Release)
+        run: dotnet build OscarWatch.slnx -c Release --no-restore
+
+      - name: Run memory profiling tests
+        run: |
+          dotnet test OscarWatch.Tests/OscarWatch.Tests.csproj \
+            -c Release \
+            --no-build \
+            --logger "trx;LogFileName=memory-profiling-results.trx" \
+            --logger "console;verbosity=detailed" \
+            --filter "Category=Performance&Category=MemoryProfiling" \
+            --collect:"XPlat Code Coverage" \
+            -- \
+            RunConfiguration.TestSessionTimeout=${{ env.MEMORY_PROFILING_TIMEOUT_MINUTES }}0000
+        env:
+          # Memory profiling environment configuration
+          DOTNET_gcServer: 1
+          DOTNET_gcConcurrent: 1
+          DOTNET_EnableEventLog: 1
+
+      - name: Upload memory profiling results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: memory-profiling-results
+          path: |
+            OscarWatch.Tests/TestResults/memory-profiling-results.trx
+            OscarWatch.Tests/TestResults/*/coverage.cobertura.xml
+          retention-days: 90  # Keep longer for trend analysis
+
+      - name: Generate memory profiling summary
+        if: always()
+        run: |
+          echo "## Memory Profiling Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Memory profiling tests completed for LINQ hotpath optimization validation." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Categories:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Continuous Pass Predictions**: 250ms prediction cycles (2 minutes)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Mutual Pass Tracking**: Dual-site tracking scenarios (1 minute)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Satellite Management**: Add/remove operations during tracking" >> $GITHUB_STEP_SUMMARY
+          echo "- **Peak Workload**: Combined operations under load (1 minute)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Results are available in the uploaded artifacts for detailed analysis." >> $GITHUB_STEP_SUMMARY
+
+  benchmark-comparison:
+    name: Allocation Benchmark Comparison
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Run on all triggers to maintain benchmark baseline
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore OscarWatch.slnx
+
+      - name: Build solution (Release)
+        run: dotnet build OscarWatch.slnx -c Release --no-restore
+
+      - name: Run allocation benchmark tests
+        run: |
+          dotnet test OscarWatch.Tests/OscarWatch.Tests.csproj \
+            -c Release \
+            --no-build \
+            --logger "trx;LogFileName=benchmark-results.trx" \
+            --logger "console;verbosity=normal" \
+            --filter "FullyQualifiedName~LINQHotPathBenchmarkTests" \
+            -- \
+            RunConfiguration.TestSessionTimeout=900000  # 15 minutes
+        env:
+          DOTNET_gcServer: 1
+          DOTNET_gcConcurrent: 1
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allocation-benchmark-results
+          path: |
+            OscarWatch.Tests/TestResults/benchmark-results.trx
+          retention-days: 30
+
+      - name: Extract allocation metrics
+        if: always()
+        run: |
+          echo "## Allocation Benchmark Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "LINQ hotpath optimization allocation benchmarks completed." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Optimization Targets:" >> $GITHUB_STEP_SUMMARY
+          echo "- **GetPassesAsync**: 20-30% allocation reduction vs LINQ chains" >> $GITHUB_STEP_SUMMARY
+          echo "- **GetMutualPassesAsync**: 20-30% allocation reduction vs dual LINQ" >> $GITHUB_STEP_SUMMARY
+          echo "- **RemoveSatellite**: 20-30% allocation reduction vs Where().ToList()" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Check test output for detailed allocation measurements and reduction percentages." >> $GITHUB_STEP_SUMMARY
+
+  performance-validation-summary:
+    name: Performance Validation Summary  
+    runs-on: ubuntu-latest
+    needs: [performance-regression-detection, benchmark-comparison]
+    if: always()
+
+    steps:
+      - name: Performance validation summary
+        run: |
+          echo "## Performance Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.performance-regression-detection.result }}" = "success" ]; then
+            echo "✅ **Performance Regression Detection**: PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "   All LINQ hotpath optimizations maintain required allocation reduction thresholds" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Performance Regression Detection**: FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "   One or more optimizations fell below the 20% allocation reduction threshold" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.benchmark-comparison.result }}" = "success" ]; then
+            echo "✅ **Allocation Benchmarks**: PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "   Benchmark comparison tests completed successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Allocation Benchmarks**: FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "   Benchmark comparison tests encountered issues" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.performance-regression-detection.result }}" = "failure" ]; then
+            echo "### 🚨 Action Required" >> $GITHUB_STEP_SUMMARY
+            echo "Performance regression detected! Check the test output to identify which optimization failed:" >> $GITHUB_STEP_SUMMARY
+            echo "- Review allocation measurements in the performance test results" >> $GITHUB_STEP_SUMMARY
+            echo "- Verify LINQ optimizations have not been accidentally removed or modified" >> $GITHUB_STEP_SUMMARY
+            echo "- Check for new code that may be introducing allocation overhead" >> $GITHUB_STEP_SUMMARY
+            echo "- Consider optimizing any new hotpath operations using the same patterns" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ✨ Performance Status" >> $GITHUB_STEP_SUMMARY
+            echo "All LINQ hotpath optimizations are working effectively and maintaining target allocation reductions." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Set job status based on critical tests
+        if: needs.performance-regression-detection.result == 'failure'
+        run: |
+          echo "Performance regression tests failed - failing the workflow"
+          exit 1

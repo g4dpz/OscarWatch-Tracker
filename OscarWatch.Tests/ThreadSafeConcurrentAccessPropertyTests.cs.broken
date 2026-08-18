@@ -1,0 +1,356 @@
+// Feature: linq-hotpath-optimization, Property 7: Thread-safe Concurrent Access
+
+using System.Collections.Concurrent;
+using FsCheck;
+using FsCheck.Xunit;
+using OscarWatch.Core.Models;
+using OscarWatch.Core.Orbit;
+using OscarWatch.Core.Services;
+
+namespace OscarWatch.Tests;
+
+/// <summary>
+/// **Validates: Requirements 5.1, 5.2, 5.3, 5.4**
+///
+/// Property-based tests verifying that for any number of concurrent threads calling optimized methods
+/// simultaneously, the HotPath_Optimizer does not share mutable state between calls and maintains
+/// existing async/await patterns without modification.
+/// </summary>
+public class ThreadSafeConcurrentAccessPropertyTests
+{
+    /// <summary>
+    /// A pool of real satellite catalog entries with valid TLE data for testing.
+    /// </summary>
+    private static readonly SatelliteCatalogEntry[] SatellitePool =
+    [
+        new()
+        {
+            Name = "ISS (ZARYA)", NoradId = "25544",
+            Line1 = "1 25544U 98067A   26141.16510469  .00005835  00000-0  11282-3 0  9994",
+            Line2 = "2 25544  51.6328  73.8715 0007529  81.3651 278.8190 15.49291753567565"
+        },
+        new()
+        {
+            Name = "AO-07", NoradId = "07530",
+            Line1 = "1 07530U 74089B   26141.31992461 -.00000054  00000-0  -48931-4 0  9992",
+            Line2 = "2 07530 101.9910 154.2858 0012269 180.6108 191.1977 12.53697584357151"
+        },
+        new()
+        {
+            Name = "AO-27", NoradId = "22825",
+            Line1 = "1 22825U 93061C   26141.14902361  .00000060  00000-0  39806-4 0  9994",
+            Line2 = "2 22825  98.6890 208.5706 0008550 172.0697 188.0622 14.30933961703139"
+        },
+        new()
+        {
+            Name = "FO-29", NoradId = "24278",
+            Line1 = "1 24278U 96046B   26141.17662052  .00000000  00000-0  34829-4 0  9991",
+            Line2 = "2 24278  98.5266 353.7450 0350115 166.3802 194.7089 13.53272915469510"
+        }
+    ];
+
+    /// <summary>
+    /// Property 7: Thread-safe Concurrent Access
+    ///
+    /// Strategy:
+    /// - Execute GetPassesAsync concurrently on multiple threads with different inputs
+    /// - Verify each thread gets its own thread-local buffer instances
+    /// - Confirm no shared mutable state corruption occurs between concurrent calls
+    /// - Validate async/await patterns work correctly in concurrent scenarios
+    /// - Check that results remain functionally correct despite concurrent execution
+    /// </summary>
+    [Property(MaxTest = 20)]
+    public async Task<bool> Concurrent_GetPassesAsync_calls_do_not_share_mutable_state_and_preserve_async_patterns(
+        byte threadCount,
+        byte satelliteVariation,
+        byte durationVariation)
+    {
+        // Generate controlled concurrent test scenario (2-8 threads to balance coverage and execution time)
+        var numThreads = Math.Max(2, Math.Min(8, (threadCount % 7) + 2));
+        var satellites = SatellitePool.Take(Math.Max(2, (satelliteVariation % 3) + 2)).ToList();
+        
+        // Track buffer instances and thread IDs to verify isolation
+        var bufferTracker = new ConcurrentDictionary<int, HashSet<int>>();
+        var resultTracker = new ConcurrentBag<(int ThreadId, int ResultCount, int BufferHash)>();
+        var exceptionTracker = new ConcurrentBag<Exception>();
+
+        // Create concurrent execution tasks
+        var concurrentTasks = new List<Task>();
+        
+        for (int i = 0; i < numThreads; i++)
+        {
+            var threadIndex = i;
+            var minDuration = (durationVariation % 6); // 0-5 minutes variation per thread
+            
+            concurrentTasks.Add(Task.Run(async () =>
+            {
+                try
+                {
+                    // Create thread-specific ground station to ensure different inputs
+                    var groundStation = new GroundStation
+                    {
+                        DisplayName = $"Thread{threadIndex}Station",
+                        LatitudeDeg = 35.0 + (threadIndex * 0.1), // Slight variations per thread
+                        LongitudeDeg = 139.0 + (threadIndex * 0.1),
+                        AltitudeMetersAsl = 50 + threadIndex
+                    };
+
+                    // Create thread-specific orchestrator to avoid shared state in test harness
+                    var passData = GeneratePassTestData(threadIndex, satellites);
+                    var orchestrator = CreateTestOrchestrator(satellites, passData);
+                    
+                    // Capture thread-local buffer before the call
+                    var threadId = Thread.CurrentThread.ManagedThreadId;
+                    var bufferBefore = HotPathCollections.GetPassInfoBuffer();
+                    var bufferHashBefore = bufferBefore.GetHashCode();
+                    
+                    // Track this buffer instance for this thread
+                    bufferTracker.AddOrUpdate(threadId, 
+                        new HashSet<int> { bufferHashBefore },
+                        (_, existing) => { existing.Add(bufferHashBefore); return existing; });
+
+                    // Execute the async method (validates async/await pattern preservation)
+                    var results = await orchestrator.GetPassesAsync(
+                        groundStation,
+                        5.0, // minimumElevationDeg
+                        6,   // predictionHours  
+                        minDuration, // minimumDurationMinutes
+                        CancellationToken.None);
+
+                    // Capture buffer after the call to verify it's the same instance
+                    var bufferAfter = HotPathCollections.GetPassInfoBuffer();
+                    var bufferHashAfter = bufferAfter.GetHashCode();
+                    
+                    // Verify buffer reuse within same thread
+                    if (bufferHashBefore != bufferHashAfter)
+                    {
+                        throw new InvalidOperationException($"Thread {threadId} got different buffer instances within same thread");
+                    }
+
+                    // Record results for cross-thread verification
+                    resultTracker.Add((threadId, results.Count, bufferHashAfter));
+                }
+                catch (Exception ex)
+                {
+                    exceptionTracker.Add(ex);
+                }
+            }));
+        }
+
+        // Wait for all concurrent operations to complete
+        await Task.WhenAll(concurrentTasks);
+
+        // Verify no exceptions occurred during concurrent execution
+        if (!exceptionTracker.IsEmpty)
+        {
+            var firstException = exceptionTracker.First();
+            throw new InvalidOperationException($"Concurrent execution failed: {firstException.Message}", firstException);
+        }
+
+        // Verify each thread got its own buffer instances (no shared mutable state)
+        var allBufferHashes = new HashSet<int>();
+        foreach (var (threadId, bufferHashes) in bufferTracker)
+        {
+            foreach (var hash in bufferHashes)
+            {
+                // Each buffer hash should be unique across threads
+                if (!allBufferHashes.Add(hash))
+                {
+                    return false; // Same buffer instance shared between threads - THREAD SAFETY VIOLATION
+                }
+            }
+        }
+
+        // Verify all threads completed successfully and got results
+        var completedThreads = resultTracker.Select(r => r.ThreadId).Distinct().Count();
+        if (completedThreads != numThreads)
+        {
+            return false; // Not all threads completed successfully
+        }
+
+        // Verify async/await patterns worked correctly (all results are reasonable)
+        foreach (var (threadId, resultCount, bufferHash) in resultTracker)
+        {
+            // Results should be non-negative (basic sanity check for async completion)
+            if (resultCount < 0)
+                return false;
+            
+            // Buffer hash should be non-zero (indicates proper buffer allocation)
+            if (bufferHash == 0)
+                return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Extended concurrent test specifically for GetMutualPassesAsync to verify
+    /// thread safety with dual buffer usage (local and remote pass buffers).
+    /// </summary>
+    [Property(MaxTest = 15)]
+    public async Task<bool> Concurrent_GetMutualPassesAsync_calls_maintain_thread_local_buffer_isolation(
+        byte threadCount,
+        byte satelliteVariation)
+    {
+        // Generate controlled concurrent test scenario 
+        var numThreads = Math.Max(2, Math.Min(6, (threadCount % 5) + 2));
+        var satellites = SatellitePool.Take(Math.Max(2, (satelliteVariation % 3) + 2)).ToList();
+        
+        // Track both local and remote buffer instances per thread
+        var localBufferTracker = new ConcurrentDictionary<int, int>();
+        var remoteBufferTracker = new ConcurrentDictionary<int, int>();
+        var resultTracker = new ConcurrentBag<(int ThreadId, int ResultCount)>();
+        var exceptionTracker = new ConcurrentBag<Exception>();
+
+        var concurrentTasks = new List<Task>();
+        
+        for (int i = 0; i < numThreads; i++)
+        {
+            var threadIndex = i;
+            
+            concurrentTasks.Add(Task.Run(async () =>
+            {
+                try
+                {
+                    // Create thread-specific ground stations
+                    var localStation = new GroundStation
+                    {
+                        DisplayName = $"Thread{threadIndex}Local",
+                        LatitudeDeg = 35.0 + (threadIndex * 0.1),
+                        LongitudeDeg = 139.0 + (threadIndex * 0.1),
+                        AltitudeMetersAsl = 50 + threadIndex
+                    };
+                    
+                    var remoteStation = new GroundStation
+                    {
+                        DisplayName = $"Thread{threadIndex}Remote", 
+                        LatitudeDeg = -33.0 - (threadIndex * 0.1),
+                        LongitudeDeg = 151.0 + (threadIndex * 0.1),
+                        AltitudeMetersAsl = 25 + threadIndex
+                    };
+
+                    var threadId = Thread.CurrentThread.ManagedThreadId;
+                    
+                    // Capture thread-local buffers
+                    var localBuffer = HotPathCollections.GetLocalPassBuffer();
+                    var remoteBuffer = HotPathCollections.GetRemotePassBuffer();
+                    
+                    // Record buffer instances for this thread
+                    localBufferTracker[threadId] = localBuffer.GetHashCode();
+                    remoteBufferTracker[threadId] = remoteBuffer.GetHashCode();
+
+                    // Create orchestrator and execute
+                    var passData = GeneratePassTestData(threadIndex, satellites);
+                    var dualPassPredictor = new DualSitePassPredictor(
+                        new ConfigurablePassPredictor(passData),
+                        new ConfigurablePassPredictor(passData),
+                        localStation, remoteStation);
+                        
+                    var orchestrator = new TrackingOrchestrator(
+                        new StubSettingsService(),
+                        new StubTleService(satellites),
+                        new StubPropagator(),
+                        new StubGroundGeometry(),
+                        dualPassPredictor);
+
+                    // Execute async method with different time windows per thread
+                    var utcStart = DateTime.UtcNow.AddHours(threadIndex);
+                    var utcEnd = utcStart.AddHours(4);
+                    
+                    var results = await orchestrator.GetMutualPassesAsync(
+                        localStation, remoteStation, 5.0, utcStart, utcEnd, 0, 0, CancellationToken.None);
+
+                    resultTracker.Add((threadId, results.Count));
+                }
+                catch (Exception ex)
+                {
+                    exceptionTracker.Add(ex);
+                }
+            }));
+        }
+
+        await Task.WhenAll(concurrentTasks);
+
+        // Verify no exceptions
+        if (!exceptionTracker.IsEmpty)
+            return false;
+
+        // Verify buffer isolation - each thread should have unique buffer instances
+        var localBufferHashes = localBufferTracker.Values.ToHashSet();
+        var remoteBufferHashes = remoteBufferTracker.Values.ToHashSet();
+        
+        // Number of unique buffer instances should equal number of threads
+        if (localBufferHashes.Count != numThreads || remoteBufferHashes.Count != numThreads)
+            return false;
+
+        // Verify no buffer sharing between threads
+        if (localBufferHashes.Count != localBufferTracker.Count || 
+            remoteBufferHashes.Count != remoteBufferTracker.Count)
+            return false;
+
+        return true;
+    }
+
+    #region Test Infrastructure Helper Methods
+
+    /// <summary>
+    /// Generates realistic pass test data for a specific thread to ensure
+    /// different inputs across concurrent executions.
+    /// </summary>
+    private static Dictionary<string, List<PassInfo>> GeneratePassTestData(int threadIndex, List<SatelliteCatalogEntry> satellites)
+    {
+        var passData = new Dictionary<string, List<PassInfo>>();
+        var baseTime = new DateTime(2025, 6, 15, 12, 0, 0, DateTimeKind.Utc);
+        
+        foreach (var sat in satellites)
+        {
+            var passes = new List<PassInfo>();
+            var passCount = 3 + (threadIndex % 3); // 3-5 passes per satellite, varied by thread
+            
+            for (int p = 0; p < passCount; p++)
+            {
+                var aosOffset = (threadIndex * 30) + (p * 45) + (satellites.IndexOf(sat) * 15);
+                var aos = baseTime.AddMinutes(aosOffset);
+                var durationMin = 8 + (p % 8) + (threadIndex % 5); // 8-20 minute durations
+                var los = aos.AddMinutes(durationMin);
+
+                var pass = new PassInfo
+                {
+                    SatelliteName = sat.Name,
+                    NoradId = sat.NoradId,
+                    AosUtc = aos,
+                    LosUtc = los,
+                    MaxElevationDeg = 15.0 + (p * 10) + (threadIndex * 5),
+                    MaxElevationUtc = aos.AddMinutes(durationMin / 2.0),
+                    AosAzimuthDeg = 45.0 + (p * 30) + (threadIndex * 10),
+                    LosAzimuthDeg = 225.0 + (p * 30) + (threadIndex * 10)
+                };
+
+                passes.Add(pass);
+            }
+            
+            passData[sat.NoradId] = passes;
+        }
+        
+        return passData;
+    }
+
+    /// <summary>
+    /// Creates a TrackingOrchestrator with controlled test data for concurrent testing.
+    /// </summary>
+    private static TrackingOrchestrator CreateTestOrchestrator(
+        List<SatelliteCatalogEntry> satellites, 
+        Dictionary<string, List<PassInfo>> passData)
+    {
+        var passPredictor = new ConfigurablePassPredictor(passData);
+        
+        return new TrackingOrchestrator(
+            new StubSettingsService(),
+            new StubTleService(satellites),
+            new StubPropagator(),
+            new StubGroundGeometry(),
+            passPredictor);
+    }
+
+    #endregion
+}

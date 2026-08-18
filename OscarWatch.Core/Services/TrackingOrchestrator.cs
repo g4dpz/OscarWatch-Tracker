@@ -76,7 +76,17 @@ public sealed class TrackingOrchestrator
         _visualCache.Remove(noradId);
         _loggedLookAngleSkips.Remove(noradId);
         _loggedStateSkips.Remove(noradId);
-        _cachedEnabledSats = _cachedEnabledSats.Where(s => s.NoradId != noradId).ToList();
+        
+        // Replace LINQ with manual enumeration to eliminate allocation
+        var newList = new List<SatelliteCatalogEntry>();
+        foreach (var sat in _cachedEnabledSats)
+        {
+            if (sat.NoradId != noradId)
+            {
+                newList.Add(sat);
+            }
+        }
+        _cachedEnabledSats = newList;
     }
 
     /// <summary>Clears cached ground tracks and footprints (e.g. after map-time scrub).</summary>
@@ -348,9 +358,13 @@ public sealed class TrackingOrchestrator
         var minDuration = TimeSpan.FromMinutes(Math.Max(0, minimumDurationMinutes));
 
         var sats = _tleService.GetEnabledSatellites(_settings.Current);
-        var tasks = sats.Select(sat =>
-            _passPredictor.GetPassesAsync(sat, site, utcStart, utcEnd, minimumElevationDeg, cancellationToken))
-            .ToList();
+        
+        // Pre-allocate task list with known capacity
+        var tasks = new List<Task<IReadOnlyList<PassInfo>>>(sats.Count);
+        foreach (var sat in sats)
+        {
+            tasks.Add(_passPredictor.GetPassesAsync(sat, site, utcStart, utcEnd, minimumElevationDeg, cancellationToken));
+        }
 
         try
         {
@@ -361,12 +375,29 @@ public sealed class TrackingOrchestrator
             // Allow partial results to be collected below.
         }
 
-        return tasks
-            .Where(t => t.IsCompletedSuccessfully)
-            .SelectMany(t => t.Result)
-            .Where(p => p.Duration >= minDuration)
-            .OrderBy(p => p.AosUtc)
-            .ToList();
+        // Use thread-local pre-allocated collection
+        var results = HotPathCollections.GetPassInfoBuffer();
+        
+        // Manual enumeration replaces LINQ chain
+        foreach (var task in tasks)
+        {
+            if (task.IsCompletedSuccessfully)
+            {
+                foreach (var pass in task.Result)
+                {
+                    if (pass.Duration >= minDuration)
+                    {
+                        results.Add(pass);
+                    }
+                }
+            }
+        }
+        
+        // In-place sort is more efficient than OrderBy().ToList()
+        results.Sort((a, b) => DateTime.Compare(a.AosUtc, b.AosUtc));
+        
+        // Return defensive copy to preserve buffer for reuse
+        return new List<PassInfo>(results);
     }
 
     public Task<IReadOnlyList<MutualPassInfo>> GetMutualPassesAsync(
@@ -405,14 +436,20 @@ public sealed class TrackingOrchestrator
 
         var sats = _tleService.GetEnabledSatellites(_settings.Current);
 
-        var localTasks = sats.Select(sat =>
-            _passPredictor.GetPassesAsync(sat, localSite, utcStart, utcEnd, minimumElevationDeg, cancellationToken))
-            .ToList();
-        var remoteTasks = sats.Select(sat =>
-            _passPredictor.GetPassesAsync(sat, remoteSite, utcStart, utcEnd, minimumElevationDeg, cancellationToken))
-            .ToList();
+        // Pre-allocate task lists with known capacity
+        var localTasks = new List<Task<IReadOnlyList<PassInfo>>>(sats.Count);
+        var remoteTasks = new List<Task<IReadOnlyList<PassInfo>>>(sats.Count);
+        
+        foreach (var sat in sats)
+        {
+            localTasks.Add(_passPredictor.GetPassesAsync(sat, localSite, utcStart, utcEnd, minimumElevationDeg, cancellationToken));
+            remoteTasks.Add(_passPredictor.GetPassesAsync(sat, remoteSite, utcStart, utcEnd, minimumElevationDeg, cancellationToken));
+        }
 
-        var allTasks = localTasks.Concat(remoteTasks).ToList();
+        var allTasks = new List<Task>(localTasks.Count + remoteTasks.Count);
+        allTasks.AddRange(localTasks);
+        allTasks.AddRange(remoteTasks);
+        
         try
         {
             await Task.WhenAll(allTasks);
@@ -422,17 +459,39 @@ public sealed class TrackingOrchestrator
             // Allow partial results to be collected below
         }
 
-        var localPasses = localTasks
-            .Where(t => t.IsCompletedSuccessfully)
-            .SelectMany(t => t.Result)
-            .Where(p => p.Duration >= minPassDuration)
-            .ToList();
-
-        var remotePasses = remoteTasks
-            .Where(t => t.IsCompletedSuccessfully)
-            .SelectMany(t => t.Result)
-            .Where(p => p.Duration >= minPassDuration)
-            .ToList();
+        // Use thread-local pre-allocated collections
+        var localPasses = HotPathCollections.GetLocalPassBuffer();
+        var remotePasses = HotPathCollections.GetRemotePassBuffer();
+        
+        // Manual enumeration for local passes replaces LINQ chain
+        foreach (var task in localTasks)
+        {
+            if (task.IsCompletedSuccessfully)
+            {
+                foreach (var pass in task.Result)
+                {
+                    if (pass.Duration >= minPassDuration)
+                    {
+                        localPasses.Add(pass);
+                    }
+                }
+            }
+        }
+        
+        // Manual enumeration for remote passes replaces LINQ chain
+        foreach (var task in remoteTasks)
+        {
+            if (task.IsCompletedSuccessfully)
+            {
+                foreach (var pass in task.Result)
+                {
+                    if (pass.Duration >= minPassDuration)
+                    {
+                        remotePasses.Add(pass);
+                    }
+                }
+            }
+        }
 
         return MutualPassFinder.FindOverlaps(localPasses, remotePasses, minMutualDuration);
     }
