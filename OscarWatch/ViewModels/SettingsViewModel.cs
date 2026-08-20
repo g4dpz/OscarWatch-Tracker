@@ -338,6 +338,12 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     private int _rigDopplerThresholdLinearHz = 50;
 
     [ObservableProperty]
+    private int _rigInteractiveDialSettleMs = InteractiveDialResumePolicy.DefaultSettleMs;
+
+    [ObservableProperty]
+    private int _rigInteractiveUplinkResumeMs = InteractiveDialResumePolicy.DefaultUplinkResumeMs;
+
+    [ObservableProperty]
     private bool _rigDopplerAdaptiveThresholdEnabled = true;
 
     [ObservableProperty]
@@ -1193,6 +1199,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             Region = SelectedRigRegionChoice?.Value ?? RigRegion.EU,
             DopplerThresholdFmHz = RigDopplerThresholdFmHz,
             DopplerThresholdLinearHz = RigDopplerThresholdLinearHz,
+            InteractiveDialSettleMs = InteractiveDialResumePolicy.ResolveSettleMs(RigInteractiveDialSettleMs),
+            InteractiveUplinkResumeMs = InteractiveDialResumePolicy.ResolveUplinkResumeMs(RigInteractiveUplinkResumeMs),
             DopplerAdaptiveThresholdEnabled = RigDopplerAdaptiveThresholdEnabled,
             DopplerPassLogEnabled = RigDopplerPassLogEnabled,
             CatDelayMs = RigCatDelayMs,
@@ -1422,6 +1430,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
                 : up.CivAddress;
             RigDopplerThresholdFmHz = rig.DopplerThresholdFmHz;
             RigDopplerThresholdLinearHz = rig.DopplerThresholdLinearHz;
+            RigInteractiveDialSettleMs = InteractiveDialResumePolicy.ResolveSettleMs(rig.InteractiveDialSettleMs);
+            RigInteractiveUplinkResumeMs = InteractiveDialResumePolicy.ResolveUplinkResumeMs(rig.InteractiveUplinkResumeMs);
             RigDopplerAdaptiveThresholdEnabled = rig.DopplerAdaptiveThresholdEnabled;
             RigDopplerPassLogEnabled = rig.DopplerPassLogEnabled;
             RigCatDelayMs = rig.CatDelayMs;

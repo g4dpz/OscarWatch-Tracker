@@ -99,6 +99,18 @@ public sealed class RigSettings
 
     public int DopplerThresholdLinearHz { get; set; } = 50;
 
+    /// <summary>
+    /// On linear USB/LSB/CW, milliseconds the receive dial must stay still before Doppler CAT resumes.
+    /// 0 means use the default 800 ms.
+    /// </summary>
+    public int InteractiveDialSettleMs { get; set; }
+
+    /// <summary>
+    /// On single-radio Main/Sub rigs, milliseconds after an operator dial move before uplink (Sub) CAT.
+    /// 0 means use the default 2500 ms. Dual radio ignores this.
+    /// </summary>
+    public int InteractiveUplinkResumeMs { get; set; }
+
     public int CatDelayMs { get; set; } = 50;
 
     /// <summary>When true, CAT Doppler uses range rate at utc + half Receive/Transmit CatDelayMs on steep legs only.</summary>

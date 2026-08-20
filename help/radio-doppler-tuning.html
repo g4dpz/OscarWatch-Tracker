@@ -156,13 +156,15 @@
       <ul>
         <li>Movement more than about <strong>30 Hz</strong> (USB/LSB/CW) from the last CAT receive frequency = you are hunting the passband. Small dial jitter below that is ignored.</li>
         <li>While you turn the dial, automatic CAT pauses.</li>
-        <li>After you stop, OscarWatch waits for <strong>eight</strong> stable reads (~800 ms) before resuming Doppler.</li>
+        <li>After you stop, OscarWatch waits until the dial has been still for <strong>Resume CAT after dial</strong>
+            (default <strong>800 ms</strong>, <strong>Settings → Radio</strong>) before resuming Doppler.</li>
         <li>Your hunt is remembered for the <strong>rest of that overhead pass</strong> so Doppler continues around your spot.</li>
         <li>When the satellite sets and rises again on the <strong>next pass</strong> (same bird still selected), passband trim is cleared automatically. Stored <a href="radio-offsets.html">RX/TX offsets</a> in settings are not changed.</li>
       </ul>
       <p>
         <strong>ICOM Main/Sub rigs:</strong> receive updates on Main when the dial is stable; uplink (Sub) CAT waits
-        ~<strong>2.5 s</strong> after you stop tuning so the radio does not hop to Sub while you scan.
+        for <strong>Uplink CAT wait after dial</strong> (default <strong>2500 ms</strong>, same settings page)
+        after you stop tuning so the radio does not hop to Sub while you scan.
         <strong>Dual radio:</strong> only the downlink CAT pauses while you spin the RX radio; uplink keeps tracking Doppler and follows the same NOR/REV passband trim so TX lines up with your RX hunt.
         <strong>FM:</strong> no passband-trim path — both legs update from thresholds (Yaesu FM may lock the dial via CAT).
       </p>
@@ -191,7 +193,7 @@
         <strong>dial_track</strong> (passband hunt),
         <strong>automatic</strong> (FM/data).
         <strong>MainDialHz</strong> and <strong>DialVsCatHz</strong> (Main minus last CAT RX) show phantom knob
-        movement. <strong>VfoStable</strong> is 1 when the eight-sample dial history agrees.
+        movement. <strong>VfoStable</strong> is 1 when the receive dial has been still for the configured resume wait.
         <strong>RigTracking</strong> is 0 when CAT pause or Standby stopped the loop.
         <strong>SkipReason</strong> explains withheld writes (<code>cat_paused</code>, <code>vfo_unstable</code>,
         <code>below_threshold</code>, <code>doppler_suspend</code>, <code>sub_cooldown</code>).

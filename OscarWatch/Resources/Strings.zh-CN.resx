@@ -2214,6 +2214,18 @@
   <data name="Settings.Radio.DopplerSsbNote">
     <value>仅当频率漂移超过此阈值时，才会将频率发送到电台（SatPC32 风格）。</value>
   </data>
+  <data name="Settings.Radio.DialSettle">
+    <value>旋钮停止后恢复 CAT（毫秒）</value>
+  </data>
+  <data name="Settings.Radio.DialSettleNote">
+    <value>线性 USB、LSB 和 CW 下，接收旋钮需保持静止多久后 OscarWatch 才恢复多普勒 CAT。默认 800 毫秒。若调谐时 CAT 抢回 VFO，请增大；若希望更快恢复跟踪，请减小。</value>
+  </data>
+  <data name="Settings.Radio.UplinkResume">
+    <value>旋钮停止后上行 CAT 等待（毫秒）</value>
+  </data>
+  <data name="Settings.Radio.UplinkResumeNote">
+    <value>在 Main/Sub 电台（例如 IC-9700）上，停止转动旋钮后上行 CAT 的额外等待，以免扫描时跳到 Sub。双电台不受影响。默认 2500 毫秒。</value>
+  </data>
   <data name="Settings.Radio.DopplerAdaptiveThreshold">
     <value>TCA 附近自适应阈值</value>
   </data>

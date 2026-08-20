@@ -1350,6 +1350,18 @@
   <data name="Settings.Radio.DopplerSsbNote">
     <value>ドリフトがこの間隔を超えたときのみ無線機に周波数を送信（SatPC32方式）。</value>
   </data>
+  <data name="Settings.Radio.DialSettle">
+    <value>ダイヤル後にCAT再開（ms）</value>
+  </data>
+  <data name="Settings.Radio.DialSettleNote">
+    <value>リニアUSB/LSB/CWで、受信ダイヤルが止まってからドップラーCATを再開するまでの待ち時間。既定800 ms。まだ回しているのにCATがVFOを戻すときは長くし、早く追尾を再開したいときは短くします。</value>
+  </data>
+  <data name="Settings.Radio.UplinkResume">
+    <value>ダイヤル後のアップリンクCAT待ち（ms）</value>
+  </data>
+  <data name="Settings.Radio.UplinkResumeNote">
+    <value>Main/Sub機（例: IC-9700）で、ダイヤルを止めたあとアップリンクCATまでの追加待ちです。スキャン中にSubへ飛ばないようにします。デュアル無線機では使いません。既定2500 ms。</value>
+  </data>
   <data name="Settings.Radio.DopplerAdaptiveThreshold">
     <value>TCA付近でしきい値を適応</value>
   </data>

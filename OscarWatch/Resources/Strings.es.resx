@@ -2238,6 +2238,18 @@
   <data name="Settings.Radio.DopplerSsbNote">
     <value>Las frecuencias se envían a la radio solo cuando la deriva supera este intervalo (estilo SatPC32).</value>
   </data>
+  <data name="Settings.Radio.DialSettle">
+    <value>Reanudar CAT tras el dial (ms)</value>
+  </data>
+  <data name="Settings.Radio.DialSettleNote">
+    <value>En USB, LSB y CW lineal, cuánto debe permanecer quieto el dial de recepción antes de que OscarWatch reanude el CAT Doppler. Predeterminado 800 ms. Aumente si el CAT recupera el VFO mientras aún sintoniza; reduzca si quiere el seguimiento de nuevo antes.</value>
+  </data>
+  <data name="Settings.Radio.UplinkResume">
+    <value>Espera CAT de subida tras el dial (ms)</value>
+  </data>
+  <data name="Settings.Radio.UplinkResumeNote">
+    <value>En radios Main/Sub (por ejemplo IC-9700), espera extra antes del CAT de subida cuando deja de girar el dial, para que la radio no salte a Sub mientras recorre la banda. La radio dual no se ve afectada. Predeterminado 2500 ms.</value>
+  </data>
   <data name="Settings.Radio.DopplerAdaptiveThreshold">
     <value>Umbral adaptativo cerca del TCA</value>
   </data>

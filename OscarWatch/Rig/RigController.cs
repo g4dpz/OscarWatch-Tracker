@@ -14,10 +14,11 @@ namespace OscarWatch.Rig;
 public sealed class RigController : IRigController, IDisposable
 {
     private static readonly ILogger Log = Serilog.Log.ForContext<RigController>();
-    /// <summary>Consecutive identical Main dial samples before linear CAT (8 × ~100 ms loop ≈ 0.8 s).</summary>
+    /// <summary>Ring buffer of recent Main dial reads used to detect operator movement.</summary>
     private const int DialHistoryLength = 8;
     /// <summary>After operator moves the Main dial, defer Sub (uplink) CAT so brief pauses while scanning do not select Sub.</summary>
-    private const int InteractiveSubWriteCooldownMs = 2500;
+    private static int InteractiveSubWriteCooldownMs(RigSettings settings) =>
+        InteractiveDialResumePolicy.ResolveUplinkResumeMs(settings.InteractiveUplinkResumeMs);
 
     /// <summary>
     /// When Main still matches the last CAT receive write, allow Sub (uplink) CAT immediately —
@@ -98,6 +99,9 @@ public sealed class RigController : IRigController, IDisposable
     private bool _blockKnobCapture;
     private DateTime _ignoreDialUntilUtc = DateTime.MinValue;
     private DateTime _lastDialChangeUtc = DateTime.MinValue;
+    /// <summary>When the receive dial last became still (or first sampled). MinValue means not yet observed.</summary>
+    private DateTime _dialStableSinceUtc = DateTime.MinValue;
+    private int _identicalDialSampleCount;
     private DateTime _suspendDopplerUntilUtc = DateTime.MinValue;
     /// <summary>Kenwood-only: after consecutive FA/FB rejects, block further Doppler writes (including force/offset).</summary>
     private DateTime _kenwoodFaFbBackoffUntilUtc = DateTime.MinValue;
@@ -870,6 +874,9 @@ public sealed class RigController : IRigController, IDisposable
             _rxDialHistory[i] = dialHz;
 
         _rxDialHistoryCount = DialHistoryLength;
+        var settleMs = InteractiveDialResumePolicy.ResolveSettleMs(_cachedSettings.InteractiveDialSettleMs);
+        _dialStableSinceUtc = DateTime.UtcNow.AddMilliseconds(-settleMs);
+        _identicalDialSampleCount = Math.Max(2, (settleMs + 99) / 100);
     }
 
     private int KnobTuneThresholdHz() => _knobTuneThresholdHz;
@@ -888,7 +895,7 @@ public sealed class RigController : IRigController, IDisposable
 
         // SmartSDR pushes external slice tuning to our cache. Unlike serial CAT polling, a changed
         // Flex frequency is already an authoritative operator action, so capture it immediately
-        // instead of waiting for eight identical samples while Doppler can pull the slice back.
+        // instead of waiting for the dial-settle timer while Doppler can pull the slice back.
         // Never do that during post-CAT settle / offset block, and never treat a lagging pre-write
         // frequency as a hunt (that was snapping RS-44 ~tens of kHz after offset clicks).
         if (KnobTuneCapturePolicy.UsesImmediateStatusCapture(_cachedSettings.Type)
@@ -913,8 +920,8 @@ public sealed class RigController : IRigController, IDisposable
         if (DateTime.UtcNow < _ignoreDialUntilUtc)
         {
             if (DialMatchesLastCatWrite(dialHz, KnobTuneThresholdHz())
-                && _rxDialHistoryCount >= DialHistoryLength
-                && _rxDialHistory[0] == _lastRigRxHz)
+                && _rxDialHistoryCount > 0
+                && _rxDialHistory[Math.Min(_rxDialHistoryCount, DialHistoryLength) - 1] == _lastRigRxHz)
             {
                 _vfoNotMoving = true;
                 return;
@@ -931,24 +938,22 @@ public sealed class RigController : IRigController, IDisposable
 
     private bool IsDialHistoryStable()
     {
-        if (_rxDialHistoryCount < DialHistoryLength)
+        if (_rxDialHistoryCount < 2)
             return false;
 
-        var reference = _rxDialHistory[0];
-        for (var i = 1; i < DialHistoryLength; i++)
-        {
-            if (_rxDialHistory[i] != reference)
-                return false;
-        }
-
-        return true;
+        return InteractiveDialResumePolicy.IsDialSettled(
+            _dialStableSinceUtc,
+            DateTime.UtcNow,
+            _cachedSettings.InteractiveDialSettleMs,
+            _identicalDialSampleCount,
+            (int)LoopInterval.TotalMilliseconds);
     }
 
     private bool CanWriteInteractiveSub()
     {
         var cooldownMs = _vfoNotMoving && _receiveDialMatchesLastCatWrite
             ? InteractiveSubDopplerCooldownMs
-            : InteractiveSubWriteCooldownMs;
+            : InteractiveSubWriteCooldownMs(_cachedSettings);
         return (DateTime.UtcNow - _lastDialChangeUtc).TotalMilliseconds >= cooldownMs;
     }
 
@@ -957,12 +962,22 @@ public sealed class RigController : IRigController, IDisposable
         if (_rxDialHistoryCount > 0)
         {
             var previous = _rxDialHistory[Math.Min(_rxDialHistoryCount, DialHistoryLength) - 1];
-            if (previous != dialHz
-                && DateTime.UtcNow >= _ignoreDialUntilUtc
-                && IsOperatorDialMovement(dialHz))
+            if (previous != dialHz)
             {
-                _lastDialChangeUtc = DateTime.UtcNow;
+                _identicalDialSampleCount = 1;
+                _dialStableSinceUtc = DateTime.UtcNow;
+                if (DateTime.UtcNow >= _ignoreDialUntilUtc && IsOperatorDialMovement(dialHz))
+                    _lastDialChangeUtc = DateTime.UtcNow;
             }
+            else
+            {
+                _identicalDialSampleCount++;
+            }
+        }
+        else
+        {
+            _dialStableSinceUtc = DateTime.UtcNow;
+            _identicalDialSampleCount = 1;
         }
 
         if (_rxDialHistoryCount < DialHistoryLength)
@@ -983,6 +998,8 @@ public sealed class RigController : IRigController, IDisposable
         _vfoNotMoving = false;
         _receiveDialMatchesLastCatWrite = false;
         _lastDialChangeUtc = DateTime.MinValue;
+        _dialStableSinceUtc = DateTime.MinValue;
+        _identicalDialSampleCount = 0;
         Array.Clear(_rxDialHistory);
     }
 

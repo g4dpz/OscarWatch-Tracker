@@ -182,9 +182,11 @@
       <h2>ICOM: radio stays on Sub or uplink lags after tuning</h2>
       <p>
         On IC-910 / IC-9700 / IC-9100 / IC-821H in satellite mode, OscarWatch keeps you on <strong>Main</strong> for
-        receive while you turn the dial on linear passes. Uplink (Sub) CAT is intentionally delayed for about
-        <strong>2.5 seconds</strong> after you stop moving Main so scanning the passband does not select Sub.
-        If uplink seems late right after a long tune, wait a moment — it should catch up. If Sub stays selected
+        receive while you turn the dial on linear passes. Uplink (Sub) CAT is intentionally delayed after you stop
+        moving Main so scanning the passband does not select Sub. The wait is
+        <strong>Settings → Radio → Uplink CAT wait after dial</strong> (default <strong>2500 ms</strong>).
+        How soon receive Doppler CAT resumes is <strong>Resume CAT after dial</strong> (default <strong>800 ms</strong>).
+        If uplink seems late right after a long tune, wait a moment or lengthen those values. If Sub stays selected
         with no pass running, press <strong>Resume</strong> or toggle Standby, or turn satellite mode off and on
         on the radio. See <a href="radio-doppler-tuning.html#passband-knob">spinning the dial</a> in Doppler tuning help.
       </p>
