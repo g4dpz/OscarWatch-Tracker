@@ -259,6 +259,9 @@
   <data name="ComPort.DualRadioSamePort">
     <value>Os rádios de downlink e uplink usam a mesma porta {0}. Use portas COM diferentes para cada rádio.</value>
   </data>
+  <data name="ComPort.RotatorAzElSamePort">
+    <value>O azimute e a elevação do rotor usam a mesma porta {0}. Use portas COM diferentes para cada eixo.</value>
+  </data>
   <data name="ComPort.RotatorAndDownlink">
     <value>O rotor e o rádio de downlink usam a mesma porta {0}. Use portas COM diferentes ou desabilite um dispositivo.</value>
   </data>
@@ -2266,7 +2269,16 @@ Continuar?</value>
     <value>Tipo de rotor</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232 para Yaesu e clones. SPID para controladores em modo SP (Rot1Prog / Rot2Prog). EasyComm para modo EC — SPID, M2 e outros controladores de protocolo texto. SAEBRTrack para interfaces clássicas de seguimento por satélite (9600 baud). OZ9AAR URC (TCP) para Ultimate Rotator Controller via Ethernet (porta 1111; modo REM/remoto). Os protocolos série também podem usar um servidor série TCP (por exemplo ser2net) em vez de uma porta COM local.</value>
+    <value>GS-232 para Yaesu e clones. SPID para controladores em modo SP (Rot1Prog / Rot2Prog). EasyComm para modo EC (SPID, M2 e outros controladores de protocolo texto). SAEBRTrack para interfaces clássicas de seguimento por satélite (9600 baud). OZ9AAR URC (TCP) para Ultimate Rotator Controller via Ethernet (porta 1111; modo REM/remoto). Green Heron RT-21 Az-El usa duas portas COM (azimute e elevação), protocolo DCU-1 a 4800 baud; não selecione GS-232. Os protocolos série também podem usar um servidor série TCP (por exemplo ser2net) em vez de uma porta COM local.</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthPort">
+    <value>Porta série de azimute</value>
+  </data>
+  <data name="Settings.Rotator.ElevationPort">
+    <value>Porta série de elevação</value>
+  </data>
+  <data name="Settings.Rotator.DualSerialNote">
+    <value>O RT-21 Az-El tem duas portas série USB (uma por eixo). Atribua azimute e elevação com cuidado: trocá-las move o motor errado. No Linux, prefira caminhos by-id estáveis para que as portas não troquem após reiniciar.</value>
   </data>
   <data name="Settings.Rotator.Transport">
     <value>Ligação</value>

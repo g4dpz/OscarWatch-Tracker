@@ -15,6 +15,14 @@ public static class ComPortConflictLocalizer
             return l.Get("ComPort.DualRadioSamePort", port);
         }
 
+        const string rotatorAzElPrefix = "Rotator azimuth and elevation both use ";
+        if (message.StartsWith(rotatorAzElPrefix, StringComparison.Ordinal)
+            && message.EndsWith(". Use different COM ports for each axis.", StringComparison.Ordinal))
+        {
+            var port = message[rotatorAzElPrefix.Length..^". Use different COM ports for each axis.".Length];
+            return l.Get("ComPort.RotatorAzElSamePort", port);
+        }
+
         const string rotatorDownlinkPrefix = "Rotator and downlink radio both use ";
         if (message.StartsWith(rotatorDownlinkPrefix, StringComparison.Ordinal)
             && message.EndsWith(". Use different COM ports or disable one device.", StringComparison.Ordinal))

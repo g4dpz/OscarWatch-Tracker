@@ -1,6 +1,6 @@
 # Building rotator drivers
 
-OscarWatch talks to antenna rotators over a **serial port** (COM on Windows), a **raw TCP serial tunnel** (e.g. ser2net), or, for URC, **TCP/JSON**. Each protocol is a small class that implements `IRotatorDriver`. A factory picks the class from user settings. Serial-protocol drivers share an `IRotatorSerialTransport` so the same protocol code works over COM or TCP.
+OscarWatch talks to antenna rotators over a **serial port** (COM on Windows), a **raw TCP serial tunnel** (e.g. ser2net), or, for URC, **TCP/JSON**. Each protocol is a small class that implements `IRotatorDriver`. A factory picks the class from user settings. Serial-protocol drivers share an `IRotatorSerialTransport` so the same protocol code works over COM or TCP. The Green Heron RT-21 Az-El type opens **two** local serial transports (azimuth + elevation).
 
 ## Architecture
 
@@ -19,7 +19,7 @@ flowchart LR
 
 - **`RotatorController`** ([`OscarWatch/Rotator/RotatorController.cs`](../OscarWatch/Rotator/RotatorController.cs)) — connects, tracks the focused satellite, parks, polls position. Uses [`RotatorAzimuthPlanner`](../OscarWatch.Core/Rotator/RotatorAzimuthPlanner.cs) for smart 450° paths before calling the driver.
 - **`IRotatorDriver`** — your implementation (open port or TCP, move, query, dispose).
-- **`RotatorSettings`** ([`OscarWatch.Core/Models/RotatorSettings.cs`](../OscarWatch.Core/Models/RotatorSettings.cs)) — port/baud or network host/port, `TransportKind` (Serial vs Tcp for serial protocols), type, azimuth/elevation limits, park position. Use `HasConfiguredEndpoint` / `UsesNetworkEndpoint` / `UsesSerialPort` when checking whether a connection can be opened.
+- **`RotatorSettings`** ([`OscarWatch.Core/Models/RotatorSettings.cs`](../OscarWatch.Core/Models/RotatorSettings.cs)) — port/baud or network host/port, `TransportKind` (Serial vs Tcp for serial protocols), type, azimuth/elevation limits, park position. RT-21 also uses `ElevationPort`. Use `HasConfiguredEndpoint` / `UsesNetworkEndpoint` / `UsesSerialPort` / `UsesDualSerialPorts` when checking whether a connection can be opened.
 
 The controller calls **`SetPosition(commandAz, el, settings)`** with azimuth already planned (0–450 when smart mode is on). The driver only **clamps** to `settings.MaxAzimuthDeg` / `MaxElevationDeg` and formats the wire protocol.
 
@@ -52,6 +52,7 @@ Reference implementations:
 | SAEBRTrack | `AZ120EL045` compact whole degrees (LF-terminated); fire-and-forget — `GetPosition` returns nulls (no wire queries) | [`SaebrtRotator.cs`](../OscarWatch/Rotator/SaebrtRotator.cs) |
 | SPID Rot1Prog / Rot2Prog | 13-byte binary packets (stop/status/set) | [`SpidRotator.cs`](../OscarWatch/Rotator/SpidRotator.cs) |
 | OZ9AAR URC (TCP) | JSON `{"POLL"}` / `{"GOTO":[az,el]}` over TCP (default port 1111) | [`UrcTcpRotator.cs`](../OscarWatch/Rotator/UrcTcpRotator.cs) |
+| Green Heron RT-21 Az-El | DCU-1 per axis on **two** COM ports (`AP1xxx.y\r;`, `BI1;`, stop `;`) | [`GreenHeronRt21Rotator.cs`](../OscarWatch/Rotator/GreenHeronRt21Rotator.cs) |
 
 ## Serial I/O patterns
 

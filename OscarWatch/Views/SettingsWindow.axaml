@@ -937,6 +937,49 @@
                         SelectedItem="{Binding RotatorBaudRate, Mode=TwoWay}"
                         HorizontalAlignment="Stretch" />
             </StackPanel>
+            <StackPanel Spacing="10" IsVisible="{Binding ShowRotatorDualSerialFields}">
+              <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                         FontSize="11"
+                         TextWrapping="Wrap"
+                         Text="{loc:Localize Key=Settings.Rotator.DualSerialNote}" />
+              <TextBlock Text="{loc:Localize Key=Settings.Rotator.AzimuthPort}" />
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <ComboBox Grid.Column="0"
+                          ItemsSource="{Binding AvailableComPorts}"
+                          Text="{Binding SelectedComPort, Mode=TwoWay}"
+                          PlaceholderText="{loc:Localize Key=Settings.Radio.SelectComPort}"
+                          HorizontalAlignment="Stretch"
+                          IsEditable="True">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Converter={x:Static theme:SerialPortDisplayConverter.Instance}}"
+                                 ToolTip.Tip="{Binding}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button Grid.Column="1"
+                        Content="{loc:Localize Key=Common.Refresh}"
+                        Command="{Binding RefreshComPortsCommand}"
+                        MinWidth="72" />
+              </Grid>
+              <TextBlock Text="{loc:Localize Key=Settings.Rotator.ElevationPort}" />
+              <ComboBox ItemsSource="{Binding AvailableComPorts}"
+                        Text="{Binding SelectedElevationComPort, Mode=TwoWay}"
+                        PlaceholderText="{loc:Localize Key=Settings.Radio.SelectComPort}"
+                        HorizontalAlignment="Stretch"
+                        IsEditable="True">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Converter={x:Static theme:SerialPortDisplayConverter.Instance}}"
+                               ToolTip.Tip="{Binding}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <TextBlock Text="{loc:Localize Key=Settings.Radio.BaudRate}" />
+              <ComboBox ItemsSource="{Binding RotatorBaudRateOptions}"
+                        SelectedItem="{Binding RotatorBaudRate, Mode=TwoWay}"
+                        HorizontalAlignment="Stretch" />
+            </StackPanel>
             <StackPanel Spacing="10" IsVisible="{Binding ShowRotatorNetworkFields}">
               <TextBlock Text="{loc:Localize Key=Settings.Rotator.NetworkHost}" />
               <TextBox Text="{Binding RotatorNetworkHost, Mode=TwoWay}"

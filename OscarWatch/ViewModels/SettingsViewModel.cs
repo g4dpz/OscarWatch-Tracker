@@ -205,6 +205,9 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     private string? _selectedComPort;
 
     [ObservableProperty]
+    private string? _selectedElevationComPort;
+
+    [ObservableProperty]
     private int _rotatorBaudRate = 4800;
 
     [ObservableProperty]
@@ -292,11 +295,14 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         SelectedElevationRangeChoice?.Value == RotatorElevationRange.Deg180;
 
     public bool ShowRotatorTransportFields =>
-        SelectedRotatorTypeChoice?.Value != RotatorType.UrcTcp;
+        SelectedRotatorTypeChoice?.Value is not (RotatorType.UrcTcp or RotatorType.GreenHeronRt21);
 
     public bool ShowRotatorSerialFields =>
         ShowRotatorTransportFields
         && SelectedRotatorTransportChoice?.Value != RotatorTransportKind.Tcp;
+
+    public bool ShowRotatorDualSerialFields =>
+        SelectedRotatorTypeChoice?.Value == RotatorType.GreenHeronRt21;
 
     public bool ShowRotatorNetworkFields =>
         SelectedRotatorTypeChoice?.Value == RotatorType.UrcTcp
@@ -806,7 +812,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             new(RotatorType.Spid, "SPID (Rot1Prog / Rot2Prog)"),
             new(RotatorType.EasyComm, "EasyComm"),
             new(RotatorType.Saebrt, "SAEBRTrack"),
-            new(RotatorType.UrcTcp, "OZ9AAR URC (TCP)")
+            new(RotatorType.UrcTcp, "OZ9AAR URC (TCP)"),
+            new(RotatorType.GreenHeronRt21, "Green Heron RT-21 Az-El")
         ];
         RotatorTransportChoices =
         [
@@ -898,6 +905,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     private void SeedSavedComPorts()
     {
         EnsureSavedPortListed(SelectedComPort);
+        EnsureSavedPortListed(SelectedElevationComPort);
         EnsureSavedPortListed(SelectedRigComPort);
         EnsureSavedPortListed(SelectedDownlinkComPort);
         EnsureSavedPortListed(SelectedUplinkComPort);
@@ -1032,6 +1040,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         // Snapshot first: clearing the shared ItemsSource can null every ComboBox's
         // TwoWay Selected*ComPort binding, which would wipe radio/rotator/GPS together.
         var rotatorPort = SelectedComPort;
+        var rotatorElevationPort = SelectedElevationComPort;
         var rigPort = SelectedRigComPort;
         var downlinkPort = SelectedDownlinkComPort;
         var uplinkPort = SelectedUplinkComPort;
@@ -1042,12 +1051,14 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             AvailableComPorts.Add(port);
 
         EnsureSavedPortListed(rotatorPort);
+        EnsureSavedPortListed(rotatorElevationPort);
         EnsureSavedPortListed(rigPort);
         EnsureSavedPortListed(downlinkPort);
         EnsureSavedPortListed(uplinkPort);
         EnsureSavedPortListed(gpsPort);
 
         SelectedComPort = rotatorPort;
+        SelectedElevationComPort = rotatorElevationPort;
         SelectedRigComPort = rigPort;
         SelectedDownlinkComPort = downlinkPort;
         SelectedUplinkComPort = uplinkPort;
@@ -1133,10 +1144,11 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         {
             Enabled = RotatorEnabled,
             Type = SelectedRotatorTypeChoice?.Value ?? RotatorType.YaesuGs232,
-            TransportKind = SelectedRotatorTypeChoice?.Value == RotatorType.UrcTcp
+            TransportKind = SelectedRotatorTypeChoice?.Value is RotatorType.UrcTcp or RotatorType.GreenHeronRt21
                 ? RotatorTransportKind.Serial
                 : SelectedRotatorTransportChoice?.Value ?? RotatorTransportKind.Serial,
             Port = SelectedComPort ?? "",
+            ElevationPort = SelectedElevationComPort ?? "",
             BaudRate = RotatorBaudRate,
             NetworkHost = string.IsNullOrWhiteSpace(RotatorNetworkHost)
                 ? RotatorSettings.DefaultNetworkHost
@@ -1351,6 +1363,9 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             SelectedRotatorTransportChoice = RotatorTransportChoices.FirstOrDefault(o => o.Value == rotator.TransportKind)
                 ?? RotatorTransportChoices[0];
             SelectedComPort = string.IsNullOrWhiteSpace(rotator.Port) ? null : rotator.Port;
+            SelectedElevationComPort = string.IsNullOrWhiteSpace(rotator.ElevationPort)
+                ? null
+                : rotator.ElevationPort;
             RotatorBaudRate = rotator.BaudRate;
             RotatorNetworkHost = string.IsNullOrWhiteSpace(rotator.NetworkHost)
                 ? RotatorSettings.DefaultNetworkHost
@@ -1949,10 +1964,11 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         {
             Enabled = RotatorEnabled,
             Type = SelectedRotatorTypeChoice?.Value ?? RotatorType.YaesuGs232,
-            TransportKind = SelectedRotatorTypeChoice?.Value == RotatorType.UrcTcp
+            TransportKind = SelectedRotatorTypeChoice?.Value is RotatorType.UrcTcp or RotatorType.GreenHeronRt21
                 ? RotatorTransportKind.Serial
                 : SelectedRotatorTransportChoice?.Value ?? RotatorTransportKind.Serial,
-            Port = SelectedComPort ?? ""
+            Port = SelectedComPort ?? "",
+            ElevationPort = SelectedElevationComPort ?? ""
         };
         var rig = BuildRigSettingsForConflictCheck();
         var gps = BuildGpsSettingsDraft();
@@ -1975,6 +1991,12 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             RotatorBaudRate = 600;
         else if (value.Value is RotatorType.EasyComm or RotatorType.Saebrt)
             RotatorBaudRate = 9600;
+        else if (value.Value == RotatorType.GreenHeronRt21)
+        {
+            RotatorBaudRate = 4800;
+            SelectedElevationRangeChoice = ElevationRangeChoices.FirstOrDefault(
+                o => o.Value == RotatorElevationRange.Deg90) ?? ElevationRangeChoices[0];
+        }
 
         RefreshComPortConflictIfReady();
     }
@@ -1990,6 +2012,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     {
         OnPropertyChanged(nameof(ShowRotatorTransportFields));
         OnPropertyChanged(nameof(ShowRotatorSerialFields));
+        OnPropertyChanged(nameof(ShowRotatorDualSerialFields));
         OnPropertyChanged(nameof(ShowRotatorNetworkFields));
         OnPropertyChanged(nameof(ShowRotatorUrcNetworkNote));
         OnPropertyChanged(nameof(ShowRotatorTcpSerialNetworkNote));
@@ -2059,6 +2082,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     }
 
     partial void OnSelectedComPortChanged(string? value) => RefreshComPortConflictIfReady();
+    partial void OnSelectedElevationComPortChanged(string? value) => RefreshComPortConflictIfReady();
     partial void OnSelectedRigComPortChanged(string? value) => RefreshComPortConflictIfReady();
     partial void OnSelectedDownlinkComPortChanged(string? value) => RefreshComPortConflictIfReady();
     partial void OnSelectedUplinkComPortChanged(string? value) => RefreshComPortConflictIfReady();

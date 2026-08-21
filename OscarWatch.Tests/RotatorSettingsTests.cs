@@ -61,4 +61,40 @@ public sealed class RotatorSettingsTests
         Assert.False(settings.UsesNetworkEndpoint);
         Assert.True(settings.HasConfiguredEndpoint);
     }
+
+    [Fact]
+    public void GreenHeron_requires_both_ports()
+    {
+        var settings = new RotatorSettings
+        {
+            Type = RotatorType.GreenHeronRt21,
+            Port = "COM3",
+            ElevationPort = ""
+        };
+        Assert.True(settings.UsesDualSerialPorts);
+        Assert.True(settings.UsesSerialPort);
+        Assert.False(settings.UsesNetworkEndpoint);
+        Assert.False(settings.HasConfiguredEndpoint);
+
+        settings.ElevationPort = "COM4";
+        Assert.True(settings.HasConfiguredEndpoint);
+        Assert.Equal(new[] { "COM3", "COM4" }, settings.GetConfiguredSerialPorts());
+    }
+
+    [Fact]
+    public void GreenHeron_ignores_tcp_transport_kind()
+    {
+        var settings = new RotatorSettings
+        {
+            Type = RotatorType.GreenHeronRt21,
+            TransportKind = RotatorTransportKind.Tcp,
+            Port = "COM3",
+            ElevationPort = "COM4",
+            NetworkHost = "127.0.0.1",
+            NetworkPort = 4001
+        };
+        Assert.False(settings.UsesNetworkEndpoint);
+        Assert.True(settings.UsesSerialPort);
+        Assert.True(settings.HasConfiguredEndpoint);
+    }
 }

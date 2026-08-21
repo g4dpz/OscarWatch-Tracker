@@ -65,6 +65,7 @@
           <tr><td>EasyComm II</td><td>Controllers in <strong>EC</strong> mode — SPID, M2, and similar (try <strong>9600</strong> baud; some hardware uses <strong>1200</strong>)</td></tr>
           <tr><td>SAEBRTrack</td><td>Classic satellite tracker interfaces (BASIC Stamp, PSR-100, and similar) — <strong>9600</strong> baud default</td></tr>
           <tr><td>OZ9AAR URC (TCP)</td><td>Ultimate Rotator Controller over Ethernet — default TCP port <strong>1111</strong>; set URC to <strong>REM</strong> (remote) mode so GOTO moves the antennas</td></tr>
+          <tr><td>Green Heron RT-21 Az-El</td><td>Two independent DCU-1 boards (two USB COM ports). Default <strong>4800</strong> baud. Select this type, not GS-232. Assign azimuth and elevation ports carefully.</td></tr>
         </tbody>
       </table>
 
@@ -72,6 +73,7 @@
       <ul>
         <li><strong>Connection</strong> — for serial protocols, choose <strong>Serial (COM port)</strong> or <strong>TCP serial (e.g. ser2net)</strong>. Baud rate applies only to local serial; configure baud on the ser2net (or similar) server when using TCP.</li>
         <li><strong>Serial port</strong> and rotator type (when Connection is Serial). On Linux, see <a href="linux-serial.html">Linux serial ports</a> for stable paths after reboot.</li>
+        <li><strong>Green Heron RT-21 Az-El:</strong> plug in <strong>both</strong> USB cables. Choose this type (not GS-232). Set the <strong>azimuth</strong> and <strong>elevation</strong> COM ports separately. Default baud is <strong>4800</strong> (DCU-1). Default elevation range is <strong>90°</strong>. Overlap (450°) only works if the RT-21 itself is set for overlap in the Green Heron setup utility. On Linux, prefer <code>by-id</code> paths so az/el do not swap after reboot.</li>
         <li><strong>TCP serial:</strong> enter host and TCP port for a raw serial tunnel. OscarWatch speaks the same protocol bytes as over COM (not URC JSON). Prefer a local network — high latency can cause timeouts.</li>
         <li><strong>OZ9AAR URC (TCP):</strong> enter the URC host (IP or hostname) and TCP port (default <strong>1111</strong>). On the controller, enable the socket server and select <strong>REM</strong> / remote tracking mode. OscarWatch sends JSON <code>POLL</code> and <code>GOTO</code> requests; there is no separate stop command — Stop re-issues GOTO at the current position.</li>
         <li><strong>EasyComm II:</strong> set the controller to <strong>EC</strong> (or EasyComm) mode. Default baud is <strong>9600</strong> when you pick this type in Settings; use <strong>1200</strong> if your controller manual specifies it (some SPID emulation modes).</li>

@@ -36,6 +36,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
     private IRotatorDriver? _rotator;
     private string? _connectedPort;
+    private string? _connectedElevationPort;
     private int _connectedBaudRate;
     private string? _connectedNetworkHost;
     private int _connectedNetworkPort;
@@ -590,6 +591,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _rotator?.Dispose();
         _rotator = null;
         _connectedPort = null;
+        _connectedElevationPort = null;
         _connectedBaudRate = 0;
         _connectedNetworkHost = null;
         _connectedNetworkPort = 0;
@@ -799,6 +801,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _rotator = _driverFactory?.Invoke(settings) ?? RotatorDriverFactory.Create(settings);
             _rotator.Open();
             _connectedPort = settings.Port;
+            _connectedElevationPort = settings.ElevationPort;
             _connectedBaudRate = settings.BaudRate;
             _connectedNetworkHost = settings.NetworkHost;
             _connectedNetworkPort = settings.NetworkPort;
@@ -824,14 +827,27 @@ public sealed class RotatorController : IRotatorController, IDisposable
                 && _connectedNetworkPort == settings.NetworkPort;
         }
 
+        if (settings.UsesDualSerialPorts)
+        {
+            return string.Equals(_connectedPort, settings.Port, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(_connectedElevationPort, settings.ElevationPort, StringComparison.OrdinalIgnoreCase)
+                && _connectedBaudRate == settings.BaudRate;
+        }
+
         return _connectedPort == settings.Port
             && _connectedBaudRate == settings.BaudRate;
     }
 
-    private static string FormatEndpoint(RotatorSettings settings) =>
-        settings.UsesNetworkEndpoint
-            ? $"{settings.NetworkHost.Trim()}:{settings.NetworkPort}"
-            : settings.Port;
+    private static string FormatEndpoint(RotatorSettings settings)
+    {
+        if (settings.UsesNetworkEndpoint)
+            return $"{settings.NetworkHost.Trim()}:{settings.NetworkPort}";
+
+        if (settings.UsesDualSerialPorts)
+            return $"{settings.Port.Trim()} + {settings.ElevationPort.Trim()}";
+
+        return settings.Port;
+    }
 
     private void TryTrack(
         RotatorSettings settings,

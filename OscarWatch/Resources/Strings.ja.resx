@@ -199,6 +199,9 @@
   <data name="ComPort.DualRadioSamePort">
     <value>ダウンリンクとアップリンクが同じ {0} を使用しています。別々のCOMポートを指定してください。</value>
   </data>
+  <data name="ComPort.RotatorAzElSamePort">
+    <value>ローテーターのアジマスとエレベーションが同じ {0} を使用しています。軸ごとに別のCOMポートを指定してください。</value>
+  </data>
   <data name="ComPort.RotatorAndDownlink">
     <value>ローテーターとダウンリンクが同じ {0} を使用しています。別ポートにするか、どちらかを無効にしてください。</value>
   </data>
@@ -1402,7 +1405,16 @@
     <value>ローテータータイプ</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232はYaesuおよび互換機。SPIDはSPモード（Rot1Prog / Rot2Prog）。EasyCommはECモード — SPID、M2などのテキストプロトコルコントローラ。SAEBRTrackは古典的な衛星トラッカーインターフェース（9600ボー）。OZ9AAR URC (TCP) は Ultimate Rotator Controller（Ethernet、既定ポート1111、URCをREM/リモートモードに設定）。シリアルプロトコルはローカルCOMの代わりにTCPシリアルサーバー（例: ser2net）も利用できます。</value>
+    <value>GS-232はYaesuおよび互換機。SPIDはSPモード（Rot1Prog / Rot2Prog）。EasyCommはECモード（SPID、M2などのテキストプロトコルコントローラ）。SAEBRTrackは古典的な衛星トラッカーインターフェース（9600ボー）。OZ9AAR URC (TCP) は Ultimate Rotator Controller（Ethernet、既定ポート1111、URCをREM/リモートモードに設定）。Green Heron RT-21 Az-ElはCOMポートが2つ（アジマスとエレベーション）、DCU-1プロトコル4800ボー。GS-232は選ばないでください。シリアルプロトコルはローカルCOMの代わりにTCPシリアルサーバー（例: ser2net）も利用できます。</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthPort">
+    <value>アジマスのシリアルポート</value>
+  </data>
+  <data name="Settings.Rotator.ElevationPort">
+    <value>エレベーションのシリアルポート</value>
+  </data>
+  <data name="Settings.Rotator.DualSerialNote">
+    <value>RT-21 Az-ElにはUSBシリアルが2つあります（軸ごと）。アジマスとエレベーションの割り当てを間違えると、別のモーターが動きます。Linuxでは再起動後にポートが入れ替わらないよう、安定したby-idパスを推奨します。</value>
   </data>
   <data name="Settings.Rotator.Transport">
     <value>接続</value>

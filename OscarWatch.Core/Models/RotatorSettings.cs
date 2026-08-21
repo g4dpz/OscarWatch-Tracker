@@ -22,12 +22,19 @@ public sealed class RotatorSettings
 
     /// <summary>
     /// Serial vs raw TCP for GS-232 / EasyComm / SPID / SAEBRTrack.
-    /// Ignored when <see cref="Type"/> is <see cref="RotatorType.UrcTcp"/> (always TCP/JSON).
+    /// Ignored when <see cref="Type"/> is <see cref="RotatorType.UrcTcp"/> (always TCP/JSON)
+    /// or <see cref="RotatorType.GreenHeronRt21"/> (always dual local serial).
     /// </summary>
     public RotatorTransportKind TransportKind { get; set; } = RotatorTransportKind.Serial;
 
     public string Port { get; set; } = "";
     public int BaudRate { get; set; } = 4800;
+
+    /// <summary>
+    /// Elevation COM port for <see cref="RotatorType.GreenHeronRt21"/> (azimuth uses <see cref="Port"/>).
+    /// Ignored for other rotator types.
+    /// </summary>
+    public string ElevationPort { get; set; } = "";
 
     /// <summary>TCP host for URC or TCP serial (e.g. ser2net). Ignored when using a local serial port.</summary>
     public string NetworkHost { get; set; } = DefaultNetworkHost;
@@ -99,19 +106,47 @@ public sealed class RotatorSettings
     public double MaxAzimuthDeg => (double)AzimuthRange;
     public double MaxElevationDeg => (double)ElevationRange;
 
+    /// <summary>True when this type always uses two local serial ports (azimuth + elevation).</summary>
+    public bool UsesDualSerialPorts => Type == RotatorType.GreenHeronRt21;
+
     /// <summary>True when this configuration uses TCP host/port instead of a serial COM port.</summary>
     public bool UsesNetworkEndpoint =>
-        Type == RotatorType.UrcTcp || TransportKind == RotatorTransportKind.Tcp;
+        Type == RotatorType.UrcTcp
+        || (Type != RotatorType.GreenHeronRt21 && TransportKind == RotatorTransportKind.Tcp);
 
     /// <summary>
     /// True when a local serial COM port is the active endpoint (enabled device may still be checked separately).
     /// </summary>
     public bool UsesSerialPort =>
-        Type != RotatorType.UrcTcp && TransportKind == RotatorTransportKind.Serial;
+        Type == RotatorType.GreenHeronRt21
+        || (Type != RotatorType.UrcTcp && TransportKind == RotatorTransportKind.Serial);
 
     /// <summary>True when the configured connection endpoint is present (serial port or host+port).</summary>
     public bool HasConfiguredEndpoint =>
-        UsesNetworkEndpoint
-            ? !string.IsNullOrWhiteSpace(NetworkHost) && NetworkPort is > 0 and <= 65535
-            : !string.IsNullOrWhiteSpace(Port);
+        UsesDualSerialPorts
+            ? !string.IsNullOrWhiteSpace(Port) && !string.IsNullOrWhiteSpace(ElevationPort)
+            : UsesNetworkEndpoint
+                ? !string.IsNullOrWhiteSpace(NetworkHost) && NetworkPort is > 0 and <= 65535
+                : !string.IsNullOrWhiteSpace(Port);
+
+    /// <summary>Local serial COM ports used by this configuration (empty when not using serial).</summary>
+    public IReadOnlyList<string> GetConfiguredSerialPorts()
+    {
+        if (!UsesSerialPort)
+            return Array.Empty<string>();
+
+        var ports = new List<string>(UsesDualSerialPorts ? 2 : 1);
+        var az = Port?.Trim() ?? "";
+        if (az.Length > 0)
+            ports.Add(az);
+
+        if (UsesDualSerialPorts)
+        {
+            var el = ElevationPort?.Trim() ?? "";
+            if (el.Length > 0)
+                ports.Add(el);
+        }
+
+        return ports;
+    }
 }

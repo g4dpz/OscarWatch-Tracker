@@ -127,4 +127,64 @@ public class SerialPortConflictHelperTests
         var rig = new RigSettings { Enabled = true, Type = RigType.IcomIc910, Port = "COM3" };
         Assert.False(SerialPortConflictHelper.HasConflict(rotator, rig));
     }
+
+    [Fact]
+    public void HasConflict_when_rt21_azimuth_and_elevation_share_port()
+    {
+        var rotator = new RotatorSettings
+        {
+            Enabled = true,
+            Type = RotatorType.GreenHeronRt21,
+            Port = "COM5",
+            ElevationPort = "COM5"
+        };
+        var rig = new RigSettings { Enabled = false };
+        Assert.True(SerialPortConflictHelper.TryDescribeConflict(rotator, rig, out var message));
+        Assert.Contains("azimuth and elevation", message);
+    }
+
+    [Fact]
+    public void HasConflict_when_rt21_elevation_shares_radio_port()
+    {
+        var rotator = new RotatorSettings
+        {
+            Enabled = true,
+            Type = RotatorType.GreenHeronRt21,
+            Port = "COM3",
+            ElevationPort = "COM4"
+        };
+        var rig = new RigSettings { Enabled = true, Type = RigType.IcomIc910, Port = "COM4" };
+        Assert.True(SerialPortConflictHelper.TryDescribeConflict(rotator, rig, out var message));
+        Assert.Contains("Rotator and radio both use COM4", message);
+    }
+
+    [Fact]
+    public void HasConflict_when_gps_and_rt21_elevation_share_port()
+    {
+        var rotator = new RotatorSettings
+        {
+            Enabled = true,
+            Type = RotatorType.GreenHeronRt21,
+            Port = "COM3",
+            ElevationPort = "COM7"
+        };
+        var rig = new RigSettings { Enabled = false };
+        var gps = new GpsSettings { Enabled = true, Port = "COM7" };
+        Assert.True(SerialPortConflictHelper.TryDescribeConflict(rotator, rig, gps, out var message));
+        Assert.Contains("GPS and rotator", message);
+    }
+
+    [Fact]
+    public void No_conflict_when_rt21_ports_are_distinct_from_radio()
+    {
+        var rotator = new RotatorSettings
+        {
+            Enabled = true,
+            Type = RotatorType.GreenHeronRt21,
+            Port = "COM3",
+            ElevationPort = "COM4"
+        };
+        var rig = new RigSettings { Enabled = true, Type = RigType.IcomIc910, Port = "COM5" };
+        Assert.False(SerialPortConflictHelper.HasConflict(rotator, rig));
+    }
 }

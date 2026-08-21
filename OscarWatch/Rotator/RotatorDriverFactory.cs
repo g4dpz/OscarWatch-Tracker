@@ -14,6 +14,9 @@ public static class RotatorDriverFactory
             RotatorType.UrcTcp => new UrcTcpRotator(
                 settings.NetworkHost,
                 settings.NetworkPort > 0 ? settings.NetworkPort : RotatorSettings.DefaultNetworkPort),
+            RotatorType.GreenHeronRt21 => new GreenHeronRt21Rotator(
+                CreateTransport(settings, settings.Port, 1000, 1000, ";"),
+                CreateTransport(settings, settings.ElevationPort, 1000, 1000, ";")),
             _ => new Gs232Rotator(CreateTransport(settings, 1000, 1000, "\r"))
         };
 
@@ -26,6 +29,23 @@ public static class RotatorDriverFactory
         bool rtsEnable = false) =>
         RotatorSerialTransportFactory.Create(
             settings,
+            readTimeoutMs,
+            writeTimeoutMs,
+            newLine,
+            dtrEnable,
+            rtsEnable);
+
+    private static IRotatorSerialTransport CreateTransport(
+        RotatorSettings settings,
+        string portName,
+        int readTimeoutMs,
+        int writeTimeoutMs,
+        string newLine,
+        bool dtrEnable = false,
+        bool rtsEnable = false) =>
+        RotatorSerialTransportFactory.Create(
+            settings,
+            portName,
             readTimeoutMs,
             writeTimeoutMs,
             newLine,

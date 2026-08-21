@@ -10,9 +10,27 @@ internal static class RotatorSerialTransportFactory
         int writeTimeoutMs,
         string newLine,
         bool dtrEnable = false,
+        bool rtsEnable = false) =>
+        Create(
+            settings,
+            settings.Port,
+            readTimeoutMs,
+            writeTimeoutMs,
+            newLine,
+            dtrEnable,
+            rtsEnable);
+
+    public static IRotatorSerialTransport Create(
+        RotatorSettings settings,
+        string portName,
+        int readTimeoutMs,
+        int writeTimeoutMs,
+        string newLine,
+        bool dtrEnable = false,
         bool rtsEnable = false)
     {
-        if (settings.TransportKind == RotatorTransportKind.Tcp)
+        if (settings.TransportKind == RotatorTransportKind.Tcp
+            && settings.Type != RotatorType.GreenHeronRt21)
         {
             return new TcpRotatorTransport(
                 settings.NetworkHost,
@@ -23,7 +41,7 @@ internal static class RotatorSerialTransportFactory
         }
 
         return new SerialRotatorTransport(
-            settings.Port,
+            portName,
             settings.BaudRate,
             readTimeoutMs,
             writeTimeoutMs,
