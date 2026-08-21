@@ -387,7 +387,9 @@ Publish profiles are under `OscarWatch/Properties/PublishProfiles/` (e.g. `dotne
 
 ### Orbit propagation
 
-Uses [OrbitTools](http://www.zeptomoby.com/satellites/) Public Edition via [Zeptomoby.OrbitTools.Orbit](https://www.nuget.org/packages/Zeptomoby.OrbitTools.Orbit) (non-commercial). For commercial use or the Track Library (pass engine, iso-elevation footprints), obtain a [Professional license](http://www.zeptomoby.com/satellites/editionInfo.htm).
+Uses [OrbitTools](http://www.zeptomoby.com/satellites/) Public Edition via [Zeptomoby.OrbitTools.Orbit](https://www.nuget.org/packages/Zeptomoby.OrbitTools.Orbit) for SGP4/SDP4 propagation (position, look angles, range rate). Pass prediction and footprint/ground-track geometry are implemented in this repository; they do not use OrbitTools' Track Library, and no current feature requires the paid Professional edition.
+
+OrbitTools Public Edition is for [non-commercial use](http://www.zeptomoby.com/satellites/editionInfo.htm) only. OscarWatch's AGPL-3.0-or-later licence does not change that: commercial use or redistribution of OscarWatch still needs a paid OrbitTools Standard or Professional licence.
 
 ---
 
