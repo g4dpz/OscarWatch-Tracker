@@ -138,6 +138,70 @@ public class RigControllerFlexTests
     }
 
     [Fact]
+    public void Flex_fm_doppler_keeps_moving_rx_slice_after_status_echoes()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+        using var harness = CreateHarness(stub);
+
+        var mode = new SatelliteTransponderMode
+        {
+            Type = "FM VOICE",
+            DownlinkKHz = 435_400,
+            UplinkKHz = 145_850,
+            DownlinkMode = "FM",
+            UplinkMode = "FM"
+        };
+
+        var settings = new RigSettings
+        {
+            Enabled = true,
+            Type = RigType.FlexSmartSdr,
+            NetworkHost = "127.0.0.1",
+            NetworkPort = harness.Stub.Port,
+            DopplerThresholdFmHz = 200,
+            CatDelayMs = 50
+        };
+
+        PublishAndWait(
+            harness,
+            mode,
+            DopplerFrequencyCalculator.Compute(mode, 0, 0),
+            settings: settings,
+            satelliteName: "AO-123",
+            ready: () => harness.Controller.GetStatus().IsTracking
+                && harness.Driver?.IsSatelliteModeActive == true);
+
+        var rxSlice = harness.Driver!.RxSliceIndex;
+        var txSlice = harness.Driver.TxSliceIndex;
+        var rxAfterInit = stub.Slices[rxSlice].FrequencyHz;
+        var txAfterInit = stub.Slices[txSlice].FrequencyHz;
+
+        for (var i = 1; i <= 8; i++)
+        {
+            var rangeRate = i * 0.8;
+            var ctx = new RigTrackingContext
+            {
+                TrackState = new SatelliteTrackState
+                {
+                    Name = "AO-123",
+                    NoradId = "25544",
+                    Subpoint = new GeoCoordinate(0, 0),
+                    LookAngles = new LookAngles(180, 25, 900, rangeRate)
+                },
+                Mode = mode,
+                Corrected = DopplerFrequencyCalculator.Compute(mode, rangeRate, 0)
+            };
+
+            harness.Controller.PublishContext(settings, ctx);
+            harness.Controller.RunTrackingLoopOnce();
+        }
+
+        Assert.NotEqual(rxAfterInit, stub.Slices[rxSlice].FrequencyHz);
+        Assert.NotEqual(txAfterInit, stub.Slices[txSlice].FrequencyHz);
+    }
+
+    [Fact]
     public void Flex_linear_manual_rx_tune_is_not_snapped_back()
     {
         using var stub = new FlexSmartSdrStubServer();

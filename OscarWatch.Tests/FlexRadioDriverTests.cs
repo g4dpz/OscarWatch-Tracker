@@ -314,6 +314,27 @@ public class FlexRadioDriverTests
     }
 
     [Fact]
+    public void SetFrequencyHz_AfterSuccessfulRxTune_AppliesNextDopplerStepWithoutReread()
+    {
+        using var stub = new FlexSmartSdrStubServer();
+        stub.WaitUntilReady();
+        using var driver = new FlexRadioDriver("127.0.0.1", stub.Port, catDelayMs: 250);
+        driver.Open();
+        driver.SetSatelliteMode(true);
+        Assert.Equal(145_900_000, driver.ReadFrequencyHz(RigVfo.Main));
+
+        driver.SelectVfo(RigVfo.Main);
+        Assert.True(driver.SetFrequencyHz(145_901_000));
+        Assert.Equal(145_901_000, stub.Slices[driver.RxSliceIndex].FrequencyHz);
+
+        // SmartSDR echoes RF_frequency after our tune. FM automatic tracking does not read Main
+        // again before the next Doppler step, so the compare-and-swap must accept our own echo.
+        Thread.Sleep(50);
+        Assert.True(driver.SetFrequencyHz(145_902_500));
+        Assert.Equal(145_902_500, stub.Slices[driver.RxSliceIndex].FrequencyHz);
+    }
+
+    [Fact]
     public void SetMode_AndTone_ApplyToSlices()
     {
         using var stub = new FlexSmartSdrStubServer(emitPartialSliceStatus: true);

@@ -102,16 +102,40 @@ public sealed class FlexRadioDriver : IRigDriver
         }
 
         var isReceive = _currentVfo is RigVfo.Main or RigVfo.VfoA;
+        var slice = SliceFor(_currentVfo);
         var tuned = isReceive && _hasMainStatusObservation
             ? _client.TuneSliceIfStatusUnchanged(
-                SliceFor(_currentVfo),
+                slice,
                 hz,
                 _lastMainStatusRevision,
                 _lastMainObservedHz)
-            : _client.TuneSlice(SliceFor(_currentVfo), hz);
+            : _client.TuneSlice(slice, hz);
         if (tuned)
+        {
             StoreFrequencyHz(_currentVfo, hz);
+            // FM automatic tracking never samples Main between Doppler writes. Without this, the
+            // next compare-and-swap still expects the pre-tune frequency, treats our own status
+            // echo as an operator move, and freezes the RX slice while TX keeps moving.
+            if (isReceive)
+                RememberMainObservationAfterTune(slice, hz);
+        }
+
         return tuned;
+    }
+
+    private void RememberMainObservationAfterTune(int slice, long hz)
+    {
+        var observation = _client.GetSliceFrequencyObservation(slice);
+        if (observation is { } observed)
+        {
+            _lastMainStatusRevision = observed.StatusRevision;
+            _lastMainObservedHz = observed.FrequencyHz > 0 ? observed.FrequencyHz : hz;
+            _hasMainStatusObservation = true;
+            return;
+        }
+
+        _lastMainObservedHz = hz;
+        _hasMainStatusObservation = true;
     }
 
     public void SelectVfo(RigVfo vfo, bool force = false) => _currentVfo = vfo;
