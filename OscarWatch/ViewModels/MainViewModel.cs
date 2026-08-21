@@ -1629,7 +1629,7 @@ public partial class MainViewModel : ViewModelBase
             if (checkGrids && alert.Grids.Count > 0)
             {
                 var checks = new List<CloudlogGridCheckResult>();
-                foreach (var grid in alert.Grids)
+                foreach (var grid in HamsAtRoveRowViewModel.UniqueGrids(alert.Grids))
                 {
                     var check = await _cloudlogLookup.CheckGridWorkedAsync(cloudlog, grid).ConfigureAwait(false);
                     if (check is not null)
@@ -3390,7 +3390,7 @@ public sealed class HamsAtRoveRowViewModel
         IReadOnlyList<CloudlogGridCheckResult>? gridChecks = null) => new()
     {
         Callsign = alert.Callsign,
-        GridsText = HamsAtDisplayFormat.FormatGrids(alert.Grids),
+        GridsText = HamsAtDisplayFormat.FormatGrids(UniqueGrids(alert.Grids).ToArray()),
         NeededGridsText = FormatGridSubset(alert.Grids, gridChecks, worked: false),
         WorkedGridsText = FormatGridSubset(alert.Grids, gridChecks, worked: true),
         AosUtc = alert.AosUtc,
@@ -3427,11 +3427,34 @@ public sealed class HamsAtRoveRowViewModel
         if (gridChecks is null || gridChecks.Count == 0)
             return "";
 
-        var lookup = gridChecks.ToDictionary(c => c.Grid, c => c.IsWorked, StringComparer.OrdinalIgnoreCase);
-        var selected = alertGrids
-            .Where(g => lookup.TryGetValue(g.Trim().ToUpperInvariant(), out var isWorked) && isWorked == worked)
+        var lookup = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+        foreach (var check in gridChecks)
+        {
+            var key = check.Grid.Trim();
+            if (key.Length == 0)
+                continue;
+            lookup[key] = check.IsWorked;
+        }
+
+        if (lookup.Count == 0)
+            return "";
+
+        var selected = UniqueGrids(alertGrids)
+            .Where(g => lookup.TryGetValue(g, out var isWorked) && isWorked == worked)
             .ToArray();
 
         return selected.Length == 0 ? "" : HamsAtDisplayFormat.FormatGrids(selected);
+    }
+
+    internal static IEnumerable<string> UniqueGrids(IEnumerable<string> grids)
+    {
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var grid in grids)
+        {
+            var trimmed = grid.Trim();
+            if (trimmed.Length == 0 || !seen.Add(trimmed))
+                continue;
+            yield return trimmed;
+        }
     }
 }
