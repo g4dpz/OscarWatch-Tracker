@@ -2092,7 +2092,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
     /// Parses a SmartSDR status message body into a set of field names present.
     /// Status format: "slice 0 in_use=1 freq=14.200 mode=USB tx=0 active=1"
     /// Fields are space-separated key=value pairs after the slice header.
-    /// Single pass, no allocations per field (only the HashSet itself).
+    /// Single pass avoids Split() array allocations; field names still allocate via ToString().
     /// </summary>
     internal static HashSet<string> ParsePresentFields(string statusBody)
     {
