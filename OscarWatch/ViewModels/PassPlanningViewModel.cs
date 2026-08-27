@@ -10,6 +10,7 @@ using OscarWatch.Core.Display;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Services;
 using OscarWatch.Localization;
+using OscarWatch.Services;
 using OscarWatch.Views;
 
 namespace OscarWatch.ViewModels;
@@ -19,6 +20,7 @@ public partial class PassPlanningViewModel : ViewModelBase
     private readonly ISettingsService _settings;
     private readonly ITleService _tleService;
     private readonly TrackingOrchestrator _tracking;
+    private readonly IHamsAtRovesService _hamsAtRoves;
     private readonly ILocalizationService _l;
     private bool _isSynchronizing;
 
@@ -69,15 +71,20 @@ public partial class PassPlanningViewModel : ViewModelBase
     [ObservableProperty]
     private bool _useUtcTime;
 
+    public bool HasHamsAtApiKey =>
+        !string.IsNullOrWhiteSpace(_settings.Current.HamsAt.ApiKey);
+
     public PassPlanningViewModel(
         ISettingsService settings,
         ITleService tleService,
         TrackingOrchestrator tracking,
+        IHamsAtRovesService hamsAtRoves,
         ILocalizationService localization)
     {
         _settings = settings;
         _tleService = tleService;
         _tracking = tracking;
+        _hamsAtRoves = hamsAtRoves;
         _l = localization;
         TimeDisplayLabels =
         [
@@ -225,6 +232,7 @@ public partial class PassPlanningViewModel : ViewModelBase
         var profile = new StationProfile
         {
             DisplayName = _l.Get("Planner.PortableName", Stations.Count + 1),
+            Callsign = home?.Callsign ?? "",
             LatitudeDeg = home?.LatitudeDeg ?? 51.5,
             LongitudeDeg = home?.LongitudeDeg ?? -0.1,
             AltitudeMetersAsl = home?.AltitudeMetersAsl ?? 50,
@@ -282,8 +290,16 @@ public partial class PassPlanningViewModel : ViewModelBase
 
         var rows = Passes.ToList();
         Passes.Clear();
+        var scheduled = _settings.Current.ScheduledPasses ?? [];
         foreach (var row in rows)
-            Passes.Add(PassPlanningPassRow.From(row.Source, UseUtcTime, _settings.Current.Use24HourClock));
+        {
+            var updated = PassPlanningPassRow.From(row.Source, UseUtcTime, _settings.Current.Use24HourClock);
+            updated.IsScheduled = ScheduledPassReminder.IsScheduled(
+                scheduled,
+                row.Source.NoradId,
+                row.Source.AosUtc);
+            Passes.Add(updated);
+        }
 
         RebuildDisplayedPasses();
     }
@@ -369,9 +385,16 @@ public partial class PassPlanningViewModel : ViewModelBase
                 FilterMinDurationMinutes);
 
             Passes.Clear();
+            var scheduled = _settings.Current.ScheduledPasses ?? [];
             foreach (var pass in passes)
-                Passes.Add(PassPlanningPassRow.From(pass, UseUtcTime, _settings.Current.Use24HourClock));
+            {
+                var row = PassPlanningPassRow.From(pass, UseUtcTime, _settings.Current.Use24HourClock);
+                row.IsScheduled = ScheduledPassReminder.IsScheduled(scheduled, pass.NoradId, pass.AosUtc);
+                Passes.Add(row);
+            }
 
+            RematchScheduledPasses(passes);
+            ApplyScheduledFlags();
             RebuildSatelliteFilters();
             RebuildDisplayedPasses();
 
@@ -539,9 +562,103 @@ public partial class PassPlanningViewModel : ViewModelBase
         _settings.Current.PassPlannerUseUtcTime = UseUtcTime;
         await _settings.SaveAsync();
     }
+
+    [RelayCommand]
+    private async Task PostHamsAtActivationAsync(PassPlanningPassRow? row)
+    {
+        if (row is null || App.MainWindow is null)
+            return;
+
+        ApplyEditableFieldsToSelectedStation();
+        var observer = SelectedStation?.ToGroundStation() ?? _settings.Current.GroundStation;
+        var timeRange = _l.Get("Pass.TimeRange", row.AosLocal, row.LosLocal);
+        var details = _l.Get(
+            "Pass.Details",
+            FormatPlannerPassDuration(row.Source.Duration),
+            $"{row.Source.MaxElevationDeg:F0}°");
+
+        var posted = await HamsAtActivationCoordinator.PostAsync(
+            App.MainWindow,
+            row.Source,
+            observer,
+            _settings.Current.GroundStation.Callsign,
+            _settings.Current.HamsAt,
+            _hamsAtRoves,
+            _l,
+            timeRange,
+            details,
+            frequencies: null,
+            status => StatusText = status,
+            satelliteDatabase: App.Services.GetRequiredService<ISatelliteDatabaseService>(),
+            frequencySelections: _settings.Current.FrequencySelections,
+            cwKeepSidebandDownlink: _settings.Current.Rig?.CwKeepSidebandDownlink == true).ConfigureAwait(true);
+
+        if (posted)
+            EnsurePassScheduled(row);
+    }
+
+    private void EnsurePassScheduled(PassPlanningPassRow row)
+    {
+        var current = _settings.Current.ScheduledPasses ?? [];
+        if (ScheduledPassReminder.IsScheduled(current, row.Source.NoradId, row.Source.AosUtc))
+        {
+            ApplyScheduledFlags();
+            return;
+        }
+
+        _settings.Current.ScheduledPasses = ScheduledPassReminder.EnsureScheduled(
+            current,
+            row.Source.NoradId,
+            row.Source.AosUtc);
+        _settings.RequestSave();
+        ApplyScheduledFlags();
+    }
+
+    private string FormatPlannerPassDuration(TimeSpan duration)
+    {
+        var minutes = duration.TotalSeconds < 30
+            ? 0
+            : (int)Math.Round(duration.TotalMinutes, MidpointRounding.AwayFromZero);
+        return minutes == 1
+            ? _l.Get("Pass.DurationOneMinute")
+            : _l.Get("Pass.DurationMinutes", minutes);
+    }
+
+    [RelayCommand]
+    private void TogglePassScheduled(PassPlanningPassRow? row)
+    {
+        if (row is null)
+            return;
+
+        _settings.Current.ScheduledPasses = ScheduledPassReminder.Toggle(
+            _settings.Current.ScheduledPasses ?? [],
+            row.Source.NoradId,
+            row.Source.AosUtc);
+        _settings.RequestSave();
+        ApplyScheduledFlags();
+    }
+
+    private void ApplyScheduledFlags()
+    {
+        var scheduled = _settings.Current.ScheduledPasses ?? [];
+        foreach (var row in Passes)
+            row.IsScheduled = ScheduledPassReminder.IsScheduled(scheduled, row.Source.NoradId, row.Source.AosUtc);
+        foreach (var row in DisplayedPasses)
+            row.IsScheduled = ScheduledPassReminder.IsScheduled(scheduled, row.Source.NoradId, row.Source.AosUtc);
+    }
+
+    private void RematchScheduledPasses(IReadOnlyList<PassInfo> upcoming)
+    {
+        var rematched = ScheduledPassReminder.RematchAndPrune(
+            _settings.Current.ScheduledPasses ?? [],
+            upcoming,
+            DateTime.UtcNow);
+        _settings.Current.ScheduledPasses = rematched;
+        _settings.RequestSave();
+    }
 }
 
-public sealed class PassPlanningPassRow
+public partial class PassPlanningPassRow : ObservableObject
 {
     public PassInfo Source { get; init; } = null!;
     public string SatelliteName { get; init; } = "";
@@ -552,6 +669,19 @@ public sealed class PassPlanningPassRow
     public string Duration { get; init; } = "";
     public string AzimuthSummary { get; init; } = "";
     public string AosLosLine { get; init; } = "";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ScheduleLabel))]
+    [NotifyPropertyChangedFor(nameof(ScheduleToolTip))]
+    private bool _isScheduled;
+
+    public string ScheduleLabel => IsScheduled
+        ? LocalizationService.Instance.Get("Pass.Schedule.RemoveShort")
+        : LocalizationService.Instance.Get("Pass.Schedule.AddShort");
+
+    public string ScheduleToolTip => IsScheduled
+        ? LocalizationService.Instance.Get("Pass.Schedule.RemoveTooltip")
+        : LocalizationService.Instance.Get("Pass.Schedule.AddTooltip");
 
     public static PassPlanningPassRow From(PassInfo p, bool useUtc, bool use24HourClock)
     {

@@ -14,6 +14,7 @@ using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Services;
 using OscarWatch.ViewModels;
 using OscarWatch.Views;
+using OscarWatch.Localization;
 
 namespace OscarWatch;
 
@@ -170,7 +171,62 @@ public partial class MainWindow : Window
     {
         _passListContextRow ??= PassesListBox.SelectedItem as PassRowViewModel;
         if (_passListContextRow is null)
+        {
             e.Cancel = true;
+            return;
+        }
+
+        if (SchedulePassMenuItem is not null)
+        {
+            var l = LocalizationService.Instance;
+            SchedulePassMenuItem.Header = _passListContextRow.IsScheduled
+                ? l.Get("Pass.Schedule.Remove")
+                : l.Get("Pass.Schedule.Add");
+        }
+
+        if (PostHamsAtActivationMenuItem is not null && DataContext is MainViewModel vm)
+            PostHamsAtActivationMenuItem.IsVisible = vm.HasHamsAtApiKey;
+    }
+
+    private async void OnPostHamsAtActivationClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm)
+            return;
+
+        var row = _passListContextRow ?? PassesListBox.SelectedItem as PassRowViewModel;
+        if (row is null)
+            return;
+
+        await vm.PostHamsAtActivationAsync(row).ConfigureAwait(true);
+        _passListContextRow = null;
+    }
+
+    private void OnOpenPassVisualizerClick(object? sender, RoutedEventArgs e) =>
+        OpenPassVisualizerForContextPass();
+
+    private void OnToggleSchedulePassClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm)
+            return;
+
+        var row = _passListContextRow ?? PassesListBox.SelectedItem as PassRowViewModel;
+        if (row is null)
+            return;
+
+        vm.TogglePassScheduled(row);
+        _passListContextRow = null;
+    }
+
+    private void OnPassScheduleToggleClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm)
+            return;
+
+        if (sender is not Button { DataContext: PassRowViewModel row })
+            return;
+
+        e.Handled = true;
+        vm.TogglePassScheduled(row);
     }
 
     private static PassRowViewModel? TryGetPassRowFromPointerSource(Visual? source)
@@ -183,9 +239,6 @@ public partial class MainWindow : Window
 
         return null;
     }
-
-    private void OnOpenPassVisualizerClick(object? sender, RoutedEventArgs e) =>
-        OpenPassVisualizerForContextPass();
 
     private void OpenPassVisualizerForContextPass()
     {

@@ -81,6 +81,7 @@ public sealed class SettingsRecordingDevicesTests
             settings,
             LocalizationService.Instance,
             new StubSpeechService(),
+            new StubAlertSoundService(),
             recording,
             new StubCloudlogRadioSyncService(),
             new StubCloudlogLookupService(),
@@ -165,6 +166,11 @@ public sealed class SettingsRecordingDevicesTests
             Task.CompletedTask;
     }
 
+    private sealed class StubAlertSoundService : IAlertSoundService
+    {
+        public void PlayAlert() { }
+    }
+
     private sealed class StubCloudlogRadioSyncService : ICloudlogRadioSyncService
     {
         public event Action? StateChanged;
@@ -206,6 +212,14 @@ public sealed class SettingsRecordingDevicesTests
             HamsAtSettings settings,
             CancellationToken cancellationToken = default) =>
             Task.FromResult((true, "ok"));
+
+        public Task<HamsAtCreateAlertResult> CreateAlertAsync(
+            HamsAtSettings settings,
+            HamsAtCreateAlertRequest request,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(HamsAtCreateAlertResult.Success("https://hams.at/alerts/test", 201));
+
+        public void InvalidateCache() { }
     }
 
     private sealed class StubGpsService : IGpsService

@@ -226,6 +226,57 @@
   <data name="Pass.OpenVisualizer">
     <value>Ver gráfico da passagem</value>
   </data>
+  <data name="Pass.Schedule.Add">
+    <value>Agendar passagem</value>
+  </data>
+  <data name="Pass.Schedule.Remove">
+    <value>Remover da agenda</value>
+  </data>
+  <data name="Pass.Schedule.AddShort">
+    <value>Agendar</value>
+  </data>
+  <data name="Pass.Schedule.RemoveShort">
+    <value>Agendada</value>
+  </data>
+  <data name="Pass.Schedule.AddTooltip">
+    <value>Agendar esta passagem para um aviso sonoro e um alerta antes do AOS</value>
+  </data>
+  <data name="Pass.Schedule.RemoveTooltip">
+    <value>Remover esta passagem da agenda</value>
+  </data>
+  <data name="Pass.HamsAt.PostActivation">
+    <value>Publicar ativação no hams.at</value>
+  </data>
+  <data name="Pass.HamsAt.EnterApiKey">
+    <value>Insira a chave API do hams.at em Configurações primeiro.</value>
+  </data>
+  <data name="Pass.HamsAt.InvalidNorad">
+    <value>Esta passagem não tem um número NORAD válido.</value>
+  </data>
+  <data name="Pass.HamsAt.Posted">
+    <value>Ativação publicada no hams.at.</value>
+  </data>
+  <data name="Pass.HamsAt.Failed">
+    <value>Não foi possível publicar a ativação no hams.at: {0}</value>
+  </data>
+  <data name="Pass.HamsAt.OpenAfterPost">
+    <value>Abrir alerta no hams.at após publicar</value>
+  </data>
+  <data name="Pass.Schedule.AlertTitle">
+    <value>Passagem agendada</value>
+  </data>
+  <data name="Pass.Schedule.AlertBadge">
+    <value>Lembrete</value>
+  </data>
+  <data name="Pass.Schedule.AlertCountdown">
+    <value>AOS em {0}</value>
+  </data>
+  <data name="Pass.Schedule.AlertAosAt">
+    <value>às {0}</value>
+  </data>
+  <data name="Pass.Schedule.AlertMessage">
+    <value>{0} AOS em {1} (às {2})</value>
+  </data>
   <data name="Pass.Visualizer.Heading">
     <value>{0} — {1}</value>
   </data>
@@ -1797,6 +1848,12 @@ Continuar?</value>
   <data name="Settings.Station.DisplayName">
     <value>Nome de exibição</value>
   </data>
+  <data name="Settings.Station.Callsign">
+    <value>Indicativo</value>
+  </data>
+  <data name="Settings.Station.CallsignNote">
+    <value>Usado ao publicar ativações de satélite no hams.at. Você ainda pode editá-lo no diálogo de publicação.</value>
+  </data>
   <data name="Settings.Station.Latitude">
     <value>Latitude (°)</value>
   </data>
@@ -1997,6 +2054,24 @@ Continuar?</value>
   </data>
   <data name="Settings.Voice.TestAnnouncement">
     <value>Testar anúncio</value>
+  </data>
+  <data name="Settings.PassSchedule.Section">
+    <value>Passagens agendadas</value>
+  </data>
+  <data name="Settings.PassSchedule.Note">
+    <value>Marque passagens como Agendadas em Próximas passagens ou no Planejador. O OscarWatch toca um aviso e mostra um alerta antes do AOS enquanto o aplicativo está em execução.</value>
+  </data>
+  <data name="Settings.PassSchedule.LeadMinutes">
+    <value>Minutos de alerta antes do AOS</value>
+  </data>
+  <data name="Settings.PassSchedule.SoundEnabled">
+    <value>Tocar aviso sonoro</value>
+  </data>
+  <data name="Settings.PassSchedule.AlertEnabled">
+    <value>Mostrar janela de alerta</value>
+  </data>
+  <data name="Settings.PassSchedule.TestSound">
+    <value>Testar som</value>
   </data>
   <data name="Settings.Radio.Enable">
     <value>Habilitar controle de rádio</value>
@@ -2487,6 +2562,69 @@ Continuar?</value>
   <data name="Settings.HamsAt.ConnectionFailed">
     <value>Falha na conexão — {0}</value>
   </data>
+  <data name="HamsAt.Activation.Title">
+    <value>Publicar ativação no hams.at</value>
+  </data>
+  <data name="HamsAt.Activation.PassSummary">
+    <value>{0} · {1} · {2}</value>
+  </data>
+  <data name="HamsAt.Activation.Callsign">
+    <value>Indicativo</value>
+  </data>
+  <data name="HamsAt.Activation.Grids">
+    <value>Grids ativados (1–4, cada um com 4 ou 6 caracteres)</value>
+  </data>
+  <data name="HamsAt.Activation.Mode">
+    <value>Modo (FM, USB, CW, etc.)</value>
+  </data>
+  <data name="HamsAt.Activation.FrequencyOptional">
+    <value>Frequência (opcional)</value>
+  </data>
+  <data name="HamsAt.Activation.IncludeUplinkMhz">
+    <value>Uplink</value>
+  </data>
+  <data name="HamsAt.Activation.IncludeDownlinkMhz">
+    <value>Downlink</value>
+  </data>
+  <data name="HamsAt.Activation.UplinkMhz">
+    <value>Uplink (MHz)</value>
+  </data>
+  <data name="HamsAt.Activation.DownlinkMhz">
+    <value>Downlink (MHz)</value>
+  </data>
+  <data name="HamsAt.Activation.Mhz">
+    <value>MHz (opcional)</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection">
+    <value>Direção</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection.Up">
+    <value>Subida</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection.Down">
+    <value>Descida</value>
+  </data>
+  <data name="HamsAt.Activation.Comment">
+    <value>Comentário (opcional, máx. 50 caracteres)</value>
+  </data>
+  <data name="HamsAt.Activation.Submit">
+    <value>Publicar ativação</value>
+  </data>
+  <data name="HamsAt.Activation.Error.CallsignRequired">
+    <value>Insira um indicativo com pelo menos três caracteres.</value>
+  </data>
+  <data name="HamsAt.Activation.Error.GridsRequired">
+    <value>Insira pelo menos um quadrado Maidenhead.</value>
+  </data>
+  <data name="HamsAt.Activation.Error.ModeRequired">
+    <value>Selecione um modo de operação (SSB, CW, Data ou FM).</value>
+  </data>
+  <data name="HamsAt.Activation.Error.GridLength">
+    <value>A grade '{0}' deve ter 4 ou 6 caracteres para o hams.at.</value>
+  </data>
+  <data name="HamsAt.Activation.Error.MhzInvalid">
+    <value>Insira um valor MHz válido ou deixe o campo em branco.</value>
+  </data>
   <data name="Settings.SatelliteStatus.Section">
     <value>OscarWatch</value>
   </data>
@@ -2828,6 +2966,9 @@ Continuar?</value>
   </data>
   <data name="Planner.Col.Calendar">
     <value>Calendário</value>
+  </data>
+  <data name="Planner.Col.Schedule">
+    <value>Agenda</value>
   </data>
   <data name="Planner.AddToCalendar">
     <value>Adicionar ao Calendário</value>
@@ -3178,7 +3319,22 @@ Continuar?</value>
     <value>Satélite</value>
   </data>
   <data name="DbEditor.NameWatermark">
-    <value>Nome (use o nome TLE quando possível)</value>
+    <value>Nome preferido (mostrado no mapa)</value>
+  </data>
+  <data name="DbEditor.NoradIdLabel">
+    <value>ID NORAD</value>
+  </data>
+  <data name="DbEditor.NoradIdWatermark">
+    <value>Opcional: corresponder a tle.oscarwatch.org (ex.: 27607)</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesLabel">
+    <value>Nomes alternativos</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesWatermark">
+    <value>Separados por vírgula (ex.: UmKA-1, RS40-S)</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesHint">
+    <value>Usados para corresponder a nomes TLE e da base publicada quando diferem do nome preferido. Renomear mantém o nome anterior aqui automaticamente. Recomenda-se um ID NORAD quando houver aliases.</value>
   </data>
   <data name="DbEditor.ModesHeader">
     <value>Modos de transmissores/transponder</value>
@@ -3257,6 +3413,9 @@ Continuar?</value>
   </data>
   <data name="DbEditor.Status.Saved">
     <value>Salvo.</value>
+  </data>
+  <data name="DbEditor.Status.AliasesWithoutNorad">
+    <value>Dica: defina um ID NORAD ao usar nomes alternativos para que as atualizações continuem a corresponder a este satélite.</value>
   </data>
   <data name="DbEditor.Status.Restored">
     <value>Banco de dados padrão restaurado.</value>

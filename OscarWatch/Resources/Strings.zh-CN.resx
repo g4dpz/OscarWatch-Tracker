@@ -226,6 +226,57 @@
   <data name="Pass.OpenVisualizer">
     <value>查看过境图</value>
   </data>
+  <data name="Pass.Schedule.Add">
+    <value>安排过境</value>
+  </data>
+  <data name="Pass.Schedule.Remove">
+    <value>从安排中移除</value>
+  </data>
+  <data name="Pass.Schedule.AddShort">
+    <value>安排</value>
+  </data>
+  <data name="Pass.Schedule.RemoveShort">
+    <value>已安排</value>
+  </data>
+  <data name="Pass.Schedule.AddTooltip">
+    <value>安排此过境，以便在 AOS 前发出提示音和警报</value>
+  </data>
+  <data name="Pass.Schedule.RemoveTooltip">
+    <value>从此过境安排中移除</value>
+  </data>
+  <data name="Pass.HamsAt.PostActivation">
+    <value>向 hams.at 发布激活</value>
+  </data>
+  <data name="Pass.HamsAt.EnterApiKey">
+    <value>请先在设置中输入 hams.at API 密钥。</value>
+  </data>
+  <data name="Pass.HamsAt.InvalidNorad">
+    <value>此过境没有有效的 NORAD 目录编号。</value>
+  </data>
+  <data name="Pass.HamsAt.Posted">
+    <value>已向 hams.at 发布激活。</value>
+  </data>
+  <data name="Pass.HamsAt.Failed">
+    <value>无法向 hams.at 发布激活：{0}</value>
+  </data>
+  <data name="Pass.HamsAt.OpenAfterPost">
+    <value>发布后打开 hams.at 上的警报</value>
+  </data>
+  <data name="Pass.Schedule.AlertTitle">
+    <value>已安排的过境</value>
+  </data>
+  <data name="Pass.Schedule.AlertBadge">
+    <value>提醒</value>
+  </data>
+  <data name="Pass.Schedule.AlertCountdown">
+    <value>还有 {0} 到 AOS</value>
+  </data>
+  <data name="Pass.Schedule.AlertAosAt">
+    <value>{0}</value>
+  </data>
+  <data name="Pass.Schedule.AlertMessage">
+    <value>{0} 还有 {1} 到 AOS（{2}）</value>
+  </data>
   <data name="Pass.Visualizer.Heading">
     <value>{0} — {1}</value>
   </data>
@@ -1797,6 +1848,12 @@
   <data name="Settings.Station.DisplayName">
     <value>显示名称</value>
   </data>
+  <data name="Settings.Station.Callsign">
+    <value>呼号</value>
+  </data>
+  <data name="Settings.Station.CallsignNote">
+    <value>向 hams.at 发布卫星激活时使用。您仍可在发布对话框中编辑。</value>
+  </data>
   <data name="Settings.Station.Latitude">
     <value>纬度（°）</value>
   </data>
@@ -1997,6 +2054,24 @@
   </data>
   <data name="Settings.Voice.TestAnnouncement">
     <value>测试播报</value>
+  </data>
+  <data name="Settings.PassSchedule.Section">
+    <value>已安排的过境</value>
+  </data>
+  <data name="Settings.PassSchedule.Note">
+    <value>在即将过境或过境规划中将过境标记为已安排。OscarWatch 在应用运行时会在 AOS 前提示音并显示警报。</value>
+  </data>
+  <data name="Settings.PassSchedule.LeadMinutes">
+    <value>AOS 前多少分钟提醒</value>
+  </data>
+  <data name="Settings.PassSchedule.SoundEnabled">
+    <value>播放提示音</value>
+  </data>
+  <data name="Settings.PassSchedule.AlertEnabled">
+    <value>显示警报窗口</value>
+  </data>
+  <data name="Settings.PassSchedule.TestSound">
+    <value>测试声音</value>
   </data>
   <data name="Settings.Radio.Enable">
     <value>启用电台控制</value>
@@ -2487,6 +2562,69 @@
   <data name="Settings.HamsAt.ConnectionFailed">
     <value>连接失败 — {0}</value>
   </data>
+  <data name="HamsAt.Activation.Title">
+    <value>向 hams.at 发布激活</value>
+  </data>
+  <data name="HamsAt.Activation.PassSummary">
+    <value>{0} · {1} · {2}</value>
+  </data>
+  <data name="HamsAt.Activation.Callsign">
+    <value>呼号</value>
+  </data>
+  <data name="HamsAt.Activation.Grids">
+    <value>激活网格（1–4 个，每个 4 或 6 个字符）</value>
+  </data>
+  <data name="HamsAt.Activation.Mode">
+    <value>模式（FM、USB、CW 等）</value>
+  </data>
+  <data name="HamsAt.Activation.FrequencyOptional">
+    <value>频率（可选）</value>
+  </data>
+  <data name="HamsAt.Activation.IncludeUplinkMhz">
+    <value>上行</value>
+  </data>
+  <data name="HamsAt.Activation.IncludeDownlinkMhz">
+    <value>下行</value>
+  </data>
+  <data name="HamsAt.Activation.UplinkMhz">
+    <value>上行 (MHz)</value>
+  </data>
+  <data name="HamsAt.Activation.DownlinkMhz">
+    <value>下行 (MHz)</value>
+  </data>
+  <data name="HamsAt.Activation.Mhz">
+    <value>MHz（可选）</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection">
+    <value>方向</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection.Up">
+    <value>上行</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection.Down">
+    <value>下行</value>
+  </data>
+  <data name="HamsAt.Activation.Comment">
+    <value>备注（可选，最多 50 个字符）</value>
+  </data>
+  <data name="HamsAt.Activation.Submit">
+    <value>发布激活</value>
+  </data>
+  <data name="HamsAt.Activation.Error.CallsignRequired">
+    <value>请输入至少三个字符的呼号。</value>
+  </data>
+  <data name="HamsAt.Activation.Error.GridsRequired">
+    <value>请输入至少一个 Maidenhead 网格。</value>
+  </data>
+  <data name="HamsAt.Activation.Error.ModeRequired">
+    <value>请选择操作模式（SSB、CW、Data 或 FM）。</value>
+  </data>
+  <data name="HamsAt.Activation.Error.GridLength">
+    <value>网格“{0}”在 hams.at 上必须为 4 或 6 个字符。</value>
+  </data>
+  <data name="HamsAt.Activation.Error.MhzInvalid">
+    <value>请输入有效的 MHz 值或留空。</value>
+  </data>
   <data name="Settings.SatelliteStatus.Section">
     <value>OscarWatch</value>
   </data>
@@ -2828,6 +2966,9 @@
   </data>
   <data name="Planner.Col.Calendar">
     <value>日历</value>
+  </data>
+  <data name="Planner.Col.Schedule">
+    <value>安排</value>
   </data>
   <data name="Planner.AddToCalendar">
     <value>添加到日历</value>
@@ -3178,7 +3319,22 @@
     <value>卫星</value>
   </data>
   <data name="DbEditor.NameWatermark">
-    <value>名称（尽可能匹配 TLE 名称）</value>
+    <value>首选名称（显示在地图上）</value>
+  </data>
+  <data name="DbEditor.NoradIdLabel">
+    <value>NORAD ID</value>
+  </data>
+  <data name="DbEditor.NoradIdWatermark">
+    <value>可选：与 tle.oscarwatch.org 匹配（例如 27607）</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesLabel">
+    <value>别名</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesWatermark">
+    <value>逗号分隔（例如 UmKA-1, RS40-S）</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesHint">
+    <value>当与首选名称不同时，用于匹配 TLE 和已发布数据库中的名称。重命名时会自动保留旧名称。设置别名时建议填写 NORAD ID。</value>
   </data>
   <data name="DbEditor.ModesHeader">
     <value>转发器模式</value>
@@ -3257,6 +3413,9 @@
   </data>
   <data name="DbEditor.Status.Saved">
     <value>已保存。</value>
+  </data>
+  <data name="DbEditor.Status.AliasesWithoutNorad">
+    <value>提示：使用别名时请填写 NORAD ID，以便更新时仍能匹配此卫星。</value>
   </data>
   <data name="DbEditor.Status.Restored">
     <value>已恢复预设数据库。</value>

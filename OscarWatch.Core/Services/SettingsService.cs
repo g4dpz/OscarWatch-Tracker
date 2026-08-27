@@ -276,6 +276,7 @@ public sealed class SettingsService : ISettingsService, IDisposable
             return;
 
         profile.DisplayName = Current.GroundStation.DisplayName;
+        profile.Callsign = MaidenheadLocator.NormalizeCallsign(Current.GroundStation.Callsign);
         profile.LatitudeDeg = Current.GroundStation.LatitudeDeg;
         profile.LongitudeDeg = Current.GroundStation.LongitudeDeg;
         profile.AltitudeMetersAsl = Current.GroundStation.AltitudeMetersAsl;
@@ -301,6 +302,10 @@ public sealed class SettingsService : ISettingsService, IDisposable
     {
         settings.GroundStation ??= new GroundStation();
         settings.VoiceAnnouncements ??= new VoiceAnnouncementSettings();
+        settings.PassSchedule ??= new PassScheduleSettings();
+        settings.PassSchedule.LeadMinutesBeforeAos =
+            PassScheduleSettings.ClampLeadMinutes(settings.PassSchedule.LeadMinutesBeforeAos);
+        settings.ScheduledPasses ??= [];
         settings.FrequencySelections ??= new Dictionary<string, SatelliteFrequencySelection>(StringComparer.OrdinalIgnoreCase);
         foreach (var selection in settings.FrequencySelections.Values)
         {
@@ -332,6 +337,23 @@ public sealed class SettingsService : ISettingsService, IDisposable
         settings.TransponderConflictAcknowledgments ??= [];
         settings.EnabledSatelliteNames ??= [];
         settings.EnabledSatelliteNoradIds ??= [];
+        MigrateGroundStationCallsignToSavedStations(settings);
+    }
+
+    /// <summary>
+    /// Before <see cref="StationProfile.Callsign"/> existed, callsign lived only on <see cref="GroundStation"/>.
+    /// </summary>
+    private static void MigrateGroundStationCallsignToSavedStations(AppSettings settings)
+    {
+        var callsign = MaidenheadLocator.NormalizeCallsign(settings.GroundStation?.Callsign);
+        if (string.IsNullOrWhiteSpace(callsign))
+            return;
+
+        foreach (var profile in settings.SavedStations)
+        {
+            if (string.IsNullOrWhiteSpace(profile.Callsign))
+                profile.Callsign = callsign;
+        }
     }
 
     /// <summary>
