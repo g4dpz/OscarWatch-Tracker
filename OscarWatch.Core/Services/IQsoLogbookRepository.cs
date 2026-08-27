@@ -39,6 +39,16 @@ public interface IQsoLogbookRepository
         string call,
         CancellationToken cancellationToken = default);
 
+    Task<QsoRecord?> FindLatestQsoForDxccAsync(
+        long logbookId,
+        int dxcc,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<QsoRecord>> ListQsosMissingDxccAsync(
+        long logbookId,
+        int limit = 500,
+        CancellationToken cancellationToken = default);
+
     Task<QsoRecord> AddQsoAsync(QsoRecordCreateRequest request, CancellationToken cancellationToken = default);
 
     Task<QsoRecord> UpdateQsoAsync(QsoRecordUpdateRequest request, CancellationToken cancellationToken = default);

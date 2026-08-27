@@ -1113,6 +1113,30 @@ Continuar?</value>
   <data name="Logbook.CallStatus.NotWorked">
     <value>Não trabalhado</value>
   </data>
+  <data name="Logbook.DxccStatus.Worked">
+    <value>Trabalhado</value>
+  </data>
+  <data name="Logbook.DxccStatus.New">
+    <value>Novo</value>
+  </data>
+  <data name="Logbook.DxccBadge">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="Logbook.Menu.UpdateCountryFile">
+    <value>Atualizar arquivo de países</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdating">
+    <value>Atualizando arquivo de países…</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdated">
+    <value>Arquivo de países atualizado.</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdateFailed">
+    <value>Não foi possível atualizar o arquivo de países: {0}</value>
+  </data>
+  <data name="Logbook.Column.Country">
+    <value>País</value>
+  </data>
   <data name="Logbook.Column.DateTime">
     <value>Data/hora (UTC)</value>
   </data>

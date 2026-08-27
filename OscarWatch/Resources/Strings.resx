@@ -1206,6 +1206,30 @@ Continue?</value>
   <data name="Logbook.CallStatus.NotWorked">
     <value>Not worked</value>
   </data>
+  <data name="Logbook.DxccStatus.Worked">
+    <value>Worked</value>
+  </data>
+  <data name="Logbook.DxccStatus.New">
+    <value>New</value>
+  </data>
+  <data name="Logbook.DxccBadge">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="Logbook.Menu.UpdateCountryFile">
+    <value>Update country file</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdating">
+    <value>Updating country file…</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdated">
+    <value>Country file updated.</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdateFailed">
+    <value>Could not update country file: {0}</value>
+  </data>
+  <data name="Logbook.Column.Country">
+    <value>Country</value>
+  </data>
   <data name="Logbook.Column.DateTime">
     <value>Date/time (UTC)</value>
   </data>

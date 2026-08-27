@@ -1113,6 +1113,30 @@
   <data name="Logbook.CallStatus.NotWorked">
     <value>未通联</value>
   </data>
+  <data name="Logbook.DxccStatus.Worked">
+    <value>已通联</value>
+  </data>
+  <data name="Logbook.DxccStatus.New">
+    <value>新实体</value>
+  </data>
+  <data name="Logbook.DxccBadge">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="Logbook.Menu.UpdateCountryFile">
+    <value>更新国家文件</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdating">
+    <value>正在更新国家文件…</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdated">
+    <value>国家文件已更新。</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdateFailed">
+    <value>无法更新国家文件：{0}</value>
+  </data>
+  <data name="Logbook.Column.Country">
+    <value>国家/地区</value>
+  </data>
   <data name="Logbook.Column.DateTime">
     <value>日期/时间 (UTC)</value>
   </data>

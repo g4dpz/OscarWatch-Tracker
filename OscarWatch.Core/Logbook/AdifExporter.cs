@@ -83,6 +83,11 @@ public static class AdifExporter
         if (!string.IsNullOrWhiteSpace(qso.BandRx) && !string.Equals(qso.Band, qso.BandRx, StringComparison.OrdinalIgnoreCase))
             AppendField(sb, "BAND_RX", qso.BandRx.Trim());
 
+        if (qso.Dxcc is int dxcc and > 0)
+            AppendField(sb, "DXCC", dxcc.ToString(CultureInfo.InvariantCulture));
+        if (!string.IsNullOrWhiteSpace(qso.Country))
+            AppendField(sb, "COUNTRY", qso.Country.Trim());
+
         sb.AppendLine("<EOR>");
     }
 

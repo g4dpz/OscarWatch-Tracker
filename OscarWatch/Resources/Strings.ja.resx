@@ -2283,6 +2283,30 @@
   <data name="Logbook.CallStatus.NotWorked">
     <value>未交信</value>
   </data>
+  <data name="Logbook.DxccStatus.Worked">
+    <value>交信済</value>
+  </data>
+  <data name="Logbook.DxccStatus.New">
+    <value>新規</value>
+  </data>
+  <data name="Logbook.DxccBadge">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="Logbook.Menu.UpdateCountryFile">
+    <value>カントリーファイルを更新</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdating">
+    <value>カントリーファイルを更新中…</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdated">
+    <value>カントリーファイルを更新しました。</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdateFailed">
+    <value>カントリーファイルを更新できませんでした: {0}</value>
+  </data>
+  <data name="Logbook.Column.Country">
+    <value>国/地域</value>
+  </data>
   <data name="Logbook.Column.DateTime">
     <value>日時 (UTC)</value>
   </data>
