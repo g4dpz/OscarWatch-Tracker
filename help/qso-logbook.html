@@ -92,9 +92,9 @@
         <li>Type the worked callsign, RST sent/received, grid, optional name and comment. Callsign and gridsquare entries are uppercased as you type.</li>
         <li>Press <strong>Add</strong>, or press <strong>Enter</strong> in any entry field — the QSO is saved and focus returns to the callsign box for the next contact. <strong>Add</strong> is disabled until the callsign is filled in and any gridsquare entry is valid (empty grid is allowed).</li>
         <li>RST defaults to <strong>59</strong> on FM/packet-style modes and <strong>599</strong> on SSB/CW, based on the tracked mode.</li>
-        <li>When you type a callsign you have worked before in this logbook, a red <strong>Worked</strong> badge appears under the entry row (green <strong>Not worked</strong> for a new call). The callsign box border uses the same colours. A hint may also show the previous grid.</li>
+        <li>When you type a callsign of three or more characters, OscarWatch resolves the DXCC entity from the country file (cty.dat). A badge under the entry row shows the country name with <strong>New</strong> or <strong>Worked</strong> for that entity in the current logbook (green for new, red for worked). The callsign box border uses the same colours. A hint may also show a previous grid for that call.</li>
         <li>Typing three or more characters in the callsign box filters the recent QSO list to matching calls (cleared when you finish logging or clear the field).</li>
-        <li><strong>Alt+W</strong> clears the entry fields (and cancels an edit in progress), then returns focus to the callsign box — similar to contest loggers such as N1MM.</li>
+        <li><strong>Alt+W</strong> clears the entry fields (and cancels an edit in progress), then returns focus to the callsign box, similar to contest loggers such as N1MM.</li>
       </ul>
       <p>
         Keyboard shortcuts are listed in <a href="keyboard-shortcuts.html">Keyboard shortcuts</a>
@@ -155,6 +155,11 @@
         many records will be written before you save.
       </p>
       <p>
+        Use <strong>Update country file</strong> on the logbook menu to download the latest Big CTY
+        <code>cty.dat</code> from country-files.com into
+        <code>%AppData%\OscarWatch\cty.dat</code>. OscarWatch ships with a bundled copy for offline use.
+      </p>
+      <p>
         You can also choose whether the file is for <strong>Logbook of the World (LoTW)</strong>. When enabled,
         satellite names are remapped to the identifiers LoTW expects (for example <code>ISS</code> → <code>ARISS</code>).
         Leave the option unchecked for Cloudlog, Log4OM, and other loggers that use common satellite names.
@@ -162,6 +167,7 @@
       <p>
         Records include satellite name, ADIF mode and submode (for example LSB as <code>MODE=SSB</code> with <code>SUBMODE=LSB</code>),
         bands, frequencies, propagation mode <strong>SAT</strong>,
+        DXCC entity code (<code>DXCC</code>) and country name (<code>COUNTRY</code>) when resolved,
         your station callsign and grid from the logbook, and comma-separated grids when used.
         When uplink and downlink modes differ, the downlink mode is noted in <code>COMMENT</code>
         (for example <code>RX mode USB</code>) rather than a non-standard field.
@@ -187,8 +193,9 @@
       <p>
         If <a href="satellite-link.html">Satellite link</a> is enabled, each QSO you add, edit, or delete
         is broadcast to connected WebSocket clients as a <code>qsoLogged</code>, <code>qsoUpdated</code>, or
-        <code>qsoDeleted</code> message. External logging tools can mirror your OscarWatch log in real time.
-        See the <a href="satellite-link.html#api">developer API</a> for the full JSON schema.
+        <code>qsoDeleted</code> message. Logged and updated events include both structured JSON and a ready-to-import
+        ADIF record. External logging tools can mirror your OscarWatch log in real time.
+        See the <a href="satellite-link.html#api">developer API</a> for the full schema.
       </p>
 
       <div class="tip">

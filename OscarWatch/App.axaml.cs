@@ -5,6 +5,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
+using OscarWatch.Core.Dxcc;
 using OscarWatch.Core.Logbook;
 using OscarWatch.Core.Net;
 using OscarWatch.Core.Orbit;
@@ -85,6 +86,7 @@ public partial class App : Application
         services.AddSingleton<LiveTrackerSnapshotProvider>();
         services.AddSingleton<ILiveTrackerSnapshotProvider>(sp => sp.GetRequiredService<LiveTrackerSnapshotProvider>());
         services.AddSingleton<IQsoLogbookRepository, QsoLogbookRepository>();
+        services.AddSingleton<IDxccLookupService, DxccLookupService>();
         services.AddSingleton<FrequencyOverlayViewModel>();
         services.AddSingleton<DxStationOverlayViewModel>();
         services.AddSingleton<ITrackingDiagnostics, SerilogTrackingDiagnostics>();

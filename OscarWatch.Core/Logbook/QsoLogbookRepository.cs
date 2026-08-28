@@ -15,13 +15,15 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
     private const string QsoSelectColumns = """
         id, logbook_id, qso_utc, call, rst_sent, rst_rcvd, grid_square, name, comment,
         sat_name, mode, mode_rx, freq_hz, freq_rx_hz, band, band_rx, prop_mode, created_utc,
-        cloudlog_upload_status, cloudlog_upload_attempts, cloudlog_upload_last_error, cloudlog_upload_sent_utc
+        cloudlog_upload_status, cloudlog_upload_attempts, cloudlog_upload_last_error, cloudlog_upload_sent_utc,
+        dxcc, country
         """;
 
     private const string QsoSelectColumnsFromAlias = """
         q.id, q.logbook_id, q.qso_utc, q.call, q.rst_sent, q.rst_rcvd, q.grid_square, q.name, q.comment,
         q.sat_name, q.mode, q.mode_rx, q.freq_hz, q.freq_rx_hz, q.band, q.band_rx, q.prop_mode, q.created_utc,
-        q.cloudlog_upload_status, q.cloudlog_upload_attempts, q.cloudlog_upload_last_error, q.cloudlog_upload_sent_utc
+        q.cloudlog_upload_status, q.cloudlog_upload_attempts, q.cloudlog_upload_last_error, q.cloudlog_upload_sent_utc,
+        q.dxcc, q.country
         """;
 
     private readonly SemaphoreSlim _gate = new(1, 1);
@@ -288,6 +290,47 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         return rows.FirstOrDefault();
     }
 
+    public async Task<QsoRecord?> FindLatestQsoForDxccAsync(
+        long logbookId,
+        int dxcc,
+        CancellationToken cancellationToken = default)
+    {
+        await EnsureInitializedAsync(cancellationToken).ConfigureAwait(false);
+        await using var connection = OpenConnection();
+        await using var command = connection.CreateCommand();
+        command.CommandText = $"""
+            SELECT {QsoSelectColumns}
+            FROM qsos
+            WHERE logbook_id = $logbookId AND dxcc = $dxcc
+            ORDER BY datetime(qso_utc) DESC, id DESC
+            LIMIT 1
+            """;
+        command.Parameters.AddWithValue("$logbookId", logbookId);
+        command.Parameters.AddWithValue("$dxcc", dxcc);
+        var rows = await ReadQsosAsync(command, cancellationToken).ConfigureAwait(false);
+        return rows.FirstOrDefault();
+    }
+
+    public async Task<IReadOnlyList<QsoRecord>> ListQsosMissingDxccAsync(
+        long logbookId,
+        int limit = 500,
+        CancellationToken cancellationToken = default)
+    {
+        await EnsureInitializedAsync(cancellationToken).ConfigureAwait(false);
+        await using var connection = OpenConnection();
+        await using var command = connection.CreateCommand();
+        command.CommandText = $"""
+            SELECT {QsoSelectColumns}
+            FROM qsos
+            WHERE logbook_id = $logbookId AND dxcc IS NULL
+            ORDER BY id ASC
+            LIMIT $limit
+            """;
+        command.Parameters.AddWithValue("$logbookId", logbookId);
+        command.Parameters.AddWithValue("$limit", Math.Clamp(limit, 1, 5000));
+        return await ReadQsosAsync(command, cancellationToken).ConfigureAwait(false);
+    }
+
     public async Task<QsoRecord> AddQsoAsync(
         QsoRecordCreateRequest request,
         CancellationToken cancellationToken = default)
@@ -303,11 +346,11 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
             INSERT INTO qsos (
               logbook_id, qso_utc, call, rst_sent, rst_rcvd, grid_square, name, comment,
               sat_name, mode, mode_rx, freq_hz, freq_rx_hz, band, band_rx, prop_mode, created_utc,
-              cloudlog_upload_status)
+              cloudlog_upload_status, dxcc, country)
             VALUES (
               $logbookId, $qsoUtc, $call, $rstSent, $rstRcvd, $gridSquare, $name, $comment,
               $satName, $mode, $modeRx, $freqHz, $freqRxHz, $band, $bandRx, $propMode, $createdUtc,
-              $cloudlogUploadStatus);
+              $cloudlogUploadStatus, $dxcc, $country);
             SELECT last_insert_rowid();
             """;
         command.Parameters.AddWithValue("$logbookId", request.LogbookId);
@@ -328,6 +371,8 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         command.Parameters.AddWithValue("$propMode", string.IsNullOrWhiteSpace(request.PropMode) ? "SAT" : request.PropMode.Trim());
         command.Parameters.AddWithValue("$createdUtc", FormatUtc(createdUtc));
         command.Parameters.AddWithValue("$cloudlogUploadStatus", CloudlogUploadStatusCodec.ToStorage(request.CloudlogUploadStatus));
+        AddNullableIntParameter(command, "$dxcc", request.Dxcc);
+        command.Parameters.AddWithValue("$country", request.Country.Trim());
 
         var id = (long)(await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false) ?? 0L);
         return new QsoRecord
@@ -349,6 +394,8 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
             Band = request.Band.Trim(),
             BandRx = request.BandRx.Trim(),
             PropMode = string.IsNullOrWhiteSpace(request.PropMode) ? "SAT" : request.PropMode.Trim(),
+            Dxcc = request.Dxcc,
+            Country = request.Country.Trim(),
             CreatedUtc = createdUtc,
             CloudlogUploadStatus = request.CloudlogUploadStatus
         };
@@ -380,7 +427,9 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
               freq_rx_hz = $freqRxHz,
               band = $band,
               band_rx = $bandRx,
-              prop_mode = $propMode
+              prop_mode = $propMode,
+              dxcc = $dxcc,
+              country = $country
             WHERE id = $id
             """;
         command.Parameters.AddWithValue("$id", request.Id);
@@ -399,6 +448,8 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         command.Parameters.AddWithValue("$band", request.Band.Trim());
         command.Parameters.AddWithValue("$bandRx", request.BandRx.Trim());
         command.Parameters.AddWithValue("$propMode", string.IsNullOrWhiteSpace(request.PropMode) ? "SAT" : request.PropMode.Trim());
+        AddNullableIntParameter(command, "$dxcc", request.Dxcc);
+        command.Parameters.AddWithValue("$country", request.Country.Trim());
 
         var updated = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         if (updated == 0)
@@ -621,7 +672,9 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
                     reader.IsDBNull(18) ? null : reader.GetString(18)),
                 CloudlogUploadAttempts = reader.IsDBNull(19) ? 0 : reader.GetInt32(19),
                 CloudlogUploadLastError = reader.IsDBNull(20) ? "" : reader.GetString(20),
-                CloudlogUploadSentUtc = ParseNullableUtc(reader.IsDBNull(21) ? null : reader.GetString(21))
+                CloudlogUploadSentUtc = ParseNullableUtc(reader.IsDBNull(21) ? null : reader.GetString(21)),
+                Dxcc = reader.FieldCount > 22 && !reader.IsDBNull(22) ? reader.GetInt32(22) : null,
+                Country = reader.FieldCount > 23 && !reader.IsDBNull(23) ? reader.GetString(23) : ""
             });
         }
 
@@ -653,6 +706,14 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
             .Replace("%", "\\%", StringComparison.Ordinal)
             .Replace("_", "\\_", StringComparison.Ordinal);
 
+    private static void AddNullableIntParameter(SqliteCommand command, string name, int? value)
+    {
+        var parameter = command.CreateParameter();
+        parameter.ParameterName = name;
+        parameter.Value = value is null ? DBNull.Value : value.Value;
+        command.Parameters.Add(parameter);
+    }
+
     private static async Task ApplyMigrationsAsync(SqliteConnection connection, CancellationToken cancellationToken)
     {
         await TryAddColumnAsync(connection, "logbooks", "cloudlog_auto_upload", "INTEGER NOT NULL DEFAULT 0", cancellationToken).ConfigureAwait(false);
@@ -661,6 +722,31 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         await TryAddColumnAsync(connection, "qsos", "cloudlog_upload_attempts", "INTEGER NOT NULL DEFAULT 0", cancellationToken).ConfigureAwait(false);
         await TryAddColumnAsync(connection, "qsos", "cloudlog_upload_last_error", "TEXT NOT NULL DEFAULT ''", cancellationToken).ConfigureAwait(false);
         await TryAddColumnAsync(connection, "qsos", "cloudlog_upload_sent_utc", "TEXT", cancellationToken).ConfigureAwait(false);
+        await TryAddColumnAsync(connection, "qsos", "dxcc", "INTEGER", cancellationToken).ConfigureAwait(false);
+        await TryAddColumnAsync(connection, "qsos", "country", "TEXT NOT NULL DEFAULT ''", cancellationToken).ConfigureAwait(false);
+        await TryCreateIndexAsync(
+            connection,
+            "idx_qsos_logbook_dxcc",
+            "CREATE INDEX IF NOT EXISTS idx_qsos_logbook_dxcc ON qsos(logbook_id, dxcc)",
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task TryCreateIndexAsync(
+        SqliteConnection connection,
+        string name,
+        string ddl,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await using var command = connection.CreateCommand();
+            command.CommandText = ddl;
+            await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (SqliteException)
+        {
+            // Index may already exist under a different definition; ignore.
+        }
     }
 
     private static async Task TryAddColumnAsync(

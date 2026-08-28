@@ -1,0 +1,1366 @@
+{
+  "1A": {
+    "dxcc": 246,
+    "country": "Sov Mil Order of Malta"
+  },
+  "1S": {
+    "dxcc": 247,
+    "country": "Spratly Islands"
+  },
+  "3A": {
+    "dxcc": 260,
+    "country": "Monaco"
+  },
+  "3B6": {
+    "dxcc": 4,
+    "country": "Agalega & St. Brandon"
+  },
+  "3B8": {
+    "dxcc": 165,
+    "country": "Mauritius"
+  },
+  "3B9": {
+    "dxcc": 207,
+    "country": "Rodriguez Island"
+  },
+  "3C": {
+    "dxcc": 49,
+    "country": "Equatorial Guinea"
+  },
+  "3C0": {
+    "dxcc": 195,
+    "country": "Annobon Island"
+  },
+  "3D2": {
+    "dxcc": 176,
+    "country": "Fiji"
+  },
+  "3D2/c": {
+    "dxcc": 489,
+    "country": "Conway Reef"
+  },
+  "3D2/r": {
+    "dxcc": 460,
+    "country": "Rotuma Island"
+  },
+  "3DA": {
+    "dxcc": 468,
+    "country": "Kingdom of Eswatini"
+  },
+  "3V": {
+    "dxcc": 474,
+    "country": "Tunisia"
+  },
+  "3W": {
+    "dxcc": 293,
+    "country": "Vietnam"
+  },
+  "3X": {
+    "dxcc": 107,
+    "country": "Guinea"
+  },
+  "3Y/b": {
+    "dxcc": 24,
+    "country": "Bouvet"
+  },
+  "3Y/p": {
+    "dxcc": 199,
+    "country": "Peter 1 Island"
+  },
+  "4J": {
+    "dxcc": 18,
+    "country": "Azerbaijan"
+  },
+  "4L": {
+    "dxcc": 75,
+    "country": "Georgia"
+  },
+  "4O": {
+    "dxcc": 514,
+    "country": "Montenegro"
+  },
+  "4S": {
+    "dxcc": 315,
+    "country": "Sri Lanka"
+  },
+  "4U1I": {
+    "dxcc": 117,
+    "country": "ITU HQ"
+  },
+  "4U1U": {
+    "dxcc": 289,
+    "country": "United Nations HQ"
+  },
+  "4W": {
+    "dxcc": 511,
+    "country": "Timor - Leste"
+  },
+  "4X": {
+    "dxcc": 336,
+    "country": "Israel"
+  },
+  "5A": {
+    "dxcc": 436,
+    "country": "Libya"
+  },
+  "5B": {
+    "dxcc": 215,
+    "country": "Cyprus"
+  },
+  "5H": {
+    "dxcc": 470,
+    "country": "Tanzania"
+  },
+  "5N": {
+    "dxcc": 450,
+    "country": "Nigeria"
+  },
+  "5R": {
+    "dxcc": 438,
+    "country": "Madagascar"
+  },
+  "5T": {
+    "dxcc": 444,
+    "country": "Mauritania"
+  },
+  "5U": {
+    "dxcc": 187,
+    "country": "Niger"
+  },
+  "5V": {
+    "dxcc": 483,
+    "country": "Togo"
+  },
+  "5W": {
+    "dxcc": 190,
+    "country": "Samoa"
+  },
+  "5X": {
+    "dxcc": 286,
+    "country": "Uganda"
+  },
+  "5Z": {
+    "dxcc": 430,
+    "country": "Kenya"
+  },
+  "6W": {
+    "dxcc": 456,
+    "country": "Senegal"
+  },
+  "6Y": {
+    "dxcc": 82,
+    "country": "Jamaica"
+  },
+  "7O": {
+    "dxcc": 492,
+    "country": "Yemen"
+  },
+  "7P": {
+    "dxcc": 432,
+    "country": "Lesotho"
+  },
+  "7Q": {
+    "dxcc": 440,
+    "country": "Malawi"
+  },
+  "7X": {
+    "dxcc": 400,
+    "country": "Algeria"
+  },
+  "8P": {
+    "dxcc": 62,
+    "country": "Barbados"
+  },
+  "8Q": {
+    "dxcc": 159,
+    "country": "Maldives"
+  },
+  "8R": {
+    "dxcc": 129,
+    "country": "Guyana"
+  },
+  "9A": {
+    "dxcc": 497,
+    "country": "Croatia"
+  },
+  "9G": {
+    "dxcc": 424,
+    "country": "Ghana"
+  },
+  "9H": {
+    "dxcc": 257,
+    "country": "Malta"
+  },
+  "9J": {
+    "dxcc": 482,
+    "country": "Zambia"
+  },
+  "9K": {
+    "dxcc": 348,
+    "country": "Kuwait"
+  },
+  "9L": {
+    "dxcc": 458,
+    "country": "Sierra Leone"
+  },
+  "9M2": {
+    "dxcc": 299,
+    "country": "West Malaysia"
+  },
+  "9M6": {
+    "dxcc": 46,
+    "country": "East Malaysia"
+  },
+  "9N": {
+    "dxcc": 369,
+    "country": "Nepal"
+  },
+  "9Q": {
+    "dxcc": 414,
+    "country": "Dem. Rep. of the Congo"
+  },
+  "9U": {
+    "dxcc": 404,
+    "country": "Burundi"
+  },
+  "9V": {
+    "dxcc": 381,
+    "country": "Singapore"
+  },
+  "9X": {
+    "dxcc": 454,
+    "country": "Rwanda"
+  },
+  "9Y": {
+    "dxcc": 90,
+    "country": "Trinidad & Tobago"
+  },
+  "A2": {
+    "dxcc": 402,
+    "country": "Botswana"
+  },
+  "A3": {
+    "dxcc": 160,
+    "country": "Tonga"
+  },
+  "A4": {
+    "dxcc": 370,
+    "country": "Oman"
+  },
+  "A5": {
+    "dxcc": 306,
+    "country": "Bhutan"
+  },
+  "A6": {
+    "dxcc": 391,
+    "country": "United Arab Emirates"
+  },
+  "A7": {
+    "dxcc": 376,
+    "country": "Qatar"
+  },
+  "A9": {
+    "dxcc": 304,
+    "country": "Bahrain"
+  },
+  "AP": {
+    "dxcc": 372,
+    "country": "Pakistan"
+  },
+  "BS7": {
+    "dxcc": 506,
+    "country": "Scarborough Reef"
+  },
+  "BV": {
+    "dxcc": 386,
+    "country": "Taiwan"
+  },
+  "BV9P": {
+    "dxcc": 505,
+    "country": "Pratas Island"
+  },
+  "BY": {
+    "dxcc": 318,
+    "country": "China"
+  },
+  "C2": {
+    "dxcc": 157,
+    "country": "Nauru"
+  },
+  "C3": {
+    "dxcc": 203,
+    "country": "Andorra"
+  },
+  "C5": {
+    "dxcc": 422,
+    "country": "The Gambia"
+  },
+  "C6": {
+    "dxcc": 60,
+    "country": "Bahamas"
+  },
+  "C9": {
+    "dxcc": 181,
+    "country": "Mozambique"
+  },
+  "CE": {
+    "dxcc": 112,
+    "country": "Chile"
+  },
+  "CE0X": {
+    "dxcc": 217,
+    "country": "San Felix & San Ambrosio"
+  },
+  "CE0Y": {
+    "dxcc": 47,
+    "country": "Easter Island"
+  },
+  "CE0Z": {
+    "dxcc": 125,
+    "country": "Juan Fernandez Islands"
+  },
+  "CE9": {
+    "dxcc": 13,
+    "country": "Antarctica"
+  },
+  "CM": {
+    "dxcc": 70,
+    "country": "Cuba"
+  },
+  "CN": {
+    "dxcc": 446,
+    "country": "Morocco"
+  },
+  "CP": {
+    "dxcc": 104,
+    "country": "Bolivia"
+  },
+  "CT": {
+    "dxcc": 272,
+    "country": "Portugal"
+  },
+  "CT3": {
+    "dxcc": 256,
+    "country": "Madeira Islands"
+  },
+  "CU": {
+    "dxcc": 149,
+    "country": "Azores"
+  },
+  "CX": {
+    "dxcc": 144,
+    "country": "Uruguay"
+  },
+  "CY0": {
+    "dxcc": 211,
+    "country": "Sable Island"
+  },
+  "CY9": {
+    "dxcc": 252,
+    "country": "St. Paul Island"
+  },
+  "D2": {
+    "dxcc": 401,
+    "country": "Angola"
+  },
+  "D4": {
+    "dxcc": 409,
+    "country": "Cape Verde"
+  },
+  "D6": {
+    "dxcc": 411,
+    "country": "Comoros"
+  },
+  "DL": {
+    "dxcc": 230,
+    "country": "Fed. Rep. of Germany"
+  },
+  "DU": {
+    "dxcc": 375,
+    "country": "Philippines"
+  },
+  "E3": {
+    "dxcc": 51,
+    "country": "Eritrea"
+  },
+  "E4": {
+    "dxcc": 510,
+    "country": "Palestine"
+  },
+  "E5/n": {
+    "dxcc": 191,
+    "country": "North Cook Islands"
+  },
+  "E5/s": {
+    "dxcc": 234,
+    "country": "South Cook Islands"
+  },
+  "E6": {
+    "dxcc": 188,
+    "country": "Niue"
+  },
+  "E7": {
+    "dxcc": 501,
+    "country": "Bosnia-Herzegovina"
+  },
+  "EA": {
+    "dxcc": 281,
+    "country": "Spain"
+  },
+  "EA6": {
+    "dxcc": 21,
+    "country": "Balearic Islands"
+  },
+  "EA8": {
+    "dxcc": 29,
+    "country": "Canary Islands"
+  },
+  "EA9": {
+    "dxcc": 32,
+    "country": "Ceuta & Melilla"
+  },
+  "EI": {
+    "dxcc": 245,
+    "country": "Ireland"
+  },
+  "EK": {
+    "dxcc": 14,
+    "country": "Armenia"
+  },
+  "EL": {
+    "dxcc": 434,
+    "country": "Liberia"
+  },
+  "EP": {
+    "dxcc": 330,
+    "country": "Iran"
+  },
+  "ER": {
+    "dxcc": 179,
+    "country": "Moldova"
+  },
+  "ES": {
+    "dxcc": 52,
+    "country": "Estonia"
+  },
+  "ET": {
+    "dxcc": 53,
+    "country": "Ethiopia"
+  },
+  "EU": {
+    "dxcc": 27,
+    "country": "Belarus"
+  },
+  "EX": {
+    "dxcc": 135,
+    "country": "Kyrgyzstan"
+  },
+  "EY": {
+    "dxcc": 262,
+    "country": "Tajikistan"
+  },
+  "EZ": {
+    "dxcc": 280,
+    "country": "Turkmenistan"
+  },
+  "F": {
+    "dxcc": 227,
+    "country": "France"
+  },
+  "FG": {
+    "dxcc": 79,
+    "country": "Guadeloupe"
+  },
+  "FH": {
+    "dxcc": 169,
+    "country": "Mayotte"
+  },
+  "FJ": {
+    "dxcc": 516,
+    "country": "St. Barthelemy"
+  },
+  "FK": {
+    "dxcc": 162,
+    "country": "New Caledonia"
+  },
+  "FK/c": {
+    "dxcc": 512,
+    "country": "Chesterfield Islands"
+  },
+  "FM": {
+    "dxcc": 84,
+    "country": "Martinique"
+  },
+  "FO": {
+    "dxcc": 175,
+    "country": "French Polynesia"
+  },
+  "FO/a": {
+    "dxcc": 508,
+    "country": "Austral Islands"
+  },
+  "FO/c": {
+    "dxcc": 36,
+    "country": "Clipperton Island"
+  },
+  "FO/m": {
+    "dxcc": 509,
+    "country": "Marquesas Islands"
+  },
+  "FP": {
+    "dxcc": 277,
+    "country": "St. Pierre & Miquelon"
+  },
+  "FR": {
+    "dxcc": 453,
+    "country": "Reunion Island"
+  },
+  "FS": {
+    "dxcc": 213,
+    "country": "St. Martin"
+  },
+  "FT/g": {
+    "dxcc": 99,
+    "country": "Glorioso Islands"
+  },
+  "FT/j": {
+    "dxcc": 124,
+    "country": "Juan de Nova, Europa"
+  },
+  "FT/t": {
+    "dxcc": 276,
+    "country": "Tromelin Island"
+  },
+  "FT/w": {
+    "dxcc": 41,
+    "country": "Crozet Island"
+  },
+  "FT/x": {
+    "dxcc": 131,
+    "country": "Kerguelen Islands"
+  },
+  "FT/z": {
+    "dxcc": 10,
+    "country": "Amsterdam & St. Paul Is."
+  },
+  "FW": {
+    "dxcc": 298,
+    "country": "Wallis & Futuna Islands"
+  },
+  "FY": {
+    "dxcc": 63,
+    "country": "French Guiana"
+  },
+  "G": {
+    "dxcc": 223,
+    "country": "England"
+  },
+  "GD": {
+    "dxcc": 114,
+    "country": "Isle of Man"
+  },
+  "GI": {
+    "dxcc": 265,
+    "country": "Northern Ireland"
+  },
+  "GJ": {
+    "dxcc": 122,
+    "country": "Jersey"
+  },
+  "GM": {
+    "dxcc": 279,
+    "country": "Scotland"
+  },
+  "GU": {
+    "dxcc": 106,
+    "country": "Guernsey"
+  },
+  "GW": {
+    "dxcc": 294,
+    "country": "Wales"
+  },
+  "H4": {
+    "dxcc": 185,
+    "country": "Solomon Islands"
+  },
+  "H40": {
+    "dxcc": 507,
+    "country": "Temotu Province"
+  },
+  "HA": {
+    "dxcc": 239,
+    "country": "Hungary"
+  },
+  "HB": {
+    "dxcc": 287,
+    "country": "Switzerland"
+  },
+  "HB0": {
+    "dxcc": 251,
+    "country": "Liechtenstein"
+  },
+  "HC": {
+    "dxcc": 120,
+    "country": "Ecuador"
+  },
+  "HC8": {
+    "dxcc": 71,
+    "country": "Galapagos Islands"
+  },
+  "HH": {
+    "dxcc": 78,
+    "country": "Haiti"
+  },
+  "HI": {
+    "dxcc": 72,
+    "country": "Dominican Republic"
+  },
+  "HK": {
+    "dxcc": 116,
+    "country": "Colombia"
+  },
+  "HK0/a": {
+    "dxcc": 216,
+    "country": "San Andres & Providencia"
+  },
+  "HK0/m": {
+    "dxcc": 161,
+    "country": "Malpelo Island"
+  },
+  "HL": {
+    "dxcc": 137,
+    "country": "Republic of Korea"
+  },
+  "HP": {
+    "dxcc": 88,
+    "country": "Panama"
+  },
+  "HR": {
+    "dxcc": 80,
+    "country": "Honduras"
+  },
+  "HS": {
+    "dxcc": 387,
+    "country": "Thailand"
+  },
+  "HV": {
+    "dxcc": 295,
+    "country": "Vatican City"
+  },
+  "HZ": {
+    "dxcc": 378,
+    "country": "Saudi Arabia"
+  },
+  "I": {
+    "dxcc": 248,
+    "country": "Italy"
+  },
+  "IS": {
+    "dxcc": 225,
+    "country": "Sardinia"
+  },
+  "J2": {
+    "dxcc": 382,
+    "country": "Djibouti"
+  },
+  "J3": {
+    "dxcc": 77,
+    "country": "Grenada"
+  },
+  "J5": {
+    "dxcc": 109,
+    "country": "Guinea-Bissau"
+  },
+  "J6": {
+    "dxcc": 97,
+    "country": "St. Lucia"
+  },
+  "J7": {
+    "dxcc": 95,
+    "country": "Dominica"
+  },
+  "J8": {
+    "dxcc": 98,
+    "country": "St. Vincent"
+  },
+  "JA": {
+    "dxcc": 339,
+    "country": "Japan"
+  },
+  "JD/m": {
+    "dxcc": 177,
+    "country": "Minami Torishima"
+  },
+  "JD/o": {
+    "dxcc": 192,
+    "country": "Ogasawara"
+  },
+  "JT": {
+    "dxcc": 363,
+    "country": "Mongolia"
+  },
+  "JW": {
+    "dxcc": 259,
+    "country": "Svalbard"
+  },
+  "JX": {
+    "dxcc": 118,
+    "country": "Jan Mayen"
+  },
+  "JY": {
+    "dxcc": 342,
+    "country": "Jordan"
+  },
+  "K": {
+    "dxcc": 291,
+    "country": "United States"
+  },
+  "KG4": {
+    "dxcc": 105,
+    "country": "Guantanamo Bay"
+  },
+  "KH0": {
+    "dxcc": 166,
+    "country": "Mariana Islands"
+  },
+  "KH1": {
+    "dxcc": 20,
+    "country": "Baker & Howland Islands"
+  },
+  "KH2": {
+    "dxcc": 103,
+    "country": "Guam"
+  },
+  "KH3": {
+    "dxcc": 123,
+    "country": "Johnston Island"
+  },
+  "KH4": {
+    "dxcc": 174,
+    "country": "Midway Island"
+  },
+  "KH5": {
+    "dxcc": 197,
+    "country": "Palmyra & Jarvis Islands"
+  },
+  "KH6": {
+    "dxcc": 110,
+    "country": "Hawaii"
+  },
+  "KH7K": {
+    "dxcc": 138,
+    "country": "Kure Island"
+  },
+  "KH8": {
+    "dxcc": 9,
+    "country": "American Samoa"
+  },
+  "KH8/s": {
+    "dxcc": 515,
+    "country": "Swains Island"
+  },
+  "KH9": {
+    "dxcc": 297,
+    "country": "Wake Island"
+  },
+  "KL": {
+    "dxcc": 6,
+    "country": "Alaska"
+  },
+  "KP1": {
+    "dxcc": 182,
+    "country": "Navassa Island"
+  },
+  "KP2": {
+    "dxcc": 285,
+    "country": "US Virgin Islands"
+  },
+  "KP4": {
+    "dxcc": 202,
+    "country": "Puerto Rico"
+  },
+  "KP5": {
+    "dxcc": 43,
+    "country": "Desecheo Island"
+  },
+  "LA": {
+    "dxcc": 266,
+    "country": "Norway"
+  },
+  "LU": {
+    "dxcc": 100,
+    "country": "Argentina"
+  },
+  "LX": {
+    "dxcc": 254,
+    "country": "Luxembourg"
+  },
+  "LY": {
+    "dxcc": 146,
+    "country": "Lithuania"
+  },
+  "LZ": {
+    "dxcc": 212,
+    "country": "Bulgaria"
+  },
+  "MM": {
+    "dxcc": 279,
+    "country": "Scotland"
+  },
+  "OA": {
+    "dxcc": 136,
+    "country": "Peru"
+  },
+  "OD": {
+    "dxcc": 354,
+    "country": "Lebanon"
+  },
+  "OE": {
+    "dxcc": 206,
+    "country": "Austria"
+  },
+  "OH": {
+    "dxcc": 224,
+    "country": "Finland"
+  },
+  "OH0": {
+    "dxcc": 5,
+    "country": "Aland Islands"
+  },
+  "OJ0": {
+    "dxcc": 167,
+    "country": "Market Reef"
+  },
+  "OK": {
+    "dxcc": 503,
+    "country": "Czech Republic"
+  },
+  "OM": {
+    "dxcc": 504,
+    "country": "Slovak Republic"
+  },
+  "ON": {
+    "dxcc": 209,
+    "country": "Belgium"
+  },
+  "OX": {
+    "dxcc": 237,
+    "country": "Greenland"
+  },
+  "OY": {
+    "dxcc": 222,
+    "country": "Faroe Islands"
+  },
+  "OZ": {
+    "dxcc": 221,
+    "country": "Denmark"
+  },
+  "P2": {
+    "dxcc": 163,
+    "country": "Papua New Guinea"
+  },
+  "P4": {
+    "dxcc": 91,
+    "country": "Aruba"
+  },
+  "P5": {
+    "dxcc": 344,
+    "country": "DPR of Korea"
+  },
+  "PA": {
+    "dxcc": 263,
+    "country": "Netherlands"
+  },
+  "PJ2": {
+    "dxcc": 517,
+    "country": "Curacao"
+  },
+  "PJ4": {
+    "dxcc": 520,
+    "country": "Bonaire"
+  },
+  "PJ5": {
+    "dxcc": 519,
+    "country": "Saba & St. Eustatius"
+  },
+  "PJ7": {
+    "dxcc": 518,
+    "country": "Sint Maarten"
+  },
+  "PY": {
+    "dxcc": 108,
+    "country": "Brazil"
+  },
+  "PY0F": {
+    "dxcc": 56,
+    "country": "Fernando de Noronha"
+  },
+  "PY0S": {
+    "dxcc": 253,
+    "country": "St. Peter & St. Paul"
+  },
+  "PY0T": {
+    "dxcc": 273,
+    "country": "Trindade & Martim Vaz"
+  },
+  "PZ": {
+    "dxcc": 140,
+    "country": "Suriname"
+  },
+  "R1FJ": {
+    "dxcc": 61,
+    "country": "Franz Josef Land"
+  },
+  "S0": {
+    "dxcc": 302,
+    "country": "Western Sahara"
+  },
+  "S2": {
+    "dxcc": 305,
+    "country": "Bangladesh"
+  },
+  "S5": {
+    "dxcc": 499,
+    "country": "Slovenia"
+  },
+  "S7": {
+    "dxcc": 379,
+    "country": "Seychelles"
+  },
+  "S9": {
+    "dxcc": 219,
+    "country": "Sao Tome & Principe"
+  },
+  "SM": {
+    "dxcc": 284,
+    "country": "Sweden"
+  },
+  "SP": {
+    "dxcc": 269,
+    "country": "Poland"
+  },
+  "ST": {
+    "dxcc": 466,
+    "country": "Sudan"
+  },
+  "SU": {
+    "dxcc": 478,
+    "country": "Egypt"
+  },
+  "SV": {
+    "dxcc": 236,
+    "country": "Greece"
+  },
+  "SV/a": {
+    "dxcc": 180,
+    "country": "Mount Athos"
+  },
+  "SV5": {
+    "dxcc": 45,
+    "country": "Dodecanese"
+  },
+  "SV9": {
+    "dxcc": 40,
+    "country": "Crete"
+  },
+  "T2": {
+    "dxcc": 282,
+    "country": "Tuvalu"
+  },
+  "T30": {
+    "dxcc": 301,
+    "country": "Western Kiribati"
+  },
+  "T31": {
+    "dxcc": 31,
+    "country": "Central Kiribati"
+  },
+  "T32": {
+    "dxcc": 48,
+    "country": "Eastern Kiribati"
+  },
+  "T33": {
+    "dxcc": 490,
+    "country": "Banaba Island"
+  },
+  "T5": {
+    "dxcc": 232,
+    "country": "Somalia"
+  },
+  "T7": {
+    "dxcc": 278,
+    "country": "San Marino"
+  },
+  "T8": {
+    "dxcc": 22,
+    "country": "Palau"
+  },
+  "TA": {
+    "dxcc": 390,
+    "country": "Asiatic Turkey"
+  },
+  "TF": {
+    "dxcc": 242,
+    "country": "Iceland"
+  },
+  "TG": {
+    "dxcc": 76,
+    "country": "Guatemala"
+  },
+  "TI": {
+    "dxcc": 308,
+    "country": "Costa Rica"
+  },
+  "TI9": {
+    "dxcc": 37,
+    "country": "Cocos Island"
+  },
+  "TJ": {
+    "dxcc": 406,
+    "country": "Cameroon"
+  },
+  "TK": {
+    "dxcc": 214,
+    "country": "Corsica"
+  },
+  "TL": {
+    "dxcc": 408,
+    "country": "Central African Republic"
+  },
+  "TN": {
+    "dxcc": 412,
+    "country": "Republic of the Congo"
+  },
+  "TR": {
+    "dxcc": 420,
+    "country": "Gabon"
+  },
+  "TT": {
+    "dxcc": 410,
+    "country": "Chad"
+  },
+  "TU": {
+    "dxcc": 428,
+    "country": "Cote d'Ivoire"
+  },
+  "TY": {
+    "dxcc": 416,
+    "country": "Benin"
+  },
+  "TZ": {
+    "dxcc": 442,
+    "country": "Mali"
+  },
+  "UA": {
+    "dxcc": 54,
+    "country": "European Russia"
+  },
+  "UA2": {
+    "dxcc": 126,
+    "country": "Kaliningrad"
+  },
+  "UA9": {
+    "dxcc": 15,
+    "country": "Asiatic Russia"
+  },
+  "UK": {
+    "dxcc": 292,
+    "country": "Uzbekistan"
+  },
+  "UN": {
+    "dxcc": 130,
+    "country": "Kazakhstan"
+  },
+  "UR": {
+    "dxcc": 288,
+    "country": "Ukraine"
+  },
+  "V2": {
+    "dxcc": 94,
+    "country": "Antigua & Barbuda"
+  },
+  "V3": {
+    "dxcc": 66,
+    "country": "Belize"
+  },
+  "V4": {
+    "dxcc": 249,
+    "country": "St. Kitts & Nevis"
+  },
+  "V5": {
+    "dxcc": 464,
+    "country": "Namibia"
+  },
+  "V6": {
+    "dxcc": 173,
+    "country": "Micronesia"
+  },
+  "V7": {
+    "dxcc": 168,
+    "country": "Marshall Islands"
+  },
+  "V8": {
+    "dxcc": 345,
+    "country": "Brunei Darussalam"
+  },
+  "VE": {
+    "dxcc": 1,
+    "country": "Canada"
+  },
+  "VK": {
+    "dxcc": 150,
+    "country": "Australia"
+  },
+  "VK0H": {
+    "dxcc": 111,
+    "country": "Heard Island"
+  },
+  "VK0M": {
+    "dxcc": 153,
+    "country": "Macquarie Island"
+  },
+  "VK9C": {
+    "dxcc": 38,
+    "country": "Cocos (Keeling) Islands"
+  },
+  "VK9L": {
+    "dxcc": 147,
+    "country": "Lord Howe Island"
+  },
+  "VK9M": {
+    "dxcc": 171,
+    "country": "Mellish Reef"
+  },
+  "VK9N": {
+    "dxcc": 189,
+    "country": "Norfolk Island"
+  },
+  "VK9W": {
+    "dxcc": 303,
+    "country": "Willis Island"
+  },
+  "VK9X": {
+    "dxcc": 35,
+    "country": "Christmas Island"
+  },
+  "VP2E": {
+    "dxcc": 12,
+    "country": "Anguilla"
+  },
+  "VP2M": {
+    "dxcc": 96,
+    "country": "Montserrat"
+  },
+  "VP2V": {
+    "dxcc": 65,
+    "country": "British Virgin Islands"
+  },
+  "VP5": {
+    "dxcc": 89,
+    "country": "Turks & Caicos Islands"
+  },
+  "VP6": {
+    "dxcc": 172,
+    "country": "Pitcairn Island"
+  },
+  "VP6/d": {
+    "dxcc": 513,
+    "country": "Ducie Island"
+  },
+  "VP8": {
+    "dxcc": 141,
+    "country": "Falkland Islands"
+  },
+  "VP8/g": {
+    "dxcc": 235,
+    "country": "South Georgia Island"
+  },
+  "VP8/h": {
+    "dxcc": 241,
+    "country": "South Shetland Islands"
+  },
+  "VP8/o": {
+    "dxcc": 238,
+    "country": "South Orkney Islands"
+  },
+  "VP8/s": {
+    "dxcc": 240,
+    "country": "South Sandwich Islands"
+  },
+  "VP9": {
+    "dxcc": 64,
+    "country": "Bermuda"
+  },
+  "VQ9": {
+    "dxcc": 33,
+    "country": "Chagos Islands"
+  },
+  "VR": {
+    "dxcc": 321,
+    "country": "Hong Kong"
+  },
+  "VU": {
+    "dxcc": 324,
+    "country": "India"
+  },
+  "VU4": {
+    "dxcc": 11,
+    "country": "Andaman & Nicobar Is."
+  },
+  "VU7": {
+    "dxcc": 142,
+    "country": "Lakshadweep Islands"
+  },
+  "XE": {
+    "dxcc": 50,
+    "country": "Mexico"
+  },
+  "XF4": {
+    "dxcc": 204,
+    "country": "Revillagigedo"
+  },
+  "XT": {
+    "dxcc": 480,
+    "country": "Burkina Faso"
+  },
+  "XU": {
+    "dxcc": 312,
+    "country": "Cambodia"
+  },
+  "XW": {
+    "dxcc": 143,
+    "country": "Laos"
+  },
+  "XX9": {
+    "dxcc": 152,
+    "country": "Macao"
+  },
+  "XZ": {
+    "dxcc": 309,
+    "country": "Myanmar"
+  },
+  "YA": {
+    "dxcc": 3,
+    "country": "Afghanistan"
+  },
+  "YB": {
+    "dxcc": 327,
+    "country": "Indonesia"
+  },
+  "YI": {
+    "dxcc": 333,
+    "country": "Iraq"
+  },
+  "YJ": {
+    "dxcc": 158,
+    "country": "Vanuatu"
+  },
+  "YK": {
+    "dxcc": 384,
+    "country": "Syria"
+  },
+  "YL": {
+    "dxcc": 145,
+    "country": "Latvia"
+  },
+  "YN": {
+    "dxcc": 86,
+    "country": "Nicaragua"
+  },
+  "YO": {
+    "dxcc": 275,
+    "country": "Romania"
+  },
+  "YS": {
+    "dxcc": 74,
+    "country": "El Salvador"
+  },
+  "YU": {
+    "dxcc": 296,
+    "country": "Serbia"
+  },
+  "YV": {
+    "dxcc": 148,
+    "country": "Venezuela"
+  },
+  "YV0": {
+    "dxcc": 17,
+    "country": "Aves Island"
+  },
+  "Z2": {
+    "dxcc": 452,
+    "country": "Zimbabwe"
+  },
+  "Z3": {
+    "dxcc": 502,
+    "country": "North Macedonia"
+  },
+  "Z6": {
+    "dxcc": 522,
+    "country": "Republic of Kosovo"
+  },
+  "Z8": {
+    "dxcc": 521,
+    "country": "Republic of South Sudan"
+  },
+  "ZA": {
+    "dxcc": 7,
+    "country": "Albania"
+  },
+  "ZB": {
+    "dxcc": 233,
+    "country": "Gibraltar"
+  },
+  "ZC4": {
+    "dxcc": 283,
+    "country": "UK Base Areas on Cyprus"
+  },
+  "ZD7": {
+    "dxcc": 250,
+    "country": "St. Helena"
+  },
+  "ZD8": {
+    "dxcc": 205,
+    "country": "Ascension Island"
+  },
+  "ZD9": {
+    "dxcc": 274,
+    "country": "Tristan da Cunha & Gough"
+  },
+  "ZF": {
+    "dxcc": 69,
+    "country": "Cayman Islands"
+  },
+  "ZK3": {
+    "dxcc": 270,
+    "country": "Tokelau Islands"
+  },
+  "ZL": {
+    "dxcc": 170,
+    "country": "New Zealand"
+  },
+  "ZL7": {
+    "dxcc": 34,
+    "country": "Chatham Islands"
+  },
+  "ZL8": {
+    "dxcc": 133,
+    "country": "Kermadec Islands"
+  },
+  "ZL9": {
+    "dxcc": 16,
+    "country": "N.Z. Subantarctic Is."
+  },
+  "ZP": {
+    "dxcc": 132,
+    "country": "Paraguay"
+  },
+  "ZS": {
+    "dxcc": 462,
+    "country": "South Africa"
+  },
+  "ZS8": {
+    "dxcc": 201,
+    "country": "Pr. Edward & Marion Is."
+  }
+}

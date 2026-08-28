@@ -32,6 +32,9 @@ public sealed class SatelliteLinkQsoMessage
     [JsonPropertyName("qso")]
     public SatelliteLinkQsoInfo? Qso { get; init; }
 
+    [JsonPropertyName("adif")]
+    public string? Adif { get; init; }
+
     public static string MapType(SatelliteLinkQsoEventKind kind) => kind switch
     {
         SatelliteLinkQsoEventKind.Updated => UpdatedType,

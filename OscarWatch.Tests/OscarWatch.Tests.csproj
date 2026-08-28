@@ -24,6 +24,14 @@
     <None Update="Fixtures\radio_golden.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="..\OscarWatch\Assets\cty.dat">
+      <Link>Assets\cty.dat</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\OscarWatch\Assets\dxcc-prefix-map.json">
+      <Link>Assets\dxcc-prefix-map.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <Target Name="CopyPortAudioProbeToTestOutput" AfterTargets="Build">

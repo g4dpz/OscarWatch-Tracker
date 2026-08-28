@@ -57,6 +57,7 @@ public static class QsoLogbookHistoryColumns
 {
     public const string DateTime = "dateTime";
     public const string Call = "call";
+    public const string Country = "country";
     public const string Grid = "grid";
     public const string Satellite = "satellite";
     public const string Mode = "mode";
@@ -69,6 +70,7 @@ public static class QsoLogbookHistoryColumns
     [
         DateTime,
         Call,
+        Country,
         Grid,
         Satellite,
         Mode,
@@ -85,6 +87,7 @@ public static class QsoLogbookHistoryColumns
     {
         DateTime => 168,
         Call => 90,
+        Country => 110,
         Grid => 70,
         Satellite => 80,
         Mode => 70,

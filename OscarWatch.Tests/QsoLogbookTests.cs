@@ -61,6 +61,66 @@ public class AdifExporterTests
     }
 
     [Fact]
+    public void ExportLogbook_writes_dxcc_and_country()
+    {
+        var logbook = new QsoLogbook
+        {
+            Id = 1,
+            Name = "Portable",
+            CreatedUtc = DateTime.UtcNow,
+            MyCallsign = "MM9SQL",
+            MyGridSquare = "IO87IP"
+        };
+        var qso = new QsoRecord
+        {
+            Id = 1,
+            LogbookId = 1,
+            QsoUtc = new DateTime(2020, 2, 12, 17, 10, 0, DateTimeKind.Utc),
+            Call = "G0ABC",
+            Dxcc = 223,
+            Country = "England",
+            SatName = "SO-50",
+            Mode = "FM",
+            ModeRx = "FM",
+            PropMode = "SAT",
+            CreatedUtc = DateTime.UtcNow
+        };
+
+        var adif = AdifExporter.ExportLogbook(logbook, [qso]);
+
+        Assert.Contains("<DXCC:3>223", adif, StringComparison.Ordinal);
+        Assert.Contains("<COUNTRY:7>England", adif, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ExportLogbook_omits_dxcc_when_unresolved()
+    {
+        var logbook = new QsoLogbook
+        {
+            Id = 1,
+            Name = "Portable",
+            CreatedUtc = DateTime.UtcNow
+        };
+        var qso = new QsoRecord
+        {
+            Id = 1,
+            LogbookId = 1,
+            QsoUtc = DateTime.UtcNow,
+            Call = "ZZ9ZZ",
+            SatName = "SO-50",
+            Mode = "FM",
+            ModeRx = "FM",
+            PropMode = "SAT",
+            CreatedUtc = DateTime.UtcNow
+        };
+
+        var adif = AdifExporter.ExportLogbook(logbook, [qso]);
+
+        Assert.DoesNotContain("<DXCC:", adif, StringComparison.Ordinal);
+        Assert.DoesNotContain("<COUNTRY:", adif, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ExportLogbook_writes_comma_separated_grids()
     {
         var logbook = new QsoLogbook

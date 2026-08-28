@@ -1,4 +1,5 @@
 using System.Globalization;
+using OscarWatch.Core.Logbook;
 using OscarWatch.Core.Models;
 
 namespace OscarWatch.Core.SatelliteLink;
@@ -22,9 +23,15 @@ public static class SatelliteLinkQsoMessageBuilder
             Logbook = MapLogbook(logbook),
             Qso = kind == SatelliteLinkQsoEventKind.Deleted
                 ? MapDeletedQso(record)
-                : MapFullQso(record, noradId)
+                : MapFullQso(record, noradId),
+            Adif = kind == SatelliteLinkQsoEventKind.Deleted
+                ? null
+                : ExportAdifRecord(logbook, record)
         };
     }
+
+    private static string ExportAdifRecord(QsoLogbook logbook, QsoRecord record) =>
+        AdifExporter.ExportRecord(logbook, record, forLotw: false).TrimEnd('\r', '\n');
 
     private static SatelliteLinkQsoLogbookInfo MapLogbook(QsoLogbook logbook) => new()
     {

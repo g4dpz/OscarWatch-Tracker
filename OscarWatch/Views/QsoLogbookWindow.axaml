@@ -37,7 +37,7 @@
       <Setter Property="Background" Value="{DynamicResource PassRecordingBadgeBackgroundBrush}" />
     </Style>
     <Style Selector="Border.call-status-badge.not-worked">
-      <Setter Property="Background" Value="{DynamicResource GpsOkBrush}" />
+      <Setter Property="Background" Value="{DynamicResource PassInProgressBadgeBackgroundBrush}" />
     </Style>
     <Style Selector="DataGridRow:nth-child(2n)">
       <Setter Property="Background" Value="{DynamicResource ThemeInsetBackgroundBrush}" />
@@ -82,6 +82,8 @@
       <MenuItem Header="{loc:Localize Key=Logbook.Menu.Settings}"
                 Click="OnSettingsClick"
                 IsEnabled="{Binding CanEditLogbook}" />
+      <MenuItem Header="{loc:Localize Key=Logbook.Menu.UpdateCountryFile}"
+                Command="{Binding UpdateCountryFileCommand}" />
     </Menu>
 
     <Border DockPanel.Dock="Bottom"
@@ -206,11 +208,11 @@
             <TextBox Grid.Row="1" Grid.Column="0"
                      x:Name="CallTextBox"
                      Classes="call-entry"
-                     Classes.worked="{Binding CallIsPreviouslyWorked}"
-                     Classes.not-worked="{Binding CallIsNewToLogbook}"
+                     Classes.worked="{Binding DxccEntityIsWorked}"
+                     Classes.not-worked="{Binding DxccEntityIsNew}"
                      ctrl:UppercaseTextInput.IsEnabled="True"
                      Text="{Binding Call, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     MaxLength="16"
+                     MaxLength="24"
                      KeyDown="OnEntryKeyDown" />
             <ComboBox Grid.Row="1" Grid.Column="1"
                       Classes="rst-entry"
@@ -270,13 +272,13 @@
           </Grid>
           <StackPanel Orientation="Horizontal" Spacing="8">
             <Border Classes="call-status-badge"
-                    Classes.worked="{Binding CallIsPreviouslyWorked}"
-                    Classes.not-worked="{Binding CallIsNewToLogbook}"
-                    IsVisible="{Binding ShowCallWorkStatus}"
+                    Classes.worked="{Binding DxccEntityIsWorked}"
+                    Classes.not-worked="{Binding DxccEntityIsNew}"
+                    IsVisible="{Binding ShowDxccBadge}"
                     Padding="8,3"
                     CornerRadius="4"
                     VerticalAlignment="Center">
-              <TextBlock Text="{Binding CallWorkStatusText}"
+              <TextBlock Text="{Binding DxccBadgeText}"
                          FontSize="11"
                          FontWeight="SemiBold" />
             </Border>
@@ -334,6 +336,9 @@
                 <DataGridTextColumn Header="{loc:Localize Key=Logbook.Column.Call}"
                                     Binding="{Binding Call}"
                                     Width="90" />
+                <DataGridTextColumn Header="{loc:Localize Key=Logbook.Column.Country}"
+                                    Binding="{Binding Country}"
+                                    Width="110" />
                 <DataGridTextColumn Header="{loc:Localize Key=Logbook.Column.Grid}"
                                     Binding="{Binding Grid}"
                                     Width="70" />

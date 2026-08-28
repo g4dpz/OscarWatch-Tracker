@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using OscarWatch.Core.Dxcc;
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Logbook;
 using OscarWatch.Core.Models;
@@ -20,6 +21,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
     private readonly ICloudlogQsoUploadService _cloudlogUpload;
     private readonly ISatelliteLinkBroadcastService _satelliteLink;
     private readonly ISatelliteStatusReportService _satelliteStatus;
+    private readonly IDxccLookupService _dxccLookup;
     private readonly ILocalizationService _l;
     private readonly DispatcherTimer _liveTimer;
     private string _lastStationMode = "";
@@ -27,6 +29,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
     private bool _suppressFieldCoercion;
     private QsoRecord? _editingSource;
     private int _callLookupGeneration;
+    private bool _dxccBackfillStarted;
 
     public QsoLogbookViewModel(
         IQsoLogbookRepository repository,
@@ -35,6 +38,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         ICloudlogQsoUploadService cloudlogUpload,
         ISatelliteLinkBroadcastService satelliteLink,
         ISatelliteStatusReportService satelliteStatus,
+        IDxccLookupService dxccLookup,
         ILocalizationService localization)
     {
         _repository = repository;
@@ -43,6 +47,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         _cloudlogUpload = cloudlogUpload;
         _satelliteLink = satelliteLink;
         _satelliteStatus = satelliteStatus;
+        _dxccLookup = dxccLookup;
         _l = localization;
         StatusText = _l.Get("Logbook.Status.Ready");
         StationStatusText = _l.Get("Logbook.Station.Unavailable");
@@ -110,11 +115,25 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
     private string _callHint = "";
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ShowCallWorkStatus))]
-    [NotifyPropertyChangedFor(nameof(CallWorkStatusText))]
-    [NotifyPropertyChangedFor(nameof(CallIsPreviouslyWorked))]
-    [NotifyPropertyChangedFor(nameof(CallIsNewToLogbook))]
-    private bool? _callPreviouslyWorked;
+    [NotifyPropertyChangedFor(nameof(ShowDxccBadge))]
+    [NotifyPropertyChangedFor(nameof(DxccBadgeText))]
+    [NotifyPropertyChangedFor(nameof(DxccEntityIsWorked))]
+    [NotifyPropertyChangedFor(nameof(DxccEntityIsNew))]
+    private string _resolvedCountry = "";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowDxccBadge))]
+    [NotifyPropertyChangedFor(nameof(DxccBadgeText))]
+    [NotifyPropertyChangedFor(nameof(DxccEntityIsWorked))]
+    [NotifyPropertyChangedFor(nameof(DxccEntityIsNew))]
+    private int? _resolvedDxcc;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowDxccBadge))]
+    [NotifyPropertyChangedFor(nameof(DxccBadgeText))]
+    [NotifyPropertyChangedFor(nameof(DxccEntityIsWorked))]
+    [NotifyPropertyChangedFor(nameof(DxccEntityIsNew))]
+    private bool? _dxccPreviouslyWorked;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(GridValidationIsValid))]
@@ -179,19 +198,28 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
     public string CurrentLogbookDisplayName =>
         SelectedLogbook?.Name ?? _l.Get("Logbook.Menu.NoLogbook");
 
-    public bool ShowCallWorkStatus => CallPreviouslyWorked.HasValue;
+    public bool ShowDxccBadge =>
+        ResolvedDxcc.HasValue
+        && !string.IsNullOrWhiteSpace(ResolvedCountry)
+        && DxccPreviouslyWorked.HasValue;
 
-    public bool CallIsPreviouslyWorked => CallPreviouslyWorked == true;
+    public bool DxccEntityIsWorked => DxccPreviouslyWorked == true;
 
-    public bool CallIsNewToLogbook => CallPreviouslyWorked == false;
+    public bool DxccEntityIsNew => DxccPreviouslyWorked == false;
 
-    public string CallWorkStatusText =>
-        CallPreviouslyWorked switch
+    public string DxccBadgeText
+    {
+        get
         {
-            true => _l.Get("Logbook.CallStatus.Worked"),
-            false => _l.Get("Logbook.CallStatus.NotWorked"),
-            _ => ""
-        };
+            if (!ShowDxccBadge)
+                return "";
+
+            var status = DxccPreviouslyWorked == true
+                ? _l.Get("Logbook.DxccStatus.Worked")
+                : _l.Get("Logbook.DxccStatus.New");
+            return _l.Get("Logbook.DxccBadge", ResolvedCountry, status);
+        }
+    }
 
     public bool GridValidationIsValid => GridIsValid == true;
 
@@ -215,7 +243,9 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
 
         _liveTimer.Start();
         RefreshStationPanel();
+        _dxccLookup.EnsureLoaded();
         _ = _cloudlogUpload.ProcessRetryQueueAsync();
+        _ = BackfillMissingDxccAsync();
     }
 
     public async Task ApplyCloudlogSettingsAsync(QsoLogbookCloudlogSettingsRequest request)
@@ -336,6 +366,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         var cloudlogUpload = SelectedLogbook.CloudlogAutoUpload && SelectedLogbook.CloudlogStationProfileId.HasValue
             ? CloudlogUploadStatus.Pending
             : CloudlogUploadStatus.None;
+        ResolveDxccFields(Call, out var dxcc, out var country);
         var record = await _repository.AddQsoAsync(new QsoRecordCreateRequest
         {
             LogbookId = SelectedLogbook.Id,
@@ -353,6 +384,8 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
             FreqRxHz = snapshot.DownlinkHz,
             Band = snapshot.Band,
             BandRx = snapshot.BandRx,
+            Dxcc = dxcc,
+            Country = country,
             CloudlogUploadStatus = cloudlogUpload
         }).ConfigureAwait(true);
 
@@ -416,6 +449,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
 
         ++_callLookupGeneration;
 
+        ResolveDxccFields(Call, out var dxcc, out var country);
         var record = await _repository.UpdateQsoAsync(new QsoRecordUpdateRequest
         {
             Id = _editingSource.Id,
@@ -433,7 +467,9 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
             FreqRxHz = _editingSource.FreqRxHz,
             Band = _editingSource.Band,
             BandRx = _editingSource.BandRx,
-            PropMode = _editingSource.PropMode
+            PropMode = _editingSource.PropMode,
+            Dxcc = dxcc,
+            Country = country
         }).ConfigureAwait(true);
 
         var editedId = record.Id;
@@ -456,7 +492,9 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         Name = "";
         Comment = "";
         CallHint = "";
-        CallPreviouslyWorked = null;
+        ResolvedCountry = "";
+        ResolvedDxcc = null;
+        DxccPreviouslyWorked = null;
         GridIsValid = null;
         _suppressCallLookup = false;
     }
@@ -472,7 +510,9 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         Name = record.Name;
         Comment = record.Comment;
         CallHint = "";
-        CallPreviouslyWorked = null;
+        ResolvedCountry = record.Country;
+        ResolvedDxcc = record.Dxcc;
+        DxccPreviouslyWorked = null;
         GridIsValid = MaidenheadLocator.GetLiveValidationState(record.GridSquare);
         _suppressFieldCoercion = false;
         _suppressCallLookup = false;
@@ -600,6 +640,8 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
     private async Task ApplySelectedLogbookChangeAsync()
     {
         await CancelEditQso().ConfigureAwait(true);
+        _dxccBackfillStarted = false;
+        _ = BackfillMissingDxccAsync();
     }
 
     partial void OnIsEditingQsoChanged(bool value)
@@ -698,7 +740,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         if (trimmed.Length < 3)
         {
             CallHint = "";
-            CallPreviouslyWorked = null;
+            ClearDxccBadge();
             if (!IsEditingQso)
             {
                 await ReloadQsosAsync().ConfigureAwait(true);
@@ -723,7 +765,27 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         if (!string.Equals(trimmed, Call.Trim(), StringComparison.OrdinalIgnoreCase))
             return;
 
-        CallPreviouslyWorked = previous is not null;
+        ResolveDxccFields(trimmed, out var dxcc, out var country);
+        ResolvedDxcc = dxcc;
+        ResolvedCountry = country;
+
+        if (dxcc is int entityId)
+        {
+            var previousEntity = await _repository.FindLatestQsoForDxccAsync(SelectedLogbook.Id, entityId)
+                .ConfigureAwait(true);
+            if (generation != _callLookupGeneration)
+                return;
+            if (!string.Equals(trimmed, Call.Trim(), StringComparison.OrdinalIgnoreCase))
+                return;
+
+            // While editing the current QSO, treat the entity as worked only if another QSO exists.
+            DxccPreviouslyWorked = previousEntity is not null
+                && (!IsEditingQso || previousEntity.Id != _editingSource?.Id);
+        }
+        else
+        {
+            DxccPreviouslyWorked = null;
+        }
 
         if (previous is null)
         {
@@ -739,6 +801,93 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         CallHint = string.IsNullOrWhiteSpace(previous.GridSquare)
             ? _l.Get("Logbook.CallHint.Previous")
             : _l.Get("Logbook.CallHint.PreviousWithGrid", previous.GridSquare);
+    }
+
+    private void ClearDxccBadge()
+    {
+        ResolvedCountry = "";
+        ResolvedDxcc = null;
+        DxccPreviouslyWorked = null;
+    }
+
+    private void ResolveDxccFields(string call, out int? dxcc, out string country)
+    {
+        if (_dxccLookup.TryResolve(call, out var match))
+        {
+            dxcc = match.Dxcc;
+            country = match.Country;
+            return;
+        }
+
+        dxcc = null;
+        country = "";
+    }
+
+    [RelayCommand]
+    private async Task UpdateCountryFileAsync()
+    {
+        StatusText = _l.Get("Logbook.Status.CountryFileUpdating");
+        var result = await _dxccLookup.UpdateCountryFileAsync().ConfigureAwait(true);
+        if (result.Success)
+        {
+            StatusText = _l.Get("Logbook.Status.CountryFileUpdated");
+            if (!string.IsNullOrWhiteSpace(Call))
+                _ = LookupCallAsync(Call);
+            _ = BackfillMissingDxccAsync(force: true);
+        }
+        else
+        {
+            StatusText = _l.Get("Logbook.Status.CountryFileUpdateFailed", result.Message);
+        }
+    }
+
+    private async Task BackfillMissingDxccAsync(bool force = false)
+    {
+        if (SelectedLogbook is null)
+            return;
+        if (_dxccBackfillStarted && !force)
+            return;
+
+        _dxccBackfillStarted = true;
+        try
+        {
+            var missing = await _repository.ListQsosMissingDxccAsync(SelectedLogbook.Id).ConfigureAwait(true);
+            foreach (var qso in missing)
+            {
+                ResolveDxccFields(qso.Call, out var dxcc, out var country);
+                if (dxcc is null)
+                    continue;
+
+                await _repository.UpdateQsoAsync(new QsoRecordUpdateRequest
+                {
+                    Id = qso.Id,
+                    QsoUtc = qso.QsoUtc,
+                    Call = qso.Call,
+                    RstSent = qso.RstSent,
+                    RstRcvd = qso.RstRcvd,
+                    GridSquare = qso.GridSquare,
+                    Name = qso.Name,
+                    Comment = qso.Comment,
+                    SatName = qso.SatName,
+                    Mode = qso.Mode,
+                    ModeRx = qso.ModeRx,
+                    FreqHz = qso.FreqHz,
+                    FreqRxHz = qso.FreqRxHz,
+                    Band = qso.Band,
+                    BandRx = qso.BandRx,
+                    PropMode = qso.PropMode,
+                    Dxcc = dxcc,
+                    Country = country
+                }).ConfigureAwait(true);
+            }
+
+            if (missing.Count > 0 && string.IsNullOrWhiteSpace(Call))
+                await ReloadQsosAsync().ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "DXCC backfill failed");
+        }
     }
 
     private async Task CreateLogbookInternalAsync(QsoLogbookCreateRequest request)
@@ -926,6 +1075,7 @@ public sealed class QsoRowViewModel
     public long Id => Record.Id;
     public string DateTimeText { get; init; } = "";
     public string Call { get; init; } = "";
+    public string Country { get; init; } = "";
     public string Grid { get; init; } = "";
     public string Satellite { get; init; } = "";
     public string Mode { get; init; } = "";
@@ -951,6 +1101,7 @@ public sealed class QsoRowViewModel
             Record = record,
             DateTimeText = dateTimeText,
             Call = record.Call,
+            Country = record.Country,
             Grid = record.GridSquare,
             Satellite = record.SatName,
             Mode = mode,
