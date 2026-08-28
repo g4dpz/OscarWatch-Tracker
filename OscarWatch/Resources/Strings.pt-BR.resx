@@ -844,10 +844,10 @@ Continuar?</value>
     <value>O OscarWatch já está em execução, mas não foi possível ativar a janela. Se nenhuma janela aparecer, finalize OscarWatch.exe no Gerenciador de Tarefas e tente novamente.</value>
   </data>
   <data name="Menu.Tools.QsoLogbook">
-    <value>_Livro de QSO</value>
+    <value>_Livro OscarWatch</value>
   </data>
   <data name="Window.Logbook.Title">
-    <value>Livro de QSO</value>
+    <value>Livro OscarWatch</value>
   </data>
   <data name="Window.CreateLogbook.Title">
     <value>Novo livro</value>

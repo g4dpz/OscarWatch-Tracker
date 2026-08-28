@@ -868,10 +868,10 @@
     <value>OscarWatch ya está en ejecución, pero no se pudo activar su ventana. Si no aparece ninguna ventana, finaliza OscarWatch.exe en el Administrador de tareas e inténtalo de nuevo.</value>
   </data>
   <data name="Menu.Tools.QsoLogbook">
-    <value>_Libro de QSO</value>
+    <value>_Libro OscarWatch</value>
   </data>
   <data name="Window.Logbook.Title">
-    <value>Libro de QSO</value>
+    <value>Libro OscarWatch</value>
   </data>
   <data name="Window.CreateLogbook.Title">
     <value>Nuevo libro</value>

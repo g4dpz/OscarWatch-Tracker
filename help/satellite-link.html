@@ -38,7 +38,7 @@
         When enabled, OscarWatch runs a small WebSocket server on your PC that sends JSON messages about the
         <strong>focused</strong> satellite: name, NORAD ID, uplink and downlink frequencies and modes, ADIF bands,
         azimuth, elevation, range, and more. Logging applications can subscribe and pre-fill QSO fields automatically.
-        When you log a QSO in <strong>QSO Logbook</strong>, OscarWatch also broadcasts a <code>qsoLogged</code> event
+        When you log a QSO in <strong>OscarWatch Logbook</strong>, OscarWatch also broadcasts a <code>qsoLogged</code> event
         (and <code>qsoUpdated</code> / <code>qsoDeleted</code> when you edit or remove entries) so external tools can
         mirror your log in real time.
       </p>
@@ -85,7 +85,7 @@
         There is no authentication in v1 — use localhost or a trusted LAN only.
         On connect, OscarWatch sends the latest satellite snapshot immediately, then broadcasts updates when focus,
         mode, frequencies, or tracking data change (throttled by the update interval). QSO events are sent
-        immediately when you add, edit, or delete a contact in QSO Logbook (not replayed to new clients on connect).
+        immediately when you add, edit, or delete a contact in OscarWatch Logbook (not replayed to new clients on connect).
       </p>
 
       <h3>Satellite status messages</h3>
@@ -133,7 +133,7 @@
 
       <h3>QSO logbook messages</h3>
       <p>
-        When a contact is saved in <a href="qso-logbook.html">QSO Logbook</a>, OscarWatch broadcasts a separate JSON
+        When a contact is saved in <a href="qso-logbook.html">OscarWatch Logbook</a>, OscarWatch broadcasts a separate JSON
         frame to all connected clients. These events are independent of satellite status updates and are always sent
         immediately (not throttled). Clients that connect later do <strong>not</strong> receive a backlog — only
         events that occur while they are connected.
