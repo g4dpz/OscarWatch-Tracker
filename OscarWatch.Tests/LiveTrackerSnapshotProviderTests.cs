@@ -131,6 +131,8 @@ public class LiveTrackerSnapshotProviderTests
         public IReadOnlyList<SatelliteTrackState> GetLiveNowSnapshot() => states;
         public void Start() { }
         public void RequestReload() { }
+        public SnapshotBufferStatistics GetBufferStatistics() => new SnapshotBufferStatistics();
+        public void CompactBuffers() { }
         public void Dispose() { }
     }
 

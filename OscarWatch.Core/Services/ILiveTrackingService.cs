@@ -33,4 +33,10 @@ public interface ILiveTrackingService : IDisposable
 
     /// <summary>Reloads enabled satellites in the propagator and refreshes the snapshot on the worker.</summary>
     void RequestReload();
+
+    /// <summary>Get statistics about snapshot buffer usage for performance monitoring.</summary>
+    SnapshotBufferStatistics GetBufferStatistics();
+    
+    /// <summary>Compact oversized buffers to prevent excessive memory usage.</summary>
+    void CompactBuffers();
 }
