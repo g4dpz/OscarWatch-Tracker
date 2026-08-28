@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Sockets;
 using System.Text;
@@ -2019,30 +2020,33 @@ internal sealed class FlexSmartSdrClient : IDisposable
     {
         if (FlexSmartSdrCodec.TryParseSliceStatus(body, out var slice))
         {
-            var hasFrequency = HasSliceField(body, "RF_frequency") || HasSliceField(body, "freq");
+            // Build a set of fields present in this status message (single pass).
+            var presentFields = ParsePresentFields(body);
+            var hasFrequency = presentFields.Contains("RF_frequency") || presentFields.Contains("freq");
+            
             if (_slices.TryGetValue(slice.Index, out var existing))
             {
                 slice = existing with
                 {
-                    InUse = HasSliceField(body, "in_use") ? slice.InUse : existing.InUse,
+                    InUse = presentFields.Contains("in_use") ? slice.InUse : existing.InUse,
                     FrequencyHz = hasFrequency
                         ? slice.FrequencyHz
                         : existing.FrequencyHz,
-                    Mode = HasSliceField(body, "mode") ? slice.Mode : existing.Mode,
-                    IsTransmit = HasSliceField(body, "tx") ? slice.IsTransmit : existing.IsTransmit,
-                    IsActive = HasSliceField(body, "active") ? slice.IsActive : existing.IsActive,
-                    FmToneMode = HasSliceField(body, "fm_tone_mode")
+                    Mode = presentFields.Contains("mode") ? slice.Mode : existing.Mode,
+                    IsTransmit = presentFields.Contains("tx") ? slice.IsTransmit : existing.IsTransmit,
+                    IsActive = presentFields.Contains("active") ? slice.IsActive : existing.IsActive,
+                    FmToneMode = presentFields.Contains("fm_tone_mode")
                         ? slice.FmToneMode
                         : existing.FmToneMode,
-                    FmToneHz = HasSliceField(body, "fm_tone_value")
+                    FmToneHz = presentFields.Contains("fm_tone_value")
                         ? slice.FmToneHz
                         : existing.FmToneHz,
-                    PanStreamId = HasSliceField(body, "pan")
+                    PanStreamId = presentFields.Contains("pan")
                         ? slice.PanStreamId
                         : existing.PanStreamId
                 };
             }
-            else if (!HasSliceField(body, "in_use"))
+            else if (!presentFields.Contains("in_use"))
             {
                 // Brand-new cache entry without in_use must not become a ghost duplex slice.
                 slice = slice with { InUse = false };
@@ -2065,10 +2069,11 @@ internal sealed class FlexSmartSdrClient : IDisposable
     {
         if (_pans.TryGetValue(pan.StreamId, out var existing))
         {
+            var presentFields = ParsePresentFields(body);
             pan = existing with
             {
-                CenterHz = HasPanField(body, "center") ? pan.CenterHz : existing.CenterHz,
-                AutoCenter = HasPanField(body, "autocenter") ? pan.AutoCenter : existing.AutoCenter
+                CenterHz = presentFields.Contains("center") ? pan.CenterHz : existing.CenterHz,
+                AutoCenter = presentFields.Contains("autocenter") ? pan.AutoCenter : existing.AutoCenter
             };
         }
 
@@ -2083,11 +2088,38 @@ internal sealed class FlexSmartSdrClient : IDisposable
             _pans[panStreamId] = new FlexPanState(panStreamId, centerHz, autoCenter);
     }
 
-    private static bool HasPanField(string statusBody, string field) =>
-        statusBody.Contains($" {field}=", StringComparison.OrdinalIgnoreCase);
+    /// <summary>
+    /// Parses a SmartSDR status message body into a set of field names present.
+    /// Status format: "slice 0 in_use=1 freq=14.200 mode=USB tx=0 active=1"
+    /// Fields are space-separated key=value pairs after the slice header.
+    /// Single pass avoids Split() array allocations; field names still allocate via ToString().
+    /// </summary>
+    internal static HashSet<string> ParsePresentFields(string statusBody)
+    {
+        var fields = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var span = statusBody.AsSpan();
+        var i = 0;
 
-    private static bool HasSliceField(string statusBody, string field) =>
-        statusBody.Contains($" {field}=", StringComparison.OrdinalIgnoreCase);
+        while (i < span.Length)
+        {
+            while (i < span.Length && span[i] == ' ')
+                i++;
+
+            if (i >= span.Length)
+                break;
+
+            var tokenStart = i;
+            while (i < span.Length && span[i] != ' ')
+                i++;
+
+            var token = span[tokenStart..i];
+            var eqIdx = token.IndexOf('=');
+            if (eqIdx > 0)
+                fields.Add(token[..eqIdx].ToString());
+        }
+
+        return fields;
+    }
 
     private void UpdateSliceFrequencyUnlocked(int sliceIndex, long hz)
     {
