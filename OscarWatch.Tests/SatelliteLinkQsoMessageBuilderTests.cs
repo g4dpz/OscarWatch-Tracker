@@ -59,10 +59,11 @@ public class SatelliteLinkQsoMessageBuilderTests
         Assert.Equal("70cm", msg.Qso.Bands!.Tx);
         Assert.Equal("2m", msg.Qso.Bands.Rx);
         Assert.Equal("SAT", msg.Qso.PropMode);
+        AssertAdifRecord(msg.Adif);
     }
 
     [Fact]
-    public void Build_updated_uses_updated_type()
+    public void Build_updated_includes_adif_record()
     {
         var msg = SatelliteLinkQsoMessageBuilder.Build(
             MakeRecord(),
@@ -72,6 +73,7 @@ public class SatelliteLinkQsoMessageBuilderTests
 
         Assert.Equal("qsoUpdated", msg.Type);
         Assert.Equal("DL1ABC", msg.Qso!.Call);
+        AssertAdifRecord(msg.Adif);
     }
 
     [Fact]
@@ -89,5 +91,17 @@ public class SatelliteLinkQsoMessageBuilderTests
         Assert.Null(msg.Qso.QsoUtc);
         Assert.Null(msg.Qso.Satellite);
         Assert.Null(msg.Qso.Frequencies);
+        Assert.Null(msg.Adif);
+    }
+
+    private static void AssertAdifRecord(string? adif)
+    {
+        Assert.NotNull(adif);
+        Assert.StartsWith("<CALL:", adif);
+        Assert.Contains("<SAT_NAME:5>SO-50", adif);
+        Assert.Contains("<PROP_MODE:3>SAT", adif);
+        Assert.EndsWith("<EOR>", adif);
+        Assert.DoesNotContain("\n", adif);
+        Assert.DoesNotContain("\r", adif);
     }
 }

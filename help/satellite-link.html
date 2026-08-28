@@ -172,7 +172,8 @@
     },
     "bands": { "tx": "70cm", "rx": "2m" },
     "propMode": "SAT"
-  }
+  },
+  "adif": "&lt;CALL:6&gt;DL1ABC&lt;QSO_DATE:8&gt;20260711&lt;TIME_ON:4&gt;1430&lt;RST_SENT:2&gt;59&lt;RST_RCVD:2&gt;59&lt;GRIDSQUARE:4&gt;JO62&lt;STATION_CALLSIGN:5&gt;G0ABC&lt;MY_GRIDSQUARE:4&gt;IO91&lt;SAT_NAME:5&gt;SO-50&lt;PROP_MODE:3&gt;SAT&lt;FREQ:10&gt;435.300000&lt;BAND:4&gt;70cm&lt;MODE:2&gt;FM&lt;FREQ_RX:10&gt;145.850000&lt;BAND_RX:2&gt;2m&lt;EOR&gt;"
 }</code></pre>
 
       <h4><code>qsoUpdated</code></h4>
@@ -198,14 +199,15 @@
 
       <h4>QSO field notes</h4>
       <ul>
-        <li><code>logbook</code> — the active logbook at the time of the event.</li>
-        <li><code>qso.id</code> — stable OscarWatch database ID; use for deduplication across <code>qsoUpdated</code> / <code>qsoDeleted</code>.</li>
-        <li><code>qso.qsoUtc</code> — contact time in UTC (ISO-8601), matching ADIF <code>QSO_DATE</code> + <code>TIME_ON</code>.</li>
-        <li><code>qso.satellite.name</code> — LoTW-style name captured at log time (same as ADIF <code>SAT_NAME</code>).</li>
-        <li><code>qso.satellite.noradId</code> — focused satellite NORAD ID when logged; omitted on edit/delete if unknown.</li>
-        <li><code>qso.frequencies.uplinkHz</code> / <code>downlinkHz</code> — TX/RX at log time (Hz). Omitted when zero.</li>
-        <li><code>qso.bands.tx</code> / <code>rx</code> — ADIF band labels (e.g. <code>70cm</code>, <code>2m</code>).</li>
-        <li><code>qso.propMode</code> — always <code>SAT</code> for satellite QSOs in OscarWatch.</li>
+        <li><code>logbook</code>, the active logbook at the time of the event.</li>
+        <li><code>qso.id</code>, stable OscarWatch database ID; use for deduplication across <code>qsoUpdated</code> / <code>qsoDeleted</code>.</li>
+        <li><code>qso.qsoUtc</code>, contact time in UTC (ISO-8601), matching ADIF <code>QSO_DATE</code> + <code>TIME_ON</code>.</li>
+        <li><code>qso.satellite.name</code>, LoTW-style name captured at log time (same as ADIF <code>SAT_NAME</code>).</li>
+        <li><code>qso.satellite.noradId</code>, focused satellite NORAD ID when logged; omitted on edit/delete if unknown.</li>
+        <li><code>qso.frequencies.uplinkHz</code> / <code>downlinkHz</code>, TX/RX at log time (Hz). Omitted when zero.</li>
+        <li><code>qso.bands.tx</code> / <code>rx</code>, ADIF band labels (e.g. <code>70cm</code>, <code>2m</code>).</li>
+        <li><code>qso.propMode</code>, always <code>SAT</code> for satellite QSOs in OscarWatch.</li>
+        <li><code>adif</code>, a single ADIF 3.1 record for the contact (same fields as file export and Cloudlog upload). Record only, no <code>PROGRAMID</code> / <code>&lt;EOH&gt;</code> header; ends at <code>&lt;EOR&gt;</code> with no trailing newline. Present on <code>qsoLogged</code> and <code>qsoUpdated</code>; omitted on <code>qsoDeleted</code>.</li>
         <li>Empty optional strings are omitted (<code>null</code> absent from JSON) rather than sent as <code>""</code>.</li>
       </ul>
 
@@ -238,6 +240,8 @@ async def main():
             elif kind == "qsoLogged":
                 qso = msg["qso"]
                 print(f"Logged {qso['call']} on {qso['satellite']['name']}")
+                if "adif" in msg:
+                    print(msg["adif"])
             elif kind == "qsoUpdated":
                 print(f"Updated QSO {msg['qso']['id']}")
             elif kind == "qsoDeleted":
