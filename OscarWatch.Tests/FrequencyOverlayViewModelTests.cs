@@ -627,6 +627,7 @@ public class FrequencyOverlayViewModelTests
     [Fact]
     public void Doppler_lead_indicator_reflects_setting_and_active_blend()
     {
+        using var _ = TestUiCulture.Apply(LocalizationCulture.DefaultLanguage);
         var settings = new TestSettingsService();
         settings.Current.Rig.CatDelayMs = 100;
 
