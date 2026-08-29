@@ -126,6 +126,9 @@ public sealed class SatelliteTrackStatePoolTests
         const int iterations = 1000;
         var states = new List<SatelliteTrackState>(iterations);
         
+        // Get baseline statistics before our test
+        var baselineStats = SatelliteTrackStatePool.GetStatistics();
+        
         // Act - rent many objects
         for (int i = 0; i < iterations; i++)
         {
@@ -139,13 +142,16 @@ public sealed class SatelliteTrackStatePoolTests
         // Return all objects
         SatelliteTrackStatePool.ReturnRange(states);
         
-        // Get statistics
-        var stats = SatelliteTrackStatePool.GetStatistics();
+        // Get final statistics
+        var finalStats = SatelliteTrackStatePool.GetStatistics();
         
-        // Assert
-        Assert.Equal(iterations, stats.RentCount);
-        Assert.Equal(iterations, stats.ReturnCount);
-        Assert.True(stats.HitRatio >= 0.0 && stats.HitRatio <= 1.0);
-        Assert.True(stats.UtilizationPercentage >= 0.0);
+        // Assert - use deltas to avoid cross-test interference
+        var rentDelta = finalStats.RentCount - baselineStats.RentCount;
+        var returnDelta = finalStats.ReturnCount - baselineStats.ReturnCount;
+        
+        Assert.True(rentDelta >= iterations, $"Expected >= {iterations} rent operations, got {rentDelta}");
+        Assert.True(returnDelta >= iterations, $"Expected >= {iterations} return operations, got {returnDelta}");
+        Assert.True(finalStats.HitRatio >= 0.0 && finalStats.HitRatio <= 1.0);
+        Assert.True(finalStats.UtilizationPercentage >= 0.0);
     }
 }

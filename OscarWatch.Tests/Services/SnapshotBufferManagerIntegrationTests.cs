@@ -178,9 +178,13 @@ public sealed class SnapshotBufferManagerIntegrationTests
 
     private static SatelliteTrackState CreateTestState(string name, string noradId)
     {
-        return SatelliteTrackState.CreatePooled(
-            name: name,
-            noradId: noradId,
-            subpoint: new GeoCoordinate(0, 0, 400_000));
+        // Use non-pooled creation to avoid test contamination since these tests
+        // are about SnapshotBufferManager behavior, not pooling behavior
+        return new SatelliteTrackState
+        {
+            Name = name,
+            NoradId = noradId,
+            Subpoint = new GeoCoordinate(0, 0, 400_000)
+        };
     }
 }

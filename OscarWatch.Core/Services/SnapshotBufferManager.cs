@@ -25,7 +25,7 @@ internal sealed class SnapshotBufferManager
     
     /// <summary>
     /// Publish a display snapshot using the reusable display buffer.
-    /// Returns an ArraySegment to avoid array allocation.
+    /// Returns an immutable copy to prevent data races.
     /// </summary>
     public IReadOnlyList<SatelliteTrackState> PublishDisplaySnapshot(IReadOnlyList<SatelliteTrackState> states)
     {
@@ -37,12 +37,15 @@ internal sealed class SnapshotBufferManager
         _displayCount = states.Count;
         _displayPublishCount++;
         
-        return new ArraySegment<SatelliteTrackState>(_displayBuffer, 0, _displayCount);
+        // Create immutable copy to prevent data races - UI can hold this across ticks
+        var snapshot = new SatelliteTrackState[_displayCount];
+        Array.Copy(_displayBuffer, snapshot, _displayCount);
+        return snapshot;
     }
     
     /// <summary>
     /// Publish a live-now snapshot using the reusable live-now buffer.
-    /// Returns an ArraySegment to avoid array allocation.
+    /// Returns an immutable copy to prevent data races.
     /// </summary>
     public IReadOnlyList<SatelliteTrackState> PublishLiveNowSnapshot(IReadOnlyList<SatelliteTrackState> states)
     {
@@ -54,7 +57,10 @@ internal sealed class SnapshotBufferManager
         _liveNowCount = states.Count;
         _liveNowPublishCount++;
         
-        return new ArraySegment<SatelliteTrackState>(_liveNowBuffer, 0, _liveNowCount);
+        // Create immutable copy to prevent data races - UI can hold this across ticks
+        var snapshot = new SatelliteTrackState[_liveNowCount];
+        Array.Copy(_liveNowBuffer, snapshot, _liveNowCount);
+        return snapshot;
     }
     
     /// <summary>
@@ -109,7 +115,10 @@ internal sealed class SnapshotBufferManager
     {
         var growthSize = (int)(currentSize * GrowthFactor);
         var targetSize = Math.Max(requiredCount, growthSize);
-        return Math.Min(targetSize, MaxBufferSize);
+        
+        // Ensure we never return a size smaller than requiredCount, even if it exceeds MaxBufferSize
+        // Better to exceed the limit than cause IndexOutOfRangeException
+        return requiredCount > MaxBufferSize ? requiredCount : Math.Min(targetSize, MaxBufferSize);
     }
     
     private static void CopyStates(IReadOnlyList<SatelliteTrackState> source, SatelliteTrackState[] destination)

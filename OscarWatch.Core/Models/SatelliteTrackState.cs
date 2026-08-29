@@ -2,6 +2,8 @@ namespace OscarWatch.Core.Models;
 
 public sealed class SatelliteTrackState
 {
+    private static readonly GeoCoordinate ZeroCoordinate = new(0, 0, 0);
+    
     public required string Name { get; set; }
     public required string NoradId { get; set; }
     public required GeoCoordinate Subpoint { get; set; }
@@ -27,7 +29,7 @@ public sealed class SatelliteTrackState
     {
         Name = string.Empty;
         NoradId = string.Empty;
-        Subpoint = new GeoCoordinate(0, 0, 0);
+        Subpoint = ZeroCoordinate; // Use cached instance to avoid allocation
         LookAngles = null;
         AheadAzimuthDeg = null;
         MotionHeadingDeg = null;

@@ -35,8 +35,8 @@ public interface ILiveTrackingService : IDisposable
     void RequestReload();
 
     /// <summary>Get statistics about snapshot buffer usage for performance monitoring.</summary>
-    SnapshotBufferStatistics GetBufferStatistics();
+    SnapshotBufferStatistics GetBufferStatistics() => new();
     
     /// <summary>Compact oversized buffers to prevent excessive memory usage.</summary>
-    void CompactBuffers();
+    void CompactBuffers() { /* Default: no-op for external implementers */ }
 }

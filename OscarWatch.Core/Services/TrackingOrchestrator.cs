@@ -60,9 +60,8 @@ public sealed class TrackingOrchestrator
         _loggedLookAngleSkips.Clear();
         _loggedStateSkips.Clear();
         
-        // Return existing objects to the pool before clearing buffers
-        SatelliteTrackStatePool.ReturnRange(_bufferA);
-        SatelliteTrackStatePool.ReturnRange(_bufferB);
+        // Don't return objects to pool here - UI might still reference them in published snapshots
+        // Objects will be garbage collected naturally, and pool will replenish on demand
         _bufferA.Clear();
         _bufferB.Clear();
         var sats = _tleService.GetEnabledSatellites(_settings.Current);
@@ -126,8 +125,8 @@ public sealed class TrackingOrchestrator
         var sats = _cachedEnabledSats;
         var states = _useBufferA ? _bufferB : _bufferA;
         
-        // Return existing objects to the pool before clearing
-        SatelliteTrackStatePool.ReturnRange(states);
+        // Don't return to pool here - UI might still reference them in published snapshots
+        // Objects will be garbage collected naturally, pool efficiency is secondary to correctness
         states.Clear();
         var sunEci = GetCachedSunPosition(utc);
 
