@@ -124,7 +124,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     private bool _sortedPassesDirty = true;
     
     // Tooltip caching to reduce mouse movement allocations
-    private readonly Dictionary<string, string> _tooltipCache = new();
+    private readonly Dictionary<(string NoradId, long AosTicks, bool DisplayUtc, bool Use24Hour), string> _tooltipCache = new();
     private bool _tooltipCacheDirty = true;
     
     // Visible passes buffer for accessibility without LINQ chains
@@ -314,7 +314,13 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         {
             _sortedPasses.Clear();
             _sortedPasses.AddRange(_passEntries.Values);
-            _sortedPasses.Sort((a, b) => a.Pass.AosUtc.CompareTo(b.Pass.AosUtc));
+            // Use deterministic sorting with NoradId as tie-breaker for identical AosUtc times
+            _sortedPasses.Sort((a, b) =>
+            {
+                var timeComparison = a.Pass.AosUtc.CompareTo(b.Pass.AosUtc);
+                return timeComparison != 0 ? timeComparison : 
+                       string.Compare(a.Pass.NoradId, b.Pass.NoradId, StringComparison.Ordinal);
+            });
             _sortedPassesDirty = false;
         }
         return _sortedPasses;
@@ -350,7 +356,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
             _tooltipCacheDirty = false;
         }
         
-        var key = $"{pass.NoradId}_{pass.AosUtc.Ticks}_{DisplayTimesInUtc}_{Use24HourClock}";
+        var key = (pass.NoradId, pass.AosUtc.Ticks, DisplayTimesInUtc, Use24HourClock);
         if (!_tooltipCache.TryGetValue(key, out var tooltip))
         {
             tooltip = BuildPassToolTip(pass);
