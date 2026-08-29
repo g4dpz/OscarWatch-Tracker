@@ -568,7 +568,7 @@ Continue?</value>
     <value>_Tools</value>
   </data>
   <data name="Menu.Tools.QsoLogbook">
-    <value>_QSO Logbook</value>
+    <value>_OscarWatch Logbook</value>
   </data>
   <data name="Menu.Satellites">
     <value>_Satellites</value>
@@ -907,7 +907,7 @@ Continue?</value>
     <value>Pass planner</value>
   </data>
   <data name="Window.Logbook.Title">
-    <value>QSO logbook</value>
+    <value>OscarWatch Logbook</value>
   </data>
   <data name="Window.CreateLogbook.Title">
     <value>New logbook</value>

@@ -18,7 +18,7 @@ You do **not** need to be a programmer to use published builds.
 - **Pass list**: upcoming passes with max elevation and time-to-AOS; right-click a row for a polar **pass plot** at your QTH; sidebar scrolls on smaller windows
 - **Frequency panel**: transponder modes from a built-in database, live uplink/downlink with Doppler, RX offsets (separate for Voice and CW on linear SSB), and CTCSS (access/arm tones). Keyboard shortcuts: [help/keyboard-shortcuts.html](help/keyboard-shortcuts.html) (**Ctrl+W**, numpad **+** / **−** for RX offset, **S** for solo map view, map arrows, etc.)
 - **Optional automation**: serial **rotator** tracking and **radio CAT** (Doppler, satellite/split layout, tones) during a pass
-- **Optional extras**: voice “satellite rising” alerts, pass **WAV recording**, **Cloudlog** frequency sync, **GPS** (NMEA serial) for station position and optional UTC for tracking, local **QSO logbook** with ADIF export (**Tools → QSO Logbook**)
+- **Optional extras**: voice “satellite rising” alerts, pass **WAV recording**, **Cloudlog** frequency sync, **GPS** (NMEA serial) for station position and optional UTC for tracking, local **OscarWatch Logbook** with ADIF export (**Tools → OscarWatch Logbook**)
 
 OscarWatch does **not** decode telemetry; it is a pass-tracking and station-assist tool for the shack or field, with a built-in lightweight logbook for satellite QSOs during a pass (export ADIF for your main logger).
 
@@ -67,7 +67,7 @@ Press **Standby** in the sidebar when you are only planning or browsing: the rot
 
 ### Operator guide
 
-Plain-language help ships with the app: **Help → Operator guide** (also in the `[help/](help/)` folder). The guide is **English only**; the app UI can be switched under **Settings → Appearance → Language** (restart required). Topics include quick start, map and pass elevation timeline, frequencies, TLEs, pass planning, radio/rotator setup, recording, QSO logbook, and troubleshooting.
+Plain-language help ships with the app: **Help → Operator guide** (also in the `[help/](help/)` folder). The guide is **English only**; the app UI can be switched under **Settings → Appearance → Language** (restart required). Topics include quick start, map and pass elevation timeline, frequencies, TLEs, pass planning, radio/rotator setup, recording, OscarWatch Logbook, and troubleshooting.
 
 ---
 
@@ -91,7 +91,7 @@ Plain-language help ships with the app: **Help → Operator guide** (also in the
 - **Radio CAT**: doppler tracking, satellite/split setup, Main/Sub VFOs, uplink CTCSS where supported; Settings → Radio (see [Supported hardware](#supported-hardware))
 - **Rotator control**: serial pass tracking, manual park, and **manual rotator** (az/el dialog in Standby for quick contacts between passes); Settings → Rotator (see [Supported hardware](#supported-hardware))
 - **Cloudlog**: optional Radio API v2 uplink/downlink when tracking (Settings → Cloudlog)
-- **QSO logbook**: local satellite logging (**Tools → QSO Logbook**) — UTC timestamps, multiple logbooks, fast entry during a pass (satellite/mode/frequencies from tracking), grid-line multi-grid support, ADIF export ([help](help/qso-logbook.html))
+- **OscarWatch Logbook**: local satellite logging (**Tools → OscarWatch Logbook**): UTC timestamps, multiple logbooks, fast entry during a pass (satellite/mode/frequencies from tracking), grid-line multi-grid support, ADIF export ([help](help/qso-logbook.html))
 - **Appearance**: light, dark, or system theme (sky plot adapts; world map image stays light); 12- or 24-hour clock; optional greyline and footprint motion arrows on the map
 
 ## Supported hardware
@@ -260,7 +260,7 @@ Step-by-step operator notes: [help/settings.html#ffmpeg](help/settings.html#ffmp
 | Transponder DB (user)   | `%AppData%/OscarWatch/satellite_database.json`                                                   |
 | Transponder DB (remote) | [tle.oscarwatch.org/satellite_database.json](https://tle.oscarwatch.org/satellite_database.json) |
 | Logs                    | `%AppData%/OscarWatch/logs/` (daily rolling `oscarwatch-YYYYMMDD.log`, 14 days retained)         |
-| QSO logbook             | `%AppData%/OscarWatch/qso_logbook.db` (local SQLite; export ADIF for backup)                     |
+| OscarWatch Logbook      | `%AppData%/OscarWatch/qso_logbook.db` (local SQLite; export ADIF for backup)                     |
 
 
 Open the recordings or log folder from **Help → Open recordings folder** or **Help → Open logs folder**. Unhandled crashes and rig/rotator/CAT errors are written to logs (not API keys).

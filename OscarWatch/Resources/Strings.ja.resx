@@ -2014,10 +2014,10 @@
     <value>設定を保存できませんでした</value>
   </data>
   <data name="Menu.Tools.QsoLogbook">
-    <value>_QSOログブック</value>
+    <value>_OscarWatchログブック</value>
   </data>
   <data name="Window.Logbook.Title">
-    <value>QSOログブック</value>
+    <value>OscarWatchログブック</value>
   </data>
   <data name="Window.CreateLogbook.Title">
     <value>新規ログブック</value>

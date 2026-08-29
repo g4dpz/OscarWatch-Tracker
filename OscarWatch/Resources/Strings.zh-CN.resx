@@ -844,10 +844,10 @@
     <value>OscarWatch 已在运行，但无法激活其窗口。如果没有出现窗口，请在任务管理器中结束 OscarWatch.exe，然后重试。</value>
   </data>
   <data name="Menu.Tools.QsoLogbook">
-    <value>_QSO 日志</value>
+    <value>_OscarWatch 日志</value>
   </data>
   <data name="Window.Logbook.Title">
-    <value>QSO 日志</value>
+    <value>OscarWatch 日志</value>
   </data>
   <data name="Window.CreateLogbook.Title">
     <value>新建日志</value>
