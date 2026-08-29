@@ -48,6 +48,7 @@ public partial class MainViewModel : ViewModelBase
     private readonly IHamsAtRovesService _hamsAtRoves;
     private readonly ISatelliteStatusReportService _satelliteStatus;
     private readonly ISatelliteDatabaseService _satelliteDatabase;
+    private readonly IPassConflictService _passConflictService;
     private readonly ILocalizationService _l;
     private readonly LiveTrackerSnapshotProvider _trackerSnapshot;
     private readonly DispatcherTimer _timer;
@@ -409,7 +410,8 @@ public partial class MainViewModel : ViewModelBase
         ILocalizationService localization,
         FrequencyOverlayViewModel frequencies,
         DxStationOverlayViewModel dxStation,
-        LiveTrackerSnapshotProvider trackerSnapshot)
+        LiveTrackerSnapshotProvider trackerSnapshot,
+        IPassConflictService passConflictService)
     {
         _l = localization;
         _trackerSnapshot = trackerSnapshot;
@@ -438,6 +440,7 @@ public partial class MainViewModel : ViewModelBase
         _hamsAtRoves = hamsAtRoves;
         _satelliteStatus = satelliteStatus;
         _satelliteDatabase = satelliteDatabase;
+        _passConflictService = passConflictService;
         Frequencies = frequencies;
         DxStation = dxStation;
         Frequencies.OffsetsChanged += (_, reinitializePass) =>
@@ -3321,6 +3324,25 @@ public partial class MainViewModel : ViewModelBase
                     .Where(p => PassUtc.Normalize(p.LosUtc) > utcNow)
                     .ToList();
 
+                // Detect pass conflicts across the full list of upcoming passes
+                var conflictSettings = _settings.Current.ConflictDetection;
+                var conflicts = conflictSettings.ConflictDetectionEnabled 
+                    ? _passConflictService.DetectConflicts(merged, conflictSettings.GetMinimumOverlapThreshold())
+                    : new List<PassConflictInfo>();
+                    
+                var conflictLookup = new Dictionary<(string noradId, DateTime aosUtc), PassConflictInfo>();
+                
+                // Build lookup for conflicts by pass identifier
+                foreach (var conflict in conflicts)
+                {
+                    var passAKey = (conflict.PassA.NoradId, conflict.PassA.AosUtc);
+                    var passBKey = (conflict.PassB.NoradId, conflict.PassB.AosUtc);
+                    
+                    // Store the conflict for both passes involved
+                    conflictLookup[passAKey] = conflict;
+                    conflictLookup[passBKey] = conflict;
+                }
+
                 var useUtc = _settings.Current.DisplayTimesInUtc;
                 var clockFormat = PassDisplayFormat.FromSettings(_settings.Current.Use24HourClock);
                 var scheduled = _settings.Current.ScheduledPasses ?? [];
@@ -3340,6 +3362,20 @@ public partial class MainViewModel : ViewModelBase
 
                     var row = PassRowViewModel.From(p, clockFormat, useUtc);
                     row.IsScheduled = ScheduledPassReminder.IsScheduled(scheduled, p.NoradId, p.AosUtc);
+                    
+                    // Attach conflict information and quality score to the pass row
+                    var passKey = (p.NoradId, p.AosUtc);
+                    if (conflictLookup.TryGetValue(passKey, out var passConflict))
+                    {
+                        row.ConflictInfo = passConflict;
+                    }
+                    
+                    // Calculate quality score for the pass if enabled
+                    if (conflictSettings.QualityScoreEnabled)
+                    {
+                        row.QualityScore = _passConflictService.CalculateQualityScore(p, conflictSettings.GetQualityWeights());
+                    }
+                    
                     items.Add(row);
                 }
 
@@ -3418,6 +3454,21 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
     [NotifyPropertyChangedFor(nameof(ScheduleAutomationName))]
     private bool _isScheduled;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowConflictIndicator))]
+    [NotifyPropertyChangedFor(nameof(ConflictSeverityText))]
+    [NotifyPropertyChangedFor(nameof(ConflictToolTip))]
+    [NotifyPropertyChangedFor(nameof(ConflictAutomationName))]
+    [NotifyPropertyChangedFor(nameof(ConflictGlyph))]
+    [NotifyPropertyChangedFor(nameof(HasConflict))]
+    private PassConflictInfo? _conflictInfo;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(QualityScoreText))]
+    [NotifyPropertyChangedFor(nameof(QualityScoreToolTip))]
+    [NotifyPropertyChangedFor(nameof(ShowQualityScore))]
+    private PassQualityScore? _qualityScore;
+
     public string ScheduleGlyph => IsScheduled ? "●" : "○";
 
     public string ScheduleToolTip => IsScheduled
@@ -3427,6 +3478,76 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
     public string ScheduleAutomationName => IsScheduled
         ? L.Get("Pass.Schedule.Remove")
         : L.Get("Pass.Schedule.Add");
+
+    // Conflict-related computed properties
+    public bool HasConflict => ConflictInfo != null;
+    
+    public bool ShowConflictIndicator => HasConflict;
+    
+    public string ConflictGlyph => ConflictInfo?.Severity switch
+    {
+        ConflictSeverity.Minor => "⚠",     // Warning triangle
+        ConflictSeverity.Moderate => "⚠",  // Warning triangle  
+        ConflictSeverity.Severe => "⛔",    // No entry sign
+        _ => ""
+    };
+    
+    public string ConflictSeverityText => ConflictInfo?.Severity switch
+    {
+        ConflictSeverity.Minor => L.Get("Pass.Conflict.Minor"),
+        ConflictSeverity.Moderate => L.Get("Pass.Conflict.Moderate"), 
+        ConflictSeverity.Severe => L.Get("Pass.Conflict.Severe"),
+        _ => ""
+    };
+    
+    public string ConflictToolTip
+    {
+        get
+        {
+            if (ConflictInfo == null) return "";
+            
+            var otherSat = ConflictInfo.PassA.NoradId == NoradId 
+                ? ConflictInfo.PassB.SatelliteName 
+                : ConflictInfo.PassA.SatelliteName;
+                
+            return L.Get("Pass.Conflict.ToolTip", 
+                ConflictSeverityText.ToLower(), 
+                otherSat,
+                FormatPassDurationValue(ConflictInfo.Duration));
+        }
+    }
+    
+    public string ConflictAutomationName
+    {
+        get
+        {
+            if (ConflictInfo == null) return "";
+            
+            var otherSat = ConflictInfo.PassA.NoradId == NoradId 
+                ? ConflictInfo.PassB.SatelliteName 
+                : ConflictInfo.PassA.SatelliteName;
+                
+            return L.Get("Pass.Conflict.AutomationName", ConflictSeverityText, SatelliteName, otherSat);
+        }
+    }
+
+    // Quality score properties
+    public bool ShowQualityScore => QualityScore != null;
+    
+    public string QualityScoreText => QualityScore != null ? $"{QualityScore.OverallScore:F1}" : "";
+    
+    public string QualityScoreToolTip
+    {
+        get
+        {
+            if (QualityScore == null) return "";
+            
+            return L.Get("Pass.QualityScore.ToolTip",
+                QualityScore.OverallScore.ToString("F1"),
+                QualityScore.ElevationScore.ToString("F1"),
+                QualityScore.DurationScore.ToString("F1"));
+        }
+    }
 
     /// <summary>Hide schedule control once the pass has started (too late to mark).</summary>
     public bool ShowScheduleButton =>
@@ -3583,7 +3704,9 @@ public partial class PassRowViewModel : ObservableObject, IPassListItem
             Highlight = Highlight,
             BadgeText = BadgeText,
             ShowBadge = ShowBadge,
-            IsScheduled = IsScheduled
+            IsScheduled = IsScheduled,
+            ConflictInfo = ConflictInfo,
+            QualityScore = QualityScore
         };
     }
 

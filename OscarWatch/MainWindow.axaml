@@ -679,6 +679,31 @@
                                      Text="{Binding ScheduleGlyph}"
                                      Foreground="{DynamicResource ThemeForegroundBrush}" />
                         </Button>
+                        <!-- Conflict indicator -->
+                        <TextBlock DockPanel.Dock="Right"
+                                   Text="{Binding ConflictGlyph}"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Margin="6,0,0,0"
+                                   VerticalAlignment="Center"
+                                   IsVisible="{Binding ShowConflictIndicator}"
+                                   Foreground="#FF9900"
+                                   ToolTip.Tip="{Binding ConflictToolTip}"
+                                   AutomationProperties.Name="{Binding ConflictAutomationName}" />
+                        <!-- Quality score indicator -->
+                        <Border DockPanel.Dock="Right"
+                                Padding="4,2"
+                                CornerRadius="3"
+                                Margin="6,0,0,0"
+                                VerticalAlignment="Center"
+                                IsVisible="{Binding ShowQualityScore}"
+                                Background="#E0E0E0"
+                                ToolTip.Tip="{Binding QualityScoreToolTip}">
+                          <TextBlock Text="{Binding QualityScoreText}"
+                                     FontSize="11"
+                                     FontWeight="SemiBold"
+                                     Foreground="#333333" />
+                        </Border>
                         <Ellipse DockPanel.Dock="Left"
                                  Width="8"
                                  Height="8"

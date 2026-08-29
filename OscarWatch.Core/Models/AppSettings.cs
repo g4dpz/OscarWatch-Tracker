@@ -91,6 +91,7 @@ public sealed class AppSettings
     public SatelliteLinkSettings SatelliteLink { get; set; } = new();
     public PassRecordingSettings PassRecording { get; set; } = new();
     public QsoLogbookSettings QsoLogbook { get; set; } = new();
+    public ConflictDetectionSettings ConflictDetection { get; set; } = new();
     /// <summary>Transponder conflicts the user confirmed keeping locally instead of the published version.</summary>
     public List<TransponderConflictAcknowledgment> TransponderConflictAcknowledgments { get; set; } = [];
 }

@@ -307,6 +307,63 @@
   <data name="Pass.DurationOneMinute">
     <value>1 min</value>
   </data>
+  <data name="Pass.Conflict.Minor">
+    <value>Minor conflict</value>
+  </data>
+  <data name="Pass.Conflict.Moderate">
+    <value>Moderate conflict</value>
+  </data>
+  <data name="Pass.Conflict.Severe">
+    <value>Severe conflict</value>
+  </data>
+  <data name="Pass.Conflict.ToolTip">
+    <value>{0} overlap with {1} for {2}</value>
+  </data>
+  <data name="Pass.Conflict.AutomationName">
+    <value>{0} for {1} conflicts with {2}</value>
+  </data>
+  <data name="Pass.QualityScore.ToolTip">
+    <value>Quality score: {0} (elevation: {1}, duration: {2})</value>
+  </data>
+  <data name="Settings.ConflictDetection.Section">
+    <value>Pass Conflict Detection</value>
+  </data>
+  <data name="Settings.ConflictDetection.Enable">
+    <value>Enable conflict detection</value>
+  </data>
+  <data name="Settings.ConflictDetection.EnableNote">
+    <value>Detect overlapping passes and display conflict indicators in the pass list.</value>
+  </data>
+  <data name="Settings.ConflictDetection.QualityScore">
+    <value>Enable quality scoring</value>
+  </data>
+  <data name="Settings.ConflictDetection.QualityScoreNote">
+    <value>Display quality scores for passes based on elevation, duration, and other factors.</value>
+  </data>
+  <data name="Settings.ConflictDetection.MinOverlapMinutes">
+    <value>Minimum overlap (minutes)</value>
+  </data>
+  <data name="Settings.ConflictDetection.MinOverlapNote">
+    <value>Minimum overlap duration to consider passes as conflicting.</value>
+  </data>
+  <data name="Settings.ConflictDetection.Weights">
+    <value>Quality Scoring Weights</value>
+  </data>
+  <data name="Settings.ConflictDetection.WeightsNote">
+    <value>Adjust the importance of different factors in pass quality calculation. Weights are automatically normalized.</value>
+  </data>
+  <data name="Settings.ConflictDetection.ElevationWeight">
+    <value>Elevation weight</value>
+  </data>
+  <data name="Settings.ConflictDetection.DurationWeight">
+    <value>Duration weight</value>
+  </data>
+  <data name="Settings.ConflictDetection.ModeWeight">
+    <value>Mode weight</value>
+  </data>
+  <data name="Settings.ConflictDetection.PopularityWeight">
+    <value>Popularity weight</value>
+  </data>
   <data name="ComPort.DualRadioSamePort">
     <value>Downlink and uplink radios both use {0}. Use different COM ports for each radio.</value>
   </data>

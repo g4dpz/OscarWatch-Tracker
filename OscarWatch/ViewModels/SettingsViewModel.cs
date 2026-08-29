@@ -608,6 +608,28 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     [ObservableProperty]
     private string _satelliteStatusTestStatus = "";
 
+    // Conflict Detection Settings
+    [ObservableProperty]
+    private bool _conflictDetectionEnabled = true;
+
+    [ObservableProperty]
+    private bool _qualityScoreEnabled = true;
+
+    [ObservableProperty]
+    private int _minimumOverlapMinutes = ConflictDetectionSettings.DefaultMinimumOverlapMinutes;
+
+    [ObservableProperty]
+    private double _elevationWeight = ConflictDetectionSettings.DefaultElevationWeight;
+
+    [ObservableProperty]
+    private double _durationWeight = ConflictDetectionSettings.DefaultDurationWeight;
+
+    [ObservableProperty]
+    private double _modeWeight = ConflictDetectionSettings.DefaultModeWeight;
+
+    [ObservableProperty]
+    private double _popularityWeight = ConflictDetectionSettings.DefaultPopularityWeight;
+
     public IReadOnlyList<RigTypeOption> RigTypeChoices { get; }
 
     public IReadOnlyList<RigTypeOption> RigDualTypeChoices { get; }
@@ -1285,6 +1307,17 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             MinSatellites = Math.Clamp(GpsMinSatellites, 1, 20)
         };
         _gps.Update(_settings.Current.Gps);
+        _settings.Current.ConflictDetection = new ConflictDetectionSettings
+        {
+            ConflictDetectionEnabled = ConflictDetectionEnabled,
+            QualityScoreEnabled = QualityScoreEnabled,
+            MinimumOverlapMinutes = ConflictDetectionSettings.ClampMinimumOverlapMinutes(MinimumOverlapMinutes),
+            ElevationWeight = ConflictDetectionSettings.ClampWeight(ElevationWeight),
+            DurationWeight = ConflictDetectionSettings.ClampWeight(DurationWeight),
+            ModeWeight = ConflictDetectionSettings.ClampWeight(ModeWeight),
+            PopularityWeight = ConflictDetectionSettings.ClampWeight(PopularityWeight)
+        };
+        _settings.Current.ConflictDetection.NormalizeWeights();
         _settings.Current.SatelliteLink = new SatelliteLinkSettings
         {
             Enabled = SatelliteLinkEnabled,
@@ -1546,6 +1579,17 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             GpsUseTimeForTracking = gps.UseGpsTimeForTracking;
             GpsMinSatellites = gps.MinSatellites > 0 ? gps.MinSatellites : 3;
             PushDraftGpsToService();
+
+            // Load conflict detection settings
+            var conflictDetection = _settings.Current.ConflictDetection ?? new ConflictDetectionSettings();
+            ConflictDetectionEnabled = conflictDetection.ConflictDetectionEnabled;
+            QualityScoreEnabled = conflictDetection.QualityScoreEnabled;
+            MinimumOverlapMinutes = conflictDetection.MinimumOverlapMinutes;
+            ElevationWeight = conflictDetection.ElevationWeight;
+            DurationWeight = conflictDetection.DurationWeight;
+            ModeWeight = conflictDetection.ModeWeight;
+            PopularityWeight = conflictDetection.PopularityWeight;
+
             RefreshComPortConflict();
         }
         finally
