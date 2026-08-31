@@ -66,6 +66,10 @@ public class WorldMapControl : ThemeAwareControl
     private readonly FormattedTextCache _labelCache = new();
     private readonly Dictionary<string, FootprintGeometryEntry> _footprintGeometryCache = new();
     private readonly Dictionary<string, GroundTrackSplitEntry> _groundTrackSplitCache = new();
+    
+    // Reusable buffers for cache key iteration to avoid ToArray() allocations every render frame
+    private string[] _footprintCacheKeysBuffer = new string[32];
+    private string[] _groundTrackCacheKeysBuffer = new string[32];
 
     public WorldMapControl()
     {
@@ -342,12 +346,16 @@ public class WorldMapControl : ThemeAwareControl
         // Evict stale footprint cache entries
         if (_footprintGeometryCache.Count > 0)
         {
-            // Snapshot keys into a temporary list to allow removal during iteration.
-            // This runs once per frame (not per satellite), so a small array allocation is acceptable.
-            var keys = _footprintGeometryCache.Keys.ToArray();
-            for (var ki = 0; ki < keys.Length; ki++)
+            // Use reusable buffer instead of allocating new array every render frame
+            var keyCount = _footprintGeometryCache.Count;
+            if (_footprintCacheKeysBuffer.Length < keyCount)
+                Array.Resize(ref _footprintCacheKeysBuffer, Math.Max(keyCount, _footprintCacheKeysBuffer.Length * 2));
+            
+            _footprintGeometryCache.Keys.CopyTo(_footprintCacheKeysBuffer, 0);
+            
+            for (var ki = 0; ki < keyCount; ki++)
             {
-                var key = keys[ki];
+                var key = _footprintCacheKeysBuffer[ki];
                 var found = false;
                 for (var i = 0; i < states.Count; i++)
                 {
@@ -366,10 +374,16 @@ public class WorldMapControl : ThemeAwareControl
         // Evict stale ground track split cache entries
         if (_groundTrackSplitCache.Count > 0)
         {
-            var keys = _groundTrackSplitCache.Keys.ToArray();
-            for (var ki = 0; ki < keys.Length; ki++)
+            // Use reusable buffer instead of allocating new array every render frame
+            var keyCount = _groundTrackSplitCache.Count;
+            if (_groundTrackCacheKeysBuffer.Length < keyCount)
+                Array.Resize(ref _groundTrackCacheKeysBuffer, Math.Max(keyCount, _groundTrackCacheKeysBuffer.Length * 2));
+            
+            _groundTrackSplitCache.Keys.CopyTo(_groundTrackCacheKeysBuffer, 0);
+            
+            for (var ki = 0; ki < keyCount; ki++)
             {
-                var key = keys[ki];
+                var key = _groundTrackCacheKeysBuffer[ki];
                 var found = false;
                 for (var i = 0; i < states.Count; i++)
                 {
