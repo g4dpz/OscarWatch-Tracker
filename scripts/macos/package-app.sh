@@ -93,21 +93,27 @@ cat > "$APP/Contents/Info.plist" <<EOF
 </plist>
 EOF
 
-# Re-sign nested native code after copy. Do NOT codesign the main OscarWatch
-# host while it sits next to managed .dll files inside a .app: codesign then
-# treats those assemblies as unsigned "subcomponents" and fails. Do NOT use
-# --deep (same failure mode). Sign dylibs/helpers first, then seal the bundle
-# (that seals CFBundleExecutable).
+# Contents/MacOS is the bundle's code directory. .NET drops managed .dll files
+# there (required for AppContext.BaseDirectory). If those files are executable,
+# codesign treats them as nested code and fails with "In subcomponent: *.dll".
+# Strip execute bits from everything, restore/sign nested Mach-O helpers only,
+# then seal the .app (that covers CFBundleExecutable). Never use --deep.
+find "$MACOS" -type f -exec chmod a-x {} +
+
 while IFS= read -r -d '' path; do
   base="$(basename "$path")"
+  # Skip the main host: signing it inside the .app re-enters bundle rules and
+  # used to fail on sibling .dll files before execute bits were cleared.
   if [[ "$base" == "OscarWatch" ]]; then
     continue
   fi
   if file -b "$path" | grep -q 'Mach-O'; then
+    chmod a+x "$path"
     codesign --force --sign - --timestamp=none "$path"
   fi
 done < <(find "$MACOS" -type f -print0)
 
+chmod a+x "$MACOS/OscarWatch"
 codesign --force --sign - --timestamp=none "$APP"
 
 # Quarantine helper next to the .app (operators who prefer not to use Terminal).
