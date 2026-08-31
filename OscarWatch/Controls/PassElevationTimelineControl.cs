@@ -32,6 +32,10 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     private const double LiveWindowAlignmentMinutes = 0.5;
     private const double ElevationLabelMinSpacing = 11;
 
+    // --- Object pools for memory optimization ---
+    private static readonly ThreadLocal<List<ElevationSample>> _profileBuffer = 
+        new(() => new List<ElevationSample>(capacity: 64));
+
     // --- Styled Properties ---
 
     public static readonly StyledProperty<IReadOnlyList<PassInfo>?> PassesProperty =
@@ -93,6 +97,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     {
         _renderCache.Clear();
         _labelCache.Clear();
+        _tooltipCacheDirty = true;
         base.OnThemeChanged();
     }
 
@@ -110,9 +115,20 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     private readonly FormattedTextCache _labelCache = new();
     private readonly DispatcherTimer _refreshTimer;
 
-    // --- Cached pass geometry ---
+    // --- Cached pass geometry and optimization fields ---
 
     private Dictionary<string, TimelinePassEntry> _passEntries = new();
+    
+    // Pre-sorted collections to eliminate LINQ OrderBy().ToList() in render loop
+    private readonly List<TimelinePassEntry> _sortedPasses = new();
+    private bool _sortedPassesDirty = true;
+    
+    // Tooltip caching to reduce mouse movement allocations
+    private readonly Dictionary<(string NoradId, long AosTicks, bool DisplayUtc, bool Use24Hour), string> _tooltipCache = new();
+    private bool _tooltipCacheDirty = true;
+    
+    // Visible passes buffer for accessibility without LINQ chains
+    private readonly List<TimelinePassEntry> _visiblePassesBuffer = new();
 
     // --- Orbit propagator (injected via property for integration) ---
     private IOrbitPropagator? _propagator;
@@ -192,6 +208,11 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         {
             InvalidateGeometryCache();
         }
+        else if (change.Property == DisplayTimesInUtcProperty || 
+                 change.Property == Use24HourClockProperty)
+        {
+            _tooltipCacheDirty = true;
+        }
     }
 
     /// <summary>
@@ -206,6 +227,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         if (passes is null || passes.Count == 0)
         {
             _passEntries.Clear();
+            InvalidateCaches();
             InvalidateVisual();
             return;
         }
@@ -250,6 +272,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
             Dispatcher.UIThread.Post(() =>
             {
                 _passEntries = entries;
+                InvalidateCaches();
                 InvalidateGeometryCache();
                 InvalidateVisual();
             });
@@ -279,6 +302,67 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         {
             entry.Geometry = null;
         }
+    }
+
+    /// <summary>
+    /// Gets the sorted pass entries, using cached version if available.
+    /// Eliminates OrderBy().ToList() allocations in render loop.
+    /// </summary>
+    private IReadOnlyList<TimelinePassEntry> GetSortedPasses()
+    {
+        if (_sortedPassesDirty)
+        {
+            _sortedPasses.Clear();
+            _sortedPasses.AddRange(_passEntries.Values);
+            // Use deterministic sorting with NoradId as tie-breaker for identical AosUtc times
+            _sortedPasses.Sort((a, b) =>
+            {
+                var timeComparison = a.Pass.AosUtc.CompareTo(b.Pass.AosUtc);
+                return timeComparison != 0 ? timeComparison : 
+                       string.Compare(a.Pass.NoradId, b.Pass.NoradId, StringComparison.Ordinal);
+            });
+            _sortedPassesDirty = false;
+        }
+        return _sortedPasses;
+    }
+
+    /// <summary>
+    /// Invalidates the sorted pass cache.
+    /// </summary>
+    private void InvalidateCaches()
+    {
+        _sortedPassesDirty = true;
+        _tooltipCacheDirty = true;
+    }
+
+    /// <summary>
+    /// Gets a reusable List<ElevationSample> buffer from thread-local pool.
+    /// </summary>
+    private static List<ElevationSample> GetProfileBuffer()
+    {
+        var buffer = _profileBuffer.Value!;
+        buffer.Clear();
+        return buffer;
+    }
+
+    /// <summary>
+    /// Gets cached tooltip text for a pass.
+    /// </summary>
+    private string GetCachedTooltip(PassInfo pass)
+    {
+        if (_tooltipCacheDirty)
+        {
+            _tooltipCache.Clear();
+            _tooltipCacheDirty = false;
+        }
+        
+        var key = (pass.NoradId, pass.AosUtc.Ticks, DisplayTimesInUtc, Use24HourClock);
+        if (!_tooltipCache.TryGetValue(key, out var tooltip))
+        {
+            tooltip = BuildPassToolTip(pass);
+            _tooltipCache[key] = tooltip;
+        }
+        return tooltip;
     }
 
     /// <summary>
@@ -605,9 +689,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         var activeUtc = windowStartUtc;
         var focusedId = FocusedNoradId;
 
-        var sorted = _passEntries.Values
-            .OrderBy(e => e.Pass.AosUtc)
-            .ToList();
+        var sorted = GetSortedPasses();
 
         foreach (var entry in sorted)
         {
@@ -654,7 +736,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         if (isFocused && !IsFocusedPass(entry.Pass, FocusedNoradId))
             return;
 
-        var currentProfile = new List<ElevationSample>();
+        var currentProfile = GetProfileBuffer();
         foreach (var sample in profile)
         {
             var sampleUtc = entry.Pass.AosUtc + TimeSpan.FromMinutes(
@@ -895,7 +977,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         var hit = HitTest(pos.X);
         if (hit is not null)
         {
-            ToolTip.SetTip(this, BuildPassToolTip(hit));
+            ToolTip.SetTip(this, GetCachedTooltip(hit));
             ToolTip.SetIsOpen(this, true);
         }
         else
@@ -1038,27 +1120,37 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
 
         var windowMinutes = TimelineWindowLimits.Clamp(TimeWindowMinutes);
         var windowStartUtc = MapDisplayUtc;
-        var visible = _passEntries.Values
-            .Where(e => GetMinutesFromWindowStart(e.Pass.LosUtc, windowStartUtc) > 0
-                        && GetMinutesFromWindowStart(e.Pass.AosUtc, windowStartUtc) < windowMinutes)
-            .OrderBy(e => e.Pass.AosUtc)
-            .Take(10)
-            .ToList();
+        
+        // Use optimized visible pass filtering
+        _visiblePassesBuffer.Clear();
+        var sortedPasses = GetSortedPasses();
+        foreach (var entry in sortedPasses)
+        {
+            if (GetMinutesFromWindowStart(entry.Pass.LosUtc, windowStartUtc) > 0 &&
+                GetMinutesFromWindowStart(entry.Pass.AosUtc, windowStartUtc) < windowMinutes)
+            {
+                _visiblePassesBuffer.Add(entry);
+                if (_visiblePassesBuffer.Count >= 10) break;
+            }
+        }
 
-        if (visible.Count == 0)
+        if (_visiblePassesBuffer.Count == 0)
             return LocalizationService.Instance.Get("Main.Pass.None");
 
         var clockFormat = PassDisplayFormat.FromSettings(Use24HourClock);
         var useUtc = DisplayTimesInUtc;
-        var parts = visible.Select(e =>
+        
+        // Build parts without LINQ Select()
+        var parts = new List<string>(_visiblePassesBuffer.Count);
+        foreach (var entry in _visiblePassesBuffer)
         {
-            var p = e.Pass;
+            var p = entry.Pass;
             var aosText = PassDisplayFormat.FormatHoverTime(p.AosUtc, useUtc, clockFormat);
             var losText = PassDisplayFormat.FormatHoverTime(p.LosUtc, useUtc, clockFormat);
-            return $"{p.SatelliteName}: {aosText}-{losText}, max {p.MaxElevationDeg:F0}°";
-        });
+            parts.Add($"{p.SatelliteName}: {aosText}-{losText}, max {p.MaxElevationDeg:F0}°");
+        }
 
-        return $"{visible.Count} passes: " + string.Join("; ", parts);
+        return $"{_visiblePassesBuffer.Count} passes: " + string.Join("; ", parts);
     }
 }
 
