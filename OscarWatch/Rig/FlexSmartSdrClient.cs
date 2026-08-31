@@ -2135,11 +2135,23 @@ internal sealed class FlexSmartSdrClient : IDisposable
     /// the dual-band layout. A non-blocking drain can miss a just-emitted collapse (loopback
     /// <see cref="NetworkStream.DataAvailable"/> race), which made Ensure/Verify treat two UHF
     /// pans as still healthy and skip recovery (GitHub issue 111).
+    /// Drains again after the subscribe ACK so a post-response pan dump is applied before callers
+    /// inspect <c>_pans</c>.
     /// </summary>
     private void RefreshLivePanStatusUnlocked()
     {
         DrainPendingStatusUnlocked();
-        _ = SendAndWaitResponseUnlocked(FlexSmartSdrCodec.BuildSubPanAllCommand);
+        var response = SendAndWaitResponseUnlocked(FlexSmartSdrCodec.BuildSubPanAllCommand);
+        if (response is null || !FlexSmartSdrCodec.IsSuccessResponse(response))
+        {
+            Log.Warning(
+                "FlexRadio pan status refresh failed; dual-band layout may be stale: detail={Detail}",
+                response is null
+                    ? "(timeout)"
+                    : $"hex=0x{response.HexResponse:X8}, body={TruncateForLog(response.Body)}");
+        }
+
+        DrainPendingStatusUnlocked();
     }
 
     private void DrainPendingStatusUnlocked()
