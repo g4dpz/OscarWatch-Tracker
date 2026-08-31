@@ -33,6 +33,10 @@ public sealed class LiveTrackingService : ILiveTrackingService
     private DateTime _lastGpsJumpWarningUtc = DateTime.MinValue;
     private long _mapTimeOffsetTicks;
     private string? _focusedNoradId;
+    
+    // Reusable buffers for snapshot publishing to avoid ToArray() allocations every update
+    private SatelliteTrackState[] _snapshotBuffer = new SatelliteTrackState[32];
+    private SatelliteTrackState[] _liveNowSnapshotBuffer = new SatelliteTrackState[32];
 
     public TimeSpan MapTimeOffset
     {
@@ -271,10 +275,10 @@ public sealed class LiveTrackingService : ILiveTrackingService
 
         // Copy before publish: orchestrator double-buffers mutable lists that are cleared
         // on the worker thread; UI render may still be reading the previous snapshot.
-        var publishedDisplay = PublishSnapshot(displayStates);
+        var publishedDisplay = PublishSnapshotToBuffer(displayStates, ref _snapshotBuffer);
         var publishedLiveNow = ReferenceEquals(liveNowStates, displayStates)
             ? publishedDisplay
-            : PublishSnapshot(liveNowStates);
+            : PublishSnapshotToBuffer(liveNowStates, ref _liveNowSnapshotBuffer);
 
         lock (_snapshotLock)
         {
@@ -312,8 +316,24 @@ public sealed class LiveTrackingService : ILiveTrackingService
         return candidate;
     }
 
-    private static IReadOnlyList<SatelliteTrackState> PublishSnapshot(IReadOnlyList<SatelliteTrackState> states) =>
-        states.Count == 0 ? Array.Empty<SatelliteTrackState>() : states.ToArray();
+    private static IReadOnlyList<SatelliteTrackState> PublishSnapshotToBuffer(
+        IReadOnlyList<SatelliteTrackState> states,
+        ref SatelliteTrackState[] buffer)
+    {
+        if (states.Count == 0)
+            return Array.Empty<SatelliteTrackState>();
+
+        // Resize buffer if needed to accommodate all states
+        if (buffer.Length < states.Count)
+            Array.Resize(ref buffer, Math.Max(states.Count, buffer.Length * 2));
+
+        // Copy states to reusable buffer
+        for (var i = 0; i < states.Count; i++)
+            buffer[i] = states[i];
+
+        // Return array segment that contains only the valid data
+        return new ArraySegment<SatelliteTrackState>(buffer, 0, states.Count);
+    }
 
     private enum LiveTrackingCommandKind
     {
