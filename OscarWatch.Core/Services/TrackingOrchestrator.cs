@@ -21,6 +21,9 @@ public sealed class TrackingOrchestrator
     private readonly HashSet<string> _loggedStateSkips = new(StringComparer.Ordinal);
     private List<SatelliteCatalogEntry> _cachedEnabledSats = new();
     private int _lastNonFocusedRecomputeIndex;
+    
+    // Reusable collection for stale tracks to avoid allocation every 250ms
+    private readonly List<(SatelliteCatalogEntry Sat, SatelliteVisualCache.Entry Cache)> _staleTracksBuffer = new();
 
     // Sun position cache: sun moves ~0.004°/min, so 30-second cache is very effective
     // Note: If map time is scrubbed by less than 30s, illumination uses a stale sun position.
@@ -242,7 +245,7 @@ public sealed class TrackingOrchestrator
         }
 
         // Staggered non-focused ground track recomputation: max 2 per tick, 20ms timeout
-        var nonFocusedStale = new List<(SatelliteCatalogEntry Sat, SatelliteVisualCache.Entry Cache)>();
+        _staleTracksBuffer.Clear(); // Reuse collection instead of allocating new List
         foreach (var sat in sats)
         {
             if (!_propagator.HasSatellite(sat.NoradId))
@@ -251,22 +254,22 @@ public sealed class TrackingOrchestrator
                 && !string.IsNullOrWhiteSpace(groundTrackNoradId))
                 continue;
             if (!_visualCache.TryGetFreshGroundTrack(sat.NoradId, utc, isFocused: false, out _))
-                nonFocusedStale.Add((sat, _visualCache.GetOrAdd(sat.NoradId)));
+                _staleTracksBuffer.Add((sat, _visualCache.GetOrAdd(sat.NoradId)));
         }
 
-        if (nonFocusedStale.Count > 0)
+        if (_staleTracksBuffer.Count > 0)
         {
             var sw = Stopwatch.StartNew();
             var recomputedCount = 0;
-            var startIndex = _lastNonFocusedRecomputeIndex % nonFocusedStale.Count;
+            var startIndex = _lastNonFocusedRecomputeIndex % _staleTracksBuffer.Count;
 
-            for (var i = 0; i < nonFocusedStale.Count && recomputedCount < 2; i++)
+            for (var i = 0; i < _staleTracksBuffer.Count && recomputedCount < 2; i++)
             {
                 if (sw.ElapsedMilliseconds >= 20)
                     break;
 
-                var idx = (startIndex + i) % nonFocusedStale.Count;
-                var (staleSat, staleCache) = nonFocusedStale[idx];
+                var idx = (startIndex + i) % _staleTracksBuffer.Count;
+                var (staleSat, staleCache) = _staleTracksBuffer[idx];
 
                 var periodMin = EstimatePeriodMinutes(staleSat);
                 var halfPeriod = TimeSpan.FromMinutes(periodMin / 2.0);
@@ -300,7 +303,7 @@ public sealed class TrackingOrchestrator
                 recomputedCount++;
             }
 
-            _lastNonFocusedRecomputeIndex = (startIndex + recomputedCount) % Math.Max(1, nonFocusedStale.Count);
+            _lastNonFocusedRecomputeIndex = (startIndex + recomputedCount) % Math.Max(1, _staleTracksBuffer.Count);
         }
 
         _useBufferA = !_useBufferA;
