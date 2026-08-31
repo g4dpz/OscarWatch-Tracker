@@ -1814,7 +1814,9 @@ internal sealed class FlexSmartSdrClient : IDisposable
     {
         if (string.IsNullOrEmpty(body))
             return "";
-        return body.Length <= 120 ? body : body[..120] + "…";
+
+        var sanitized = body.Replace('\r', ' ').Replace('\n', ' ');
+        return sanitized.Length <= 120 ? sanitized : sanitized[..120] + "…";
     }
 
     public bool SetSliceTone(int sliceIndex, bool toneOn, double toneHz)
@@ -2152,8 +2154,9 @@ internal sealed class FlexSmartSdrClient : IDisposable
             else
             {
                 Log.Warning(
-                    "FlexRadio pan status refresh failed; dual-band layout may be stale: hex=0x{Hex:X8}",
-                    response.HexResponse);
+                    "FlexRadio pan status refresh failed; dual-band layout may be stale: hex=0x{Hex:X8}, body={Body}",
+                    response.HexResponse,
+                    TruncateForLog(response.Body));
             }
         }
 
