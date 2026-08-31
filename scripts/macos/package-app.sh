@@ -1,17 +1,7 @@
 #!/usr/bin/env bash
 # Wrap a self-contained OscarWatch publish folder as OscarWatch.app and zip it.
-#
-# Layout (required for codesign on modern macOS):
-#   Contents/MacOS/OscarWatch          thin launcher script (CFBundleExecutable)
-#   Contents/Resources/app/            full dotnet publish tree (host, DLLs, dylibs)
-#   Contents/Resources/OscarWatch.icns
-#   Contents/Info.plist
-#
-# Putting managed .dll files in Contents/MacOS makes codesign fail with
-# "In subcomponent: …/Some.dll" whether or not those files are executable.
-# AppContext.BaseDirectory becomes Resources/app, which is correct for assets/help.
-#
 # Usage: package-app.sh <publish-dir> <version> <rid> <icon-png> <output-zip>
+# Example: package-app.sh ./publish 1.0.3 osx-arm64 ./OscarWatch-Icon.png ./out.app.zip
 set -euo pipefail
 
 if [[ $# -ne 5 ]]; then
@@ -46,21 +36,11 @@ STAGE="$WORK/stage"
 APP="$STAGE/OscarWatch.app"
 MACOS="$APP/Contents/MacOS"
 RESOURCES="$APP/Contents/Resources"
-PAYLOAD="$RESOURCES/app"
-mkdir -p "$MACOS" "$PAYLOAD"
+mkdir -p "$MACOS" "$RESOURCES"
 
-# Full publish tree lives under Resources so Contents/MacOS stays codesign-clean.
-cp -a "$PUBLISH_DIR"/. "$PAYLOAD/"
-chmod a+x "$PAYLOAD/OscarWatch"
-
-# Thin launcher: keeps CFBundleExecutable in MacOS; real host stays with its DLLs.
-cat > "$MACOS/OscarWatch" <<'LAUNCH'
-#!/bin/bash
-set -euo pipefail
-HERE="$(cd "$(dirname "$0")" && pwd)"
-exec "$HERE/../Resources/app/OscarWatch" "$@"
-LAUNCH
-chmod a+x "$MACOS/OscarWatch"
+# Copy publish tree next to the executable (AppContext.BaseDirectory).
+cp -a "$PUBLISH_DIR"/. "$MACOS/"
+chmod +x "$MACOS/OscarWatch"
 
 # Build .icns from the source PNG (sips + iconutil on macOS runners).
 ICONSET="$WORK/OscarWatch.iconset"
@@ -113,22 +93,27 @@ cat > "$APP/Contents/Info.plist" <<EOF
 </plist>
 EOF
 
-# Ad-hoc sign every Mach-O under the payload (flat tree; same as portable tar.gz).
-# Do not use codesign --deep.
-sign_macho_tree() {
-  local root="$1"
-  while IFS= read -r -d '' path; do
-    if file -b "$path" | grep -q 'Mach-O'; then
-      chmod a+x "$path"
-      codesign --force --sign - --timestamp=none "$path"
-    fi
-  done < <(find "$root" -type f -print0)
-}
+# Contents/MacOS is the bundle's code directory. .NET drops managed .dll files
+# there (required for AppContext.BaseDirectory). If those files are executable,
+# codesign treats them as nested code and fails with "In subcomponent: *.dll".
+# Strip execute bits from everything, restore/sign nested Mach-O helpers only,
+# then seal the .app (that covers CFBundleExecutable). Never use --deep.
+find "$MACOS" -type f -exec chmod a-x {} +
 
-sign_macho_tree "$PAYLOAD"
+while IFS= read -r -d '' path; do
+  base="$(basename "$path")"
+  # Skip the main host: signing it inside the .app re-enters bundle rules and
+  # used to fail on sibling .dll files before execute bits were cleared.
+  if [[ "$base" == "OscarWatch" ]]; then
+    continue
+  fi
+  if file -b "$path" | grep -q 'Mach-O'; then
+    chmod a+x "$path"
+    codesign --force --sign - --timestamp=none "$path"
+  fi
+done < <(find "$MACOS" -type f -print0)
 
-# Sign the launcher script, then seal the bundle (MacOS contains only the script).
-codesign --force --sign - --timestamp=none "$MACOS/OscarWatch"
+chmod a+x "$MACOS/OscarWatch"
 codesign --force --sign - --timestamp=none "$APP"
 
 # Quarantine helper next to the .app (operators who prefer not to use Terminal).
@@ -158,9 +143,7 @@ rm -f "$OUTPUT_ZIP"
 
 # Sanity checks
 unzip -l "$OUTPUT_ZIP" | grep -q 'OscarWatch.app/Contents/MacOS/OscarWatch'
-unzip -l "$OUTPUT_ZIP" | grep -q 'OscarWatch.app/Contents/Resources/app/OscarWatch'
 unzip -l "$OUTPUT_ZIP" | grep -q 'Remove Quarantine.command'
 codesign -dv "$APP" 2>&1 | grep -q 'Signature='
-codesign -dv "$PAYLOAD/OscarWatch" 2>&1 | grep -q 'Signature='
 
 echo "Packaged $OUTPUT_ZIP (version=$VERSION rid=$RID)"
