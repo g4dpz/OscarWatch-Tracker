@@ -2144,11 +2144,17 @@ internal sealed class FlexSmartSdrClient : IDisposable
         var response = SendAndWaitResponseUnlocked(FlexSmartSdrCodec.BuildSubPanAllCommand);
         if (response is null || !FlexSmartSdrCodec.IsSuccessResponse(response))
         {
-            Log.Warning(
-                "FlexRadio pan status refresh failed; dual-band layout may be stale: detail={Detail}",
-                response is null
-                    ? "(timeout)"
-                    : $"hex=0x{response.HexResponse:X8}, body={TruncateForLog(response.Body)}");
+            if (response is null)
+            {
+                Log.Warning(
+                    "FlexRadio pan status refresh failed; dual-band layout may be stale: detail=(timeout)");
+            }
+            else
+            {
+                Log.Warning(
+                    "FlexRadio pan status refresh failed; dual-band layout may be stale: hex=0x{Hex:X8}",
+                    response.HexResponse);
+            }
         }
 
         DrainPendingStatusUnlocked();
