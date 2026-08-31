@@ -339,7 +339,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
         lock (_gate)
         {
             EnsureConnectedUnlocked();
-            DrainPendingStatusUnlocked();
+            RefreshLivePanStatusUnlocked();
             InvalidateStaleBandPanLocksUnlocked();
 
             if (!FlexPanBandResolver.TryResolveBandPans(_pans.Values, out var vhfPan, out var uhfPan)
@@ -378,7 +378,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
         lock (_gate)
         {
             EnsureConnectedUnlocked();
-            DrainPendingStatusUnlocked();
+            RefreshLivePanStatusUnlocked();
             InvalidateStaleBandPanLocksUnlocked();
 
             if (TryLockLiveDualBandPansUnlocked())
@@ -483,7 +483,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
         lock (_gate)
         {
             EnsureConnectedUnlocked();
-            DrainPendingStatusUnlocked();
+            RefreshLivePanStatusUnlocked();
             InvalidateStaleBandPanLocksUnlocked();
             EnsureLockedBandPansUnlocked();
 
@@ -917,7 +917,7 @@ internal sealed class FlexSmartSdrClient : IDisposable
         lock (_gate)
         {
             EnsureConnectedUnlocked();
-            DrainPendingStatusUnlocked();
+            RefreshLivePanStatusUnlocked();
             InvalidateStaleBandPanLocksUnlocked();
             if (!TryLockLiveDualBandPansUnlocked())
                 EnsureLockedBandPansUnlocked();
@@ -2128,6 +2128,18 @@ internal sealed class FlexSmartSdrClient : IDisposable
         else
             _slices[sliceIndex] = new FlexSliceState(
                 sliceIndex, true, hz, "", false, false, "", 0);
+    }
+
+    /// <summary>
+    /// Re-subscribes to pan status so unsolicited centre changes are applied before we trust
+    /// the dual-band layout. A non-blocking drain can miss a just-emitted collapse (loopback
+    /// <see cref="NetworkStream.DataAvailable"/> race), which made Ensure/Verify treat two UHF
+    /// pans as still healthy and skip recovery (GitHub issue 111).
+    /// </summary>
+    private void RefreshLivePanStatusUnlocked()
+    {
+        DrainPendingStatusUnlocked();
+        _ = SendAndWaitResponseUnlocked(FlexSmartSdrCodec.BuildSubPanAllCommand);
     }
 
     private void DrainPendingStatusUnlocked()
