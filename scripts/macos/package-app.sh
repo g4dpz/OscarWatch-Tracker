@@ -15,8 +15,6 @@ RID="$3"
 ICON_PNG="$4"
 OUTPUT_ZIP="$5"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 if [[ ! -d "$PUBLISH_DIR" ]]; then
   echo "Publish directory not found: $PUBLISH_DIR" >&2
   exit 1
@@ -95,9 +93,22 @@ cat > "$APP/Contents/Info.plist" <<EOF
 </plist>
 EOF
 
-# Re-sign nested Mach-O (copy may invalidate prior seals), then the bundle.
-bash "$SCRIPT_DIR/adhoc-sign.sh" "$MACOS"
-codesign --force --deep --sign - --timestamp=none "$APP"
+# Re-sign nested native code after copy. Do NOT codesign the main OscarWatch
+# host while it sits next to managed .dll files inside a .app: codesign then
+# treats those assemblies as unsigned "subcomponents" and fails. Do NOT use
+# --deep (same failure mode). Sign dylibs/helpers first, then seal the bundle
+# (that seals CFBundleExecutable).
+while IFS= read -r -d '' path; do
+  base="$(basename "$path")"
+  if [[ "$base" == "OscarWatch" ]]; then
+    continue
+  fi
+  if file -b "$path" | grep -q 'Mach-O'; then
+    codesign --force --sign - --timestamp=none "$path"
+  fi
+done < <(find "$MACOS" -type f -print0)
+
+codesign --force --sign - --timestamp=none "$APP"
 
 # Quarantine helper next to the .app (operators who prefer not to use Terminal).
 cat > "$STAGE/Remove Quarantine.command" <<'EOF'

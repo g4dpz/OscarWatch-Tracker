@@ -14,8 +14,8 @@ if [[ ! -d "$PUBLISH_DIR" ]]; then
   exit 1
 fi
 
-# Sign each Mach-O. Order does not matter for flat publish trees; the .app
-# bundle is sealed separately with codesign --deep after packaging.
+# Sign each Mach-O in a flat publish tree (portable .tar.gz). The .app packager
+# seals the bundle separately and must not use codesign --deep.
 while IFS= read -r -d '' path; do
   if file -b "$path" | grep -q 'Mach-O'; then
     codesign --force --sign - --timestamp=none "$path"
