@@ -369,6 +369,10 @@ public class WorldMapControl : ThemeAwareControl
                 if (!found)
                     _footprintGeometryCache.Remove(key);
             }
+            
+            // Clear unused buffer slots to avoid retaining stale key references
+            for (var ki = keyCount; ki < _footprintCacheKeysBuffer.Length; ki++)
+                _footprintCacheKeysBuffer[ki] = null!;
         }
 
         // Evict stale ground track split cache entries
@@ -397,6 +401,10 @@ public class WorldMapControl : ThemeAwareControl
                 if (!found)
                     _groundTrackSplitCache.Remove(key);
             }
+            
+            // Clear unused buffer slots to avoid retaining stale key references
+            for (var ki = keyCount; ki < _groundTrackCacheKeysBuffer.Length; ki++)
+                _groundTrackCacheKeysBuffer[ki] = null!;
         }
 
         // Pass 1: tracks, footprints, and subpoints (no labels yet).
