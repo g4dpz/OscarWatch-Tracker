@@ -60,6 +60,7 @@ public sealed class TrackingOrchestrator
     {
         _propagator.Clear();
         _visualCache.Clear();
+        _staleTracksBuffer.Clear(); // Clear buffer to avoid retaining stale cache references
         _loggedLookAngleSkips.Clear();
         _loggedStateSkips.Clear();
         _bufferA.Clear();
@@ -104,7 +105,11 @@ public sealed class TrackingOrchestrator
     }
 
     /// <summary>Clears cached ground tracks and footprints (e.g. after map-time scrub).</summary>
-    public void InvalidateVisualCache() => _visualCache.Clear();
+    public void InvalidateVisualCache()
+    {
+        _visualCache.Clear();
+        _staleTracksBuffer.Clear(); // Clear buffer to avoid retaining stale cache references
+    }
 
     /// <summary>Gets sun position with caching. Sun moves ~0.004°/min so 30-second cache is effective.</summary>
     private EciPosition GetCachedSunPosition(DateTime utc)
