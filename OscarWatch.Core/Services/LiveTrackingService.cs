@@ -18,6 +18,7 @@ public sealed class LiveTrackingService : ILiveTrackingService
     private readonly Func<DateTime, IReadOnlyList<SatelliteTrackState>>? _computeOverride;
     private readonly object _snapshotLock = new();
     private readonly object _workerStartLock = new();
+    private readonly SnapshotBufferManager _bufferManager = new();
 
     private BlockingCollection<LiveTrackingCommand>? _commands;
     private Thread? _worker;
@@ -82,6 +83,17 @@ public sealed class LiveTrackingService : ILiveTrackingService
         lock (_snapshotLock)
             return _liveNowSnapshot;
     }
+
+    /// <summary>
+    /// Get statistics about snapshot buffer usage for performance monitoring.
+    /// </summary>
+    public SnapshotBufferStatistics GetBufferStatistics() => _bufferManager.GetStatistics();
+    
+    /// <summary>
+    /// Compact oversized buffers to prevent excessive memory usage.
+    /// Should be called periodically when satellite count is consistently low.
+    /// </summary>
+    public void CompactBuffers() => _bufferManager.CompactBuffersIfOversized();
 
     /// <summary>Returns display and live-now snapshots under one lock (unit tests).</summary>
     internal (IReadOnlyList<SatelliteTrackState> Display, IReadOnlyList<SatelliteTrackState> LiveNow) GetSnapshotsForTests()
@@ -271,10 +283,10 @@ public sealed class LiveTrackingService : ILiveTrackingService
 
         // Copy before publish: orchestrator double-buffers mutable lists that are cleared
         // on the worker thread; UI render may still be reading the previous snapshot.
-        var publishedDisplay = PublishSnapshot(displayStates);
+        var publishedDisplay = _bufferManager.PublishDisplaySnapshot(displayStates);
         var publishedLiveNow = ReferenceEquals(liveNowStates, displayStates)
             ? publishedDisplay
-            : PublishSnapshot(liveNowStates);
+            : _bufferManager.PublishLiveNowSnapshot(liveNowStates);
 
         lock (_snapshotLock)
         {
@@ -311,9 +323,6 @@ public sealed class LiveTrackingService : ILiveTrackingService
         _lastWallUtc = wallUtc;
         return candidate;
     }
-
-    private static IReadOnlyList<SatelliteTrackState> PublishSnapshot(IReadOnlyList<SatelliteTrackState> states) =>
-        states.Count == 0 ? Array.Empty<SatelliteTrackState>() : states.ToArray();
 
     private enum LiveTrackingCommandKind
     {

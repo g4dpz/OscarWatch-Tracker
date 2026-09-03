@@ -59,6 +59,9 @@ public sealed class TrackingOrchestrator
         _visualCache.Clear();
         _loggedLookAngleSkips.Clear();
         _loggedStateSkips.Clear();
+        
+        // Don't return objects to pool here - UI might still reference them in published snapshots
+        // Objects will be garbage collected naturally, and pool will replenish on demand
         _bufferA.Clear();
         _bufferB.Clear();
         var sats = _tleService.GetEnabledSatellites(_settings.Current);
@@ -121,6 +124,9 @@ public sealed class TrackingOrchestrator
         var site = _settings.Current.GroundStation;
         var sats = _cachedEnabledSats;
         var states = _useBufferA ? _bufferB : _bufferA;
+        
+        // Don't return to pool here - UI might still reference them in published snapshots
+        // Objects will be garbage collected naturally, pool efficiency is secondary to correctness
         states.Clear();
         var sunEci = GetCachedSunPosition(utc);
 
@@ -220,19 +226,17 @@ public sealed class TrackingOrchestrator
 
                 var satEci = _propagator.GetEciPosition(sat.NoradId, utc);
                 var isSunlit = SatelliteIllumination.IsSunlit(satEci, sunEci);
-                states.Add(new SatelliteTrackState
-                {
-                    Name = ResolveDisplayName(sat),
-                    NoradId = sat.NoradId,
-                    Subpoint = subpoint,
-                    LookAngles = look,
-                    MotionHeadingDeg = motionHeadingDeg,
-                    GroundTrack = groundTrack,
-                    NextOrbitGroundTrack = nextOrbitGroundTrack,
-                    Footprint = footprint,
-                    FootprintRadiusDeg = footprintRadiusDeg,
-                    IsSunlit = isSunlit
-                });
+                states.Add(SatelliteTrackState.CreatePooled(
+                    name: ResolveDisplayName(sat),
+                    noradId: sat.NoradId,
+                    subpoint: subpoint,
+                    lookAngles: look,
+                    motionHeadingDeg: motionHeadingDeg,
+                    groundTrack: groundTrack,
+                    nextOrbitGroundTrack: nextOrbitGroundTrack,
+                    footprint: footprint,
+                    footprintRadiusDeg: footprintRadiusDeg,
+                    isSunlit: isSunlit));
             }
             catch (Exception ex)
             {
@@ -242,7 +246,7 @@ public sealed class TrackingOrchestrator
         }
 
         // Staggered non-focused ground track recomputation: max 2 per tick, 20ms timeout
-        var nonFocusedStale = new List<(SatelliteCatalogEntry Sat, SatelliteVisualCache.Entry Cache)>();
+        var nonFocusedStale = TrackingCollections.GetStaleTracksBuffer();
         foreach (var sat in sats)
         {
             if (!_propagator.HasSatellite(sat.NoradId))
@@ -281,18 +285,12 @@ public sealed class TrackingOrchestrator
                     if (states[si].NoradId == staleSat.NoradId)
                     {
                         var s = states[si];
-                        states[si] = new SatelliteTrackState
-                        {
-                            Name = s.Name,
-                            NoradId = s.NoradId,
-                            Subpoint = s.Subpoint,
-                            LookAngles = s.LookAngles,
-                            MotionHeadingDeg = s.MotionHeadingDeg,
-                            GroundTrack = track,
-                            Footprint = s.Footprint,
-                            FootprintRadiusDeg = s.FootprintRadiusDeg,
-                            IsSunlit = s.IsSunlit
-                        };
+                        // Update ground track in-place - this is more efficient than creating new object
+                        s.GroundTrack = track;
+                        
+                        // Note: Since GroundTrack is now a settable property, we can update it directly
+                        // without creating a new SatelliteTrackState object. This eliminates allocation
+                        // while maintaining the same functional behavior.
                         break;
                     }
                 }
