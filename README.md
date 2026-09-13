@@ -140,11 +140,12 @@ Pull requests for more native rig support are welcome. A HamLib backend is not o
 | Controller       | Protocol    | Notes                                               |
 | ---------------- | ----------- | --------------------------------------------------- |
 | **Yaesu GS-232** | GS-232      | Yaesu rotators and many GS-232 clones               |
-| **SPID**         | SP (native) | Rot1Prog, Rot2Prog, rot2proG — set controller to **SP** mode and **Auto (A)**; 600 baud default (1200 for Rot1Prog) |
+| **SPID**         | SP (native) | Rot1Prog, Rot2Prog, rot2proG: set controller to **SP** mode and **Auto (A)**; 600 baud default (1200 for Rot1Prog) |
+| **SPID MD-01 / MD-02** | Rot2Prog over TCP | Native Ethernet: host/port (default **23**); set MOTOR CONFIGURATION to **ETH** and protocol to **SPID ROT2** |
 | **EasyComm**     | EasyComm II | M2 and other EasyComm-compatible controllers (SPID also works in **EC** mode if you prefer) |
-| **OZ9AAR URC**   | TCP/JSON    | Ultimate Rotator Controller — host/port (default **1111**); set URC to **REM** mode |
+| **OZ9AAR URC**   | TCP/JSON    | Ultimate Rotator Controller: host/port (default **1111**); set URC to **REM** mode |
 
-GS-232, SPID, EasyComm, and SAEBRTrack can also use **TCP serial** (e.g. ser2net) instead of a local COM port — choose **Connection → TCP serial** under Settings → Rotator.
+GS-232, SPID, EasyComm, and SAEBRTrack can also use **TCP serial** (e.g. ser2net) instead of a local COM port: choose **Connection → TCP serial** under Settings → Rotator.
 
 
 Pass tracking when elevation is above the track-start threshold; manual **Park** in the sidebar; **manual rotator** in Standby (menu **Rotator…**: set az/el, Rotate, Stop, Park for a quick contact without resuming pass tracking). Azimuth range **360°** or **450°** (e.g. G-5500). On **450°** rotators, optional **smart azimuth** chooses 361–450° commands for the shortest path when the pass will cross north (Settings → Rotator). Elevation range **0–90°** or **0–180°** (over-the-top). Optional **keyhole avoidance** on **0–180°** mounts pre-positions for high-elevation zenith passes; see [help](help/rotators.html#keyhole-avoidance). Optional **calibration offsets** correct pass tracking and manual moves; park uses your configured park az/el exactly.
@@ -164,7 +165,7 @@ Open **Settings** from the menu. Tabs:
 | **Appearance** | Light / dark / system theme; 12- or 24-hour clock; footprint motion arrows and optional greyline on/off                                                                                                                                       |
 | **Voice**      | Enable announcements, trigger elevation (default −3°), voice selection, test button                                                                                                                                                            |
 | **Recording**  | Automatic pass WAV capture, input device, start/stop elevation, output folder, test clip                                                                                                                                                       |
-| **Rotator**    | Type (GS-232 / SPID / EasyComm / SAEBRTrack / OZ9AAR URC TCP), Serial or TCP serial connection (COM or host/port), 360°/450° azimuth, smart 450°, **0–90° / 0–180° elevation**, optional keyhole avoidance (0–180° only), park, track-start elevation, calibration offsets |
+| **Rotator**    | Type (GS-232 / SPID / SPID MD-01 TCP / EasyComm / SAEBRTrack / OZ9AAR URC TCP / Green Heron RT-21), Serial or TCP serial connection (COM or host/port), 360°/450° azimuth, smart 450°, **0–90° / 0–180° elevation**, optional keyhole avoidance (0–180° only), park, track-start elevation, calibration offsets |
 | **Radio**      | Rig type, COM port, **Dual radio** (FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, IC-7100, IC-706 series, SDR rigctl downlink, or mixed; separate downlink/uplink), region, per-leg CI-V address for ICOM dual legs, linear CW receive mode (USB/LSB vs CW on both VFOs), Doppler CAT thresholds (FM default 350 Hz, SSB/CW default 50 Hz; adaptive and lead on by default), resume CAT after dial / uplink wait after dial (see [help](help/radio-doppler-tuning.html#passband-knob)), pause CAT |
 | **Integrations** | **GPS** (NMEA serial: COM port, auto-update station, optional GPS UTC for tracking — see [help](help/settings.html#gps)); **hams.at** roves; **Cloudlog** (URL, API key, logbook, radio API)                                              |
 

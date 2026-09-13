@@ -9,6 +9,7 @@ public static class RotatorDriverFactory
         {
             RotatorType.EasyComm => new EasyCommRotator(CreateTransport(settings, 1000, 1000, "\n")),
             RotatorType.Spid => new SpidRotator(CreateTransport(settings, 2000, 2000, "\n")),
+            RotatorType.SpidMd01 => CreateSpidMd01(settings),
             RotatorType.Saebrt => new SaebrtRotator(
                 CreateTransport(settings, 200, 200, "\n", dtrEnable: false, rtsEnable: false)),
             RotatorType.UrcTcp => new UrcTcpRotator(
@@ -19,6 +20,18 @@ public static class RotatorDriverFactory
                 CreateTransport(settings, settings.ElevationPort, 1000, 1000, ";")),
             _ => new Gs232Rotator(CreateTransport(settings, 1000, 1000, "\r"))
         };
+
+    private static SpidRotator CreateSpidMd01(RotatorSettings settings)
+    {
+        var host = string.IsNullOrWhiteSpace(settings.NetworkHost)
+            ? RotatorSettings.DefaultNetworkHost
+            : settings.NetworkHost.Trim();
+        var port = settings.NetworkPort > 0
+            ? settings.NetworkPort
+            : RotatorSettings.DefaultSpidMd01NetworkPort;
+        var transport = new TcpRotatorTransport(host, port, 2000, 2000, "\n");
+        return new SpidRotator(transport, expectSetPositionResponse: true);
+    }
 
     private static IRotatorSerialTransport CreateTransport(
         RotatorSettings settings,

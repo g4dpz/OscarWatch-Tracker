@@ -50,7 +50,8 @@ Reference implementations:
 | Yaesu GS-232 / clones | `Waaa eee`, queries `C2`/`C`/`B` | [`Gs232Rotator.cs`](../OscarWatch/Rotator/Gs232Rotator.cs) |
 | EasyComm II | `AZ120.5 EL45.0` (LF-terminated) | [`EasyCommRotator.cs`](../OscarWatch/Rotator/EasyCommRotator.cs) |
 | SAEBRTrack | `AZ120EL045` compact whole degrees (LF-terminated); fire-and-forget — `GetPosition` returns nulls (no wire queries) | [`SaebrtRotator.cs`](../OscarWatch/Rotator/SaebrtRotator.cs) |
-| SPID Rot1Prog / Rot2Prog | 13-byte binary packets (stop/status/set) | [`SpidRotator.cs`](../OscarWatch/Rotator/SpidRotator.cs) |
+| SPID Rot1Prog / Rot2Prog | 13-byte binary packets (stop/status/set); no reply to set on classic hardware | [`SpidRotator.cs`](../OscarWatch/Rotator/SpidRotator.cs) |
+| SPID MD-01 / MD-02 (TCP) | Same Rot2Prog binary over TCP (default port 23); set-position returns a 12-byte status | [`SpidRotator.cs`](../OscarWatch/Rotator/SpidRotator.cs) via `RotatorType.SpidMd01` |
 | OZ9AAR URC (TCP) | JSON `{"POLL"}` / `{"GOTO":[az,el]}` over TCP (default port 1111) | [`UrcTcpRotator.cs`](../OscarWatch/Rotator/UrcTcpRotator.cs) |
 | Green Heron RT-21 Az-El | DCU-1 per axis on **two** COM ports (`AP1xxx.y\r;`, `BI1;`, stop `;`) | [`GreenHeronRt21Rotator.cs`](../OscarWatch/Rotator/GreenHeronRt21Rotator.cs) |
 

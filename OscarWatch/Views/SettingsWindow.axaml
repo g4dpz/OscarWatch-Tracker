@@ -1037,6 +1037,11 @@
               <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                          FontSize="11"
                          TextWrapping="Wrap"
+                         IsVisible="{Binding ShowRotatorSpidMd01NetworkNote}"
+                         Text="{loc:Localize Key=Settings.Rotator.NetworkNoteSpidMd01}" />
+              <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                         FontSize="11"
+                         TextWrapping="Wrap"
                          IsVisible="{Binding ShowRotatorTcpSerialNetworkNote}"
                          Text="{loc:Localize Key=Settings.Rotator.NetworkNoteTcpSerial}" />
             </StackPanel>

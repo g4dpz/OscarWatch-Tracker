@@ -2,10 +2,14 @@ using OscarWatch.Core.Models;
 
 namespace OscarWatch.Rotator;
 
-/// <summary>SPID Rot1Prog / Rot2Prog native binary protocol over serial.</summary>
+/// <summary>
+/// SPID Rot1Prog / Rot2Prog native binary protocol over serial or TCP.
+/// MD-01/MD-02 Ethernet replies to set-position with a 12-byte Rot2 status frame.
+/// </summary>
 public sealed class SpidRotator : IRotatorDriver
 {
     private readonly IRotatorSerialTransport _port;
+    private readonly bool _expectSetPositionResponse;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly byte[] _commandBuffer = new byte[SpidRotatorCodec.CommandLength];
     private readonly byte[] _responseBuffer = new byte[SpidRotatorCodec.Rot2ResponseLength];
@@ -15,18 +19,25 @@ public sealed class SpidRotator : IRotatorDriver
     private int _pulsesPerDegree = 2;
 
     public SpidRotator(string portName, int baudRate)
-        : this(new SerialRotatorTransport(portName, baudRate, 2000, 2000, "\n"))
+        : this(new SerialRotatorTransport(portName, baudRate, 2000, 2000, "\n"), expectSetPositionResponse: false)
     {
     }
 
-    internal SpidRotator(IRotatorSerialTransport transport)
+    internal SpidRotator(IRotatorSerialTransport transport, bool expectSetPositionResponse = false)
     {
         _port = transport;
+        _expectSetPositionResponse = expectSetPositionResponse;
     }
 
     public void Open()
     {
         _port.Open();
+        if (_expectSetPositionResponse)
+        {
+            // Cancel any leftover motion from a previous TCP client session.
+            try { Stop(); } catch { /* ignore */ }
+        }
+
         EnsureVariantDetected();
     }
 
@@ -42,7 +53,15 @@ public sealed class SpidRotator : IRotatorDriver
         {
             SpidRotatorCodec.BuildSetCommand(_commandBuffer, az, el, _pulsesPerDegree, _rot1Mode);
             WriteCommand(_commandBuffer);
-            Thread.Sleep(150);
+            if (_expectSetPositionResponse)
+            {
+                // MD-01/MD-02 return current position after set; drain it so GetPosition stays in sync.
+                ReadAndApplyResponse();
+            }
+            else
+            {
+                Thread.Sleep(150);
+            }
         }
         finally
         {

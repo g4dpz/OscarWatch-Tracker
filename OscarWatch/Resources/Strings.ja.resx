@@ -1642,7 +1642,7 @@
     <value>ローテータータイプ</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232はYaesuおよび互換機。SPIDはSPモード（Rot1Prog / Rot2Prog）。EasyCommはECモード（SPID、M2などのテキストプロトコルコントローラ）。SAEBRTrackは古典的な衛星トラッカーインターフェース（9600ボー）。OZ9AAR URC (TCP) は Ultimate Rotator Controller（Ethernet、既定ポート1111、URCをREM/リモートモードに設定）。Green Heron RT-21 Az-ElはCOMポートが2つ（アジマスとエレベーション）、DCU-1プロトコル4800ボー。GS-232は選ばないでください。シリアルプロトコルはローカルCOMの代わりにTCPシリアルサーバー（例: ser2net）も利用できます。</value>
+    <value>GS-232はYaesuおよび互換機。SPIDはSPモード（Rot1Prog / Rot2Prog）。SPID MD-01 / MD-02 (TCP) はネイティブEthernet（プロトコル SPID ROT2、既定ポート23）。EasyCommはECモード（SPID、M2などのテキストプロトコルコントローラ）。SAEBRTrackは古典的な衛星トラッカーインターフェース（9600ボー）。OZ9AAR URC (TCP) は Ultimate Rotator Controller（Ethernet、既定ポート1111、URCをREM/リモートモードに設定）。Green Heron RT-21 Az-ElはCOMポートが2つ（アジマスとエレベーション）、DCU-1プロトコル4800ボー。GS-232は選ばないでください。シリアルプロトコルはローカルCOMの代わりにTCPシリアルサーバー（例: ser2net）も利用できます。</value>
   </data>
   <data name="Settings.Rotator.AzimuthPort">
     <value>アジマスのシリアルポート</value>
@@ -1676,6 +1676,9 @@
   </data>
   <data name="Settings.Rotator.NetworkNoteTcpSerial">
     <value>OscarWatchは生のシリアルトンネル（例: ser2net）へTCPクライアントとして接続します。ボーレートやシリアル設定はサーバー側で行ってください。ローカルネットワーク向けです。遅延が大きいとタイムアウトすることがあります。</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNoteSpidMd01">
+    <value>OscarWatchはMD-01 / MD-02のEthernetポートへTCPクライアントとして接続します。コントローラでMOTOR CONFIGURATIONをETH、プロトコルをSPID ROT2に設定してください。既定のTCPポートは23です。同時に接続できるクライアントは1つだけです。ファームウェア1.2507以降を推奨します。</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuth">
     <value>スマート450°方位（北経由の最短経路）</value>

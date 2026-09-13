@@ -311,7 +311,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         SelectedElevationRangeChoice?.Value == RotatorElevationRange.Deg180;
 
     public bool ShowRotatorTransportFields =>
-        SelectedRotatorTypeChoice?.Value is not (RotatorType.UrcTcp or RotatorType.GreenHeronRt21);
+        SelectedRotatorTypeChoice?.Value is not (
+            RotatorType.UrcTcp or RotatorType.SpidMd01 or RotatorType.GreenHeronRt21);
 
     public bool ShowRotatorSerialFields =>
         ShowRotatorTransportFields
@@ -321,12 +322,15 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         SelectedRotatorTypeChoice?.Value == RotatorType.GreenHeronRt21;
 
     public bool ShowRotatorNetworkFields =>
-        SelectedRotatorTypeChoice?.Value == RotatorType.UrcTcp
+        SelectedRotatorTypeChoice?.Value is RotatorType.UrcTcp or RotatorType.SpidMd01
         || (ShowRotatorTransportFields
             && SelectedRotatorTransportChoice?.Value == RotatorTransportKind.Tcp);
 
     public bool ShowRotatorUrcNetworkNote =>
         SelectedRotatorTypeChoice?.Value == RotatorType.UrcTcp;
+
+    public bool ShowRotatorSpidMd01NetworkNote =>
+        SelectedRotatorTypeChoice?.Value == RotatorType.SpidMd01;
 
     public bool ShowRotatorTcpSerialNetworkNote =>
         ShowRotatorTransportFields
@@ -844,6 +848,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         [
             new(RotatorType.YaesuGs232, "Yaesu GS-232"),
             new(RotatorType.Spid, "SPID (Rot1Prog / Rot2Prog)"),
+            new(RotatorType.SpidMd01, "SPID MD-01 / MD-02 (TCP)"),
             new(RotatorType.EasyComm, "EasyComm"),
             new(RotatorType.Saebrt, "SAEBRTrack"),
             new(RotatorType.UrcTcp, "OZ9AAR URC (TCP)"),
@@ -1187,7 +1192,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         {
             Enabled = RotatorEnabled,
             Type = SelectedRotatorTypeChoice?.Value ?? RotatorType.YaesuGs232,
-            TransportKind = SelectedRotatorTypeChoice?.Value is RotatorType.UrcTcp or RotatorType.GreenHeronRt21
+            TransportKind = SelectedRotatorTypeChoice?.Value is
+                RotatorType.UrcTcp or RotatorType.SpidMd01 or RotatorType.GreenHeronRt21
                 ? RotatorTransportKind.Serial
                 : SelectedRotatorTransportChoice?.Value ?? RotatorTransportKind.Serial,
             Port = SelectedComPort ?? "",
@@ -1196,9 +1202,9 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             NetworkHost = string.IsNullOrWhiteSpace(RotatorNetworkHost)
                 ? RotatorSettings.DefaultNetworkHost
                 : RotatorNetworkHost.Trim(),
-            NetworkPort = RotatorNetworkPort is > 0 and <= 65535
-                ? RotatorNetworkPort
-                : RotatorSettings.DefaultNetworkPort,
+            NetworkPort = ResolveRotatorNetworkPortForSave(
+                SelectedRotatorTypeChoice?.Value ?? RotatorType.YaesuGs232,
+                RotatorNetworkPort),
             AzimuthRange = SelectedAzimuthRangeChoice?.Value ?? RotatorAzimuthRange.Deg450,
             ElevationRange = SelectedElevationRangeChoice?.Value ?? RotatorElevationRange.Deg180,
             TrackStartElevationDeg = Math.Clamp(RotatorTrackStartElevationDeg, -90, 90),
@@ -2061,7 +2067,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         {
             Enabled = RotatorEnabled,
             Type = SelectedRotatorTypeChoice?.Value ?? RotatorType.YaesuGs232,
-            TransportKind = SelectedRotatorTypeChoice?.Value is RotatorType.UrcTcp or RotatorType.GreenHeronRt21
+            TransportKind = SelectedRotatorTypeChoice?.Value is
+                RotatorType.UrcTcp or RotatorType.SpidMd01 or RotatorType.GreenHeronRt21
                 ? RotatorTransportKind.Serial
                 : SelectedRotatorTransportChoice?.Value ?? RotatorTransportKind.Serial,
             Port = SelectedComPort ?? "",
@@ -2094,6 +2101,16 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             SelectedElevationRangeChoice = ElevationRangeChoices.FirstOrDefault(
                 o => o.Value == RotatorElevationRange.Deg90) ?? ElevationRangeChoices[0];
         }
+        else if (value.Value == RotatorType.SpidMd01)
+        {
+            if (RotatorNetworkPort == RotatorSettings.DefaultNetworkPort || RotatorNetworkPort <= 0)
+                RotatorNetworkPort = RotatorSettings.DefaultSpidMd01NetworkPort;
+        }
+        else if (value.Value == RotatorType.UrcTcp)
+        {
+            if (RotatorNetworkPort == RotatorSettings.DefaultSpidMd01NetworkPort || RotatorNetworkPort <= 0)
+                RotatorNetworkPort = RotatorSettings.DefaultNetworkPort;
+        }
 
         RefreshComPortConflictIfReady();
     }
@@ -2112,7 +2129,18 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(ShowRotatorDualSerialFields));
         OnPropertyChanged(nameof(ShowRotatorNetworkFields));
         OnPropertyChanged(nameof(ShowRotatorUrcNetworkNote));
+        OnPropertyChanged(nameof(ShowRotatorSpidMd01NetworkNote));
         OnPropertyChanged(nameof(ShowRotatorTcpSerialNetworkNote));
+    }
+
+    private static int ResolveRotatorNetworkPortForSave(RotatorType type, int port)
+    {
+        if (port is > 0 and <= 65535)
+            return port;
+
+        return type == RotatorType.SpidMd01
+            ? RotatorSettings.DefaultSpidMd01NetworkPort
+            : RotatorSettings.DefaultNetworkPort;
     }
 
     partial void OnSelectedAzimuthRangeChoiceChanged(RotatorAzimuthOption? value)

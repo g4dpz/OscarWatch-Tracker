@@ -2504,7 +2504,7 @@ Fortfahren?</value>
     <value>Rotortyp</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232 für Yaesu und Klone. SPID für Steuerungen im SP-Modus (Rot1Prog / Rot2Prog). EasyComm für EC-Modus (SPID, M2 und andere Textprotokoll-Steuerungen). SAEBRTrack für klassische Satelliten-Tracker-Schnittstellen (9600 Baud). OZ9AAR URC (TCP) für den Ultimate Rotator Controller über Ethernet (Standardport 1111; URC auf REM/Remote-Modus setzen). Green Heron RT-21 Az-El nutzt zwei COM-Ports (Azimut und Elevation), DCU-1-Protokoll mit 4800 Baud; nicht GS-232 wählen. Serielle Protokolle können statt eines lokalen COM-Ports auch einen TCP-Serial-Server nutzen (z. B. ser2net).</value>
+    <value>GS-232 für Yaesu und Klone. SPID für Steuerungen im SP-Modus (Rot1Prog / Rot2Prog). SPID MD-01 / MD-02 (TCP) für natives Ethernet (Protokoll SPID ROT2, Standardport 23). EasyComm für EC-Modus (SPID, M2 und andere Textprotokoll-Steuerungen). SAEBRTrack für klassische Satelliten-Tracker-Schnittstellen (9600 Baud). OZ9AAR URC (TCP) für den Ultimate Rotator Controller über Ethernet (Standardport 1111; URC auf REM/Remote-Modus setzen). Green Heron RT-21 Az-El nutzt zwei COM-Ports (Azimut und Elevation), DCU-1-Protokoll mit 4800 Baud; nicht GS-232 wählen. Serielle Protokolle können statt eines lokalen COM-Ports auch einen TCP-Serial-Server nutzen (z. B. ser2net).</value>
   </data>
   <data name="Settings.Rotator.AzimuthPort">
     <value>Azimut-Seriellport</value>
@@ -2538,6 +2538,9 @@ Fortfahren?</value>
   </data>
   <data name="Settings.Rotator.NetworkNoteTcpSerial">
     <value>OscarWatch verbindet sich als TCP-Client mit einem reinen Serial-Tunnel (z. B. ser2net). Baudrate und Serielloptionen auf dem Server einstellen. Am besten im lokalen Netz: hohe Latenz kann Timeouts verursachen.</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNoteSpidMd01">
+    <value>OscarWatch verbindet sich als TCP-Client mit dem Ethernet-Port von MD-01 / MD-02. Am Controller MOTOR CONFIGURATION auf ETH und Protokoll auf SPID ROT2 stellen. Standard-TCP-Port ist 23. Es kann nur ein Client gleichzeitig verbunden sein. Firmware 1.2507 oder neuer wird empfohlen.</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuth">
     <value>Smart 450°-Azimut (kürzester Weg über Nord)</value>

@@ -2500,7 +2500,7 @@
     <value>Tipo de rotor</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232 para Yaesu y clones. SPID para controladores en modo SP (Rot1Prog / Rot2Prog). EasyComm para modo EC (SPID, M2 y otros controladores con protocolo de texto). SAEBRTrack para interfaces clásicas de seguimiento por satélite (9600 baudios). OZ9AAR URC (TCP) para Ultimate Rotator Controller por Ethernet (puerto 1111; modo REM/remoto). Green Heron RT-21 Az-El usa dos puertos COM (acimut y elevación), protocolo DCU-1 a 4800 baudios; no elija GS-232. Los protocolos serie también pueden usar un servidor serie TCP (p. ej. ser2net) en lugar de un puerto COM local.</value>
+    <value>GS-232 para Yaesu y clones. SPID para controladores en modo SP (Rot1Prog / Rot2Prog). SPID MD-01 / MD-02 (TCP) para Ethernet nativo (protocolo SPID ROT2, puerto 23). EasyComm para modo EC (SPID, M2 y otros controladores con protocolo de texto). SAEBRTrack para interfaces clásicas de seguimiento por satélite (9600 baudios). OZ9AAR URC (TCP) para Ultimate Rotator Controller por Ethernet (puerto 1111; modo REM/remoto). Green Heron RT-21 Az-El usa dos puertos COM (acimut y elevación), protocolo DCU-1 a 4800 baudios; no elija GS-232. Los protocolos serie también pueden usar un servidor serie TCP (p. ej. ser2net) en lugar de un puerto COM local.</value>
   </data>
   <data name="Settings.Rotator.AzimuthPort">
     <value>Puerto serie de acimut</value>
@@ -2534,6 +2534,9 @@
   </data>
   <data name="Settings.Rotator.NetworkNoteTcpSerial">
     <value>OscarWatch se conecta como cliente TCP a un túnel serie en bruto (por ejemplo ser2net). Configure la velocidad y las opciones serie en el servidor. Mejor en red local: una latencia alta puede provocar tiempos de espera.</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNoteSpidMd01">
+    <value>OscarWatch se conecta como cliente TCP al puerto Ethernet del MD-01 / MD-02. En el controlador, ponga MOTOR CONFIGURATION en ETH y el protocolo en SPID ROT2. El puerto TCP predeterminado es 23. Solo puede conectarse un cliente a la vez. Se recomienda firmware 1.2507 o posterior.</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuth">
     <value>Acimut inteligente 450° (ruta más corta por el norte)</value>

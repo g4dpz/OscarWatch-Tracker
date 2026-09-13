@@ -2504,7 +2504,7 @@ LOS: {2}
     <value>Тип ротатора</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232 для Yaesu и клонов. SPID для контроллеров в режиме SP (Rot1Prog / Rot2Prog). EasyComm для режима EC (SPID, M2 и другие текстовые протоколы). SAEBRTrack для классических интерфейсов спутниковых трекеров (9600 бод). OZ9AAR URC (TCP) для Ultimate Rotator Controller по Ethernet (порт по умолчанию 1111; поставьте URC в режим REM/remote). Green Heron RT-21 Az-El использует два COM-порта (азимут и угол места), протокол DCU-1 на 4800 бод; не выбирайте GS-232. Последовательные протоколы также могут идти через TCP-сервер последовательного порта (напр. ser2net) вместо локального COM.</value>
+    <value>GS-232 для Yaesu и клонов. SPID для контроллеров в режиме SP (Rot1Prog / Rot2Prog). SPID MD-01 / MD-02 (TCP) для встроенного Ethernet (протокол SPID ROT2, порт по умолчанию 23). EasyComm для режима EC (SPID, M2 и другие текстовые протоколы). SAEBRTrack для классических интерфейсов спутниковых трекеров (9600 бод). OZ9AAR URC (TCP) для Ultimate Rotator Controller по Ethernet (порт по умолчанию 1111; поставьте URC в режим REM/remote). Green Heron RT-21 Az-El использует два COM-порта (азимут и угол места), протокол DCU-1 на 4800 бод; не выбирайте GS-232. Последовательные протоколы также могут идти через TCP-сервер последовательного порта (напр. ser2net) вместо локального COM.</value>
   </data>
   <data name="Settings.Rotator.AzimuthPort">
     <value>Последовательный порт азимута</value>
@@ -2538,6 +2538,9 @@ LOS: {2}
   </data>
   <data name="Settings.Rotator.NetworkNoteTcpSerial">
     <value>OscarWatch подключается как TCP-клиент к «сырому» тоннелю последовательного порта (например ser2net). Скорость и параметры последовательного порта задаются на сервере. Лучше в локальной сети: высокая задержка даёт таймауты.</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNoteSpidMd01">
+    <value>OscarWatch подключается как TCP-клиент к Ethernet-порту MD-01 / MD-02. На контроллере задайте MOTOR CONFIGURATION = ETH и протокол SPID ROT2. Порт TCP по умолчанию 23. Одновременно может быть подключён только один клиент. Рекомендуется прошивка 1.2507 или новее.</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuth">
     <value>Умный азимут 450° (кратчайший путь через север)</value>

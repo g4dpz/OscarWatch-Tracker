@@ -17,6 +17,38 @@ public sealed class RotatorSettingsTests
     }
 
     [Fact]
+    public void UsesNetworkEndpoint_true_for_spid_md01_even_when_transport_serial()
+    {
+        var settings = new RotatorSettings
+        {
+            Type = RotatorType.SpidMd01,
+            TransportKind = RotatorTransportKind.Serial,
+            NetworkHost = "192.168.0.10",
+            NetworkPort = 23,
+            Port = "COM3"
+        };
+        Assert.True(settings.UsesNetworkEndpoint);
+        Assert.False(settings.UsesSerialPort);
+        Assert.True(settings.HasConfiguredEndpoint);
+    }
+
+    [Fact]
+    public void HasConfiguredEndpoint_requires_host_for_spid_md01()
+    {
+        var settings = new RotatorSettings
+        {
+            Type = RotatorType.SpidMd01,
+            NetworkHost = "",
+            NetworkPort = 23,
+            Port = "COM3"
+        };
+        Assert.False(settings.HasConfiguredEndpoint);
+
+        settings.NetworkHost = "192.168.0.10";
+        Assert.True(settings.HasConfiguredEndpoint);
+    }
+
+    [Fact]
     public void UsesNetworkEndpoint_true_for_tcp_serial_transport()
     {
         var settings = new RotatorSettings

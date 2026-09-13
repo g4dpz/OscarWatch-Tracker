@@ -2500,7 +2500,7 @@ Continuar?</value>
     <value>Tipo de rotor</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232 para Yaesu e clones. SPID para controladores em modo SP (Rot1Prog / Rot2Prog). EasyComm para modo EC (SPID, M2 e outros controladores de protocolo texto). SAEBRTrack para interfaces clássicas de seguimento por satélite (9600 baud). OZ9AAR URC (TCP) para Ultimate Rotator Controller via Ethernet (porta 1111; modo REM/remoto). Green Heron RT-21 Az-El usa duas portas COM (azimute e elevação), protocolo DCU-1 a 4800 baud; não selecione GS-232. Os protocolos série também podem usar um servidor série TCP (por exemplo ser2net) em vez de uma porta COM local.</value>
+    <value>GS-232 para Yaesu e clones. SPID para controladores em modo SP (Rot1Prog / Rot2Prog). SPID MD-01 / MD-02 (TCP) para Ethernet nativo (protocolo SPID ROT2, porta 23). EasyComm para modo EC (SPID, M2 e outros controladores de protocolo texto). SAEBRTrack para interfaces clássicas de seguimento por satélite (9600 baud). OZ9AAR URC (TCP) para Ultimate Rotator Controller via Ethernet (porta 1111; modo REM/remoto). Green Heron RT-21 Az-El usa duas portas COM (azimute e elevação), protocolo DCU-1 a 4800 baud; não selecione GS-232. Os protocolos série também podem usar um servidor série TCP (por exemplo ser2net) em vez de uma porta COM local.</value>
   </data>
   <data name="Settings.Rotator.AzimuthPort">
     <value>Porta série de azimute</value>
@@ -2534,6 +2534,9 @@ Continuar?</value>
   </data>
   <data name="Settings.Rotator.NetworkNoteTcpSerial">
     <value>O OscarWatch liga-se como cliente TCP a um túnel série em bruto (por exemplo ser2net). Configure a velocidade e as opções série no servidor. Preferível em rede local — latência elevada pode causar timeouts.</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNoteSpidMd01">
+    <value>O OscarWatch liga-se como cliente TCP à porta Ethernet do MD-01 / MD-02. No controlador, defina MOTOR CONFIGURATION como ETH e o protocolo como SPID ROT2. A porta TCP predefinida é 23. Só um cliente pode ligar de cada vez. Recomenda-se firmware 1.2507 ou posterior.</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuth">
     <value>Azimute inteligente 450° (caminho mais curto sobre o norte)</value>

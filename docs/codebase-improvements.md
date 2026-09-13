@@ -203,7 +203,7 @@ These are in GitHub, not invented here. They sit on the same large types as P1.
 | [#61 IC-821H Doppler sluggish](https://github.com/magicbug/OscarWatch-Tracker/issues/61) | Pending feedback; keep hardware tests around CAT delay / settle if you change the 821H path. |
 | [#34 Multiple TLE URLs](https://github.com/magicbug/OscarWatch-Tracker/issues/34) | `TleSourceSettings` is a single source today. Schema-version (P2.1) first if the JSON shape grows. |
 
-Hardware roadmap that is **not** a codebase-health item (keep in `TODO.md`): SPID LAN/TCP, rotator slew lead, Smart450 early Extended commit, pass-radar gallery extras, auto-focus on AOS, unified track-start elevation, pause CAT at LOS.
+Hardware roadmap that is **not** a codebase-health item (keep in `TODO.md`): rotator slew lead, Smart450 early Extended commit, pass-radar gallery extras, auto-focus on AOS, unified track-start elevation, pause CAT at LOS.
 
 ---
 

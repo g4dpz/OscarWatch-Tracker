@@ -2500,7 +2500,7 @@ Continue?</value>
     <value>Rotator type</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232 for Yaesu and clones. SPID for controllers in SP mode (Rot1Prog / Rot2Prog). EasyComm for EC mode (SPID, M2, and other text-protocol controllers). SAEBRTrack for classic satellite tracker interfaces (9600 baud). OZ9AAR URC (TCP) for the Ultimate Rotator Controller over Ethernet (default port 1111; set URC to REM/remote mode). Green Heron RT-21 Az-El uses two COM ports (azimuth and elevation), DCU-1 protocol at 4800 baud; do not select GS-232. Serial protocols can also use a TCP serial server (e.g. ser2net) instead of a local COM port.</value>
+    <value>GS-232 for Yaesu and clones. SPID for controllers in SP mode (Rot1Prog / Rot2Prog). SPID MD-01 / MD-02 (TCP) for native Ethernet (protocol SPID ROT2, default port 23). EasyComm for EC mode (SPID, M2, and other text-protocol controllers). SAEBRTrack for classic satellite tracker interfaces (9600 baud). OZ9AAR URC (TCP) for the Ultimate Rotator Controller over Ethernet (default port 1111; set URC to REM/remote mode). Green Heron RT-21 Az-El uses two COM ports (azimuth and elevation), DCU-1 protocol at 4800 baud; do not select GS-232. Serial protocols can also use a TCP serial server (e.g. ser2net) instead of a local COM port.</value>
   </data>
   <data name="Settings.Rotator.AzimuthPort">
     <value>Azimuth serial port</value>
@@ -2534,6 +2534,9 @@ Continue?</value>
   </data>
   <data name="Settings.Rotator.NetworkNoteTcpSerial">
     <value>OscarWatch connects as a TCP client to a raw serial tunnel (for example ser2net). Configure baud rate and serial options on the server. Best used on a local network — high latency can cause timeouts.</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNoteSpidMd01">
+    <value>OscarWatch connects as a TCP client to the MD-01 / MD-02 Ethernet port. On the controller, set MOTOR CONFIGURATION to ETH and protocol to SPID ROT2. Default TCP port is 23. Only one client can connect at a time. Firmware 1.2507 or later is recommended.</value>
   </data>
   <data name="Settings.Rotator.SmartAzimuth">
     <value>Smart 450° azimuth (shortest path over north)</value>

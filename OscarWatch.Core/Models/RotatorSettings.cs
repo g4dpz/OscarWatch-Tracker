@@ -16,13 +16,16 @@ public sealed class RotatorSettings
 {
     public const string DefaultNetworkHost = "127.0.0.1";
     public const int DefaultNetworkPort = 1111;
+    /// <summary>Default TCP port for <see cref="RotatorType.SpidMd01"/> Ethernet.</summary>
+    public const int DefaultSpidMd01NetworkPort = 23;
 
     public bool Enabled { get; set; }
     public RotatorType Type { get; set; } = RotatorType.YaesuGs232;
 
     /// <summary>
     /// Serial vs raw TCP for GS-232 / EasyComm / SPID / SAEBRTrack.
-    /// Ignored when <see cref="Type"/> is <see cref="RotatorType.UrcTcp"/> (always TCP/JSON)
+    /// Ignored when <see cref="Type"/> is <see cref="RotatorType.UrcTcp"/> (always TCP/JSON),
+    /// <see cref="RotatorType.SpidMd01"/> (always TCP Rot2Prog),
     /// or <see cref="RotatorType.GreenHeronRt21"/> (always dual local serial).
     /// </summary>
     public RotatorTransportKind TransportKind { get; set; } = RotatorTransportKind.Serial;
@@ -36,10 +39,10 @@ public sealed class RotatorSettings
     /// </summary>
     public string ElevationPort { get; set; } = "";
 
-    /// <summary>TCP host for URC or TCP serial (e.g. ser2net). Ignored when using a local serial port.</summary>
+    /// <summary>TCP host for URC, SPID MD-01, or TCP serial (e.g. ser2net). Ignored when using a local serial port.</summary>
     public string NetworkHost { get; set; } = DefaultNetworkHost;
 
-    /// <summary>TCP port for URC or TCP serial. URC default is 1111.</summary>
+    /// <summary>TCP port for URC, SPID MD-01, or TCP serial. URC default is 1111; MD-01 default is 23.</summary>
     public int NetworkPort { get; set; } = DefaultNetworkPort;
 
     public RotatorAzimuthRange AzimuthRange { get; set; } = RotatorAzimuthRange.Deg450;
@@ -112,7 +115,7 @@ public sealed class RotatorSettings
 
     /// <summary>True when this configuration uses TCP host/port instead of a serial COM port.</summary>
     public bool UsesNetworkEndpoint =>
-        Type == RotatorType.UrcTcp
+        Type is RotatorType.UrcTcp or RotatorType.SpidMd01
         || (Type != RotatorType.GreenHeronRt21 && TransportKind == RotatorTransportKind.Tcp);
 
     /// <summary>
@@ -120,7 +123,8 @@ public sealed class RotatorSettings
     /// </summary>
     public bool UsesSerialPort =>
         Type == RotatorType.GreenHeronRt21
-        || (Type != RotatorType.UrcTcp && TransportKind == RotatorTransportKind.Serial);
+        || (Type is not (RotatorType.UrcTcp or RotatorType.SpidMd01)
+            && TransportKind == RotatorTransportKind.Serial);
 
     /// <summary>True when the configured connection endpoint is present (serial port or host+port).</summary>
     public bool HasConfiguredEndpoint =>

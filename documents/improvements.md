@@ -138,7 +138,6 @@ When a pass rises above threshold, focus map overlay automatically — reduces c
 
 | Item | Notes |
 |------|--------|
-| **SPID LAN/TCP** | Ethernet rotators (port 23); serial SPID exists |
 | **Rotator slew lead/lag** | Mechanical lag compensation |
 | **Stop on park** | GS-232 `S` before park (partial today via dispose) |
 
@@ -261,9 +260,8 @@ These are multi-week efforts; keep them out of the core tracker refactor path un
 
 ### Phase D — Product (as needed)
 
-1. SPID TCP rotator
-2. Unified track-start elevation
-3. Translated help or key-linked help topics
+1. Unified track-start elevation
+2. Translated help or key-linked help topics
 
 ---
 
