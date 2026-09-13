@@ -186,20 +186,32 @@ public sealed class SaveDebouncerPropertyTests : IDisposable
         service.Current.GroundStation.DisplayName = "First";
         service.RequestSave();
 
-        // Wait 300ms (less than quiet period)
-        await Task.Delay(300);
+        // Stay well inside the 500ms quiet period. Waiting 300ms flakes on loaded
+        // Windows CI runners: Task.Delay can overshoot, the first save can land,
+        // and File.Exists then returns before the second request is issued.
+        await Task.Delay(50);
 
         // Second request resets the timer
         service.Current.GroundStation.DisplayName = "Second";
         service.RequestSave();
 
-        // Poll until the quiet period after the second request elapses and the write completes
+        // Poll for the second value, not merely that the file exists. An early
+        // first write must not make the assertion read stale content.
         var deadline = DateTime.UtcNow.AddSeconds(3);
-        while (!File.Exists(path) && DateTime.UtcNow < deadline)
-            await Task.Delay(50);
+        string? json = null;
+        while (DateTime.UtcNow < deadline)
+        {
+            if (File.Exists(path))
+            {
+                json = await File.ReadAllTextAsync(path);
+                if (json.Contains("Second"))
+                    break;
+            }
 
-        Assert.True(File.Exists(path));
-        var json = await File.ReadAllTextAsync(path);
+            await Task.Delay(50);
+        }
+
+        Assert.False(string.IsNullOrEmpty(json));
         Assert.Contains("Second", json);
         Assert.DoesNotContain("First", json);
     }
