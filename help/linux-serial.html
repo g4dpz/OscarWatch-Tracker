@@ -118,6 +118,8 @@ ls -l /dev/USB821H</code></pre>
       </p>
       <pre><code>sudo usermod -aG dialout $USER</code></pre>
       <p>
+        For Arch based distributions, Manjaro, CachyOS, you need to be in the <code>uucp</code> group.
+      <p>
         If OscarWatch reports the port is busy or access is denied, check that no other program holds the port
         (Hamlib, <code>gpsd</code> on the same tty, another CAT app) and that <code>ls -l</code> shows your user or
         group can read the device.

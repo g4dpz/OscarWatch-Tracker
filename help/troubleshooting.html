@@ -110,7 +110,7 @@
       <ul>
         <li>Do not rely on <code>/dev/ttyUSB0</code> staying the same — use <code>/dev/serial/by-id/…</code> or a udev alias (for example <code>/dev/USB821H</code>).</li>
         <li>In Settings, press <strong>Refresh</strong>, then select or type the stable path and <strong>Save</strong>.</li>
-        <li>Ensure your user is in the <code>dialout</code> group (<code>sudo usermod -aG dialout $USER</code>, then log in again).</li>
+        <li>Ensure your user is in the <code>dialout</code> group, (or <code>uucp</code> on an Arch derivative distro) <code>sudo usermod -aG dialout $USER</code>, then log in again.</li>
         <li>Close other programs using the same port (Hamlib, <code>gpsd</code> on that tty, other CAT apps).</li>
       </ul>
       <p>Full walkthrough: <a href="linux-serial.html">Linux serial ports</a>.</p>
@@ -172,7 +172,7 @@
         <li><strong>Yaesu FT-817/818:</strong> match menu <strong>#14</strong> baud (suggested <strong>4800</strong>; <strong>38400</strong> also works).</li>
         <li><strong>Yaesu FT-991/991A:</strong> match menu <strong>031</strong> CAT RATE (suggested <strong>38400</strong>); 8N2 with hardware RTS; use the USB CAT COM port.</li>
         <li><strong>Yaesu FTX-1:</strong> match menu <strong>CAT-1 RATE</strong> (suggested <strong>38400</strong>); 8N2 with hardware RTS; use the <strong>Enhanced COM (CAT-1)</strong> port, not CAT-2.</li>
-        <li><strong>IC-705:</strong> CI-V USB Port = <strong>Link to [CI-V]</strong>; match baud (default <strong>115200</strong>); CI-V address <strong>A4</strong> unless changed in the radio menu.</li>
+        <li><strong>IC-705:</strong> CI-V address <strong>A4</strong> unless changed in the radio menu.</li>
         <li><strong>IC-905:</strong> USB CI-V serial; match baud (default <strong>115200</strong>); CI-V address <strong>AC</strong> unless changed in Set mode.</li>
         <li><strong>IC-7100:</strong> CI-V Output (USB) On (or REMOTE jack); match baud (default <strong>19200</strong>); CI-V address <strong>88H</strong> unless changed in the radio menu. HF/6 m, 2 m, and 70 cm (not 23 cm).</li>
         <li><strong>IC-706 series:</strong> CI-V via <strong>REMOTE</strong> jack; pick the correct leg type — default addresses <strong>48H</strong> (706), <strong>4CH</strong> (MKII), <strong>58H</strong> (MKIIG); baud <strong>19200</strong>; CI-V TRN On.</li>
