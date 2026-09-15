@@ -80,6 +80,8 @@ public static class DiagnosticsBundleBuilder
         RedactApiKey(clone.Cloudlog);
         RedactApiKey(clone.HamsAt);
         RedactApiKey(clone.SatelliteStatus);
+        RedactQrz(clone.Qrz);
+        RedactHamQth(clone.HamQth);
 
         return JsonSerializer.Serialize(clone, JsonOptions);
     }
@@ -100,6 +102,18 @@ public static class DiagnosticsBundleBuilder
     {
         if (!string.IsNullOrWhiteSpace(settings.ApiToken))
             settings.ApiToken = "***";
+    }
+
+    private static void RedactQrz(QrzSettings settings)
+    {
+        if (!string.IsNullOrWhiteSpace(settings.Password))
+            settings.Password = "***";
+    }
+
+    private static void RedactHamQth(HamQthSettings settings)
+    {
+        if (!string.IsNullOrWhiteSpace(settings.Password))
+            settings.Password = "***";
     }
 
     private static string ReadLogTail()

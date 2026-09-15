@@ -3819,4 +3819,112 @@ Latest: {1} ({2})</value>
   <data name="ReleaseNotes.ViewOnGitHub">
     <value>View on GitHub</value>
   </data>
+  <data name="Settings.Tab.Qrz">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Section">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Intro">
+    <value>Looks up operator names (and empty grids) from QRZ when you type a callsign in OscarWatch Logbook. XML Data access needs a QRZ subscription. Your username and password stay on this computer.</value>
+  </data>
+  <data name="Settings.Qrz.Enable">
+    <value>Enable QRZ callbook lookup in OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.Qrz.Username">
+    <value>QRZ username</value>
+  </data>
+  <data name="Settings.Qrz.UsernameWatermark">
+    <value>callsign</value>
+  </data>
+  <data name="Settings.Qrz.Password">
+    <value>QRZ password</value>
+  </data>
+  <data name="Settings.Qrz.PasswordWatermark">
+    <value>account password</value>
+  </data>
+  <data name="Settings.Qrz.TestConnection">
+    <value>Test connection</value>
+  </data>
+  <data name="Settings.Qrz.Testing">
+    <value>Testing…</value>
+  </data>
+  <data name="Settings.Qrz.EnterCredentials">
+    <value>Enter your QRZ username and password (tab out of each field or click Test again).</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOk">
+    <value>Connection OK. XML subscription valid until {0}.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOkNoExpiry">
+    <value>Connection OK.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionFailed">
+    <value>Could not sign in to QRZ: {0}</value>
+  </data>
+  <data name="Settings.Qrz.SubscriptionRequired">
+    <value>QRZ XML Data requires a subscription. Check XML access on your QRZ account.</value>
+  </data>
+  <data name="Settings.Qrz.Timeout">
+    <value>QRZ did not respond in time.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.Intro">
+    <value>Fill Name (and Grid if empty) from QRZ when you type a callsign. Does not overwrite a name you typed or one recalled from a previous QSO in this logbook.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.CredentialsNote">
+    <value>Needs a QRZ XML Data subscription. Username and password are stored with other OscarWatch settings on this computer.</value>
+  </data>
+  <data name="Logbook.CallHint.Qrz">
+    <value>Name from QRZ.</value>
+  </data>
+  <data name="Settings.Tab.HamQth">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Section">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Intro">
+    <value>Looks up operator names (and empty grids) from HamQTH when you type a callsign in OscarWatch Logbook. A free HamQTH account is enough (no paid XML subscription). Used when QRZ is off, misses, or is not configured. Your username and password stay on this computer.</value>
+  </data>
+  <data name="Settings.HamQth.Enable">
+    <value>Enable HamQTH callbook lookup in OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.HamQth.Username">
+    <value>HamQTH username</value>
+  </data>
+  <data name="Settings.HamQth.UsernameWatermark">
+    <value>callsign</value>
+  </data>
+  <data name="Settings.HamQth.Password">
+    <value>HamQTH password</value>
+  </data>
+  <data name="Settings.HamQth.PasswordWatermark">
+    <value>account password</value>
+  </data>
+  <data name="Settings.HamQth.TestConnection">
+    <value>Test connection</value>
+  </data>
+  <data name="Settings.HamQth.Testing">
+    <value>Testing…</value>
+  </data>
+  <data name="Settings.HamQth.EnterCredentials">
+    <value>Enter your HamQTH username and password (tab out of each field or click Test again).</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionOk">
+    <value>Connection OK.</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionFailed">
+    <value>Could not sign in to HamQTH: {0}</value>
+  </data>
+  <data name="Settings.HamQth.Timeout">
+    <value>HamQTH did not respond in time.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.Intro">
+    <value>Fill Name (and Grid if empty) from HamQTH when QRZ is off, misses, or is not configured. Does not overwrite a name you typed or one recalled from a previous QSO in this logbook.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.CredentialsNote">
+    <value>Needs a free HamQTH account. Username and password are stored with other OscarWatch settings on this computer.</value>
+  </data>
+  <data name="Logbook.CallHint.HamQth">
+    <value>Name from HamQTH.</value>
+  </data>
 </root>

@@ -13,7 +13,9 @@ public sealed class DiagnosticsBundleBuilderTests
         {
             Cloudlog = new CloudlogSettings { ApiKey = "secret-cloudlog" },
             HamsAt = new HamsAtSettings { ApiKey = "secret-hamsat" },
-            SatelliteStatus = new SatelliteStatusSettings { ApiToken = "secret-sat-status" }
+            SatelliteStatus = new SatelliteStatusSettings { ApiToken = "secret-sat-status" },
+            Qrz = new QrzSettings { Username = "MM9SQL", Password = "secret-qrz" },
+            HamQth = new HamQthSettings { Username = "MM9SQL", Password = "secret-hamqth" }
         };
 
         var redacted = DiagnosticsBundleBuilder.RedactSettings(settings);
@@ -21,6 +23,8 @@ public sealed class DiagnosticsBundleBuilderTests
         Assert.DoesNotContain("secret-cloudlog", redacted);
         Assert.DoesNotContain("secret-hamsat", redacted);
         Assert.DoesNotContain("secret-sat-status", redacted);
+        Assert.DoesNotContain("secret-qrz", redacted);
+        Assert.DoesNotContain("secret-hamqth", redacted);
         Assert.Contains("\"***\"", redacted);
     }
 

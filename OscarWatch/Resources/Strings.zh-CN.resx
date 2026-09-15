@@ -3819,4 +3819,112 @@
   <data name="ReleaseNotes.ViewOnGitHub">
     <value>在 GitHub 上查看</value>
   </data>
+  <data name="Settings.Tab.Qrz">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Section">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Intro">
+    <value>在 OscarWatch Logbook 中输入呼号时，从 QRZ 查询对方姓名（以及空的网格）。XML Data 需要 QRZ 订阅。用户名和密码保存在本机。</value>
+  </data>
+  <data name="Settings.Qrz.Enable">
+    <value>在 OscarWatch Logbook 中启用 QRZ 呼号查询</value>
+  </data>
+  <data name="Settings.Qrz.Username">
+    <value>QRZ 用户名</value>
+  </data>
+  <data name="Settings.Qrz.UsernameWatermark">
+    <value>呼号</value>
+  </data>
+  <data name="Settings.Qrz.Password">
+    <value>QRZ 密码</value>
+  </data>
+  <data name="Settings.Qrz.PasswordWatermark">
+    <value>账户密码</value>
+  </data>
+  <data name="Settings.Qrz.TestConnection">
+    <value>测试连接</value>
+  </data>
+  <data name="Settings.Qrz.Testing">
+    <value>正在测试…</value>
+  </data>
+  <data name="Settings.Qrz.EnterCredentials">
+    <value>请输入 QRZ 用户名和密码（离开各字段或再次点击测试）。</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOk">
+    <value>连接成功。XML 订阅有效期至 {0}。</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOkNoExpiry">
+    <value>连接成功。</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionFailed">
+    <value>无法登录 QRZ：{0}</value>
+  </data>
+  <data name="Settings.Qrz.SubscriptionRequired">
+    <value>QRZ XML Data 需要订阅。请在 QRZ 账户中检查 XML 访问权限。</value>
+  </data>
+  <data name="Settings.Qrz.Timeout">
+    <value>QRZ 未及时响应。</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.Intro">
+    <value>输入呼号时从 QRZ 填写姓名（以及空的网格）。不会覆盖您已输入的姓名，也不会覆盖本日志中以往 QSO 带出的姓名。</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.CredentialsNote">
+    <value>需要 QRZ XML Data 订阅。用户名和密码与其他 OscarWatch 设置一起保存在本机。</value>
+  </data>
+  <data name="Logbook.CallHint.Qrz">
+    <value>来自 QRZ 的姓名。</value>
+  </data>
+  <data name="Settings.Tab.HamQth">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Section">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Intro">
+    <value>在 OscarWatch Logbook 中输入呼号时，从 HamQTH 查询对方姓名（以及空的网格）。免费 HamQTH 账户即可（无需付费 XML 订阅）。在 QRZ 关闭、未找到或未配置时使用。用户名和密码保存在本机。</value>
+  </data>
+  <data name="Settings.HamQth.Enable">
+    <value>在 OscarWatch Logbook 中启用 HamQTH 呼号查询</value>
+  </data>
+  <data name="Settings.HamQth.Username">
+    <value>HamQTH 用户名</value>
+  </data>
+  <data name="Settings.HamQth.UsernameWatermark">
+    <value>呼号</value>
+  </data>
+  <data name="Settings.HamQth.Password">
+    <value>HamQTH 密码</value>
+  </data>
+  <data name="Settings.HamQth.PasswordWatermark">
+    <value>账户密码</value>
+  </data>
+  <data name="Settings.HamQth.TestConnection">
+    <value>测试连接</value>
+  </data>
+  <data name="Settings.HamQth.Testing">
+    <value>正在测试…</value>
+  </data>
+  <data name="Settings.HamQth.EnterCredentials">
+    <value>请输入 HamQTH 用户名和密码（离开各字段或再次点击测试）。</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionOk">
+    <value>连接成功。</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionFailed">
+    <value>无法登录 HamQTH：{0}</value>
+  </data>
+  <data name="Settings.HamQth.Timeout">
+    <value>HamQTH 未及时响应。</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.Intro">
+    <value>当 QRZ 关闭、未找到或未配置时，从 HamQTH 填写姓名（以及空的网格）。不会覆盖您已输入的姓名，也不会覆盖本日志中以往 QSO 带出的姓名。</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.CredentialsNote">
+    <value>需要免费 HamQTH 账户。用户名和密码与其他 OscarWatch 设置一起保存在本机。</value>
+  </data>
+  <data name="Logbook.CallHint.HamQth">
+    <value>来自 HamQTH 的姓名。</value>
+  </data>
 </root>

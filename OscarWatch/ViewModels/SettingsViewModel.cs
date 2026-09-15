@@ -29,6 +29,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     private readonly OscarWatch.Core.Recording.FfmpegLocator _ffmpegLocator;
     private readonly ICloudlogRadioSyncService _cloudlog;
     private readonly ICloudlogLookupService _cloudlogLookup;
+    private readonly IQrzCallbookService _qrzCallbook;
+    private readonly IHamQthCallbookService _hamQthCallbook;
     private readonly IHamsAtRovesService _hamsAtRoves;
     private readonly IGpsService _gps;
     private readonly ISatelliteLinkBroadcastService _satelliteLink;
@@ -551,6 +553,30 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     private string _cloudlogTestStatus = "";
 
     [ObservableProperty]
+    private bool _qrzEnabled;
+
+    [ObservableProperty]
+    private string _qrzUsername = "";
+
+    [ObservableProperty]
+    private string _qrzPassword = "";
+
+    [ObservableProperty]
+    private string _qrzTestStatus = "";
+
+    [ObservableProperty]
+    private bool _hamQthEnabled;
+
+    [ObservableProperty]
+    private string _hamQthUsername = "";
+
+    [ObservableProperty]
+    private string _hamQthPassword = "";
+
+    [ObservableProperty]
+    private string _hamQthTestStatus = "";
+
+    [ObservableProperty]
     private bool _cloudlogCheckRoveGrids = true;
 
     [ObservableProperty]
@@ -784,6 +810,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         IAudioRecordingService recording,
         ICloudlogRadioSyncService cloudlog,
         ICloudlogLookupService cloudlogLookup,
+        IQrzCallbookService qrzCallbook,
+        IHamQthCallbookService hamQthCallbook,
         IHamsAtRovesService hamsAtRoves,
         IGpsService gps,
         ISatelliteLinkBroadcastService satelliteLink,
@@ -792,6 +820,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     {
         _l = localization;
         _cloudlogLookup = cloudlogLookup;
+        _qrzCallbook = qrzCallbook;
+        _hamQthCallbook = hamQthCallbook;
         _hamsAtRoves = hamsAtRoves;
         _gps = gps;
         _satelliteLink = satelliteLink;
@@ -1283,6 +1313,18 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             LogbookPublicSlug = SelectedCloudlogLogbook?.PublicSlug?.Trim() ?? "",
             CheckRoveGrids = CloudlogCheckRoveGrids
         };
+        _settings.Current.Qrz = new QrzSettings
+        {
+            Enabled = QrzEnabled,
+            Username = QrzUsername.Trim(),
+            Password = QrzPassword
+        };
+        _settings.Current.HamQth = new HamQthSettings
+        {
+            Enabled = HamQthEnabled,
+            Username = HamQthUsername.Trim(),
+            Password = HamQthPassword
+        };
         _settings.Current.HamsAt = new HamsAtSettings
         {
             Enabled = HamsAtEnabled,
@@ -1525,6 +1567,16 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             CloudlogMinUpdateIntervalMs = CloudlogRadioPublishPolicy.MigrateKeepaliveIntervalMs(cloudlog.MinUpdateIntervalMs);
             CloudlogCheckRoveGrids = cloudlog.CheckRoveGrids;
             CloudlogTestStatus = "";
+            var qrz = _settings.Current.Qrz ?? new QrzSettings();
+            QrzEnabled = qrz.Enabled;
+            QrzUsername = qrz.Username;
+            QrzPassword = qrz.Password;
+            QrzTestStatus = "";
+            var hamQth = _settings.Current.HamQth ?? new HamQthSettings();
+            HamQthEnabled = hamQth.Enabled;
+            HamQthUsername = hamQth.Username;
+            HamQthPassword = hamQth.Password;
+            HamQthTestStatus = "";
             CloudlogLogbooks.Clear();
             if (!string.IsNullOrWhiteSpace(cloudlog.LogbookPublicSlug))
             {
@@ -1945,6 +1997,89 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         {
             SatelliteStatusTestStatus = ex.Message;
         }
+    }
+
+    public async Task TestQrzAsync()
+    {
+        try
+        {
+            QrzTestStatus = _l.Get("Settings.Qrz.Testing");
+            var settings = new QrzSettings
+            {
+                Enabled = true,
+                Username = QrzUsername.Trim(),
+                Password = QrzPassword
+            };
+
+            if (!settings.HasCredentials)
+            {
+                QrzTestStatus = _l.Get("Settings.Qrz.EnterCredentials");
+                return;
+            }
+
+            var result = await _qrzCallbook.TestConnectionAsync(settings).ConfigureAwait(true);
+            QrzTestStatus = FormatQrzTestStatus(result);
+        }
+        catch (Exception ex)
+        {
+            QrzTestStatus = ex.Message;
+        }
+    }
+
+    private string FormatQrzTestStatus(OscarWatch.Core.Qrz.QrzConnectionTestResult result)
+    {
+        if (result.Ok)
+        {
+            return string.IsNullOrWhiteSpace(result.SubscriptionExpires)
+                ? _l.Get("Settings.Qrz.ConnectionOkNoExpiry")
+                : _l.Get("Settings.Qrz.ConnectionOk", result.SubscriptionExpires);
+        }
+
+        if (result.SubscriptionRequired)
+            return _l.Get("Settings.Qrz.SubscriptionRequired");
+
+        if (string.Equals(result.ErrorMessage, "timeout", StringComparison.Ordinal))
+            return _l.Get("Settings.Qrz.Timeout");
+
+        return _l.Get("Settings.Qrz.ConnectionFailed", result.ErrorMessage ?? "");
+    }
+
+    public async Task TestHamQthAsync()
+    {
+        try
+        {
+            HamQthTestStatus = _l.Get("Settings.HamQth.Testing");
+            var settings = new HamQthSettings
+            {
+                Enabled = true,
+                Username = HamQthUsername.Trim(),
+                Password = HamQthPassword
+            };
+
+            if (!settings.HasCredentials)
+            {
+                HamQthTestStatus = _l.Get("Settings.HamQth.EnterCredentials");
+                return;
+            }
+
+            var result = await _hamQthCallbook.TestConnectionAsync(settings).ConfigureAwait(true);
+            HamQthTestStatus = FormatHamQthTestStatus(result);
+        }
+        catch (Exception ex)
+        {
+            HamQthTestStatus = ex.Message;
+        }
+    }
+
+    private string FormatHamQthTestStatus(OscarWatch.Core.HamQth.HamQthConnectionTestResult result)
+    {
+        if (result.Ok)
+            return _l.Get("Settings.HamQth.ConnectionOk");
+
+        if (string.Equals(result.ErrorMessage, "timeout", StringComparison.Ordinal))
+            return _l.Get("Settings.HamQth.Timeout");
+
+        return _l.Get("Settings.HamQth.ConnectionFailed", result.ErrorMessage ?? "");
     }
 
     public async Task TestCloudlogAsync()

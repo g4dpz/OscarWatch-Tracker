@@ -3819,4 +3819,112 @@ Mais recente: {1} ({2})</value>
   <data name="ReleaseNotes.ViewOnGitHub">
     <value>Ver no GitHub</value>
   </data>
+  <data name="Settings.Tab.Qrz">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Section">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Intro">
+    <value>Consulta o nome do operador (e o grid se estiver vazio) no QRZ ao escrever um indicativo no OscarWatch Logbook. O acesso XML Data precisa de uma assinatura QRZ. O usuário e a senha ficam neste computador.</value>
+  </data>
+  <data name="Settings.Qrz.Enable">
+    <value>Ativar consulta de indicativos QRZ no OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.Qrz.Username">
+    <value>Usuário QRZ</value>
+  </data>
+  <data name="Settings.Qrz.UsernameWatermark">
+    <value>indicativo</value>
+  </data>
+  <data name="Settings.Qrz.Password">
+    <value>Senha QRZ</value>
+  </data>
+  <data name="Settings.Qrz.PasswordWatermark">
+    <value>senha da conta</value>
+  </data>
+  <data name="Settings.Qrz.TestConnection">
+    <value>Testar conexão</value>
+  </data>
+  <data name="Settings.Qrz.Testing">
+    <value>Testando…</value>
+  </data>
+  <data name="Settings.Qrz.EnterCredentials">
+    <value>Digite o usuário e a senha QRZ (saia de cada campo ou clique em Testar de novo).</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOk">
+    <value>Conexão OK. Assinatura XML válida até {0}.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOkNoExpiry">
+    <value>Conexão OK.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionFailed">
+    <value>Não foi possível entrar no QRZ: {0}</value>
+  </data>
+  <data name="Settings.Qrz.SubscriptionRequired">
+    <value>QRZ XML Data exige uma assinatura. Verifique o acesso XML na sua conta QRZ.</value>
+  </data>
+  <data name="Settings.Qrz.Timeout">
+    <value>O QRZ não respondeu a tempo.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.Intro">
+    <value>Preenche Nome (e Grid se estiver vazio) a partir do QRZ ao escrever um indicativo. Não substitui um nome que você digitou ou que veio de um QSO anterior neste logbook.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.CredentialsNote">
+    <value>É necessária uma assinatura QRZ XML Data. Usuário e senha são guardados com as outras configurações do OscarWatch neste computador.</value>
+  </data>
+  <data name="Logbook.CallHint.Qrz">
+    <value>Nome do QRZ.</value>
+  </data>
+  <data name="Settings.Tab.HamQth">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Section">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Intro">
+    <value>Consulta o nome do operador (e o grid se estiver vazio) no HamQTH ao escrever um indicativo no OscarWatch Logbook. Uma conta gratuita HamQTH basta (sem assinatura XML paga). Usado quando o QRZ está desligado, não encontra o indicativo ou não está configurado. O usuário e a senha ficam neste computador.</value>
+  </data>
+  <data name="Settings.HamQth.Enable">
+    <value>Ativar consulta de indicativos HamQTH no OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.HamQth.Username">
+    <value>Usuário HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.UsernameWatermark">
+    <value>indicativo</value>
+  </data>
+  <data name="Settings.HamQth.Password">
+    <value>Senha HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.PasswordWatermark">
+    <value>senha da conta</value>
+  </data>
+  <data name="Settings.HamQth.TestConnection">
+    <value>Testar conexão</value>
+  </data>
+  <data name="Settings.HamQth.Testing">
+    <value>Testando…</value>
+  </data>
+  <data name="Settings.HamQth.EnterCredentials">
+    <value>Digite o usuário e a senha HamQTH (saia de cada campo ou clique em Testar de novo).</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionOk">
+    <value>Conexão OK.</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionFailed">
+    <value>Não foi possível entrar no HamQTH: {0}</value>
+  </data>
+  <data name="Settings.HamQth.Timeout">
+    <value>O HamQTH não respondeu a tempo.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.Intro">
+    <value>Preenche Nome (e Grid se estiver vazio) a partir do HamQTH quando o QRZ está desligado, não encontra o indicativo ou não está configurado. Não substitui um nome que você digitou ou que veio de um QSO anterior neste logbook.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.CredentialsNote">
+    <value>É necessária uma conta gratuita HamQTH. Usuário e senha são guardados com as outras configurações do OscarWatch neste computador.</value>
+  </data>
+  <data name="Logbook.CallHint.HamQth">
+    <value>Nome do HamQTH.</value>
+  </data>
 </root>

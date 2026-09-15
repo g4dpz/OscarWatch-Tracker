@@ -219,7 +219,7 @@ sudo apt install ffmpeg</code></pre>
       <p>
         The <strong>Integrations</strong> tab groups optional hardware and external services:
         <strong>GPS</strong>, <strong>hams.at</strong> Upcoming Roves,
-        <strong>OscarWatch</strong>, <strong>Cloudlog</strong>, and
+        <strong>OscarWatch</strong>, <strong>Cloudlog</strong>, <strong>QRZ</strong>, <strong>HamQTH</strong>, and
         <strong>Satellite link</strong>.
         Pick a section from the list on the left.
       </p>
@@ -295,6 +295,32 @@ sudo apt install ffmpeg</code></pre>
         checks each rove grid against that logbook using Cloudlog’s <code>logbook_check_grid</code> API with
         <code>band: SAT</code>, so only satellite QSOs count. Grid badges on rove rows are described in
         <a href="map-and-sidebar.html#rove-grid-badges">Map &amp; sidebar → Rove grid badges</a>.
+      </p>
+
+      <h3>QRZ</h3>
+      <p>
+        Optional callbook lookup for <a href="qso-logbook.html">OscarWatch Logbook</a>.
+        Enable it, enter your QRZ username and password, then use <strong>Test connection</strong>.
+        Credentials are stored locally in <code>settings.json</code> like other API keys.
+        Filling names from QRZ uses the
+        <a href="https://www.qrz.com/page/xml_data.html">QRZ XML Data</a> service, which needs a QRZ
+        XML subscription. Lookups run after you type a complete callsign; they do not overwrite a name
+        you already typed or one recalled from a previous QSO in that logbook. Timeouts and missing
+        records fail quietly so logging stays fast.
+      </p>
+      <p>
+        The same username, password, and enable switch are also on
+        <strong>OscarWatch Logbook → Settings → QRZ</strong>.
+      </p>
+
+      <h3>HamQTH</h3>
+      <p>
+        Optional fallback callbook for OscarWatch Logbook. A free
+        <a href="https://www.hamqth.com/developers.php">HamQTH XML</a> account is enough
+        (no paid subscription). Enable it, enter your HamQTH username and password, then use
+        <strong>Test connection</strong>. When QRZ is off, misses a call, or is not configured,
+        OscarWatch asks HamQTH for the operator’s name and, if Grid is empty, their locator.
+        The same fields are on <strong>OscarWatch Logbook → Settings → HamQTH</strong>.
       </p>
 
       <h3 id="satellite-link">Satellite link</h3>

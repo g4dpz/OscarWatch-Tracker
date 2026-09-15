@@ -3823,4 +3823,112 @@ Terbaru: {1} ({2})</value>
   <data name="ReleaseNotes.ViewOnGitHub">
     <value>Lihat di GitHub</value>
   </data>
+  <data name="Settings.Tab.Qrz">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Section">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Intro">
+    <value>Mencari nama operator (dan grid jika kosong) dari QRZ saat Anda mengetik tanda panggil di OscarWatch Logbook. Akses XML Data memerlukan langganan QRZ. Nama pengguna dan kata sandi tetap di komputer ini.</value>
+  </data>
+  <data name="Settings.Qrz.Enable">
+    <value>Aktifkan pencarian callbook QRZ di OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.Qrz.Username">
+    <value>Nama pengguna QRZ</value>
+  </data>
+  <data name="Settings.Qrz.UsernameWatermark">
+    <value>tanda panggil</value>
+  </data>
+  <data name="Settings.Qrz.Password">
+    <value>Kata sandi QRZ</value>
+  </data>
+  <data name="Settings.Qrz.PasswordWatermark">
+    <value>kata sandi akun</value>
+  </data>
+  <data name="Settings.Qrz.TestConnection">
+    <value>Uji koneksi</value>
+  </data>
+  <data name="Settings.Qrz.Testing">
+    <value>Menguji…</value>
+  </data>
+  <data name="Settings.Qrz.EnterCredentials">
+    <value>Masukkan nama pengguna dan kata sandi QRZ (keluar dari setiap kolom atau klik Uji lagi).</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOk">
+    <value>Koneksi OK. Langganan XML berlaku sampai {0}.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOkNoExpiry">
+    <value>Koneksi OK.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionFailed">
+    <value>Tidak dapat masuk ke QRZ: {0}</value>
+  </data>
+  <data name="Settings.Qrz.SubscriptionRequired">
+    <value>QRZ XML Data memerlukan langganan. Periksa akses XML pada akun QRZ Anda.</value>
+  </data>
+  <data name="Settings.Qrz.Timeout">
+    <value>QRZ tidak merespons tepat waktu.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.Intro">
+    <value>Mengisi Nama (dan Grid jika kosong) dari QRZ saat Anda mengetik tanda panggil. Tidak menimpa nama yang sudah Anda ketik atau yang berasal dari QSO sebelumnya di logbook ini.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.CredentialsNote">
+    <value>Diperlukan langganan QRZ XML Data. Nama pengguna dan kata sandi disimpan bersama pengaturan OscarWatch lainnya di komputer ini.</value>
+  </data>
+  <data name="Logbook.CallHint.Qrz">
+    <value>Nama dari QRZ.</value>
+  </data>
+  <data name="Settings.Tab.HamQth">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Section">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Intro">
+    <value>Mencari nama operator (dan grid jika kosong) dari HamQTH saat Anda mengetik tanda panggil di OscarWatch Logbook. Akun HamQTH gratis sudah cukup (tanpa langganan XML berbayar). Dipakai saat QRZ mati, tidak menemukan, atau belum dikonfigurasi. Nama pengguna dan kata sandi tetap di komputer ini.</value>
+  </data>
+  <data name="Settings.HamQth.Enable">
+    <value>Aktifkan pencarian callbook HamQTH di OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.HamQth.Username">
+    <value>Nama pengguna HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.UsernameWatermark">
+    <value>tanda panggil</value>
+  </data>
+  <data name="Settings.HamQth.Password">
+    <value>Kata sandi HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.PasswordWatermark">
+    <value>kata sandi akun</value>
+  </data>
+  <data name="Settings.HamQth.TestConnection">
+    <value>Uji koneksi</value>
+  </data>
+  <data name="Settings.HamQth.Testing">
+    <value>Menguji…</value>
+  </data>
+  <data name="Settings.HamQth.EnterCredentials">
+    <value>Masukkan nama pengguna dan kata sandi HamQTH (keluar dari setiap kolom atau klik Uji lagi).</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionOk">
+    <value>Koneksi OK.</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionFailed">
+    <value>Tidak dapat masuk ke HamQTH: {0}</value>
+  </data>
+  <data name="Settings.HamQth.Timeout">
+    <value>HamQTH tidak merespons tepat waktu.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.Intro">
+    <value>Mengisi Nama (dan Grid jika kosong) dari HamQTH saat QRZ mati, tidak menemukan, atau belum dikonfigurasi. Tidak menimpa nama yang sudah Anda ketik atau yang berasal dari QSO sebelumnya di logbook ini.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.CredentialsNote">
+    <value>Diperlukan akun HamQTH gratis. Nama pengguna dan kata sandi disimpan bersama pengaturan OscarWatch lainnya di komputer ini.</value>
+  </data>
+  <data name="Logbook.CallHint.HamQth">
+    <value>Nama dari HamQTH.</value>
+  </data>
 </root>

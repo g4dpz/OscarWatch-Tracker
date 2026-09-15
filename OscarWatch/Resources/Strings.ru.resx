@@ -3823,4 +3823,112 @@ LOS: {2}
   <data name="ReleaseNotes.ViewOnGitHub">
     <value>Смотреть на GitHub</value>
   </data>
+  <data name="Settings.Tab.Qrz">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Section">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Intro">
+    <value>Ищет имя оператора (и пустой грид) в QRZ, когда вы вводите позывной в OscarWatch Logbook. Для XML Data нужна подписка QRZ. Имя пользователя и пароль остаются на этом компьютере.</value>
+  </data>
+  <data name="Settings.Qrz.Enable">
+    <value>Включить поиск позывных QRZ в OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.Qrz.Username">
+    <value>Имя пользователя QRZ</value>
+  </data>
+  <data name="Settings.Qrz.UsernameWatermark">
+    <value>позывной</value>
+  </data>
+  <data name="Settings.Qrz.Password">
+    <value>Пароль QRZ</value>
+  </data>
+  <data name="Settings.Qrz.PasswordWatermark">
+    <value>пароль учётной записи</value>
+  </data>
+  <data name="Settings.Qrz.TestConnection">
+    <value>Проверить соединение</value>
+  </data>
+  <data name="Settings.Qrz.Testing">
+    <value>Проверка…</value>
+  </data>
+  <data name="Settings.Qrz.EnterCredentials">
+    <value>Введите имя пользователя и пароль QRZ (выйдите из каждого поля или нажмите Проверить снова).</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOk">
+    <value>Соединение установлено. Подписка XML действует до {0}.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOkNoExpiry">
+    <value>Соединение установлено.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionFailed">
+    <value>Не удалось войти в QRZ: {0}</value>
+  </data>
+  <data name="Settings.Qrz.SubscriptionRequired">
+    <value>Для QRZ XML Data нужна подписка. Проверьте доступ XML в учётной записи QRZ.</value>
+  </data>
+  <data name="Settings.Qrz.Timeout">
+    <value>QRZ не ответил вовремя.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.Intro">
+    <value>Заполняет имя (и грид, если он пуст) из QRZ при вводе позывного. Не затирает имя, которое вы уже ввели или которое взято из предыдущего QSO в этом журнале.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.CredentialsNote">
+    <value>Нужна подписка QRZ XML Data. Имя пользователя и пароль хранятся вместе с другими настройками OscarWatch на этом компьютере.</value>
+  </data>
+  <data name="Logbook.CallHint.Qrz">
+    <value>Имя из QRZ.</value>
+  </data>
+  <data name="Settings.Tab.HamQth">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Section">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Intro">
+    <value>Ищет имя оператора (и пустой грид) в HamQTH, когда вы вводите позывной в OscarWatch Logbook. Достаточно бесплатной учётной записи HamQTH (платная XML-подписка не нужна). Используется, если QRZ выключен, ничего не нашёл или не настроен. Имя пользователя и пароль остаются на этом компьютере.</value>
+  </data>
+  <data name="Settings.HamQth.Enable">
+    <value>Включить поиск позывных HamQTH в OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.HamQth.Username">
+    <value>Имя пользователя HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.UsernameWatermark">
+    <value>позывной</value>
+  </data>
+  <data name="Settings.HamQth.Password">
+    <value>Пароль HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.PasswordWatermark">
+    <value>пароль учётной записи</value>
+  </data>
+  <data name="Settings.HamQth.TestConnection">
+    <value>Проверить соединение</value>
+  </data>
+  <data name="Settings.HamQth.Testing">
+    <value>Проверка…</value>
+  </data>
+  <data name="Settings.HamQth.EnterCredentials">
+    <value>Введите имя пользователя и пароль HamQTH (выйдите из каждого поля или нажмите Проверить снова).</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionOk">
+    <value>Соединение установлено.</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionFailed">
+    <value>Не удалось войти в HamQTH: {0}</value>
+  </data>
+  <data name="Settings.HamQth.Timeout">
+    <value>HamQTH не ответил вовремя.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.Intro">
+    <value>Заполняет имя (и грид, если он пуст) из HamQTH, если QRZ выключен, ничего не нашёл или не настроен. Не затирает имя, которое вы уже ввели или которое взято из предыдущего QSO в этом журнале.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.CredentialsNote">
+    <value>Нужна бесплатная учётная запись HamQTH. Имя пользователя и пароль хранятся вместе с другими настройками OscarWatch на этом компьютере.</value>
+  </data>
+  <data name="Logbook.CallHint.HamQth">
+    <value>Имя из HamQTH.</value>
+  </data>
 </root>

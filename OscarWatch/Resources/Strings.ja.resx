@@ -3819,4 +3819,112 @@
   <data name="Window.SatelliteDatabase.Title">
     <value>トランスポンダデータベース</value>
   </data>
+  <data name="Settings.Tab.Qrz">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Section">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Intro">
+    <value>OscarWatch Logbookでコールサインを入力すると、QRZからオペレーター名（空ならグリッドも）を検索します。XML Dataの利用にはQRZの購読が必要です。ユーザー名とパスワードはこのコンピューターに保存されます。</value>
+  </data>
+  <data name="Settings.Qrz.Enable">
+    <value>OscarWatch LogbookでQRZコールブック検索を有効にする</value>
+  </data>
+  <data name="Settings.Qrz.Username">
+    <value>QRZユーザー名</value>
+  </data>
+  <data name="Settings.Qrz.UsernameWatermark">
+    <value>コールサイン</value>
+  </data>
+  <data name="Settings.Qrz.Password">
+    <value>QRZパスワード</value>
+  </data>
+  <data name="Settings.Qrz.PasswordWatermark">
+    <value>アカウントのパスワード</value>
+  </data>
+  <data name="Settings.Qrz.TestConnection">
+    <value>接続テスト</value>
+  </data>
+  <data name="Settings.Qrz.Testing">
+    <value>テスト中…</value>
+  </data>
+  <data name="Settings.Qrz.EnterCredentials">
+    <value>QRZのユーザー名とパスワードを入力してください（各欄からフォーカスを外すか、もう一度テストを押してください）。</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOk">
+    <value>接続成功。XML購読の有効期限は {0} です。</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOkNoExpiry">
+    <value>接続成功。</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionFailed">
+    <value>QRZにサインインできませんでした: {0}</value>
+  </data>
+  <data name="Settings.Qrz.SubscriptionRequired">
+    <value>QRZ XML Dataには購読が必要です。アカウントのXMLアクセスを確認してください。</value>
+  </data>
+  <data name="Settings.Qrz.Timeout">
+    <value>QRZが時間内に応答しませんでした。</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.Intro">
+    <value>コールサインを入力すると、QRZから氏名（空ならグリッドも）を記入します。入力済みの名前や、このログブックの過去のQSOから呼び出した名前は上書きしません。</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.CredentialsNote">
+    <value>QRZ XML Dataの購読が必要です。ユーザー名とパスワードは他のOscarWatch設定とともにこのコンピューターに保存されます。</value>
+  </data>
+  <data name="Logbook.CallHint.Qrz">
+    <value>QRZの名前。</value>
+  </data>
+  <data name="Settings.Tab.HamQth">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Section">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Intro">
+    <value>OscarWatch Logbookでコールサインを入力すると、HamQTHからオペレーター名（空ならグリッドも）を検索します。無料のHamQTHアカウントで利用できます（有料XML購読は不要）。QRZがオフ、未検出、または未設定のときに使います。ユーザー名とパスワードはこのコンピューターに保存されます。</value>
+  </data>
+  <data name="Settings.HamQth.Enable">
+    <value>OscarWatch LogbookでHamQTHコールブック検索を有効にする</value>
+  </data>
+  <data name="Settings.HamQth.Username">
+    <value>HamQTHユーザー名</value>
+  </data>
+  <data name="Settings.HamQth.UsernameWatermark">
+    <value>コールサイン</value>
+  </data>
+  <data name="Settings.HamQth.Password">
+    <value>HamQTHパスワード</value>
+  </data>
+  <data name="Settings.HamQth.PasswordWatermark">
+    <value>アカウントのパスワード</value>
+  </data>
+  <data name="Settings.HamQth.TestConnection">
+    <value>接続テスト</value>
+  </data>
+  <data name="Settings.HamQth.Testing">
+    <value>テスト中…</value>
+  </data>
+  <data name="Settings.HamQth.EnterCredentials">
+    <value>HamQTHのユーザー名とパスワードを入力してください（各欄からフォーカスを外すか、もう一度テストを押してください）。</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionOk">
+    <value>接続成功。</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionFailed">
+    <value>HamQTHにサインインできませんでした: {0}</value>
+  </data>
+  <data name="Settings.HamQth.Timeout">
+    <value>HamQTHが時間内に応答しませんでした。</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.Intro">
+    <value>QRZがオフ、未検出、または未設定のとき、HamQTHから氏名（空ならグリッドも）を記入します。入力済みの名前や、このログブックの過去のQSOから呼び出した名前は上書きしません。</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.CredentialsNote">
+    <value>無料のHamQTHアカウントが必要です。ユーザー名とパスワードは他のOscarWatch設定とともにこのコンピューターに保存されます。</value>
+  </data>
+  <data name="Logbook.CallHint.HamQth">
+    <value>HamQTHの名前。</value>
+  </data>
 </root>

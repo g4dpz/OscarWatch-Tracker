@@ -3823,4 +3823,112 @@ Aktuell: {1} ({2})</value>
   <data name="ReleaseNotes.ViewOnGitHub">
     <value>Auf GitHub anzeigen</value>
   </data>
+  <data name="Settings.Tab.Qrz">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Section">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Intro">
+    <value>Sucht Operatornamen (und leere Locator) bei QRZ, wenn Sie im OscarWatch-Logbuch ein Rufzeichen eingeben. XML Data benötigt ein QRZ-Abonnement. Benutzername und Passwort bleiben auf diesem Rechner.</value>
+  </data>
+  <data name="Settings.Qrz.Enable">
+    <value>QRZ-Rufzeichensuche im OscarWatch-Logbuch aktivieren</value>
+  </data>
+  <data name="Settings.Qrz.Username">
+    <value>QRZ-Benutzername</value>
+  </data>
+  <data name="Settings.Qrz.UsernameWatermark">
+    <value>Rufzeichen</value>
+  </data>
+  <data name="Settings.Qrz.Password">
+    <value>QRZ-Passwort</value>
+  </data>
+  <data name="Settings.Qrz.PasswordWatermark">
+    <value>Kontopasswort</value>
+  </data>
+  <data name="Settings.Qrz.TestConnection">
+    <value>Verbindung testen</value>
+  </data>
+  <data name="Settings.Qrz.Testing">
+    <value>Teste…</value>
+  </data>
+  <data name="Settings.Qrz.EnterCredentials">
+    <value>QRZ-Benutzername und Passwort eingeben (Felder verlassen oder erneut Testen).</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOk">
+    <value>Verbindung OK. XML-Abonnement gültig bis {0}.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOkNoExpiry">
+    <value>Verbindung OK.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionFailed">
+    <value>Anmeldung bei QRZ fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Settings.Qrz.SubscriptionRequired">
+    <value>QRZ XML Data erfordert ein Abonnement. Prüfen Sie den XML-Zugang in Ihrem QRZ-Konto.</value>
+  </data>
+  <data name="Settings.Qrz.Timeout">
+    <value>QRZ hat nicht rechtzeitig geantwortet.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.Intro">
+    <value>Füllt Name (und Locator, falls leer) von QRZ, wenn Sie ein Rufzeichen eingeben. Überschreibt keinen Namen, den Sie getippt haben oder der aus einem früheren QSO in diesem Logbuch stammt.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.CredentialsNote">
+    <value>Ein QRZ-XML-Data-Abonnement ist erforderlich. Benutzername und Passwort werden mit den übrigen OscarWatch-Einstellungen auf diesem Rechner gespeichert.</value>
+  </data>
+  <data name="Logbook.CallHint.Qrz">
+    <value>Name von QRZ.</value>
+  </data>
+  <data name="Settings.Tab.HamQth">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Section">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Intro">
+    <value>Sucht Operatornamen (und leere Locator) bei HamQTH, wenn Sie im OscarWatch-Logbuch ein Rufzeichen eingeben. Ein kostenloses HamQTH-Konto reicht (kein bezahltes XML-Abonnement). Wird verwendet, wenn QRZ aus ist, nichts findet oder nicht konfiguriert ist. Benutzername und Passwort bleiben auf diesem Rechner.</value>
+  </data>
+  <data name="Settings.HamQth.Enable">
+    <value>HamQTH-Rufzeichensuche im OscarWatch-Logbuch aktivieren</value>
+  </data>
+  <data name="Settings.HamQth.Username">
+    <value>HamQTH-Benutzername</value>
+  </data>
+  <data name="Settings.HamQth.UsernameWatermark">
+    <value>Rufzeichen</value>
+  </data>
+  <data name="Settings.HamQth.Password">
+    <value>HamQTH-Passwort</value>
+  </data>
+  <data name="Settings.HamQth.PasswordWatermark">
+    <value>Kontopasswort</value>
+  </data>
+  <data name="Settings.HamQth.TestConnection">
+    <value>Verbindung testen</value>
+  </data>
+  <data name="Settings.HamQth.Testing">
+    <value>Teste…</value>
+  </data>
+  <data name="Settings.HamQth.EnterCredentials">
+    <value>HamQTH-Benutzername und Passwort eingeben (Felder verlassen oder erneut Testen).</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionOk">
+    <value>Verbindung OK.</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionFailed">
+    <value>Anmeldung bei HamQTH fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Settings.HamQth.Timeout">
+    <value>HamQTH hat nicht rechtzeitig geantwortet.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.Intro">
+    <value>Füllt Name (und Locator, falls leer) von HamQTH, wenn QRZ aus ist, nichts findet oder nicht konfiguriert ist. Überschreibt keinen Namen, den Sie getippt haben oder der aus einem früheren QSO in diesem Logbuch stammt.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.CredentialsNote">
+    <value>Ein kostenloses HamQTH-Konto ist erforderlich. Benutzername und Passwort werden mit den übrigen OscarWatch-Einstellungen auf diesem Rechner gespeichert.</value>
+  </data>
+  <data name="Logbook.CallHint.HamQth">
+    <value>Name von HamQTH.</value>
+  </data>
 </root>

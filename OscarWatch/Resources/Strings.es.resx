@@ -3819,4 +3819,112 @@ Está utilizando la versión {0}.
   <data name="ReleaseNotes.ViewOnGitHub">
     <value>Ver en GitHub</value>
   </data>
+  <data name="Settings.Tab.Qrz">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Section">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Intro">
+    <value>Busca el nombre del operador (y la cuadrícula si está vacía) en QRZ al escribir un indicativo en OscarWatch Logbook. El acceso XML Data requiere una suscripción a QRZ. El usuario y la contraseña se quedan en este equipo.</value>
+  </data>
+  <data name="Settings.Qrz.Enable">
+    <value>Activar la consulta de indicativos QRZ en OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.Qrz.Username">
+    <value>Usuario de QRZ</value>
+  </data>
+  <data name="Settings.Qrz.UsernameWatermark">
+    <value>indicativo</value>
+  </data>
+  <data name="Settings.Qrz.Password">
+    <value>Contraseña de QRZ</value>
+  </data>
+  <data name="Settings.Qrz.PasswordWatermark">
+    <value>contraseña de la cuenta</value>
+  </data>
+  <data name="Settings.Qrz.TestConnection">
+    <value>Probar conexión</value>
+  </data>
+  <data name="Settings.Qrz.Testing">
+    <value>Probando…</value>
+  </data>
+  <data name="Settings.Qrz.EnterCredentials">
+    <value>Introduzca su usuario y contraseña de QRZ (salga de cada campo o pulse Probar de nuevo).</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOk">
+    <value>Conexión correcta. La suscripción XML es válida hasta {0}.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOkNoExpiry">
+    <value>Conexión correcta.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionFailed">
+    <value>No se pudo iniciar sesión en QRZ: {0}</value>
+  </data>
+  <data name="Settings.Qrz.SubscriptionRequired">
+    <value>QRZ XML Data requiere una suscripción. Compruebe el acceso XML en su cuenta QRZ.</value>
+  </data>
+  <data name="Settings.Qrz.Timeout">
+    <value>QRZ no respondió a tiempo.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.Intro">
+    <value>Rellena Nombre (y Cuadrícula si está vacía) desde QRZ al escribir un indicativo. No sustituye un nombre que haya escrito o que venga de un QSO anterior de este libro.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.CredentialsNote">
+    <value>Hace falta una suscripción QRZ XML Data. El usuario y la contraseña se guardan con el resto de ajustes de OscarWatch en este equipo.</value>
+  </data>
+  <data name="Logbook.CallHint.Qrz">
+    <value>Nombre de QRZ.</value>
+  </data>
+  <data name="Settings.Tab.HamQth">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Section">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Intro">
+    <value>Busca el nombre del operador (y la cuadrícula si está vacía) en HamQTH al escribir un indicativo en OscarWatch Logbook. Basta una cuenta gratuita de HamQTH (sin suscripción XML de pago). Se usa cuando QRZ está desactivado, no encuentra el indicativo o no está configurado. El usuario y la contraseña se quedan en este equipo.</value>
+  </data>
+  <data name="Settings.HamQth.Enable">
+    <value>Activar la consulta de indicativos HamQTH en OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.HamQth.Username">
+    <value>Usuario de HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.UsernameWatermark">
+    <value>indicativo</value>
+  </data>
+  <data name="Settings.HamQth.Password">
+    <value>Contraseña de HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.PasswordWatermark">
+    <value>contraseña de la cuenta</value>
+  </data>
+  <data name="Settings.HamQth.TestConnection">
+    <value>Probar conexión</value>
+  </data>
+  <data name="Settings.HamQth.Testing">
+    <value>Probando…</value>
+  </data>
+  <data name="Settings.HamQth.EnterCredentials">
+    <value>Introduzca su usuario y contraseña de HamQTH (salga de cada campo o pulse Probar de nuevo).</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionOk">
+    <value>Conexión correcta.</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionFailed">
+    <value>No se pudo iniciar sesión en HamQTH: {0}</value>
+  </data>
+  <data name="Settings.HamQth.Timeout">
+    <value>HamQTH no respondió a tiempo.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.Intro">
+    <value>Rellena Nombre (y Cuadrícula si está vacía) desde HamQTH cuando QRZ está desactivado, no encuentra el indicativo o no está configurado. No sustituye un nombre que haya escrito o que venga de un QSO anterior de este libro.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.CredentialsNote">
+    <value>Hace falta una cuenta gratuita de HamQTH. El usuario y la contraseña se guardan con el resto de ajustes de OscarWatch en este equipo.</value>
+  </data>
+  <data name="Logbook.CallHint.HamQth">
+    <value>Nombre de HamQTH.</value>
+  </data>
 </root>

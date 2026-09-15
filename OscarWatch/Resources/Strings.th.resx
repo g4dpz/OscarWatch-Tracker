@@ -3823,4 +3823,112 @@ LOS: {2}
   <data name="ReleaseNotes.ViewOnGitHub">
     <value>ดูบน GitHub</value>
   </data>
+  <data name="Settings.Tab.Qrz">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Section">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Intro">
+    <value>ค้นหาชื่อผู้ปฏิบัติงาน (และกริดหากว่าง) จาก QRZ เมื่อคุณพิมพ์สัญญาณเรียกใน OscarWatch Logbook การใช้ XML Data ต้องสมัครสมาชิก QRZ ชื่อผู้ใช้และรหัสผ่านเก็บไว้ในเครื่องนี้</value>
+  </data>
+  <data name="Settings.Qrz.Enable">
+    <value>เปิดการค้นหาป้ายเรียก QRZ ใน OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.Qrz.Username">
+    <value>ชื่อผู้ใช้ QRZ</value>
+  </data>
+  <data name="Settings.Qrz.UsernameWatermark">
+    <value>สัญญาณเรียก</value>
+  </data>
+  <data name="Settings.Qrz.Password">
+    <value>รหัสผ่าน QRZ</value>
+  </data>
+  <data name="Settings.Qrz.PasswordWatermark">
+    <value>รหัสผ่านบัญชี</value>
+  </data>
+  <data name="Settings.Qrz.TestConnection">
+    <value>ทดสอบการเชื่อมต่อ</value>
+  </data>
+  <data name="Settings.Qrz.Testing">
+    <value>กำลังทดสอบ…</value>
+  </data>
+  <data name="Settings.Qrz.EnterCredentials">
+    <value>ป้อนชื่อผู้ใช้และรหัสผ่าน QRZ (ออกจากแต่ละช่องหรือกดทดสอบอีกครั้ง)</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOk">
+    <value>เชื่อมต่อสำเร็จ สมาชิก XML ใช้ได้ถึง {0}</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOkNoExpiry">
+    <value>เชื่อมต่อสำเร็จ</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionFailed">
+    <value>ไม่สามารถเข้าสู่ QRZ ได้: {0}</value>
+  </data>
+  <data name="Settings.Qrz.SubscriptionRequired">
+    <value>QRZ XML Data ต้องสมัครสมาชิก โปรดตรวจสอบสิทธิ์ XML ในบัญชี QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Timeout">
+    <value>QRZ ไม่ตอบกลับทันเวลา</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.Intro">
+    <value>เติมชื่อ (และกริดหากว่าง) จาก QRZ เมื่อพิมพ์สัญญาณเรียก จะไม่ทับชื่อที่คุณพิมพ์แล้ว หรือชื่อที่ดึงมาจาก QSO เดิมในสมุดนี้</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.CredentialsNote">
+    <value>ต้องสมัคร QRZ XML Data ชื่อผู้ใช้และรหัสผ่านเก็บไว้กับค่าตั้ง OscarWatch อื่น ๆ บนเครื่องนี้</value>
+  </data>
+  <data name="Logbook.CallHint.Qrz">
+    <value>ชื่อจาก QRZ</value>
+  </data>
+  <data name="Settings.Tab.HamQth">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Section">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Intro">
+    <value>ค้นหาชื่อผู้ปฏิบัติงาน (และกริดหากว่าง) จาก HamQTH เมื่อคุณพิมพ์สัญญาณเรียกใน OscarWatch Logbook บัญชี HamQTH ฟรีก็พอ (ไม่ต้องสมัคร XML แบบเสียเงิน) ใช้เมื่อ QRZ ปิด ไม่พบ หรือยังไม่ได้ตั้งค่า ชื่อผู้ใช้และรหัสผ่านเก็บไว้ในเครื่องนี้</value>
+  </data>
+  <data name="Settings.HamQth.Enable">
+    <value>เปิดการค้นหาป้ายเรียก HamQTH ใน OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.HamQth.Username">
+    <value>ชื่อผู้ใช้ HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.UsernameWatermark">
+    <value>สัญญาณเรียก</value>
+  </data>
+  <data name="Settings.HamQth.Password">
+    <value>รหัสผ่าน HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.PasswordWatermark">
+    <value>รหัสผ่านบัญชี</value>
+  </data>
+  <data name="Settings.HamQth.TestConnection">
+    <value>ทดสอบการเชื่อมต่อ</value>
+  </data>
+  <data name="Settings.HamQth.Testing">
+    <value>กำลังทดสอบ…</value>
+  </data>
+  <data name="Settings.HamQth.EnterCredentials">
+    <value>ป้อนชื่อผู้ใช้และรหัสผ่าน HamQTH (ออกจากแต่ละช่องหรือกดทดสอบอีกครั้ง)</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionOk">
+    <value>เชื่อมต่อสำเร็จ</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionFailed">
+    <value>ไม่สามารถเข้าสู่ HamQTH ได้: {0}</value>
+  </data>
+  <data name="Settings.HamQth.Timeout">
+    <value>HamQTH ไม่ตอบกลับทันเวลา</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.Intro">
+    <value>เติมชื่อ (และกริดหากว่าง) จาก HamQTH เมื่อ QRZ ปิด ไม่พบ หรือยังไม่ได้ตั้งค่า จะไม่ทับชื่อที่คุณพิมพ์แล้ว หรือชื่อที่ดึงมาจาก QSO เดิมในสมุดนี้</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.CredentialsNote">
+    <value>ต้องมีบัญชี HamQTH ฟรี ชื่อผู้ใช้และรหัสผ่านเก็บไว้กับค่าตั้ง OscarWatch อื่น ๆ บนเครื่องนี้</value>
+  </data>
+  <data name="Logbook.CallHint.HamQth">
+    <value>ชื่อจาก HamQTH</value>
+  </data>
 </root>

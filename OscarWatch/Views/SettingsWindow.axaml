@@ -1304,6 +1304,10 @@
                            Content="{loc:Localize Key=Settings.SatelliteStatus.Section}" />
               <ListBoxItem Tag="CloudlogIntegrationSection"
                            Content="{loc:Localize Key=Settings.Cloudlog.Section}" />
+              <ListBoxItem Tag="QrzIntegrationSection"
+                           Content="{loc:Localize Key=Settings.Qrz.Section}" />
+              <ListBoxItem Tag="HamQthIntegrationSection"
+                           Content="{loc:Localize Key=Settings.HamQth.Section}" />
               <ListBoxItem Tag="GpsIntegrationSection"
                            Content="{loc:Localize Key=Settings.Gps.Title}" />
               <ListBoxItem Tag="SatelliteLinkIntegrationSection"
@@ -1431,6 +1435,64 @@
                            FontSize="11"
                            TextWrapping="Wrap"
                            Text="{loc:Localize Key=Settings.Cloudlog.MinIntervalNote}" />
+              </StackPanel>
+
+              <StackPanel x:Name="QrzIntegrationSection"
+                          Spacing="14"
+                          IsVisible="False">
+                <TextBlock Text="{loc:Localize Key=Settings.Qrz.Section}"
+                           FontWeight="SemiBold"
+                           FontSize="13" />
+                <TextBlock TextWrapping="Wrap"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           FontSize="11"
+                           Text="{loc:Localize Key=Settings.Qrz.Intro}" />
+                <CheckBox Content="{loc:Localize Key=Settings.Qrz.Enable}"
+                          IsChecked="{Binding QrzEnabled, Mode=TwoWay}" />
+                <TextBlock Text="{loc:Localize Key=Settings.Qrz.Username}" />
+                <TextBox Text="{Binding QrzUsername, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Watermark="{loc:Localize Key=Settings.Qrz.UsernameWatermark}" />
+                <TextBlock Text="{loc:Localize Key=Settings.Qrz.Password}" />
+                <TextBox Text="{Binding QrzPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         PasswordChar="•"
+                         Watermark="{loc:Localize Key=Settings.Qrz.PasswordWatermark}" />
+                <Button Content="{loc:Localize Key=Settings.Qrz.TestConnection}"
+                        Click="OnTestQrzClick"
+                        HorizontalAlignment="Left" />
+                <TextBlock Text="{Binding QrzTestStatus}"
+                           TextWrapping="Wrap"
+                           FontSize="12"
+                           MinHeight="20"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+              </StackPanel>
+
+              <StackPanel x:Name="HamQthIntegrationSection"
+                          Spacing="14"
+                          IsVisible="False">
+                <TextBlock Text="{loc:Localize Key=Settings.HamQth.Section}"
+                           FontWeight="SemiBold"
+                           FontSize="13" />
+                <TextBlock TextWrapping="Wrap"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           FontSize="11"
+                           Text="{loc:Localize Key=Settings.HamQth.Intro}" />
+                <CheckBox Content="{loc:Localize Key=Settings.HamQth.Enable}"
+                          IsChecked="{Binding HamQthEnabled, Mode=TwoWay}" />
+                <TextBlock Text="{loc:Localize Key=Settings.HamQth.Username}" />
+                <TextBox Text="{Binding HamQthUsername, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Watermark="{loc:Localize Key=Settings.HamQth.UsernameWatermark}" />
+                <TextBlock Text="{loc:Localize Key=Settings.HamQth.Password}" />
+                <TextBox Text="{Binding HamQthPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         PasswordChar="•"
+                         Watermark="{loc:Localize Key=Settings.HamQth.PasswordWatermark}" />
+                <Button Content="{loc:Localize Key=Settings.HamQth.TestConnection}"
+                        Click="OnTestHamQthClick"
+                        HorizontalAlignment="Left" />
+                <TextBlock Text="{Binding HamQthTestStatus}"
+                           TextWrapping="Wrap"
+                           FontSize="12"
+                           MinHeight="20"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
               </StackPanel>
 
               <StackPanel x:Name="GpsIntegrationSection"

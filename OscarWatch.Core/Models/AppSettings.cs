@@ -88,6 +88,8 @@ public sealed class AppSettings
     public GpsSettings Gps { get; set; } = new();
     public RigSettings Rig { get; set; } = new();
     public CloudlogSettings Cloudlog { get; set; } = new();
+    public QrzSettings Qrz { get; set; } = new();
+    public HamQthSettings HamQth { get; set; } = new();
     public SatelliteLinkSettings SatelliteLink { get; set; } = new();
     public PassRecordingSettings PassRecording { get; set; } = new();
     public QsoLogbookSettings QsoLogbook { get; set; } = new();
