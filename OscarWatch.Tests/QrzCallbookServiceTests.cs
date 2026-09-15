@@ -104,13 +104,14 @@ public sealed class QrzXmlParserTests
     }
 
     [Fact]
-    public void ParseCallsign_falls_back_to_last_name()
+    public void ParseCallsign_ignores_last_name_when_first_name_missing()
     {
         const string xml = """
             <QRZDatabase>
               <Callsign>
                 <call>G0ABC</call>
                 <name>MAXIM</name>
+                <grid>IO91</grid>
               </Callsign>
             </QRZDatabase>
             """;
@@ -118,8 +119,8 @@ public sealed class QrzXmlParserTests
         var entry = QrzXmlParser.ParseCallsign(xml);
 
         Assert.NotNull(entry);
-        Assert.Equal("MAXIM", entry.Name);
-        Assert.Equal("", entry.Grid);
+        Assert.Equal("", entry.Name);
+        Assert.Equal("IO91", entry.Grid);
     }
 
     [Theory]

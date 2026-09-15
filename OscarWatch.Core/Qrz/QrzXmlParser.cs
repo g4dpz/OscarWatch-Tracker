@@ -55,14 +55,10 @@ public static class QrzXmlParser
         if (string.IsNullOrWhiteSpace(call))
             return null;
 
-        var first = ElementText(callsign, "fname");
-        var last = ElementText(callsign, "name");
-        var name = !string.IsNullOrWhiteSpace(first) ? first : last;
-
         return new QrzCallbookEntry
         {
             Call = call.Trim().ToUpperInvariant(),
-            Name = name.Trim(),
+            Name = ElementText(callsign, "fname").Trim(),
             Grid = ElementText(callsign, "grid").Trim().ToUpperInvariant()
         };
     }

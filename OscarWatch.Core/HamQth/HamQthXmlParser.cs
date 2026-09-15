@@ -54,14 +54,10 @@ public static class HamQthXmlParser
         if (string.IsNullOrWhiteSpace(call))
             return null;
 
-        var nick = ElementText(search, "nick");
-        var addressName = ElementText(search, "adr_name");
-        var name = !string.IsNullOrWhiteSpace(nick) ? nick : addressName;
-
         return new QrzCallbookEntry
         {
             Call = call.Trim().ToUpperInvariant(),
-            Name = name.Trim(),
+            Name = ElementText(search, "nick").Trim(),
             Grid = ElementText(search, "grid").Trim().ToUpperInvariant()
         };
     }

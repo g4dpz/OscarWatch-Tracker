@@ -44,7 +44,7 @@ public sealed class HamQthXmlParserTests
     }
 
     [Fact]
-    public void ParseSearch_prefers_nick_over_address_name()
+    public void ParseSearch_uses_nick_not_address_name()
     {
         const string xml = """
             <HamQTH xmlns="https://www.hamqth.com">
@@ -63,6 +63,26 @@ public sealed class HamQthXmlParserTests
         Assert.Equal("OK2CQR", entry.Call);
         Assert.Equal("Petr", entry.Name);
         Assert.Equal("JO70GG", entry.Grid);
+    }
+
+    [Fact]
+    public void ParseSearch_ignores_address_name_when_nick_missing()
+    {
+        const string xml = """
+            <HamQTH>
+              <search>
+                <callsign>g0abc</callsign>
+                <adr_name>Hiram Maxim</adr_name>
+                <grid>IO91</grid>
+              </search>
+            </HamQTH>
+            """;
+
+        var entry = HamQthXmlParser.ParseSearch(xml);
+
+        Assert.NotNull(entry);
+        Assert.Equal("", entry.Name);
+        Assert.Equal("IO91", entry.Grid);
     }
 
     [Fact]
