@@ -2223,10 +2223,6 @@ public partial class MainViewModel : ViewModelBase
         if (value is not PassRowViewModel row)
             return;
 
-        var pass = Passes.OfType<PassRowViewModel>().FirstOrDefault(p => p.NoradId == row.NoradId) ?? row;
-        if (!ReferenceEquals(SelectedListItem, pass))
-            SelectedListItem = pass;
-
         if (string.Equals(FocusedNoradId, row.NoradId, StringComparison.Ordinal))
         {
             ApplySatelliteFocus(row.NoradId);
@@ -2251,7 +2247,12 @@ public partial class MainViewModel : ViewModelBase
         ApplySatelliteFocus(value);
         UpdateSkyPlotPassPath();
 
-        var pass = Passes.OfType<PassRowViewModel>().FirstOrDefault(p => p.NoradId == value);
+        // Keep a later pass of this satellite selected (radar view / schedule) instead of
+        // snapping to the first row, which auto-scrolls the sidebar up.
+        if (PassListSelection.IsRowForSatellite(SelectedListItem, value))
+            return;
+
+        var pass = PassListSelection.FindMatchingRow(Passes, value, aosUtc: null);
         if (pass is not null && !ReferenceEquals(SelectedListItem, pass))
             SelectedListItem = pass;
     }
@@ -3313,7 +3314,9 @@ public partial class MainViewModel : ViewModelBase
     {
         try
         {
-            var selectedNorad = (SelectedListItem as PassRowViewModel)?.NoradId;
+            var selectedRow = SelectedListItem as PassRowViewModel;
+            var selectedNorad = selectedRow?.NoradId;
+            var selectedAos = selectedRow?.AosUtc;
             var passes = await _tracking.GetUpcomingPassesAsync().ConfigureAwait(false);
 
             void Apply()
@@ -3355,7 +3358,7 @@ public partial class MainViewModel : ViewModelBase
                 ApplyScheduledFlagsToPassList();
 
                 if (selectedNorad is not null)
-                    SelectedListItem = Passes.OfType<PassRowViewModel>().FirstOrDefault(p => p.NoradId == selectedNorad);
+                    SelectedListItem = PassListSelection.FindMatchingRow(Passes, selectedNorad, selectedAos);
 
                 UpdateCommunityStatusDisplays();
 
