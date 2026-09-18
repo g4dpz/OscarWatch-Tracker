@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text;
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.HamQth;
 using OscarWatch.Core.Models;
@@ -18,6 +19,9 @@ public sealed class HamQthCallbookService : IHamQthCallbookService
     private readonly object _sessionLock = new();
     private readonly object _cacheLock = new();
     private readonly Dictionary<string, CachedLookup> _cache = new(StringComparer.OrdinalIgnoreCase);
+
+    // Reusable StringBuilder buffer for URL construction to avoid string concatenation allocations
+    private readonly StringBuilder _urlBuffer = new(256);
 
     private string? _sessionId;
     private string? _sessionUsername;
@@ -177,9 +181,7 @@ public sealed class HamQthCallbookService : IHamQthCallbookService
         string password,
         CancellationToken cancellationToken)
     {
-        var url = XmlEndpoint
-            + "?u=" + Uri.EscapeDataString(username)
-            + "&p=" + Uri.EscapeDataString(password);
+        var url = BuildLoginUrl(username, password);
         var xml = await GetXmlAsync(url, cancellationToken).ConfigureAwait(false);
         return HamQthXmlParser.ParseSession(xml);
     }
@@ -189,10 +191,7 @@ public sealed class HamQthCallbookService : IHamQthCallbookService
         string callsign,
         CancellationToken cancellationToken)
     {
-        var url = XmlEndpoint
-            + "?id=" + Uri.EscapeDataString(sessionId)
-            + "&callsign=" + Uri.EscapeDataString(callsign)
-            + "&prg=" + Uri.EscapeDataString(OscarWatchHttpClients.ProductName);
+        var url = BuildLookupUrl(sessionId, callsign);
         var xml = await GetXmlAsync(url, cancellationToken).ConfigureAwait(false);
         return (HamQthXmlParser.ParseSearch(xml), HamQthXmlParser.ParseSession(xml));
     }
@@ -250,6 +249,44 @@ public sealed class HamQthCallbookService : IHamQthCallbookService
         lock (_cacheLock)
         {
             _cache[call] = new CachedLookup(entry, DateTime.UtcNow.Add(ttl));
+        }
+    }
+
+    /// <summary>
+    /// Builds login URL using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 4 string allocations per login call.
+    /// </summary>
+    private string BuildLoginUrl(string username, string password)
+    {
+        lock (_urlBuffer)
+        {
+            _urlBuffer.Clear();
+            _urlBuffer.Append(XmlEndpoint);
+            _urlBuffer.Append("?u=");
+            _urlBuffer.Append(Uri.EscapeDataString(username));
+            _urlBuffer.Append("&p=");
+            _urlBuffer.Append(Uri.EscapeDataString(password));
+            return _urlBuffer.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Builds lookup URL using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 6 string allocations per lookup call.
+    /// </summary>
+    private string BuildLookupUrl(string sessionId, string callsign)
+    {
+        lock (_urlBuffer)
+        {
+            _urlBuffer.Clear();
+            _urlBuffer.Append(XmlEndpoint);
+            _urlBuffer.Append("?id=");
+            _urlBuffer.Append(Uri.EscapeDataString(sessionId));
+            _urlBuffer.Append("&callsign=");
+            _urlBuffer.Append(Uri.EscapeDataString(callsign));
+            _urlBuffer.Append("&prg=");
+            _urlBuffer.Append(Uri.EscapeDataString(OscarWatchHttpClients.ProductName));
+            return _urlBuffer.ToString();
         }
     }
 
