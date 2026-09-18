@@ -198,4 +198,123 @@ public class FlexSmartSdrCodecTests
         var cmd = FlexSmartSdrCodec.BuildSliceCreateCommand(10, 145.9, "USB", "RX_B");
         Assert.Contains("ant=RX_B", cmd, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public void CommandBufferOptimization_SliceTuneCommand_MatchesExpectedFormat()
+    {
+        // This test verifies the StringBuilder command buffer optimization produces
+        // functionally equivalent commands to the original string interpolation approach
+        var cmd = FlexSmartSdrCodec.BuildSliceTuneCommand(123, 5, 435.150, autoPan: true);
+        
+        Assert.Equal("C123|slice tune 5 435.15 autopan=1\n", cmd);
+    }
+
+    [Fact] 
+    public void CommandBufferOptimization_SliceSetModeCommand_MatchesExpectedFormat()
+    {
+        // Verifies StringBuilder optimization maintains exact functional equivalence for mode commands
+        var cmd = FlexSmartSdrCodec.BuildSliceSetModeCommand(456, 2, "USB");
+        
+        Assert.Equal("C456|slice set 2 mode=USB\n", cmd);
+    }
+
+    [Fact]
+    public void CommandBufferOptimization_DisplayPanCenterCommand_MatchesExpectedFormat()
+    {
+        // Verifies StringBuilder optimization handles frequency formatting correctly
+        var cmd = FlexSmartSdrCodec.BuildDisplayPanCenterCommand(789, "0x40000003", 145.865);
+        
+        Assert.Equal("C789|display pan set 0x40000003 center=145.865 autocenter=0\n", cmd);
+    }
+
+    [Fact]
+    public void CommandBufferOptimization_SliceCreateCommand_HandlesAllOptionalParameters()
+    {
+        // Verifies StringBuilder optimization correctly handles complex command with all optional parameters
+        var cmd = FlexSmartSdrCodec.BuildSliceCreateCommand(999, 435.15, "FM", "RX_A", "0x40000005");
+        
+        Assert.Equal("C999|slice create freq=435.15 pan=0x40000005 mode=FM ant=RX_A\n", cmd);
+    }
+
+    [Fact]
+    public void CommandBufferOptimization_SliceSetActiveCommand_HandlesBooleanFormatting()
+    {
+        // Verifies StringBuilder optimization correctly formats boolean values
+        var activeCmd = FlexSmartSdrCodec.BuildSliceSetActiveCommand(100, 1, active: true);
+        var inactiveCmd = FlexSmartSdrCodec.BuildSliceSetActiveCommand(101, 1, active: false);
+        
+        Assert.Equal("C100|slice set 1 active=1\n", activeCmd);
+        Assert.Equal("C101|slice set 1 active=0\n", inactiveCmd);
+    }
+
+    [Fact]
+    public void CommandBufferOptimization_FullDuplexCommand_HandlesBooleanValues()
+    {
+        // Verifies StringBuilder optimization for radio commands with boolean parameters
+        var enabledCmd = FlexSmartSdrCodec.BuildFullDuplexCommand(200, enabled: true);
+        var disabledCmd = FlexSmartSdrCodec.BuildFullDuplexCommand(201, enabled: false);
+        
+        Assert.Equal("C200|radio set full_duplex_enabled=1\n", enabledCmd);
+        Assert.Equal("C201|radio set full_duplex_enabled=0\n", disabledCmd);
+    }
+
+    [Fact]
+    public void CommandBufferOptimization_ToneCommands_HandleSpecialCharactersAndFloats()
+    {
+        // Verifies StringBuilder optimization handles tone mode text and floating point formatting
+        var toneModeCmd = FlexSmartSdrCodec.BuildSliceSetToneModeCommand(300, 0, toneOn: true);
+        var toneValueCmd = FlexSmartSdrCodec.BuildSliceSetToneValueCommand(301, 0, 67.0);
+        var toneModeOffCmd = FlexSmartSdrCodec.BuildSliceSetToneModeCommand(302, 0, toneOn: false);
+        
+        Assert.Equal("C300|slice s 0 fm_tone_mode=ctcss_tx\n", toneModeCmd);
+        Assert.Equal("C301|slice s 0 fm_tone_value=67.0\n", toneValueCmd);
+        Assert.Equal("C302|slice s 0 fm_tone_mode=off\n", toneModeOffCmd);
+    }
+
+    [Fact]
+    public void CommandBufferOptimization_AntennaCommands_HandleTokenSanitization()
+    {
+        // Verifies StringBuilder optimization correctly calls SanitizeToken for antenna ports
+        var rxAntCmd = FlexSmartSdrCodec.BuildSliceSetRxAntCommand(400, 2, "RX_B");
+        var txAntCmd = FlexSmartSdrCodec.BuildSliceSetTxAntCommand(401, 3, "XVTR");
+        
+        Assert.Equal("C400|slice set 2 rxant=RX_B\n", rxAntCmd);
+        Assert.Equal("C401|slice set 3 txant=XVTR\n", txAntCmd);
+    }
+
+    [Fact]
+    public void CommandBufferOptimization_ConcurrentCommandBuilding_DoesNotInterfere()
+    {
+        // Test that the lock-protected StringBuilder buffer handles concurrent command construction
+        // This verifies thread safety of the optimization during high-frequency Doppler tracking
+        const int CommandCount = 100;
+        var tasks = new Task<string>[CommandCount];
+        
+        // Create many concurrent command building tasks with different parameters
+        for (var i = 0; i < CommandCount; i++)
+        {
+            var sequence = (uint)(1000 + i);
+            var sliceIndex = i % 4;  // Use different slice indices
+            var frequency = 435.0 + (i * 0.01); // Use different frequencies
+            var autoPan = i % 2 == 0; // Alternate autoPan values
+            
+            tasks[i] = Task.Run(() => 
+                FlexSmartSdrCodec.BuildSliceTuneCommand(sequence, sliceIndex, frequency, autoPan));
+        }
+        
+        // Wait for all tasks to complete
+        Task.WaitAll(tasks);
+        
+        // Verify all commands were built correctly with no interference
+        for (var i = 0; i < CommandCount; i++)
+        {
+            var expectedSequence = 1000 + i;
+            var expectedSliceIndex = i % 4;
+            var expectedFrequency = 435.0 + (i * 0.01);
+            var expectedAutoPan = i % 2 == 0 ? "1" : "0";
+            
+            var result = tasks[i].Result;
+            Assert.StartsWith($"C{expectedSequence}|slice tune {expectedSliceIndex} {expectedFrequency:0.######} autopan={expectedAutoPan}\n", result);
+        }
+    }
 }

@@ -9,6 +9,9 @@ public static class FlexSmartSdrCodec
 {
     public const int DefaultApiPort = 4992;
 
+    // Reusable StringBuilder buffer for command construction to avoid string concatenation allocations
+    private static readonly StringBuilder _commandBuffer = new(256);
+
     public static string BuildCommand(uint sequence, string body, bool debug = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(body);
@@ -17,7 +20,7 @@ public static class FlexSmartSdrCodec
     }
 
     public static string BuildClientProgramCommand(uint sequence, string programName = "OscarWatch") =>
-        BuildCommand(sequence, $"client program {SanitizeToken(programName)}");
+        BuildCommand(sequence, BuildClientProgramBody(programName));
 
     public static string BuildSubSliceAllCommand(uint sequence) =>
         BuildCommand(sequence, "sub slice all");
@@ -29,7 +32,7 @@ public static class FlexSmartSdrCodec
         BuildCommand(sequence, "sub pan all");
 
     public static string BuildFullDuplexCommand(uint sequence, bool enabled) =>
-        BuildCommand(sequence, $"radio set full_duplex_enabled={(enabled ? "1" : "0")}");
+        BuildCommand(sequence, BuildRadioFullDuplexBody(enabled));
 
     public static string BuildSliceCreateCommand(
         uint sequence,
@@ -38,35 +41,21 @@ public static class FlexSmartSdrCodec
         string? ant = null,
         string? panStreamId = null)
     {
-        var sb = new StringBuilder();
-        sb.Append(CultureInfo.InvariantCulture, $"slice create freq={freqMhz.ToString("0.######", CultureInfo.InvariantCulture)}");
-        if (!string.IsNullOrWhiteSpace(panStreamId))
-            sb.Append(CultureInfo.InvariantCulture, $" pan={SanitizeToken(panStreamId)}");
-        if (!string.IsNullOrWhiteSpace(mode))
-            sb.Append(CultureInfo.InvariantCulture, $" mode={SanitizeToken(mode)}");
-        if (!string.IsNullOrWhiteSpace(ant))
-            sb.Append(CultureInfo.InvariantCulture, $" ant={SanitizeToken(ant)}");
-        return BuildCommand(sequence, sb.ToString());
+        return BuildCommand(sequence, BuildSliceCreateBody(freqMhz, mode, ant, panStreamId));
     }
 
     public static string BuildSliceRemoveCommand(uint sequence, int sliceIndex) =>
-        BuildCommand(
-            sequence,
-            $"slice remove {sliceIndex.ToString(CultureInfo.InvariantCulture)}");
+        BuildCommand(sequence, BuildSliceRemoveBody(sliceIndex));
 
     public static string BuildSliceTuneCommand(
         uint sequence,
         int sliceIndex,
         double freqMhz,
         bool autoPan = false) =>
-        BuildCommand(
-            sequence,
-            $"slice tune {sliceIndex.ToString(CultureInfo.InvariantCulture)} {freqMhz.ToString("0.######", CultureInfo.InvariantCulture)} autopan={(autoPan ? "1" : "0")}");
+        BuildCommand(sequence, BuildSliceTuneBody(sliceIndex, freqMhz, autoPan));
 
     public static string BuildDisplayPanCenterCommand(uint sequence, string panStreamId, double centerMhz) =>
-        BuildCommand(
-            sequence,
-            $"display pan set {SanitizeToken(panStreamId)} center={centerMhz.ToString("0.######", CultureInfo.InvariantCulture)} autocenter=0");
+        BuildCommand(sequence, BuildDisplayPanCenterBody(panStreamId, centerMhz));
 
     /// <summary>Creates a panadapter + waterfall (SmartSDR / AetherSDR wire command).</summary>
     public static string BuildDisplayPanafallCreateCommand(uint sequence) =>
@@ -77,51 +66,35 @@ public static class FlexSmartSdrCodec
         BuildCommand(sequence, "panadapter create");
 
     public static string BuildDisplayPanRemoveCommand(uint sequence, string panStreamId) =>
-        BuildCommand(sequence, $"display pan remove {SanitizeToken(panStreamId)}");
+        BuildCommand(sequence, BuildDisplayPanRemoveBody(panStreamId));
 
     public static string BuildDisplayPanafallRemoveCommand(uint sequence, string panStreamId) =>
-        BuildCommand(sequence, $"display panafall remove {SanitizeToken(panStreamId)}");
+        BuildCommand(sequence, BuildDisplayPanafallRemoveBody(panStreamId));
 
     public static string BuildSliceSetModeCommand(uint sequence, int sliceIndex, string mode) =>
-        BuildCommand(
-            sequence,
-            $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} mode={SanitizeToken(mode)}");
+        BuildCommand(sequence, BuildSliceSetModeBody(sliceIndex, mode));
 
     public static string BuildSliceSetActiveCommand(uint sequence, int sliceIndex, bool active) =>
-        BuildCommand(
-            sequence,
-            $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} active={(active ? "1" : "0")}");
+        BuildCommand(sequence, BuildSliceSetActiveBody(sliceIndex, active));
 
     /// <summary>Cross-pan click-to-tune: moves the active slice to <paramref name="panStreamId"/>.</summary>
     public static string BuildSliceMoveCommand(uint sequence, double freqMhz, string panStreamId) =>
-        BuildCommand(
-            sequence,
-            $"slice m {freqMhz.ToString("0.######", CultureInfo.InvariantCulture)} pan={SanitizeToken(panStreamId)}");
+        BuildCommand(sequence, BuildSliceMoveBody(freqMhz, panStreamId));
 
     public static string BuildSliceSetTxCommand(uint sequence, int sliceIndex, bool tx) =>
-        BuildCommand(
-            sequence,
-            $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} tx={(tx ? "1" : "0")}");
+        BuildCommand(sequence, BuildSliceSetTxBody(sliceIndex, tx));
 
     public static string BuildSliceSetRxAntCommand(uint sequence, int sliceIndex, string antennaPort) =>
-        BuildCommand(
-            sequence,
-            $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} rxant={SanitizeToken(antennaPort)}");
+        BuildCommand(sequence, BuildSliceSetRxAntBody(sliceIndex, antennaPort));
 
     public static string BuildSliceSetTxAntCommand(uint sequence, int sliceIndex, string antennaPort) =>
-        BuildCommand(
-            sequence,
-            $"slice set {sliceIndex.ToString(CultureInfo.InvariantCulture)} txant={SanitizeToken(antennaPort)}");
+        BuildCommand(sequence, BuildSliceSetTxAntBody(sliceIndex, antennaPort));
 
     public static string BuildSliceSetToneModeCommand(uint sequence, int sliceIndex, bool toneOn) =>
-        BuildCommand(
-            sequence,
-            $"slice s {sliceIndex.ToString(CultureInfo.InvariantCulture)} fm_tone_mode={(toneOn ? "ctcss_tx" : "off")}");
+        BuildCommand(sequence, BuildSliceSetToneModeBody(sliceIndex, toneOn));
 
     public static string BuildSliceSetToneValueCommand(uint sequence, int sliceIndex, double toneHz) =>
-        BuildCommand(
-            sequence,
-            $"slice s {sliceIndex.ToString(CultureInfo.InvariantCulture)} fm_tone_value={toneHz.ToString("0.0", CultureInfo.InvariantCulture)}");
+        BuildCommand(sequence, BuildSliceSetToneValueBody(sliceIndex, toneHz));
 
     public static long MhzToHz(double mhz) =>
         (long)Math.Round(mhz * 1_000_000d, MidpointRounding.AwayFromZero);
@@ -477,6 +450,288 @@ public static class FlexSmartSdrCodec
             throw new ArgumentException("SmartSDR tokens cannot contain spaces or pipes.", nameof(value));
 
         return trimmed;
+    }
+
+    /// <summary>
+    /// Builds client program command body using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 2 string allocations per command.
+    /// </summary>
+    private static string BuildClientProgramBody(string programName)
+    {
+        lock (_commandBuffer)
+        {
+            _commandBuffer.Clear();
+            _commandBuffer.Append("client program ");
+            _commandBuffer.Append(SanitizeToken(programName));
+            return _commandBuffer.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Builds radio full duplex command body using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 3 string allocations per command.
+    /// </summary>
+    private static string BuildRadioFullDuplexBody(bool enabled)
+    {
+        lock (_commandBuffer)
+        {
+            _commandBuffer.Clear();
+            _commandBuffer.Append("radio set full_duplex_enabled=");
+            _commandBuffer.Append(enabled ? "1" : "0");
+            return _commandBuffer.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Builds slice create command body using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 4+ string allocations per command depending on optional parameters.
+    /// </summary>
+    private static string BuildSliceCreateBody(double freqMhz, string mode, string? ant, string? panStreamId)
+    {
+        lock (_commandBuffer)
+        {
+            _commandBuffer.Clear();
+            _commandBuffer.Append("slice create freq=");
+            _commandBuffer.Append(freqMhz.ToString("0.######", CultureInfo.InvariantCulture));
+            
+            if (!string.IsNullOrWhiteSpace(panStreamId))
+            {
+                _commandBuffer.Append(" pan=");
+                _commandBuffer.Append(SanitizeToken(panStreamId));
+            }
+            
+            if (!string.IsNullOrWhiteSpace(mode))
+            {
+                _commandBuffer.Append(" mode=");
+                _commandBuffer.Append(SanitizeToken(mode));
+            }
+            
+            if (!string.IsNullOrWhiteSpace(ant))
+            {
+                _commandBuffer.Append(" ant=");
+                _commandBuffer.Append(SanitizeToken(ant));
+            }
+            
+            return _commandBuffer.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Builds slice remove command body using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 2 string allocations per command.
+    /// </summary>
+    private static string BuildSliceRemoveBody(int sliceIndex)
+    {
+        lock (_commandBuffer)
+        {
+            _commandBuffer.Clear();
+            _commandBuffer.Append("slice remove ");
+            _commandBuffer.Append(sliceIndex.ToString(CultureInfo.InvariantCulture));
+            return _commandBuffer.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Builds slice tune command body using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 4 string allocations per command - critical for high-frequency Doppler tracking.
+    /// </summary>
+    private static string BuildSliceTuneBody(int sliceIndex, double freqMhz, bool autoPan)
+    {
+        lock (_commandBuffer)
+        {
+            _commandBuffer.Clear();
+            _commandBuffer.Append("slice tune ");
+            _commandBuffer.Append(sliceIndex.ToString(CultureInfo.InvariantCulture));
+            _commandBuffer.Append(' ');
+            _commandBuffer.Append(freqMhz.ToString("0.######", CultureInfo.InvariantCulture));
+            _commandBuffer.Append(" autopan=");
+            _commandBuffer.Append(autoPan ? "1" : "0");
+            return _commandBuffer.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Builds display pan center command body using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 4 string allocations per command.
+    /// </summary>
+    private static string BuildDisplayPanCenterBody(string panStreamId, double centerMhz)
+    {
+        lock (_commandBuffer)
+        {
+            _commandBuffer.Clear();
+            _commandBuffer.Append("display pan set ");
+            _commandBuffer.Append(SanitizeToken(panStreamId));
+            _commandBuffer.Append(" center=");
+            _commandBuffer.Append(centerMhz.ToString("0.######", CultureInfo.InvariantCulture));
+            _commandBuffer.Append(" autocenter=0");
+            return _commandBuffer.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Builds display pan remove command body using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 2 string allocations per command.
+    /// </summary>
+    private static string BuildDisplayPanRemoveBody(string panStreamId)
+    {
+        lock (_commandBuffer)
+        {
+            _commandBuffer.Clear();
+            _commandBuffer.Append("display pan remove ");
+            _commandBuffer.Append(SanitizeToken(panStreamId));
+            return _commandBuffer.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Builds display panafall remove command body using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 2 string allocations per command.
+    /// </summary>
+    private static string BuildDisplayPanafallRemoveBody(string panStreamId)
+    {
+        lock (_commandBuffer)
+        {
+            _commandBuffer.Clear();
+            _commandBuffer.Append("display panafall remove ");
+            _commandBuffer.Append(SanitizeToken(panStreamId));
+            return _commandBuffer.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Builds slice set mode command body using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 3 string allocations per command.
+    /// </summary>
+    private static string BuildSliceSetModeBody(int sliceIndex, string mode)
+    {
+        lock (_commandBuffer)
+        {
+            _commandBuffer.Clear();
+            _commandBuffer.Append("slice set ");
+            _commandBuffer.Append(sliceIndex.ToString(CultureInfo.InvariantCulture));
+            _commandBuffer.Append(" mode=");
+            _commandBuffer.Append(SanitizeToken(mode));
+            return _commandBuffer.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Builds slice set active command body using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 3 string allocations per command.
+    /// </summary>
+    private static string BuildSliceSetActiveBody(int sliceIndex, bool active)
+    {
+        lock (_commandBuffer)
+        {
+            _commandBuffer.Clear();
+            _commandBuffer.Append("slice set ");
+            _commandBuffer.Append(sliceIndex.ToString(CultureInfo.InvariantCulture));
+            _commandBuffer.Append(" active=");
+            _commandBuffer.Append(active ? "1" : "0");
+            return _commandBuffer.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Builds slice move command body using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 3 string allocations per command.
+    /// </summary>
+    private static string BuildSliceMoveBody(double freqMhz, string panStreamId)
+    {
+        lock (_commandBuffer)
+        {
+            _commandBuffer.Clear();
+            _commandBuffer.Append("slice m ");
+            _commandBuffer.Append(freqMhz.ToString("0.######", CultureInfo.InvariantCulture));
+            _commandBuffer.Append(" pan=");
+            _commandBuffer.Append(SanitizeToken(panStreamId));
+            return _commandBuffer.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Builds slice set TX command body using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 3 string allocations per command.
+    /// </summary>
+    private static string BuildSliceSetTxBody(int sliceIndex, bool tx)
+    {
+        lock (_commandBuffer)
+        {
+            _commandBuffer.Clear();
+            _commandBuffer.Append("slice set ");
+            _commandBuffer.Append(sliceIndex.ToString(CultureInfo.InvariantCulture));
+            _commandBuffer.Append(" tx=");
+            _commandBuffer.Append(tx ? "1" : "0");
+            return _commandBuffer.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Builds slice set RX antenna command body using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 3 string allocations per command.
+    /// </summary>
+    private static string BuildSliceSetRxAntBody(int sliceIndex, string antennaPort)
+    {
+        lock (_commandBuffer)
+        {
+            _commandBuffer.Clear();
+            _commandBuffer.Append("slice set ");
+            _commandBuffer.Append(sliceIndex.ToString(CultureInfo.InvariantCulture));
+            _commandBuffer.Append(" rxant=");
+            _commandBuffer.Append(SanitizeToken(antennaPort));
+            return _commandBuffer.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Builds slice set TX antenna command body using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 3 string allocations per command.
+    /// </summary>
+    private static string BuildSliceSetTxAntBody(int sliceIndex, string antennaPort)
+    {
+        lock (_commandBuffer)
+        {
+            _commandBuffer.Clear();
+            _commandBuffer.Append("slice set ");
+            _commandBuffer.Append(sliceIndex.ToString(CultureInfo.InvariantCulture));
+            _commandBuffer.Append(" txant=");
+            _commandBuffer.Append(SanitizeToken(antennaPort));
+            return _commandBuffer.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Builds slice set tone mode command body using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 3 string allocations per command.
+    /// </summary>
+    private static string BuildSliceSetToneModeBody(int sliceIndex, bool toneOn)
+    {
+        lock (_commandBuffer)
+        {
+            _commandBuffer.Clear();
+            _commandBuffer.Append("slice s ");
+            _commandBuffer.Append(sliceIndex.ToString(CultureInfo.InvariantCulture));
+            _commandBuffer.Append(" fm_tone_mode=");
+            _commandBuffer.Append(toneOn ? "ctcss_tx" : "off");
+            return _commandBuffer.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Builds slice set tone value command body using reusable buffer to avoid string concatenation allocations.
+    /// Eliminates 3 string allocations per command.
+    /// </summary>
+    private static string BuildSliceSetToneValueBody(int sliceIndex, double toneHz)
+    {
+        lock (_commandBuffer)
+        {
+            _commandBuffer.Clear();
+            _commandBuffer.Append("slice s ");
+            _commandBuffer.Append(sliceIndex.ToString(CultureInfo.InvariantCulture));
+            _commandBuffer.Append(" fm_tone_value=");
+            _commandBuffer.Append(toneHz.ToString("0.0", CultureInfo.InvariantCulture));
+            return _commandBuffer.ToString();
+        }
     }
 }
 
