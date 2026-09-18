@@ -133,11 +133,53 @@ public partial class SettingsWindow : Window
         HamsAtIntegrationSection.IsVisible = tag == "HamsAtIntegrationSection";
         SatelliteStatusIntegrationSection.IsVisible = tag == "SatelliteStatusIntegrationSection";
         CloudlogIntegrationSection.IsVisible = tag == "CloudlogIntegrationSection";
+        QrzIntegrationSection.IsVisible = tag == "QrzIntegrationSection";
+        HamQthIntegrationSection.IsVisible = tag == "HamQthIntegrationSection";
         GpsIntegrationSection.IsVisible = tag == "GpsIntegrationSection";
         SatelliteLinkIntegrationSection.IsVisible = tag == "SatelliteLinkIntegrationSection";
 
         if (IntegrationsContentScrollViewer is not null)
             IntegrationsContentScrollViewer.Offset = new Vector(0, 0);
+    }
+
+    private async void OnTestQrzClick(object? sender, RoutedEventArgs e)
+    {
+        var testButton = sender as Button;
+        if (testButton is not null)
+            testButton.IsEnabled = false;
+
+        try
+        {
+            TopLevel.GetTopLevel(this)?.FocusManager?.ClearFocus();
+
+            if (DataContext is SettingsViewModel vm)
+                await vm.TestQrzAsync().ConfigureAwait(true);
+        }
+        finally
+        {
+            if (testButton is not null)
+                testButton.IsEnabled = true;
+        }
+    }
+
+    private async void OnTestHamQthClick(object? sender, RoutedEventArgs e)
+    {
+        var testButton = sender as Button;
+        if (testButton is not null)
+            testButton.IsEnabled = false;
+
+        try
+        {
+            TopLevel.GetTopLevel(this)?.FocusManager?.ClearFocus();
+
+            if (DataContext is SettingsViewModel vm)
+                await vm.TestHamQthAsync().ConfigureAwait(true);
+        }
+        finally
+        {
+            if (testButton is not null)
+                testButton.IsEnabled = true;
+        }
     }
 
     private async void OnTestCloudlogClick(object? sender, RoutedEventArgs e)

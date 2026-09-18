@@ -18,7 +18,7 @@ public static class RigStatusText
             case RigStatusKind.Tracking:
                 return "Tracking";
             case RigStatusKind.Ts2000SatlUnconfirmed:
-                return "Tracking (TS-2000 SATL not confirmed — using FA/FB)";
+                return "Tracking (TS-2000 SATL not confirmed; using FA/FB)";
             case RigStatusKind.NoComPort:
                 return "No COM port selected";
             case RigStatusKind.SelectDualComPorts:

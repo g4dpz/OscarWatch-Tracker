@@ -1,11 +1,14 @@
-# Build and test on pull requests.
+# Build and test on pull requests and pushes to main.
 # Complements publish.yml, which only builds/tests on a version-tag push or
-# manual dispatch — this workflow is the one that actually gates PRs.
+# manual dispatch. Windows compiles System.IO.Ports / System.Speech paths that
+# Linux CI does not exercise.
 
 name: CI
 
 on:
   pull_request:
+    branches: [main]
+  push:
     branches: [main]
 
 concurrency:
@@ -17,7 +20,16 @@ env:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    name: Build and test (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: Ubuntu
+          - os: windows-latest
+            name: Windows
     steps:
       - uses: actions/checkout@v4
 

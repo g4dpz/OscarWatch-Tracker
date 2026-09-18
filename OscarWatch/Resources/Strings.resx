@@ -663,6 +663,18 @@ Continue?</value>
   <data name="Settings.Language.Spanish">
     <value>Español</value>
   </data>
+  <data name="Settings.Language.Thai">
+    <value>ไทย</value>
+  </data>
+  <data name="Settings.Language.Indonesian">
+    <value>Bahasa Indonesia</value>
+  </data>
+  <data name="Settings.Language.Russian">
+    <value>Русский</value>
+  </data>
+  <data name="Settings.Language.German">
+    <value>Deutsch</value>
+  </data>
   <data name="Settings.Language.RestartNote">
     <value>You must restart OscarWatch for a language change to take effect.</value>
   </data>
@@ -850,7 +862,7 @@ Continue?</value>
     <value>FlexRadio satellite setup failed: {0}</value>
   </data>
   <data name="Rig.Ts2000SatlUnconfirmed">
-    <value>Tracking (TS-2000 SATL not confirmed — using FA/FB)</value>
+    <value>Tracking (TS-2000 SATL not confirmed; using FA/FB)</value>
   </data>
   <data name="Rig.Ts2000SatlWarningTitle">
     <value>TS-2000 satellite mode not confirmed</value>
@@ -1987,10 +1999,10 @@ Continue?</value>
     <value>Horizon Mask</value>
   </data>
   <data name="Settings.Station.HorizonMaskHelp">
-    <value>Optional skyline for trees, buildings, and hills. Click the polar plot to add points; drag to move; right-click to remove. Empty means unused — only the tracking minimum elevation applies. Pass times use the higher of the mask and that minimum at each azimuth.</value>
+    <value>Optional skyline for trees, buildings, and hills. Click the polar plot to add points; drag to move; right-click to remove. Empty means unused (only the tracking minimum elevation applies). Pass times use the higher of the mask and that minimum at each azimuth. It does not command the rotator; use Start tracking at elevation for that.</value>
   </data>
   <data name="Settings.Station.HorizonMaskSummary">
-    <value>Optional skyline for trees, buildings, and hills. Empty means unused — only the tracking minimum elevation applies.</value>
+    <value>Optional skyline for trees, buildings, and hills. Empty means unused (only the tracking minimum elevation applies). Does not command the rotator.</value>
   </data>
   <data name="Settings.Station.HorizonMaskEdit">
     <value>Edit Horizon Mask</value>
@@ -2194,7 +2206,7 @@ Continue?</value>
     <value>Enable radio control</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>Dual radio (separate downlink and uplink: FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, IC-706 series, TH-D74/D75, or mixed)</value>
+    <value>Dual radio (separate downlink and uplink: FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, IC-7100, IC-706 series, TH-D74/D75, or mixed)</value>
   </data>
   <data name="Settings.Radio.DualIncompleteBoth">
     <value>Select COM ports for both downlink and uplink radios.</value>
@@ -2341,7 +2353,7 @@ Continue?</value>
     <value>Antenna ports by band</value>
   </data>
   <data name="Settings.Radio.FlexAntennaPortsHint">
-    <value>When switching U/V ↔ V/U satellites, OscarWatch sets the radio’s RX/TX ports from the downlink and uplink bands (on satellite focus / pass setup — not only when the bird is above the horizon). Leave unchanged keeps the radio’s current port. RX A and RX B are receive-only; map TX to ANT or XVTR as wired.</value>
+    <value>When switching U/V ↔ V/U satellites, OscarWatch sets the radio's RX/TX ports from the downlink and uplink bands (on satellite focus / pass setup, not only when the bird is above the horizon). Leave unchanged keeps the radio's current port. RX A and RX B are receive-only; map TX to ANT or XVTR as wired.</value>
   </data>
   <data name="Settings.Radio.FlexAntennaLeaveUnchanged">
     <value>Leave unchanged</value>
@@ -2373,6 +2385,9 @@ Continue?</value>
   <data name="Settings.Radio.Ic905CivHint">
     <value>IC-905 factory default AC. Must match the radio CI-V Set mode.</value>
   </data>
+  <data name="Settings.Radio.Ic7100CivHint">
+    <value>IC-7100 factory default 88H. Must match the radio CI-V menu.</value>
+  </data>
   <data name="Settings.Radio.Ic706CivHint">
     <value>IC-706 factory default 48H. Must match the radio CI-V address (Initial Set Mode).</value>
   </data>
@@ -2396,6 +2411,9 @@ Continue?</value>
   </data>
   <data name="Settings.Radio.Ic905Hint">
     <value>IC-905: Dual radio only. Match CI-V address (default AC) and baud (default 115200) in Set mode. Use the USB CI-V serial port. One COM port per leg — covers VHF/UHF/SHF including 13 cm, 6 cm, and 3 cm.</value>
+  </data>
+  <data name="Settings.Radio.Ic7100Hint">
+    <value>IC-7100: Dual radio only. Set CI-V Output (USB) On (or use the REMOTE jack). Match CI-V address (default 88H) and baud (default 19200) in the radio CI-V menu. One COM port per leg: covers HF/6 m, 2 m, and 70 cm (AO-07 Mode A downlink on 10 m); 23 cm satellites are not supported.</value>
   </data>
   <data name="Settings.Radio.Ic706Hint">
     <value>IC-706: CI-V via the REMOTE jack (or CT-17). HF/6 m and 2m (no 70cm). Set CI-V address and baud in Initial Set Mode (LOCK at power-on) to match Settings (default 48H / 19200). CI-V TRN On recommended. AO-07 Mode A downlink on 10 m is supported.</value>
@@ -2482,7 +2500,7 @@ Continue?</value>
     <value>Rotator type</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232 for Yaesu and clones. SPID for controllers in SP mode (Rot1Prog / Rot2Prog). EasyComm for EC mode (SPID, M2, and other text-protocol controllers). SAEBRTrack for classic satellite tracker interfaces (9600 baud). OZ9AAR URC (TCP) for the Ultimate Rotator Controller over Ethernet (default port 1111; set URC to REM/remote mode). Green Heron RT-21 Az-El uses two COM ports (azimuth and elevation), DCU-1 protocol at 4800 baud; do not select GS-232. Serial protocols can also use a TCP serial server (e.g. ser2net) instead of a local COM port.</value>
+    <value>GS-232 for Yaesu and clones. SPID for controllers in SP mode (Rot1Prog / Rot2Prog). SPID MD-01 / MD-02 (TCP) for native Ethernet (protocol SPID ROT2, default port 23). EasyComm for EC mode (SPID, M2, and other text-protocol controllers). SAEBRTrack for classic satellite tracker interfaces (9600 baud). OZ9AAR URC (TCP) for the Ultimate Rotator Controller over Ethernet (default port 1111; set URC to REM/remote mode). Green Heron RT-21 Az-El uses two COM ports (azimuth and elevation), DCU-1 protocol at 4800 baud; do not select GS-232. Serial protocols can also use a TCP serial server (e.g. ser2net) instead of a local COM port.</value>
   </data>
   <data name="Settings.Rotator.AzimuthPort">
     <value>Azimuth serial port</value>
@@ -2517,6 +2535,9 @@ Continue?</value>
   <data name="Settings.Rotator.NetworkNoteTcpSerial">
     <value>OscarWatch connects as a TCP client to a raw serial tunnel (for example ser2net). Configure baud rate and serial options on the server. Best used on a local network — high latency can cause timeouts.</value>
   </data>
+  <data name="Settings.Rotator.NetworkNoteSpidMd01">
+    <value>OscarWatch connects as a TCP client to the MD-01 / MD-02 Ethernet port. On the controller, set MOTOR CONFIGURATION to ETH and protocol to SPID ROT2. Default TCP port is 23. Only one client can connect at a time. Firmware 1.2507 or later is recommended.</value>
+  </data>
   <data name="Settings.Rotator.SmartAzimuth">
     <value>Smart 450° azimuth (shortest path over north)</value>
   </data>
@@ -2536,7 +2557,7 @@ Continue?</value>
     <value>Enable keyhole avoidance</value>
   </data>
   <data name="Settings.Rotator.KeyholeNote">
-    <value>When enabled, high-elevation passes where the rotator cannot keep up near zenith are analysed, and the rotator may pre-position in a flipped orientation to minimise signal loss. Only available when elevation range is 0–180°.</value>
+    <value>When enabled, high-elevation passes where the rotator cannot keep up near zenith are analysed, and the rotator may pre-position in a flipped orientation to minimise signal loss. Pre-position slews azimuth at the track-start elevation (not below 0°). Only available when elevation range is 0–180°.</value>
   </data>
   <data name="Settings.Rotator.KeyholeSlewRate">
     <value>Slew rate (°/s)</value>
@@ -2554,7 +2575,13 @@ Continue?</value>
     <value>Start tracking at elevation (°)</value>
   </data>
   <data name="Settings.Rotator.TrackStartNote">
-    <value>Default is -3° (below horizon). Range -90° to 90°. The rotator begins slewing when the tracked satellite rises above this elevation, and parks once it drops below (after a short confirm so a single glitch tick cannot interrupt the pass).</value>
+    <value>Default is -3° (below horizon). Range -90° to 90°. The rotator begins slewing when the tracked satellite rises above this elevation, and parks once it drops below (after a short confirm so a single glitch tick cannot interrupt the pass). Keyhole pre-position uses this elevation as its floor (not below 0°).</value>
+  </data>
+  <data name="Settings.Rotator.MovementThreshold">
+    <value>Movement threshold (°)</value>
+  </data>
+  <data name="Settings.Rotator.MovementThresholdNote">
+    <value>Minimum angular change before a new satellite target is sent. If the rotator reports a position still outside this threshold, the last command is sent again so a noisy encoder that stops early will restart. Stop cancels that retry. Lower values give tighter tracking; higher values reduce gear wear. Default: 1.0°.</value>
   </data>
   <data name="Settings.Rotator.ParkAzimuth">
     <value>Park azimuth (°)</value>
@@ -2633,6 +2660,24 @@ Continue?</value>
   </data>
   <data name="Settings.Recording.OutputWatermark">
     <value>Default: %AppData%/OscarWatch/recordings</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageOne">
+    <value>1 file · {0}</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageMany">
+    <value>{0} files · {1}</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageEmpty">
+    <value>No recordings in this folder yet</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageMissing">
+    <value>Folder will be created when the first recording is saved</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageError">
+    <value>Could not read folder size</value>
+  </data>
+  <data name="Settings.Recording.OpenFolder">
+    <value>Open folder</value>
   </data>
   <data name="Settings.Recording.TestButton">
     <value>Test recording (5 s)</value>
@@ -3112,10 +3157,28 @@ Continue?</value>
     <value>Schedule</value>
   </data>
   <data name="Planner.AddToCalendar">
-    <value>Add to Calendar</value>
+    <value>Add to calendar</value>
   </data>
   <data name="Planner.Export.CalendarTip">
+    <value>Save an iCalendar file for this satellite, or add this pass to Google Calendar</value>
+  </data>
+  <data name="Planner.Export.SaveIcs">
+    <value>Save iCalendar (.ics)</value>
+  </data>
+  <data name="Planner.Export.SaveIcsTip">
     <value>Export all passes for this satellite to an iCalendar (.ics) file</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendar">
+    <value>Add this pass to Google Calendar</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarTip">
+    <value>Open Google Calendar in your browser with this pass filled in</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarOpened">
+    <value>Opened Google Calendar for {0}</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarFailed">
+    <value>Could not open Google Calendar: {0}</value>
   </data>
   <data name="Planner.PortableName">
     <value>Portable {0}</value>
@@ -3755,5 +3818,113 @@ Latest: {1} ({2})</value>
   </data>
   <data name="ReleaseNotes.ViewOnGitHub">
     <value>View on GitHub</value>
+  </data>
+  <data name="Settings.Tab.Qrz">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Section">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Intro">
+    <value>Looks up operator names (and empty grids) from QRZ when you type a callsign in OscarWatch Logbook. XML Data access needs a QRZ subscription. Your username and password stay on this computer.</value>
+  </data>
+  <data name="Settings.Qrz.Enable">
+    <value>Enable QRZ callbook lookup in OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.Qrz.Username">
+    <value>QRZ username</value>
+  </data>
+  <data name="Settings.Qrz.UsernameWatermark">
+    <value>callsign</value>
+  </data>
+  <data name="Settings.Qrz.Password">
+    <value>QRZ password</value>
+  </data>
+  <data name="Settings.Qrz.PasswordWatermark">
+    <value>account password</value>
+  </data>
+  <data name="Settings.Qrz.TestConnection">
+    <value>Test connection</value>
+  </data>
+  <data name="Settings.Qrz.Testing">
+    <value>Testing…</value>
+  </data>
+  <data name="Settings.Qrz.EnterCredentials">
+    <value>Enter your QRZ username and password (tab out of each field or click Test again).</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOk">
+    <value>Connection OK. XML subscription valid until {0}.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOkNoExpiry">
+    <value>Connection OK.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionFailed">
+    <value>Could not sign in to QRZ: {0}</value>
+  </data>
+  <data name="Settings.Qrz.SubscriptionRequired">
+    <value>QRZ XML Data requires a subscription. Check XML access on your QRZ account.</value>
+  </data>
+  <data name="Settings.Qrz.Timeout">
+    <value>QRZ did not respond in time.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.Intro">
+    <value>Fill Name (and Grid if empty) from QRZ when you type a callsign. Does not overwrite a name you typed or one recalled from a previous QSO in this logbook.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.CredentialsNote">
+    <value>Needs a QRZ XML Data subscription. Username and password are stored with other OscarWatch settings on this computer.</value>
+  </data>
+  <data name="Logbook.CallHint.Qrz">
+    <value>Name from QRZ.</value>
+  </data>
+  <data name="Settings.Tab.HamQth">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Section">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Intro">
+    <value>Looks up operator names (and empty grids) from HamQTH when you type a callsign in OscarWatch Logbook. A free HamQTH account is enough (no paid XML subscription). Used when QRZ is off, misses, or is not configured. Your username and password stay on this computer.</value>
+  </data>
+  <data name="Settings.HamQth.Enable">
+    <value>Enable HamQTH callbook lookup in OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.HamQth.Username">
+    <value>HamQTH username</value>
+  </data>
+  <data name="Settings.HamQth.UsernameWatermark">
+    <value>callsign</value>
+  </data>
+  <data name="Settings.HamQth.Password">
+    <value>HamQTH password</value>
+  </data>
+  <data name="Settings.HamQth.PasswordWatermark">
+    <value>account password</value>
+  </data>
+  <data name="Settings.HamQth.TestConnection">
+    <value>Test connection</value>
+  </data>
+  <data name="Settings.HamQth.Testing">
+    <value>Testing…</value>
+  </data>
+  <data name="Settings.HamQth.EnterCredentials">
+    <value>Enter your HamQTH username and password (tab out of each field or click Test again).</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionOk">
+    <value>Connection OK.</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionFailed">
+    <value>Could not sign in to HamQTH: {0}</value>
+  </data>
+  <data name="Settings.HamQth.Timeout">
+    <value>HamQTH did not respond in time.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.Intro">
+    <value>Fill Name (and Grid if empty) from HamQTH when QRZ is off, misses, or is not configured. Does not overwrite a name you typed or one recalled from a previous QSO in this logbook.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.CredentialsNote">
+    <value>Needs a free HamQTH account. Username and password are stored with other OscarWatch settings on this computer.</value>
+  </data>
+  <data name="Logbook.CallHint.HamQth">
+    <value>Name from HamQTH.</value>
   </data>
 </root>

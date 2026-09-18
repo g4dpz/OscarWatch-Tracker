@@ -20,14 +20,14 @@ public class CloudlogUrlHelperPropertyTests
     /// <summary>
     /// Property 27: URL Protocol Prepend.
     ///
-    /// For any non-whitespace string that does not contain "://",
+    /// For any non-whitespace, non-slash-only string that does not contain "://",
     /// NormalizeBaseUrl shall return a result that starts with "https://".
     /// </summary>
     [Property]
     public bool Input_without_protocol_gets_https_prepended(string input)
     {
-        // Skip null and whitespace-only strings (those return empty string)
-        if (string.IsNullOrWhiteSpace(input))
+        // Skip null, whitespace, and slash-only strings (those return empty string)
+        if (string.IsNullOrWhiteSpace(input) || input.Trim().TrimEnd('/').Length == 0)
             return true;
 
         // Skip inputs that already contain "://"

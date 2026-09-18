@@ -77,4 +77,47 @@ public sealed class RecordingFileNameFormatTests
         var capture = RecordingFileNameFormat.GetCaptureWavPath(preferred);
         Assert.Equal(Path.Combine("recordings", "so-50-26-05-24-14-30.wav"), capture);
     }
+
+    [Fact]
+    public void MeasureUsage_counts_wav_and_mp3_only()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "oscarwatch-usage-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            Directory.CreateDirectory(dir);
+            File.WriteAllBytes(Path.Combine(dir, "a.wav"), new byte[100]);
+            File.WriteAllBytes(Path.Combine(dir, "b.mp3"), new byte[50]);
+            File.WriteAllBytes(Path.Combine(dir, "notes.txt"), new byte[1000]);
+
+            var (count, bytes, exists) = RecordingFileNameFormat.MeasureUsage(dir);
+            Assert.True(exists);
+            Assert.Equal(2, count);
+            Assert.Equal(150, bytes);
+        }
+        finally
+        {
+            if (Directory.Exists(dir))
+                Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    [Theory]
+    [InlineData(500, "500 B")]
+    [InlineData(2048, "2 KB")]
+    [InlineData(1_572_864, "1.5 MB")]
+    [InlineData(2_147_483_648L, "2 GB")]
+    public void FormatByteSize_uses_readable_units(long bytes, string expected)
+    {
+        Assert.Equal(expected, RecordingFileNameFormat.FormatByteSize(bytes));
+    }
+
+    [Fact]
+    public void MeasureUsage_missing_folder_reports_not_exists()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "oscarwatch-missing-" + Guid.NewGuid().ToString("N"));
+        var (count, bytes, exists) = RecordingFileNameFormat.MeasureUsage(dir);
+        Assert.False(exists);
+        Assert.Equal(0, count);
+        Assert.Equal(0, bytes);
+    }
 }

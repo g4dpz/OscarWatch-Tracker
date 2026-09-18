@@ -14,6 +14,10 @@ public static class LocalizationCulture
     public const string PortugueseBrazilLanguage = "pt-BR";
     public const string SimplifiedChineseLanguage = "zh-CN";
     public const string SpanishLanguage = "es";
+    public const string ThaiLanguage = "th";
+    public const string IndonesianLanguage = "id";
+    public const string RussianLanguage = "ru";
+    public const string GermanLanguage = "de";
 
     public static void ApplyFromSettings(ISettingsService settings) =>
         Apply(NormalizeLanguageCode(settings.Current.UiLanguage));
@@ -42,6 +46,18 @@ public static class LocalizationCulture
 
         if (string.Equals(uiLanguage, SpanishLanguage, StringComparison.OrdinalIgnoreCase))
             return CultureInfo.GetCultureInfo(SpanishLanguage);
+
+        if (string.Equals(uiLanguage, ThaiLanguage, StringComparison.OrdinalIgnoreCase))
+            return CultureInfo.GetCultureInfo(ThaiLanguage);
+
+        if (string.Equals(uiLanguage, IndonesianLanguage, StringComparison.OrdinalIgnoreCase))
+            return CultureInfo.GetCultureInfo(IndonesianLanguage);
+
+        if (string.Equals(uiLanguage, RussianLanguage, StringComparison.OrdinalIgnoreCase))
+            return CultureInfo.GetCultureInfo(RussianLanguage);
+
+        if (string.Equals(uiLanguage, GermanLanguage, StringComparison.OrdinalIgnoreCase))
+            return CultureInfo.GetCultureInfo(GermanLanguage);
 
         if (string.IsNullOrWhiteSpace(uiLanguage)
             || string.Equals(uiLanguage, "en", StringComparison.OrdinalIgnoreCase)

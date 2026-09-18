@@ -29,6 +29,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     private readonly OscarWatch.Core.Recording.FfmpegLocator _ffmpegLocator;
     private readonly ICloudlogRadioSyncService _cloudlog;
     private readonly ICloudlogLookupService _cloudlogLookup;
+    private readonly IQrzCallbookService _qrzCallbook;
+    private readonly IHamQthCallbookService _hamQthCallbook;
     private readonly IHamsAtRovesService _hamsAtRoves;
     private readonly IGpsService _gps;
     private readonly ISatelliteLinkBroadcastService _satelliteLink;
@@ -175,6 +177,9 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     private string _recordingOutputFolder = "";
 
     [ObservableProperty]
+    private string _recordingFolderUsageText = "";
+
+    [ObservableProperty]
     private RecordingDeviceOption? _selectedRecordingDevice;
 
     [ObservableProperty]
@@ -308,7 +313,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         SelectedElevationRangeChoice?.Value == RotatorElevationRange.Deg180;
 
     public bool ShowRotatorTransportFields =>
-        SelectedRotatorTypeChoice?.Value is not (RotatorType.UrcTcp or RotatorType.GreenHeronRt21);
+        SelectedRotatorTypeChoice?.Value is not (
+            RotatorType.UrcTcp or RotatorType.SpidMd01 or RotatorType.GreenHeronRt21);
 
     public bool ShowRotatorSerialFields =>
         ShowRotatorTransportFields
@@ -318,12 +324,15 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         SelectedRotatorTypeChoice?.Value == RotatorType.GreenHeronRt21;
 
     public bool ShowRotatorNetworkFields =>
-        SelectedRotatorTypeChoice?.Value == RotatorType.UrcTcp
+        SelectedRotatorTypeChoice?.Value is RotatorType.UrcTcp or RotatorType.SpidMd01
         || (ShowRotatorTransportFields
             && SelectedRotatorTransportChoice?.Value == RotatorTransportKind.Tcp);
 
     public bool ShowRotatorUrcNetworkNote =>
         SelectedRotatorTypeChoice?.Value == RotatorType.UrcTcp;
+
+    public bool ShowRotatorSpidMd01NetworkNote =>
+        SelectedRotatorTypeChoice?.Value == RotatorType.SpidMd01;
 
     public bool ShowRotatorTcpSerialNetworkNote =>
         ShowRotatorTransportFields
@@ -544,6 +553,30 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     private string _cloudlogTestStatus = "";
 
     [ObservableProperty]
+    private bool _qrzEnabled;
+
+    [ObservableProperty]
+    private string _qrzUsername = "";
+
+    [ObservableProperty]
+    private string _qrzPassword = "";
+
+    [ObservableProperty]
+    private string _qrzTestStatus = "";
+
+    [ObservableProperty]
+    private bool _hamQthEnabled;
+
+    [ObservableProperty]
+    private string _hamQthUsername = "";
+
+    [ObservableProperty]
+    private string _hamQthPassword = "";
+
+    [ObservableProperty]
+    private string _hamQthTestStatus = "";
+
+    [ObservableProperty]
     private bool _cloudlogCheckRoveGrids = true;
 
     [ObservableProperty]
@@ -671,11 +704,13 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     public bool ShowDownlinkCivAddress =>
         DualRadioEnabled
         && (SelectedDownlinkRigTypeChoice?.Value is RigType.IcomIc705 or RigType.IcomIc7300 or RigType.IcomIc905
+            or RigType.IcomIc7100
             || RigSettings.IsIc706SeriesEndpoint(SelectedDownlinkRigTypeChoice?.Value ?? RigType.None));
 
     public bool ShowUplinkCivAddress =>
         DualRadioEnabled
         && (SelectedUplinkRigTypeChoice?.Value is RigType.IcomIc705 or RigType.IcomIc7300 or RigType.IcomIc905
+            or RigType.IcomIc7100
             || RigSettings.IsIc706SeriesEndpoint(SelectedUplinkRigTypeChoice?.Value ?? RigType.None));
 
     public bool ShowDownlinkIc705CivHint =>
@@ -686,6 +721,9 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
 
     public bool ShowDownlinkIc905CivHint =>
         DualRadioEnabled && SelectedDownlinkRigTypeChoice?.Value == RigType.IcomIc905;
+
+    public bool ShowDownlinkIc7100CivHint =>
+        DualRadioEnabled && SelectedDownlinkRigTypeChoice?.Value == RigType.IcomIc7100;
 
     public bool ShowDownlinkIc706CivHint =>
         DualRadioEnabled && SelectedDownlinkRigTypeChoice?.Value == RigType.IcomIc706;
@@ -704,6 +742,9 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
 
     public bool ShowUplinkIc905CivHint =>
         DualRadioEnabled && SelectedUplinkRigTypeChoice?.Value == RigType.IcomIc905;
+
+    public bool ShowUplinkIc7100CivHint =>
+        DualRadioEnabled && SelectedUplinkRigTypeChoice?.Value == RigType.IcomIc7100;
 
     public bool ShowUplinkIc706CivHint =>
         DualRadioEnabled && SelectedUplinkRigTypeChoice?.Value == RigType.IcomIc706;
@@ -728,6 +769,11 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         DualRadioEnabled
         && (SelectedDownlinkRigTypeChoice?.Value == RigType.IcomIc905
             || SelectedUplinkRigTypeChoice?.Value == RigType.IcomIc905);
+
+    public bool ShowRigIc7100CatHint =>
+        DualRadioEnabled
+        && (SelectedDownlinkRigTypeChoice?.Value == RigType.IcomIc7100
+            || SelectedUplinkRigTypeChoice?.Value == RigType.IcomIc7100);
 
     public bool ShowRigIc706CatHint =>
         DualRadioEnabled
@@ -764,6 +810,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         IAudioRecordingService recording,
         ICloudlogRadioSyncService cloudlog,
         ICloudlogLookupService cloudlogLookup,
+        IQrzCallbookService qrzCallbook,
+        IHamQthCallbookService hamQthCallbook,
         IHamsAtRovesService hamsAtRoves,
         IGpsService gps,
         ISatelliteLinkBroadcastService satelliteLink,
@@ -772,6 +820,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     {
         _l = localization;
         _cloudlogLookup = cloudlogLookup;
+        _qrzCallbook = qrzCallbook;
+        _hamQthCallbook = hamQthCallbook;
         _hamsAtRoves = hamsAtRoves;
         _gps = gps;
         _satelliteLink = satelliteLink;
@@ -783,7 +833,11 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             new LanguageOption(LocalizationCulture.JapaneseLanguage, _l.Get("Settings.Language.Japanese")),
             new LanguageOption(LocalizationCulture.PortugueseBrazilLanguage, _l.Get("Settings.Language.PortugueseBrazil")),
             new LanguageOption(LocalizationCulture.SimplifiedChineseLanguage, _l.Get("Settings.Language.SimplifiedChinese")),
-            new LanguageOption(LocalizationCulture.SpanishLanguage, _l.Get("Settings.Language.Spanish"))
+            new LanguageOption(LocalizationCulture.SpanishLanguage, _l.Get("Settings.Language.Spanish")),
+            new LanguageOption(LocalizationCulture.ThaiLanguage, _l.Get("Settings.Language.Thai")),
+            new LanguageOption(LocalizationCulture.IndonesianLanguage, _l.Get("Settings.Language.Indonesian")),
+            new LanguageOption(LocalizationCulture.RussianLanguage, _l.Get("Settings.Language.Russian")),
+            new LanguageOption(LocalizationCulture.GermanLanguage, _l.Get("Settings.Language.German"))
         ];
         TleSourceOptions =
         [
@@ -824,6 +878,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         [
             new(RotatorType.YaesuGs232, "Yaesu GS-232"),
             new(RotatorType.Spid, "SPID (Rot1Prog / Rot2Prog)"),
+            new(RotatorType.SpidMd01, "SPID MD-01 / MD-02 (TCP)"),
             new(RotatorType.EasyComm, "EasyComm"),
             new(RotatorType.Saebrt, "SAEBRTrack"),
             new(RotatorType.UrcTcp, "OZ9AAR URC (TCP)"),
@@ -865,6 +920,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             new(RigType.IcomIc705, "ICOM IC-705"),
             new(RigType.IcomIc7300, "ICOM IC-7300"),
             new(RigType.IcomIc905, "ICOM IC-905"),
+            new(RigType.IcomIc7100, "ICOM IC-7100"),
             new(RigType.IcomIc706, "ICOM IC-706"),
             new(RigType.IcomIc706Mkii, "ICOM IC-706MKII"),
             new(RigType.IcomIc706MkiiG, "ICOM IC-706MKIIG"),
@@ -1166,7 +1222,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         {
             Enabled = RotatorEnabled,
             Type = SelectedRotatorTypeChoice?.Value ?? RotatorType.YaesuGs232,
-            TransportKind = SelectedRotatorTypeChoice?.Value is RotatorType.UrcTcp or RotatorType.GreenHeronRt21
+            TransportKind = SelectedRotatorTypeChoice?.Value is
+                RotatorType.UrcTcp or RotatorType.SpidMd01 or RotatorType.GreenHeronRt21
                 ? RotatorTransportKind.Serial
                 : SelectedRotatorTransportChoice?.Value ?? RotatorTransportKind.Serial,
             Port = SelectedComPort ?? "",
@@ -1175,9 +1232,9 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             NetworkHost = string.IsNullOrWhiteSpace(RotatorNetworkHost)
                 ? RotatorSettings.DefaultNetworkHost
                 : RotatorNetworkHost.Trim(),
-            NetworkPort = RotatorNetworkPort is > 0 and <= 65535
-                ? RotatorNetworkPort
-                : RotatorSettings.DefaultNetworkPort,
+            NetworkPort = ResolveRotatorNetworkPortForSave(
+                SelectedRotatorTypeChoice?.Value ?? RotatorType.YaesuGs232,
+                RotatorNetworkPort),
             AzimuthRange = SelectedAzimuthRangeChoice?.Value ?? RotatorAzimuthRange.Deg450,
             ElevationRange = SelectedElevationRangeChoice?.Value ?? RotatorElevationRange.Deg180,
             TrackStartElevationDeg = Math.Clamp(RotatorTrackStartElevationDeg, -90, 90),
@@ -1255,6 +1312,18 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             MinUpdateIntervalMs = CloudlogRadioPublishPolicy.NormalizeKeepaliveIntervalMs(CloudlogMinUpdateIntervalMs),
             LogbookPublicSlug = SelectedCloudlogLogbook?.PublicSlug?.Trim() ?? "",
             CheckRoveGrids = CloudlogCheckRoveGrids
+        };
+        _settings.Current.Qrz = new QrzSettings
+        {
+            Enabled = QrzEnabled,
+            Username = QrzUsername.Trim(),
+            Password = QrzPassword
+        };
+        _settings.Current.HamQth = new HamQthSettings
+        {
+            Enabled = HamQthEnabled,
+            Username = HamQthUsername.Trim(),
+            Password = HamQthPassword
         };
         _settings.Current.HamsAt = new HamsAtSettings
         {
@@ -1386,6 +1455,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             ApplySavedRecordingDevicePlaceholder(recording.DeviceId, recording.DeviceDisplayName);
             RecordingTestStatus = "";
             RecordingFfmpegStatus = "";
+            RefreshRecordingFolderUsage();
 
             var rotator = _settings.Current.Rotator ?? new RotatorSettings();
             RotatorEnabled = rotator.Enabled;
@@ -1497,6 +1567,16 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             CloudlogMinUpdateIntervalMs = CloudlogRadioPublishPolicy.MigrateKeepaliveIntervalMs(cloudlog.MinUpdateIntervalMs);
             CloudlogCheckRoveGrids = cloudlog.CheckRoveGrids;
             CloudlogTestStatus = "";
+            var qrz = _settings.Current.Qrz ?? new QrzSettings();
+            QrzEnabled = qrz.Enabled;
+            QrzUsername = qrz.Username;
+            QrzPassword = qrz.Password;
+            QrzTestStatus = "";
+            var hamQth = _settings.Current.HamQth ?? new HamQthSettings();
+            HamQthEnabled = hamQth.Enabled;
+            HamQthUsername = hamQth.Username;
+            HamQthPassword = hamQth.Password;
+            HamQthTestStatus = "";
             CloudlogLogbooks.Clear();
             if (!string.IsNullOrWhiteSpace(cloudlog.LogbookPublicSlug))
             {
@@ -1687,6 +1767,50 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             RecordingOutputFolder = folders[0].Path.LocalPath;
     }
 
+    partial void OnRecordingOutputFolderChanged(string value) => RefreshRecordingFolderUsage();
+
+    [RelayCommand]
+    private void OpenRecordingOutputFolder()
+    {
+        try
+        {
+            RecordingFileNameFormat.OpenOutputFolder(RecordingOutputFolder);
+            RefreshRecordingFolderUsage();
+        }
+        catch
+        {
+            RecordingFolderUsageText = _l.Get("Settings.Recording.FolderUsageError");
+        }
+    }
+
+    private void RefreshRecordingFolderUsage()
+    {
+        try
+        {
+            var (count, bytes, exists) = RecordingFileNameFormat.MeasureUsage(RecordingOutputFolder);
+            if (!exists)
+            {
+                RecordingFolderUsageText = _l.Get("Settings.Recording.FolderUsageMissing");
+                return;
+            }
+
+            if (count == 0)
+            {
+                RecordingFolderUsageText = _l.Get("Settings.Recording.FolderUsageEmpty");
+                return;
+            }
+
+            var size = RecordingFileNameFormat.FormatByteSize(bytes);
+            RecordingFolderUsageText = count == 1
+                ? _l.Get("Settings.Recording.FolderUsageOne", size)
+                : _l.Get("Settings.Recording.FolderUsageMany", count, size);
+        }
+        catch
+        {
+            RecordingFolderUsageText = _l.Get("Settings.Recording.FolderUsageError");
+        }
+    }
+
     [RelayCommand]
     private void OpenDopplerPassLogFolder() =>
         DopplerPassLogFileNameFormat.OpenLogDirectory(null);
@@ -1875,6 +1999,89 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         }
     }
 
+    public async Task TestQrzAsync()
+    {
+        try
+        {
+            QrzTestStatus = _l.Get("Settings.Qrz.Testing");
+            var settings = new QrzSettings
+            {
+                Enabled = true,
+                Username = QrzUsername.Trim(),
+                Password = QrzPassword
+            };
+
+            if (!settings.HasCredentials)
+            {
+                QrzTestStatus = _l.Get("Settings.Qrz.EnterCredentials");
+                return;
+            }
+
+            var result = await _qrzCallbook.TestConnectionAsync(settings).ConfigureAwait(true);
+            QrzTestStatus = FormatQrzTestStatus(result);
+        }
+        catch (Exception ex)
+        {
+            QrzTestStatus = ex.Message;
+        }
+    }
+
+    private string FormatQrzTestStatus(OscarWatch.Core.Qrz.QrzConnectionTestResult result)
+    {
+        if (result.Ok)
+        {
+            return string.IsNullOrWhiteSpace(result.SubscriptionExpires)
+                ? _l.Get("Settings.Qrz.ConnectionOkNoExpiry")
+                : _l.Get("Settings.Qrz.ConnectionOk", result.SubscriptionExpires);
+        }
+
+        if (result.SubscriptionRequired)
+            return _l.Get("Settings.Qrz.SubscriptionRequired");
+
+        if (string.Equals(result.ErrorMessage, "timeout", StringComparison.Ordinal))
+            return _l.Get("Settings.Qrz.Timeout");
+
+        return _l.Get("Settings.Qrz.ConnectionFailed", result.ErrorMessage ?? "");
+    }
+
+    public async Task TestHamQthAsync()
+    {
+        try
+        {
+            HamQthTestStatus = _l.Get("Settings.HamQth.Testing");
+            var settings = new HamQthSettings
+            {
+                Enabled = true,
+                Username = HamQthUsername.Trim(),
+                Password = HamQthPassword
+            };
+
+            if (!settings.HasCredentials)
+            {
+                HamQthTestStatus = _l.Get("Settings.HamQth.EnterCredentials");
+                return;
+            }
+
+            var result = await _hamQthCallbook.TestConnectionAsync(settings).ConfigureAwait(true);
+            HamQthTestStatus = FormatHamQthTestStatus(result);
+        }
+        catch (Exception ex)
+        {
+            HamQthTestStatus = ex.Message;
+        }
+    }
+
+    private string FormatHamQthTestStatus(OscarWatch.Core.HamQth.HamQthConnectionTestResult result)
+    {
+        if (result.Ok)
+            return _l.Get("Settings.HamQth.ConnectionOk");
+
+        if (string.Equals(result.ErrorMessage, "timeout", StringComparison.Ordinal))
+            return _l.Get("Settings.HamQth.Timeout");
+
+        return _l.Get("Settings.HamQth.ConnectionFailed", result.ErrorMessage ?? "");
+    }
+
     public async Task TestCloudlogAsync()
     {
         try
@@ -1995,7 +2202,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         {
             Enabled = RotatorEnabled,
             Type = SelectedRotatorTypeChoice?.Value ?? RotatorType.YaesuGs232,
-            TransportKind = SelectedRotatorTypeChoice?.Value is RotatorType.UrcTcp or RotatorType.GreenHeronRt21
+            TransportKind = SelectedRotatorTypeChoice?.Value is
+                RotatorType.UrcTcp or RotatorType.SpidMd01 or RotatorType.GreenHeronRt21
                 ? RotatorTransportKind.Serial
                 : SelectedRotatorTransportChoice?.Value ?? RotatorTransportKind.Serial,
             Port = SelectedComPort ?? "",
@@ -2028,6 +2236,16 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             SelectedElevationRangeChoice = ElevationRangeChoices.FirstOrDefault(
                 o => o.Value == RotatorElevationRange.Deg90) ?? ElevationRangeChoices[0];
         }
+        else if (value.Value == RotatorType.SpidMd01)
+        {
+            if (RotatorNetworkPort == RotatorSettings.DefaultNetworkPort || RotatorNetworkPort <= 0)
+                RotatorNetworkPort = RotatorSettings.DefaultSpidMd01NetworkPort;
+        }
+        else if (value.Value == RotatorType.UrcTcp)
+        {
+            if (RotatorNetworkPort == RotatorSettings.DefaultSpidMd01NetworkPort || RotatorNetworkPort <= 0)
+                RotatorNetworkPort = RotatorSettings.DefaultNetworkPort;
+        }
 
         RefreshComPortConflictIfReady();
     }
@@ -2046,7 +2264,18 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(ShowRotatorDualSerialFields));
         OnPropertyChanged(nameof(ShowRotatorNetworkFields));
         OnPropertyChanged(nameof(ShowRotatorUrcNetworkNote));
+        OnPropertyChanged(nameof(ShowRotatorSpidMd01NetworkNote));
         OnPropertyChanged(nameof(ShowRotatorTcpSerialNetworkNote));
+    }
+
+    private static int ResolveRotatorNetworkPortForSave(RotatorType type, int port)
+    {
+        if (port is > 0 and <= 65535)
+            return port;
+
+        return type == RotatorType.SpidMd01
+            ? RotatorSettings.DefaultSpidMd01NetworkPort
+            : RotatorSettings.DefaultNetworkPort;
     }
 
     partial void OnSelectedAzimuthRangeChoiceChanged(RotatorAzimuthOption? value)
@@ -2195,10 +2424,12 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(ShowDownlinkIc705CivHint));
         OnPropertyChanged(nameof(ShowDownlinkIc7300CivHint));
         OnPropertyChanged(nameof(ShowDownlinkIc905CivHint));
+        OnPropertyChanged(nameof(ShowDownlinkIc7100CivHint));
         NotifyIc706SeriesVisibility();
         OnPropertyChanged(nameof(ShowRigIc705CatHint));
         OnPropertyChanged(nameof(ShowRigIc7300CatHint));
         OnPropertyChanged(nameof(ShowRigIc905CatHint));
+        OnPropertyChanged(nameof(ShowRigIc7100CatHint));
         OnPropertyChanged(nameof(ShowRigFt991CatHint));
         OnPropertyChanged(nameof(ShowRigFtx1CatHint));
         if (_isSynchronizing || value is null)
@@ -2236,6 +2467,13 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
                 DownlinkCivAddress = RigSettings.DefaultCivAddressFor(RigType.IcomIc905);
         }
 
+        if (value.Value == RigType.IcomIc7100)
+        {
+            DownlinkBaudRate = RigSettings.Ic7100DefaultBaudRate;
+            if (ShouldSuggestCivAddress(DownlinkCivAddress))
+                DownlinkCivAddress = RigSettings.DefaultCivAddressFor(RigType.IcomIc7100);
+        }
+
         if (RigSettings.IsIc706SeriesEndpoint(value.Value))
             ApplyIc706SeriesDefaults(value.Value, v => DownlinkBaudRate = v, v => DownlinkCivAddress = v, DownlinkCivAddress);
 
@@ -2257,10 +2495,12 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(ShowUplinkIc705CivHint));
         OnPropertyChanged(nameof(ShowUplinkIc7300CivHint));
         OnPropertyChanged(nameof(ShowUplinkIc905CivHint));
+        OnPropertyChanged(nameof(ShowUplinkIc7100CivHint));
         NotifyIc706SeriesVisibility();
         OnPropertyChanged(nameof(ShowRigIc705CatHint));
         OnPropertyChanged(nameof(ShowRigIc7300CatHint));
         OnPropertyChanged(nameof(ShowRigIc905CatHint));
+        OnPropertyChanged(nameof(ShowRigIc7100CatHint));
         OnPropertyChanged(nameof(ShowRigFt991CatHint));
         OnPropertyChanged(nameof(ShowRigFtx1CatHint));
         if (_isSynchronizing || value is null)
@@ -2298,13 +2538,20 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
                 UplinkCivAddress = RigSettings.DefaultCivAddressFor(RigType.IcomIc905);
         }
 
+        if (value.Value == RigType.IcomIc7100)
+        {
+            UplinkBaudRate = RigSettings.Ic7100DefaultBaudRate;
+            if (ShouldSuggestCivAddress(UplinkCivAddress))
+                UplinkCivAddress = RigSettings.DefaultCivAddressFor(RigType.IcomIc7100);
+        }
+
         if (RigSettings.IsIc706SeriesEndpoint(value.Value))
             ApplyIc706SeriesDefaults(value.Value, v => UplinkBaudRate = v, v => UplinkCivAddress = v, UplinkCivAddress);
     }
 
     private static bool ShouldSuggestCivAddress(string? address) =>
         string.IsNullOrWhiteSpace(address)
-        || address is "60" or "7C" or "A2" or "A4" or "94" or "AC" or "48" or "4C" or "58";
+        || address is "60" or "7C" or "A2" or "A4" or "94" or "AC" or "88" or "48" or "4C" or "58";
 
     private void NotifyIc706SeriesVisibility()
     {

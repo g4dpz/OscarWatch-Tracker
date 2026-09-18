@@ -29,6 +29,8 @@ public partial class SatellitePickerViewModel : ViewModelBase
 
     public ObservableCollection<SatelliteItemViewModel> Satellites { get; } = [];
 
+    public ObservableCollection<SatelliteItemViewModel> FilteredSatellites { get; } = [];
+
     public SatellitePickerViewModel(
         ISettingsService settings,
         ITleService tleService,
@@ -93,12 +95,16 @@ public partial class SatellitePickerViewModel : ViewModelBase
             };
             s.IsVisible = matchesSearch && matchesSelection;
         }
+
+        FilteredSatellites.Clear();
+        foreach (var s in Satellites.Where(x => x.IsVisible))
+            FilteredSatellites.Add(s);
     }
 
     [RelayCommand]
     private void SelectAll()
     {
-        foreach (var s in Satellites.Where(x => x.IsVisible))
+        foreach (var s in FilteredSatellites.ToList())
             s.IsEnabled = true;
     }
 

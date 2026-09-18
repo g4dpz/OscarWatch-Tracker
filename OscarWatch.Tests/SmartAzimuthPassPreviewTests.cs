@@ -86,6 +86,18 @@ public sealed class SmartAzimuthPassPreviewTests
         Assert.True(SmartAzimuthPassPreview.UsesExtendedBand(samples));
     }
 
+    [Fact]
+    public void TryApply_aos_near_20_westbound_through_north_starts_in_overlap()
+    {
+        var samples = CreateSamples(20, 12, 4, 350, 280, 232);
+        Assert.True(SmartAzimuthPassPreview.TryApply(samples, smartAzimuth450: true, maxAzimuthDeg: 450));
+        Assert.Equal(380, samples[0].CommandAzimuthDeg);
+        Assert.Equal(372, samples[1].CommandAzimuthDeg);
+        Assert.Equal(364, samples[2].CommandAzimuthDeg);
+        Assert.Equal(350, samples[3].CommandAzimuthDeg);
+        Assert.True(SmartAzimuthPassPreview.UsesExtendedBand(samples));
+    }
+
     private static PassPolarPlotSample[] CreateSamples(params double[] azimuthDeg)
     {
         var start = new DateTime(2026, 8, 9, 12, 0, 0, DateTimeKind.Utc);

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -451,6 +452,29 @@ public partial class PassPlanningViewModel : ViewModelBase
 
         StatusText = _l.Get("Planner.Export.Done", passInfos.Count, row.SatelliteName);
         return true;
+    }
+
+    public bool OpenGoogleCalendar(PassPlanningPassRow row)
+    {
+        ApplyEditableFieldsToSelectedStation();
+        var site = SelectedStation?.ToGroundStation() ?? _settings.Current.GroundStation;
+        var url = GoogleCalendarEventUrl.Build(row.Source, site);
+
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true
+            });
+            StatusText = _l.Get("Planner.Export.GoogleCalendarOpened", row.SatelliteName);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            StatusText = _l.Get("Planner.Export.GoogleCalendarFailed", ex.Message);
+            return false;
+        }
     }
 
     private static string SanitizeFileName(string name, ILocalizationService l)

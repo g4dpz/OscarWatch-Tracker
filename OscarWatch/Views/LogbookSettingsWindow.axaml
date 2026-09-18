@@ -110,6 +110,84 @@
           </StackPanel>
         </ScrollViewer>
       </TabItem>
+      <TabItem Header="{loc:Localize Key=Settings.Tab.Qrz}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
+          <StackPanel Spacing="14" MaxWidth="480">
+            <TextBlock Text="{loc:Localize Key=Settings.Qrz.Section}"
+                       FontWeight="SemiBold"
+                       FontSize="13" />
+            <TextBlock Text="{loc:Localize Key=Logbook.Settings.Qrz.Intro}"
+                       TextWrapping="Wrap"
+                       FontSize="11"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <CheckBox Content="{loc:Localize Key=Settings.Qrz.Enable}"
+                      IsChecked="{Binding QrzEnabled, Mode=TwoWay}" />
+            <StackPanel Spacing="4">
+              <TextBlock Text="{loc:Localize Key=Settings.Qrz.Username}" />
+              <TextBox Text="{Binding QrzUsername, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                       Watermark="{loc:Localize Key=Settings.Qrz.UsernameWatermark}" />
+            </StackPanel>
+            <StackPanel Spacing="4">
+              <TextBlock Text="{loc:Localize Key=Settings.Qrz.Password}" />
+              <TextBox Text="{Binding QrzPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                       PasswordChar="•"
+                       Watermark="{loc:Localize Key=Settings.Qrz.PasswordWatermark}" />
+            </StackPanel>
+            <TextBlock Text="{loc:Localize Key=Logbook.Settings.Qrz.CredentialsNote}"
+                       TextWrapping="Wrap"
+                       FontSize="11"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <Button Content="{loc:Localize Key=Settings.Qrz.TestConnection}"
+                    Command="{Binding TestQrzCommand}"
+                    HorizontalAlignment="Left" />
+            <TextBlock Text="{Binding QrzTestStatus}"
+                       TextWrapping="Wrap"
+                       FontSize="12"
+                       MinHeight="20"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       IsVisible="{Binding HasQrzStatus}" />
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+      <TabItem Header="{loc:Localize Key=Settings.Tab.HamQth}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,0">
+          <StackPanel Spacing="14" MaxWidth="480">
+            <TextBlock Text="{loc:Localize Key=Settings.HamQth.Section}"
+                       FontWeight="SemiBold"
+                       FontSize="13" />
+            <TextBlock Text="{loc:Localize Key=Logbook.Settings.HamQth.Intro}"
+                       TextWrapping="Wrap"
+                       FontSize="11"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <CheckBox Content="{loc:Localize Key=Settings.HamQth.Enable}"
+                      IsChecked="{Binding HamQthEnabled, Mode=TwoWay}" />
+            <StackPanel Spacing="4">
+              <TextBlock Text="{loc:Localize Key=Settings.HamQth.Username}" />
+              <TextBox Text="{Binding HamQthUsername, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                       Watermark="{loc:Localize Key=Settings.HamQth.UsernameWatermark}" />
+            </StackPanel>
+            <StackPanel Spacing="4">
+              <TextBlock Text="{loc:Localize Key=Settings.HamQth.Password}" />
+              <TextBox Text="{Binding HamQthPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                       PasswordChar="•"
+                       Watermark="{loc:Localize Key=Settings.HamQth.PasswordWatermark}" />
+            </StackPanel>
+            <TextBlock Text="{loc:Localize Key=Logbook.Settings.HamQth.CredentialsNote}"
+                       TextWrapping="Wrap"
+                       FontSize="11"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+            <Button Content="{loc:Localize Key=Settings.HamQth.TestConnection}"
+                    Command="{Binding TestHamQthCommand}"
+                    HorizontalAlignment="Left" />
+            <TextBlock Text="{Binding HamQthTestStatus}"
+                       TextWrapping="Wrap"
+                       FontSize="12"
+                       MinHeight="20"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       IsVisible="{Binding HasHamQthStatus}" />
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
     </TabControl>
   </DockPanel>
 </Window>

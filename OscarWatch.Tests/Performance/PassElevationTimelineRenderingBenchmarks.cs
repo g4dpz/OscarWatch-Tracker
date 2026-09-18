@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Reflection;
 using OscarWatch.Controls;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
@@ -79,14 +78,13 @@ public sealed class PassElevationTimelineRenderingBenchmarks
     [Fact]
     public void MeasureTooltipGenerationPerformance()
     {
-        // Generate passes that will definitely be in the time window
+        using var _ = TestUiCulture.Apply();
         var now = DateTime.UtcNow;
         var testPasses = new List<PassInfo>();
-        
-        // Create passes spread across the 2-hour window, starting soon
+
         for (int i = 0; i < 5; i++)
         {
-            var aos = now.AddMinutes(10 + (i * 20)); // Passes at 10, 30, 50, 70, 90 minutes from now
+            var aos = now.AddMinutes(10 + (i * 20));
             testPasses.Add(new PassInfo
             {
                 NoradId = (25000 + i).ToString(),
@@ -99,8 +97,7 @@ public sealed class PassElevationTimelineRenderingBenchmarks
                 LosAzimuthDeg = (i * 72 + 180) % 360
             });
         }
-        
-        // Arrange
+
         var control = new PassElevationTimelineControl
         {
             Width = 800,
@@ -112,40 +109,22 @@ public sealed class PassElevationTimelineRenderingBenchmarks
             Use24HourClock = true
         };
 
-        var hitPoints = new List<double>();
-        for (double x = 50; x < 750; x += 50)
-            hitPoints.Add(x);
+        // Warm JIT, resource lookups, and the tooltip cache. GetTotalMemory is process-wide
+        // and races with parallel tests plus RecomputeProfiles on a worker thread.
+        foreach (var pass in testPasses)
+            Assert.False(string.IsNullOrEmpty(control.GetCachedTooltip(pass)));
 
-        // Establish baseline before tooltip generation
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-        var baselineMemory = GC.GetTotalMemory(forceFullCollection: true);
-        
-        // Generate tooltips - first pass should populate cache
-        var firstPassHits = new List<PassInfo>();
-        foreach (var x in hitPoints)
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        for (var i = 0; i < 20; i++)
         {
-            var hit = control.HitTest(x);
-            if (hit != null) firstPassHits.Add(hit);
+            foreach (var pass in testPasses)
+                control.GetCachedTooltip(pass);
         }
-        
-        // Second pass should use cached tooltips (lower allocation)
-        var secondPassMemory = GC.GetTotalMemory(forceFullCollection: false);
-        foreach (var x in hitPoints)
-        {
-            control.HitTest(x);
-        }
-        
-        var finalMemory = GC.GetTotalMemory(forceFullCollection: false);
-        var totalAllocations = finalMemory - baselineMemory;
-        
-        // Verify reasonable memory usage with tooltip caching
-        Assert.True(totalAllocations < 500_000, 
-            $"Allocated {totalAllocations} bytes during tooltip benchmark (expected <500KB with caching)");
-        
-        // If no hits, the test is still valid - it means no passes are visible at those X coordinates
-        // This can happen if the time window doesn't align with the pass times
-        Assert.True(firstPassHits.Count >= 0, "Hit test completed successfully");
+
+        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        Assert.True(
+            allocated < 500_000,
+            $"Allocated {allocated} bytes during tooltip benchmark (expected <500KB with caching)");
     }
 
     [Fact]

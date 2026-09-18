@@ -591,6 +591,7 @@
                      MinHeight="0"
                      HorizontalAlignment="Stretch"
                      VerticalAlignment="Stretch"
+                     AutoScrollToSelectedItem="False"
                      SelectedItem="{Binding SelectedListItem, Mode=TwoWay}">
               <ListBox.ContextMenu>
                 <ContextMenu Opening="OnPassesContextMenuOpening">

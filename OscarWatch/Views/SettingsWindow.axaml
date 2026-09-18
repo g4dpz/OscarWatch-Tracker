@@ -594,7 +594,7 @@
                   <StackPanel Spacing="4" IsVisible="{Binding ShowDownlinkCivAddress}">
                     <TextBlock Text="{loc:Localize Key=Settings.Radio.CivAddress}" />
                     <TextBox Text="{Binding DownlinkCivAddress, Mode=TwoWay}"
-                             Watermark="A4 / 94 / AC / 48 / 4C / 58" />
+                             Watermark="A4 / 94 / AC / 88 / 48 / 4C / 58" />
                     <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                                FontSize="11"
                                TextWrapping="Wrap"
@@ -610,6 +610,11 @@
                                TextWrapping="Wrap"
                                IsVisible="{Binding ShowDownlinkIc905CivHint}"
                                Text="{loc:Localize Key=Settings.Radio.Ic905CivHint}" />
+                    <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                               FontSize="11"
+                               TextWrapping="Wrap"
+                               IsVisible="{Binding ShowDownlinkIc7100CivHint}"
+                               Text="{loc:Localize Key=Settings.Radio.Ic7100CivHint}" />
                     <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                                FontSize="11"
                                TextWrapping="Wrap"
@@ -705,7 +710,7 @@
                     <StackPanel Spacing="4" IsVisible="{Binding ShowUplinkCivAddress}">
                       <TextBlock Text="{loc:Localize Key=Settings.Radio.CivAddress}" />
                       <TextBox Text="{Binding UplinkCivAddress, Mode=TwoWay}"
-                               Watermark="A4 / 94 / AC / 48 / 4C / 58" />
+                               Watermark="A4 / 94 / AC / 88 / 48 / 4C / 58" />
                       <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                                  FontSize="11"
                                  TextWrapping="Wrap"
@@ -721,6 +726,11 @@
                                  TextWrapping="Wrap"
                                  IsVisible="{Binding ShowUplinkIc905CivHint}"
                                  Text="{loc:Localize Key=Settings.Radio.Ic905CivHint}" />
+                      <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                 FontSize="11"
+                                 TextWrapping="Wrap"
+                                 IsVisible="{Binding ShowUplinkIc7100CivHint}"
+                                 Text="{loc:Localize Key=Settings.Radio.Ic7100CivHint}" />
                       <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                                  FontSize="11"
                                  TextWrapping="Wrap"
@@ -779,6 +789,11 @@
                        TextWrapping="Wrap"
                        IsVisible="{Binding ShowRigIc905CatHint}"
                        Text="{loc:Localize Key=Settings.Radio.Ic905Hint}" />
+            <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding ShowRigIc7100CatHint}"
+                       Text="{loc:Localize Key=Settings.Radio.Ic7100Hint}" />
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
@@ -1022,6 +1037,11 @@
               <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                          FontSize="11"
                          TextWrapping="Wrap"
+                         IsVisible="{Binding ShowRotatorSpidMd01NetworkNote}"
+                         Text="{loc:Localize Key=Settings.Rotator.NetworkNoteSpidMd01}" />
+              <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                         FontSize="11"
+                         TextWrapping="Wrap"
                          IsVisible="{Binding ShowRotatorTcpSerialNetworkNote}"
                          Text="{loc:Localize Key=Settings.Rotator.NetworkNoteTcpSerial}" />
             </StackPanel>
@@ -1065,7 +1085,7 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Text="{loc:Localize Key=Settings.Rotator.TrackStartNote}" />
-            <TextBlock Text="Movement Threshold (°)" Margin="0,8,0,0" />
+            <TextBlock Text="{loc:Localize Key=Settings.Rotator.MovementThreshold}" Margin="0,8,0,0" />
             <NumericUpDown Value="{Binding RotatorMovementThresholdDeg, Mode=TwoWay}"
                            Minimum="0.1" Maximum="10.0"
                            Increment="0.1" FormatString="F1"
@@ -1073,7 +1093,7 @@
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
-                       Text="Minimum angular change before a new position command is sent. Lower values give tighter tracking; higher values reduce gear wear. Default: 1.0°." />
+                       Text="{loc:Localize Key=Settings.Rotator.MovementThresholdNote}" />
             <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,8,0,0">
               <StackPanel Grid.Column="0" Spacing="4">
                 <TextBlock Text="{loc:Localize Key=Settings.Rotator.ParkAzimuth}" />
@@ -1225,6 +1245,18 @@
                       Content="{loc:Localize Key=Common.Browse}"
                       Click="OnBrowseRecordingFolderClick" />
             </Grid>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" Margin="0,4,0,0">
+              <TextBlock Grid.Column="0"
+                         VerticalAlignment="Center"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                         FontSize="11"
+                         TextWrapping="Wrap"
+                         Text="{Binding RecordingFolderUsageText}" />
+              <Button Grid.Column="1"
+                      Content="{loc:Localize Key=Settings.Recording.OpenFolder}"
+                      Command="{Binding OpenRecordingOutputFolderCommand}"
+                      MinWidth="100" />
+            </Grid>
             <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        FontSize="11"
                        TextWrapping="Wrap"
@@ -1272,6 +1304,10 @@
                            Content="{loc:Localize Key=Settings.SatelliteStatus.Section}" />
               <ListBoxItem Tag="CloudlogIntegrationSection"
                            Content="{loc:Localize Key=Settings.Cloudlog.Section}" />
+              <ListBoxItem Tag="QrzIntegrationSection"
+                           Content="{loc:Localize Key=Settings.Qrz.Section}" />
+              <ListBoxItem Tag="HamQthIntegrationSection"
+                           Content="{loc:Localize Key=Settings.HamQth.Section}" />
               <ListBoxItem Tag="GpsIntegrationSection"
                            Content="{loc:Localize Key=Settings.Gps.Title}" />
               <ListBoxItem Tag="SatelliteLinkIntegrationSection"
@@ -1399,6 +1435,64 @@
                            FontSize="11"
                            TextWrapping="Wrap"
                            Text="{loc:Localize Key=Settings.Cloudlog.MinIntervalNote}" />
+              </StackPanel>
+
+              <StackPanel x:Name="QrzIntegrationSection"
+                          Spacing="14"
+                          IsVisible="False">
+                <TextBlock Text="{loc:Localize Key=Settings.Qrz.Section}"
+                           FontWeight="SemiBold"
+                           FontSize="13" />
+                <TextBlock TextWrapping="Wrap"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           FontSize="11"
+                           Text="{loc:Localize Key=Settings.Qrz.Intro}" />
+                <CheckBox Content="{loc:Localize Key=Settings.Qrz.Enable}"
+                          IsChecked="{Binding QrzEnabled, Mode=TwoWay}" />
+                <TextBlock Text="{loc:Localize Key=Settings.Qrz.Username}" />
+                <TextBox Text="{Binding QrzUsername, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Watermark="{loc:Localize Key=Settings.Qrz.UsernameWatermark}" />
+                <TextBlock Text="{loc:Localize Key=Settings.Qrz.Password}" />
+                <TextBox Text="{Binding QrzPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         PasswordChar="•"
+                         Watermark="{loc:Localize Key=Settings.Qrz.PasswordWatermark}" />
+                <Button Content="{loc:Localize Key=Settings.Qrz.TestConnection}"
+                        Click="OnTestQrzClick"
+                        HorizontalAlignment="Left" />
+                <TextBlock Text="{Binding QrzTestStatus}"
+                           TextWrapping="Wrap"
+                           FontSize="12"
+                           MinHeight="20"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+              </StackPanel>
+
+              <StackPanel x:Name="HamQthIntegrationSection"
+                          Spacing="14"
+                          IsVisible="False">
+                <TextBlock Text="{loc:Localize Key=Settings.HamQth.Section}"
+                           FontWeight="SemiBold"
+                           FontSize="13" />
+                <TextBlock TextWrapping="Wrap"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           FontSize="11"
+                           Text="{loc:Localize Key=Settings.HamQth.Intro}" />
+                <CheckBox Content="{loc:Localize Key=Settings.HamQth.Enable}"
+                          IsChecked="{Binding HamQthEnabled, Mode=TwoWay}" />
+                <TextBlock Text="{loc:Localize Key=Settings.HamQth.Username}" />
+                <TextBox Text="{Binding HamQthUsername, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Watermark="{loc:Localize Key=Settings.HamQth.UsernameWatermark}" />
+                <TextBlock Text="{loc:Localize Key=Settings.HamQth.Password}" />
+                <TextBox Text="{Binding HamQthPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         PasswordChar="•"
+                         Watermark="{loc:Localize Key=Settings.HamQth.PasswordWatermark}" />
+                <Button Content="{loc:Localize Key=Settings.HamQth.TestConnection}"
+                        Click="OnTestHamQthClick"
+                        HorizontalAlignment="Left" />
+                <TextBlock Text="{Binding HamQthTestStatus}"
+                           TextWrapping="Wrap"
+                           FontSize="12"
+                           MinHeight="20"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
               </StackPanel>
 
               <StackPanel x:Name="GpsIntegrationSection"

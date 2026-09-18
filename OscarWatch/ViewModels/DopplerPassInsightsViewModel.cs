@@ -134,6 +134,8 @@ public partial class DopplerPassInsightsViewModel : ViewModelBase
                 return;
             }
 
+            DopplerPassLogFileNameFormat.PruneOlderThanRetention(directory);
+
             var latest = Directory.GetFiles(directory, "*.csv", SearchOption.TopDirectoryOnly)
                 .Select(path => new FileInfo(path))
                 .OrderByDescending(fi => fi.LastWriteTimeUtc)

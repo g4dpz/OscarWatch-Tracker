@@ -10,6 +10,7 @@ public enum RigType
     IcomIc705,
     IcomIc7300,
     IcomIc905,
+    IcomIc7100,
     IcomIc706,
     IcomIc706Mkii,
     IcomIc706MkiiG,

@@ -56,6 +56,57 @@ public static class RecordingFileNameFormat
             ? GetDefaultOutputFolder()
             : configuredFolder.Trim();
 
+    /// <summary>
+    /// Counts top-level <c>.wav</c> / <c>.mp3</c> files and total bytes in the recordings folder.
+    /// </summary>
+    public static (int FileCount, long TotalBytes, bool DirectoryExists) MeasureUsage(string? configuredFolder)
+    {
+        var folder = ResolveOutputFolder(configuredFolder);
+        if (!Directory.Exists(folder))
+            return (0, 0, false);
+
+        var count = 0;
+        long total = 0;
+        foreach (var path in Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly))
+        {
+            var ext = Path.GetExtension(path);
+            if (!ext.Equals(".wav", StringComparison.OrdinalIgnoreCase)
+                && !ext.Equals(".mp3", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            try
+            {
+                total += new FileInfo(path).Length;
+                count++;
+            }
+            catch
+            {
+                // Skip inaccessible files.
+            }
+        }
+
+        return (count, total, true);
+    }
+
+    /// <summary>Formats a byte count for operator-facing UI (e.g. 1.8 GB, 820 MB, 12 KB).</summary>
+    public static string FormatByteSize(long bytes)
+    {
+        if (bytes < 0)
+            bytes = 0;
+
+        const double kb = 1024.0;
+        const double mb = kb * 1024.0;
+        const double gb = mb * 1024.0;
+
+        if (bytes >= gb)
+            return $"{bytes / gb:0.#} GB";
+        if (bytes >= mb)
+            return $"{bytes / mb:0.#} MB";
+        if (bytes >= kb)
+            return $"{bytes / kb:0.#} KB";
+        return $"{bytes} B";
+    }
+
     public static void OpenOutputFolder(string? configuredFolder)
     {
         var folder = ResolveOutputFolder(configuredFolder);

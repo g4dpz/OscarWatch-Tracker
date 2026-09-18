@@ -1,0 +1,3934 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+  <resheader name="resmimetype">text/microsoft-resx</resheader>
+  <resheader name="version">2.0</resheader>
+  <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</resheader>
+  <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</resheader>
+  <data name="About.Copyright">
+    <value>Copyright © 2025–2026 Peter Goodhall (MM9SQL)</value>
+  </data>
+  <data name="About.Description">
+    <value>Desktop-Satellitennachführung für Funkamateure. Überflüge verfolgen, CAT-Steuerung mit Dopplerkorrektur, Rotornachführung und Transponder-Modi aus der OscarWatch-Satellitendatenbank.</value>
+  </data>
+  <data name="About.DonateNote">
+    <value>Wenn Sie spenden, teilen Sie Peter bitte Ihr Rufzeichen mit, damit er sich bedanken kann.</value>
+  </data>
+  <data name="About.Github">
+    <value>github.com/magicbug/OscarWatch-Tracker</value>
+  </data>
+  <data name="About.License">
+    <value>Lizenziert unter der GNU Affero General Public License v3.0 oder später (AGPL-3.0-or-later). Siehe LICENSE.md im Quellcode-Repository.</value>
+  </data>
+  <data name="About.PayPal">
+    <value>PayPal</value>
+  </data>
+  <data name="About.SponsorGithub">
+    <value>Auf GitHub sponsern</value>
+  </data>
+  <data name="About.SupportIntro">
+    <value>OscarWatch ist frei und quelloffen. Wenn Sie es nützlich finden, können Sie die Weiterentwicklung unterstützen:</value>
+  </data>
+  <data name="About.Supporters">
+    <value>Unterstützer</value>
+  </data>
+  <data name="About.Title">
+    <value>Über OscarWatch</value>
+  </data>
+  <data name="About.TleSource">
+    <value>TLE-Katalog: tle.oscarwatch.org</value>
+  </data>
+  <data name="App.Title">
+    <value>OscarWatch</value>
+  </data>
+  <data name="Common.Add">
+    <value>Hinzufügen</value>
+  </data>
+  <data name="Common.Browse">
+    <value>Durchsuchen…</value>
+  </data>
+  <data name="Common.Cancel">
+    <value>Abbrechen</value>
+  </data>
+  <data name="Common.Back">
+    <value>Zurück</value>
+  </data>
+  <data name="Common.Next">
+    <value>Weiter</value>
+  </data>
+  <data name="Common.Close">
+    <value>Schließen</value>
+  </data>
+  <data name="Common.Copy">
+    <value>Kopieren</value>
+  </data>
+  <data name="Common.Delete">
+    <value>Löschen</value>
+  </data>
+  <data name="Common.Now">
+    <value>Jetzt</value>
+  </data>
+  <data name="Common.Ok">
+    <value>OK</value>
+  </data>
+  <data name="Common.Refresh">
+    <value>Aktualisieren</value>
+  </data>
+  <data name="Common.Save">
+    <value>Speichern</value>
+  </data>
+  <data name="Common.Show">
+    <value>Anzeigen</value>
+  </data>
+  <data name="Main.Alt">
+    <value>  ·  Alt </value>
+  </data>
+  <data name="Main.Az">
+    <value>Az </value>
+  </data>
+  <data name="Main.Eclipse">
+    <value>Finsternis</value>
+  </data>
+  <data name="Main.El">
+    <value>  ·  El </value>
+  </data>
+  <data name="Main.Elevation.BelowHorizon">
+    <value>unter dem Horizont</value>
+  </data>
+  <data name="Main.Live">
+    <value>Live</value>
+  </data>
+  <data name="Main.MapTimeStatus.Live">
+    <value>Live</value>
+  </data>
+  <data name="Main.Gps.Status">
+    <value>GPS</value>
+  </data>
+  <data name="Main.Gps.StatusWithGrid">
+    <value>GPS ({0})</value>
+  </data>
+  <data name="Main.Gps.Time">
+    <value>GPS-Zeit</value>
+  </data>
+  <data name="Main.Gps.Tooltip.Fix">
+    <value>GPS-Fix aktiv</value>
+  </data>
+  <data name="Main.Gps.Tooltip.NoFix">
+    <value>GPS eingeschaltet, kein Fix</value>
+  </data>
+  <data name="Main.Gps.TimeTooltip.Active">
+    <value>Satellitennachführung verwendet GPS-UTC</value>
+  </data>
+  <data name="Main.Gps.TimeTooltip.Inactive">
+    <value>GPS-Zeit eingeschaltet, warte auf Fix</value>
+  </data>
+  <data name="Main.SatelliteLink.Waiting">
+    <value>Sat-Link • Warten</value>
+  </data>
+  <data name="Main.SatelliteLink.Clients">
+    <value>Sat-Link • {0} Clients</value>
+  </data>
+  <data name="Main.SatelliteLink.Error">
+    <value>Sat-Link • Fehler</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Waiting">
+    <value>Satellite-Link-WebSocket lauscht auf Port {0} ({1}). Warte auf Clients.</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Clients">
+    <value>Satellite-Link-WebSocket auf Port {0} ({1}). {2} Client(s) verbunden.</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Error">
+    <value>Satellite Link fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Main.SatelliteLink.Bind.Local">
+    <value>nur dieser PC</value>
+  </data>
+  <data name="Main.SatelliteLink.Bind.Lan">
+    <value>lokales Netz</value>
+  </data>
+  <data name="Main.Pass.AosIn">
+    <value>{0} AOS in {1}</value>
+  </data>
+  <data name="Main.Pass.LosIn">
+    <value>{0} LOS in {1}</value>
+  </data>
+  <data name="Main.Pass.InProgress">
+    <value>{0}: läuft</value>
+  </data>
+  <data name="Main.Pass.None">
+    <value>Keine anstehenden Überflüge</value>
+  </data>
+  <data name="Main.Passes">
+    <value>Nächste Überflüge</value>
+  </data>
+  <data name="Main.Timeline.Close">
+    <value>Elevationsverlauf ausblenden</value>
+  </data>
+  <data name="Main.Timeline.Detach">
+    <value>Elevationsverlauf in ein eigenes Fenster lösen</value>
+  </data>
+  <data name="Main.Timeline.ResizeGrip">
+    <value>Ziehen, um den Elevationsverlauf zu skalieren</value>
+  </data>
+  <data name="Main.Timeline.Description">
+    <value>Anstehende Überflüge nach Elevation. Klicken Sie auf einen Überflug, um den Satelliten auf der Karte zu fokussieren. Mit dem Mausrad zoomen Sie das Zeitfenster (30 Minuten bis 6 Stunden). Folgt der Kartenzeit, wenn Sie vor- oder zurückspulen.</value>
+  </data>
+  <data name="Main.Timeline.Elevation45">
+    <value>45°</value>
+  </data>
+  <data name="Main.Timeline.PassTooltip">
+    <value>{0}
+AOS: {1}
+LOS: {2}
+Max. Elevation: {3}
+Dauer: {4}</value>
+  </data>
+  <data name="Main.Timeline.TimeAxisUtc">
+    <value>UTC</value>
+  </data>
+  <data name="Main.Timeline.WindowMinutes">
+    <value>{0} min</value>
+  </data>
+  <data name="Main.Timeline.WindowHours">
+    <value>{0} h</value>
+  </data>
+  <data name="Main.HamsAtRoves">
+    <value>Anstehende Roves</value>
+  </data>
+  <data name="Main.HamsAtRoves.Empty">
+    <value>Keine Roves in Reichweite für Ihren hams.at-Standort.</value>
+  </data>
+  <data name="Main.HamsAtRoves.LoadFailed">
+    <value>Roves von hams.at konnten nicht geladen werden.</value>
+  </data>
+  <data name="Main.HamsAtRoves.Unavailable">
+    <value>hams.at ist vorübergehend nicht erreichbar. Roves werden automatisch aktualisiert.</value>
+  </data>
+  <data name="Main.HamsAtRoves.InvalidApiKey">
+    <value>Ungültiger hams.at-API-Schlüssel. Prüfen Sie ihn unter Einstellungen.</value>
+  </data>
+  <data name="Main.HamsAtRoves.RateLimited">
+    <value>hams.at hat diese Anfrage begrenzt. Versuchen Sie es später erneut.</value>
+  </data>
+  <data name="Main.HamsAtRoves.Timeout">
+    <value>hams.at hat nicht rechtzeitig geantwortet. Versuchen Sie es später erneut.</value>
+  </data>
+  <data name="Main.HamsAtRoves.Network">
+    <value>hams.at konnte nicht erreicht werden. Prüfen Sie Ihre Internetverbindung.</value>
+  </data>
+  <data name="Main.HamsAtRoves.UnexpectedResponse">
+    <value>hams.at hat eine unerwartete Antwort geliefert. Versuchen Sie es später erneut.</value>
+  </data>
+  <data name="Main.HamsAtRoves.ResizeGrip">
+    <value>Ziehen, um die Roves-Liste zu skalieren</value>
+  </data>
+  <data name="Pass.Rec">
+    <value>REC</value>
+  </data>
+  <data name="Pass.Passing">
+    <value>Überflug</value>
+  </data>
+  <data name="Pass.OpenVisualizer">
+    <value>Überflugplot anzeigen</value>
+  </data>
+  <data name="Pass.Schedule.Add">
+    <value>Überflug vormerken</value>
+  </data>
+  <data name="Pass.Schedule.Remove">
+    <value>Aus der Vormerkung entfernen</value>
+  </data>
+  <data name="Pass.Schedule.AddShort">
+    <value>Vormerken</value>
+  </data>
+  <data name="Pass.Schedule.RemoveShort">
+    <value>Vorgemerkt</value>
+  </data>
+  <data name="Pass.Schedule.AddTooltip">
+    <value>Diesen Überflug für Gong und Hinweis vor AOS vormerken</value>
+  </data>
+  <data name="Pass.Schedule.RemoveTooltip">
+    <value>Diesen Überflug aus der Vormerkung entfernen</value>
+  </data>
+  <data name="Pass.HamsAt.PostActivation">
+    <value>Aktivierung bei hams.at posten</value>
+  </data>
+  <data name="Pass.HamsAt.EnterApiKey">
+    <value>Geben Sie zuerst Ihren hams.at-API-Schlüssel unter Einstellungen ein.</value>
+  </data>
+  <data name="Pass.HamsAt.InvalidNorad">
+    <value>Dieser Überflug hat keine gültige NORAD-Katalognummer.</value>
+  </data>
+  <data name="Pass.HamsAt.Posted">
+    <value>Aktivierung bei hams.at gepostet.</value>
+  </data>
+  <data name="Pass.HamsAt.Failed">
+    <value>Aktivierung konnte nicht bei hams.at gepostet werden: {0}</value>
+  </data>
+  <data name="Pass.HamsAt.OpenAfterPost">
+    <value>Hinweis auf hams.at nach dem Posten öffnen</value>
+  </data>
+  <data name="Pass.Schedule.AlertTitle">
+    <value>Vorgemerkter Überflug</value>
+  </data>
+  <data name="Pass.Schedule.AlertBadge">
+    <value>Erinnerung</value>
+  </data>
+  <data name="Pass.Schedule.AlertCountdown">
+    <value>AOS in {0}</value>
+  </data>
+  <data name="Pass.Schedule.AlertAosAt">
+    <value>um {0}</value>
+  </data>
+  <data name="Pass.Schedule.AlertMessage">
+    <value>{0} AOS in {1} (um {2})</value>
+  </data>
+  <data name="Pass.Visualizer.Heading">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="Pass.Visualizer.Subtitle">
+    <value>Dauer {0} · {1} ({2})</value>
+  </data>
+  <data name="Pass.Visualizer.Smart450.Extended">
+    <value>Smart450 nutzt auf diesem Überflug das erweiterte Band (361–450°).</value>
+  </data>
+  <data name="Pass.Visualizer.Smart450.Primary">
+    <value>Smart450 bleibt auf diesem Überflug im Primärband (0–360°).</value>
+  </data>
+  <data name="Pass.TimeRange">
+    <value>{0} bis {1}</value>
+  </data>
+  <data name="Pass.Details">
+    <value>Dauer: {0} | Max. Elevation: {1}</value>
+  </data>
+  <data name="Pass.Duration">
+    <value>Dauer: {0}</value>
+  </data>
+  <data name="Pass.MaxElevation">
+    <value>Max. Elevation: {0}</value>
+  </data>
+  <data name="Pass.DurationMinutes">
+    <value>{0} min</value>
+  </data>
+  <data name="Pass.DurationOneMinute">
+    <value>1 min</value>
+  </data>
+  <data name="ComPort.DualRadioSamePort">
+    <value>Downlink- und Uplink-Funkgerät nutzen beide {0}. Verwenden Sie für jedes Funkgerät einen anderen COM-Port.</value>
+  </data>
+  <data name="ComPort.RotatorAzElSamePort">
+    <value>Rotor-Azimut und -Elevation nutzen beide {0}. Verwenden Sie für jede Achse einen anderen COM-Port.</value>
+  </data>
+  <data name="ComPort.RotatorAndDownlink">
+    <value>Rotor und Downlink-Funkgerät nutzen beide {0}. Verwenden Sie unterschiedliche COM-Ports oder deaktivieren Sie ein Gerät.</value>
+  </data>
+  <data name="ComPort.RotatorAndUplink">
+    <value>Rotor und Uplink-Funkgerät nutzen beide {0}. Verwenden Sie unterschiedliche COM-Ports oder deaktivieren Sie ein Gerät.</value>
+  </data>
+  <data name="ComPort.RotatorAndRadio">
+    <value>Rotor und Funkgerät nutzen beide {0}. Verwenden Sie unterschiedliche COM-Ports oder deaktivieren Sie ein Gerät.</value>
+  </data>
+  <data name="ComPort.GpsAndRotator">
+    <value>GPS und Rotor nutzen beide {0}. Verwenden Sie unterschiedliche COM-Ports oder deaktivieren Sie ein Gerät.</value>
+  </data>
+  <data name="ComPort.GpsAndRadio">
+    <value>GPS und Funkgerät nutzen beide {0}. Verwenden Sie unterschiedliche COM-Ports oder deaktivieren Sie ein Gerät.</value>
+  </data>
+  <data name="ComPort.GpsAndDownlink">
+    <value>GPS und Downlink-Funkgerät nutzen beide {0}. Verwenden Sie unterschiedliche COM-Ports oder deaktivieren Sie ein Gerät.</value>
+  </data>
+  <data name="ComPort.GpsAndUplink">
+    <value>GPS und Uplink-Funkgerät nutzen beide {0}. Verwenden Sie unterschiedliche COM-Ports oder deaktivieren Sie ein Gerät.</value>
+  </data>
+  <data name="A11y.SatelliteSunlight">
+    <value>Satellit im Sonnenlicht</value>
+  </data>
+  <data name="A11y.SatelliteEclipse">
+    <value>Satellit in Finsternis</value>
+  </data>
+  <data name="Main.WorldMap">
+    <value>Weltkarte</value>
+  </data>
+  <data name="A11y.Plot.NoSatellites">
+    <value>{0}. Keine Satelliten ausgewählt.</value>
+  </data>
+  <data name="A11y.Plot.SelectWithArrows">
+    <value>{0}. {1} Satellit(en). Pfeiltasten zum Auswählen, Eingabe zum Bestätigen.</value>
+  </data>
+  <data name="A11y.Plot.SatelliteCount">
+    <value>{0}. {1} Satellit(en).</value>
+  </data>
+  <data name="A11y.Plot.FocusedWithLookAngles">
+    <value>{0}. Fokussiert {1}. Azimut {2:F1} Grad, Elevation {3:F1} Grad, Höhe {4:F0} Kilometer.</value>
+  </data>
+  <data name="A11y.Plot.FocusedBelowHorizon">
+    <value>{0}. Fokussiert {1}. Höhe {2:F0} Kilometer, unter dem Horizont.</value>
+  </data>
+  <data name="A11y.SkyPlot.TabHint">
+    <value>Polarplot. Hier Tab drücken, dann mit den Pfeiltasten den ausgewählten Satelliten wechseln.</value>
+  </data>
+  <data name="A11y.SkyPlot.AllBelowHorizon">
+    <value>Alle Satelliten unter dem Horizont</value>
+  </data>
+  <data name="Main.Radio">
+    <value>Funkgerät</value>
+  </data>
+  <data name="Main.Radio.CatPause">
+    <value>CAT pausieren</value>
+  </data>
+  <data name="Main.Radio.CatPauseTip">
+    <value>Frequenzupdates an das Funkgerät anhalten, damit Sie manuell abstimmen können.</value>
+  </data>
+  <data name="Main.Radio.CatResume">
+    <value>CAT fortsetzen</value>
+  </data>
+  <data name="Main.Radio.Rx">
+    <value>RX </value>
+  </data>
+  <data name="Main.Radio.Tx">
+    <value>TX </value>
+  </data>
+  <data name="Main.Range">
+    <value>Entf. </value>
+  </data>
+  <data name="Main.Rotator">
+    <value>Rotor</value>
+  </data>
+  <data name="Main.Rotator.Az">
+    <value>Az</value>
+  </data>
+  <data name="Main.Rotator.El">
+    <value>El</value>
+  </data>
+  <data name="Main.Rotator.Park">
+    <value>Rotor parken</value>
+  </data>
+  <data name="Main.Rotator.Stop">
+    <value>Rotor stoppen</value>
+  </data>
+  <data name="Main.Rotator.Stop.ToolTip">
+    <value>Rotorbewegung sofort stoppen (Not-Aus)</value>
+  </data>
+  <data name="Main.Rotator.Resume">
+    <value>Fortsetzen</value>
+  </data>
+  <data name="Main.Rotator.Parked">
+    <value>Geparkt</value>
+  </data>
+  <data name="Main.Satellite">
+    <value>Satellit</value>
+  </data>
+  <data name="Main.SkyPlot">
+    <value>Polarplot</value>
+  </data>
+  <data name="Main.SkyPlot.Hint">
+    <value>Klicken Sie auf einen Satelliten, um ihn auszuwählen, oder nutzen Sie die Pfeiltasten bei Fokus. Die Linie zeigt den Überflugpfad; das Fadenkreuz markiert die Rotorzielrichtung, wenn verbunden.</value>
+  </data>
+  <data name="Main.Standby.Hint">
+    <value>Nur Anzeige: Rotor geparkt, CAT pausiert</value>
+  </data>
+  <data name="Main.Standby.Pause">
+    <value>Bereitschaft</value>
+  </data>
+  <data name="Main.Standby.Resume">
+    <value>Fortsetzen</value>
+  </data>
+  <data name="Main.Sunlight">
+    <value>Sonnenlicht</value>
+  </data>
+  <data name="MapTime.Back15">
+    <value>−15m</value>
+  </data>
+  <data name="MapTime.Back5">
+    <value>−5m</value>
+  </data>
+  <data name="MapTime.Forward15">
+    <value>+15m</value>
+  </data>
+  <data name="MapTime.Forward5">
+    <value>+5m</value>
+  </data>
+  <data name="MapTime.FromNow">
+    <value>{0} ab jetzt</value>
+  </data>
+  <data name="MapTime.Live">
+    <value>Live</value>
+  </data>
+  <data name="MapTime.Tip.Back15">
+    <value>Karte 15 Minuten früher anzeigen</value>
+  </data>
+  <data name="MapTime.Tip.Back5">
+    <value>Karte 5 Minuten früher anzeigen</value>
+  </data>
+  <data name="MapTime.Tip.Forward15">
+    <value>Karte 15 Minuten später anzeigen</value>
+  </data>
+  <data name="MapTime.Tip.Forward5">
+    <value>Karte 5 Minuten später anzeigen</value>
+  </data>
+  <data name="MapTime.Tip.Now">
+    <value>Karte auf Live-Zeit zurücksetzen</value>
+  </data>
+  <data name="Menu.File">
+    <value>_Datei</value>
+  </data>
+  <data name="Menu.File.Close">
+    <value>_Schließen</value>
+  </data>
+  <data name="Menu.File.Export">
+    <value>_Exportieren</value>
+  </data>
+  <data name="Menu.File.Import">
+    <value>_Importieren</value>
+  </data>
+  <data name="Menu.File.Export.Settings">
+    <value>Einstellungen</value>
+  </data>
+  <data name="Menu.File.Import.Settings">
+    <value>Einstellungen</value>
+  </data>
+  <data name="Menu.File.Export.TransponderDatabase">
+    <value>Transponderdatenbank</value>
+  </data>
+  <data name="Menu.File.Import.TransponderDatabase">
+    <value>Transponderdatenbank</value>
+  </data>
+  <data name="File.Export.Settings.Title">
+    <value>Einstellungen exportieren</value>
+  </data>
+  <data name="File.Import.Settings.Title">
+    <value>Einstellungen importieren</value>
+  </data>
+  <data name="File.Import.Settings.ConfirmTitle">
+    <value>Einstellungen ersetzen?</value>
+  </data>
+  <data name="File.Import.Settings.ConfirmMessage">
+    <value>Der Import ersetzt alle aktuellen Einstellungen durch die gewählte Datei. COM-Ports, Audiogeräte und andere rechnerbezogene Werte müssen auf diesem PC ggf. angepasst werden. API-Schlüssel in der Datei werden wie gespeichert wiederhergestellt.
+
+Fortfahren?</value>
+  </data>
+  <data name="File.Export.Settings.Success">
+    <value>Einstellungen exportiert.</value>
+  </data>
+  <data name="File.Import.Settings.Success">
+    <value>Einstellungen importiert.</value>
+  </data>
+  <data name="File.Export.TransponderDatabase.Title">
+    <value>Transponderdatenbank exportieren</value>
+  </data>
+  <data name="File.Import.TransponderDatabase.Title">
+    <value>Transponderdatenbank importieren</value>
+  </data>
+  <data name="File.Export.Failed">
+    <value>Export fehlgeschlagen: {0}</value>
+  </data>
+  <data name="File.Import.Failed">
+    <value>Import fehlgeschlagen: {0}</value>
+  </data>
+  <data name="File.Import.Settings.Invalid">
+    <value>Ungültige Einstellungsdatei: {0}</value>
+  </data>
+  <data name="Menu.Help">
+    <value>_Hilfe</value>
+  </data>
+  <data name="Menu.Help.About">
+    <value>_Über OscarWatch</value>
+  </data>
+  <data name="Menu.Help.Logs">
+    <value>_Protokollordner öffnen</value>
+  </data>
+  <data name="Menu.Help.CopyDiagnostics">
+    <value>_Diagnose kopieren</value>
+  </data>
+  <data name="Menu.Help.OperatorGuide">
+    <value>_Bedienungsanleitung</value>
+  </data>
+  <data name="Menu.Help.CheckForUpdates">
+    <value>Auf _Updates prüfen</value>
+  </data>
+  <data name="Menu.Help.ReleaseNotes">
+    <value>_Versionshinweise</value>
+  </data>
+  <data name="Menu.Help.Recordings">
+    <value>_Aufnahmeordner öffnen</value>
+  </data>
+  <data name="Menu.Passes">
+    <value>_Überflüge</value>
+  </data>
+  <data name="Menu.Passes.Mutual">
+    <value>_Gemeinsame Überflüge</value>
+  </data>
+  <data name="Menu.Passes.Planner">
+    <value>_Überflugplaner</value>
+  </data>
+  <data name="Menu.Passes.Sunlight">
+    <value>_Sonnenlichtvorhersage</value>
+  </data>
+  <data name="Menu.Passes.DopplerInsights">
+    <value>Doppler-Überfluganalyse</value>
+  </data>
+  <data name="Menu.Rotator">
+    <value>_Rotor</value>
+  </data>
+  <data name="Menu.Tools">
+    <value>_Werkzeuge</value>
+  </data>
+  <data name="Menu.Tools.QsoLogbook">
+    <value>_OscarWatch-Logbuch</value>
+  </data>
+  <data name="Menu.Satellites">
+    <value>_Satelliten</value>
+  </data>
+  <data name="Menu.Satellites.ManageDatabase">
+    <value>Transponderdatenbank _verwalten</value>
+  </data>
+  <data name="Menu.Satellites.RefreshTles">
+    <value>TLEs _aktualisieren</value>
+  </data>
+  <data name="Menu.Satellites.Select">
+    <value>Satelliten _auswählen</value>
+  </data>
+  <data name="Menu.Satellites.UpdateDatabase">
+    <value>Transponder-_Datenbank aktualisieren…</value>
+  </data>
+  <data name="Menu.Settings">
+    <value>_Einstellungen</value>
+  </data>
+  <data name="Menu.Window">
+    <value>_Fenster</value>
+  </data>
+  <data name="Menu.Window.PassElevationTimeline">
+    <value>_Elevationsverlauf</value>
+  </data>
+  <data name="Window.PassElevationTimeline.Title">
+    <value>Elevationsverlauf</value>
+  </data>
+  <data name="Picker.SelectAll">
+    <value>Alle auswählen</value>
+  </data>
+  <data name="Picker.SelectNone">
+    <value>Keine auswählen</value>
+  </data>
+  <data name="Picker.StaleTle">
+    <value>Veraltetes TLE</value>
+  </data>
+  <data name="Picker.Title">
+    <value>Satelliten auswählen</value>
+  </data>
+  <data name="Settings.FootprintArrows">
+    <value>Footprint-Bewegungspfeile anzeigen</value>
+  </data>
+  <data name="Settings.FootprintArrows.Note">
+    <value>Pfeil in jedem Footprint zeigt die Richtung der Bodenspur.</value>
+  </data>
+  <data name="Settings.GreylineOverlay">
+    <value>Greyline (Tag/Nacht) auf der Karte anzeigen</value>
+  </data>
+  <data name="Settings.GreylineOverlay.Note">
+    <value>Nachtabschattung und Terminator; folgt der Kartenzeit beim Spulen.</value>
+  </data>
+  <data name="Settings.MultiTrackOverlay">
+    <value>Bodenspur der nächsten Umlaufbahn anzeigen</value>
+  </data>
+  <data name="Settings.MultiTrackOverlay.Note">
+    <value>Abgeschwächte nächste Umlaufbahn hinter der aktuellen Spur des fokussierten Satelliten.</value>
+  </data>
+  <data name="Settings.MapCentre">
+    <value>Kartenmitte (Längengrad)</value>
+  </data>
+  <data name="Settings.MapCentre.Note">
+    <value>Greenwich (0°), Locator der Station oder ein eigener Längengrad.</value>
+  </data>
+  <data name="Settings.MapCentre.Greenwich">
+    <value>Greenwich (0°)</value>
+  </data>
+  <data name="Settings.MapCentre.Station">
+    <value>Locator der Station</value>
+  </data>
+  <data name="Settings.MapCentre.Custom">
+    <value>Eigener Längengrad</value>
+  </data>
+  <data name="Settings.MapCentre.CustomLongitude">
+    <value>Eigene Kartenmitte, Längengrad (°)</value>
+  </data>
+  <data name="Settings.Language">
+    <value>Sprache</value>
+  </data>
+  <data name="Settings.Language.English">
+    <value>English (UK)</value>
+  </data>
+  <data name="Settings.Language.Japanese">
+    <value>日本語</value>
+  </data>
+  <data name="Settings.Language.PortugueseBrazil">
+    <value>Português (Brasil)</value>
+  </data>
+  <data name="Settings.Language.SimplifiedChinese">
+    <value>简体中文</value>
+  </data>
+  <data name="Settings.Language.Spanish">
+    <value>Español</value>
+  </data>
+  <data name="Settings.Language.Thai">
+    <value>ไทย</value>
+  </data>
+  <data name="Settings.Language.Indonesian">
+    <value>Bahasa Indonesia</value>
+  </data>
+  <data name="Settings.Language.Russian">
+    <value>Русский</value>
+  </data>
+  <data name="Settings.Language.German">
+    <value>Deutsch</value>
+  </data>
+  <data name="Settings.Language.RestartNote">
+    <value>OscarWatch muss neu gestartet werden, damit eine Sprachänderung wirksam wird.</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Title">
+    <value>Neustart erforderlich</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Message">
+    <value>OscarWatch muss neu gestartet werden, damit die neue Sprache wirksam wird. Jetzt neu starten?</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.RestartNow">
+    <value>Jetzt neu starten</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Later">
+    <value>Später</value>
+  </data>
+  <data name="Settings.Appearance.Section.LocaleTime">
+    <value>Sprache und Zeit</value>
+  </data>
+  <data name="Settings.Appearance.Section.Map">
+    <value>Karte</value>
+  </data>
+  <data name="Settings.Appearance.Section.Theme">
+    <value>Design</value>
+  </data>
+  <data name="Settings.Appearance.Section.Updates">
+    <value>Updates</value>
+  </data>
+  <data name="Settings.Tab.Appearance">
+    <value>Darstellung</value>
+  </data>
+  <data name="Settings.Tab.Cloudlog">
+    <value>Cloudlog</value>
+  </data>
+  <data name="Settings.Tab.Integrations">
+    <value>Integrationen</value>
+  </data>
+  <data name="Settings.Tab.Radio">
+    <value>Funkgerät</value>
+  </data>
+  <data name="Settings.Tab.Recording">
+    <value>Aufnahme</value>
+  </data>
+  <data name="Settings.Tab.Rotator">
+    <value>Rotor</value>
+  </data>
+  <data name="Settings.Tab.Station">
+    <value>Station</value>
+  </data>
+  <data name="Settings.Tab.Tle">
+    <value>TLE</value>
+  </data>
+  <data name="Settings.Tab.Tracking">
+    <value>Nachführung</value>
+  </data>
+  <data name="Settings.Tab.Voice">
+    <value>Sprachausgabe</value>
+  </data>
+  <data name="Settings.ClockFormat">
+    <value>Uhrformat</value>
+  </data>
+  <data name="Settings.ClockFormat.12Hour">
+    <value>12-Stunden (AM/PM)</value>
+  </data>
+  <data name="Settings.ClockFormat.24Hour">
+    <value>24-Stunden</value>
+  </data>
+  <data name="Settings.ClockFormat.Note">
+    <value>Gilt für die 12- oder 24-Stunden-Darstellung der Zeiten in der Anwendung.</value>
+  </data>
+  <data name="Settings.TimeDisplay">
+    <value>Zeiten anzeigen in</value>
+  </data>
+  <data name="Settings.TimeDisplay.Note">
+    <value>Lokal oder UTC für das Hauptfenster. Überflugplaner und gemeinsame Überflüge haben eine eigene Steuerung.</value>
+  </data>
+  <data name="Settings.Theme">
+    <value>Design</value>
+  </data>
+  <data name="Settings.Theme.Note">
+    <value>System folgt Ihrem Betriebssystem. Das Weltkartenbild bleibt vorerst in allen Modi hell.</value>
+  </data>
+  <data name="Settings.Title">
+    <value>Einstellungen</value>
+  </data>
+  <data name="Status.ComputingPasses">
+    <value>Überflüge werden berechnet…</value>
+  </data>
+  <data name="Status.HelpMissing">
+    <value>Hilfedateien nicht gefunden: neu installieren oder aus einem veröffentlichten Build starten</value>
+  </data>
+  <data name="Status.LoadingSettings">
+    <value>Starten…</value>
+  </data>
+  <data name="Status.LoadingSettingsFull">
+    <value>Einstellungen werden geladen…</value>
+  </data>
+  <data name="Status.LoadingTle">
+    <value>TLE-Katalog wird geladen…</value>
+  </data>
+  <data name="Status.DiagnosticsCopied">
+    <value>Diagnose in die Zwischenablage kopiert.</value>
+  </data>
+  <data name="Status.DiagnosticsCopyFailed">
+    <value>Diagnose konnte nicht kopiert werden.</value>
+  </data>
+  <data name="Status.LogsFolderFailed">
+    <value>Protokollordner konnte nicht geöffnet werden</value>
+  </data>
+  <data name="Status.NoSatellites">
+    <value>{0} | 0 aktiviert: Menü Satelliten → einige aktivieren</value>
+  </data>
+  <data name="Status.NoTle">
+    <value>Keine TLE-Daten: prüfen Sie Einstellungen → TLE oder nutzen Sie Satelliten → TLEs aktualisieren</value>
+  </data>
+  <data name="Status.RecordingsFolderFailed">
+    <value>Aufnahmeordner konnte nicht geöffnet werden</value>
+  </data>
+  <data name="Status.RefreshingTle">
+    <value>TLEs werden aktualisiert…</value>
+  </data>
+  <data name="Status.SatellitesEnabled">
+    <value>{0} | {1} Satellit(en) aktiviert</value>
+  </data>
+  <data name="Status.TleAge">
+    <value>TLE vor {0} ({1})</value>
+  </data>
+  <data name="Status.TleCached">
+    <value>TLE zwischengespeichert ({0})</value>
+  </data>
+  <data name="Status.TleNotLoaded">
+    <value>TLE nicht geladen</value>
+  </data>
+  <data name="Status.TleRefreshFailed">
+    <value>TLE-Aktualisierung fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Status.TleReloadFailed">
+    <value>TLE-Neuladen fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Status.TransponderChecking">
+    <value>Transponderdatenbank wird geprüft…</value>
+  </data>
+  <data name="Status.TransponderUpToDate">
+    <value>Transponderdatenbank ist aktuell.</value>
+  </data>
+  <data name="Status.AppUpdateChecking">
+    <value>Auf Anwendungs-Updates wird geprüft…</value>
+  </data>
+  <data name="Status.AppUpdateUpToDate">
+    <value>OscarWatch ist aktuell ({0}).</value>
+  </data>
+  <data name="Status.AppUpdateFailed">
+    <value>Updates konnten nicht geprüft werden: {0}</value>
+  </data>
+  <data name="Status.TransponderUpdated">
+    <value>Transponderdatenbank aktualisiert.</value>
+  </data>
+  <data name="Status.TleNotLoadedShort">
+    <value>TLE nicht geladen</value>
+  </data>
+  <data name="Status.LineNoSatellites">
+    <value>{0} | 0 aktiviert: Menü Satelliten → einige aktivieren</value>
+  </data>
+  <data name="Status.CloudlogError">
+    <value>Cloudlog: {0}</value>
+  </data>
+  <data name="Status.TransponderUpdateFailed">
+    <value>Transponder-Update fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Rig.Connected">
+    <value>Verbunden</value>
+  </data>
+  <data name="Rig.Disconnected">
+    <value>Getrennt</value>
+  </data>
+  <data name="Rig.CatPaused">
+    <value>CAT pausiert (manuelle Abstimmung)</value>
+  </data>
+  <data name="Rig.Tracking">
+    <value>Nachführung</value>
+  </data>
+  <data name="Rig.FlexControlFailed">
+    <value>FlexRadio-Satelliten-Setup fehlgeschlagen</value>
+  </data>
+  <data name="Rig.FlexControlFailedDetail">
+    <value>FlexRadio-Satelliten-Setup fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Rig.Ts2000SatlUnconfirmed">
+    <value>Nachführung (TS-2000 SATL nicht bestätigt; FA/FB wird verwendet)</value>
+  </data>
+  <data name="Rig.Ts2000SatlWarningTitle">
+    <value>TS-2000-Satellitenmodus nicht bestätigt</value>
+  </data>
+  <data name="Rig.Ts2000SatlWarningMessage">
+    <value>Das Funkgerät hat SATL per CAT (SA;) nicht bestätigt. OscarWatch setzt die Dopplerkorrektur auf FA/FB fort. Für beste Ergebnisse SAT am Funkgerät drücken, Memory-Modus ausschalten, alle Frontpanel-Menüs schließen und den Satelliten erneut auswählen, um SATL vollständig zu versuchen. Siehe Einstellungen → Funkgerät für den TS-2000-CAT-Hinweis.</value>
+  </data>
+  <data name="Rig.NoComPort">
+    <value>Kein COM-Port ausgewählt</value>
+  </data>
+  <data name="Rig.SelectDualComPorts">
+    <value>COM-Ports für Downlink- und Uplink-Funkgerät auswählen</value>
+  </data>
+  <data name="Rig.NotConnected">
+    <value>Funkgerät nicht verbunden</value>
+  </data>
+  <data name="Rig.NotConnectedPort">
+    <value>Funkgerät nicht verbunden ({0})</value>
+  </data>
+  <data name="Rig.DualNotConnected">
+    <value>Dual-Funkgerät nicht verbunden</value>
+  </data>
+  <data name="Rig.DualNotConnectedDetail">
+    <value>Dual-Funkgerät nicht verbunden: {0}</value>
+  </data>
+  <data name="Rig.NotConnectedDetail">
+    <value>Funkgerät nicht verbunden: {0}</value>
+  </data>
+  <data name="Rig.NotConnectedPortDetail">
+    <value>Funkgerät nicht verbunden ({0}): {1}</value>
+  </data>
+  <data name="Rig.SerialPortNotFound">
+    <value>Serieller Port nicht gefunden ({0}). USB-Kabel prüfen und Portliste aktualisieren.</value>
+  </data>
+  <data name="Rig.SerialPortBusy">
+    <value>Serieller Port belegt ({0}). Andere CAT-Programme schließen oder einen anderen Port wählen.</value>
+  </data>
+  <data name="Rig.DualEndpointSerialPortNotFound">
+    <value>{0}: serieller Port nicht gefunden ({1}). USB-Kabel prüfen und Portliste aktualisieren.</value>
+  </data>
+  <data name="Rig.DualEndpointSerialPortBusy">
+    <value>{0}: serieller Port belegt ({1}). Andere CAT-Programme schließen oder einen anderen Port wählen.</value>
+  </data>
+  <data name="Rig.DualRadioSamePort">
+    <value>Downlink- und Uplink-Funkgerät nutzen denselben seriellen Port. Verwenden Sie für jedes Funkgerät einen anderen Port.</value>
+  </data>
+  <data name="App.AlreadyRunningTitle">
+    <value>OscarWatch läuft bereits</value>
+  </data>
+  <data name="App.AlreadyRunningMessage">
+    <value>OscarWatch läuft bereits, aber das Fenster konnte nicht aktiviert werden. Wenn kein Fenster erscheint, beenden Sie OscarWatch.exe im Task-Manager und versuchen Sie es erneut.</value>
+  </data>
+  <data name="Window.PassPlanner.Title">
+    <value>Überflugplaner</value>
+  </data>
+  <data name="Window.Logbook.Title">
+    <value>OscarWatch-Logbuch</value>
+  </data>
+  <data name="Window.CreateLogbook.Title">
+    <value>Neues Logbuch</value>
+  </data>
+  <data name="Window.EditLogbook.Title">
+    <value>Logbuch bearbeiten</value>
+  </data>
+  <data name="Logbook.CreateLogbook.Intro">
+    <value>Legen Sie ein separates Logbuch für portable Aktivierungen, Conteste oder andere Betriebsabschnitte an.</value>
+  </data>
+  <data name="Logbook.EditLogbook.Intro">
+    <value>Name, Rufzeichen und Locator dieses Logbuchs aktualisieren. Vorhandene QSO-Datensätze bleiben unverändert.</value>
+  </data>
+  <data name="Logbook.EditLogbook">
+    <value>Logbuch bearbeiten</value>
+  </data>
+  <data name="Logbook.DeleteLogbook.ConfirmTitle">
+    <value>Logbuch löschen</value>
+  </data>
+  <data name="Logbook.DeleteLogbook.ConfirmMessage">
+    <value>„{0}“ und alle enthaltenen QSOs löschen? Das kann nicht rückgängig gemacht werden.</value>
+  </data>
+  <data name="Logbook.DeleteQso.ConfirmTitle">
+    <value>QSO löschen</value>
+  </data>
+  <data name="Logbook.DeleteQso.ConfirmMessage">
+    <value>Das QSO mit {0} am {1} löschen? Das kann nicht rückgängig gemacht werden.</value>
+  </data>
+  <data name="Logbook.LogbookLabel">
+    <value>Logbuch</value>
+  </data>
+  <data name="Logbook.Menu.Logbook">
+    <value>Logbuch</value>
+  </data>
+  <data name="Logbook.Menu.DeleteLogbook">
+    <value>Logbuch löschen</value>
+  </data>
+  <data name="Logbook.Menu.NoLogbook">
+    <value>Kein Logbuch ausgewählt</value>
+  </data>
+  <data name="Logbook.Menu.Edit">
+    <value>Bearbeiten</value>
+  </data>
+  <data name="Logbook.Menu.Export">
+    <value>Exportieren</value>
+  </data>
+  <data name="Logbook.Menu.Settings">
+    <value>Einstellungen</value>
+  </data>
+  <data name="Window.LogbookSettings.Title">
+    <value>Logbuch-Einstellungen</value>
+  </data>
+  <data name="Logbook.Settings.Saved">
+    <value>Logbuch-Einstellungen gespeichert.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.Intro">
+    <value>Neue QSOs beim Eintragen automatisch zu Cloudlog hochladen. Cloudlog-URL und API-Schlüssel kommen aus Einstellungen → Integrationen.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlLabel">
+    <value>Cloudlog-URL</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlNote">
+    <value>URL und API-Schlüssel in den Einstellungen der Anwendung unter Integrationen festlegen.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NotConfigured">
+    <value>Nicht konfiguriert: Einstellungen → Integrationen öffnen</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.AutoUpload">
+    <value>Automatischen QSO-Upload aktivieren</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfile">
+    <value>Stationsstandort</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfileNote">
+    <value>Cloudlog-Stationsprofil beim Senden von QSOs. Fehlgeschlagene Uploads werden automatisch wiederholt.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RefreshProfiles">
+    <value>Aktualisieren</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryFailed">
+    <value>Fehlgeschlagene Uploads wiederholen</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryStarted">
+    <value>Fehlgeschlagene Uploads werden wiederholt…</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ProfilesLoaded">
+    <value>{0} Stationsstandort(e) geladen.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NoProfiles">
+    <value>Cloudlog hat keine Stationsstandorte geliefert.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.LoadProfilesFailed">
+    <value>Stationsstandorte konnten nicht von Cloudlog geladen werden.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ConfigureIntegrationsFirst">
+    <value>Konfigurieren Sie Cloudlog unter Einstellungen → Integrationen, bevor Sie den Upload aktivieren.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationRequired">
+    <value>Wählen Sie einen Stationsstandort für den Cloudlog-Upload.</value>
+  </data>
+  <data name="Logbook.Menu.SettingsComingSoon">
+    <value>Logbuch-Einstellungen</value>
+  </data>
+  <data name="Logbook.NewLogbook">
+    <value>Neues Logbuch</value>
+  </data>
+  <data name="Logbook.NewName">
+    <value>Name</value>
+  </data>
+  <data name="Logbook.NewNameWatermark">
+    <value>Portable Aktivierung, Contest usw.</value>
+  </data>
+  <data name="Logbook.MyCallsign">
+    <value>Mein Rufzeichen</value>
+  </data>
+  <data name="Logbook.MyGrid">
+    <value>Mein Locator</value>
+  </data>
+  <data name="Logbook.Call">
+    <value>Rufzeichen</value>
+  </data>
+  <data name="Logbook.RstSent">
+    <value>Gesendet</value>
+  </data>
+  <data name="Logbook.RstRcvd">
+    <value>Empf.</value>
+  </data>
+  <data name="Logbook.Grid">
+    <value>Locator</value>
+  </data>
+  <data name="Logbook.GridHint">
+    <value>2/4/6/8 Zeichen; bei Locatorgrenze durch Komma trennen (z. B. IO77,IO87).</value>
+  </data>
+  <data name="Logbook.Name">
+    <value>Name</value>
+  </data>
+  <data name="Logbook.Comment">
+    <value>Kommentar</value>
+  </data>
+  <data name="Logbook.ClearFieldsHint">
+    <value>Alt+W leert die Eingabefelder</value>
+  </data>
+  <data name="Logbook.AddQso">
+    <value>Hinzufügen</value>
+  </data>
+  <data name="Logbook.SaveQso">
+    <value>Speichern</value>
+  </data>
+  <data name="Logbook.EditQso">
+    <value>QSO bearbeiten</value>
+  </data>
+  <data name="Logbook.CancelEdit">
+    <value>Abbrechen</value>
+  </data>
+  <data name="Logbook.EditingStatus">
+    <value>QSO in Bearbeitung, eingetragen um {0} UTC.</value>
+  </data>
+  <data name="Logbook.DeleteQso">
+    <value>QSO löschen</value>
+  </data>
+  <data name="Logbook.History">
+    <value>Letzte QSOs</value>
+  </data>
+  <data name="Logbook.StationControl">
+    <value>Stationsdaten</value>
+  </data>
+  <data name="Logbook.Station.Satellite">
+    <value>Satellit</value>
+  </data>
+  <data name="Logbook.Station.Mode">
+    <value>Mode</value>
+  </data>
+  <data name="Logbook.Station.Frequencies">
+    <value>Uplink / Downlink (MHz)</value>
+  </data>
+  <data name="Logbook.Station.Note">
+    <value>Werte werden beim Hinzufügen eines QSO aus der OscarWatch-Nachführung übernommen.</value>
+  </data>
+  <data name="Logbook.Station.Tracking">
+    <value>Nachführung {0}</value>
+  </data>
+  <data name="Logbook.Station.Unavailable">
+    <value>Kein Satellit ausgewählt oder kein Mode synchronisiert</value>
+  </data>
+  <data name="Logbook.ExportAdif">
+    <value>ADIF exportieren</value>
+  </data>
+  <data name="Logbook.ExportPicker.Title">
+    <value>ADIF exportieren</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Title">
+    <value>ADIF exportieren</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Intro">
+    <value>Wählen Sie, welche QSOs enthalten sein sollen und ob Satellitennamen für Logbook of the World umbenannt werden.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Scope.All">
+    <value>Alle QSOs im Logbuch</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Scope.DateRange">
+    <value>QSOs im UTC-Datumsbereich</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.FromUtc">
+    <value>Von (UTC)</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.ToUtc">
+    <value>Bis (UTC)</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountOne">
+    <value>1 QSO wird exportiert.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountMany">
+    <value>{0} QSOs werden exportiert.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountNone">
+    <value>Keine QSOs passen zu diesem Exportbereich.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.ForLotw">
+    <value>Satellitennamen für LoTW umbenennen</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Export">
+    <value>Exportieren</value>
+  </data>
+  <data name="Logbook.DefaultName">
+    <value>Hauptlogbuch</value>
+  </data>
+  <data name="Logbook.Status.Ready">
+    <value>Bereit</value>
+  </data>
+  <data name="Logbook.Status.Created">
+    <value>Logbuch „{0}“ angelegt.</value>
+  </data>
+  <data name="Logbook.Status.LogbookUpdated">
+    <value>Logbuch „{0}“ aktualisiert.</value>
+  </data>
+  <data name="Logbook.Status.Deleted">
+    <value>Logbuch „{0}“ gelöscht.</value>
+  </data>
+  <data name="Logbook.Status.StationUnavailable">
+    <value>Warten Sie, bis die Nachführung Satellit und Mode anzeigt, bevor Sie ein QSO eintragen.</value>
+  </data>
+  <data name="Logbook.Status.Added">
+    <value>{0} um {1} UTC eingetragen.</value>
+  </data>
+  <data name="Logbook.Status.Updated">
+    <value>{0} um {1} UTC aktualisiert.</value>
+  </data>
+  <data name="Logbook.Status.Removed">
+    <value>{0} entfernt.</value>
+  </data>
+  <data name="Logbook.Status.QsoCountOne">
+    <value>{0}: 1 QSO</value>
+  </data>
+  <data name="Logbook.Status.QsoCountMany">
+    <value>{0}: {1} QSOs</value>
+  </data>
+  <data name="Logbook.Status.ExportedOne">
+    <value>1 QSO nach ADIF exportiert.</value>
+  </data>
+  <data name="Logbook.Status.ExportedMany">
+    <value>{0} QSOs nach ADIF exportiert.</value>
+  </data>
+  <data name="Logbook.Status.ExportedOneRange">
+    <value>1 QSO nach ADIF exportiert ({0} UTC).</value>
+  </data>
+  <data name="Logbook.Status.ExportedManyRange">
+    <value>{0} QSOs nach ADIF exportiert ({1} UTC).</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Pending">
+    <value>Ausstehend</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Sent">
+    <value>Gesendet</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Failed">
+    <value>Fehlgeschlagen</value>
+  </data>
+  <data name="Logbook.Error.GridTooMany">
+    <value>Es werden höchstens {0} Locatorfelder unterstützt.</value>
+  </data>
+  <data name="Logbook.Error.GridInvalidSegment">
+    <value>Ungültiger Locator „{0}“. Verwenden Sie 2, 4, 6 oder 8 Maidenhead-Zeichen.</value>
+  </data>
+  <data name="Logbook.Error.NameRequired">
+    <value>Geben Sie einen Logbuchnamen ein.</value>
+  </data>
+  <data name="Logbook.CallHint.Previous">
+    <value>Früheres QSO in diesem Logbuch gefunden.</value>
+  </data>
+  <data name="Logbook.CallHint.PreviousWithGrid">
+    <value>Früheres QSO: Locator {0}.</value>
+  </data>
+  <data name="Logbook.CallStatus.Worked">
+    <value>gearbeitet</value>
+  </data>
+  <data name="Logbook.CallStatus.NotWorked">
+    <value>nicht gearbeitet</value>
+  </data>
+  <data name="Logbook.DxccStatus.Worked">
+    <value>gearbeitet</value>
+  </data>
+  <data name="Logbook.DxccStatus.New">
+    <value>neu</value>
+  </data>
+  <data name="Logbook.DxccBadge">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="Logbook.Menu.UpdateCountryFile">
+    <value>Länderdatei aktualisieren</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdating">
+    <value>Länderdatei wird aktualisiert…</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdated">
+    <value>Länderdatei aktualisiert.</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdateFailed">
+    <value>Länderdatei konnte nicht aktualisiert werden: {0}</value>
+  </data>
+  <data name="Logbook.Column.Country">
+    <value>Land</value>
+  </data>
+  <data name="Logbook.Column.DateTime">
+    <value>Datum/Zeit (UTC)</value>
+  </data>
+  <data name="Logbook.UtcClockLabel">
+    <value>QSO-Zeit (UTC)</value>
+  </data>
+  <data name="Logbook.Column.Call">
+    <value>Call</value>
+  </data>
+  <data name="Logbook.Column.Grid">
+    <value>Locator</value>
+  </data>
+  <data name="Logbook.Column.Satellite">
+    <value>SAT</value>
+  </data>
+  <data name="Logbook.Column.Mode">
+    <value>Mode</value>
+  </data>
+  <data name="Logbook.Column.RstSent">
+    <value>Gesendet</value>
+  </data>
+  <data name="Logbook.Column.RstRcvd">
+    <value>Empf.</value>
+  </data>
+  <data name="Logbook.Column.Cloudlog">
+    <value>Cloudlog</value>
+  </data>
+  <data name="Logbook.Column.Comment">
+    <value>Kommentar</value>
+  </data>
+  <data name="Window.MutualPass.Title">
+    <value>Gemeinsame Überflüge</value>
+  </data>
+  <data name="Window.MutualPassVisualizer.Title">
+    <value>Visualisierer gemeinsamer Überflüge</value>
+  </data>
+  <data name="Window.PassVisualizer.Title">
+    <value>Überflug-Visualisierer</value>
+  </data>
+  <data name="Window.PassRadarGallery.Title">
+    <value>Überflug-Radar-Galerie</value>
+  </data>
+  <data name="PassRadar.Gallery.Heading">
+    <value>{0} Überflug-Radar: {1}</value>
+  </data>
+  <data name="PassRadar.Gallery.Subtitle">
+    <value>{0} Überflüge · nächste {1} h · min. El {2:F0}° ({3})</value>
+  </data>
+  <data name="Window.DopplerInsights.Title">
+    <value>Doppler-Überfluganalyse</value>
+  </data>
+  <data name="Window.Sunlight.Title">
+    <value>Sonnenlichtvorhersage</value>
+  </data>
+  <data name="DopplerInsights.Header">
+    <value>Doppler-Überfluganalyse</value>
+  </data>
+  <data name="DopplerInsights.Subtitle">
+    <value>Laden Sie ein Überflugprotokoll, um klare Abstimmempfehlungen für adaptiven Schwellwert und Lead-Doppler-CAT zu sehen.</value>
+  </data>
+  <data name="DopplerInsights.OpenCsv">
+    <value>CSV öffnen</value>
+  </data>
+  <data name="DopplerInsights.LoadLatest">
+    <value>Neueste laden</value>
+  </data>
+  <data name="DopplerInsights.OpenFolder">
+    <value>Protokollordner öffnen</value>
+  </data>
+  <data name="DopplerInsights.Picker.Title">
+    <value>Doppler-Überflug-CSV auswählen</value>
+  </data>
+  <data name="DopplerInsights.Picker.CompareTitle">
+    <value>Vergleichs-CSV für Doppler-Überflug auswählen</value>
+  </data>
+  <data name="DopplerInsights.OpenCompareCsv">
+    <value>Vergleichs-CSV öffnen</value>
+  </data>
+  <data name="DopplerInsights.ClearCompare">
+    <value>Vergleich löschen</value>
+  </data>
+  <data name="DopplerInsights.Section.Summary">
+    <value>Zusammenfassung</value>
+  </data>
+  <data name="DopplerInsights.Section.Chart">
+    <value>Zeitreihen-Diagramm (durchgezogen = primär, gestrichelt = Vergleich)</value>
+  </data>
+  <data name="DopplerInsights.Chart.Legend">
+    <value>Blau = Downlink-Nachführfehler, Orange = Uplink-Nachführfehler, Türkisband = Zone des adaptiven Schwellwerts, Gestrichelt = Basis-Schwellwert, Lila Marken = CAT-Korrekturen, Grauer Streifen = Satelliten-Elevation, Bernsteinfarbene Linie = TCA (höchste Elevation)</value>
+  </data>
+  <data name="DopplerInsights.Chart.Explain">
+    <value>Jede farbige Linie zeigt, wie weit die Funkfrequenz vom berechneten Doppler-Soll abgewichen ist. Erreicht der Fehler den Schwellwert, sendet OscarWatch eine CAT-Korrektur (lila Marke) und der Fehler fällt zurück. Kleinere, gleichmäßigere Zyklen bedeuten bessere Nachführung.</value>
+  </data>
+  <data name="DopplerInsights.Chart.YAxis">
+    <value>Nachführfehler (Hz)</value>
+  </data>
+  <data name="DopplerInsights.Chart.ElevationLabel">
+    <value>El °</value>
+  </data>
+  <data name="DopplerInsights.Chart.TcaLabel">
+    <value>TCA</value>
+  </data>
+  <data name="DopplerInsights.Chart.Hint">
+    <value>Mit +/− zoomen oder horizontal scrollen zum Verschieben</value>
+  </data>
+  <data name="DopplerInsights.Section.Bars">
+    <value>Aktivitätsbalken (Prozent der Zeilen)</value>
+  </data>
+  <data name="DopplerInsights.Section.Analysis">
+    <value>Analysedetails</value>
+  </data>
+  <data name="DopplerInsights.Tab.Activity">
+    <value>Aktivitätsbalken</value>
+  </data>
+  <data name="DopplerInsights.Tab.Overview">
+    <value>Übersicht</value>
+  </data>
+  <data name="DopplerInsights.Tab.Events">
+    <value>Letzte Ereignisse</value>
+  </data>
+  <data name="DopplerInsights.Tab.Chart">
+    <value>Diagramm</value>
+  </data>
+  <data name="DopplerInsights.Tab.Tuning">
+    <value>Abstimmanleitung</value>
+  </data>
+  <data name="DopplerInsights.Tab.Files">
+    <value>Dateien</value>
+  </data>
+  <data name="DopplerInsights.Tab.Comparison">
+    <value>Vergleich</value>
+  </data>
+  <data name="DopplerInsights.Tab.Analysis">
+    <value>Analyse</value>
+  </data>
+  <data name="DopplerInsights.Section.Recommendations">
+    <value>Empfehlungen</value>
+  </data>
+  <data name="DopplerInsights.Section.HowTo">
+    <value>So nutzen Sie das zur Abstimmung der Funkgerät-Einstellungen</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Intro">
+    <value>Nutzen Sie dieses Feld, um einen Überflug vor und nach einer Einstellungsänderung zu vergleichen.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step1">
+    <value>1) Wenn „Durch Schwellwert unterdrückt“ sehr hoch und RX/TX-Schreibvorgänge niedrig sind, den Doppler-Schwellwert etwas senken.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step2">
+    <value>2) Wenn die RX/TX-Schreibraten sehr hoch sind, Schwellwert oder CAT-Verzögerung erhöhen, um unnötige Befehle zu reduzieren.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step3">
+    <value>3) Wenn der Peak-Slew hoch ist und die Nachführung hinterherhinkt, Lead-Doppler für CAT-Latenz aktivieren oder erhöhen.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step4">
+    <value>4) Vergleichsmodus nutzen: niedrigere p95-Deltas bei stabilen Schreibraten und weniger manuellen Eingriffen anstreben.</value>
+  </data>
+  <data name="DopplerInsights.Section.Events">
+    <value>Letzte Ereignisse</value>
+  </data>
+  <data name="DopplerInsights.Bar.RxWrites">
+    <value>RX-Schreibrate</value>
+  </data>
+  <data name="DopplerInsights.Bar.TxWrites">
+    <value>TX-Schreibrate</value>
+  </data>
+  <data name="DopplerInsights.Bar.BelowThreshold">
+    <value>Durch Schwellwert unterdrückt</value>
+  </data>
+  <data name="DopplerInsights.Bar.Interactive">
+    <value>Manuelle/interaktive Phasen</value>
+  </data>
+  <data name="DopplerInsights.Status.Ready">
+    <value>Wählen Sie eine CSV-Datei oder laden Sie das neueste Überflugprotokoll.</value>
+  </data>
+  <data name="DopplerInsights.Status.Loading">
+    <value>Doppler-Überflugprotokoll wird geladen</value>
+  </data>
+  <data name="DopplerInsights.Status.Loaded">
+    <value>{0} Zeilen geladen.</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadingCompare">
+    <value>Vergleichs-Überflugprotokoll wird geladen</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadedCompare">
+    <value>Vergleich mit {0} Zeilen geladen.</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderOk">
+    <value>Doppler-Protokollordner geöffnet.</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderFailed">
+    <value>Doppler-Protokollordner konnte nicht geöffnet werden: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadFailed">
+    <value>Protokoll konnte nicht geladen werden: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.FileMissing">
+    <value>Die gewählte Datei wurde nicht gefunden.</value>
+  </data>
+  <data name="DopplerInsights.Status.NoLogsFolder">
+    <value>Noch kein Doppler-Protokollordner gefunden: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.NoCsvLogs">
+    <value>Keine Doppler-CSV-Dateien gefunden in: {0}</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Empty">
+    <value>Keine Überflugdaten geladen.</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Value">
+    <value>Satellit: {0}. Überflugfenster: {1} bis {2} UTC ({3} min). Zeilen: {4} gesamt, {5} Snapshots, {6} CAT-Schreibvorgänge, {7} Offset-Änderungen.</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Empty">
+    <value>Schwellwert-Kennzahlen nicht verfügbar.</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Value">
+    <value>Schwellwerte: Basis {0} Hz, effektiv {1} Hz (adaptive Reduktion {2} %). Unterdrückte Zeilen: {3} %.</value>
+  </data>
+  <data name="DopplerInsights.Activity.Empty">
+    <value>Schreibaktivitäts-Kennzahlen nicht verfügbar.</value>
+  </data>
+  <data name="DopplerInsights.Activity.Value">
+    <value>Schreibvorgänge: RX {0} %, TX {1} %. Interaktive Zeilen: {2} %. CAT-pausierte Zeilen: {3}. Lead aktiv in {4} % der Zeilen.</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Empty">
+    <value>Frequenzdelta-Kennzahlen nicht verfügbar.</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Value">
+    <value>Deltas: RX Mittel {0} Hz, RX p95 {1} Hz, TX Mittel {2} Hz, TX p95 {3} Hz. Peak-Slew: {4} Hz/s.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Empty">
+    <value>Kein Vergleich geladen.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Value">
+    <value>Primär [{0}] RX/TX-Schreib {1} %/{2} %, RX/TX p95 {3}/{4} Hz. Vergleich [{5}] RX/TX-Schreib {6} %/{7} %, RX/TX p95 {8}/{9} Hz.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyTitle">
+    <value>Laden Sie einen Vergleichsüberflug, um zu sehen, ob Ihre Einstellungsänderungen die Nachführung verbessert haben.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyText">
+    <value>Wenn Sie eine zweite CSV laden (nach Änderung von Doppler-Schwellwert, CAT-Verzögerung oder Lead-Einstellungen), zeigt dieser Abschnitt, ob der neue Überflug besser oder schlechter ist.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.BetterTitle">
+    <value>✓ Vergleichsüberflug ist besser</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.WorseTitle">
+    <value>✗ Vergleichsüberflug ist schlechter</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.MixedTitle">
+    <value>~ Vergleichsüberflug ist gemischt</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.Value">
+    <value>RX-Schreib {0} %, TX-Schreib {1} %, RX p95 {2} Hz, TX p95 {3} Hz. Als Nächstes: {4}</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.IncreaseAggression">
+    <value>Schwellwert oder CAT-Verzögerung etwas senken, um die Abstimmung aggressiver zu machen.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.StabilizeWrites">
+    <value>Schwellwert oder CAT-Verzögerung etwas erhöhen, um Schreib-Chatter zu reduzieren.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.KeepSettings">
+    <value>Diese Einstellungen beibehalten: sie funktionieren gut!</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.SmallStep">
+    <value>Eine kleine Anpassung vornehmen und erneut vergleichen.</value>
+  </data>
+  <data name="DopplerInsights.Chart.Empty">
+    <value>Laden Sie eine Doppler-CSV, um Zeitreihen von RX/TX-Delta, Schwellwert und Schreibereignissen zu sehen.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Empty">
+    <value>Zeichnen Sie einen vollständigen Überflug auf, um Abstimmempfehlungen zu erzeugen.</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdHigh">
+    <value>Der Schwellwert wirkt für diesen Überflug hoch. Doppler-Schwellwert senken, damit CAT früher reagiert.</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdLow">
+    <value>Die Schreibrate ist sehr hoch. Wenn der Ton holprig klingt, Doppler-Schwellwert etwas anheben oder CAT-Verzögerung erhöhen.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Interactive">
+    <value>Während dieses Überflugs wurde manuell abgestimmt. Falls unbeabsichtigt, CAT-Stabilität und Transponder-Ausrichtung prüfen.</value>
+  </data>
+  <data name="DopplerInsights.Reco.CatPaused">
+    <value>CAT-pausierte Zeilen erkannt. Prüfen, ob CAT-Pause während aktiver Nachführung eingeschaltet blieb.</value>
+  </data>
+  <data name="DopplerInsights.Reco.EnableLead">
+    <value>Hoher Doppler-Slew bei geringer Lead-Nutzung. Lead-Doppler für CAT-Latenz auf steilen Überflugabschnitten aktivieren.</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveThreshold">
+    <value>Adaptiver Schwellwert war aktiv. Mit einem Überflug ohne diese Funktion vergleichen, um gleichmäßigere Abstimmung für Ihr Funkgerät zu bestätigen.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Balanced">
+    <value>Dieser Überflug wirkt ausgewogen. Einstellungen belassen und mit weiteren Überflügen auf Konsistenz vergleichen.</value>
+  </data>
+  <data name="DopplerInsights.Reco.IncreaseLead">
+    <value>Lead-Doppler war aktiviert, aber auf schnellen Doppler-Abschnitten selten wirksam. Lead-Stärke oder Lead-Zeit unter Funkgerät-Einstellungen erhöhen.</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveHelping">
+    <value>Der adaptive Schwellwert hat das effektive Band auf schnellen Abschnitten reduziert; das scheint zu helfen. Aktiviert lassen, sofern Sie keinen festen Schwellwert bevorzugen.</value>
+  </data>
+  <data name="DopplerInsights.Reco.TryAdaptive">
+    <value>Schneller Doppler-Slew bei festem Schwellwert erkannt. Adaptiven Schwellwert nahe TCA unter Funkgerät-Einstellungen aktivieren.</value>
+  </data>
+  <data name="DopplerInsights.Section.Adaptive">
+    <value>Adaptiver Schwellwert</value>
+  </data>
+  <data name="DopplerInsights.Section.Lead">
+    <value>Lead-Doppler (CAT-Latenz)</value>
+  </data>
+  <data name="DopplerInsights.Section.SettingsUsed">
+    <value>Für diesen Überflug aufgezeichnete Einstellungen</value>
+  </data>
+  <data name="DopplerInsights.Section.PassPhases">
+    <value>Überflug-Aufschlüsselung</value>
+  </data>
+  <data name="DopplerInsights.PassPhases.Intro">
+    <value>Wie die Nachführung in jeder Phase des Überflugs verlief. TCA- und Abwärtsäste für Lead-Doppler beachten; AOS/Anstieg für die Schwellwert-Abstimmung prüfen.</value>
+  </data>
+  <data name="DopplerInsights.PassHeadline.Value">
+    <value>{0}: {1} min Überflug, max. Elevation {2}°</value>
+  </data>
+  <data name="DopplerInsights.Tuning.CompareHint">
+    <value>Tipp: eine Einstellung ändern (Schwellwert, adaptiv, Lead-Zeit oder Lead-Stärke), einen weiteren Überflug fahren, dann beide CSV-Dateien unter Dateien → Vergleich laden, um zu sehen, ob die Nachführung besser wurde.</value>
+  </data>
+  <data name="DopplerInsights.Files.Primary">
+    <value>Primärer Überflug</value>
+  </data>
+  <data name="DopplerInsights.Files.Comparison">
+    <value>Vergleichsüberflug</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptyTitle">
+    <value>Kein Überflug geladen</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptySummary">
+    <value>Öffnen Sie eine Doppler-Überflug-CSV, um Abstimmempfehlungen für Ihre Funkgerät-Einstellungen zu erhalten.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodTitle">
+    <value>Nachführung sieht gut aus</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodSummary">
+    <value>Typischer Nachführfehler blieb niedrig (Downlink p95 {0} Hz, Uplink p95 {1} Hz). Keine größeren Änderungen nötig.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdTitle">
+    <value>Schwellwert möglicherweise zu hoch</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdSummary">
+    <value>{0} % der Samples wurden durch den Schwellwert unterdrückt: das Funkgerät wurde nicht oft genug korrigiert. Linearen Doppler-Schwellwert senken.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadTitle">
+    <value>Lead-Doppler in Betracht ziehen</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadSummary">
+    <value>Schneller Doppler-Slew erkannt, aber Lead-Doppler war aus oder selten genutzt. Typischer Downlink-Fehler war {0} Hz.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterTitle">
+    <value>CAT möglicherweise zu aggressiv</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterSummary">
+    <value>CAT schrieb bei {0} % der Samples. Wenn die Abstimmung holprig klang, Schwellwert etwas anheben oder CAT-Verzögerung erhöhen.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualTitle">
+    <value>Manuelle Abstimmung erkannt</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualSummary">
+    <value>Dieser Überflug enthielt {0} interaktive Zeilen und {1} CAT-pausierte Zeilen. Diese Phasen prüfen, bevor Automatikeinstellungen geändert werden.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyTitle">
+    <value>Adaptiver Schwellwert</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyDetail">
+    <value>Laden Sie einen Überflug, um zu sehen, ob der adaptive Schwellwert nahe TCA geholfen hat.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledTitle">
+    <value>Adaptiver Schwellwert war aus</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledDetail">
+    <value>Maximaler Doppler-Slew war {0} Hz/s. Über den ganzen Überflug galt ein fester Schwellwert.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledAction">
+    <value>Adaptiven Schwellwert nahe TCA unter Funkgerät-Einstellungen aktivieren: er senkt das Band, wenn sich der Doppler schnell ändert.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledNoAction">
+    <value>Slew war mäßig: ein fester Schwellwert reicht, sofern Sie nahe TCA keine Verzögerung hören.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeTitle">
+    <value>Schwellwert hat zu viele Korrekturen blockiert</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeDetail">
+    <value>{0} % der Zeilen lagen unter dem Schwellwert (effektiv Mittel {1} Hz). Das Funkgerät hat zu lange mit der Korrektur gewartet.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeAction">
+    <value>Doppler-Schwellwert (SSB/CW) um 10–20 Hz senken oder sicherstellen, dass der adaptive Schwellwert aktiviert ist.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingTitle">
+    <value>Adaptiver Schwellwert funktioniert</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingDetail">
+    <value>Der Schwellwert wurde auf schnellen Abschnitten um etwa {0} % reduziert (Peak-Slew {1} Hz/s), ohne übermäßigen CAT-Chatter.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingAction">
+    <value>Adaptiv aktiviert lassen. Nur zum Vergleich deaktivieren, wenn Sie ein festes Schwellwert-Gefühl wollen.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralTitle">
+    <value>Adaptiver Schwellwert hatte geringen Effekt</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralDetail">
+    <value>Die mittlere Schwellwert-Reduktion betrug {0} %. Der Doppler-Slew war über den Überflug vermutlich mäßig.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralAction">
+    <value>Wenn Sie nahe TCA noch Verzögerung hören, den Basis-Schwellwert etwas senken, statt Adaptiv zu deaktivieren.</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyTitle">
+    <value>Lead-Doppler</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyDetail">
+    <value>Laden Sie einen Überflug, um zu sehen, ob Lead-Doppler auf schnellen Abschnitten mithielt.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledTitle">
+    <value>Lead-Doppler war aus</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledDetail">
+    <value>Peak-Slew erreichte {0} Hz/s. CAT nutzte nur den momentanen Doppler.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledAction">
+    <value>Lead-Doppler für CAT-Latenz unter Funkgerät-Einstellungen aktivieren und einen weiteren Überflug protokollieren.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledNoAction">
+    <value>Slew war niedrig: Lead-Doppler ist für dieses Überflugprofil optional.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakTitle">
+    <value>Lead-Doppler war auf schnellen Abschnitten schwach</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakDetail">
+    <value>Downlink-Fehler auf steilen Abschnitten erreichte {0} Hz bei Lead-Verstärkung {1} %.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakAction">
+    <value>Lead-Stärke auf 85–100 % erhöhen oder Lead-Zeit explizit setzen (25–40 ms versuchen).</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingTitle">
+    <value>Lead-Doppler hält mit</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingDetail">
+    <value>Lead war in {0} % der Zeilen aktiv; Downlink p95 blieb bei {1} Hz trotz schnellem Slew.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingAction">
+    <value>Aktuelle Lead-Einstellungen beibehalten. Wenn der Ton dem Signal voraus wirkt, Lead-Stärke etwas reduzieren.</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingTitle">
+    <value>Nachführung hinkte auf schnellen Abschnitten hinterher</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingDetail">
+    <value>Downlink p95 {0} Hz, Uplink p95 {1} Hz bei einem Überflug mit hohem Slew.</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingAction">
+    <value>Lead-Zeit (aktuell {0} ms) oder Lead-Stärke ({1} %) erhöhen. Auch prüfen, ob die CAT-Verzögerung zu groß ist.</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralTitle">
+    <value>Lead-Doppler-Status</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralDetail">
+    <value>Lead aktiv in {0} % der Zeilen. Peak-Slew {1} Hz/s.</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralAction">
+    <value>Nach einer kleinen Änderung von Lead-Zeit oder -Stärke im Vergleichsmodus feinabstimmen.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Empty">
+    <value>Einstellungskommentar in dieser Protokolldatei nicht gefunden.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Inferred">
+    <value>Aus Protokollzeilen abgeleitet: Basis-Schwellwert etwa {0} Hz, Lead aktiv in {1} % der Zeilen, adaptive Reduktion etwa {2} %.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Value">
+    <value>Linearer Schwellwert {0} Hz, CAT-Verzögerung {1} ms, Adaptiv {2}, Lead-Doppler {3}, Lead-Zeit {4} ms, Lead-Stärke {5} %.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Enabled">
+    <value>aktiviert</value>
+  </data>
+  <data name="DopplerInsights.Settings.Disabled">
+    <value>deaktiviert</value>
+  </data>
+  <data name="DopplerInsights.Phase.Aos">
+    <value>AOS (Start)</value>
+  </data>
+  <data name="DopplerInsights.Phase.Rising">
+    <value>Anstieg</value>
+  </data>
+  <data name="DopplerInsights.Phase.Tca">
+    <value>TCA-Umgebung</value>
+  </data>
+  <data name="DopplerInsights.Phase.Descending">
+    <value>Abstieg</value>
+  </data>
+  <data name="DopplerInsights.Phase.Los">
+    <value>LOS (Ende)</value>
+  </data>
+  <data name="DopplerInsights.Phase.Summary">
+    <value>Downlink-Fehler p95 {0} Hz · CAT-Schreib {1} % · Peak-Slew {2} Hz/s · max. Elevation {3}°</value>
+  </data>
+  <data name="Window.RotatorManual.Title">
+    <value>Manuelle Rotorsteuerung</value>
+  </data>
+  <data name="Window.SatelliteDatabase.Title">
+    <value>Transponderdatenbank</value>
+  </data>
+  <data name="Dx.Title">
+    <value>DX-Station</value>
+  </data>
+  <data name="Dx.GridWatermark">
+    <value>Maidenhead-Locator (z. B. JO22 oder JO22lk)</value>
+  </data>
+  <data name="Dx.AzTheirSky">
+    <value>Az (deren Himmel)</value>
+  </data>
+  <data name="Dx.ElTheirSky">
+    <value>El (deren Himmel)</value>
+  </data>
+  <data name="Dx.Clear">
+    <value>Leeren</value>
+  </data>
+  <data name="Dx.CollapseExpand">
+    <value>DX-Stationsfeld aufklappen</value>
+  </data>
+  <data name="Dx.CollapseCompact">
+    <value>Auf kompakte Ansicht reduzieren</value>
+  </data>
+  <data name="Dx.MapLauncher.Active">
+    <value>DX-Stationsmonitor anzeigen</value>
+  </data>
+  <data name="Dx.MapLauncher.Inactive">
+    <value>Locator der Gegenstation eingeben</value>
+  </data>
+  <data name="Dx.Validation.MinChars">
+    <value>Mindestens 4 Zeichen eingeben (z. B. JO22 oder JO22lk).</value>
+  </data>
+  <data name="Dx.Validation.InvalidGrid">
+    <value>Ungültiges Maidenhead-Locatorfeld.</value>
+  </data>
+  <data name="Dx.Collapsed.BelowHorizon">
+    <value>{0} · unter dem Horizont</value>
+  </data>
+  <data name="Dx.Collapsed.AzElPending">
+    <value>{0} · Az – · El –</value>
+  </data>
+  <data name="Dx.Collapsed.AzEl">
+    <value>{0} · Az {1} · El {2}</value>
+  </data>
+  <data name="Freq.SelectSatellite">
+    <value>Satelliten auswählen</value>
+  </data>
+  <data name="Freq.SelectSatelliteHint">
+    <value>Wählen Sie einen Satelliten auf der Karte oder aus den nächsten Überflügen.</value>
+  </data>
+  <data name="Freq.NoTransponder">
+    <value>Keine Transponderdaten für diesen Satelliten</value>
+  </data>
+  <data name="Freq.CollapsedNoTransponder">
+    <value>{0} · keine Transponderdaten</value>
+  </data>
+  <data name="Freq.CwSuffix">
+    <value> · CW</value>
+  </data>
+  <data name="Freq.CollapseExpand">
+    <value>Frequenzfeld aufklappen</value>
+  </data>
+  <data name="Freq.CollapseCompact">
+    <value>Auf kompakte Ansicht reduzieren</value>
+  </data>
+  <data name="Freq.TransponderMode">
+    <value>Transponder-Mode</value>
+  </data>
+  <data name="Freq.UplinkTx">
+    <value>Uplink (TX)</value>
+  </data>
+  <data name="Freq.DownlinkRx">
+    <value>Downlink (RX)</value>
+  </data>
+  <data name="Freq.Sat">
+    <value>Sat</value>
+  </data>
+  <data name="Freq.Radio">
+    <value>Radio</value>
+  </data>
+  <data name="Freq.DopplerLeadEnabled">
+    <value>Lead-Doppler aktiviert, warte auf steilen Überflugabschnitt</value>
+  </data>
+  <data name="Freq.DopplerLeadActive">
+    <value>Lead-Doppler aktiv: CAT sagt in der Radio-Zeile voraus</value>
+  </data>
+  <data name="Freq.LeadTuningTitle">
+    <value>CAT-Lead-Abstimmung</value>
+  </data>
+  <data name="Freq.LeadTuningHint">
+    <value>Nur für diese Sitzung: L zum Ausblenden. Werte gelten sofort; unter Einstellungen → Funkgerät speichern, um sie nach dem Neustart zu behalten.</value>
+  </data>
+  <data name="Freq.DopplerFull">
+    <value>Voll</value>
+  </data>
+  <data name="Freq.DopplerTx">
+    <value>TX</value>
+  </data>
+  <data name="Freq.DopplerRx">
+    <value>RX</value>
+  </data>
+  <data name="Freq.DopplerTxFixedToolTip">
+    <value>TX fest: nur Downlink-Doppler (SatPC32 TX-Fixed). Uplink bleibt auf Ihrem CQ-Punkt.</value>
+  </data>
+  <data name="Freq.DopplerRxFixedToolTip">
+    <value>RX fest: nur Uplink-Doppler (SatPC32 RX-Fixed). Downlink bleibt stehen.</value>
+  </data>
+  <data name="Freq.Ctcss">
+    <value>CTCSS</value>
+  </data>
+  <data name="Freq.CtcssAccess">
+    <value>Zugang</value>
+  </data>
+  <data name="Freq.CtcssArm">
+    <value>Scharf</value>
+  </data>
+  <data name="Freq.RxOffsetKHz">
+    <value>RX-Offset (kHz)</value>
+  </data>
+  <data name="Freq.TxOffsetKHz">
+    <value>TX-Offset (kHz)</value>
+  </data>
+  <data name="Freq.OffsetToggleRx">
+    <value>RX</value>
+  </data>
+  <data name="Freq.OffsetToggleTx">
+    <value>TX</value>
+  </data>
+  <data name="Freq.OffsetLegToggleToolTip">
+    <value>Offset zwischen Downlink (RX) und Uplink (TX) umschalten. Beide gespeicherten Offsets gelten gleichzeitig.</value>
+  </data>
+  <data name="Freq.StoreOffset">
+    <value>Offset speichern</value>
+  </data>
+  <data name="Freq.PassbandTrimTitle">
+    <value>Passband-Abgleich (Main-VFO)</value>
+  </data>
+  <data name="Freq.PassbandTrimSummary">
+    <value>Downlink {0} · Uplink {1}</value>
+  </data>
+  <data name="Freq.ClearPassbandTrim">
+    <value>Passband-Abgleich löschen</value>
+  </data>
+  <data name="Freq.ClearPassbandTrimToolTip">
+    <value>Führt diese Main-VFO-Suche in die Panel-Offsets oben ein und setzt die automatische Dopplerkorrektur fort. Die Funkfrequenz springt nicht.</value>
+  </data>
+  <data name="Freq.PassbandTrimCleared">
+    <value>Passband-Abgleich gelöscht und auf Panel-Offsets angewendet.</value>
+  </data>
+  <data name="Freq.Voice">
+    <value>Sprache</value>
+  </data>
+  <data name="Freq.ReportStatus">
+    <value>Melden</value>
+  </data>
+  <data name="Freq.ReportStatusToolTip">
+    <value>Satellitenstatus an OscarWatch.org für den fokussierten Satelliten und Mode melden (Elevation mindestens −1°)</value>
+  </data>
+  <data name="Freq.StoredOffsetCleared">
+    <value>Gespeicherter Offset gelöscht.</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedCw">
+    <value>Gespeicherter CW-Offset gelöscht.</value>
+  </data>
+  <data name="Freq.StoredOffset">
+    <value>{0} Hz Offset gespeichert.</value>
+  </data>
+  <data name="Freq.StoredOffsetCw">
+    <value>CW {0} Hz Offset gespeichert.</value>
+  </data>
+  <data name="Freq.StoredOffsetTx">
+    <value>{0} Hz TX-Offset gespeichert.</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedTx">
+    <value>Gespeicherter TX-Offset gelöscht.</value>
+  </data>
+  <data name="Freq.StoredOffsetCwTx">
+    <value>CW {0} Hz TX-Offset gespeichert.</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedCwTx">
+    <value>Gespeicherter CW-TX-Offset gelöscht.</value>
+  </data>
+  <data name="Freq.OffsetOnDownlinkTuneUplink">
+    <value>{0} auf Downlink. Main für Uplink abstimmen.</value>
+  </data>
+  <data name="Freq.OffsetOnDownlink">
+    <value>{0} auf Downlink.</value>
+  </data>
+  <data name="Freq.OffsetOnUplink">
+    <value>{0} auf Uplink.</value>
+  </data>
+  <data name="Freq.OffsetOnUplinkTuneDownlink">
+    <value>{0} auf Uplink. Main für Downlink abstimmen.</value>
+  </data>
+  <data name="Freq.OffsetOnBothLegs">
+    <value>{0} auf Downlink, {1} auf Uplink.</value>
+  </data>
+  <data name="Freq.OffsetOnBothLegsRev">
+    <value>{0} auf Downlink, {1} auf Uplink. Main für die andere Strecke abstimmen.</value>
+  </data>
+  <data name="Freq.DownlinkOnlyTuneUplink">
+    <value>Nur Downlink. Main für Uplink abstimmen.</value>
+  </data>
+  <data name="Freq.OffsetsDownlinkOnly">
+    <value>Offsets nur Downlink.</value>
+  </data>
+  <data name="Freq.TxFixedOffsetHint">
+    <value>TX fest (nur Downlink-Doppler). {0}</value>
+  </data>
+  <data name="Freq.RxFixedOffsetHint">
+    <value>RX fest (nur Uplink-Doppler). {0}</value>
+  </data>
+  <data name="Freq.DopplerFullHint">
+    <value>Voll: Uplink und Downlink folgen beide dem Doppler.</value>
+  </data>
+  <data name="Freq.DopplerTxFixedHint">
+    <value>TX fest: Uplink bleibt stehen; Downlink folgt dem Doppler (CQ beim Roven).</value>
+  </data>
+  <data name="Freq.DopplerRxFixedHint">
+    <value>RX fest: Downlink bleibt stehen; Uplink folgt dem Doppler.</value>
+  </data>
+  <data name="Freq.OperatingCwSideband">
+    <value>CW auf Uplink; Empfang bleibt USB/LSB. Strg+W zum Umschalten.</value>
+  </data>
+  <data name="Freq.OperatingCwBoth">
+    <value>CW auf Uplink und Downlink. Strg+W zum Umschalten.</value>
+  </data>
+  <data name="Freq.OperatingVoice">
+    <value>Sprache nutzt Datenbank-Modi. Strg+W schaltet CW um.</value>
+  </data>
+  <data name="Settings.Station.DisplayName">
+    <value>Anzeigename</value>
+  </data>
+  <data name="Settings.Station.Callsign">
+    <value>Rufzeichen</value>
+  </data>
+  <data name="Settings.Station.CallsignNote">
+    <value>Wird beim Posten von Satelliten-Aktivierungen bei hams.at verwendet. Im Post-Dialog können Sie es weiterhin ändern.</value>
+  </data>
+  <data name="Settings.Station.Latitude">
+    <value>Breitengrad (°)</value>
+  </data>
+  <data name="Settings.Station.Longitude">
+    <value>Längengrad (°)</value>
+  </data>
+  <data name="Settings.Station.GridSquare">
+    <value>Maidenhead-Locator</value>
+  </data>
+  <data name="Settings.Station.GridSquareNote">
+    <value>Locator in Großbuchstaben vom Feld (IO) bis 8 Zeichen. Auf einer Locatorgrenze Felder durch Komma trennen (z. B. IO77,IO87).</value>
+  </data>
+  <data name="Settings.Station.Altitude">
+    <value>Höhe ü. NN (m)</value>
+  </data>
+  <data name="Settings.Station.HorizonMask">
+    <value>Horizontmaske</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskHelp">
+    <value>Optionale Silhouette für Bäume, Gebäude und Hügel. Klicken Sie in den Polarplot, um Punkte hinzuzufügen; ziehen zum Verschieben; Rechtsklick zum Entfernen. Leer bedeutet ungenutzt (nur die minimale Nachführ-Elevation gilt). Überflugzeiten nutzen je Azimut den höheren Wert aus Maske und diesem Minimum. Die Maske steuert den Rotor nicht; dafür Start der Nachführung bei Elevation verwenden.</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskSummary">
+    <value>Optionale Silhouette für Bäume, Gebäude und Hügel. Leer bedeutet ungenutzt (nur die minimale Nachführ-Elevation gilt). Steuert den Rotor nicht.</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskEdit">
+    <value>Horizontmaske bearbeiten</value>
+  </data>
+  <data name="Window.HorizonMaskEditor.Title">
+    <value>Horizontmaske</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskClear">
+    <value>Maske löschen</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskAz">
+    <value>Az (°)</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskEl">
+    <value>El (°)</value>
+  </data>
+  <data name="Settings.Gps.Title">
+    <value>GPS</value>
+  </data>
+  <data name="Settings.Gps.Intro">
+    <value>Serielles NMEA-GPS oder Netz-gpsd für die Stationsposition (Breite/Länge, Locator, Höhe) und optional UTC für die Nachführung.</value>
+  </data>
+  <data name="Settings.Gps.Connection">
+    <value>Verbindung</value>
+  </data>
+  <data name="Settings.Gps.Connection.Serial">
+    <value>Seriell (COM-Port)</value>
+  </data>
+  <data name="Settings.Gps.Connection.Gpsd">
+    <value>gpsd (Netzwerk)</value>
+  </data>
+  <data name="Settings.Gps.GpsdHost">
+    <value>gpsd-Host</value>
+  </data>
+  <data name="Settings.Gps.GpsdPort">
+    <value>gpsd-Port</value>
+  </data>
+  <data name="Settings.Gps.GpsdNote">
+    <value>Mit einem laufenden gpsd-Dienst verbinden (Standardport 2947). Typisch unter Linux oder Raspberry Pi, wenn das GPS bereits im Netz geteilt wird.</value>
+  </data>
+  <data name="Settings.Gps.Enable">
+    <value>GPS aktivieren</value>
+  </data>
+  <data name="Settings.Gps.AutoUpdateStation">
+    <value>Stationsposition automatisch aus GPS-Fix aktualisieren</value>
+  </data>
+  <data name="Settings.Gps.UseAltitude">
+    <value>Höhe aus GGA aktualisieren</value>
+  </data>
+  <data name="Settings.Gps.UseTimeForTracking">
+    <value>GPS-UTC für die Satellitennachführung verwenden</value>
+  </data>
+  <data name="Settings.Gps.UseTimeNote">
+    <value>Nutzt die GPS-Zeit nur für die Bahnausbreitung und ändert nicht die Windows-Systemuhr.</value>
+  </data>
+  <data name="Settings.Gps.MinSatellites">
+    <value>Mindestanzahl Satelliten für Fix</value>
+  </data>
+  <data name="Settings.Gps.RefreshStatus">
+    <value>Status aktualisieren</value>
+  </data>
+  <data name="Settings.Gps.ApplyFix">
+    <value>Fix auf Station anwenden</value>
+  </data>
+  <data name="Settings.Gps.StatusDisabled">
+    <value>GPS deaktiviert.</value>
+  </data>
+  <data name="Settings.Gps.StatusNoPort">
+    <value>COM-Port für das GPS auswählen.</value>
+  </data>
+  <data name="Settings.Gps.StatusNoGpsdHost">
+    <value>gpsd-Hostname oder IP-Adresse eingeben.</value>
+  </data>
+  <data name="Settings.Gps.StatusNotConnected">
+    <value>GPS nicht verbunden.</value>
+  </data>
+  <data name="Settings.Gps.StatusNotConnectedDetail">
+    <value>GPS nicht verbunden: {0}</value>
+  </data>
+  <data name="Settings.Gps.StatusNoFix">
+    <value>Verbunden, warte auf GPS-Fix.</value>
+  </data>
+  <data name="Settings.Gps.StatusFix">
+    <value>Fix: {0}°, {1}° ({2} Sats)</value>
+  </data>
+  <data name="Settings.Tle.Source">
+    <value>TLE-Katalogquelle</value>
+  </data>
+  <data name="Settings.Tle.SourceNote">
+    <value>Eingebaute Quellen von OscarWatch und AMSAT.org nutzen JSON-GP-Elementsätze. Eigene URLs und lokale Dateien können JSON oder klassischer dreizeiliger TLE-Text sein.</value>
+  </data>
+  <data name="Settings.Tle.DownloadUrl">
+    <value>Download-URL</value>
+  </data>
+  <data name="Settings.Tle.LocalFile">
+    <value>Lokale TLE-Datei</value>
+  </data>
+  <data name="Settings.Tle.LocalFileWatermark">
+    <value>Pfad zu .json-, .txt- oder .tle-Datei</value>
+  </data>
+  <data name="Settings.Tle.Updates">
+    <value>TLE-Updates</value>
+  </data>
+  <data name="Settings.Tle.UpdatesNote">
+    <value>Automatischer Download gilt nur für OscarWatch und eigene URLs. Lokale Dateien werden neu gelesen, wenn Sie Einstellungen speichern oder Satelliten → TLEs aktualisieren wählen.</value>
+  </data>
+  <data name="Settings.Tle.Source.OscarWatch">
+    <value>OscarWatch (tle.oscarwatch.org)</value>
+  </data>
+  <data name="Settings.Tle.Source.Amsat">
+    <value>AMSAT.org (JSON-GP-Bulletin)</value>
+  </data>
+  <data name="Settings.Tle.Source.CustomUrl">
+    <value>Eigene URL</value>
+  </data>
+  <data name="Settings.Tle.Source.LocalFile">
+    <value>Lokale Datei</value>
+  </data>
+  <data name="Settings.Tle.Update.Manual">
+    <value>Nur manuell</value>
+  </data>
+  <data name="Settings.Tle.Update.OnStartup">
+    <value>Beim Start (wenn älter als 6 Stunden)</value>
+  </data>
+  <data name="Settings.Tle.Update.EverySixHours">
+    <value>Alle 6 Stunden während der Laufzeit</value>
+  </data>
+  <data name="Settings.Tracking.MinElevation">
+    <value>Minimale Elevation (°)</value>
+  </data>
+  <data name="Settings.Tracking.PassWindow">
+    <value>Überflug-Vorhersagefenster (Stunden)</value>
+  </data>
+  <data name="Settings.Tracking.PassWindowNote">
+    <value>Für die Liste der nächsten Überflüge und als Vorgabe im Überflugplaner.</value>
+  </data>
+  <data name="Settings.Tracking.TransponderCheck">
+    <value>Beim Start auf Updates der Transponderdatenbank prüfen</value>
+  </data>
+  <data name="Settings.Tracking.TransponderCheckNote">
+    <value>Lädt tle.oscarwatch.org/satellite_database.json, wenn Updates verfügbar sind. Neue Satelliten und Modi werden zum Zusammenführen angeboten; lokale Änderungen bleiben erhalten, bis Sie veröffentlichte Änderungen übernehmen.</value>
+  </data>
+  <data name="Settings.AppUpdate.Enabled">
+    <value>Beim Start und täglich während der Laufzeit auf Anwendungs-Updates prüfen</value>
+  </data>
+  <data name="Settings.AppUpdate.EnabledNote">
+    <value>Vergleicht mit der neuesten GitHub-Version. Prüfung auch über Hilfe möglich.</value>
+  </data>
+  <data name="Settings.Theme.System">
+    <value>System</value>
+  </data>
+  <data name="Settings.Theme.Light">
+    <value>Hell</value>
+  </data>
+  <data name="Settings.Theme.Dark">
+    <value>Dunkel</value>
+  </data>
+  <data name="Settings.Voice.Enable">
+    <value>Sprachansagen aktivieren</value>
+  </data>
+  <data name="Settings.Voice.EnableNote">
+    <value>Sagt jeden aktivierten Satelliten einmal pro Überflug an, wenn er im Anstieg den Elevation-Schwellwert überschreitet, zum Beispiel: Alpha Oscar Zero Seven steigt auf.</value>
+  </data>
+  <data name="Settings.Voice.AnnounceElevation">
+    <value>Ansagen bei Elevation (°)</value>
+  </data>
+  <data name="Settings.Voice.AnnounceElevationNote">
+    <value>Standard ist −3°. Die Ansage erfolgt, wenn die Elevation diesen Wert nach oben durchläuft (negative Werte erfassen den Satelliten vor dem Horizont).</value>
+  </data>
+  <data name="Settings.Voice.VoiceLabel">
+    <value>Stimme</value>
+  </data>
+  <data name="Settings.Voice.SpeechUnavailable">
+    <value>Sprachausgabe ist auf diesem System nicht verfügbar.</value>
+  </data>
+  <data name="Settings.Voice.Preview">
+    <value>Vorschau</value>
+  </data>
+  <data name="Settings.Voice.TestAnnouncement">
+    <value>Ansage testen</value>
+  </data>
+  <data name="Settings.PassSchedule.Section">
+    <value>Vorgemerkte Überflüge</value>
+  </data>
+  <data name="Settings.PassSchedule.Note">
+    <value>Markieren Sie Überflüge als vorgemerkt unter Nächste Überflüge oder Überflugplaner. OscarWatch spielt einen Gong und zeigt einen Hinweis vor AOS, solange die Anwendung läuft.</value>
+  </data>
+  <data name="Settings.PassSchedule.LeadMinutes">
+    <value>Hinweisminuten vor AOS</value>
+  </data>
+  <data name="Settings.PassSchedule.SoundEnabled">
+    <value>Gong abspielen</value>
+  </data>
+  <data name="Settings.PassSchedule.AlertEnabled">
+    <value>Hinweisfenster anzeigen</value>
+  </data>
+  <data name="Settings.PassSchedule.TestSound">
+    <value>Ton testen</value>
+  </data>
+  <data name="Settings.Radio.Enable">
+    <value>Funkgerätsteuerung aktivieren</value>
+  </data>
+  <data name="Settings.Radio.DualEnable">
+    <value>Dual-Funkgerät (getrennter Downlink und Uplink: FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, IC-7100, IC-706-Serie, TH-D74/D75 oder gemischt)</value>
+  </data>
+  <data name="Settings.Radio.DualIncompleteBoth">
+    <value>COM-Ports für Downlink- und Uplink-Funkgerät auswählen.</value>
+  </data>
+  <data name="Settings.Radio.DualIncompleteDownlink">
+    <value>COM-Port für das Downlink-Funkgerät auswählen.</value>
+  </data>
+  <data name="Settings.Radio.DualIncompleteUplink">
+    <value>COM-Port für das Uplink-Funkgerät auswählen.</value>
+  </data>
+  <data name="Settings.Radio.Driver">
+    <value>Funkgerät-Treiber</value>
+  </data>
+  <data name="Settings.Radio.Label">
+    <value>Funkgerät</value>
+  </data>
+  <data name="Settings.Radio.SerialPort">
+    <value>Serieller Port</value>
+  </data>
+  <data name="Settings.Radio.SelectComPort">
+    <value>Seriellen Port wählen oder eingeben</value>
+  </data>
+  <data name="Settings.Radio.SerialPortLinuxHint">
+    <value>Unter Linux einen udev-Alias oder Eintrag unter /dev/serial/by-id/… wählen, damit der Port nach dem Neustart gleich bleibt. Sie können auch einen eigenen Pfad wie /dev/USB821H eingeben.</value>
+  </data>
+  <data name="Settings.Radio.BaudRate">
+    <value>Baudrate</value>
+  </data>
+  <data name="Settings.Radio.CivAddress">
+    <value>CI-V-Adresse (hex)</value>
+  </data>
+  <data name="Settings.Radio.CivHint">
+    <value>IC-9700 Standard A2, IC-910 Standard 7C (hex). 60 verwenden, wenn das Funkgerät so im CI-V-Menü eingestellt ist.</value>
+  </data>
+  <data name="Settings.Radio.Ft847Hint">
+    <value>FT-847: CAT-Baud im Funkmenü Nr. 37 einstellen (typisch 57600). CAT/LINEAR-Buchse mit Pegelwandler verwenden (z. B. CT-62).</value>
+  </data>
+  <data name="Settings.Radio.Ts2000Hint">
+    <value>TS-2000: CAT 57600 8N1. SAT am Funkgerät wählen und Memory-Modus vor der Nachführung ausschalten; OscarWatch aktiviert dann SATL per CAT (SA/FA/FB-Belegung), automatischer VHF/UHF-Bandwechsel.</value>
+  </data>
+  <data name="Settings.Radio.Ts2000HardwareRts">
+    <value>Hardware-RTS (Flusskontrolle)</value>
+  </data>
+  <data name="Settings.Radio.Ts2000HardwareRtsNote">
+    <value>Eingeschaltet lassen für vollständige CAT-Kabel, die RTS führen (nötig für Antworten des Funkgeräts). Ausschalten, wenn Kabel oder Adapter keine Hardware-Flusskontrolle haben.</value>
+  </data>
+  <data name="Settings.Radio.Ts2000Trace">
+    <value>TRACE / TRACE REV in SATL</value>
+  </data>
+  <data name="Settings.Radio.Ts2000TraceNote">
+    <value>Eingeschaltet lassen für die eingebaute Frequenznachführung des Funkgeräts. Ausschalten, wenn OscarWatch den Doppler steuert (empfohlen für PC-CAT-Nachführung); bei Unsicherheit beides versuchen.</value>
+  </data>
+  <data name="Settings.Radio.Region">
+    <value>Region</value>
+  </data>
+  <data name="Settings.Radio.RegionNote">
+    <value>EU nutzt Ton; USA nutzt Ton-Squelch (Subtone).</value>
+  </data>
+  <data name="Settings.Radio.CatDelay">
+    <value>CAT-Verzögerung (ms)</value>
+  </data>
+  <data name="Settings.Radio.CatDelayNote">
+    <value>Mindestzeit zwischen CAT-Befehlen zum Schutz der seriellen Verbindung.</value>
+  </data>
+  <data name="Settings.Radio.Downlink">
+    <value>Downlink-Funkgerät</value>
+  </data>
+  <data name="Settings.Radio.SdrRigCtl">
+    <value>SDR (rigctl TCP)</value>
+  </data>
+  <data name="Settings.Radio.DummyUplink">
+    <value>Dummy-Uplink (nur RX)</value>
+  </data>
+  <data name="Settings.Radio.SdrHost">
+    <value>rigctl-Host</value>
+  </data>
+  <data name="Settings.Radio.SdrPort">
+    <value>rigctl-Port</value>
+  </data>
+  <data name="Settings.Radio.SdrPresetSdrPlus">
+    <value>SDR++-Voreinstellung (4532)</value>
+  </data>
+  <data name="Settings.Radio.SdrPresetSdrConnect">
+    <value>SDR-Connect-Voreinstellung (5454)</value>
+  </data>
+  <data name="Settings.Radio.SdrTestConnection">
+    <value>rigctl-Verbindung testen</value>
+  </data>
+  <data name="Settings.Radio.SdrTesting">
+    <value>rigctl-Verbindung wird getestet…</value>
+  </data>
+  <data name="Settings.Radio.SdrEnterHostPort">
+    <value>Gültigen Host und Port eingeben.</value>
+  </data>
+  <data name="Settings.Radio.SdrConnectionOk">
+    <value>rigctl-Verbindung OK: Frequenzlesung erfolgreich.</value>
+  </data>
+  <data name="Settings.Radio.SdrConnectionFailed">
+    <value>rigctl-Verbindung fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Settings.Radio.SdrHint">
+    <value>rigctl-Server in SDR++ (Module Manager → rigctl_server) oder SDR Connect aktivieren, dann Host und Port abgleichen. OscarWatch sendet die Doppler-RX-Frequenz und liest den Waterfall-VFO für den Passband-Abgleich. CAT-Verzögerung am Downlink 100 ms oder mehr.</value>
+  </data>
+  <data name="Settings.Radio.FlexSmartSdr">
+    <value>FlexRadio (SmartSDR)</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscovered">
+    <value>Gefundene Funkgeräte</value>
+  </data>
+  <data name="Settings.Radio.FlexHost">
+    <value>SmartSDR-Host</value>
+  </data>
+  <data name="Settings.Radio.FlexPort">
+    <value>SmartSDR-Port</value>
+  </data>
+  <data name="Settings.Radio.FlexTestConnection">
+    <value>SmartSDR-Verbindung testen</value>
+  </data>
+  <data name="Settings.Radio.FlexTesting">
+    <value>SmartSDR-Verbindung wird getestet…</value>
+  </data>
+  <data name="Settings.Radio.FlexEnterHostPort">
+    <value>Gültigen Host und Port eingeben.</value>
+  </data>
+  <data name="Settings.Radio.FlexConnectionOk">
+    <value>SmartSDR-Verbindung OK.</value>
+  </data>
+  <data name="Settings.Radio.FlexConnectionFailed">
+    <value>SmartSDR-Verbindung fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscoveryListening">
+    <value>Suche nach Flex-Funkgeräten auf UDP 4992…</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscoveryFound">
+    <value>{0} Flex-Funkgerät(e) im LAN gefunden.</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscoveryFailed">
+    <value>Flex-Erkennung fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Settings.Radio.FlexHint">
+    <value>Ein gefundenes Funkgerät wählen oder die IP manuell eingeben (TCP-Port 4992). OscarWatch verbindet sich direkt über die SmartSDR-TCP/IP-API mit dem Funkgerät (nicht durch Automatisierung von SmartSDR for Windows), aktiviert Vollduplex und steuert getrennte RX/TX-Slices für Doppler. Die Antennenport-Zuordnung unten nutzen, wenn Transverter je Band unterschiedliche RX-A/RX-B- oder ANT/XVTR-Wege verwenden. Dual-SCU-Modelle sind für echtes Vollduplex nötig (z. B. 8600/8600M; auch 6600/6700).</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPorts">
+    <value>Antennenports nach Band</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPortsHint">
+    <value>Beim Wechsel U/V ↔ V/U setzt OscarWatch die RX/TX-Ports des Funkgeräts anhand der Downlink- und Uplink-Bänder (bei Satellitenfokus / Überflug-Setup, nicht nur wenn der Satellit über dem Horizont ist). Unverändert lassen behält den aktuellen Port. RX A und RX B sind nur Empfang; TX auf ANT oder XVTR gemäß Verkabelung legen.</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaLeaveUnchanged">
+    <value>Unverändert lassen</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfRxAnt">
+    <value>VHF-Empfang (2 m)</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfRxAnt">
+    <value>UHF-Empfang (70 cm+)</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfTxAnt">
+    <value>VHF-Sendung (2 m)</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfTxAnt">
+    <value>UHF-Sendung (70 cm+)</value>
+  </data>
+  <data name="Settings.Radio.FlexDuplexWarning">
+    <value>Dieses Modell unterstützt möglicherweise kein Vollduplex (einzelne SCU). Satellitenbetrieb braucht typischerweise ein Dual-SCU-Flex wie 8600/8600M (oder ein Dual-SCU-Gerät der 6000-Serie) mit geeigneter Isolation oder Transvertern.</value>
+  </data>
+  <data name="Settings.Radio.Uplink">
+    <value>Uplink-Funkgerät</value>
+  </data>
+  <data name="Settings.Radio.Ic705CivHint">
+    <value>IC-705 Werksvorgabe A4. Muss mit dem CI-V-Menü des Funkgeräts übereinstimmen.</value>
+  </data>
+  <data name="Settings.Radio.Ic7300CivHint">
+    <value>IC-7300 Werksvorgabe 94H. Muss mit dem CI-V-Menü des Funkgeräts übereinstimmen.</value>
+  </data>
+  <data name="Settings.Radio.Ic905CivHint">
+    <value>IC-905 Werksvorgabe AC. Muss mit dem CI-V Set-Modus des Funkgeräts übereinstimmen.</value>
+  </data>
+  <data name="Settings.Radio.Ic7100CivHint">
+    <value>IC-7100 Werksvorgabe 88H. Muss mit dem CI-V-Menü des Funkgeräts übereinstimmen.</value>
+  </data>
+  <data name="Settings.Radio.Ic706CivHint">
+    <value>IC-706 Werksvorgabe 48H. Muss mit der CI-V-Adresse des Funkgeräts übereinstimmen (Initial Set Mode).</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiCivHint">
+    <value>IC-706MKII Werksvorgabe 4CH. Muss mit der CI-V-Adresse des Funkgeräts übereinstimmen.</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiGCivHint">
+    <value>IC-706MKIIG Werksvorgabe 58H. Muss mit Menü 34 CI-V ADDRES übereinstimmen.</value>
+  </data>
+  <data name="Settings.Radio.RefreshComPorts">
+    <value>COM-Ports aktualisieren</value>
+  </data>
+  <data name="Settings.Radio.Ft817Hint">
+    <value>FT-817 / FT-818: Menü Nr. 14 an jedem Funkgerät auf 4800 Baud setzen (38400 funktioniert ebenfalls). 8N2 CAT, ein COM pro Strecke. Deckt KW/6 m, 2 m und 70 cm ab (AO-07 Mode A Downlink auf 10 m). Linear: Downlink für das Passband drehen; FM sperrt den VFO während der Nachführung.</value>
+  </data>
+  <data name="Settings.Radio.Ic705Hint">
+    <value>IC-705: Connectors → CI-V → CI-V USB Port auf Link to [CI-V] setzen (nicht REMOTE). CI-V-Baud in den Einstellungen abgleichen (Standard 115200). Ein COM-Port pro Strecke: den mit CI-V beschrifteten Port nutzen, wenn zwei erscheinen.</value>
+  </data>
+  <data name="Settings.Radio.Ic7300Hint">
+    <value>IC-7300: nur Dual-Funkgerät. KW/6-m-Abdeckung (1,8–54 MHz). CI-V-Adresse (Standard 94H) und Baud (Standard 115200) im CI-V-Menü des Funkgeräts abgleichen. Ein COM-Port pro Strecke: typisch für AO-07 Mode A mit 7300 am Downlink und einem 2-m-Funkgerät am Uplink.</value>
+  </data>
+  <data name="Settings.Radio.Ic905Hint">
+    <value>IC-905: nur Dual-Funkgerät. CI-V-Adresse (Standard AC) und Baud (Standard 115200) im Set-Modus abgleichen. USB-CI-V-Seriellport nutzen. Ein COM-Port pro Strecke: deckt VHF/UHF/SHF einschließlich 13 cm, 6 cm und 3 cm ab.</value>
+  </data>
+  <data name="Settings.Radio.Ic7100Hint">
+    <value>IC-7100: nur Dual-Funkgerät. CI-V Output (USB) auf On stellen (oder REMOTE-Buchse nutzen). CI-V-Adresse (Standard 88H) und Baud (Standard 19200) im CI-V-Menü des Funkgeräts abgleichen. Ein COM-Port pro Strecke: KW/6 m, 2 m und 70 cm (AO-07 Mode A Downlink auf 10 m); 23 cm wird nicht unterstützt.</value>
+  </data>
+  <data name="Settings.Radio.Ic706Hint">
+    <value>IC-706: CI-V über die REMOTE-Buchse (oder CT-17). KW/6 m und 2 m (kein 70 cm). CI-V-Adresse und Baud im Initial Set Mode (LOCK beim Einschalten) an die Einstellungen anpassen (Standard 48H / 19200). CI-V TRN On empfohlen. AO-07 Mode A Downlink auf 10 m wird unterstützt.</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiHint">
+    <value>IC-706MKII: gleiche CI-V-Einrichtung wie IC-706. KW/6 m und 2 m (kein 70 cm). Werksvorgabe Adresse 4CH. AO-07 Mode A Downlink auf 10 m wird unterstützt.</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiGHint">
+    <value>IC-706MKIIG: CI-V über die REMOTE-Buchse (oder CT-17). Menü 34 CI-V ADDRES an die Einstellungen anpassen (Standard 58H), Menü 35 CI-V BAUD an die Einstellungen anpassen (Standard 19200), Menü 36 CI-V TRN On. Deckt KW/6 m, 2 m und 70 cm ab (AO-07 Mode A Downlink auf 10 m); 23-cm-Satelliten werden nicht unterstützt.</value>
+  </data>
+  <data name="Settings.Radio.Ft991Hint">
+    <value>FT-991 / FT-991A: Menü 031 CAT RATE an die Einstellungen anpassen (Standard 38400). 8N2-ASCII-CAT mit Hardware-RTS: USB-CAT-COM-Port nutzen. Ein COM pro Strecke. FM sperrt den VFO-A-Drehknopf während der Nachführung.</value>
+  </data>
+  <data name="Settings.Radio.Ftx1Hint">
+    <value>FTX-1 Field / FTX-1optima: Menü CAT-1 RATE an die Einstellungen anpassen (Standard 38400). 8N2-ASCII-CAT mit Hardware-RTS: Enhanced-COM-Port (CAT-1) nutzen, nicht CAT-2. Ein COM pro Strecke. FM sperrt den MAIN-VFO während der Nachführung.</value>
+  </data>
+  <data name="Settings.Radio.CwSideband">
+    <value>Lineares CW: Empfang in USB/LSB belassen (nur CW senden)</value>
+  </data>
+  <data name="Settings.Radio.CwSidebandNote">
+    <value>Gilt, wenn das Frequenzfeld auf linearen SSB-Satelliten auf CW steht. Aktiviert ist die übliche Split-Variante (CW TX, USB/LSB RX). Deaktiviert setzt beide VFOs auf CW.</value>
+  </data>
+  <data name="Settings.Radio.DopplerFm">
+    <value>Doppler-Schwellwert FM (Hz)</value>
+  </data>
+  <data name="Settings.Radio.DopplerFmNote">
+    <value>FM / ISS-Crossband: niedriger = mehr CAT-Updates (Standard 350 Hz).</value>
+  </data>
+  <data name="Settings.Radio.DopplerSsb">
+    <value>Doppler-Schwellwert SSB/CW (Hz)</value>
+  </data>
+  <data name="Settings.Radio.DopplerSsbNote">
+    <value>Frequenzen werden nur an das Funkgerät gesendet, wenn die Abweichung dieses Intervall überschreitet (SatPC32-Stil).</value>
+  </data>
+  <data name="Settings.Radio.DialSettle">
+    <value>CAT nach VFO-Drehung fortsetzen (ms)</value>
+  </data>
+  <data name="Settings.Radio.DialSettleNote">
+    <value>Bei linearem USB, LSB und CW: wie lange der Empfangs-VFO stillstehen muss, bevor OscarWatch die Doppler-CAT fortsetzt. Standard 800 ms. Erhöhen, wenn CAT den VFO zurückholt, während Sie noch abstimmen; verringern, wenn die Nachführung früher zurückkehren soll.</value>
+  </data>
+  <data name="Settings.Radio.UplinkResume">
+    <value>Uplink-CAT-Wartezeit nach VFO (ms)</value>
+  </data>
+  <data name="Settings.Radio.UplinkResumeNote">
+    <value>Bei Main/Sub-Funkgeräten (z. B. IC-9700) zusätzliche Wartezeit vor Uplink-CAT, nachdem Sie den VFO loslassen, damit das Funkgerät nicht auf Sub springt, während Sie suchen. Dual-Funkgerät ist nicht betroffen. Standard 2500 ms.</value>
+  </data>
+  <data name="Settings.Radio.DopplerAdaptiveThreshold">
+    <value>Adaptiver Schwellwert nahe TCA</value>
+  </data>
+  <data name="Settings.Radio.DopplerAdaptiveThresholdNote">
+    <value>Wenn aktiviert, wird der lineare SSB/CW-Schwellwert gesenkt, während der Doppler-Slew schnell ist (typisch Mitte des Überflugs und nach TCA). Ihr SSB/CW-Wert oben bleibt die Obergrenze; der effektive Schwellwert kann auf etwa die Hälfte fallen (Minimum 25 Hz). Standardmäßig aus.</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLog">
+    <value>Doppler-Abstimmüberflüge protokollieren (CSV)</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLogNote">
+    <value>Schreibt eine CSV pro Überflug mit CAT-Schreibvorgängen, 1-s-Snapshots (Lead, adaptiver Schwellwert, Deltas) und Offset-/VFO-Änderungen. Die Protokollierung läuft nur, solange der Satellit über dem Horizont ist (Elevation ≥ 0°). Gespeichert unter AppData/OscarWatch/doppler-logs.</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLogOpenFolder">
+    <value>Protokollordner öffnen</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLead">
+    <value>Lead-Doppler für CAT-Latenz</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadNote">
+    <value>Wenn aktiviert, sagen CAT und die Radio-Zeile den Doppler auf steilen Abschnitten und nach TCA voraus (wenn sich die Entfernungsrate schnell ändert). Nahe TCA nimmt der Lead ab, wenn die Entfernungsrate gegen null geht. Beim flachen AOS gilt die aktuelle Rate. Die Sat-Zeile zeigt weiterhin die aktuelle Bordfrequenz. Feinabstimmung mit Lead-Zeit und -Stärke unten.</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadMs">
+    <value>Lead-Zeit (ms)</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadMsNote">
+    <value>0 = automatisch (halbe CAT-Verzögerung, begrenzt auf 50 ms, oder 75 ms nach TCA). Explizit setzen, um die Vorhersageweite ohne Änderung des CAT-Takts anzupassen.</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadGain">
+    <value>Lead-Stärke (%)</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadGainNote">
+    <value>100 = voller berechneter Lead. Senken, wenn das Funkgerät dem Signal voraus wirkt (70–85 versuchen). Betrifft die Sat-Zeile nicht.</value>
+  </data>
+  <data name="Settings.Rotator.Enable">
+    <value>Rotor aktivieren</value>
+  </data>
+  <data name="Settings.Rotator.Type">
+    <value>Rotortyp</value>
+  </data>
+  <data name="Settings.Rotator.TypeNote">
+    <value>GS-232 für Yaesu und Klone. SPID für Steuerungen im SP-Modus (Rot1Prog / Rot2Prog). SPID MD-01 / MD-02 (TCP) für natives Ethernet (Protokoll SPID ROT2, Standardport 23). EasyComm für EC-Modus (SPID, M2 und andere Textprotokoll-Steuerungen). SAEBRTrack für klassische Satelliten-Tracker-Schnittstellen (9600 Baud). OZ9AAR URC (TCP) für den Ultimate Rotator Controller über Ethernet (Standardport 1111; URC auf REM/Remote-Modus setzen). Green Heron RT-21 Az-El nutzt zwei COM-Ports (Azimut und Elevation), DCU-1-Protokoll mit 4800 Baud; nicht GS-232 wählen. Serielle Protokolle können statt eines lokalen COM-Ports auch einen TCP-Serial-Server nutzen (z. B. ser2net).</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthPort">
+    <value>Azimut-Seriellport</value>
+  </data>
+  <data name="Settings.Rotator.ElevationPort">
+    <value>Elevations-Seriellport</value>
+  </data>
+  <data name="Settings.Rotator.DualSerialNote">
+    <value>Der RT-21 Az-El hat zwei USB-Seriellports (einen pro Achse). Azimut und Elevation sorgfältig zuweisen: Vertauschen steuert den falschen Motor. Unter Linux stabile by-id-Pfade bevorzugen, damit die Ports nach dem Neustart nicht tauschen.</value>
+  </data>
+  <data name="Settings.Rotator.Transport">
+    <value>Verbindung</value>
+  </data>
+  <data name="Settings.Rotator.Transport.Serial">
+    <value>Seriell (COM-Port)</value>
+  </data>
+  <data name="Settings.Rotator.Transport.Tcp">
+    <value>TCP-Serial (z. B. ser2net)</value>
+  </data>
+  <data name="Settings.Rotator.NetworkHost">
+    <value>Host</value>
+  </data>
+  <data name="Settings.Rotator.NetworkHostWatermark">
+    <value>127.0.0.1 oder Hostname</value>
+  </data>
+  <data name="Settings.Rotator.NetworkPort">
+    <value>TCP-Port</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNote">
+    <value>OscarWatch verbindet sich als TCP-Client. Am URC den Socket-Server aktivieren und Remote-Nachführung (REM) wählen, damit GOTO-Befehle die Antennen bewegen. Standardport ist 1111.</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNoteTcpSerial">
+    <value>OscarWatch verbindet sich als TCP-Client mit einem reinen Serial-Tunnel (z. B. ser2net). Baudrate und Serielloptionen auf dem Server einstellen. Am besten im lokalen Netz: hohe Latenz kann Timeouts verursachen.</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNoteSpidMd01">
+    <value>OscarWatch verbindet sich als TCP-Client mit dem Ethernet-Port von MD-01 / MD-02. Am Controller MOTOR CONFIGURATION auf ETH und Protokoll auf SPID ROT2 stellen. Standard-TCP-Port ist 23. Es kann nur ein Client gleichzeitig verbunden sein. Firmware 1.2507 oder neuer wird empfohlen.</value>
+  </data>
+  <data name="Settings.Rotator.SmartAzimuth">
+    <value>Smart 450°-Azimut (kürzester Weg über Nord)</value>
+  </data>
+  <data name="Settings.Rotator.SmartAzimuthNote">
+    <value>Bei 450°-Rotoren (z. B. Yaesu G-5500) vermeiden Befehle 361–450° einen langen Weg zurück durch 0°, wenn der Überflug nach Norden kreuzt. Überflüge, die nach Norden gehen, aber östlich von 0° bleiben, bleiben im Primärband.</value>
+  </data>
+  <data name="Settings.Rotator.ElevationRange">
+    <value>Elevationsbereich</value>
+  </data>
+  <data name="Settings.Rotator.ElevationRangeNote">
+    <value>0–90° für Standardrotoren. 0–180° für Over-the-Top-Montierungen (z. B. Yaesu G-5500), die über den Zenit nachführen können.</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSection">
+    <value>Keyhole-Vermeidung</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeEnable">
+    <value>Keyhole-Vermeidung aktivieren</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeNote">
+    <value>Wenn aktiviert, werden Überflüge mit hoher Elevation, bei denen der Rotor nahe dem Zenit nicht mithalten kann, analysiert. Der Rotor kann in gekippter Orientierung vorpositioniert werden, um Signalverlust zu minimieren. Die Vorposition schwenkt den Azimut bei der Start-Elevation der Nachführung (nicht unter 0°). Nur verfügbar, wenn der Elevationsbereich 0–180° ist.</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSlewRate">
+    <value>Schwenkrate (°/s)</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSlewRateNote">
+    <value>Maximale Rotorschwenkrate in Grad pro Sekunde. Dient zur Berechnung von Signalverlustfenstern.</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeThreshold">
+    <value>Keyhole-Schwellwert (°)</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeThresholdNote">
+    <value>Minimale Maximalelevation, ab der ein Überflug als Keyhole-Zone gilt. Gültiger Bereich: 60–89°.</value>
+  </data>
+  <data name="Settings.Rotator.TrackStart">
+    <value>Nachführung starten bei Elevation (°)</value>
+  </data>
+  <data name="Settings.Rotator.TrackStartNote">
+    <value>Standard ist −3° (unter dem Horizont). Bereich −90° bis 90°. Der Rotor beginnt zu schwenken, wenn der verfolgte Satellit über diese Elevation steigt, und parkt, sobald er darunter fällt (nach kurzer Bestätigung, damit ein einzelner Störwert den Überflug nicht unterbricht). Die Keyhole-Vorposition nutzt diese Elevation als Untergrenze (nicht unter 0°).</value>
+  </data>
+  <data name="Settings.Rotator.MovementThreshold">
+    <value>Bewegungsschwellwert (°)</value>
+  </data>
+  <data name="Settings.Rotator.MovementThresholdNote">
+    <value>Minimale Winkeländerung, bevor ein neues Satelliten-Soll gesendet wird. Meldet der Rotor eine Position noch außerhalb dieses Schwellwerts, wird der letzte Befehl erneut gesendet, damit ein rauschender Encoder, der früh stoppt, neu anläuft. Stopp bricht diesen Wiederholversuch ab. Niedrigere Werte führen enger nach; höhere Werte schonen das Getriebe. Standard: 1,0°.</value>
+  </data>
+  <data name="Settings.Rotator.ParkAzimuth">
+    <value>Park-Azimut (°)</value>
+  </data>
+  <data name="Settings.Rotator.ParkElevation">
+    <value>Park-Elevation (°)</value>
+  </data>
+  <data name="Settings.Rotator.ParkAfterPass">
+    <value>Rotor nach Überflug parken</value>
+  </data>
+  <data name="Settings.Rotator.ParkNote">
+    <value>Die Parkposition gilt, wenn kein Satellit über dem Nachführ-Schwellwert liegt. Der fokussierte Überflug oder Live-Satellit wird automatisch nachgeführt. Manuelles Parken im Hauptfenster und der Bereitschaftsmodus bleiben unberührt.</value>
+  </data>
+  <data name="Settings.Rotator.CalibrationOffsets">
+    <value>Kalibrier-Offsets (°)</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthOffset">
+    <value>Azimut-Offset</value>
+  </data>
+  <data name="Settings.Rotator.ElevationOffset">
+    <value>Elevations-Offset</value>
+  </data>
+  <data name="Settings.Rotator.OffsetNote">
+    <value>Wird zur Überflugnachführung und zu manuellen Drehbefehlen addiert (nicht zum Parken). Positive Werte, wenn der Strahl vor dem Ziel stoppt; negative, wenn er überschwingt.</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthRange360">
+    <value>0–360°</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthRange450">
+    <value>0–450°</value>
+  </data>
+  <data name="Settings.Rotator.ElevationRange90">
+    <value>0–90°</value>
+  </data>
+  <data name="Settings.Rotator.ElevationRange180">
+    <value>0–180°</value>
+  </data>
+  <data name="Settings.Recording.Enable">
+    <value>Automatische Überflugaufnahme aktivieren</value>
+  </data>
+  <data name="Settings.Recording.EnableNote">
+    <value>Nimmt Audio vom gewählten Eingabegerät auf, solange der fokussierte Satellit über der Start-Elevation liegt. WAV oder MP3 wählen (MP3 braucht ffmpeg im PATH). Dateien werden mit UTC-Zeitstempeln gespeichert.</value>
+  </data>
+  <data name="Settings.Recording.InputDevice">
+    <value>Eingabegerät</value>
+  </data>
+  <data name="Settings.Recording.Format">
+    <value>Abtastformat</value>
+  </data>
+  <data name="Settings.Recording.FileFormat">
+    <value>Dateiformat</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Wav">
+    <value>WAV</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Mp3">
+    <value>MP3</value>
+  </data>
+  <data name="Settings.Recording.FfmpegAvailable">
+    <value>ffmpeg im PATH gefunden. MP3-Umwandlung ist verfügbar.</value>
+  </data>
+  <data name="Settings.Recording.FfmpegUnavailable">
+    <value>MP3 braucht ffmpeg im PATH. Aufnahmen bleiben WAV, bis ffmpeg installiert ist.</value>
+  </data>
+  <data name="Settings.Recording.StartElevation">
+    <value>Aufnahme starten bei Elevation (°)</value>
+  </data>
+  <data name="Settings.Recording.StopElevation">
+    <value>Aufnahme stoppen unter Elevation (°)</value>
+  </data>
+  <data name="Settings.Recording.StopNote">
+    <value>Die Stopp-Elevation sollte auf oder unter der Start-Elevation liegen, um Umschalten nahe dem Schwellwert zu vermeiden.</value>
+  </data>
+  <data name="Settings.Recording.OutputFolder">
+    <value>Ausgabeordner</value>
+  </data>
+  <data name="Settings.Recording.OutputWatermark">
+    <value>Standard: %AppData%/OscarWatch/recordings</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageOne">
+    <value>1 Datei · {0}</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageMany">
+    <value>{0} Dateien · {1}</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageEmpty">
+    <value>Noch keine Aufnahmen in diesem Ordner</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageMissing">
+    <value>Ordner wird angelegt, wenn die erste Aufnahme gespeichert wird</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageError">
+    <value>Ordnergröße konnte nicht gelesen werden</value>
+  </data>
+  <data name="Settings.Recording.OpenFolder">
+    <value>Ordner öffnen</value>
+  </data>
+  <data name="Settings.Recording.TestButton">
+    <value>Aufnahme testen (5 s)</value>
+  </data>
+  <data name="Settings.Recording.Unavailable">
+    <value>Audioaufnahme ist auf diesem System nicht verfügbar.</value>
+  </data>
+  <data name="Settings.Recording.DevicesLoading">
+    <value>Audiogeräte werden geladen…</value>
+  </data>
+  <data name="Settings.Recording.SelectDeviceFirst">
+    <value>Zuerst ein Eingabegerät auswählen.</value>
+  </data>
+  <data name="Settings.Recording.TestInProgress">
+    <value>5-s-Testclip wird aufgenommen…</value>
+  </data>
+  <data name="Settings.Recording.TestSaved">
+    <value>Testclip gespeichert unter {0}</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Fallback">
+    <value>Als WAV gespeichert ({0}); MP3-Umwandlung braucht ffmpeg im PATH.</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Failed">
+    <value>Als WAV gespeichert ({0}); MP3-Umwandlung fehlgeschlagen.</value>
+  </data>
+  <data name="Settings.Recording.Format.Mono44100">
+    <value>Mono 44,1 kHz</value>
+  </data>
+  <data name="Settings.Recording.Format.Mono48000">
+    <value>Mono 48 kHz</value>
+  </data>
+  <data name="Settings.Recording.Format.Stereo44100">
+    <value>Stereo 44,1 kHz</value>
+  </data>
+  <data name="Settings.HamsAt.Section">
+    <value>hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.Intro">
+    <value>Anstehende Satelliten-Roves von hams.at in der Seitenleiste anzeigen. Es werden nur Hinweise gelistet, die für Ihren hams.at-Standort als verbindbar gelten: setzen Sie Ihren Standort auf hams.at, wenn keine erscheinen. Ihr API-Schlüssel wird lokal in settings.json gespeichert wie bei anderen Integrationen.</value>
+  </data>
+  <data name="Settings.HamsAt.Enable">
+    <value>hams.at anstehende Roves aktivieren</value>
+  </data>
+  <data name="Settings.HamsAt.ApiKey">
+    <value>hams.at-API-Schlüssel</value>
+  </data>
+  <data name="Settings.HamsAt.ApiKeyWatermark">
+    <value>Bearer-Token von hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.PanelHeight">
+    <value>Höhe des Seitenleistenfelds (px)</value>
+  </data>
+  <data name="Settings.HamsAt.RefreshInterval">
+    <value>Aktualisierungsintervall (Minuten)</value>
+  </data>
+  <data name="Settings.HamsAt.TestConnection">
+    <value>Verbindung testen</value>
+  </data>
+  <data name="Settings.HamsAt.Testing">
+    <value>hams.at-Verbindung wird getestet…</value>
+  </data>
+  <data name="Settings.HamsAt.EnterApiKey">
+    <value>Geben Sie zuerst Ihren hams.at-API-Schlüssel ein.</value>
+  </data>
+  <data name="Settings.HamsAt.ConnectionOk">
+    <value>Verbunden: {0}</value>
+  </data>
+  <data name="Settings.HamsAt.ConnectionFailed">
+    <value>Verbindung fehlgeschlagen: {0}</value>
+  </data>
+  <data name="HamsAt.Activation.Title">
+    <value>Aktivierung bei hams.at posten</value>
+  </data>
+  <data name="HamsAt.Activation.PassSummary">
+    <value>{0} · {1} · {2}</value>
+  </data>
+  <data name="HamsAt.Activation.Callsign">
+    <value>Rufzeichen</value>
+  </data>
+  <data name="HamsAt.Activation.Grids">
+    <value>Aktivierte Locator (1–4 Felder, je 4 oder 6 Zeichen)</value>
+  </data>
+  <data name="HamsAt.Activation.Mode">
+    <value>Mode (FM, USB, CW usw.)</value>
+  </data>
+  <data name="HamsAt.Activation.FrequencyOptional">
+    <value>Frequenz (optional)</value>
+  </data>
+  <data name="HamsAt.Activation.IncludeUplinkMhz">
+    <value>Uplink</value>
+  </data>
+  <data name="HamsAt.Activation.IncludeDownlinkMhz">
+    <value>Downlink</value>
+  </data>
+  <data name="HamsAt.Activation.UplinkMhz">
+    <value>Uplink (MHz)</value>
+  </data>
+  <data name="HamsAt.Activation.DownlinkMhz">
+    <value>Downlink (MHz)</value>
+  </data>
+  <data name="HamsAt.Activation.Mhz">
+    <value>MHz (optional)</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection">
+    <value>Richtung</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection.Up">
+    <value>Auf</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection.Down">
+    <value>Ab</value>
+  </data>
+  <data name="HamsAt.Activation.Comment">
+    <value>Kommentar (optional, max. 50 Zeichen)</value>
+  </data>
+  <data name="HamsAt.Activation.Submit">
+    <value>Aktivierung posten</value>
+  </data>
+  <data name="HamsAt.Activation.Error.CallsignRequired">
+    <value>Geben Sie ein Rufzeichen mit mindestens drei Zeichen ein.</value>
+  </data>
+  <data name="HamsAt.Activation.Error.GridsRequired">
+    <value>Geben Sie mindestens ein Maidenhead-Locatorfeld ein.</value>
+  </data>
+  <data name="HamsAt.Activation.Error.ModeRequired">
+    <value>Wählen Sie einen Betriebsmode (SSB, CW, Data oder FM).</value>
+  </data>
+  <data name="HamsAt.Activation.Error.GridLength">
+    <value>Locator „{0}“ muss für hams.at 4 oder 6 Zeichen haben.</value>
+  </data>
+  <data name="HamsAt.Activation.Error.MhzInvalid">
+    <value>Gültigen MHz-Wert eingeben oder das Feld leer lassen.</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Section">
+    <value>OscarWatch</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Intro">
+    <value>Melden Sie, ob ein Satelliten-Mode Ein, Aus oder nur Telemetrie ist, an OscarWatch.org. Legen Sie unter oscarwatch.org → Settings → API tokens ein API-Token an. Ihr Website-Profil braucht Rufzeichen und Locator, bevor Meldungen angenommen werden.</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Enable">
+    <value>Satellitenstatus-Meldung aktivieren</value>
+  </data>
+  <data name="Settings.SatelliteStatus.AutoReportOnQso">
+    <value>Beim Eintragen eines QSO automatisch Ein melden</value>
+  </data>
+  <data name="Settings.SatelliteStatus.BaseUrl">
+    <value>Basis-URL</value>
+  </data>
+  <data name="Settings.SatelliteStatus.BaseUrlWatermark">
+    <value>https://oscarwatch.org</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ApiToken">
+    <value>API-Token</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ApiTokenWatermark">
+    <value>Bearer-Token von oscarwatch.org</value>
+  </data>
+  <data name="Settings.SatelliteStatus.TestConnection">
+    <value>Verbindung testen</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Testing">
+    <value>OscarWatch.org-Verbindung wird getestet…</value>
+  </data>
+  <data name="Settings.SatelliteStatus.EnterApiToken">
+    <value>Geben Sie zuerst Ihr OscarWatch.org-API-Token ein.</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ConnectionOk">
+    <value>Verbunden: {0}</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ConnectionFailed">
+    <value>Verbindung fehlgeschlagen: {0}</value>
+  </data>
+  <data name="SatStatus.Report.Title">
+    <value>Satellitenstatus melden</value>
+  </data>
+  <data name="SatStatus.Report.Satellite">
+    <value>Satellit: {0}</value>
+  </data>
+  <data name="SatStatus.Report.Mode">
+    <value>Mode: {0}</value>
+  </data>
+  <data name="SatStatus.Report.StatusPrompt">
+    <value>Status</value>
+  </data>
+  <data name="SatStatus.Report.Status.On">
+    <value>Ein</value>
+  </data>
+  <data name="SatStatus.Report.Status.Off">
+    <value>Aus</value>
+  </data>
+  <data name="SatStatus.Report.Status.TelemetryOnly">
+    <value>Nur Telemetrie</value>
+  </data>
+  <data name="SatStatus.Report.Submit">
+    <value>Senden</value>
+  </data>
+  <data name="SatStatus.Report.Stored">
+    <value>Satellitenstatus-Meldung gespeichert.</value>
+  </data>
+  <data name="SatStatus.Report.Duplicate">
+    <value>Doppelte Meldung: kürzlich bereits gespeichert.</value>
+  </data>
+  <data name="SatStatus.Report.Failed">
+    <value>Satellitenstatus-Meldung fehlgeschlagen: {0}</value>
+  </data>
+  <data name="SatStatus.Report.BelowElevation">
+    <value>Satellitenstatus kann nur gemeldet werden, wenn die Elevation mindestens −1° beträgt.</value>
+  </data>
+  <data name="SatStatus.Community.OverlayTitle">
+    <value>Community-Status (gewählter Mode)</value>
+  </data>
+  <data name="SatStatus.Community.PassTitle">
+    <value>{0} · Community-Status ({1}h)</value>
+  </data>
+  <data name="SatStatus.Community.ReportCount">
+    <value>Meldungen im Fenster: {0}</value>
+  </data>
+  <data name="SatStatus.Community.LastReport">
+    <value>Letzte Meldung {0}</value>
+  </data>
+  <data name="SatStatus.Community.LastReportInline">
+    <value>letzte Meldung {0}</value>
+  </data>
+  <data name="SatStatus.Community.StaleNote">
+    <value>Neueste Meldung ist älter als 3 Stunden</value>
+  </data>
+  <data name="SatStatus.Community.WindowNote">
+    <value>Community-Meldungen, letzte {0} Stunden</value>
+  </data>
+  <data name="SatStatus.Community.NoModeData">
+    <value>Keine Mode-Daten verfügbar</value>
+  </data>
+  <data name="SatStatus.Community.YourSelection">
+    <value>Ihre letzte Auswahl</value>
+  </data>
+  <data name="SatStatus.Community.DefaultMode">
+    <value>Standard</value>
+  </data>
+  <data name="SatStatus.Community.PassAutomation">
+    <value>{0}, {1}: {2}</value>
+  </data>
+  <data name="SatStatus.Community.Short.On">
+    <value>Ein</value>
+  </data>
+  <data name="SatStatus.Community.Short.Off">
+    <value>Aus</value>
+  </data>
+  <data name="SatStatus.Community.Short.Telem">
+    <value>Telem.</value>
+  </data>
+  <data name="SatStatus.Community.Short.Unknown">
+    <value>?</value>
+  </data>
+  <data name="SatStatus.Community.NoRecentReports">
+    <value>Keine aktuellen Meldungen</value>
+  </data>
+  <data name="Settings.SatelliteLink.Section">
+    <value>Satellite Link</value>
+  </data>
+  <data name="Settings.SatelliteLink.Intro">
+    <value>Sendet Namen, Frequenzen, Modi und Nachführdaten des fokussierten Satelliten an Logging-Anwendungen über einen lokalen WebSocket (Nachfolger von SatPC32 DDE). Siehe Hilfe zur API.</value>
+  </data>
+  <data name="Settings.SatelliteLink.Enable">
+    <value>Satellite-Link-WebSocket-Server aktivieren</value>
+  </data>
+  <data name="Settings.SatelliteLink.Port">
+    <value>Port</value>
+  </data>
+  <data name="Settings.SatelliteLink.AllowLan">
+    <value>Verbindungen aus dem lokalen Netz zulassen</value>
+  </data>
+  <data name="Settings.SatelliteLink.AllowLanNote">
+    <value>Wenn aus, können nur Programme auf diesem PC verbinden (127.0.0.1). Wenn ein, lauscht OscarWatch auf Ihren LAN-IP-Adressen. Unter Windows OscarWatch zulassen, wenn die Firewall nachfragt. Unter macOS oder Linux den Port in der Firewall freigeben, wenn LAN-Clients nicht verbinden können.</value>
+  </data>
+  <data name="Settings.SatelliteLink.OnlyWhenInRange">
+    <value>Nur senden, wenn der Satellit über dem Horizont ist</value>
+  </data>
+  <data name="Settings.SatelliteLink.UpdateInterval">
+    <value>Update-Intervall (ms)</value>
+  </data>
+  <data name="Settings.SatelliteLink.UpdateIntervalNote">
+    <value>Mindestzeit zwischen identischen Nutzdaten. Fokus- und Mode-Änderungen werden sofort gesendet.</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlPreview">
+    <value>Verbindungs-URL</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlLocal">
+    <value>ws://127.0.0.1:{0}/</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlLan">
+    <value>ws://&lt;IP dieses PCs&gt;:{0}/ (alle Schnittstellen)</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestConnection">
+    <value>Port testen</value>
+  </data>
+  <data name="Settings.SatelliteLink.OpenHelp">
+    <value>Hilfe öffnen</value>
+  </data>
+  <data name="Settings.SatelliteLink.Testing">
+    <value>Port wird getestet</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestOk">
+    <value>Port {0} ist auf den gewählten Schnittstellen verfügbar.</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestFailed">
+    <value>Konnte nicht auf Port {0} lauschen: {1}</value>
+  </data>
+  <data name="Settings.Cloudlog.Section">
+    <value>Cloudlog</value>
+  </data>
+  <data name="Settings.Cloudlog.Intro">
+    <value>Sendet Satelliten-TX/RX an Cloudlog, wenn sich Frequenzen oder Modi ändern, plus ein periodisches Keepalive bei unverändertem Zustand. Verbindungstest lädt Ihre Logbücher für Locator-Abfragen bei hams.at-Roves.</value>
+  </data>
+  <data name="Settings.Cloudlog.Enable">
+    <value>Cloudlog-Radio-API aktivieren (erforderlich für Live-Updates)</value>
+  </data>
+  <data name="Settings.Cloudlog.BaseUrl">
+    <value>Cloudlog-Basis-URL</value>
+  </data>
+  <data name="Settings.Cloudlog.BaseUrlWatermark">
+    <value>https://your.cloudlog.site</value>
+  </data>
+  <data name="Settings.Cloudlog.ApiKey">
+    <value>API-Schlüssel</value>
+  </data>
+  <data name="Settings.Cloudlog.ApiKeyWatermark">
+    <value>API-Schlüssel mit Lese-/Schreibrecht</value>
+  </data>
+  <data name="Settings.Cloudlog.RadioName">
+    <value>Funkgerätname in Cloudlog</value>
+  </data>
+  <data name="Settings.Cloudlog.RadioNameWatermark">
+    <value>OscarWatch</value>
+  </data>
+  <data name="Settings.Cloudlog.RadioNameNote">
+    <value>Standard ist OscarWatch. Muss zu einem Funkgeräteintrag passen, dem Cloudlog QSOs zuordnen kann.</value>
+  </data>
+  <data name="Settings.Cloudlog.MinInterval">
+    <value>Keepalive-Intervall (ms)</value>
+  </data>
+  <data name="Settings.Cloudlog.MinIntervalNote">
+    <value>Sendet sofort, wenn sich Uplink, Downlink, Modi oder Satellit ändern. Wiederholt denselben Zustand in diesem Intervall (Standard 10 Minuten), damit Cloudlog bei langen Verbindungen synchron bleibt.</value>
+  </data>
+  <data name="Settings.Cloudlog.TestConnection">
+    <value>Verbindung testen</value>
+  </data>
+  <data name="Settings.Cloudlog.Testing">
+    <value>Test läuft…</value>
+  </data>
+  <data name="Settings.Cloudlog.EnterCredentials">
+    <value>URL und API-Schlüssel eingeben (jedes Feld verlassen oder erneut auf Test klicken).</value>
+  </data>
+  <data name="Settings.Cloudlog.Logbook">
+    <value>Logbuch</value>
+  </data>
+  <data name="Settings.Cloudlog.CheckRoveGrids">
+    <value>Locator hervorheben, die ich bei hams.at-Roves noch brauche</value>
+  </data>
+  <data name="Settings.Cloudlog.LogbooksLoaded">
+    <value>{0} Logbuch/Logbücher gefunden</value>
+  </data>
+  <data name="Settings.Cloudlog.ConnectionOk">
+    <value>Verbindung OK: Test-CAT an {0} gesendet</value>
+  </data>
+  <data name="Settings.Cloudlog.ConnectionOkWithLogbooks">
+    <value>{0}. Radio-CAT-Test OK.</value>
+  </data>
+  <data name="Settings.Cloudlog.LogbooksOnly">
+    <value>{0}. Radio-CAT-Test fehlgeschlagen: {1}</value>
+  </data>
+  <data name="Settings.Cloudlog.LoadFailed">
+    <value>Logbücher konnten nicht geladen werden: {0}</value>
+  </data>
+  <data name="Settings.Cloudlog.ConnectionFailed">
+    <value>Verbindung fehlgeschlagen.</value>
+  </data>
+  <data name="Settings.Browse.RecordingFolder">
+    <value>Ausgabeordner für Aufnahmen wählen</value>
+  </data>
+  <data name="Settings.Browse.TleFile">
+    <value>TLE-Datei wählen</value>
+  </data>
+  <data name="Settings.SaveFailed.Title">
+    <value>Einstellungen konnten nicht gespeichert werden</value>
+  </data>
+  <data name="Pass.Time.Local">
+    <value>Ortszeit</value>
+  </data>
+  <data name="Pass.Time.Utc">
+    <value>UTC</value>
+  </data>
+  <data name="Pass.TimesShownIn">
+    <value>Zeiten anzeigen in</value>
+  </data>
+  <data name="Pass.MinElevation">
+    <value>Min. Elevation (°)</value>
+  </data>
+  <data name="Pass.MinDuration">
+    <value>Min. Dauer (min)</value>
+  </data>
+  <data name="Pass.HoursAhead">
+    <value>Stunden voraus</value>
+  </data>
+  <data name="Pass.Computing">
+    <value>Überflüge werden berechnet…</value>
+  </data>
+  <data name="Pass.ComputingMutual">
+    <value>Gemeinsame Überflüge werden berechnet…</value>
+  </data>
+  <data name="Pass.CountPasses">
+    <value>{0} Überflug/Überflüge in den nächsten {1} h</value>
+  </data>
+  <data name="Pass.CountMutual">
+    <value>{0} gemeinsame(r) Überflug/Überflüge in den nächsten {1} h</value>
+  </data>
+  <data name="Pass.CountMutualInRange">
+    <value>{0} gemeinsame(r) Überflug/Überflüge von {1} bis {2}</value>
+  </data>
+  <data name="Pass.Failed">
+    <value>Überflugvorhersage fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Pass.FailedMutual">
+    <value>Vorhersage gemeinsamer Überflüge fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Planner.Section.StationFilters">
+    <value>Station und Filter</value>
+  </data>
+  <data name="Planner.UseActiveStation">
+    <value>Als aktive Station verwenden</value>
+  </data>
+  <data name="Planner.DisplayNameWatermark">
+    <value>Anzeigename</value>
+  </data>
+  <data name="Planner.Maidenhead">
+    <value>Maidenhead</value>
+  </data>
+  <data name="Planner.AltAsl">
+    <value>Höhe ü. NN (m)</value>
+  </data>
+  <data name="Planner.RefreshPasses">
+    <value>Überflüge aktualisieren</value>
+  </data>
+  <data name="Planner.FiltersNote">
+    <value>Filter gelten für diese Liste und das Hauptfenster, wenn Sie schließen.</value>
+  </data>
+  <data name="Planner.PassesHeader">
+    <value>Überflüge</value>
+  </data>
+  <data name="Planner.SatelliteFilter.All">
+    <value>Alle Satelliten</value>
+  </data>
+  <data name="Planner.OpenPassRadarGallery">
+    <value>Überflug-Radar-Galerie</value>
+  </data>
+  <data name="Planner.Col.Satellite">
+    <value>Satellit</value>
+  </data>
+  <data name="Planner.Col.AosLos">
+    <value>AOS – LOS</value>
+  </data>
+  <data name="Planner.Col.Tca">
+    <value>TCA</value>
+  </data>
+  <data name="Planner.Col.Azimuth">
+    <value>Azimut</value>
+  </data>
+  <data name="Planner.Col.MaxEl">
+    <value>Max. El</value>
+  </data>
+  <data name="Planner.Col.Duration">
+    <value>Dauer</value>
+  </data>
+  <data name="Planner.Col.Calendar">
+    <value>Kalender</value>
+  </data>
+  <data name="Planner.Col.Schedule">
+    <value>Vormerken</value>
+  </data>
+  <data name="Planner.AddToCalendar">
+    <value>Zum Kalender hinzufügen</value>
+  </data>
+  <data name="Planner.Export.CalendarTip">
+    <value>iCalendar-Datei für diesen Satelliten speichern oder diesen Überflug zu Google Calendar hinzufügen</value>
+  </data>
+  <data name="Planner.Export.SaveIcs">
+    <value>iCalendar speichern (.ics)</value>
+  </data>
+  <data name="Planner.Export.SaveIcsTip">
+    <value>Alle Überflüge dieses Satelliten in eine iCalendar-Datei (.ics) exportieren</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendar">
+    <value>Diesen Überflug zu Google Calendar hinzufügen</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarTip">
+    <value>Google Calendar im Browser mit diesem Überflug vorausgefüllt öffnen</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarOpened">
+    <value>Google Calendar für {0} geöffnet</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarFailed">
+    <value>Google Calendar konnte nicht geöffnet werden: {0}</value>
+  </data>
+  <data name="Planner.PortableName">
+    <value>Portabel {0}</value>
+  </data>
+  <data name="Planner.Export.RefreshFirst">
+    <value>Überflüge vor dem Export aktualisieren.</value>
+  </data>
+  <data name="Planner.Export.Title">
+    <value>Überflüge von {0} exportieren</value>
+  </data>
+  <data name="Planner.Export.FileType">
+    <value>iCalendar</value>
+  </data>
+  <data name="Planner.Export.CalendarTitle">
+    <value>OscarWatch: {0} @ {1}</value>
+  </data>
+  <data name="Planner.Export.Done">
+    <value>{0} {1}-Überflug/Überflüge exportiert</value>
+  </data>
+  <data name="Planner.Export.SatelliteFile">
+    <value>Satelliten</value>
+  </data>
+  <data name="Planner.ContextMenu.CopySatelliteDetails">
+    <value>Satellitendetails kopieren</value>
+  </data>
+  <data name="Planner.ContextMenu.ViewPassPlot">
+    <value>Überflugplot anzeigen</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadar">
+    <value>Überflug-Radar öffnen</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadarGallery">
+    <value>Überflug-Radar-Galerie öffnen (alle Überflüge)</value>
+  </data>
+  <data name="Mutual.Section.StationsFilters">
+    <value>Stationen und Filter</value>
+  </data>
+  <data name="Mutual.Section.Stations">
+    <value>Stationen</value>
+  </data>
+  <data name="Mutual.Section.PassCriteria">
+    <value>Überflugkriterien</value>
+  </data>
+  <data name="Mutual.Section.SearchPeriod">
+    <value>Suchzeitraum</value>
+  </data>
+  <data name="Mutual.Wizard.Progress">
+    <value>Schritt {0} von {1}: {2}</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Stations">
+    <value>Stationen</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Criteria">
+    <value>Überflugkriterien</value>
+  </data>
+  <data name="Mutual.Wizard.Step.When">
+    <value>Suchzeitraum</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Results">
+    <value>Ergebnisse</value>
+  </data>
+  <data name="Mutual.Wizard.StationsIntro">
+    <value>Geben Sie den Maidenhead-Locator des Gegenfunkers ein. Ihre aktive Station gilt für die lokale Seite.</value>
+  </data>
+  <data name="Mutual.Wizard.CriteriaIntro">
+    <value>Minimale Elevation, Überflugdauer und Überlappung festlegen, die für ein gemeinsames Fenster nötig sind.</value>
+  </data>
+  <data name="Mutual.Wizard.EditSearch">
+    <value>Suche bearbeiten</value>
+  </data>
+  <data name="Mutual.YourStation">
+    <value>Ihre Station</value>
+  </data>
+  <data name="Mutual.RemoteOperator">
+    <value>Gegenfunker</value>
+  </data>
+  <data name="Mutual.RemoteOperatorWatermark">
+    <value>Rufzeichen oder Name (optional)</value>
+  </data>
+  <data name="Mutual.RemoteGrid">
+    <value>Maidenhead-Locator der Gegenstation</value>
+  </data>
+  <data name="Mutual.Description">
+    <value>Überflüge finden, bei denen der Satellit an Ihrer Station und am Locator der Gegenstation gleichzeitig über der minimalen Elevation liegt.</value>
+  </data>
+  <data name="Mutual.FindPasses">
+    <value>Gemeinsame Überflüge suchen</value>
+  </data>
+  <data name="Mutual.MinPassDuration">
+    <value>Min. Überflugdauer (min)</value>
+  </data>
+  <data name="Mutual.MinOverlap">
+    <value>Min. Überlappung (min)</value>
+  </data>
+  <data name="Mutual.TimeWindow.Label">
+    <value>Suchfenster</value>
+  </data>
+  <data name="Mutual.TimeWindow.HoursAhead">
+    <value>Stunden voraus ab jetzt</value>
+  </data>
+  <data name="Mutual.TimeWindow.DateRange">
+    <value>Eigener Zeitraum</value>
+  </data>
+  <data name="Mutual.RangeStart">
+    <value>Start</value>
+  </data>
+  <data name="Mutual.RangeEnd">
+    <value>Ende</value>
+  </data>
+  <data name="Mutual.RangeStartDate">
+    <value>Startdatum</value>
+  </data>
+  <data name="Mutual.RangeStartTime">
+    <value>Startzeit</value>
+  </data>
+  <data name="Mutual.RangeEndDate">
+    <value>Endedatum</value>
+  </data>
+  <data name="Mutual.RangeEndTime">
+    <value>Endzeit</value>
+  </data>
+  <data name="Mutual.PassesHeader">
+    <value>Gemeinsame Überflüge</value>
+  </data>
+  <data name="Mutual.ResultsContext">
+    <value>{0} ↔ {1}</value>
+  </data>
+  <data name="Mutual.Col.Satellite">
+    <value>Satellit</value>
+  </data>
+  <data name="Mutual.Col.MutualWindow">
+    <value>Gemeinsames Fenster</value>
+  </data>
+  <data name="Mutual.Col.Overlap">
+    <value>Überlappung</value>
+  </data>
+  <data name="Mutual.Col.MaxElPair">
+    <value>Max. El°</value>
+  </data>
+  <data name="Mutual.Col.YourAosLos">
+    <value>Ihr AOS–LOS</value>
+  </data>
+  <data name="Mutual.Col.RemoteAosLos">
+    <value>Gegenstation AOS–LOS</value>
+  </data>
+  <data name="Mutual.Status.EnterGrid">
+    <value>Maidenhead-Locator des Gegenfunkers eingeben (mindestens 4 Zeichen).</value>
+  </data>
+  <data name="Mutual.Status.NoPasses">
+    <value>Keine gemeinsamen Überflüge in den nächsten {0} h für {1} und {2}.</value>
+  </data>
+  <data name="Mutual.Status.NoPassesInRange">
+    <value>Keine gemeinsamen Überflüge von {0} bis {1} für {2} und {3}.</value>
+  </data>
+  <data name="Mutual.Status.InvalidRange">
+    <value>Endedatum und -zeit müssen nach dem Start liegen.</value>
+  </data>
+  <data name="Mutual.Status.RangeTooLong">
+    <value>Das Suchfenster darf {0} Tage nicht überschreiten.</value>
+  </data>
+  <data name="Mutual.Status.InvalidGrid">
+    <value>Ungültiges Maidenhead-Locatorfeld.</value>
+  </data>
+  <data name="Mutual.OpenVisualizer">
+    <value>Visualisierer öffnen</value>
+  </data>
+  <data name="Mutual.Visualizer.DoubleClickHint">
+    <value>Doppelklick auf einen Überflug öffnet den Visualisierer gemeinsamer Überflüge. Rechtsklick für weitere Optionen.</value>
+  </data>
+  <data name="Mutual.Copy.Title">
+    <value>Gemeinsamer Überflug: {0}</value>
+  </data>
+  <data name="Mutual.Copy.Between">
+    <value>Zwischen {0} und {1}</value>
+  </data>
+  <data name="Mutual.Copy.TimesIn">
+    <value>Zeiten angezeigt in {0}</value>
+  </data>
+  <data name="Mutual.Copy.MutualWindow">
+    <value>Gemeinsames Fenster</value>
+  </data>
+  <data name="Mutual.Copy.MutualWindowLine">
+    <value>  {0} ({1})</value>
+  </data>
+  <data name="Mutual.Copy.YourPass">
+    <value>Ihr Überflug: {0}</value>
+  </data>
+  <data name="Mutual.Copy.RemotePass">
+    <value>Überflug Gegenstation: {0}</value>
+  </data>
+  <data name="Mutual.Copy.PassTimes">
+    <value>  {0}</value>
+  </data>
+  <data name="Mutual.Copy.MaxElevation">
+    <value>  Max. Elevation {0:F1}°</value>
+  </data>
+  <data name="Mutual.Copy.Azimuth">
+    <value>  AOS-Azimut {0:F1}° · LOS-Azimut {1:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.Heading">
+    <value>Überlappender Überflug zwischen {0} und {1} über {2}</value>
+  </data>
+  <data name="Mutual.Visualizer.Subtitle">
+    <value>Überlappung dauert {0}, Beginn {1} ({2})</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassLocal">
+    <value>Voller Überflug von {0}</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassRemote">
+    <value>Voller Überflug von {0}</value>
+  </data>
+  <data name="Mutual.Visualizer.StationStats">
+    <value>{0} · AOS Az: {1:F1}° · Max. El: {2:F1}° · LOS Az: {3:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.PlotTooltip">
+    <value>{0} · Az: {1:F1}° · El: {2:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.PlotTooltipWithRotor">
+    <value>{0} · Az: {1:F1}° · Rotor: {2:F0}° · El: {3:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Aos">
+    <value>AOS (Start des gemeinsamen Fensters)</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Los">
+    <value>LOS (Ende des gemeinsamen Fensters)</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Sunlit">
+    <value>Sonnenlicht</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Eclipse">
+    <value>Finsternis</value>
+  </data>
+  <data name="Mutual.Visualizer.Screenshot">
+    <value>Bildschirmfoto</value>
+  </data>
+  <data name="Sunlight.Section.SatelliteRange">
+    <value>Satellit und Zeitraum</value>
+  </data>
+  <data name="Sunlight.Satellite">
+    <value>Satellit</value>
+  </data>
+  <data name="Sunlight.StartDateUtc">
+    <value>Startdatum (UTC)</value>
+  </data>
+  <data name="Sunlight.DaysAhead">
+    <value>Tage voraus</value>
+  </data>
+  <data name="Sunlight.Predict">
+    <value>Vorhersagen</value>
+  </data>
+  <data name="Sunlight.Legend.Sunlight">
+    <value>Sonnenlicht</value>
+  </data>
+  <data name="Sunlight.Legend.Eclipse">
+    <value>Finsternis</value>
+  </data>
+  <data name="Sunlight.ContinuousPeriods">
+    <value>Ununterbrochene Sonnenlichtphasen</value>
+  </data>
+  <data name="Sunlight.MinDuration">
+    <value>Min. Dauer (min)</value>
+  </data>
+  <data name="Sunlight.Col.StartLocal">
+    <value>Start (lokal)</value>
+  </data>
+  <data name="Sunlight.Col.EndLocal">
+    <value>Ende (lokal)</value>
+  </data>
+  <data name="Sunlight.Col.Duration">
+    <value>Dauer</value>
+  </data>
+  <data name="Sunlight.Status.SelectPredict">
+    <value>Satelliten auswählen und auf Vorhersagen klicken.</value>
+  </data>
+  <data name="Sunlight.Status.NoSatellites">
+    <value>Keine aktivierten Satelliten: zuerst Satelliten → Satelliten auswählen.</value>
+  </data>
+  <data name="Sunlight.Status.Computing">
+    <value>Beleuchtung für {0} wird berechnet…</value>
+  </data>
+  <data name="Sunlight.Status.Segments">
+    <value>{0} Beleuchtungsabschnitte über {1} Tag(e).</value>
+  </data>
+  <data name="Sunlight.Status.Cancelled">
+    <value>Vorhersage abgebrochen.</value>
+  </data>
+  <data name="Sunlight.Status.Failed">
+    <value>Vorhersage fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Sunlight.Summary.SunlitPercent">
+    <value>{0} % insgesamt im Sonnenlicht</value>
+  </data>
+  <data name="Sunlight.Summary.LongestSun">
+    <value>längstes ununterbrochenes Sonnenlicht {0} ({1} – {2})</value>
+  </data>
+  <data name="Sunlight.Summary.LongestEclipse">
+    <value>längste Finsternis {0}</value>
+  </data>
+  <data name="Picker.SearchWatermark">
+    <value>Satelliten suchen…</value>
+  </data>
+  <data name="Picker.Filter.All">
+    <value>Alle</value>
+  </data>
+  <data name="Picker.Filter.Selected">
+    <value>Ausgewählt</value>
+  </data>
+  <data name="Picker.Filter.NotSelected">
+    <value>Nicht ausgewählt</value>
+  </data>
+  <data name="DbEditor.Intro">
+    <value>Transponder-Modi der Satelliten verwalten (Frequenzen in kHz). Speicherung im Benutzer-AppData-Ordner.</value>
+  </data>
+  <data name="DbEditor.Path.User">
+    <value>Benutzerdatenbank: {0}</value>
+  </data>
+  <data name="DbEditor.Path.Shipped">
+    <value>Mitgelieferte Vorgaben: {0}</value>
+  </data>
+  <data name="DbEditor.SearchWatermark">
+    <value>Satelliten suchen…</value>
+  </data>
+  <data name="DbEditor.ImportJson">
+    <value>JSON importieren…</value>
+  </data>
+  <data name="DbEditor.ExportJson">
+    <value>JSON exportieren…</value>
+  </data>
+  <data name="DbEditor.CheckUpdates">
+    <value>Auf Updates prüfen</value>
+  </data>
+  <data name="DbEditor.AddSatellite">
+    <value>Satellit hinzufügen</value>
+  </data>
+  <data name="DbEditor.RestoreDefaults">
+    <value>Vorgaben wiederherstellen</value>
+  </data>
+  <data name="DbEditor.RemoveSatellite">
+    <value>Satellit entfernen</value>
+  </data>
+  <data name="DbEditor.Satellite">
+    <value>Satellit</value>
+  </data>
+  <data name="DbEditor.NameWatermark">
+    <value>Bevorzugter Name (auf der Karte angezeigt)</value>
+  </data>
+  <data name="DbEditor.NoradIdLabel">
+    <value>NORAD-ID</value>
+  </data>
+  <data name="DbEditor.NoradIdWatermark">
+    <value>Optional: an tle.oscarwatch.org anpassen (z. B. 27607)</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesLabel">
+    <value>Alternative Namen</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesWatermark">
+    <value>Kommagetrennt (z. B. UmKA-1, RS40-S)</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesHint">
+    <value>Dient zum Abgleich von TLE- und veröffentlichten Datenbanknamen, wenn sie vom bevorzugten Namen abweichen. Beim Umbenennen bleibt der bisherige Name hier automatisch. Eine NORAD-ID wird empfohlen, wenn Aliase gesetzt sind.</value>
+  </data>
+  <data name="DbEditor.ModesHeader">
+    <value>Transponder-Modi</value>
+  </data>
+  <data name="DbEditor.AddMode">
+    <value>Mode hinzufügen</value>
+  </data>
+  <data name="DbEditor.Duplicate">
+    <value>Duplizieren</value>
+  </data>
+  <data name="DbEditor.Remove">
+    <value>Entfernen</value>
+  </data>
+  <data name="DbEditor.ModeDetails">
+    <value>Mode-Details</value>
+  </data>
+  <data name="DbEditor.TypeLabel">
+    <value>Typ / Bezeichnung</value>
+  </data>
+  <data name="DbEditor.DownlinkKhz">
+    <value>Downlink (kHz)</value>
+  </data>
+  <data name="DbEditor.UplinkKhz">
+    <value>Uplink (kHz)</value>
+  </data>
+  <data name="DbEditor.DownlinkMode">
+    <value>Downlink-Mode</value>
+  </data>
+  <data name="DbEditor.UplinkMode">
+    <value>Uplink-Mode</value>
+  </data>
+  <data name="DbEditor.Doppler">
+    <value>Doppler</value>
+  </data>
+  <data name="DbEditor.CtcssAccess">
+    <value>CTCSS-Zugang (Hz)</value>
+  </data>
+  <data name="DbEditor.CtcssArm">
+    <value>CTCSS-Scharf (Hz)</value>
+  </data>
+  <data name="DbEditor.ModeHint">
+    <value>Uplink auf 0 für nur Bake. CTCSS auf 0 lassen für keines. FM-Modi nutzen Hz (z. B. 67.0).</value>
+  </data>
+  <data name="DbEditor.FileType.Json">
+    <value>JSON</value>
+  </data>
+  <data name="DbEditor.Mode.NewMode">
+    <value>Neuer Mode</value>
+  </data>
+  <data name="DbEditor.Mode.CopySuffix">
+    <value> Kopie</value>
+  </data>
+  <data name="DbEditor.Status.Loaded">
+    <value>{0} Satelliten geladen.</value>
+  </data>
+  <data name="DbEditor.Status.AddCancelled">
+    <value>Satellit hinzufügen abgebrochen.</value>
+  </data>
+  <data name="DbEditor.Status.AlreadyExists">
+    <value>Satellit „{0}“ ist bereits in der Datenbank.</value>
+  </data>
+  <data name="DbEditor.Status.Added">
+    <value>{0} hinzugefügt.</value>
+  </data>
+  <data name="DbEditor.Status.RemovedSatellite">
+    <value>Satellit entfernt.</value>
+  </data>
+  <data name="DbEditor.Status.AddedMode">
+    <value>Transponder-Mode hinzugefügt.</value>
+  </data>
+  <data name="DbEditor.Status.RemovedMode">
+    <value>Transponder-Mode entfernt.</value>
+  </data>
+  <data name="DbEditor.Status.DuplicatedMode">
+    <value>Mode dupliziert.</value>
+  </data>
+  <data name="DbEditor.Status.Saved">
+    <value>Gespeichert.</value>
+  </data>
+  <data name="DbEditor.Status.AliasesWithoutNorad">
+    <value>Tipp: eine NORAD-ID setzen, wenn alternative Namen genutzt werden, damit Updates diesen Satelliten weiter zuordnen.</value>
+  </data>
+  <data name="DbEditor.Status.Restored">
+    <value>Mitgelieferte Datenbank wiederhergestellt.</value>
+  </data>
+  <data name="DbEditor.Export.Title">
+    <value>Transponderdatenbank exportieren</value>
+  </data>
+  <data name="DbEditor.Status.Exported">
+    <value>{0} Satelliten nach JSON exportiert.</value>
+  </data>
+  <data name="DbEditor.Status.ExportFailed">
+    <value>Export fehlgeschlagen: {0}</value>
+  </data>
+  <data name="DbEditor.Import.Title">
+    <value>Transponderdatenbank importieren</value>
+  </data>
+  <data name="DbEditor.Status.ReadingImport">
+    <value>Importdatei wird gelesen…</value>
+  </data>
+  <data name="DbEditor.Status.InvalidDatabase">
+    <value>Ungültige Datenbank: {0}</value>
+  </data>
+  <data name="DbEditor.Status.ImportNoChanges">
+    <value>Importdatei entspricht dem Editor (keine neuen oder geänderten Einträge).</value>
+  </data>
+  <data name="DbEditor.Status.ImportCancelled">
+    <value>Import abgebrochen.</value>
+  </data>
+  <data name="DbEditor.Status.ImportApplied">
+    <value>Import in den Editor übernommen: Speichern drücken, um in Ihre Benutzerdatenbank zu schreiben.</value>
+  </data>
+  <data name="DbEditor.Status.ImportFailed">
+    <value>Import fehlgeschlagen: {0}</value>
+  </data>
+  <data name="DbEditor.Status.CheckingUpdates">
+    <value>Auf Updates der Transponderdatenbank wird geprüft…</value>
+  </data>
+  <data name="DbEditor.Status.UpToDate">
+    <value>Transponderdatenbank ist aktuell.</value>
+  </data>
+  <data name="DbEditor.Status.UpdatesApplied">
+    <value>Updates übernommen.</value>
+  </data>
+  <data name="DbEditor.Status.NoChangesApplied">
+    <value>Keine Änderungen übernommen.</value>
+  </data>
+  <data name="DbEditor.Status.UpdateCheckFailed">
+    <value>Updateprüfung fehlgeschlagen: {0}</value>
+  </data>
+  <data name="DbEditor.Status.InEditor">
+    <value>{0} Satelliten im Editor.</value>
+  </data>
+  <data name="DbMerge.Title.Remote">
+    <value>Updates der Transponderdatenbank</value>
+  </data>
+  <data name="DbMerge.Title.Import">
+    <value>Importierte Transponderdatenbank zusammenführen</value>
+  </data>
+  <data name="DbMerge.ApplySelected">
+    <value>Ausgewählte übernehmen</value>
+  </data>
+  <data name="DbMerge.NewSatellites">
+    <value>Neue Satelliten</value>
+  </data>
+  <data name="DbMerge.NoradIdBackfills">
+    <value>NORAD-Katalognummern</value>
+  </data>
+  <data name="DbMerge.NewModes">
+    <value>Neue Transponder-Modi</value>
+  </data>
+  <data name="DbMerge.Conflicts">
+    <value>Konflikte</value>
+  </data>
+  <data name="DbMerge.YoursFormat">
+    <value>Ihre: {0}</value>
+  </data>
+  <data name="DbMerge.Source.Import">
+    <value>die importierte Datei</value>
+  </data>
+  <data name="DbMerge.Source.Remote">
+    <value>tle.oscarwatch.org</value>
+  </data>
+  <data name="DbMerge.UseImported">
+    <value>Importierte Version verwenden</value>
+  </data>
+  <data name="DbMerge.UsePublished">
+    <value>Veröffentlichte Version verwenden</value>
+  </data>
+  <data name="DbMerge.UseLocal">
+    <value>Lokale Version verwenden</value>
+  </data>
+  <data name="DbMerge.Prefix.Imported">
+    <value>Importiert</value>
+  </data>
+  <data name="DbMerge.Prefix.Published">
+    <value>Veröffentlicht</value>
+  </data>
+  <data name="DbMerge.Intro.Import">
+    <value>Neue Einträge sind standardmäßig ausgewählt. Bei Konflikten Ihre Editor-Kopie bestätigen oder die importierte Version wählen.</value>
+  </data>
+  <data name="DbMerge.Intro.Remote">
+    <value>Neue Einträge sind standardmäßig ausgewählt. Bei Konflikten Ihre lokale Kopie bestätigen oder die veröffentlichte Version wählen.</value>
+  </data>
+  <data name="DbMerge.Intro.NoradIds">
+    <value>Diese Katalognummern werden Satelliten in Ihrer lokalen Datenbank hinzugefügt, die noch keine haben. Ausgewählte übernehmen klicken, um zu aktualisieren.</value>
+  </data>
+  <data name="DbMerge.Summary.Matches">
+    <value>Ihre Transponderdatenbank entspricht {0}.</value>
+  </data>
+  <data name="DbMerge.Summary.OneNewSatellite">
+    <value>{0} neuer Satellit</value>
+  </data>
+  <data name="DbMerge.Summary.ManyNewSatellites">
+    <value>{0} neue Satelliten</value>
+  </data>
+  <data name="DbMerge.Summary.OneNewMode">
+    <value>{0} neuer Mode</value>
+  </data>
+  <data name="DbMerge.Summary.ManyNewModes">
+    <value>{0} neue Modi</value>
+  </data>
+  <data name="DbMerge.Summary.OneConflict">
+    <value>{0} Konflikt</value>
+  </data>
+  <data name="DbMerge.Summary.ManyConflicts">
+    <value>{0} Konflikte</value>
+  </data>
+  <data name="DbMerge.Summary.OneNoradId">
+    <value>{0} NORAD-Katalognummer</value>
+  </data>
+  <data name="DbMerge.Summary.ManyNoradIds">
+    <value>{0} NORAD-Katalognummern</value>
+  </data>
+  <data name="DbMerge.Summary.FromSuffix">
+    <value> von {0}.</value>
+  </data>
+  <data name="DbMerge.Item.SatelliteOneMode">
+    <value>{0} (1 Mode)</value>
+  </data>
+  <data name="DbMerge.Item.SatelliteManyModes">
+    <value>{0} ({1} Modi)</value>
+  </data>
+  <data name="DbMerge.Item.ModeLine">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="DbMerge.Item.NoradIdLine">
+    <value>{0} → {1}</value>
+  </data>
+  <data name="DbAdd.Title">
+    <value>Satellit hinzufügen</value>
+  </data>
+  <data name="DbAdd.Intro.WithCatalog">
+    <value>Wählen Sie einen Satelliten aus Ihrem TLE-Katalog oder geben Sie unten einen eigenen Namen ein.</value>
+  </data>
+  <data name="DbAdd.Intro.NoCatalog">
+    <value>Jeder TLE-Satellit ist bereits in dieser Datenbank. Geben Sie unten einen eigenen Namen ein.</value>
+  </data>
+  <data name="DbAdd.SearchWatermark">
+    <value>TLE-Katalog durchsuchen…</value>
+  </data>
+  <data name="DbAdd.CustomNameLabel">
+    <value>Eigener Name (optional, wenn oben gewählt)</value>
+  </data>
+  <data name="DbAdd.CustomNameWatermark">
+    <value>Namen eingeben, falls nicht in der Liste…</value>
+  </data>
+  <data name="DbAdd.Error.PickOne">
+    <value>Einen TLE-Satelliten wählen oder einen eigenen Namen eingeben.</value>
+  </data>
+  <data name="Update.Available.Title">
+    <value>Update verfügbar</value>
+  </data>
+  <data name="Update.Available.Message">
+    <value>Eine neuere Version von OscarWatch ist verfügbar.
+
+Sie verwenden {0}.
+Aktuell: {1} ({2})</value>
+  </data>
+  <data name="Update.ViewRelease">
+    <value>Release anzeigen</value>
+  </data>
+  <data name="Update.RemindLater">
+    <value>Später erinnern</value>
+  </data>
+  <data name="Update.SkipVersion">
+    <value>Diese Version überspringen</value>
+  </data>
+  <data name="ReleaseNotes.Title">
+    <value>Versionshinweise</value>
+  </data>
+  <data name="ReleaseNotes.Loading">
+    <value>Versionshinweise werden geladen…</value>
+  </data>
+  <data name="ReleaseNotes.LoadFailed">
+    <value>Versionshinweise konnten nicht geladen werden: {0}</value>
+  </data>
+  <data name="ReleaseNotes.ViewOnGitHub">
+    <value>Auf GitHub anzeigen</value>
+  </data>
+  <data name="Settings.Tab.Qrz">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Section">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Intro">
+    <value>Sucht Operatornamen (und leere Locator) bei QRZ, wenn Sie im OscarWatch-Logbuch ein Rufzeichen eingeben. XML Data benötigt ein QRZ-Abonnement. Benutzername und Passwort bleiben auf diesem Rechner.</value>
+  </data>
+  <data name="Settings.Qrz.Enable">
+    <value>QRZ-Rufzeichensuche im OscarWatch-Logbuch aktivieren</value>
+  </data>
+  <data name="Settings.Qrz.Username">
+    <value>QRZ-Benutzername</value>
+  </data>
+  <data name="Settings.Qrz.UsernameWatermark">
+    <value>Rufzeichen</value>
+  </data>
+  <data name="Settings.Qrz.Password">
+    <value>QRZ-Passwort</value>
+  </data>
+  <data name="Settings.Qrz.PasswordWatermark">
+    <value>Kontopasswort</value>
+  </data>
+  <data name="Settings.Qrz.TestConnection">
+    <value>Verbindung testen</value>
+  </data>
+  <data name="Settings.Qrz.Testing">
+    <value>Teste…</value>
+  </data>
+  <data name="Settings.Qrz.EnterCredentials">
+    <value>QRZ-Benutzername und Passwort eingeben (Felder verlassen oder erneut Testen).</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOk">
+    <value>Verbindung OK. XML-Abonnement gültig bis {0}.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOkNoExpiry">
+    <value>Verbindung OK.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionFailed">
+    <value>Anmeldung bei QRZ fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Settings.Qrz.SubscriptionRequired">
+    <value>QRZ XML Data erfordert ein Abonnement. Prüfen Sie den XML-Zugang in Ihrem QRZ-Konto.</value>
+  </data>
+  <data name="Settings.Qrz.Timeout">
+    <value>QRZ hat nicht rechtzeitig geantwortet.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.Intro">
+    <value>Füllt Name (und Locator, falls leer) von QRZ, wenn Sie ein Rufzeichen eingeben. Überschreibt keinen Namen, den Sie getippt haben oder der aus einem früheren QSO in diesem Logbuch stammt.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.CredentialsNote">
+    <value>Ein QRZ-XML-Data-Abonnement ist erforderlich. Benutzername und Passwort werden mit den übrigen OscarWatch-Einstellungen auf diesem Rechner gespeichert.</value>
+  </data>
+  <data name="Logbook.CallHint.Qrz">
+    <value>Name von QRZ.</value>
+  </data>
+  <data name="Settings.Tab.HamQth">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Section">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Intro">
+    <value>Sucht Operatornamen (und leere Locator) bei HamQTH, wenn Sie im OscarWatch-Logbuch ein Rufzeichen eingeben. Ein kostenloses HamQTH-Konto reicht (kein bezahltes XML-Abonnement). Wird verwendet, wenn QRZ aus ist, nichts findet oder nicht konfiguriert ist. Benutzername und Passwort bleiben auf diesem Rechner.</value>
+  </data>
+  <data name="Settings.HamQth.Enable">
+    <value>HamQTH-Rufzeichensuche im OscarWatch-Logbuch aktivieren</value>
+  </data>
+  <data name="Settings.HamQth.Username">
+    <value>HamQTH-Benutzername</value>
+  </data>
+  <data name="Settings.HamQth.UsernameWatermark">
+    <value>Rufzeichen</value>
+  </data>
+  <data name="Settings.HamQth.Password">
+    <value>HamQTH-Passwort</value>
+  </data>
+  <data name="Settings.HamQth.PasswordWatermark">
+    <value>Kontopasswort</value>
+  </data>
+  <data name="Settings.HamQth.TestConnection">
+    <value>Verbindung testen</value>
+  </data>
+  <data name="Settings.HamQth.Testing">
+    <value>Teste…</value>
+  </data>
+  <data name="Settings.HamQth.EnterCredentials">
+    <value>HamQTH-Benutzername und Passwort eingeben (Felder verlassen oder erneut Testen).</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionOk">
+    <value>Verbindung OK.</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionFailed">
+    <value>Anmeldung bei HamQTH fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Settings.HamQth.Timeout">
+    <value>HamQTH hat nicht rechtzeitig geantwortet.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.Intro">
+    <value>Füllt Name (und Locator, falls leer) von HamQTH, wenn QRZ aus ist, nichts findet oder nicht konfiguriert ist. Überschreibt keinen Namen, den Sie getippt haben oder der aus einem früheren QSO in diesem Logbuch stammt.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.CredentialsNote">
+    <value>Ein kostenloses HamQTH-Konto ist erforderlich. Benutzername und Passwort werden mit den übrigen OscarWatch-Einstellungen auf diesem Rechner gespeichert.</value>
+  </data>
+  <data name="Logbook.CallHint.HamQth">
+    <value>Name von HamQTH.</value>
+  </data>
+</root>

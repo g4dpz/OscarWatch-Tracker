@@ -6,6 +6,9 @@ public enum RotatorTransportKind
     /// <summary>Local COM / serial device.</summary>
     Serial = 0,
 
-    /// <summary>Raw TCP serial tunnel (e.g. ser2net). Ignored for <see cref="RotatorType.UrcTcp"/>.</summary>
+    /// <summary>
+    /// Raw TCP serial tunnel (e.g. ser2net).
+    /// Ignored for <see cref="RotatorType.UrcTcp"/> and <see cref="RotatorType.SpidMd01"/>.
+    /// </summary>
     Tcp = 1
 }

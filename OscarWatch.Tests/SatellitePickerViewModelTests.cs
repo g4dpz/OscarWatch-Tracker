@@ -80,6 +80,42 @@ public class SatellitePickerViewModelTests
     }
 
     [Fact]
+    public void Selected_filter_excludes_unchecked_satellites_from_the_list()
+    {
+        using var _ = TestUiCulture.Apply(DefaultLanguage);
+
+        var ao73 = Entry("AO-73", "39444");
+        var fo29 = Entry("FO-29", "24278");
+        var iss = Entry("ISS", "25544");
+        var settings = NameOnlySettings(["AO-73", "FO-29"]);
+        var tle = new StubTleService([ao73, fo29, iss]);
+        var vm = new SatellitePickerViewModel(settings, tle, LocalizationService.Instance);
+
+        vm.SelectedSelectionFilterChoice = vm.SelectionFilterChoices
+            .Single(c => c.Value == SatellitePickerSelectionFilter.Selected);
+
+        Assert.Equal(["AO-73", "FO-29"], vm.FilteredSatellites.Select(s => s.Name).ToList());
+        Assert.Equal(3, vm.Satellites.Count);
+    }
+
+    [Fact]
+    public void Search_filter_excludes_non_matching_satellites_from_the_list()
+    {
+        using var _ = TestUiCulture.Apply(DefaultLanguage);
+
+        var ao73 = Entry("AO-73", "39444");
+        var fo29 = Entry("FO-29", "24278");
+        var settings = NameOnlySettings([]);
+        var tle = new StubTleService([ao73, fo29]);
+        var vm = new SatellitePickerViewModel(settings, tle, LocalizationService.Instance);
+
+        vm.SearchText = "AO-73";
+
+        Assert.Equal(["AO-73"], vm.FilteredSatellites.Select(s => s.Name).ToList());
+        Assert.Equal(2, vm.Satellites.Count);
+    }
+
+    [Fact]
     public async Task Save_writes_both_names_and_normalised_norad_ids()
     {
         using var _ = TestUiCulture.Apply(DefaultLanguage);

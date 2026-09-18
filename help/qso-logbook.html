@@ -93,6 +93,7 @@
         <li>Press <strong>Add</strong>, or press <strong>Enter</strong> in any entry field — the QSO is saved and focus returns to the callsign box for the next contact. <strong>Add</strong> is disabled until the callsign is filled in and any gridsquare entry is valid (empty grid is allowed).</li>
         <li>RST defaults to <strong>59</strong> on FM/packet-style modes and <strong>599</strong> on SSB/CW, based on the tracked mode.</li>
         <li>When you type a callsign of three or more characters, OscarWatch resolves the DXCC entity from the country file (cty.dat). A badge under the entry row shows the country name with <strong>New</strong> or <strong>Worked</strong> for that entity in the current logbook (green for new, red for worked). The callsign box border uses the same colours. A hint may also show a previous grid for that call.</li>
+        <li>If QRZ or HamQTH lookup is enabled (Logbook → Settings, or Settings → Integrations), OscarWatch asks the callbook for the operator’s first name or on-air nickname, and, when Grid is empty, their locator. Last names and postal names are not used. QRZ is tried first when both are on; HamQTH fills gaps. A previous QSO in this logbook, or a name you have already typed, is not overwritten. Failed lookups stay silent so you can keep logging.</li>
         <li>Typing three or more characters in the callsign box filters the recent QSO list to matching calls (cleared when you finish logging or clear the field).</li>
         <li><strong>Alt+W</strong> clears the entry fields (and cancels an edit in progress), then returns focus to the callsign box, similar to contest loggers such as N1MM.</li>
       </ul>
@@ -145,6 +146,28 @@
         If an upload fails (network error, API rejection, etc.), the QSO stays in the local database with
         a failed status and OscarWatch retries later when the logbook opens or when you press
         <strong>Retry failed uploads</strong>.
+      </p>
+
+      <h2>Logbook settings: QRZ lookup</h2>
+      <p>
+        The <strong>QRZ</strong> tab stores your QRZ username and password for callbook lookup while logging.
+        Tick <strong>Enable QRZ callbook lookup in OscarWatch Logbook</strong>, enter the same credentials
+        you use on <a href="https://www.qrz.com">qrz.com</a>, and press <strong>Test connection</strong>.
+        XML Data access needs a QRZ subscription; without it, names will not fill.
+      </p>
+      <p>
+        These fields are shared with <a href="settings.html">Settings → Integrations → QRZ</a>.
+        Saving logbook settings writes both the Cloudlog upload options for this logbook and the QRZ
+        credentials used by all logbooks.
+      </p>
+
+      <h2>Logbook settings: HamQTH lookup</h2>
+      <p>
+        The <strong>HamQTH</strong> tab is a fallback when QRZ is off, misses a call, or is not configured.
+        A free HamQTH account is enough. Tick
+        <strong>Enable HamQTH callbook lookup in OscarWatch Logbook</strong>, enter the same credentials
+        you use on <a href="https://www.hamqth.com">hamqth.com</a>, and press <strong>Test connection</strong>.
+        These fields are shared with <a href="settings.html">Settings → Integrations → HamQTH</a>.
       </p>
 
       <h2>Export ADIF</h2>

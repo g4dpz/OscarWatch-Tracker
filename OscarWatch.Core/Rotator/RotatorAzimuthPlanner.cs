@@ -11,6 +11,7 @@ public static class RotatorAzimuthPlanner
 
     /// <summary>Low east azimuths where extended-band descent is committed before north.</summary>
     private const double EastDescentMaxDeg = 45;
+
     /// <summary>
     /// Picks the rotator command azimuth in [0, maxAzimuthDeg] that minimizes rotation
     /// from the last commanded position.
@@ -36,8 +37,7 @@ public static class RotatorAzimuthPlanner
         {
             if (target + 360 <= maxAzimuthDeg)
             {
-                if (ShouldCommitEastSideNorthWrap(
-                        target, lastCommandedAzDeg, maxAzimuthDeg, remainingPathCrossesNorth))
+                if (ShouldCommitEastSideNorthWrap(target, maxAzimuthDeg, remainingPathCrossesNorth))
                     return target + 360;
 
                 if (nextCompassAzDeg is { } next
@@ -84,10 +84,11 @@ public static class RotatorAzimuthPlanner
     /// is still low so the post-north jump to ~355° is a short move on the extended dial.
     /// Only when the remaining path will actually cross 0°. A northbound pass that bottoms
     /// out east of north (e.g. RS-44 heading north, LOS still ~20°) must not unwind to 400°.
+    /// First command (no last dial position) still commits: AOS already in the descent zone
+    /// (e.g. FO-29 rising near 20° then wrapping west) must start on 361–450°, not 20°.
     /// </summary>
     internal static bool ShouldCommitEastSideNorthWrap(
         double targetCompassAzDeg,
-        double? lastCommandedAzDeg,
         double maxAzimuthDeg,
         bool remainingPathCrossesNorth = false)
     {
@@ -98,10 +99,7 @@ public static class RotatorAzimuthPlanner
         if (target >= EastDescentMaxDeg || target + 360 > maxAzimuthDeg)
             return false;
 
-        if (lastCommandedAzDeg is not { } last)
-            return false;
-
-        return last < EastOfNorthMaxDeg && target <= last;
+        return true;
     }
 
     /// <summary>
@@ -113,6 +111,42 @@ public static class RotatorAzimuthPlanner
         var from = Normalize360(fromCompassAzDeg);
         var to = Normalize360(toCompassAzDeg);
         return from < EastOfNorthMaxDeg && to > 270;
+    }
+
+    /// <summary>
+    /// True when the rest of this pass will wrap east-of-north through 0° toward the west.
+    /// LOS in the NW quadrant (above 270°) is enough. LOS further west or south (90–270°)
+    /// also wraps when azimuth is descending toward north, so a FO-29-class pass
+    /// (AOS ~20°, LOS ~232°) uses 361–450° instead of the primary 20° stop.
+    /// Eastbound passes through south (azimuth increasing) stay in the primary band.
+    /// </summary>
+    public static bool RemainingPathCrossesNorthEastToWest(
+        double currentCompassAzDeg,
+        double losCompassAzDeg,
+        double? nextCompassAzDeg = null)
+    {
+        var current = Normalize360(currentCompassAzDeg);
+        var los = Normalize360(losCompassAzDeg);
+
+        if (IndicatesEastToWestNorthCrossing(current, los))
+            return true;
+
+        if (nextCompassAzDeg is { } next)
+        {
+            next = Normalize360(next);
+            if (IndicatesEastToWestNorthCrossing(current, next))
+                return true;
+
+            // Still east of north, heading toward 0°, and LOS is not still east of north:
+            // the only way to reach LOS is through the north wrap.
+            if (current < EastOfNorthMaxDeg
+                && los >= EastOfNorthMaxDeg
+                && next < current
+                && next < EastOfNorthMaxDeg)
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>Compass azimuth will soon jump from east of north to west (e.g. 20° → 355°).</summary>
@@ -157,5 +191,27 @@ public static class RotatorAzimuthPlanner
         if (deg < 0)
             deg += 360;
         return deg;
+    }
+
+    /// <summary>
+    /// Shortest compass separation in degrees, treating 0/360 and 450-overlap
+    /// headings (for example 15° and 375°) as the same direction.
+    /// </summary>
+    public static double CompassSeparationDeg(double firstDeg, double secondDeg)
+    {
+        var delta = Math.Abs(Normalize360(firstDeg) - Normalize360(secondDeg));
+        return Math.Min(delta, 360 - delta);
+    }
+
+    /// <summary>
+    /// True when two azimuth readings are closer than <paramref name="thresholdDeg"/>.
+    /// Used for arrival checks so overlap-band feedback (15° vs 375°) is not treated as 360° off.
+    /// </summary>
+    public static bool IsWithinAzimuthThreshold(double firstDeg, double secondDeg, double thresholdDeg)
+    {
+        if (Math.Abs(firstDeg - secondDeg) < thresholdDeg)
+            return true;
+
+        return CompassSeparationDeg(firstDeg, secondDeg) < thresholdDeg;
     }
 }

@@ -34,36 +34,11 @@ public sealed class BruteForcePassPredictor : IPassPredictor
             double aosAz = 0;
             double losAz = 0;
 
-            bool IsVisible(DateTime time)
-            {
-                try
-                {
-                    var look = groundSite.GetLookAngle(orbit.PositionEci(time));
-                    return look.ElevationDeg >= mask.EffectiveFloor(look.AzimuthDeg, minimumElevationDeg);
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-
-            double ElAt(DateTime time)
-            {
-                try
-                {
-                    return groundSite.GetLookAngle(orbit.PositionEci(time)).ElevationDeg;
-                }
-                catch
-                {
-                    return -90;
-                }
-            }
-
             while (t <= utcEnd)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var visible = IsVisible(t);
-                var el = ElAt(t);
+                // One PositionEci + GetLookAngle per coarse sample (was IsVisible + ElAt).
+                var (visible, el) = EvaluateCoarseSample(orbit, groundSite, mask, minimumElevationDeg, t);
 
                 if (!inPass && visible)
                 {
@@ -109,6 +84,28 @@ public sealed class BruteForcePassPredictor : IPassPredictor
 
             return (IReadOnlyList<PassInfo>)passes;
         }, cancellationToken);
+    }
+
+    /// <summary>
+    /// Coarse-step visibility and elevation from a single look-angle evaluation.
+    /// </summary>
+    internal static (bool Visible, double ElevationDeg) EvaluateCoarseSample(
+        SatelliteOrbit orbit,
+        Site groundSite,
+        HorizonMask mask,
+        double minimumElevationDeg,
+        DateTime time)
+    {
+        try
+        {
+            var look = groundSite.GetLookAngle(orbit.PositionEci(time));
+            var visible = look.ElevationDeg >= mask.EffectiveFloor(look.AzimuthDeg, minimumElevationDeg);
+            return (visible, look.ElevationDeg);
+        }
+        catch
+        {
+            return (false, -90);
+        }
     }
 
     private static DateTime RefineBoundary(

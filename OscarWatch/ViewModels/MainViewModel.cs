@@ -1411,27 +1411,15 @@ public partial class MainViewModel : ViewModelBase
         }
 
         var elevation = status.ElevationDeg ?? status.CommandedElevationDeg;
-        if (elevation is null)
+        var azimuth = ResolveSkyPlotRotatorAzimuthDeg(status, _settings.Current.Rotator.AzimuthOffsetDeg);
+        if (elevation is null || azimuth is null)
         {
             SkyPlotRotatorAzimuthDeg = null;
             SkyPlotRotatorElevationDeg = null;
             return;
         }
 
-        var settings = _settings.Current.Rotator;
-        var compassAz = status.CompassAzimuthDeg
-            ?? (status.AzimuthDeg is { } mechanical
-                ? (int)Math.Round(RotatorAzimuthPlanner.Normalize360(mechanical - settings.AzimuthOffsetDeg))
-                : status.CommandedAzimuthDeg);
-
-        if (compassAz is null)
-        {
-            SkyPlotRotatorAzimuthDeg = null;
-            SkyPlotRotatorElevationDeg = null;
-            return;
-        }
-
-        SkyPlotRotatorAzimuthDeg = compassAz.Value;
+        SkyPlotRotatorAzimuthDeg = azimuth.Value;
         SkyPlotRotatorElevationDeg = Math.Max(0, elevation.Value);
     }
 
@@ -1465,6 +1453,24 @@ public partial class MainViewModel : ViewModelBase
         var candidates = TimelinePasses
             ?? Passes.OfType<PassRowViewModel>().Select(p => p.Source).ToList();
         return FindSkyPlotPass(noradId, candidates, DateTime.UtcNow);
+    }
+
+    /// <summary>
+    /// Sky-plot rotator marker uses live polled azimuth (compass), not the commanded heading.
+    /// CompassAzimuthDeg is the target satellite bearing, set as soon as Rotate or tracking starts.
+    /// </summary>
+    internal static int? ResolveSkyPlotRotatorAzimuthDeg(RotatorPositionStatus status, double azimuthOffsetDeg)
+    {
+        if (!status.IsConnected)
+            return null;
+
+        if (status.AzimuthDeg is { } mechanical)
+            return (int)Math.Round(RotatorAzimuthPlanner.Normalize360(mechanical - azimuthOffsetDeg));
+
+        return status.CompassAzimuthDeg
+            ?? (status.CommandedAzimuthDeg is { } commanded
+                ? (int)Math.Round(RotatorAzimuthPlanner.Normalize360(commanded - azimuthOffsetDeg))
+                : null);
     }
 
     internal static string FormatRotatorAzimuthText(RotatorPositionStatus status)
@@ -2217,10 +2223,6 @@ public partial class MainViewModel : ViewModelBase
         if (value is not PassRowViewModel row)
             return;
 
-        var pass = Passes.OfType<PassRowViewModel>().FirstOrDefault(p => p.NoradId == row.NoradId) ?? row;
-        if (!ReferenceEquals(SelectedListItem, pass))
-            SelectedListItem = pass;
-
         if (string.Equals(FocusedNoradId, row.NoradId, StringComparison.Ordinal))
         {
             ApplySatelliteFocus(row.NoradId);
@@ -2245,7 +2247,12 @@ public partial class MainViewModel : ViewModelBase
         ApplySatelliteFocus(value);
         UpdateSkyPlotPassPath();
 
-        var pass = Passes.OfType<PassRowViewModel>().FirstOrDefault(p => p.NoradId == value);
+        // Keep a later pass of this satellite selected (radar view / schedule) instead of
+        // snapping to the first row, which auto-scrolls the sidebar up.
+        if (PassListSelection.IsRowForSatellite(SelectedListItem, value))
+            return;
+
+        var pass = PassListSelection.FindMatchingRow(Passes, value, aosUtc: null);
         if (pass is not null && !ReferenceEquals(SelectedListItem, pass))
             SelectedListItem = pass;
     }
@@ -3307,7 +3314,9 @@ public partial class MainViewModel : ViewModelBase
     {
         try
         {
-            var selectedNorad = (SelectedListItem as PassRowViewModel)?.NoradId;
+            var selectedRow = SelectedListItem as PassRowViewModel;
+            var selectedNorad = selectedRow?.NoradId;
+            var selectedAos = selectedRow?.AosUtc;
             var passes = await _tracking.GetUpcomingPassesAsync().ConfigureAwait(false);
 
             void Apply()
@@ -3349,7 +3358,7 @@ public partial class MainViewModel : ViewModelBase
                 ApplyScheduledFlagsToPassList();
 
                 if (selectedNorad is not null)
-                    SelectedListItem = Passes.OfType<PassRowViewModel>().FirstOrDefault(p => p.NoradId == selectedNorad);
+                    SelectedListItem = PassListSelection.FindMatchingRow(Passes, selectedNorad, selectedAos);
 
                 UpdateCommunityStatusDisplays();
 

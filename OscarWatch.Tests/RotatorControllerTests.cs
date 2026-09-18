@@ -769,6 +769,42 @@ public sealed class RotatorControllerTests
     }
 
     [Fact]
+    public void Smart450_fo29_aos_near_20_uses_overlap_when_los_is_southwest()
+    {
+        var rotator = new RecordingRotatorDriver();
+        var controller = new RotatorController(_ => rotator);
+        var settings = new RotatorSettings
+        {
+            Enabled = true,
+            Port = "COM3",
+            AzimuthRange = RotatorAzimuthRange.Deg450,
+            SmartAzimuth450 = true,
+            TrackStartElevationDeg = 5
+        };
+
+        var aos = new DateTime(2026, 9, 8, 19, 0, 0, DateTimeKind.Utc);
+        controller.SetActivePassSynchronously(new PassInfo
+        {
+            SatelliteName = "FO-29",
+            NoradId = "24278",
+            AosUtc = aos,
+            LosUtc = aos.AddMinutes(12),
+            MaxElevationDeg = 35,
+            MaxElevationUtc = aos.AddMinutes(6),
+            AosAzimuthDeg = 20,
+            LosAzimuthDeg = 232
+        });
+
+        controller.UpdateSynchronously(
+            settings, TrackTarget("24278", 20, 8, aheadAzimuthDeg: 18));
+        Assert.Equal(380, rotator.LastAzimuthDeg);
+
+        controller.UpdateSynchronously(
+            settings, TrackTarget("24278", 12, 12, aheadAzimuthDeg: 10));
+        Assert.Equal(372, rotator.LastAzimuthDeg);
+    }
+
+    [Fact]
     public void Smart450_east_side_north_crossing_commits_before_compass_wrap()
     {
         var rotator = new RecordingRotatorDriver();

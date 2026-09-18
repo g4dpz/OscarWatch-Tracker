@@ -32,10 +32,10 @@
       <Button Content="{loc:Localize Key=Common.Cancel}" Classes="dialog-footer" Click="OnCancelClick" />
       <Button Content="{loc:Localize Key=Common.Ok}" Click="OnOkClick" Classes="accent" />
     </StackPanel>
-    <ListBox ItemsSource="{Binding Satellites}" MinHeight="360">
+    <ListBox ItemsSource="{Binding FilteredSatellites}" MinHeight="360">
       <ListBox.ItemTemplate>
         <DataTemplate x:DataType="vm:SatelliteItemViewModel">
-          <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding IsVisible}">
+          <StackPanel Orientation="Horizontal" Spacing="8">
             <CheckBox IsChecked="{Binding IsEnabled}" />
             <TextBlock VerticalAlignment="Center" Text="{Binding Name}" FontWeight="SemiBold" />
             <TextBlock VerticalAlignment="Center"

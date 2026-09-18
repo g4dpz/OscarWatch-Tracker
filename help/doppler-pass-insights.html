@@ -59,6 +59,10 @@
         On the <strong>Files</strong> tab, click <strong>Open log folder</strong> to open your system file browser
         to the Doppler logs directory. On Windows, logs are stored in
         <code>%AppData%\OscarWatch\doppler-logs\</code>.
+        OscarWatch keeps Doppler CSV files for <strong>14 days</strong> (same window as the main app logs under
+        <code>%AppData%\OscarWatch\logs\</code>). Older CSVs are removed automatically when a new pass log starts,
+        when you load the latest log in this window, or when you open the Doppler logs folder.
+        Copy any CSV you want to keep longer to another folder before that window expires.
       </p>
 
       <h2>Tuning guide tab</h2>
@@ -256,8 +260,9 @@
 
       <h2>Exporting and logging</h2>
       <p>
-        Doppler pass logs are plain CSV files. You can copy them for archiving, open them in a spreadsheet,
-        or delete old logs to save space. Each filename encodes the satellite and UTC start time, for example:
+        Doppler pass logs are plain CSV files. You can copy them for archiving or open them in a spreadsheet.
+        OscarWatch automatically deletes CSVs older than <strong>14 days</strong>; it does not delete recordings or
+        other AppData files. Each filename encodes the satellite and UTC start time, for example:
         <code>RS-44-26-06-22-13-46-doppler.csv</code>
       </p>
 

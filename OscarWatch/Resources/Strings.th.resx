@@ -1,0 +1,3934 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+  <resheader name="resmimetype">text/microsoft-resx</resheader>
+  <resheader name="version">2.0</resheader>
+  <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</resheader>
+  <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</resheader>
+  <data name="About.Copyright">
+    <value>Copyright © 2025–2026 Peter Goodhall (MM9SQL)</value>
+  </data>
+  <data name="About.Description">
+    <value>ซอฟต์แวร์ติดตามดาวเทียมบนเดสก์ท็อปสำหรับผู้ปฏิบัติการวิทยุสมัครเล่น ติดตามพาส, ควบคุม CAT ที่ชดเชยดอปเพลอร์, ติดตามด้วยโรเตอร์ และโหมดทรานสปอนเดอร์จากฐานข้อมูลดาวเทียมของ OscarWatch</value>
+  </data>
+  <data name="About.DonateNote">
+    <value>หากบริจาค กรุณาแจ้งสัญญาณเรียกขานให้ Peter ทราบ เพื่อจะได้กล่าวขอบคุณ</value>
+  </data>
+  <data name="About.Github">
+    <value>github.com/magicbug/OscarWatch-Tracker</value>
+  </data>
+  <data name="About.License">
+    <value>ได้รับอนุญาตภายใต้ GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later) ดู LICENSE.md ในคลังซอร์ส</value>
+  </data>
+  <data name="About.PayPal">
+    <value>PayPal</value>
+  </data>
+  <data name="About.SponsorGithub">
+    <value>สนับสนุนบน GitHub</value>
+  </data>
+  <data name="About.SupportIntro">
+    <value>OscarWatch เป็นซอฟต์แวร์เสรีและโอเพนซอร์ส หากคุณเห็นว่ามีประโยชน์ สามารถสนับสนุนการพัฒนาต่อเนื่องได้:</value>
+  </data>
+  <data name="About.Supporters">
+    <value>ผู้สนับสนุน</value>
+  </data>
+  <data name="About.Title">
+    <value>เกี่ยวกับ OscarWatch</value>
+  </data>
+  <data name="About.TleSource">
+    <value>แคตตาล็อก TLE: tle.oscarwatch.org</value>
+  </data>
+  <data name="App.Title">
+    <value>OscarWatch</value>
+  </data>
+  <data name="Common.Add">
+    <value>เพิ่ม</value>
+  </data>
+  <data name="Common.Browse">
+    <value>เรียกดู…</value>
+  </data>
+  <data name="Common.Cancel">
+    <value>ยกเลิก</value>
+  </data>
+  <data name="Common.Back">
+    <value>ย้อนกลับ</value>
+  </data>
+  <data name="Common.Next">
+    <value>ถัดไป</value>
+  </data>
+  <data name="Common.Close">
+    <value>ปิด</value>
+  </data>
+  <data name="Common.Copy">
+    <value>คัดลอก</value>
+  </data>
+  <data name="Common.Delete">
+    <value>ลบ</value>
+  </data>
+  <data name="Common.Now">
+    <value>ตอนนี้</value>
+  </data>
+  <data name="Common.Ok">
+    <value>ตกลง</value>
+  </data>
+  <data name="Common.Refresh">
+    <value>รีเฟรช</value>
+  </data>
+  <data name="Common.Save">
+    <value>บันทึก</value>
+  </data>
+  <data name="Common.Show">
+    <value>แสดง</value>
+  </data>
+  <data name="Main.Alt">
+    <value>  ·  Alt </value>
+  </data>
+  <data name="Main.Az">
+    <value>Az </value>
+  </data>
+  <data name="Main.Eclipse">
+    <value>เอคลิปส์</value>
+  </data>
+  <data name="Main.El">
+    <value>  ·  El </value>
+  </data>
+  <data name="Main.Elevation.BelowHorizon">
+    <value>ต่ำกว่าขอบฟ้า</value>
+  </data>
+  <data name="Main.Live">
+    <value>สด</value>
+  </data>
+  <data name="Main.MapTimeStatus.Live">
+    <value>สด</value>
+  </data>
+  <data name="Main.Gps.Status">
+    <value>GPS</value>
+  </data>
+  <data name="Main.Gps.StatusWithGrid">
+    <value>GPS ({0})</value>
+  </data>
+  <data name="Main.Gps.Time">
+    <value>เวลา GPS</value>
+  </data>
+  <data name="Main.Gps.Tooltip.Fix">
+    <value>GPS ล็อกตำแหน่งแล้ว</value>
+  </data>
+  <data name="Main.Gps.Tooltip.NoFix">
+    <value>เปิด GPS แล้ว แต่ยังไม่ล็อกตำแหน่ง</value>
+  </data>
+  <data name="Main.Gps.TimeTooltip.Active">
+    <value>การติดตามดาวเทียมใช้เวลา UTC จาก GPS</value>
+  </data>
+  <data name="Main.Gps.TimeTooltip.Inactive">
+    <value>เปิดใช้เวลา GPS แล้ว กำลังรอการล็อกตำแหน่ง</value>
+  </data>
+  <data name="Main.SatelliteLink.Waiting">
+    <value>Sat Link • รอลูกข่าย</value>
+  </data>
+  <data name="Main.SatelliteLink.Clients">
+    <value>Sat Link • ลูกข่าย {0} ราย</value>
+  </data>
+  <data name="Main.SatelliteLink.Error">
+    <value>Sat Link • ข้อผิดพลาด</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Waiting">
+    <value>WebSocket ลิงก์ดาวเทียมกำลังรอรับบนพอร์ต {0} ({1}) กำลังรอลูกข่าย</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Clients">
+    <value>WebSocket ลิงก์ดาวเทียมบนพอร์ต {0} ({1}) เชื่อมต่อลูกข่าย {2} ราย</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Error">
+    <value>ลิงก์ดาวเทียมล้มเหลว: {0}</value>
+  </data>
+  <data name="Main.SatelliteLink.Bind.Local">
+    <value>เฉพาะเครื่องนี้</value>
+  </data>
+  <data name="Main.SatelliteLink.Bind.Lan">
+    <value>เครือข่ายภายใน</value>
+  </data>
+  <data name="Main.Pass.AosIn">
+    <value>{0} AOS ในอีก {1}</value>
+  </data>
+  <data name="Main.Pass.LosIn">
+    <value>{0} LOS ในอีก {1}</value>
+  </data>
+  <data name="Main.Pass.InProgress">
+    <value>{0}: กำลังผ่าน</value>
+  </data>
+  <data name="Main.Pass.None">
+    <value>ไม่มีพาสที่กำลังจะมาถึง</value>
+  </data>
+  <data name="Main.Passes">
+    <value>พาสที่กำลังจะมาถึง</value>
+  </data>
+  <data name="Main.Timeline.Close">
+    <value>ซ่อนไทม์ไลน์มุมเงยของพาส</value>
+  </data>
+  <data name="Main.Timeline.Detach">
+    <value>แยกไทม์ไลน์มุมเงยของพาสไปหน้าต่างอื่น</value>
+  </data>
+  <data name="Main.Timeline.ResizeGrip">
+    <value>ลากเพื่อปรับขนาดไทม์ไลน์มุมเงยของพาส</value>
+  </data>
+  <data name="Main.Timeline.Description">
+    <value>พาสที่กำลังจะมาถึงเรียงตามมุมเงย คลิกพาสเพื่อโฟกัสดาวเทียมนั้นบนแผนที่ เลื่อนล้อเมาส์เพื่อซูมหน้าต่างเวลา (30 นาทีถึง 6 ชั่วโมง) ตามเวลาแผนที่เมื่อคุณเลื่อนไปข้างหน้าหรือย้อนกลับ</value>
+  </data>
+  <data name="Main.Timeline.Elevation45">
+    <value>45°</value>
+  </data>
+  <data name="Main.Timeline.PassTooltip">
+    <value>{0}
+AOS: {1}
+LOS: {2}
+มุมเงยสูงสุด: {3}
+ระยะเวลา: {4}</value>
+  </data>
+  <data name="Main.Timeline.TimeAxisUtc">
+    <value>UTC</value>
+  </data>
+  <data name="Main.Timeline.WindowMinutes">
+    <value>{0} นาที</value>
+  </data>
+  <data name="Main.Timeline.WindowHours">
+    <value>{0} ชม.</value>
+  </data>
+  <data name="Main.HamsAtRoves">
+    <value>โรว์ที่กำลังจะมาถึง</value>
+  </data>
+  <data name="Main.HamsAtRoves.Empty">
+    <value>ไม่มีโรว์ที่ติดต่อได้สำหรับตำแหน่ง hams.at ของคุณ</value>
+  </data>
+  <data name="Main.HamsAtRoves.LoadFailed">
+    <value>ไม่สามารถโหลดโรว์จาก hams.at ได้</value>
+  </data>
+  <data name="Main.HamsAtRoves.Unavailable">
+    <value>hams.at ไม่พร้อมใช้งานชั่วคราว โรว์จะรีเฟรชโดยอัตโนมัติ</value>
+  </data>
+  <data name="Main.HamsAtRoves.InvalidApiKey">
+    <value>คีย์ API ของ hams.at ไม่ถูกต้อง ตรวจสอบในการตั้งค่า</value>
+  </data>
+  <data name="Main.HamsAtRoves.RateLimited">
+    <value>hams.at จำกัดอัตราคำขอนี้ ลองอีกครั้งในภายหลัง</value>
+  </data>
+  <data name="Main.HamsAtRoves.Timeout">
+    <value>hams.at ไม่ตอบสนองทันเวลา ลองอีกครั้งในภายหลัง</value>
+  </data>
+  <data name="Main.HamsAtRoves.Network">
+    <value>ไม่สามารถติดต่อ hams.at ได้ ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต</value>
+  </data>
+  <data name="Main.HamsAtRoves.UnexpectedResponse">
+    <value>hams.at ส่งการตอบกลับที่ไม่คาดคิด ลองอีกครั้งในภายหลัง</value>
+  </data>
+  <data name="Main.HamsAtRoves.ResizeGrip">
+    <value>ลากเพื่อปรับขนาดรายการโรว์</value>
+  </data>
+  <data name="Pass.Rec">
+    <value>REC</value>
+  </data>
+  <data name="Pass.Passing">
+    <value>กำลังผ่าน</value>
+  </data>
+  <data name="Pass.OpenVisualizer">
+    <value>ดูแผนภาพพาส</value>
+  </data>
+  <data name="Pass.Schedule.Add">
+    <value>ตั้งเวลาพาส</value>
+  </data>
+  <data name="Pass.Schedule.Remove">
+    <value>นำออกจากตาราง</value>
+  </data>
+  <data name="Pass.Schedule.AddShort">
+    <value>ตั้งเวลา</value>
+  </data>
+  <data name="Pass.Schedule.RemoveShort">
+    <value>ตั้งเวลาแล้ว</value>
+  </data>
+  <data name="Pass.Schedule.AddTooltip">
+    <value>ตั้งเวลาพาสนี้ให้มีเสียงติ๊งและการแจ้งเตือนก่อน AOS</value>
+  </data>
+  <data name="Pass.Schedule.RemoveTooltip">
+    <value>นำพาสนี้ออกจากตาราง</value>
+  </data>
+  <data name="Pass.HamsAt.PostActivation">
+    <value>โพสต์แอคทิเวชันไป hams.at</value>
+  </data>
+  <data name="Pass.HamsAt.EnterApiKey">
+    <value>กรอกคีย์ API ของ hams.at ในการตั้งค่าก่อน</value>
+  </data>
+  <data name="Pass.HamsAt.InvalidNorad">
+    <value>พาสนี้ไม่มีหมายเลขแคตตาล็อก NORAD ที่ถูกต้อง</value>
+  </data>
+  <data name="Pass.HamsAt.Posted">
+    <value>โพสต์แอคทิเวชันไป hams.at แล้ว</value>
+  </data>
+  <data name="Pass.HamsAt.Failed">
+    <value>ไม่สามารถโพสต์แอคทิเวชันไป hams.at ได้: {0}</value>
+  </data>
+  <data name="Pass.HamsAt.OpenAfterPost">
+    <value>เปิดการแจ้งเตือนบน hams.at หลังโพสต์</value>
+  </data>
+  <data name="Pass.Schedule.AlertTitle">
+    <value>พาสที่ตั้งเวลาไว้</value>
+  </data>
+  <data name="Pass.Schedule.AlertBadge">
+    <value>เตือนความจำ</value>
+  </data>
+  <data name="Pass.Schedule.AlertCountdown">
+    <value>AOS ในอีก {0}</value>
+  </data>
+  <data name="Pass.Schedule.AlertAosAt">
+    <value>เวลา {0}</value>
+  </data>
+  <data name="Pass.Schedule.AlertMessage">
+    <value>{0} AOS ในอีก {1} (เวลา {2})</value>
+  </data>
+  <data name="Pass.Visualizer.Heading">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="Pass.Visualizer.Subtitle">
+    <value>ระยะเวลา {0} · {1} ({2})</value>
+  </data>
+  <data name="Pass.Visualizer.Smart450.Extended">
+    <value>Smart450 ใช้ย่านขยาย (361–450°) ในพาสนี้</value>
+  </data>
+  <data name="Pass.Visualizer.Smart450.Primary">
+    <value>Smart450 อยู่ในย่านหลัก (0–360°) ในพาสนี้</value>
+  </data>
+  <data name="Pass.TimeRange">
+    <value>{0} ถึง {1}</value>
+  </data>
+  <data name="Pass.Details">
+    <value>ระยะเวลา: {0} | มุมเงยสูงสุด: {1}</value>
+  </data>
+  <data name="Pass.Duration">
+    <value>ระยะเวลา: {0}</value>
+  </data>
+  <data name="Pass.MaxElevation">
+    <value>มุมเงยสูงสุด: {0}</value>
+  </data>
+  <data name="Pass.DurationMinutes">
+    <value>{0} นาที</value>
+  </data>
+  <data name="Pass.DurationOneMinute">
+    <value>1 นาที</value>
+  </data>
+  <data name="ComPort.DualRadioSamePort">
+    <value>วิทยุดาวน์ลิงก์และอัปลิงก์ใช้ {0} ทั้งคู่ ใช้พอร์ต COM คนละพอร์ตสำหรับแต่ละเครื่อง</value>
+  </data>
+  <data name="ComPort.RotatorAzElSamePort">
+    <value>โรเตอร์อะซิมัทและมุมเงยใช้ {0} ทั้งคู่ ใช้พอร์ต COM คนละพอร์ตสำหรับแต่ละแกน</value>
+  </data>
+  <data name="ComPort.RotatorAndDownlink">
+    <value>โรเตอร์และวิทยุดาวน์ลิงก์ใช้ {0} ทั้งคู่ ใช้พอร์ต COM คนละพอร์ตหรือปิดอุปกรณ์หนึ่งชิ้น</value>
+  </data>
+  <data name="ComPort.RotatorAndUplink">
+    <value>โรเตอร์และวิทยุอัปลิงก์ใช้ {0} ทั้งคู่ ใช้พอร์ต COM คนละพอร์ตหรือปิดอุปกรณ์หนึ่งชิ้น</value>
+  </data>
+  <data name="ComPort.RotatorAndRadio">
+    <value>โรเตอร์และวิทยุใช้ {0} ทั้งคู่ ใช้พอร์ต COM คนละพอร์ตหรือปิดอุปกรณ์หนึ่งชิ้น</value>
+  </data>
+  <data name="ComPort.GpsAndRotator">
+    <value>GPS และโรเตอร์ใช้ {0} ทั้งคู่ ใช้พอร์ต COM คนละพอร์ตหรือปิดอุปกรณ์หนึ่งชิ้น</value>
+  </data>
+  <data name="ComPort.GpsAndRadio">
+    <value>GPS และวิทยุใช้ {0} ทั้งคู่ ใช้พอร์ต COM คนละพอร์ตหรือปิดอุปกรณ์หนึ่งชิ้น</value>
+  </data>
+  <data name="ComPort.GpsAndDownlink">
+    <value>GPS และวิทยุดาวน์ลิงก์ใช้ {0} ทั้งคู่ ใช้พอร์ต COM คนละพอร์ตหรือปิดอุปกรณ์หนึ่งชิ้น</value>
+  </data>
+  <data name="ComPort.GpsAndUplink">
+    <value>GPS และวิทยุอัปลิงก์ใช้ {0} ทั้งคู่ ใช้พอร์ต COM คนละพอร์ตหรือปิดอุปกรณ์หนึ่งชิ้น</value>
+  </data>
+  <data name="A11y.SatelliteSunlight">
+    <value>ดาวเทียมอยู่ในแสงอาทิตย์</value>
+  </data>
+  <data name="A11y.SatelliteEclipse">
+    <value>ดาวเทียมอยู่ในเงาโลก</value>
+  </data>
+  <data name="Main.WorldMap">
+    <value>แผนที่โลก</value>
+  </data>
+  <data name="A11y.Plot.NoSatellites">
+    <value>{0} ไม่ได้เลือกดาวเทียม</value>
+  </data>
+  <data name="A11y.Plot.SelectWithArrows">
+    <value>{0} ดาวเทียม {1} ดวง ใช้ปุ่มลูกศรเพื่อเลือก, Enter เพื่อยืนยัน</value>
+  </data>
+  <data name="A11y.Plot.SatelliteCount">
+    <value>{0} ดาวเทียม {1} ดวง</value>
+  </data>
+  <data name="A11y.Plot.FocusedWithLookAngles">
+    <value>{0} โฟกัส {1} มุมอะซิมัท {2:F1} องศา, มุมเงย {3:F1} องศา, ความสูง {4:F0} กิโลเมตร</value>
+  </data>
+  <data name="A11y.Plot.FocusedBelowHorizon">
+    <value>{0} โฟกัส {1} ความสูง {2:F0} กิโลเมตร, ต่ำกว่าขอบฟ้า</value>
+  </data>
+  <data name="A11y.SkyPlot.TabHint">
+    <value>แผนผังท้องฟ้า กด Tab ที่นี่ แล้วใช้ปุ่มลูกศรเพื่อเปลี่ยนดาวเทียมที่เลือก</value>
+  </data>
+  <data name="A11y.SkyPlot.AllBelowHorizon">
+    <value>ดาวเทียมทั้งหมดต่ำกว่าขอบฟ้า</value>
+  </data>
+  <data name="Main.Radio">
+    <value>วิทยุ</value>
+  </data>
+  <data name="Main.Radio.CatPause">
+    <value>หยุด CAT ชั่วคราว</value>
+  </data>
+  <data name="Main.Radio.CatPauseTip">
+    <value>หยุดส่งการอัปเดตความถี่ไปยังวิทยุ เพื่อให้คุณจูนด้วยตนเองได้</value>
+  </data>
+  <data name="Main.Radio.CatResume">
+    <value>ใช้ CAT ต่อ</value>
+  </data>
+  <data name="Main.Radio.Rx">
+    <value>RX </value>
+  </data>
+  <data name="Main.Radio.Tx">
+    <value>TX </value>
+  </data>
+  <data name="Main.Range">
+    <value>ระยะ </value>
+  </data>
+  <data name="Main.Rotator">
+    <value>โรเตอร์</value>
+  </data>
+  <data name="Main.Rotator.Az">
+    <value>Az</value>
+  </data>
+  <data name="Main.Rotator.El">
+    <value>El</value>
+  </data>
+  <data name="Main.Rotator.Park">
+    <value>จอดโรเตอร์</value>
+  </data>
+  <data name="Main.Rotator.Stop">
+    <value>หยุดโรเตอร์</value>
+  </data>
+  <data name="Main.Rotator.Stop.ToolTip">
+    <value>หยุดการเคลื่อนที่ของโรเตอร์ทันที (ฉุกเฉิน)</value>
+  </data>
+  <data name="Main.Rotator.Resume">
+    <value>ทำงานต่อ</value>
+  </data>
+  <data name="Main.Rotator.Parked">
+    <value>จอดแล้ว</value>
+  </data>
+  <data name="Main.Satellite">
+    <value>ดาวเทียม</value>
+  </data>
+  <data name="Main.SkyPlot">
+    <value>แผนผังท้องฟ้า</value>
+  </data>
+  <data name="Main.SkyPlot.Hint">
+    <value>คลิกดาวเทียมเพื่อเลือก หรือใช้ปุ่มลูกศรเมื่อโฟกัสอยู่ เส้นแสดงเส้นทางพาส; กากบาททำเครื่องหมายทิศที่โรเตอร์เล็งเมื่อเชื่อมต่อแล้ว</value>
+  </data>
+  <data name="Main.Standby.Hint">
+    <value>ดูอย่างเดียว: จอดโรเตอร์แล้ว, หยุด CAT ชั่วคราว</value>
+  </data>
+  <data name="Main.Standby.Pause">
+    <value>สแตนด์บาย</value>
+  </data>
+  <data name="Main.Standby.Resume">
+    <value>ทำงานต่อ</value>
+  </data>
+  <data name="Main.Sunlight">
+    <value>แสงอาทิตย์</value>
+  </data>
+  <data name="MapTime.Back15">
+    <value>−15ม</value>
+  </data>
+  <data name="MapTime.Back5">
+    <value>−5ม</value>
+  </data>
+  <data name="MapTime.Forward15">
+    <value>+15ม</value>
+  </data>
+  <data name="MapTime.Forward5">
+    <value>+5ม</value>
+  </data>
+  <data name="MapTime.FromNow">
+    <value>{0} จากตอนนี้</value>
+  </data>
+  <data name="MapTime.Live">
+    <value>สด</value>
+  </data>
+  <data name="MapTime.Tip.Back15">
+    <value>แสดงแผนที่เร็วกว่าปัจจุบัน 15 นาที</value>
+  </data>
+  <data name="MapTime.Tip.Back5">
+    <value>แสดงแผนที่เร็วกว่าปัจจุบัน 5 นาที</value>
+  </data>
+  <data name="MapTime.Tip.Forward15">
+    <value>แสดงแผนที่ช้ากว่าปัจจุบัน 15 นาที</value>
+  </data>
+  <data name="MapTime.Tip.Forward5">
+    <value>แสดงแผนที่ช้ากว่าปัจจุบัน 5 นาที</value>
+  </data>
+  <data name="MapTime.Tip.Now">
+    <value>กลับแผนที่ไปเวลาสด</value>
+  </data>
+  <data name="Menu.File">
+    <value>ไฟล์(_F)</value>
+  </data>
+  <data name="Menu.File.Close">
+    <value>ปิด(_C)</value>
+  </data>
+  <data name="Menu.File.Export">
+    <value>ส่งออก(_E)</value>
+  </data>
+  <data name="Menu.File.Import">
+    <value>นำเข้า(_I)</value>
+  </data>
+  <data name="Menu.File.Export.Settings">
+    <value>การตั้งค่า</value>
+  </data>
+  <data name="Menu.File.Import.Settings">
+    <value>การตั้งค่า</value>
+  </data>
+  <data name="Menu.File.Export.TransponderDatabase">
+    <value>ฐานข้อมูลทรานสปอนเดอร์</value>
+  </data>
+  <data name="Menu.File.Import.TransponderDatabase">
+    <value>ฐานข้อมูลทรานสปอนเดอร์</value>
+  </data>
+  <data name="File.Export.Settings.Title">
+    <value>ส่งออกการตั้งค่า</value>
+  </data>
+  <data name="File.Import.Settings.Title">
+    <value>นำเข้าการตั้งค่า</value>
+  </data>
+  <data name="File.Import.Settings.ConfirmTitle">
+    <value>แทนที่การตั้งค่าหรือไม่?</value>
+  </data>
+  <data name="File.Import.Settings.ConfirmMessage">
+    <value>การนำเข้าจะแทนที่การตั้งค่าปัจจุบันทั้งหมดด้วยไฟล์ที่เลือก พอร์ต COM, อุปกรณ์เสียง และค่าเฉพาะเครื่องอาจต้องปรับบนเครื่องนี้ คีย์ API ในไฟล์จะถูกกู้คืนตามที่เก็บไว้
+
+ดำเนินการต่อหรือไม่?</value>
+  </data>
+  <data name="File.Export.Settings.Success">
+    <value>ส่งออกการตั้งค่าแล้ว</value>
+  </data>
+  <data name="File.Import.Settings.Success">
+    <value>นำเข้าการตั้งค่าแล้ว</value>
+  </data>
+  <data name="File.Export.TransponderDatabase.Title">
+    <value>ส่งออกฐานข้อมูลทรานสปอนเดอร์</value>
+  </data>
+  <data name="File.Import.TransponderDatabase.Title">
+    <value>นำเข้าฐานข้อมูลทรานสปอนเดอร์</value>
+  </data>
+  <data name="File.Export.Failed">
+    <value>ส่งออกล้มเหลว: {0}</value>
+  </data>
+  <data name="File.Import.Failed">
+    <value>นำเข้าล้มเหลว: {0}</value>
+  </data>
+  <data name="File.Import.Settings.Invalid">
+    <value>ไฟล์การตั้งค่าไม่ถูกต้อง: {0}</value>
+  </data>
+  <data name="Menu.Help">
+    <value>ความช่วยเหลือ(_H)</value>
+  </data>
+  <data name="Menu.Help.About">
+    <value>เกี่ยวกับ OscarWatch(_A)</value>
+  </data>
+  <data name="Menu.Help.Logs">
+    <value>เปิดโฟลเดอร์ล็อก(_L)</value>
+  </data>
+  <data name="Menu.Help.CopyDiagnostics">
+    <value>คัดลอกข้อมูลวินิจฉัย(_D)</value>
+  </data>
+  <data name="Menu.Help.OperatorGuide">
+    <value>คู่มือผู้ปฏิบัติการ(_O)</value>
+  </data>
+  <data name="Menu.Help.CheckForUpdates">
+    <value>ตรวจหาการอัปเดต(_U)</value>
+  </data>
+  <data name="Menu.Help.ReleaseNotes">
+    <value>บันทึกประจำรุ่น(_R)</value>
+  </data>
+  <data name="Menu.Help.Recordings">
+    <value>เปิดโฟลเดอร์บันทึกเสียง(_R)</value>
+  </data>
+  <data name="Menu.Passes">
+    <value>พาส(_P)</value>
+  </data>
+  <data name="Menu.Passes.Mutual">
+    <value>ตัววางแผนพาสร่วม(_M)</value>
+  </data>
+  <data name="Menu.Passes.Planner">
+    <value>ตัววางแผนพาส(_P)</value>
+  </data>
+  <data name="Menu.Passes.Sunlight">
+    <value>พยากรณ์แสงอาทิตย์(_S)</value>
+  </data>
+  <data name="Menu.Passes.DopplerInsights">
+    <value>วิเคราะห์พาสดอปเพลอร์</value>
+  </data>
+  <data name="Menu.Rotator">
+    <value>โรเตอร์(_R)</value>
+  </data>
+  <data name="Menu.Tools">
+    <value>เครื่องมือ(_T)</value>
+  </data>
+  <data name="Menu.Tools.QsoLogbook">
+    <value>ล็อกบุ๊ก OscarWatch(_O)</value>
+  </data>
+  <data name="Menu.Satellites">
+    <value>ดาวเทียม(_S)</value>
+  </data>
+  <data name="Menu.Satellites.ManageDatabase">
+    <value>จัดการฐานข้อมูลทรานสปอนเดอร์(_M)</value>
+  </data>
+  <data name="Menu.Satellites.RefreshTles">
+    <value>รีเฟรช TLE(_R)</value>
+  </data>
+  <data name="Menu.Satellites.Select">
+    <value>เลือกดาวเทียม(_S)</value>
+  </data>
+  <data name="Menu.Satellites.UpdateDatabase">
+    <value>อัปเดตฐานข้อมูลทรานสปอนเดอร์(_D)…</value>
+  </data>
+  <data name="Menu.Settings">
+    <value>การตั้งค่า(_S)</value>
+  </data>
+  <data name="Menu.Window">
+    <value>หน้าต่าง(_W)</value>
+  </data>
+  <data name="Menu.Window.PassElevationTimeline">
+    <value>ไทม์ไลน์มุมเงยของพาส(_E)</value>
+  </data>
+  <data name="Window.PassElevationTimeline.Title">
+    <value>ไทม์ไลน์มุมเงยของพาส</value>
+  </data>
+  <data name="Picker.SelectAll">
+    <value>เลือกทั้งหมด</value>
+  </data>
+  <data name="Picker.SelectNone">
+    <value>ไม่เลือกเลย</value>
+  </data>
+  <data name="Picker.StaleTle">
+    <value>TLE ล้าสมัย</value>
+  </data>
+  <data name="Picker.Title">
+    <value>เลือกดาวเทียม</value>
+  </data>
+  <data name="Settings.FootprintArrows">
+    <value>แสดงลูกศรทิศทางรอยครอบคลุม</value>
+  </data>
+  <data name="Settings.FootprintArrows.Note">
+    <value>ลูกศรในแต่ละรอยครอบคลุม แสดงทิศทางแทร็กภาคพื้น</value>
+  </data>
+  <data name="Settings.GreylineOverlay">
+    <value>แสดงเกรย์ไลน์กลางวัน/กลางคืนบนแผนที่</value>
+  </data>
+  <data name="Settings.GreylineOverlay.Note">
+    <value>เงากลางคืนและเส้นแบ่งวันคืน; ตามเวลาแผนที่เมื่อคุณเลื่อนเวลา</value>
+  </data>
+  <data name="Settings.MultiTrackOverlay">
+    <value>แสดงแทร็กภาคพื้นวงโคจรถัดไป</value>
+  </data>
+  <data name="Settings.MultiTrackOverlay.Note">
+    <value>แทร็กวงโคจรถัดไปแบบจาง อยู่หลังเส้นทางปัจจุบันของดาวเทียมที่โฟกัส</value>
+  </data>
+  <data name="Settings.MapCentre">
+    <value>ลองจิจูดกึ่งกลางแผนที่</value>
+  </data>
+  <data name="Settings.MapCentre.Note">
+    <value>กรีนิช (0°), กริดสแควร์ของสถานี หรือลองจิจูดกำหนดเอง</value>
+  </data>
+  <data name="Settings.MapCentre.Greenwich">
+    <value>กรีนิช (0°)</value>
+  </data>
+  <data name="Settings.MapCentre.Station">
+    <value>กริดสแควร์ของสถานี</value>
+  </data>
+  <data name="Settings.MapCentre.Custom">
+    <value>ลองจิจูดกำหนดเอง</value>
+  </data>
+  <data name="Settings.MapCentre.CustomLongitude">
+    <value>ลองจิจูดกึ่งกลางกำหนดเอง (°)</value>
+  </data>
+  <data name="Settings.Language">
+    <value>ภาษา</value>
+  </data>
+  <data name="Settings.Language.English">
+    <value>English (UK)</value>
+  </data>
+  <data name="Settings.Language.Japanese">
+    <value>日本語</value>
+  </data>
+  <data name="Settings.Language.PortugueseBrazil">
+    <value>Português (Brasil)</value>
+  </data>
+  <data name="Settings.Language.SimplifiedChinese">
+    <value>简体中文</value>
+  </data>
+  <data name="Settings.Language.Spanish">
+    <value>Español</value>
+  </data>
+  <data name="Settings.Language.Thai">
+    <value>ไทย</value>
+  </data>
+  <data name="Settings.Language.Indonesian">
+    <value>Bahasa Indonesia</value>
+  </data>
+  <data name="Settings.Language.Russian">
+    <value>Русский</value>
+  </data>
+  <data name="Settings.Language.German">
+    <value>Deutsch</value>
+  </data>
+  <data name="Settings.Language.RestartNote">
+    <value>ต้องรีสตาร์ท OscarWatch จึงจะเปลี่ยนภาษาได้</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Title">
+    <value>ต้องรีสตาร์ท</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Message">
+    <value>ต้องรีสตาร์ท OscarWatch จึงจะใช้ภาษาใหม่ได้ รีสตาร์ทตอนนี้หรือไม่?</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.RestartNow">
+    <value>รีสตาร์ทตอนนี้</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Later">
+    <value>ทีหลัง</value>
+  </data>
+  <data name="Settings.Appearance.Section.LocaleTime">
+    <value>ภาษาและเวลา</value>
+  </data>
+  <data name="Settings.Appearance.Section.Map">
+    <value>แผนที่</value>
+  </data>
+  <data name="Settings.Appearance.Section.Theme">
+    <value>ธีม</value>
+  </data>
+  <data name="Settings.Appearance.Section.Updates">
+    <value>การอัปเดต</value>
+  </data>
+  <data name="Settings.Tab.Appearance">
+    <value>ลักษณะที่แสดง</value>
+  </data>
+  <data name="Settings.Tab.Cloudlog">
+    <value>Cloudlog</value>
+  </data>
+  <data name="Settings.Tab.Integrations">
+    <value>การเชื่อมต่อภายนอก</value>
+  </data>
+  <data name="Settings.Tab.Radio">
+    <value>วิทยุ</value>
+  </data>
+  <data name="Settings.Tab.Recording">
+    <value>การบันทึก</value>
+  </data>
+  <data name="Settings.Tab.Rotator">
+    <value>โรเตอร์</value>
+  </data>
+  <data name="Settings.Tab.Station">
+    <value>สถานี</value>
+  </data>
+  <data name="Settings.Tab.Tle">
+    <value>TLE</value>
+  </data>
+  <data name="Settings.Tab.Tracking">
+    <value>การติดตาม</value>
+  </data>
+  <data name="Settings.Tab.Voice">
+    <value>เสียงพูด</value>
+  </data>
+  <data name="Settings.ClockFormat">
+    <value>รูปแบบนาฬิกา</value>
+  </data>
+  <data name="Settings.ClockFormat.12Hour">
+    <value>12 ชั่วโมง (AM/PM)</value>
+  </data>
+  <data name="Settings.ClockFormat.24Hour">
+    <value>24 ชั่วโมง</value>
+  </data>
+  <data name="Settings.ClockFormat.Note">
+    <value>ใช้กับรูปแบบนาฬิกา 12 ชั่วโมงหรือ 24 ชั่วโมงสำหรับเวลาในแอป</value>
+  </data>
+  <data name="Settings.TimeDisplay">
+    <value>แสดงเวลาเป็น</value>
+  </data>
+  <data name="Settings.TimeDisplay.Note">
+    <value>ท้องถิ่นหรือ UTC สำหรับหน้าต่างหลัก ตัววางแผนพาสและพาสร่วมมีการควบคุมของตนเอง</value>
+  </data>
+  <data name="Settings.Theme">
+    <value>ธีม</value>
+  </data>
+  <data name="Settings.Theme.Note">
+    <value>ตามระบบจะตามระบบปฏิบัติการ ภาพแผนที่โลกยังเป็นโหมดสว่างในทุกธีมในตอนนี้</value>
+  </data>
+  <data name="Settings.Title">
+    <value>การตั้งค่า</value>
+  </data>
+  <data name="Status.ComputingPasses">
+    <value>กำลังคำนวณพาส…</value>
+  </data>
+  <data name="Status.HelpMissing">
+    <value>ไม่พบไฟล์วิธีใช้: ติดตั้งใหม่หรือรันจากบิลด์ที่เผยแพร่</value>
+  </data>
+  <data name="Status.LoadingSettings">
+    <value>กำลังเริ่ม…</value>
+  </data>
+  <data name="Status.LoadingSettingsFull">
+    <value>กำลังโหลดการตั้งค่า…</value>
+  </data>
+  <data name="Status.LoadingTle">
+    <value>กำลังโหลดแคตตาล็อก TLE…</value>
+  </data>
+  <data name="Status.DiagnosticsCopied">
+    <value>คัดลอกข้อมูลวินิจฉัยไปคลิปบอร์ดแล้ว</value>
+  </data>
+  <data name="Status.DiagnosticsCopyFailed">
+    <value>ไม่สามารถคัดลอกข้อมูลวินิจฉัยได้</value>
+  </data>
+  <data name="Status.LogsFolderFailed">
+    <value>ไม่สามารถเปิดโฟลเดอร์ล็อกได้</value>
+  </data>
+  <data name="Status.NoSatellites">
+    <value>{0} | เปิดใช้ 0 ดวง: เมนูดาวเทียม → เปิดใช้งานบางดวง</value>
+  </data>
+  <data name="Status.NoTle">
+    <value>ไม่มีข้อมูล TLE: ตรวจการตั้งค่า → TLE หรือใช้ ดาวเทียม → รีเฟรช TLE</value>
+  </data>
+  <data name="Status.RecordingsFolderFailed">
+    <value>ไม่สามารถเปิดโฟลเดอร์บันทึกเสียงได้</value>
+  </data>
+  <data name="Status.RefreshingTle">
+    <value>กำลังรีเฟรช TLE…</value>
+  </data>
+  <data name="Status.SatellitesEnabled">
+    <value>{0} | เปิดใช้ดาวเทียม {1} ดวง</value>
+  </data>
+  <data name="Status.TleAge">
+    <value>TLE {0} ที่แล้ว ({1})</value>
+  </data>
+  <data name="Status.TleCached">
+    <value>TLE แคชไว้ ({0})</value>
+  </data>
+  <data name="Status.TleNotLoaded">
+    <value>ยังไม่ได้โหลด TLE</value>
+  </data>
+  <data name="Status.TleRefreshFailed">
+    <value>รีเฟรช TLE ล้มเหลว: {0}</value>
+  </data>
+  <data name="Status.TleReloadFailed">
+    <value>โหลด TLE ใหม่ล้มเหลว: {0}</value>
+  </data>
+  <data name="Status.TransponderChecking">
+    <value>กำลังตรวจฐานข้อมูลทรานสปอนเดอร์…</value>
+  </data>
+  <data name="Status.TransponderUpToDate">
+    <value>ฐานข้อมูลทรานสปอนเดอร์เป็นรุ่นล่าสุดแล้ว</value>
+  </data>
+  <data name="Status.AppUpdateChecking">
+    <value>กำลังตรวจหาการอัปเดตแอป…</value>
+  </data>
+  <data name="Status.AppUpdateUpToDate">
+    <value>OscarWatch เป็นรุ่นล่าสุดแล้ว ({0})</value>
+  </data>
+  <data name="Status.AppUpdateFailed">
+    <value>ไม่สามารถตรวจหาการอัปเดตได้: {0}</value>
+  </data>
+  <data name="Status.TransponderUpdated">
+    <value>อัปเดตฐานข้อมูลทรานสปอนเดอร์แล้ว</value>
+  </data>
+  <data name="Status.TleNotLoadedShort">
+    <value>ยังไม่ได้โหลด TLE</value>
+  </data>
+  <data name="Status.LineNoSatellites">
+    <value>{0} | เปิดใช้ 0 ดวง: เมนูดาวเทียม → เปิดใช้งานบางดวง</value>
+  </data>
+  <data name="Status.CloudlogError">
+    <value>Cloudlog: {0}</value>
+  </data>
+  <data name="Status.TransponderUpdateFailed">
+    <value>อัปเดตทรานสปอนเดอร์ล้มเหลว: {0}</value>
+  </data>
+  <data name="Rig.Connected">
+    <value>เชื่อมต่อแล้ว</value>
+  </data>
+  <data name="Rig.Disconnected">
+    <value>ไม่ได้เชื่อมต่อ</value>
+  </data>
+  <data name="Rig.CatPaused">
+    <value>หยุด CAT ชั่วคราว (จูนด้วยตนเอง)</value>
+  </data>
+  <data name="Rig.Tracking">
+    <value>กำลังติดตาม</value>
+  </data>
+  <data name="Rig.FlexControlFailed">
+    <value>ตั้งค่าดาวเทียม FlexRadio ล้มเหลว</value>
+  </data>
+  <data name="Rig.FlexControlFailedDetail">
+    <value>ตั้งค่าดาวเทียม FlexRadio ล้มเหลว: {0}</value>
+  </data>
+  <data name="Rig.Ts2000SatlUnconfirmed">
+    <value>กำลังติดตาม (ยังไม่ยืนยัน SATL ของ TS-2000; ใช้ FA/FB)</value>
+  </data>
+  <data name="Rig.Ts2000SatlWarningTitle">
+    <value>ยังไม่ยืนยันโหมดดาวเทียมของ TS-2000</value>
+  </data>
+  <data name="Rig.Ts2000SatlWarningMessage">
+    <value>วิทยุไม่ได้ยืนยัน SATL ผ่าน CAT (SA;) OscarWatch จะชดเชยดอปเพลอร์บน FA/FB ต่อไป แต่เพื่อผลลัพธ์ที่ดีที่สุด ให้กด SAT บนวิทยุ, ปิดโหมดหน่วยความจำ และปิดเมนูหน้าปัด จากนั้นเลือกดาวเทียมอีกครั้งเพื่อลอง SATL เต็มรูปแบบ ดูคำใบ้ CAT ของ TS-2000 ที่ การตั้งค่า → วิทยุ</value>
+  </data>
+  <data name="Rig.NoComPort">
+    <value>ยังไม่ได้เลือกพอร์ต COM</value>
+  </data>
+  <data name="Rig.SelectDualComPorts">
+    <value>เลือกพอร์ต COM สำหรับวิทยุดาวน์ลิงก์และอัปลิงก์</value>
+  </data>
+  <data name="Rig.NotConnected">
+    <value>ยังไม่ได้เชื่อมต่อวิทยุ</value>
+  </data>
+  <data name="Rig.NotConnectedPort">
+    <value>ยังไม่ได้เชื่อมต่อวิทยุ ({0})</value>
+  </data>
+  <data name="Rig.DualNotConnected">
+    <value>ยังไม่ได้เชื่อมต่อวิทยุคู่</value>
+  </data>
+  <data name="Rig.DualNotConnectedDetail">
+    <value>ยังไม่ได้เชื่อมต่อวิทยุคู่: {0}</value>
+  </data>
+  <data name="Rig.NotConnectedDetail">
+    <value>ยังไม่ได้เชื่อมต่อวิทยุ: {0}</value>
+  </data>
+  <data name="Rig.NotConnectedPortDetail">
+    <value>ยังไม่ได้เชื่อมต่อวิทยุ ({0}): {1}</value>
+  </data>
+  <data name="Rig.SerialPortNotFound">
+    <value>ไม่พบพอร์ตอนุกรม ({0}) ตรวจสอบสาย USB และรีเฟรชรายการพอร์ต</value>
+  </data>
+  <data name="Rig.SerialPortBusy">
+    <value>พอร์ตอนุกรมถูกใช้งานอยู่ ({0}) ปิดแอปพลิเคชัน CAT อื่น หรือเลือกพอร์ตอื่น</value>
+  </data>
+  <data name="Rig.DualEndpointSerialPortNotFound">
+    <value>ไม่พบพอร์ตอนุกรม {0} ({1}) ตรวจสอบสาย USB และรีเฟรชรายการพอร์ต</value>
+  </data>
+  <data name="Rig.DualEndpointSerialPortBusy">
+    <value>พอร์ตอนุกรม {0} ถูกใช้งานอยู่ ({1}) ปิดแอปพลิเคชัน CAT อื่น หรือเลือกพอร์ตอื่น</value>
+  </data>
+  <data name="Rig.DualRadioSamePort">
+    <value>วิทยุดาวน์ลิงก์และอัปลิงก์ใช้พอร์ตอนุกรมเดียวกัน ใช้คนละพอร์ตสำหรับแต่ละเครื่อง</value>
+  </data>
+  <data name="App.AlreadyRunningTitle">
+    <value>OscarWatch กำลังทำงานอยู่แล้ว</value>
+  </data>
+  <data name="App.AlreadyRunningMessage">
+    <value>OscarWatch กำลังทำงานอยู่แล้ว แต่ไม่สามารถเปิดหน้าต่างได้ หากไม่เห็นหน้าต่าง ให้สิ้นสุด OscarWatch.exe ในตัวจัดการงานแล้วลองอีกครั้ง</value>
+  </data>
+  <data name="Window.PassPlanner.Title">
+    <value>ตัววางแผนพาส</value>
+  </data>
+  <data name="Window.Logbook.Title">
+    <value>ล็อกบุ๊ก OscarWatch</value>
+  </data>
+  <data name="Window.CreateLogbook.Title">
+    <value>ล็อกบุ๊กใหม่</value>
+  </data>
+  <data name="Window.EditLogbook.Title">
+    <value>แก้ไขล็อกบุ๊ก</value>
+  </data>
+  <data name="Logbook.CreateLogbook.Intro">
+    <value>สร้างล็อกบุ๊กแยกสำหรับแอคทิเวชันพกพา, การแข่งขัน หรือวาระปฏิบัติการอื่น</value>
+  </data>
+  <data name="Logbook.EditLogbook.Intro">
+    <value>อัปเดตชื่อ, สัญญาณเรียกขาน และกริดของล็อกบุ๊กนี้ บันทึก QSO ที่มีอยู่จะไม่ถูกเปลี่ยน</value>
+  </data>
+  <data name="Logbook.EditLogbook">
+    <value>แก้ไขล็อกบุ๊ก</value>
+  </data>
+  <data name="Logbook.DeleteLogbook.ConfirmTitle">
+    <value>ลบล็อกบุ๊ก</value>
+  </data>
+  <data name="Logbook.DeleteLogbook.ConfirmMessage">
+    <value>ลบ “{0}” และ QSO ทั้งหมดในนั้นหรือไม่? การกระทำนี้ย้อนกลับไม่ได้</value>
+  </data>
+  <data name="Logbook.DeleteQso.ConfirmTitle">
+    <value>ลบ QSO</value>
+  </data>
+  <data name="Logbook.DeleteQso.ConfirmMessage">
+    <value>ลบ QSO กับ {0} เมื่อ {1} หรือไม่? การกระทำนี้ย้อนกลับไม่ได้</value>
+  </data>
+  <data name="Logbook.LogbookLabel">
+    <value>ล็อกบุ๊ก</value>
+  </data>
+  <data name="Logbook.Menu.Logbook">
+    <value>ล็อกบุ๊ก</value>
+  </data>
+  <data name="Logbook.Menu.DeleteLogbook">
+    <value>ลบล็อกบุ๊ก</value>
+  </data>
+  <data name="Logbook.Menu.NoLogbook">
+    <value>ยังไม่ได้เลือกล็อกบุ๊ก</value>
+  </data>
+  <data name="Logbook.Menu.Edit">
+    <value>แก้ไข</value>
+  </data>
+  <data name="Logbook.Menu.Export">
+    <value>ส่งออก</value>
+  </data>
+  <data name="Logbook.Menu.Settings">
+    <value>การตั้งค่า</value>
+  </data>
+  <data name="Window.LogbookSettings.Title">
+    <value>การตั้งค่าล็อกบุ๊ก</value>
+  </data>
+  <data name="Logbook.Settings.Saved">
+    <value>บันทึกการตั้งค่าล็อกบุ๊กแล้ว</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.Intro">
+    <value>อัปโหลด QSO ใหม่ไป Cloudlog โดยอัตโนมัติเมื่อบันทึก URL และคีย์ API ของ Cloudlog มาจาก การตั้งค่า → การเชื่อมต่อภายนอก</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlLabel">
+    <value>URL ของ Cloudlog</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlNote">
+    <value>ตั้งค่า URL และคีย์ API ในการตั้งค่าของแอปหลัก → การเชื่อมต่อภายนอก</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NotConfigured">
+    <value>ยังไม่ได้ตั้งค่า: เปิด การตั้งค่า → การเชื่อมต่อภายนอก</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.AutoUpload">
+    <value>เปิดการอัปโหลด QSO อัตโนมัติ</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfile">
+    <value>ตำแหน่งสถานี</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfileNote">
+    <value>โปรไฟล์สถานี Cloudlog ที่ใช้เมื่อโพสต์ QSO การอัปโหลดที่ล้มเหลวจะถูกลองใหม่โดยอัตโนมัติ</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RefreshProfiles">
+    <value>รีเฟรช</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryFailed">
+    <value>ลองอัปโหลดที่ล้มเหลวอีกครั้ง</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryStarted">
+    <value>กำลังลองอัปโหลดที่ล้มเหลวอีกครั้ง…</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ProfilesLoaded">
+    <value>โหลดตำแหน่งสถานี {0} แห่งแล้ว</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NoProfiles">
+    <value>Cloudlog ไม่ส่งตำแหน่งสถานีกลับมา</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.LoadProfilesFailed">
+    <value>ไม่สามารถโหลดตำแหน่งสถานีจาก Cloudlog ได้</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ConfigureIntegrationsFirst">
+    <value>ตั้งค่า Cloudlog ที่ การตั้งค่า → การเชื่อมต่อภายนอก ก่อนเปิดการอัปโหลด</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationRequired">
+    <value>เลือกตำแหน่งสถานีสำหรับการอัปโหลด Cloudlog</value>
+  </data>
+  <data name="Logbook.Menu.SettingsComingSoon">
+    <value>การตั้งค่าล็อกบุ๊ก</value>
+  </data>
+  <data name="Logbook.NewLogbook">
+    <value>ล็อกบุ๊กใหม่</value>
+  </data>
+  <data name="Logbook.NewName">
+    <value>ชื่อ</value>
+  </data>
+  <data name="Logbook.NewNameWatermark">
+    <value>แอคทิเวชันพกพา, การแข่งขัน เป็นต้น</value>
+  </data>
+  <data name="Logbook.MyCallsign">
+    <value>สัญญาณเรียกขานของฉัน</value>
+  </data>
+  <data name="Logbook.MyGrid">
+    <value>กริดของฉัน</value>
+  </data>
+  <data name="Logbook.Call">
+    <value>สัญญาณเรียกขาน</value>
+  </data>
+  <data name="Logbook.RstSent">
+    <value>ส่ง</value>
+  </data>
+  <data name="Logbook.RstRcvd">
+    <value>รับ</value>
+  </data>
+  <data name="Logbook.Grid">
+    <value>กริดสแควร์</value>
+  </data>
+  <data name="Logbook.GridHint">
+    <value>2/4/6/8 ตัวอักษร; คั่นด้วยจุลภาคเมื่ออยู่บนเส้นกริด (เช่น IO77,IO87)</value>
+  </data>
+  <data name="Logbook.Name">
+    <value>ชื่อ</value>
+  </data>
+  <data name="Logbook.Comment">
+    <value>หมายเหตุ</value>
+  </data>
+  <data name="Logbook.ClearFieldsHint">
+    <value>Alt+W ล้างช่องกรอก</value>
+  </data>
+  <data name="Logbook.AddQso">
+    <value>เพิ่ม</value>
+  </data>
+  <data name="Logbook.SaveQso">
+    <value>บันทึก</value>
+  </data>
+  <data name="Logbook.EditQso">
+    <value>แก้ไข QSO</value>
+  </data>
+  <data name="Logbook.CancelEdit">
+    <value>ยกเลิก</value>
+  </data>
+  <data name="Logbook.EditingStatus">
+    <value>กำลังแก้ไข QSO ที่บันทึกเมื่อ {0} UTC</value>
+  </data>
+  <data name="Logbook.DeleteQso">
+    <value>ลบ QSO</value>
+  </data>
+  <data name="Logbook.History">
+    <value>QSO ล่าสุด</value>
+  </data>
+  <data name="Logbook.StationControl">
+    <value>การควบคุมสถานี</value>
+  </data>
+  <data name="Logbook.Station.Satellite">
+    <value>ดาวเทียม</value>
+  </data>
+  <data name="Logbook.Station.Mode">
+    <value>โหมด</value>
+  </data>
+  <data name="Logbook.Station.Frequencies">
+    <value>อัปลิงก์ / ดาวน์ลิงก์ (MHz)</value>
+  </data>
+  <data name="Logbook.Station.Note">
+    <value>ค่าจะถูกดึงจากการติดตามของ OscarWatch เมื่อคุณเพิ่ม QSO</value>
+  </data>
+  <data name="Logbook.Station.Tracking">
+    <value>กำลังติดตาม {0}</value>
+  </data>
+  <data name="Logbook.Station.Unavailable">
+    <value>ยังไม่ได้เลือกดาวเทียม หรือยังไม่ได้ซิงค์โหมด</value>
+  </data>
+  <data name="Logbook.ExportAdif">
+    <value>ส่งออก ADIF</value>
+  </data>
+  <data name="Logbook.ExportPicker.Title">
+    <value>ส่งออก ADIF</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Title">
+    <value>ส่งออก ADIF</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Intro">
+    <value>เลือก QSO ที่จะรวม และว่าจะแมปชื่อดาวเทียมใหม่สำหรับ Logbook of the World หรือไม่</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Scope.All">
+    <value>QSO ทั้งหมดในล็อกบุ๊ก</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Scope.DateRange">
+    <value>QSO ในช่วงวันที่ UTC</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.FromUtc">
+    <value>จาก (UTC)</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.ToUtc">
+    <value>ถึง (UTC)</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountOne">
+    <value>จะส่งออก 1 QSO</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountMany">
+    <value>จะส่งออก {0} QSO</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountNone">
+    <value>ไม่มี QSO ที่ตรงกับช่วงการส่งออกนี้</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.ForLotw">
+    <value>แมปชื่อดาวเทียมใหม่สำหรับ LoTW</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Export">
+    <value>ส่งออก</value>
+  </data>
+  <data name="Logbook.DefaultName">
+    <value>ล็อกบุ๊กหลัก</value>
+  </data>
+  <data name="Logbook.Status.Ready">
+    <value>พร้อม</value>
+  </data>
+  <data name="Logbook.Status.Created">
+    <value>สร้างล็อกบุ๊ก “{0}” แล้ว</value>
+  </data>
+  <data name="Logbook.Status.LogbookUpdated">
+    <value>อัปเดตล็อกบุ๊ก “{0}” แล้ว</value>
+  </data>
+  <data name="Logbook.Status.Deleted">
+    <value>ลบล็อกบุ๊ก “{0}” แล้ว</value>
+  </data>
+  <data name="Logbook.Status.StationUnavailable">
+    <value>รอจนกว่าการติดตามจะแสดงดาวเทียมและโหมดก่อนเพิ่ม QSO</value>
+  </data>
+  <data name="Logbook.Status.Added">
+    <value>บันทึก {0} เมื่อ {1} UTC</value>
+  </data>
+  <data name="Logbook.Status.Updated">
+    <value>อัปเดต {0} เมื่อ {1} UTC</value>
+  </data>
+  <data name="Logbook.Status.Removed">
+    <value>ลบ {0} แล้ว</value>
+  </data>
+  <data name="Logbook.Status.QsoCountOne">
+    <value>{0} · 1 QSO</value>
+  </data>
+  <data name="Logbook.Status.QsoCountMany">
+    <value>{0} · {1} QSO</value>
+  </data>
+  <data name="Logbook.Status.ExportedOne">
+    <value>ส่งออก 1 QSO เป็น ADIF แล้ว</value>
+  </data>
+  <data name="Logbook.Status.ExportedMany">
+    <value>ส่งออก {0} QSO เป็น ADIF แล้ว</value>
+  </data>
+  <data name="Logbook.Status.ExportedOneRange">
+    <value>ส่งออก 1 QSO เป็น ADIF ({0} UTC)</value>
+  </data>
+  <data name="Logbook.Status.ExportedManyRange">
+    <value>ส่งออก {0} QSO เป็น ADIF ({1} UTC)</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Pending">
+    <value>รอดำเนินการ</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Sent">
+    <value>ส่งแล้ว</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Failed">
+    <value>ล้มเหลว</value>
+  </data>
+  <data name="Logbook.Error.GridTooMany">
+    <value>รองรับกริดสแควร์ได้ไม่เกิน {0} ช่อง</value>
+  </data>
+  <data name="Logbook.Error.GridInvalidSegment">
+    <value>โลเคเตอร์ “{0}” ไม่ถูกต้อง ใช้ตัวอักษร Maidenhead 2, 4, 6 หรือ 8 ตัว</value>
+  </data>
+  <data name="Logbook.Error.NameRequired">
+    <value>กรอกชื่อล็อกบุ๊ก</value>
+  </data>
+  <data name="Logbook.CallHint.Previous">
+    <value>พบ QSO ก่อนหน้าในล็อกบุ๊กนี้</value>
+  </data>
+  <data name="Logbook.CallHint.PreviousWithGrid">
+    <value>QSO ก่อนหน้า: กริด {0}</value>
+  </data>
+  <data name="Logbook.CallStatus.Worked">
+    <value>เคยติดต่อ</value>
+  </data>
+  <data name="Logbook.CallStatus.NotWorked">
+    <value>ยังไม่เคยติดต่อ</value>
+  </data>
+  <data name="Logbook.DxccStatus.Worked">
+    <value>เคยติดต่อ</value>
+  </data>
+  <data name="Logbook.DxccStatus.New">
+    <value>ใหม่</value>
+  </data>
+  <data name="Logbook.DxccBadge">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="Logbook.Menu.UpdateCountryFile">
+    <value>อัปเดตไฟล์ประเทศ</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdating">
+    <value>กำลังอัปเดตไฟล์ประเทศ…</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdated">
+    <value>อัปเดตไฟล์ประเทศแล้ว</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdateFailed">
+    <value>ไม่สามารถอัปเดตไฟล์ประเทศได้: {0}</value>
+  </data>
+  <data name="Logbook.Column.Country">
+    <value>ประเทศ</value>
+  </data>
+  <data name="Logbook.Column.DateTime">
+    <value>วันที่/เวลา (UTC)</value>
+  </data>
+  <data name="Logbook.UtcClockLabel">
+    <value>เวลา QSO (UTC)</value>
+  </data>
+  <data name="Logbook.Column.Call">
+    <value>Call</value>
+  </data>
+  <data name="Logbook.Column.Grid">
+    <value>กริด</value>
+  </data>
+  <data name="Logbook.Column.Satellite">
+    <value>SAT</value>
+  </data>
+  <data name="Logbook.Column.Mode">
+    <value>โหมด</value>
+  </data>
+  <data name="Logbook.Column.RstSent">
+    <value>ส่ง</value>
+  </data>
+  <data name="Logbook.Column.RstRcvd">
+    <value>รับ</value>
+  </data>
+  <data name="Logbook.Column.Cloudlog">
+    <value>Cloudlog</value>
+  </data>
+  <data name="Logbook.Column.Comment">
+    <value>หมายเหตุ</value>
+  </data>
+  <data name="Window.MutualPass.Title">
+    <value>ค้นหาพาสร่วม</value>
+  </data>
+  <data name="Window.MutualPassVisualizer.Title">
+    <value>วิชวลไลเซอร์พาสร่วม</value>
+  </data>
+  <data name="Window.PassVisualizer.Title">
+    <value>วิชวลไลเซอร์พาส</value>
+  </data>
+  <data name="Window.PassRadarGallery.Title">
+    <value>แกลเลอรีเรดาร์พาส</value>
+  </data>
+  <data name="PassRadar.Gallery.Heading">
+    <value>เรดาร์พาส {0}: {1}</value>
+  </data>
+  <data name="PassRadar.Gallery.Subtitle">
+    <value>{0} พาส · {1} ชม. ถัดไป · มุมเงยต่ำสุด {2:F0}° ({3})</value>
+  </data>
+  <data name="Window.DopplerInsights.Title">
+    <value>วิเคราะห์พาสดอปเพลอร์</value>
+  </data>
+  <data name="Window.Sunlight.Title">
+    <value>พยากรณ์แสงอาทิตย์</value>
+  </data>
+  <data name="DopplerInsights.Header">
+    <value>วิเคราะห์พาสดอปเพลอร์</value>
+  </data>
+  <data name="DopplerInsights.Subtitle">
+    <value>โหลดล็อกพาสเพื่อดูคำแนะนำการจูนที่ชัดเจนสำหรับเกณฑ์แบบปรับได้ และการตั้งค่า CAT ลีดดอปเพลอร์</value>
+  </data>
+  <data name="DopplerInsights.OpenCsv">
+    <value>เปิด CSV</value>
+  </data>
+  <data name="DopplerInsights.LoadLatest">
+    <value>โหลดล่าสุด</value>
+  </data>
+  <data name="DopplerInsights.OpenFolder">
+    <value>เปิดโฟลเดอร์ล็อก</value>
+  </data>
+  <data name="DopplerInsights.Picker.Title">
+    <value>เลือก CSV พาสดอปเพลอร์</value>
+  </data>
+  <data name="DopplerInsights.Picker.CompareTitle">
+    <value>เลือก CSV พาสดอปเพลอร์สำหรับเปรียบเทียบ</value>
+  </data>
+  <data name="DopplerInsights.OpenCompareCsv">
+    <value>เปิด CSV เปรียบเทียบ</value>
+  </data>
+  <data name="DopplerInsights.ClearCompare">
+    <value>ล้างการเปรียบเทียบ</value>
+  </data>
+  <data name="DopplerInsights.Section.Summary">
+    <value>สรุป</value>
+  </data>
+  <data name="DopplerInsights.Section.Chart">
+    <value>กราฟอนุกรมเวลา (เส้นทึบ = หลัก, เส้นประ = เปรียบเทียบ)</value>
+  </data>
+  <data name="DopplerInsights.Chart.Legend">
+    <value>น้ำเงิน = คลาดเคลื่อนการติดตามดาวน์ลิงก์, ส้ม = คลาดเคลื่อนการติดตามอัปลิงก์, แถบเขียวอมฟ้า = โซนเกณฑ์แบบปรับได้, เส้นประ = เกณฑ์พื้นฐาน, ขีดม่วง = การแก้ CAT, แถบเทา = มุมเงยดาวเทียม, เส้นเหลืองอำพัน = TCA (มุมเงยสูงสุด)</value>
+  </data>
+  <data name="DopplerInsights.Chart.Explain">
+    <value>แต่ละเส้นสีแสดงว่าความถี่วิทยุคลาดจากเป้าหมายดอปเพลอร์ที่คำนวณไว้เท่าใด เมื่อคลาดถึงเกณฑ์ OscarWatch จะส่งการแก้ CAT (ขีดม่วง) แล้วค่าคลาดจะลดลง วัฏจักรที่เล็กและเรียบหมายถึงการติดตามที่ดีกว่า</value>
+  </data>
+  <data name="DopplerInsights.Chart.YAxis">
+    <value>คลาดเคลื่อนการติดตาม (Hz)</value>
+  </data>
+  <data name="DopplerInsights.Chart.ElevationLabel">
+    <value>El °</value>
+  </data>
+  <data name="DopplerInsights.Chart.TcaLabel">
+    <value>TCA</value>
+  </data>
+  <data name="DopplerInsights.Chart.Hint">
+    <value>ใช้ปุ่ม +/− เพื่อซูม หรือเลื่อนแนวนอนเพื่อแพน</value>
+  </data>
+  <data name="DopplerInsights.Section.Bars">
+    <value>แถบกิจกรรม (ร้อยละของแถว)</value>
+  </data>
+  <data name="DopplerInsights.Section.Analysis">
+    <value>รายละเอียดการวิเคราะห์</value>
+  </data>
+  <data name="DopplerInsights.Tab.Activity">
+    <value>แถบกิจกรรม</value>
+  </data>
+  <data name="DopplerInsights.Tab.Overview">
+    <value>ภาพรวม</value>
+  </data>
+  <data name="DopplerInsights.Tab.Events">
+    <value>เหตุการณ์ล่าสุด</value>
+  </data>
+  <data name="DopplerInsights.Tab.Chart">
+    <value>กราฟ</value>
+  </data>
+  <data name="DopplerInsights.Tab.Tuning">
+    <value>คู่มือการจูน</value>
+  </data>
+  <data name="DopplerInsights.Tab.Files">
+    <value>ไฟล์</value>
+  </data>
+  <data name="DopplerInsights.Tab.Comparison">
+    <value>การเปรียบเทียบ</value>
+  </data>
+  <data name="DopplerInsights.Tab.Analysis">
+    <value>การวิเคราะห์</value>
+  </data>
+  <data name="DopplerInsights.Section.Recommendations">
+    <value>คำแนะนำ</value>
+  </data>
+  <data name="DopplerInsights.Section.HowTo">
+    <value>วิธีใช้สิ่งนี้เพื่อจูนการตั้งค่าวิทยุ</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Intro">
+    <value>ใช้แผงนี้เพื่อเปรียบเทียบพาสหนึ่งครั้งก่อนและหลังเปลี่ยนการตั้งค่า</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step1">
+    <value>1) หาก “ถูกเกณฑ์ยับยั้ง” สูงมาก และการเขียน RX/TX ต่ำ ให้ลดเกณฑ์ดอปเพลอร์ลงเล็กน้อย</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step2">
+    <value>2) หากอัตราการเขียน RX/TX สูงมาก ให้เพิ่มเกณฑ์หรือหน่วง CAT เพื่อลดการส่งคำสั่งรัว</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step3">
+    <value>3) หากสลูสูงสุดสูงและการติดตามตามไม่ทัน ให้เปิด/เพิ่มลีดดอปเพลอร์สำหรับความหน่วง CAT</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step4">
+    <value>4) ใช้โหมดเปรียบเทียบ: มุ่งให้เดลต้า p95 ต่ำลง โดยอัตราการเขียนคงที่ และการแทรกแซงด้วยมือน้อยลง</value>
+  </data>
+  <data name="DopplerInsights.Section.Events">
+    <value>เหตุการณ์ล่าสุด</value>
+  </data>
+  <data name="DopplerInsights.Bar.RxWrites">
+    <value>อัตราการเขียน RX</value>
+  </data>
+  <data name="DopplerInsights.Bar.TxWrites">
+    <value>อัตราการเขียน TX</value>
+  </data>
+  <data name="DopplerInsights.Bar.BelowThreshold">
+    <value>ถูกเกณฑ์ยับยั้ง</value>
+  </data>
+  <data name="DopplerInsights.Bar.Interactive">
+    <value>ช่วงจูนด้วยตนเอง/โต้ตอบ</value>
+  </data>
+  <data name="DopplerInsights.Status.Ready">
+    <value>เลือกไฟล์ CSV หรือโหลดล็อกพาสล่าสุด</value>
+  </data>
+  <data name="DopplerInsights.Status.Loading">
+    <value>กำลังโหลดล็อกพาสดอปเพลอร์</value>
+  </data>
+  <data name="DopplerInsights.Status.Loaded">
+    <value>โหลด {0} แถวแล้ว</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadingCompare">
+    <value>กำลังโหลดล็อกพาสเปรียบเทียบ</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadedCompare">
+    <value>โหลดการเปรียบเทียบ {0} แถวแล้ว</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderOk">
+    <value>เปิดโฟลเดอร์ล็อกดอปเพลอร์แล้ว</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderFailed">
+    <value>ไม่สามารถเปิดโฟลเดอร์ล็อกดอปเพลอร์ได้: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadFailed">
+    <value>ไม่สามารถโหลดล็อกได้: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.FileMissing">
+    <value>ไม่พบไฟล์ที่เลือก</value>
+  </data>
+  <data name="DopplerInsights.Status.NoLogsFolder">
+    <value>ยังไม่พบโฟลเดอร์ล็อกดอปเพลอร์: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.NoCsvLogs">
+    <value>ไม่พบไฟล์ CSV ดอปเพลอร์ใน: {0}</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Empty">
+    <value>ยังไม่ได้โหลดข้อมูลพาส</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Value">
+    <value>ดาวเทียม: {0} หน้าต่างพาส: {1} ถึง {2} UTC ({3} นาที) แถว: ทั้งหมด {4}, สแนปช็อต {5}, การเขียน CAT {6}, การเปลี่ยนออฟเซ็ต {7}</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Empty">
+    <value>ไม่มีเมตริกเกณฑ์</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Value">
+    <value>เกณฑ์: พื้นฐาน {0} Hz, มีผล {1} Hz (ลดแบบปรับได้ {2}%) แถวที่ถูกยับยั้ง: {3}%</value>
+  </data>
+  <data name="DopplerInsights.Activity.Empty">
+    <value>ไม่มีเมตริกกิจกรรมการเขียน</value>
+  </data>
+  <data name="DopplerInsights.Activity.Value">
+    <value>การเขียน: RX {0}%, TX {1}% แถวโต้ตอบ: {2}% แถวหยุด CAT ชั่วคราว: {3} แถวเปิดลีด: {4}%</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Empty">
+    <value>ไม่มีเมตริกเดลต้าความถี่</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Value">
+    <value>เดลต้า: RX เฉลี่ย {0} Hz, RX p95 {1} Hz, TX เฉลี่ย {2} Hz, TX p95 {3} Hz สลูสูงสุด: {4} Hz/s</value>
+  </data>
+  <data name="DopplerInsights.Compare.Empty">
+    <value>ยังไม่ได้โหลดการเปรียบเทียบ</value>
+  </data>
+  <data name="DopplerInsights.Compare.Value">
+    <value>หลัก [{0}] การเขียน RX/TX {1}%/{2}%, RX/TX p95 {3}/{4} Hz เปรียบเทียบ [{5}] การเขียน RX/TX {6}%/{7}%, RX/TX p95 {8}/{9} Hz</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyTitle">
+    <value>โหลดพาสเปรียบเทียบเพื่อดูว่าการเปลี่ยนการตั้งค่าทำให้การติดตามดีขึ้นหรือไม่</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyText">
+    <value>เมื่อคุณโหลด CSV ที่สอง (หลังเปลี่ยนเกณฑ์ดอปเพลอร์, หน่วง CAT หรือการตั้งค่าลีด) ส่วนนี้จะแสดงว่าพาสใหม่ดีขึ้นหรือแย่ลง</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.BetterTitle">
+    <value>✓ พาสเปรียบเทียบดีกว่า</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.WorseTitle">
+    <value>✗ พาสเปรียบเทียบแย่กว่า</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.MixedTitle">
+    <value>~ พาสเปรียบเทียบผลผสม</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.Value">
+    <value>การเขียน RX {0}%, การเขียน TX {1}%, RX p95 {2} Hz, TX p95 {3} Hz ขั้นถัดไป: {4}</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.IncreaseAggression">
+    <value>ลดเกณฑ์หรือหน่วง CAT ลงเล็กน้อย เพื่อเพิ่มความดุดันของการจูน</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.StabilizeWrites">
+    <value>เพิ่มเกณฑ์หรือหน่วง CAT เล็กน้อย เพื่อลดการเขียนรัว</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.KeepSettings">
+    <value>คงการตั้งค่าเหล่านี้ไว้ เพราะทำงานได้ดี!</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.SmallStep">
+    <value>ปรับเล็กน้อยแล้วเปรียบเทียบอีกครั้ง</value>
+  </data>
+  <data name="DopplerInsights.Chart.Empty">
+    <value>โหลด CSV ดอปเพลอร์เพื่อดูกราฟอนุกรมเวลาของเดลต้า RX/TX, เกณฑ์ และเหตุการณ์การเขียน</value>
+  </data>
+  <data name="DopplerInsights.Reco.Empty">
+    <value>บันทึกพาสเต็มหนึ่งครั้งเพื่อสร้างคำแนะนำการจูน</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdHigh">
+    <value>เกณฑ์ดูสูงสำหรับพาสนี้ ลองลดเกณฑ์ดอปเพลอร์เพื่อให้ CAT ตอบสนองเร็วขึ้น</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdLow">
+    <value>อัตราการเขียนสูงมาก หากเสียงฟังดูรัว ให้เพิ่มเกณฑ์ดอปเพลอร์เล็กน้อยหรือเพิ่มหน่วง CAT</value>
+  </data>
+  <data name="DopplerInsights.Reco.Interactive">
+    <value>มีการจูนด้วยตนเองระหว่างพาสนี้ หากไม่ได้ตั้งใจ ให้ตรวจความเสถียรของ CAT และการจัดแนวทรานสปอนเดอร์</value>
+  </data>
+  <data name="DopplerInsights.Reco.CatPaused">
+    <value>พบแถวที่หยุด CAT ชั่วคราว ตรวจว่าไม่ได้เปิดการหยุด CAT ค้างไว้ระหว่างติดตามจริง</value>
+  </data>
+  <data name="DopplerInsights.Reco.EnableLead">
+    <value>สลูดอปเพลอร์สูงแต่ใช้ลีดน้อย เปิดลีดดอปเพลอร์สำหรับความหน่วง CAT ในช่วงพาสที่ชัน</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveThreshold">
+    <value>เกณฑ์แบบปรับได้ทำงานอยู่ เปรียบเทียบกับพาสที่ปิดไว้ เพื่อยืนยันว่าการจูนเรียบขึ้นสำหรับวิทยุของคุณ</value>
+  </data>
+  <data name="DopplerInsights.Reco.Balanced">
+    <value>พาสนี้ดูสมดุล คงการตั้งค่าไว้ และเปรียบเทียบกับพาสอื่นเพื่อความสม่ำเสมอ</value>
+  </data>
+  <data name="DopplerInsights.Reco.IncreaseLead">
+    <value>เปิดลีดดอปเพลอร์แล้ว แต่แทบไม่ทำงานในช่วงดอปเพลอร์เร็ว ลองเพิ่มความแรงลีดหรือเวลาลีดในการตั้งค่าวิทยุ</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveHelping">
+    <value>เกณฑ์แบบปรับได้ลดย่านที่มีผลในช่วงขาเร็ว (ดูเหมือนช่วยได้) คงการเปิดไว้ เว้นแต่คุณต้องการเกณฑ์คงที่</value>
+  </data>
+  <data name="DopplerInsights.Reco.TryAdaptive">
+    <value>พบสลูดอปเพลอร์เร็วขณะใช้เกณฑ์คงที่ ลองเปิดเกณฑ์แบบปรับได้ใกล้ TCA ในการตั้งค่าวิทยุ</value>
+  </data>
+  <data name="DopplerInsights.Section.Adaptive">
+    <value>เกณฑ์แบบปรับได้</value>
+  </data>
+  <data name="DopplerInsights.Section.Lead">
+    <value>ลีดดอปเพลอร์ (ความหน่วง CAT)</value>
+  </data>
+  <data name="DopplerInsights.Section.SettingsUsed">
+    <value>การตั้งค่าที่บันทึกสำหรับพาสนี้</value>
+  </data>
+  <data name="DopplerInsights.Section.PassPhases">
+    <value>แบ่งช่วงพาส</value>
+  </data>
+  <data name="DopplerInsights.PassPhases.Intro">
+    <value>พฤติกรรมการติดตามในแต่ละช่วงของพาส โฟกัสที่ TCA และขาลงสำหรับลีดดอปเพลอร์; ตรวจ AOS/ขาขึ้นสำหรับการจูนเกณฑ์</value>
+  </data>
+  <data name="DopplerInsights.PassHeadline.Value">
+    <value>{0}: พาส {1} นาที, มุมเงยสูงสุด {2}°</value>
+  </data>
+  <data name="DopplerInsights.Tuning.CompareHint">
+    <value>เคล็ดลับ: เปลี่ยนทีละการตั้งค่า (เกณฑ์, แบบปรับได้, เวลาลีด หรือความแรงลีด) รันพาสอีกครั้ง แล้วโหลดทั้งสองไฟล์ CSV ผ่าน ไฟล์ → การเปรียบเทียบ เพื่อดูว่าการติดตามดีขึ้นหรือไม่</value>
+  </data>
+  <data name="DopplerInsights.Files.Primary">
+    <value>พาสหลัก</value>
+  </data>
+  <data name="DopplerInsights.Files.Comparison">
+    <value>พาสเปรียบเทียบ</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptyTitle">
+    <value>ยังไม่ได้โหลดพาส</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptySummary">
+    <value>เปิด CSV พาสดอปเพลอร์เพื่อรับคำแนะนำการจูนสำหรับการตั้งค่าวิทยุ</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodTitle">
+    <value>การติดตามดูดี</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodSummary">
+    <value>คลาดเคลื่อนการติดตามโดยทั่วไปต่ำ (ดาวน์ลิงก์ p95 {0} Hz, อัปลิงก์ p95 {1} Hz) ไม่แนะนำการเปลี่ยนใหญ่</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdTitle">
+    <value>เกณฑ์อาจสูงเกินไป</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdSummary">
+    <value>{0}% ของตัวอย่างถูกเกณฑ์ยับยั้ง วิทยุไม่ได้ถูกแก้บ่อยพอ ลองลดเกณฑ์ดอปเพลอร์เชิงเส้น</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadTitle">
+    <value>ลองพิจารณาลีดดอปเพลอร์</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadSummary">
+    <value>พบสลูดอปเพลอร์เร็ว แต่ลีดดอปเพลอร์ปิดอยู่หรือแทบไม่ได้ใช้ คลาดเคลื่อนดาวน์ลิงก์โดยทั่วไป {0} Hz</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterTitle">
+    <value>CAT อาจดุดันเกินไป</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterSummary">
+    <value>CAT เขียนใน {0}% ของตัวอย่าง หากการจูนฟังดูขาด ๆ หาย ๆ ให้เพิ่มเกณฑ์เล็กน้อยหรือเพิ่มหน่วง CAT</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualTitle">
+    <value>พบการจูนด้วยตนเอง</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualSummary">
+    <value>พาสนี้มีแถวโต้ตอบ {0} แถว และแถวหยุด CAT ชั่วคราว {1} แถว ตรวจช่วงเหล่านั้นก่อนเปลี่ยนการตั้งค่าอัตโนมัติ</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyTitle">
+    <value>เกณฑ์แบบปรับได้</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyDetail">
+    <value>โหลดพาสเพื่อดูว่าเกณฑ์แบบปรับได้ช่วยใกล้ TCA หรือไม่</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledTitle">
+    <value>เกณฑ์แบบปรับได้ปิดอยู่</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledDetail">
+    <value>สลูสูงสุด {0} Hz/s ใช้เกณฑ์คงที่ตลอดพาส</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledAction">
+    <value>ลองเปิดเกณฑ์แบบปรับได้ใกล้ TCA ในการตั้งค่าวิทยุ เพราะจะลดย่านเมื่อดอปเพลอร์เปลี่ยนเร็ว</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledNoAction">
+    <value>สลูปานกลาง เกณฑ์คงที่ก็ใช้ได้ เว้นแต่เห็นความหน่วงใกล้ TCA</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeTitle">
+    <value>เกณฑ์บล็อกการแก้บ่อยเกินไป</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeDetail">
+    <value>{0}% ของแถวอยู่ต่ำกว่าเกณฑ์ (ค่าเฉลี่ยที่มีผล {1} Hz) วิทยุรอนานเกินไปก่อนแก้</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeAction">
+    <value>ลดเกณฑ์ดอปเพลอร์ (SSB/CW) ลง 10–20 Hz หรือให้แน่ใจว่าเปิดเกณฑ์แบบปรับได้</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingTitle">
+    <value>เกณฑ์แบบปรับได้ทำงานอยู่</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingDetail">
+    <value>เกณฑ์ลดลงประมาณ {0}% ในช่วงขาเร็ว (สลูสูงสุด {1} Hz/s) โดยไม่มีการส่ง CAT รัวเกินไป</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingAction">
+    <value>คงการเปิดเกณฑ์แบบปรับได้ เปรียบเทียบแบบปิดเฉพาะเมื่อต้องการความรู้สึกเกณฑ์คงที่</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralTitle">
+    <value>เกณฑ์แบบปรับได้มีผลจำกัด</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralDetail">
+    <value>การลดเกณฑ์เฉลี่ย {0}% สลูดอปเพลอร์อาจปานกลางเกือบตลอดพาส</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralAction">
+    <value>หากยังได้ยินความหน่วงใกล้ TCA ให้ลดเกณฑ์พื้นฐานเล็กน้อย แทนที่จะปิดแบบปรับได้</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyTitle">
+    <value>ลีดดอปเพลอร์</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyDetail">
+    <value>โหลดพาสเพื่อดูว่าลีดดอปเพลอร์ตามทันในช่วงขาเร็วหรือไม่</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledTitle">
+    <value>ลีดดอปเพลอร์ปิดอยู่</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledDetail">
+    <value>สลูสูงสุดถึง {0} Hz/s CAT ใช้ดอปเพลอร์ขณะนั้นเท่านั้น</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledAction">
+    <value>เปิดลีดดอปเพลอร์สำหรับความหน่วง CAT ในการตั้งค่าวิทยุ แล้วบันทึกพาสอีกครั้ง</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledNoAction">
+    <value>สลูต่ำ ลีดดอปเพลอร์เป็นทางเลือกสำหรับโปรไฟล์พาสนี้</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakTitle">
+    <value>ลีดดอปเพลอร์อ่อนในช่วงขาชัน</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakDetail">
+    <value>คลาดเคลื่อนดาวน์ลิงก์ช่วงขาชันถึง {0} Hz โดยเกนลีดที่ {1}%</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakAction">
+    <value>เพิ่มความแรงลีดเป็น 85–100% หรือตั้งเวลาลีดโดยตรง (ลอง 25–40 ms)</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingTitle">
+    <value>ลีดดอปเพลอร์ตามทันอยู่</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingDetail">
+    <value>ลีดทำงานใน {0}% ของแถว; ดาวน์ลิงก์ p95 อยู่ที่ {1} Hz แม้สลูเร็ว</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingAction">
+    <value>คงการตั้งค่าลีดปัจจุบัน หากเสียงฟังนำหน้าสัญญาณ ให้ลดความแรงลีดเล็กน้อย</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingTitle">
+    <value>การติดตามตามไม่ทันในช่วงขาเร็ว</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingDetail">
+    <value>ดาวน์ลิงก์ p95 {0} Hz, อัปลิงก์ p95 {1} Hz ในพาสสลูสูง</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingAction">
+    <value>เพิ่มเวลาลีด (ปัจจุบัน {0} ms) หรือความแรงลีด ({1}%) และตรวจว่าหน่วง CAT ไม่มากเกินไป</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralTitle">
+    <value>สถานะลีดดอปเพลอร์</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralDetail">
+    <value>ลีดทำงานใน {0}% ของแถว สลูสูงสุด {1} Hz/s</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralAction">
+    <value>ปรับละเอียดด้วยโหมดเปรียบเทียบ หลังเปลี่ยนเวลาลีดหรือความแรงเล็กน้อย</value>
+  </data>
+  <data name="DopplerInsights.Settings.Empty">
+    <value>ไม่พบหมายเหตุการตั้งค่าในไฟล์ล็อกนี้</value>
+  </data>
+  <data name="DopplerInsights.Settings.Inferred">
+    <value>อนุมานจากแถวล็อก: เกณฑ์พื้นฐานประมาณ {0} Hz, ลีดทำงาน {1}% ของแถว, การลดแบบปรับได้ประมาณ {2}%</value>
+  </data>
+  <data name="DopplerInsights.Settings.Value">
+    <value>เกณฑ์เชิงเส้น {0} Hz, หน่วง CAT {1} ms, แบบปรับได้ {2}, ลีดดอปเพลอร์ {3}, เวลาลีด {4} ms, ความแรงลีด {5}%</value>
+  </data>
+  <data name="DopplerInsights.Settings.Enabled">
+    <value>เปิด</value>
+  </data>
+  <data name="DopplerInsights.Settings.Disabled">
+    <value>ปิด</value>
+  </data>
+  <data name="DopplerInsights.Phase.Aos">
+    <value>AOS (เริ่ม)</value>
+  </data>
+  <data name="DopplerInsights.Phase.Rising">
+    <value>ขาขึ้น</value>
+  </data>
+  <data name="DopplerInsights.Phase.Tca">
+    <value>ใกล้ TCA</value>
+  </data>
+  <data name="DopplerInsights.Phase.Descending">
+    <value>ขาลง</value>
+  </data>
+  <data name="DopplerInsights.Phase.Los">
+    <value>LOS (จบ)</value>
+  </data>
+  <data name="DopplerInsights.Phase.Summary">
+    <value>คลาดเคลื่อนดาวน์ลิงก์ p95 {0} Hz · การเขียน CAT {1}% · สลูสูงสุด {2} Hz/s · มุมเงยสูงสุด {3}°</value>
+  </data>
+  <data name="Window.RotatorManual.Title">
+    <value>ควบคุมโรเตอร์ด้วยตนเอง</value>
+  </data>
+  <data name="Window.SatelliteDatabase.Title">
+    <value>ฐานข้อมูลทรานสปอนเดอร์</value>
+  </data>
+  <data name="Dx.Title">
+    <value>สถานี DX</value>
+  </data>
+  <data name="Dx.GridWatermark">
+    <value>กริด Maidenhead (เช่น JO22 หรือ JO22lk)</value>
+  </data>
+  <data name="Dx.AzTheirSky">
+    <value>Az (ท้องฟ้าฝั่งเขา)</value>
+  </data>
+  <data name="Dx.ElTheirSky">
+    <value>El (ท้องฟ้าฝั่งเขา)</value>
+  </data>
+  <data name="Dx.Clear">
+    <value>ล้าง</value>
+  </data>
+  <data name="Dx.CollapseExpand">
+    <value>ขยายแผงสถานี DX</value>
+  </data>
+  <data name="Dx.CollapseCompact">
+    <value>ย่อเป็นมุมมองกะทัดรัด</value>
+  </data>
+  <data name="Dx.MapLauncher.Active">
+    <value>แสดงตัวติดตามสถานี DX</value>
+  </data>
+  <data name="Dx.MapLauncher.Inactive">
+    <value>กรอกกริดสแควร์ของสถานีปลายทาง</value>
+  </data>
+  <data name="Dx.Validation.MinChars">
+    <value>กรอกอย่างน้อย 4 ตัวอักษร (เช่น JO22 หรือ JO22lk)</value>
+  </data>
+  <data name="Dx.Validation.InvalidGrid">
+    <value>กริดสแควร์ Maidenhead ไม่ถูกต้อง</value>
+  </data>
+  <data name="Dx.Collapsed.BelowHorizon">
+    <value>{0} · ต่ำกว่าขอบฟ้า</value>
+  </data>
+  <data name="Dx.Collapsed.AzElPending">
+    <value>{0} · Az – · El –</value>
+  </data>
+  <data name="Dx.Collapsed.AzEl">
+    <value>{0} · Az {1} · El {2}</value>
+  </data>
+  <data name="Freq.SelectSatellite">
+    <value>เลือกดาวเทียม</value>
+  </data>
+  <data name="Freq.SelectSatelliteHint">
+    <value>เลือกดาวเทียมบนแผนที่หรือจากพาสที่กำลังจะมาถึง</value>
+  </data>
+  <data name="Freq.NoTransponder">
+    <value>ไม่มีข้อมูลทรานสปอนเดอร์สำหรับดาวเทียมนี้</value>
+  </data>
+  <data name="Freq.CollapsedNoTransponder">
+    <value>{0} · ไม่มีข้อมูลทรานสปอนเดอร์</value>
+  </data>
+  <data name="Freq.CwSuffix">
+    <value> · CW</value>
+  </data>
+  <data name="Freq.CollapseExpand">
+    <value>ขยายแผงความถี่</value>
+  </data>
+  <data name="Freq.CollapseCompact">
+    <value>ย่อเป็นมุมมองกะทัดรัด</value>
+  </data>
+  <data name="Freq.TransponderMode">
+    <value>โหมดทรานสปอนเดอร์</value>
+  </data>
+  <data name="Freq.UplinkTx">
+    <value>อัปลิงก์ (TX)</value>
+  </data>
+  <data name="Freq.DownlinkRx">
+    <value>ดาวน์ลิงก์ (RX)</value>
+  </data>
+  <data name="Freq.Sat">
+    <value>Sat</value>
+  </data>
+  <data name="Freq.Radio">
+    <value>วิทยุ</value>
+  </data>
+  <data name="Freq.DopplerLeadEnabled">
+    <value>เปิดลีดดอปเพลอร์แล้ว: กำลังรอช่วงพาสที่ชัน</value>
+  </data>
+  <data name="Freq.DopplerLeadActive">
+    <value>ลีดดอปเพลอร์ทำงาน: CAT กำลังทำนายล่วงหน้าในแถววิทยุ</value>
+  </data>
+  <data name="Freq.LeadTuningTitle">
+    <value>จูนลีด CAT</value>
+  </data>
+  <data name="Freq.LeadTuningHint">
+    <value>เฉพาะวาระนี้: กด L เพื่อซ่อน ค่ามีผลทันที; ใช้ การตั้งค่า → วิทยุ แล้วบันทึกเพื่อคงไว้หลังรีสตาร์ท</value>
+  </data>
+  <data name="Freq.DopplerFull">
+    <value>เต็ม</value>
+  </data>
+  <data name="Freq.DopplerTx">
+    <value>TX</value>
+  </data>
+  <data name="Freq.DopplerRx">
+    <value>RX</value>
+  </data>
+  <data name="Freq.DopplerTxFixedToolTip">
+    <value>TX คงที่: ดอปเพลอร์ดาวน์ลิงก์เท่านั้น (SatPC32 TX-Fixed) อัปลิงก์อยู่ที่จุด CQ ของคุณ</value>
+  </data>
+  <data name="Freq.DopplerRxFixedToolTip">
+    <value>RX คงที่: ดอปเพลอร์อัปลิงก์เท่านั้น (SatPC32 RX-Fixed) ดาวน์ลิงก์อยู่กับที่</value>
+  </data>
+  <data name="Freq.Ctcss">
+    <value>CTCSS</value>
+  </data>
+  <data name="Freq.CtcssAccess">
+    <value>Access</value>
+  </data>
+  <data name="Freq.CtcssArm">
+    <value>Arm</value>
+  </data>
+  <data name="Freq.RxOffsetKHz">
+    <value>ออฟเซ็ต RX (kHz)</value>
+  </data>
+  <data name="Freq.TxOffsetKHz">
+    <value>ออฟเซ็ต TX (kHz)</value>
+  </data>
+  <data name="Freq.OffsetToggleRx">
+    <value>RX</value>
+  </data>
+  <data name="Freq.OffsetToggleTx">
+    <value>TX</value>
+  </data>
+  <data name="Freq.OffsetLegToggleToolTip">
+    <value>สลับออฟเซ็ตระหว่างดาวน์ลิงก์ (RX) และอัปลิงก์ (TX) ออฟเซ็ตที่เก็บไว้ทั้งสองข้างมีผลพร้อมกัน</value>
+  </data>
+  <data name="Freq.StoreOffset">
+    <value>เก็บออฟเซ็ต</value>
+  </data>
+  <data name="Freq.PassbandTrimTitle">
+    <value>ปรับพาสแบนด์ (ลูกบิดหลัก)</value>
+  </data>
+  <data name="Freq.PassbandTrimSummary">
+    <value>ดาวน์ลิงก์ {0} · อัปลิงก์ {1}</value>
+  </data>
+  <data name="Freq.ClearPassbandTrim">
+    <value>ล้างการปรับพาสแบนด์</value>
+  </data>
+  <data name="Freq.ClearPassbandTrimToolTip">
+    <value>พับการไล่ลูกบิดหลักครั้งนี้เข้ากับออฟเซ็ตบนแผงด้านบน แล้วกลับไปติดตามดอปเพลอร์โดยไม่ต้องจับมือ ความถี่วิทยุจะไม่กระโดด</value>
+  </data>
+  <data name="Freq.PassbandTrimCleared">
+    <value>ล้างการปรับพาสแบนด์แล้ว และนำไปใช้ออฟเซ็ตบนแผงแล้ว</value>
+  </data>
+  <data name="Freq.Voice">
+    <value>เสียงพูด</value>
+  </data>
+  <data name="Freq.ReportStatus">
+    <value>รายงาน</value>
+  </data>
+  <data name="Freq.ReportStatusToolTip">
+    <value>รายงานสถานะดาวเทียมไป OscarWatch.org สำหรับดาวเทียมและโหมดที่โฟกัส (มุมเงยต้องอย่างน้อย −1°)</value>
+  </data>
+  <data name="Freq.StoredOffsetCleared">
+    <value>ล้างออฟเซ็ตที่เก็บไว้แล้ว</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedCw">
+    <value>ล้างออฟเซ็ต CW ที่เก็บไว้แล้ว</value>
+  </data>
+  <data name="Freq.StoredOffset">
+    <value>เก็บออฟเซ็ต {0} Hz แล้ว</value>
+  </data>
+  <data name="Freq.StoredOffsetCw">
+    <value>เก็บออฟเซ็ต CW {0} Hz แล้ว</value>
+  </data>
+  <data name="Freq.StoredOffsetTx">
+    <value>เก็บออฟเซ็ต TX {0} Hz แล้ว</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedTx">
+    <value>ล้างออฟเซ็ต TX ที่เก็บไว้แล้ว</value>
+  </data>
+  <data name="Freq.StoredOffsetCwTx">
+    <value>เก็บออฟเซ็ต CW TX {0} Hz แล้ว</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedCwTx">
+    <value>ล้างออฟเซ็ต CW TX ที่เก็บไว้แล้ว</value>
+  </data>
+  <data name="Freq.OffsetOnDownlinkTuneUplink">
+    <value>{0} บนดาวน์ลิงก์ จูนลูกบิดหลักสำหรับอัปลิงก์</value>
+  </data>
+  <data name="Freq.OffsetOnDownlink">
+    <value>{0} บนดาวน์ลิงก์</value>
+  </data>
+  <data name="Freq.OffsetOnUplink">
+    <value>{0} บนอัปลิงก์</value>
+  </data>
+  <data name="Freq.OffsetOnUplinkTuneDownlink">
+    <value>{0} บนอัปลิงก์ จูนลูกบิดหลักสำหรับดาวน์ลิงก์</value>
+  </data>
+  <data name="Freq.OffsetOnBothLegs">
+    <value>{0} บนดาวน์ลิงก์, {1} บนอัปลิงก์</value>
+  </data>
+  <data name="Freq.OffsetOnBothLegsRev">
+    <value>{0} บนดาวน์ลิงก์, {1} บนอัปลิงก์ จูนลูกบิดหลักสำหรับอีกขา</value>
+  </data>
+  <data name="Freq.DownlinkOnlyTuneUplink">
+    <value>ดาวน์ลิงก์เท่านั้น จูนลูกบิดหลักสำหรับอัปลิงก์</value>
+  </data>
+  <data name="Freq.OffsetsDownlinkOnly">
+    <value>ออฟเซ็ตเฉพาะดาวน์ลิงก์</value>
+  </data>
+  <data name="Freq.TxFixedOffsetHint">
+    <value>TX คงที่ (ดอปเพลอร์ดาวน์ลิงก์เท่านั้น) {0}</value>
+  </data>
+  <data name="Freq.RxFixedOffsetHint">
+    <value>RX คงที่ (ดอปเพลอร์อัปลิงก์เท่านั้น) {0}</value>
+  </data>
+  <data name="Freq.DopplerFullHint">
+    <value>เต็ม: อัปลิงก์และดาวน์ลิงก์ติดตามดอปเพลอร์ทั้งคู่</value>
+  </data>
+  <data name="Freq.DopplerTxFixedHint">
+    <value>TX คงที่: อัปลิงก์อยู่กับที่; ดาวน์ลิงก์ติดตามดอปเพลอร์ (CQ ขณะโรว์)</value>
+  </data>
+  <data name="Freq.DopplerRxFixedHint">
+    <value>RX คงที่: ดาวน์ลิงก์อยู่กับที่; อัปลิงก์ติดตามดอปเพลอร์</value>
+  </data>
+  <data name="Freq.OperatingCwSideband">
+    <value>CW บนอัปลิงก์; รับยังเป็น USB/LSB กด Ctrl+W เพื่อสลับ</value>
+  </data>
+  <data name="Freq.OperatingCwBoth">
+    <value>CW ทั้งอัปลิงก์และดาวน์ลิงก์ กด Ctrl+W เพื่อสลับ</value>
+  </data>
+  <data name="Freq.OperatingVoice">
+    <value>เสียงพูดใช้โหมดจากฐานข้อมูล Ctrl+W สลับเป็น CW</value>
+  </data>
+  <data name="Settings.Station.DisplayName">
+    <value>ชื่อที่แสดง</value>
+  </data>
+  <data name="Settings.Station.Callsign">
+    <value>สัญญาณเรียกขาน</value>
+  </data>
+  <data name="Settings.Station.CallsignNote">
+    <value>ใช้เมื่อโพสต์แอคทิเวชันดาวเทียมไป hams.at คุณยังแก้ไขได้ในกล่องโต้ตอบโพสต์</value>
+  </data>
+  <data name="Settings.Station.Latitude">
+    <value>ละติจูด (°)</value>
+  </data>
+  <data name="Settings.Station.Longitude">
+    <value>ลองจิจูด (°)</value>
+  </data>
+  <data name="Settings.Station.GridSquare">
+    <value>กริดสแควร์ Maidenhead</value>
+  </data>
+  <data name="Settings.Station.GridSquareNote">
+    <value>โลเคเตอร์ตัวพิมพ์ใหญ่จากฟิลด์ (IO) สูงสุด 8 ตัวอักษร บนเส้นกริด ให้คั่นช่องด้วยจุลภาค (เช่น IO77,IO87)</value>
+  </data>
+  <data name="Settings.Station.Altitude">
+    <value>ความสูงเหนือระดับน้ำทะเล (ม.)</value>
+  </data>
+  <data name="Settings.Station.HorizonMask">
+    <value>หน้ากากขอบฟ้า</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskHelp">
+    <value>เส้นขอบฟ้าทางเลือกสำหรับต้นไม้, อาคาร และเนินเขา คลิกพล็อตเชิงขั้วเพื่อเพิ่มจุด; ลากเพื่อย้าย; คลิกขวาเพื่อลบ ว่างหมายถึงไม่ใช้ (ใช้แค่มุมเงยต่ำสุดของการติดตาม) เวลาพาสใช้ค่าที่สูงกว่าของหน้ากากและค่าต่ำสุดนั้นในแต่ละอะซิมัท ไม่ได้สั่งโรเตอร์; ใช้ เริ่มติดตามที่มุมเงย สำหรับเรื่องนั้น</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskSummary">
+    <value>เส้นขอบฟ้าทางเลือกสำหรับต้นไม้, อาคาร และเนินเขา ว่างหมายถึงไม่ใช้ (ใช้แค่มุมเงยต่ำสุดของการติดตาม) ไม่ได้สั่งโรเตอร์</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskEdit">
+    <value>แก้ไขหน้ากากขอบฟ้า</value>
+  </data>
+  <data name="Window.HorizonMaskEditor.Title">
+    <value>หน้ากากขอบฟ้า</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskClear">
+    <value>ล้างหน้ากาก</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskAz">
+    <value>Az (°)</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskEl">
+    <value>El (°)</value>
+  </data>
+  <data name="Settings.Gps.Title">
+    <value>GPS</value>
+  </data>
+  <data name="Settings.Gps.Intro">
+    <value>GPS NMEA แบบอนุกรม หรือ gpsd บนเครือข่าย สำหรับตำแหน่งสถานี (ละติจูด/ลองจิจูด, กริดสแควร์, ความสูง) และ UTC ทางเลือกสำหรับการติดตาม</value>
+  </data>
+  <data name="Settings.Gps.Connection">
+    <value>การเชื่อมต่อ</value>
+  </data>
+  <data name="Settings.Gps.Connection.Serial">
+    <value>อนุกรม (พอร์ต COM)</value>
+  </data>
+  <data name="Settings.Gps.Connection.Gpsd">
+    <value>gpsd (เครือข่าย)</value>
+  </data>
+  <data name="Settings.Gps.GpsdHost">
+    <value>โฮสต์ gpsd</value>
+  </data>
+  <data name="Settings.Gps.GpsdPort">
+    <value>พอร์ต gpsd</value>
+  </data>
+  <data name="Settings.Gps.GpsdNote">
+    <value>เชื่อมต่อกับดีมอน gpsd ที่กำลังทำงาน (พอร์ตเริ่มต้น 2947) พบได้ทั่วไปบน Linux หรือ Raspberry Pi เมื่อ GPS ถูกแชร์บนเครือข่ายอยู่แล้ว</value>
+  </data>
+  <data name="Settings.Gps.Enable">
+    <value>เปิดใช้ GPS</value>
+  </data>
+  <data name="Settings.Gps.AutoUpdateStation">
+    <value>อัปเดตตำแหน่งสถานีอัตโนมัติจาก GPS ที่ล็อกแล้ว</value>
+  </data>
+  <data name="Settings.Gps.UseAltitude">
+    <value>อัปเดตความสูงจาก GGA</value>
+  </data>
+  <data name="Settings.Gps.UseTimeForTracking">
+    <value>ใช้ UTC จาก GPS สำหรับการติดตามดาวเทียม</value>
+  </data>
+  <data name="Settings.Gps.UseTimeNote">
+    <value>ใช้เวลา GPS สำหรับการคำนวณวงโคจรเท่านั้น ไม่ได้เปลี่ยนนาฬิการะบบ Windows</value>
+  </data>
+  <data name="Settings.Gps.MinSatellites">
+    <value>จำนวนดาวเทียมต่ำสุดสำหรับการล็อก</value>
+  </data>
+  <data name="Settings.Gps.RefreshStatus">
+    <value>รีเฟรชสถานะ</value>
+  </data>
+  <data name="Settings.Gps.ApplyFix">
+    <value>นำตำแหน่งที่ล็อกไปใช้กับสถานี</value>
+  </data>
+  <data name="Settings.Gps.StatusDisabled">
+    <value>ปิด GPS อยู่</value>
+  </data>
+  <data name="Settings.Gps.StatusNoPort">
+    <value>เลือกพอร์ต COM สำหรับ GPS</value>
+  </data>
+  <data name="Settings.Gps.StatusNoGpsdHost">
+    <value>กรอกชื่อโฮสต์หรือที่อยู่ IP ของ gpsd</value>
+  </data>
+  <data name="Settings.Gps.StatusNotConnected">
+    <value>ยังไม่ได้เชื่อมต่อ GPS</value>
+  </data>
+  <data name="Settings.Gps.StatusNotConnectedDetail">
+    <value>ยังไม่ได้เชื่อมต่อ GPS: {0}</value>
+  </data>
+  <data name="Settings.Gps.StatusNoFix">
+    <value>เชื่อมต่อแล้ว: กำลังรอการล็อก GPS</value>
+  </data>
+  <data name="Settings.Gps.StatusFix">
+    <value>ล็อกแล้ว: {0}°, {1}° ({2} ดวง)</value>
+  </data>
+  <data name="Settings.Tle.Source">
+    <value>แหล่งแคตตาล็อก TLE</value>
+  </data>
+  <data name="Settings.Tle.SourceNote">
+    <value>แหล่งในตัวของ OscarWatch และ AMSAT.org ใช้ชุดธาตุ GP แบบ JSON URL กำหนดเองและไฟล์ในเครื่องเป็น JSON หรือข้อความ TLE สามบรรทัดแบบคลาสสิกได้</value>
+  </data>
+  <data name="Settings.Tle.DownloadUrl">
+    <value>URL ดาวน์โหลด</value>
+  </data>
+  <data name="Settings.Tle.LocalFile">
+    <value>ไฟล์ TLE ในเครื่อง</value>
+  </data>
+  <data name="Settings.Tle.LocalFileWatermark">
+    <value>เส้นทางไปยังไฟล์ .json, .txt หรือ .tle</value>
+  </data>
+  <data name="Settings.Tle.Updates">
+    <value>การอัปเดต TLE</value>
+  </data>
+  <data name="Settings.Tle.UpdatesNote">
+    <value>การดาวน์โหลดอัตโนมัติใช้กับ OscarWatch และ URL กำหนดเองเท่านั้น ไฟล์ในเครื่องจะถูกอ่านใหม่เมื่อคุณบันทึกการตั้งค่า หรือเลือก ดาวเทียม → รีเฟรช TLE</value>
+  </data>
+  <data name="Settings.Tle.Source.OscarWatch">
+    <value>OscarWatch (tle.oscarwatch.org)</value>
+  </data>
+  <data name="Settings.Tle.Source.Amsat">
+    <value>AMSAT.org (แถลงการณ์ GP แบบ JSON)</value>
+  </data>
+  <data name="Settings.Tle.Source.CustomUrl">
+    <value>URL กำหนดเอง</value>
+  </data>
+  <data name="Settings.Tle.Source.LocalFile">
+    <value>ไฟล์ในเครื่อง</value>
+  </data>
+  <data name="Settings.Tle.Update.Manual">
+    <value>ด้วยตนเองเท่านั้น</value>
+  </data>
+  <data name="Settings.Tle.Update.OnStartup">
+    <value>เมื่อเริ่มต้น (หากเก่ากว่า 6 ชั่วโมง)</value>
+  </data>
+  <data name="Settings.Tle.Update.EverySixHours">
+    <value>ทุก 6 ชั่วโมงขณะทำงาน</value>
+  </data>
+  <data name="Settings.Tracking.MinElevation">
+    <value>มุมเงยต่ำสุด (°)</value>
+  </data>
+  <data name="Settings.Tracking.PassWindow">
+    <value>หน้าต่างพยากรณ์พาส (ชั่วโมง)</value>
+  </data>
+  <data name="Settings.Tracking.PassWindowNote">
+    <value>ใช้สำหรับรายการพาสที่กำลังจะมาถึง และเป็นค่าเริ่มต้นในตัววางแผนพาส</value>
+  </data>
+  <data name="Settings.Tracking.TransponderCheck">
+    <value>ตรวจการอัปเดตฐานข้อมูลทรานสปอนเดอร์เมื่อเริ่มต้น</value>
+  </data>
+  <data name="Settings.Tracking.TransponderCheckNote">
+    <value>ดาวน์โหลด tle.oscarwatch.org/satellite_database.json เมื่อมีการอัปเดต จะเสนอให้รวมดาวเทียมและโหมดใหม่; การแก้ไขในเครื่องของคุณจะถูกเก็บไว้ เว้นแต่คุณยอมรับการเปลี่ยนแปลงที่เผยแพร่</value>
+  </data>
+  <data name="Settings.AppUpdate.Enabled">
+    <value>ตรวจหาการอัปเดตแอปเมื่อเริ่มต้น และทุกวันขณะทำงาน</value>
+  </data>
+  <data name="Settings.AppUpdate.EnabledNote">
+    <value>เปรียบเทียบกับรุ่นล่าสุดบน GitHub คุณยังตรวจได้จากความช่วยเหลือ</value>
+  </data>
+  <data name="Settings.Theme.System">
+    <value>ตามระบบ</value>
+  </data>
+  <data name="Settings.Theme.Light">
+    <value>สว่าง</value>
+  </data>
+  <data name="Settings.Theme.Dark">
+    <value>มืด</value>
+  </data>
+  <data name="Settings.Voice.Enable">
+    <value>เปิดประกาศด้วยเสียง</value>
+  </data>
+  <data name="Settings.Voice.EnableNote">
+    <value>ประกาศดาวเทียมที่เปิดใช้แต่ละดวงครั้งละหนึ่งครั้งต่อพาส เมื่อมุมเงยผ่านเกณฑ์ขณะขาขึ้น เช่น: Alpha Oscar Zero Seven กำลังขึ้น</value>
+  </data>
+  <data name="Settings.Voice.AnnounceElevation">
+    <value>ประกาศที่มุมเงย (°)</value>
+  </data>
+  <data name="Settings.Voice.AnnounceElevationNote">
+    <value>ค่าเริ่มต้นคือ -3° การประกาศจะเกิดเมื่อมุมเงยขึ้นผ่านค่านี้ (ค่าลบจับดาวเทียมก่อนพ้นขอบฟ้า)</value>
+  </data>
+  <data name="Settings.Voice.VoiceLabel">
+    <value>เสียงพูด</value>
+  </data>
+  <data name="Settings.Voice.SpeechUnavailable">
+    <value>ข้อความเป็นเสียงไม่พร้อมใช้งานบนระบบนี้</value>
+  </data>
+  <data name="Settings.Voice.Preview">
+    <value>ตัวอย่าง</value>
+  </data>
+  <data name="Settings.Voice.TestAnnouncement">
+    <value>ทดสอบการประกาศ</value>
+  </data>
+  <data name="Settings.PassSchedule.Section">
+    <value>พาสที่ตั้งเวลาไว้</value>
+  </data>
+  <data name="Settings.PassSchedule.Note">
+    <value>ทำเครื่องหมายพาสเป็นตั้งเวลาแล้วใน พาสที่กำลังจะมาถึง หรือตัววางแผนพาส OscarWatch จะเล่นเสียงติ๊งและแสดงการแจ้งเตือนก่อน AOS ขณะแอปทำงานอยู่</value>
+  </data>
+  <data name="Settings.PassSchedule.LeadMinutes">
+    <value>นาทีที่แจ้งเตือนก่อน AOS</value>
+  </data>
+  <data name="Settings.PassSchedule.SoundEnabled">
+    <value>เล่นเสียงติ๊ง</value>
+  </data>
+  <data name="Settings.PassSchedule.AlertEnabled">
+    <value>แสดงหน้าต่างแจ้งเตือน</value>
+  </data>
+  <data name="Settings.PassSchedule.TestSound">
+    <value>ทดสอบเสียง</value>
+  </data>
+  <data name="Settings.Radio.Enable">
+    <value>เปิดการควบคุมวิทยุ</value>
+  </data>
+  <data name="Settings.Radio.DualEnable">
+    <value>วิทยุคู่ (ดาวน์ลิงก์และอัปลิงก์แยก: FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, IC-7100, ชุด IC-706, TH-D74/D75 หรือผสม)</value>
+  </data>
+  <data name="Settings.Radio.DualIncompleteBoth">
+    <value>เลือกพอร์ต COM สำหรับทั้งวิทยุดาวน์ลิงก์และอัปลิงก์</value>
+  </data>
+  <data name="Settings.Radio.DualIncompleteDownlink">
+    <value>เลือกพอร์ต COM สำหรับวิทยุดาวน์ลิงก์</value>
+  </data>
+  <data name="Settings.Radio.DualIncompleteUplink">
+    <value>เลือกพอร์ต COM สำหรับวิทยุอัปลิงก์</value>
+  </data>
+  <data name="Settings.Radio.Driver">
+    <value>ไดรเวอร์วิทยุ</value>
+  </data>
+  <data name="Settings.Radio.Label">
+    <value>วิทยุ</value>
+  </data>
+  <data name="Settings.Radio.SerialPort">
+    <value>พอร์ตอนุกรม</value>
+  </data>
+  <data name="Settings.Radio.SelectComPort">
+    <value>เลือกหรือพิมพ์พอร์ตอนุกรม</value>
+  </data>
+  <data name="Settings.Radio.SerialPortLinuxHint">
+    <value>บน Linux เลือกนามแฝง udev หรือรายการ /dev/serial/by-id/… เพื่อให้พอร์ตคงที่หลังรีบูต คุณยังพิมพ์เส้นทางกำหนดเอง เช่น /dev/USB821H ได้</value>
+  </data>
+  <data name="Settings.Radio.BaudRate">
+    <value>อัตราบอด</value>
+  </data>
+  <data name="Settings.Radio.CivAddress">
+    <value>ที่อยู่ CI-V (เลขฐานสิบหก)</value>
+  </data>
+  <data name="Settings.Radio.CivHint">
+    <value>IC-9700 ค่าเริ่มต้น A2, IC-910 ค่าเริ่มต้น 7C (เลขฐานสิบหก) ใช้ 60 หากวิทยุตั้งไว้เช่นนั้นในเมนู CI-V</value>
+  </data>
+  <data name="Settings.Radio.Ft847Hint">
+    <value>FT-847: ตั้งบอด CAT ในเมนูวิทยุ #37 (โดยทั่วไป 57600) ใช้แจ็ค CAT/LINEAR กับตัวแปลงระดับ (เช่น CT-62)</value>
+  </data>
+  <data name="Settings.Radio.Ts2000Hint">
+    <value>TS-2000: CAT 57600 8N1 เลือก SAT บนวิทยุและปิดโหมดหน่วยความจำก่อนติดตาม; จากนั้น OscarWatch จะเปิด SATL ผ่าน CAT (โครง SA/FA/FB) สลับย่าน VHF/UHF อัตโนมัติ</value>
+  </data>
+  <data name="Settings.Radio.Ts2000HardwareRts">
+    <value>RTS ฮาร์ดแวร์ (ควบคุมการไหล)</value>
+  </data>
+  <data name="Settings.Radio.Ts2000HardwareRtsNote">
+    <value>เปิดไว้สำหรับสาย CAT เต็มที่ส่ง RTS (จำเป็นสำหรับการตอบกลับของวิทยุ) ปิดหากสายหรืออะแดปเตอร์ไม่มีฮาร์ดแวร์ควบคุมการไหล</value>
+  </data>
+  <data name="Settings.Radio.Ts2000Trace">
+    <value>TRACE / TRACE REV ใน SATL</value>
+  </data>
+  <data name="Settings.Radio.Ts2000TraceNote">
+    <value>เปิดไว้สำหรับการติดตามความถี่ในตัวของวิทยุ ปิดเมื่อ OscarWatch จัดการดอปเพลอร์ (แนะนำสำหรับการติดตาม CAT จากพีซี); ลองทั้งสองแบบหากไม่แน่ใจ</value>
+  </data>
+  <data name="Settings.Radio.Region">
+    <value>ภูมิภาค</value>
+  </data>
+  <data name="Settings.Radio.RegionNote">
+    <value>EU ใช้โทน; USA ใช้ tone squelch (ซับโทน)</value>
+  </data>
+  <data name="Settings.Radio.CatDelay">
+    <value>หน่วง CAT (ms)</value>
+  </data>
+  <data name="Settings.Radio.CatDelayNote">
+    <value>เวลาต่ำสุดระหว่างคำสั่ง CAT เพื่อปกป้องลิงก์อนุกรม</value>
+  </data>
+  <data name="Settings.Radio.Downlink">
+    <value>วิทยุดาวน์ลิงก์</value>
+  </data>
+  <data name="Settings.Radio.SdrRigCtl">
+    <value>SDR (rigctl TCP)</value>
+  </data>
+  <data name="Settings.Radio.DummyUplink">
+    <value>อัปลิงก์จำลอง (RX เท่านั้น)</value>
+  </data>
+  <data name="Settings.Radio.SdrHost">
+    <value>โฮสต์ rigctl</value>
+  </data>
+  <data name="Settings.Radio.SdrPort">
+    <value>พอร์ต rigctl</value>
+  </data>
+  <data name="Settings.Radio.SdrPresetSdrPlus">
+    <value>พรีเซ็ต SDR++ (4532)</value>
+  </data>
+  <data name="Settings.Radio.SdrPresetSdrConnect">
+    <value>พรีเซ็ต SDR Connect (5454)</value>
+  </data>
+  <data name="Settings.Radio.SdrTestConnection">
+    <value>ทดสอบการเชื่อมต่อ rigctl</value>
+  </data>
+  <data name="Settings.Radio.SdrTesting">
+    <value>กำลังทดสอบการเชื่อมต่อ rigctl…</value>
+  </data>
+  <data name="Settings.Radio.SdrEnterHostPort">
+    <value>กรอกโฮสต์และพอร์ตที่ถูกต้อง</value>
+  </data>
+  <data name="Settings.Radio.SdrConnectionOk">
+    <value>การเชื่อมต่อ rigctl ปกติ: อ่านความถี่สำเร็จ</value>
+  </data>
+  <data name="Settings.Radio.SdrConnectionFailed">
+    <value>การเชื่อมต่อ rigctl ล้มเหลว: {0}</value>
+  </data>
+  <data name="Settings.Radio.SdrHint">
+    <value>เปิดเซิร์ฟเวอร์ rigctl ใน SDR++ (Module Manager → rigctl_server) หรือ SDR Connect แล้วให้โฮสต์และพอร์ตตรงกัน OscarWatch ส่งความถี่ RX ดอปเพลอร์และอ่าน VFO ของวอเตอร์ฟอลล์สำหรับการปรับพาสแบนด์ ใช้หน่วง CAT 100 ms ขึ้นไปบนดาวน์ลิงก์</value>
+  </data>
+  <data name="Settings.Radio.FlexSmartSdr">
+    <value>FlexRadio (SmartSDR)</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscovered">
+    <value>วิทยุที่พบ</value>
+  </data>
+  <data name="Settings.Radio.FlexHost">
+    <value>โฮสต์ SmartSDR</value>
+  </data>
+  <data name="Settings.Radio.FlexPort">
+    <value>พอร์ต SmartSDR</value>
+  </data>
+  <data name="Settings.Radio.FlexTestConnection">
+    <value>ทดสอบการเชื่อมต่อ SmartSDR</value>
+  </data>
+  <data name="Settings.Radio.FlexTesting">
+    <value>กำลังทดสอบการเชื่อมต่อ SmartSDR…</value>
+  </data>
+  <data name="Settings.Radio.FlexEnterHostPort">
+    <value>กรอกโฮสต์และพอร์ตที่ถูกต้อง</value>
+  </data>
+  <data name="Settings.Radio.FlexConnectionOk">
+    <value>การเชื่อมต่อ SmartSDR ปกติ</value>
+  </data>
+  <data name="Settings.Radio.FlexConnectionFailed">
+    <value>การเชื่อมต่อ SmartSDR ล้มเหลว: {0}</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscoveryListening">
+    <value>กำลังฟังวิทยุ Flex บน UDP 4992…</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscoveryFound">
+    <value>พบวิทยุ Flex {0} เครื่องบน LAN</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscoveryFailed">
+    <value>การค้นหา Flex ล้มเหลว: {0}</value>
+  </data>
+  <data name="Settings.Radio.FlexHint">
+    <value>เลือกวิทยุที่พบหรือกรอก IP ด้วยตนเอง (พอร์ต TCP 4992) OscarWatch เชื่อมต่อตรงกับวิทยุผ่าน SmartSDR TCP/IP API (ไม่ได้ควบคุม SmartSDR for Windows อัตโนมัติ) เปิดฟูลดูเพล็กซ์ และขับสไลซ์ RX/TX แยกสำหรับดอปเพลอร์ ใช้แผนผังพอร์ตเสาด้านล่างเมื่อทรานส์เวอร์เตอร์ใช้เส้นทาง RX A/RX B หรือ ANT/XVTR คนละแบบต่อย่าน รุ่น dual-SCU จำเป็นสำหรับฟูลดูเพล็กซ์จริง (เช่น 8600/8600M; รวม 6600/6700)</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPorts">
+    <value>พอร์ตเสาตามย่าน</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPortsHint">
+    <value>เมื่อสลับดาวเทียม U/V ↔ V/U OscarWatch ตั้งพอร์ต RX/TX ของวิทยุจากย่านดาวน์ลิงก์และอัปลิงก์ (เมื่อโฟกัสดาวเทียม / ตั้งพาส ไม่ใช่เฉพาะเมื่อนกอยู่เหนือขอบฟ้า) คงค่าเดิมจะคงพอร์ตปัจจุบันของวิทยุ RX A และ RX B รับอย่างเดียว; แมป TX ไป ANT หรือ XVTR ตามที่เดินสาย</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaLeaveUnchanged">
+    <value>คงค่าเดิม</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfRxAnt">
+    <value>รับ VHF (2 ม.)</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfRxAnt">
+    <value>รับ UHF (70 ซม.+)</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfTxAnt">
+    <value>ส่ง VHF (2 ม.)</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfTxAnt">
+    <value>ส่ง UHF (70 ซม.+)</value>
+  </data>
+  <data name="Settings.Radio.FlexDuplexWarning">
+    <value>รุ่นนี้อาจไม่รองรับฟูลดูเพล็กซ์ (SCU เดียว) การใช้ดาวเทียมโดยทั่วไปต้องใช้ Flex dual-SCU เช่น 8600/8600M (หรือวิทยุชุด 6000 แบบ dual-SCU) พร้อมการแยกสัญญาณหรือทรานส์เวอร์เตอร์ที่เหมาะสม</value>
+  </data>
+  <data name="Settings.Radio.Uplink">
+    <value>วิทยุอัปลิงก์</value>
+  </data>
+  <data name="Settings.Radio.Ic705CivHint">
+    <value>IC-705 ค่าโรงงานเริ่มต้น A4 ต้องตรงกับเมนู CI-V ของวิทยุ</value>
+  </data>
+  <data name="Settings.Radio.Ic7300CivHint">
+    <value>IC-7300 ค่าโรงงานเริ่มต้น 94H ต้องตรงกับเมนู CI-V ของวิทยุ</value>
+  </data>
+  <data name="Settings.Radio.Ic905CivHint">
+    <value>IC-905 ค่าโรงงานเริ่มต้น AC ต้องตรงกับโหมด Set ของ CI-V บนวิทยุ</value>
+  </data>
+  <data name="Settings.Radio.Ic7100CivHint">
+    <value>IC-7100 ค่าโรงงานเริ่มต้น 88H ต้องตรงกับเมนู CI-V ของวิทยุ</value>
+  </data>
+  <data name="Settings.Radio.Ic706CivHint">
+    <value>IC-706 ค่าโรงงานเริ่มต้น 48H ต้องตรงกับที่อยู่ CI-V ของวิทยุ (Initial Set Mode)</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiCivHint">
+    <value>IC-706MKII ค่าโรงงานเริ่มต้น 4CH ต้องตรงกับที่อยู่ CI-V ของวิทยุ</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiGCivHint">
+    <value>IC-706MKIIG ค่าโรงงานเริ่มต้น 58H ต้องตรงกับเมนู 34 CI-V ADDRES</value>
+  </data>
+  <data name="Settings.Radio.RefreshComPorts">
+    <value>รีเฟรชพอร์ต COM</value>
+  </data>
+  <data name="Settings.Radio.Ft817Hint">
+    <value>FT-817 / FT-818: ตั้งเมนู #14 เป็น 4800 บอดบนแต่ละเครื่อง (38400 ก็ใช้ได้) CAT 8N2: หนึ่ง COM ต่อขา ครอบคลุม HF/6 ม., 2ม. และ 70ซม. (ดาวน์ลิงก์ AO-07 Mode A บน 10 ม.) เชิงเส้น: หมุนดาวน์ลิงก์สำหรับพาสแบนด์; FM ล็อกลูกบิดขณะติดตาม</value>
+  </data>
+  <data name="Settings.Radio.Ic705Hint">
+    <value>IC-705: ตั้ง Connectors → CI-V → CI-V USB Port เป็น Link to [CI-V] (ไม่ใช่ REMOTE) ให้บอด CI-V ตรงกับการตั้งค่า (ค่าเริ่มต้น 115200) หนึ่งพอร์ต COM ต่อขา: ใช้พอร์ตที่ติดป้าย CI-V เมื่อมีสองพอร์ต</value>
+  </data>
+  <data name="Settings.Radio.Ic7300Hint">
+    <value>IC-7300: วิทยุคู่เท่านั้น ครอบคลุม HF/6 ม. (1.8–54 MHz) ให้ที่อยู่ CI-V (ค่าเริ่มต้น 94H) และบอด (ค่าเริ่มต้น 115200) ตรงกับเมนู CI-V ของวิทยุ หนึ่งพอร์ต COM ต่อขา: เหมาะกับ AO-07 Mode A โดยใช้ 7300 เป็นดาวน์ลิงก์และวิทยุ 2 ม. เป็นอัปลิงก์</value>
+  </data>
+  <data name="Settings.Radio.Ic905Hint">
+    <value>IC-905: วิทยุคู่เท่านั้น ให้ที่อยู่ CI-V (ค่าเริ่มต้น AC) และบอด (ค่าเริ่มต้น 115200) ตรงกับโหมด Set ใช้พอร์ตอนุกรม USB CI-V หนึ่งพอร์ต COM ต่อขา: ครอบคลุม VHF/UHF/SHF รวม 13 ซม., 6 ซม. และ 3 ซม.</value>
+  </data>
+  <data name="Settings.Radio.Ic7100Hint">
+    <value>IC-7100: วิทยุคู่เท่านั้น ตั้ง CI-V Output (USB) เป็น On (หรือใช้แจ็ค REMOTE) ให้ที่อยู่ CI-V (ค่าเริ่มต้น 88H) และบอด (ค่าเริ่มต้น 19200) ตรงกับเมนู CI-V หนึ่งพอร์ต COM ต่อขา: ครอบคลุม HF/6 ม., 2 ม. และ 70 ซม. (AO-07 Mode A ดาวน์ลิงก์ที่ 10 ม.); ไม่รองรับ 23 ซม.</value>
+  </data>
+  <data name="Settings.Radio.Ic706Hint">
+    <value>IC-706: CI-V ผ่านแจ็ค REMOTE (หรือ CT-17) HF/6 ม. และ 2ม. (ไม่มี 70ซม.) ตั้งที่อยู่ CI-V และบอดใน Initial Set Mode (LOCK เมื่อเปิดเครื่อง) ให้ตรงกับการตั้งค่า (ค่าเริ่มต้น 48H / 19200) แนะนำ CI-V TRN On รองรับดาวน์ลิงก์ AO-07 Mode A บน 10 ม.</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiHint">
+    <value>IC-706MKII: ตั้งค่า CI-V เหมือน IC-706 HF/6 ม. และ 2ม. (ไม่มี 70ซม.) ที่อยู่โรงงานเริ่มต้น 4CH รองรับดาวน์ลิงก์ AO-07 Mode A บน 10 ม.</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiGHint">
+    <value>IC-706MKIIG: CI-V ผ่านแจ็ค REMOTE (หรือ CT-17) ตั้งเมนู 34 CI-V ADDRES ให้ตรงกับการตั้งค่า (ค่าเริ่มต้น 58H), เมนู 35 CI-V BAUD ให้ตรงกับการตั้งค่า (ค่าเริ่มต้น 19200) และเมนู 36 CI-V TRN On ครอบคลุม HF/6 ม., 2ม. และ 70ซม. (ดาวน์ลิงก์ AO-07 Mode A บน 10 ม.); ไม่รองรับดาวเทียม 23ซม.</value>
+  </data>
+  <data name="Settings.Radio.Ft991Hint">
+    <value>FT-991 / FT-991A: ให้เมนู 031 CAT RATE ตรงกับการตั้งค่า (ค่าเริ่มต้น 38400) CAT ASCII 8N2 พร้อม RTS ฮาร์ดแวร์: ใช้พอร์ต COM USB CAT หนึ่ง COM ต่อขา FM ล็อกลูกบิด VFO-A ขณะติดตาม</value>
+  </data>
+  <data name="Settings.Radio.Ftx1Hint">
+    <value>FTX-1 Field / FTX-1optima: ให้เมนู CAT-1 RATE ตรงกับการตั้งค่า (ค่าเริ่มต้น 38400) CAT ASCII 8N2 พร้อม RTS ฮาร์ดแวร์: ใช้พอร์ต Enhanced COM (CAT-1) ไม่ใช่ CAT-2 หนึ่ง COM ต่อขา FM ล็อกลูกบิด MAIN VFO ขณะติดตาม</value>
+  </data>
+  <data name="Settings.Radio.CwSideband">
+    <value>CW เชิงเส้น: คงการรับเป็น USB/LSB (ส่ง CW เท่านั้น)</value>
+  </data>
+  <data name="Settings.Radio.CwSidebandNote">
+    <value>ใช้เมื่อแผงความถี่ตั้งเป็น CW บนดาวเทียม SSB เชิงเส้น ติ๊กคือการแยกปกติ (ส่ง CW, รับ USB/LSB) ไม่ติ๊กจะตั้งทั้งสอง VFO เป็น CW</value>
+  </data>
+  <data name="Settings.Radio.DopplerFm">
+    <value>เกณฑ์ดอปเพลอร์ FM (Hz)</value>
+  </data>
+  <data name="Settings.Radio.DopplerFmNote">
+    <value>FM / ครอสแบนด์ ISS: ต่ำกว่า = อัปเดต CAT บ่อยขึ้น (ค่าเริ่มต้น 350 Hz)</value>
+  </data>
+  <data name="Settings.Radio.DopplerSsb">
+    <value>เกณฑ์ดอปเพลอร์ SSB/CW (Hz)</value>
+  </data>
+  <data name="Settings.Radio.DopplerSsbNote">
+    <value>ส่งความถี่ไปวิทยุเมื่อคลาดเกินช่วงนี้เท่านั้น (สไตล์ SatPC32)</value>
+  </data>
+  <data name="Settings.Radio.DialSettle">
+    <value>กลับใช้ CAT หลังหมุนลูกบิด (ms)</value>
+  </data>
+  <data name="Settings.Radio.DialSettleNote">
+    <value>บน USB, LSB และ CW เชิงเส้น ลูกบิดรับต้องนิ่งนานเท่าใดก่อน OscarWatch จะกลับใช้ CAT ดอปเพลอร์ ค่าเริ่มต้น 800 ms เพิ่มหาก CAT ดึง VFO กลับขณะคุณยังจูน; ลดหากต้องการให้ติดตามกลับเร็วขึ้น</value>
+  </data>
+  <data name="Settings.Radio.UplinkResume">
+    <value>รอ CAT อัปลิงก์หลังหมุนลูกบิด (ms)</value>
+  </data>
+  <data name="Settings.Radio.UplinkResumeNote">
+    <value>บนวิทยุ Main/Sub (เช่น IC-9700) รอเพิ่มก่อน CAT อัปลิงก์หลังจากคุณหยุดหมุนลูกบิด เพื่อไม่ให้วิทยุกระโดดไป Sub ขณะสแกน ไม่มีผลกับวิทยุคู่ ค่าเริ่มต้น 2500 ms</value>
+  </data>
+  <data name="Settings.Radio.DopplerAdaptiveThreshold">
+    <value>เกณฑ์แบบปรับได้ใกล้ TCA</value>
+  </data>
+  <data name="Settings.Radio.DopplerAdaptiveThresholdNote">
+    <value>เมื่อเปิด เกณฑ์ SSB/CW เชิงเส้นจะถูกลดขณะสลูดอปเพลอร์เร็ว (โดยทั่วไปกลางพาสและหลัง TCA) ค่า SSB/CW ด้านบนยังเป็นเพดาน; เกณฑ์ที่มีผลอาจลดเหลือประมาณครึ่งหนึ่ง (ต่ำสุด 25 Hz) ปิดเป็นค่าเริ่มต้น</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLog">
+    <value>บันทึกพาสการจูนดอปเพลอร์ (CSV)</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLogNote">
+    <value>เขียน CSV หนึ่งไฟล์ต่อพาส โดยมีการเขียน CAT, สแนปช็อต 1 วินาที (ลีด, เกณฑ์แบบปรับได้, เดลต้า) และการเปลี่ยนออฟเซ็ต/ลูกบิด การบันทึกทำงานเฉพาะขณะดาวเทียมอยู่เหนือขอบฟ้า (มุมเงย ≥ 0°) บันทึกที่ AppData/OscarWatch/doppler-logs</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLogOpenFolder">
+    <value>เปิดโฟลเดอร์ล็อก</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLead">
+    <value>ลีดดอปเพลอร์สำหรับความหน่วง CAT</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadNote">
+    <value>เมื่อเปิด CAT และแถววิทยุจะทำนายดอปเพลอร์ล่วงหน้าในช่วงขาชันและหลัง TCA (เมื่ออัตราระยะเปลี่ยนเร็ว) ใกล้ TCA ลีดจะค่อย ๆ ลดลงเมื่ออัตราระยะเข้าใกล้ศูนย์ AOS ที่นุ่มนวลใช้ค่าปัจจุบัน แถว Sat ยังแสดงความถี่ยานอวกาศปัจจุบัน ปรับละเอียดด้วยเวลาลีดและความแรงด้านล่าง</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadMs">
+    <value>เวลาลีด (ms)</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadMsNote">
+    <value>0 = อัตโนมัติ (ครึ่งหนึ่งของหน่วง CAT ของคุณ, สูงสุด 50 ms หรือ 75 ms หลัง TCA) ตั้งโดยตรงเพื่อปรับว่าทำนายดอปเพลอร์ล่วงหน้าเท่าใด โดยไม่เปลี่ยนจังหวะ CAT</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadGain">
+    <value>ความแรงลีด (%)</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadGainNote">
+    <value>100 = ลีดที่คำนวณเต็มที่ ลดลงหากวิทยุรู้สึกนำหน้าสัญญาณ (ลอง 70–85) ไม่มีผลกับแถว Sat</value>
+  </data>
+  <data name="Settings.Rotator.Enable">
+    <value>เปิดใช้โรเตอร์</value>
+  </data>
+  <data name="Settings.Rotator.Type">
+    <value>ชนิดโรเตอร์</value>
+  </data>
+  <data name="Settings.Rotator.TypeNote">
+    <value>GS-232 สำหรับ Yaesu และโคลน SPID สำหรับคอนโทรลเลอร์โหมด SP (Rot1Prog / Rot2Prog) SPID MD-01 / MD-02 (TCP) สำหรับอีเทอร์เน็ตโดยตรง (โปรโตคอล SPID ROT2 พอร์ตเริ่มต้น 23) EasyComm สำหรับโหมด EC (SPID, M2 และคอนโทรลเลอร์โปรโตคอลข้อความอื่น) SAEBRTrack สำหรับอินเทอร์เฟซติดตามดาวเทียมคลาสสิก (9600 บอด) OZ9AAR URC (TCP) สำหรับ Ultimate Rotator Controller ผ่านอีเทอร์เน็ต (พอร์ตเริ่มต้น 1111; ตั้ง URC เป็นโหมด REM/remote) Green Heron RT-21 Az-El ใช้สองพอร์ต COM (อะซิมัทและมุมเงย) โปรโตคอล DCU-1 ที่ 4800 บอด; อย่าเลือก GS-232 โปรโตคอลอนุกรมยังใช้เซิร์ฟเวอร์อนุกรม TCP (เช่น ser2net) แทนพอร์ต COM ในเครื่องได้</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthPort">
+    <value>พอร์ตอนุกรมอะซิมัท</value>
+  </data>
+  <data name="Settings.Rotator.ElevationPort">
+    <value>พอร์ตอนุกรมมุมเงย</value>
+  </data>
+  <data name="Settings.Rotator.DualSerialNote">
+    <value>RT-21 Az-El มีพอร์ตอนุกรม USB สองพอร์ต (หนึ่งต่อแกน) กำหนดอะซิมัทและมุมเงยอย่างระมัดระวัง: สลับกันจะสั่งมอเตอร์ผิดตัว บน Linux ควรใช้เส้นทาง by-id ที่คงที่ เพื่อไม่ให้พอร์ตสลับหลังรีบูต</value>
+  </data>
+  <data name="Settings.Rotator.Transport">
+    <value>การเชื่อมต่อ</value>
+  </data>
+  <data name="Settings.Rotator.Transport.Serial">
+    <value>อนุกรม (พอร์ต COM)</value>
+  </data>
+  <data name="Settings.Rotator.Transport.Tcp">
+    <value>อนุกรม TCP (เช่น ser2net)</value>
+  </data>
+  <data name="Settings.Rotator.NetworkHost">
+    <value>โฮสต์</value>
+  </data>
+  <data name="Settings.Rotator.NetworkHostWatermark">
+    <value>127.0.0.1 หรือชื่อโฮสต์</value>
+  </data>
+  <data name="Settings.Rotator.NetworkPort">
+    <value>พอร์ต TCP</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNote">
+    <value>OscarWatch เชื่อมต่อเป็นลูกข่าย TCP บน URC ให้เปิดเซิร์ฟเวอร์ซ็อกเก็ตและเลือกโหมดติดตามระยะไกล (REM) เพื่อให้คำสั่ง GOTO ขยับเสา พอร์ตเริ่มต้นคือ 1111</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNoteTcpSerial">
+    <value>OscarWatch เชื่อมต่อเป็นลูกข่าย TCP ไปยังอุโมงค์อนุกรมดิบ (เช่น ser2net) ตั้งอัตราบอดและตัวเลือกอนุกรมที่เซิร์ฟเวอร์ เหมาะกับเครือข่ายภายใน ความหน่วงสูงอาจทำให้หมดเวลา</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNoteSpidMd01">
+    <value>OscarWatch เชื่อมต่อเป็นลูกข่าย TCP ไปยังพอร์ตอีเทอร์เน็ตของ MD-01 / MD-02 บนคอนโทรลเลอร์ตั้ง MOTOR CONFIGURATION เป็น ETH และโปรโตคอลเป็น SPID ROT2 พอร์ต TCP เริ่มต้นคือ 23 เชื่อมต่อได้ทีละหนึ่งลูกข่ายเท่านั้น แนะนำเฟิร์มแวร์ 1.2507 หรือใหม่กว่า</value>
+  </data>
+  <data name="Settings.Rotator.SmartAzimuth">
+    <value>อะซิมัท Smart 450° (ทางสั้นข้ามเหนือ)</value>
+  </data>
+  <data name="Settings.Rotator.SmartAzimuthNote">
+    <value>บนโรเตอร์ 450° (เช่น Yaesu G-5500) คำสั่ง 361–450° หลีกเลี่ยงการหมุนยาวกลับผ่าน 0° เมื่อพาสจะข้ามเหนือ พาสที่มุ่งเหนือแต่ยังอยู่ทางตะวันออกของ 0° จะอยู่ในย่านหลัก</value>
+  </data>
+  <data name="Settings.Rotator.ElevationRange">
+    <value>ช่วงมุมเงย</value>
+  </data>
+  <data name="Settings.Rotator.ElevationRangeNote">
+    <value>0–90° สำหรับโรเตอร์มาตรฐาน 0–180° สำหรับขาตั้งข้ามจุดสูงสุด (เช่น Yaesu G-5500) ที่ติดตามผ่านจุดจอมฟ้าได้</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSection">
+    <value>หลีกเลี่ยงคีย์โฮล</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeEnable">
+    <value>เปิดการหลีกเลี่ยงคีย์โฮล</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeNote">
+    <value>เมื่อเปิด พาสมุมเงยสูงที่โรเตอร์ตามไม่ทันใกล้จุดจอมฟ้าจะถูกวิเคราะห์ และโรเตอร์อาจจัดท่าย้อนล่วงหน้าเพื่อลดการสูญเสียสัญญาณ การหมุนจัดท่าย้อนใช้อะซิมัทที่มุมเงยเริ่มติดตาม (ไม่ต่ำกว่า 0°) ใช้ได้เฉพาะเมื่อช่วงมุมเงยเป็น 0–180°</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSlewRate">
+    <value>อัตราสลู (°/s)</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSlewRateNote">
+    <value>อัตราสลูสูงสุดของโรเตอร์เป็นองศาต่อวินาที ใช้คำนวณหน้าต่างการสูญเสียสัญญาณ</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeThreshold">
+    <value>เกณฑ์คีย์โฮล (°)</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeThresholdNote">
+    <value>มุมเงยสูงสุดขั้นต่ำที่พาสจะถูกจัดว่าเข้าโซนคีย์โฮล ช่วงที่ใช้ได้: 60–89°</value>
+  </data>
+  <data name="Settings.Rotator.TrackStart">
+    <value>เริ่มติดตามที่มุมเงย (°)</value>
+  </data>
+  <data name="Settings.Rotator.TrackStartNote">
+    <value>ค่าเริ่มต้นคือ -3° (ต่ำกว่าขอบฟ้า) ช่วง -90° ถึง 90° โรเตอร์เริ่มหมุนเมื่อดาวเทียมที่ติดตามขึ้นเหนือมุมเงยนี้ และจอดเมื่อตกลงต่ำกว่า (หลังยืนยันสั้น ๆ เพื่อไม่ให้ติ๊กผิดพลาดครั้งเดียวตัดพาส) การจัดท่าย้อนคีย์โฮลใช้มุมเงยนี้เป็นพื้น (ไม่ต่ำกว่า 0°)</value>
+  </data>
+  <data name="Settings.Rotator.MovementThreshold">
+    <value>เกณฑ์การเคลื่อนที่ (°)</value>
+  </data>
+  <data name="Settings.Rotator.MovementThresholdNote">
+    <value>การเปลี่ยนมุมต่ำสุดก่อนส่งเป้าหมายดาวเทียมใหม่ หากโรเตอร์รายงานตำแหน่งที่ยังอยู่นอกเกณฑ์นี้ คำสั่งล่าสุดจะถูกส่งอีกครั้ง เพื่อให้เอนโค้ดเดอร์ที่มีสัญญาณรบกวนซึ่งหยุดเร็วเกินไปเริ่มใหม่ การหยุดจะยกเลิกการลองนั้น ค่าต่ำกว่าให้การติดตามแน่นขึ้น; ค่าสูงกว่าลดการสึกของเฟือง ค่าเริ่มต้น: 1.0°</value>
+  </data>
+  <data name="Settings.Rotator.ParkAzimuth">
+    <value>อะซิมัทจอด (°)</value>
+  </data>
+  <data name="Settings.Rotator.ParkElevation">
+    <value>มุมเงยจอด (°)</value>
+  </data>
+  <data name="Settings.Rotator.ParkAfterPass">
+    <value>จอดโรเตอร์หลังพาส</value>
+  </data>
+  <data name="Settings.Rotator.ParkNote">
+    <value>ตำแหน่งจอดใช้เมื่อไม่มีดาวเทียมอยู่เหนือเกณฑ์การติดตาม พาสที่โฟกัสหรือดาวเทียมสดจะถูกติดตามอัตโนมัติ จอดด้วยตนเองบนหน้าต่างหลักและโหมดสแตนด์บายไม่ได้รับผล</value>
+  </data>
+  <data name="Settings.Rotator.CalibrationOffsets">
+    <value>ออฟเซ็ตสอบเทียบ (°)</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthOffset">
+    <value>ออฟเซ็ตอะซิมัท</value>
+  </data>
+  <data name="Settings.Rotator.ElevationOffset">
+    <value>ออฟเซ็ตมุมเงย</value>
+  </data>
+  <data name="Settings.Rotator.OffsetNote">
+    <value>บวกเข้ากับการติดตามพาสและคำสั่งหมุนด้วยตนเอง (ไม่รวมการจอด) ใช้ค่าบวกหากลำแสงหยุดก่อนเป้าหมาย; ค่าลบหากเลยเป้า</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthRange360">
+    <value>0–360°</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthRange450">
+    <value>0–450°</value>
+  </data>
+  <data name="Settings.Rotator.ElevationRange90">
+    <value>0–90°</value>
+  </data>
+  <data name="Settings.Rotator.ElevationRange180">
+    <value>0–180°</value>
+  </data>
+  <data name="Settings.Recording.Enable">
+    <value>เปิดการบันทึกพาสอัตโนมัติ</value>
+  </data>
+  <data name="Settings.Recording.EnableNote">
+    <value>บันทึกเสียงจากอุปกรณ์อินพุตที่เลือกขณะดาวเทียมที่โฟกัสอยู่เหนือมุมเงยเริ่มต้น เลือก WAV หรือ MP3 (MP3 ต้องมี ffmpeg บน PATH) ไฟล์ถูกบันทึกพร้อมตราเวลา UTC</value>
+  </data>
+  <data name="Settings.Recording.InputDevice">
+    <value>อุปกรณ์อินพุต</value>
+  </data>
+  <data name="Settings.Recording.Format">
+    <value>รูปแบบตัวอย่าง</value>
+  </data>
+  <data name="Settings.Recording.FileFormat">
+    <value>รูปแบบไฟล์</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Wav">
+    <value>WAV</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Mp3">
+    <value>MP3</value>
+  </data>
+  <data name="Settings.Recording.FfmpegAvailable">
+    <value>พบ ffmpeg บน PATH สามารถแปลง MP3 ได้</value>
+  </data>
+  <data name="Settings.Recording.FfmpegUnavailable">
+    <value>MP3 ต้องมี ffmpeg บน PATH การบันทึกจะเป็น WAV จนกว่าจะติดตั้ง ffmpeg</value>
+  </data>
+  <data name="Settings.Recording.StartElevation">
+    <value>เริ่มบันทึกที่มุมเงย (°)</value>
+  </data>
+  <data name="Settings.Recording.StopElevation">
+    <value>หยุดบันทึกเมื่อต่ำกว่ามุมเงย (°)</value>
+  </data>
+  <data name="Settings.Recording.StopNote">
+    <value>มุมเงยหยุดควรเท่ากับหรือต่ำกว่ามุมเงยเริ่มต้น เพื่อไม่ให้สลับเปิดปิดใกล้เกณฑ์</value>
+  </data>
+  <data name="Settings.Recording.OutputFolder">
+    <value>โฟลเดอร์ผลลัพธ์</value>
+  </data>
+  <data name="Settings.Recording.OutputWatermark">
+    <value>ค่าเริ่มต้น: %AppData%/OscarWatch/recordings</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageOne">
+    <value>1 ไฟล์ · {0}</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageMany">
+    <value>{0} ไฟล์ · {1}</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageEmpty">
+    <value>ยังไม่มีไฟล์บันทึกในโฟลเดอร์นี้</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageMissing">
+    <value>โฟลเดอร์จะถูกสร้างเมื่อบันทึกไฟล์แรก</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageError">
+    <value>ไม่สามารถอ่านขนาดโฟลเดอร์ได้</value>
+  </data>
+  <data name="Settings.Recording.OpenFolder">
+    <value>เปิดโฟลเดอร์</value>
+  </data>
+  <data name="Settings.Recording.TestButton">
+    <value>ทดสอบการบันทึก (5 วินาที)</value>
+  </data>
+  <data name="Settings.Recording.Unavailable">
+    <value>การบันทึกเสียงไม่พร้อมใช้งานบนระบบนี้</value>
+  </data>
+  <data name="Settings.Recording.DevicesLoading">
+    <value>กำลังโหลดอุปกรณ์เสียง…</value>
+  </data>
+  <data name="Settings.Recording.SelectDeviceFirst">
+    <value>เลือกอุปกรณ์อินพุตก่อน</value>
+  </data>
+  <data name="Settings.Recording.TestInProgress">
+    <value>กำลังบันทึกคลิปทดสอบ 5 วินาที…</value>
+  </data>
+  <data name="Settings.Recording.TestSaved">
+    <value>บันทึกคลิปทดสอบไปที่ {0}</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Fallback">
+    <value>บันทึกเป็น WAV ({0}); การแปลง MP3 ต้องมี ffmpeg บน PATH</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Failed">
+    <value>บันทึกเป็น WAV ({0}); การแปลง MP3 ล้มเหลว</value>
+  </data>
+  <data name="Settings.Recording.Format.Mono44100">
+    <value>โมโน 44.1 kHz</value>
+  </data>
+  <data name="Settings.Recording.Format.Mono48000">
+    <value>โมโน 48 kHz</value>
+  </data>
+  <data name="Settings.Recording.Format.Stereo44100">
+    <value>สเตอริโอ 44.1 kHz</value>
+  </data>
+  <data name="Settings.HamsAt.Section">
+    <value>hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.Intro">
+    <value>แสดงโรว์ดาวเทียมที่กำลังจะมาถึงจาก hams.at ในแถบข้าง แสดงเฉพาะการแจ้งเตือนที่ทำเครื่องหมายว่าติดต่อได้สำหรับตำแหน่ง hams.at ของคุณ หากไม่ปรากฏ ให้ตั้งตำแหน่งบน hams.at คีย์ API ของคุณถูกเก็บในเครื่องใน settings.json เหมือนการเชื่อมต่อภายนอกอื่น</value>
+  </data>
+  <data name="Settings.HamsAt.Enable">
+    <value>เปิดโรว์ที่กำลังจะมาถึงจาก hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.ApiKey">
+    <value>คีย์ API ของ hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.ApiKeyWatermark">
+    <value>โทเค็น Bearer จาก hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.PanelHeight">
+    <value>ความสูงแผงแถบข้าง (px)</value>
+  </data>
+  <data name="Settings.HamsAt.RefreshInterval">
+    <value>ช่วงรีเฟรช (นาที)</value>
+  </data>
+  <data name="Settings.HamsAt.TestConnection">
+    <value>ทดสอบการเชื่อมต่อ</value>
+  </data>
+  <data name="Settings.HamsAt.Testing">
+    <value>กำลังทดสอบการเชื่อมต่อ hams.at…</value>
+  </data>
+  <data name="Settings.HamsAt.EnterApiKey">
+    <value>กรอกคีย์ API ของ hams.at ก่อน</value>
+  </data>
+  <data name="Settings.HamsAt.ConnectionOk">
+    <value>เชื่อมต่อแล้ว: {0}</value>
+  </data>
+  <data name="Settings.HamsAt.ConnectionFailed">
+    <value>การเชื่อมต่อล้มเหลว: {0}</value>
+  </data>
+  <data name="HamsAt.Activation.Title">
+    <value>โพสต์แอคทิเวชันไป hams.at</value>
+  </data>
+  <data name="HamsAt.Activation.PassSummary">
+    <value>{0} · {1} · {2}</value>
+  </data>
+  <data name="HamsAt.Activation.Callsign">
+    <value>สัญญาณเรียกขาน</value>
+  </data>
+  <data name="HamsAt.Activation.Grids">
+    <value>กริดที่เปิดสถานี (1–4 กริด แต่ละกริด 4 หรือ 6 ตัวอักษร)</value>
+  </data>
+  <data name="HamsAt.Activation.Mode">
+    <value>โหมด (FM, USB, CW เป็นต้น)</value>
+  </data>
+  <data name="HamsAt.Activation.FrequencyOptional">
+    <value>ความถี่ (ไม่บังคับ)</value>
+  </data>
+  <data name="HamsAt.Activation.IncludeUplinkMhz">
+    <value>อัปลิงก์</value>
+  </data>
+  <data name="HamsAt.Activation.IncludeDownlinkMhz">
+    <value>ดาวน์ลิงก์</value>
+  </data>
+  <data name="HamsAt.Activation.UplinkMhz">
+    <value>อัปลิงก์ (MHz)</value>
+  </data>
+  <data name="HamsAt.Activation.DownlinkMhz">
+    <value>ดาวน์ลิงก์ (MHz)</value>
+  </data>
+  <data name="HamsAt.Activation.Mhz">
+    <value>MHz (ไม่บังคับ)</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection">
+    <value>ทิศทาง</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection.Up">
+    <value>ขึ้น</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection.Down">
+    <value>ลง</value>
+  </data>
+  <data name="HamsAt.Activation.Comment">
+    <value>หมายเหตุ (ไม่บังคับ, สูงสุด 50 ตัวอักษร)</value>
+  </data>
+  <data name="HamsAt.Activation.Submit">
+    <value>โพสต์แอคทิเวชัน</value>
+  </data>
+  <data name="HamsAt.Activation.Error.CallsignRequired">
+    <value>กรอกสัญญาณเรียกขานอย่างน้อยสามตัวอักษร</value>
+  </data>
+  <data name="HamsAt.Activation.Error.GridsRequired">
+    <value>กรอกกริดสแควร์ Maidenhead อย่างน้อยหนึ่งช่อง</value>
+  </data>
+  <data name="HamsAt.Activation.Error.ModeRequired">
+    <value>เลือกโหมดปฏิบัติการ (SSB, CW, Data หรือ FM)</value>
+  </data>
+  <data name="HamsAt.Activation.Error.GridLength">
+    <value>กริด '{0}' ต้องมี 4 หรือ 6 ตัวอักษรสำหรับ hams.at</value>
+  </data>
+  <data name="HamsAt.Activation.Error.MhzInvalid">
+    <value>กรอกค่า MHz ที่ถูกต้อง หรือเว้นช่องว่าง</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Section">
+    <value>OscarWatch</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Intro">
+    <value>รายงานว่าโหมดดาวเทียมเป็น On, Off หรือ Telemetry only ไป OscarWatch.org สร้างโทเค็น API ที่ oscarwatch.org → Settings → API tokens โปรไฟล์เว็บไซต์ต้องมีสัญญาณเรียกขานและกริดสแควร์ก่อนรับรายงาน</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Enable">
+    <value>เปิดการรายงานสถานะดาวเทียม</value>
+  </data>
+  <data name="Settings.SatelliteStatus.AutoReportOnQso">
+    <value>รายงาน On อัตโนมัติเมื่อบันทึก QSO</value>
+  </data>
+  <data name="Settings.SatelliteStatus.BaseUrl">
+    <value>URL ฐาน</value>
+  </data>
+  <data name="Settings.SatelliteStatus.BaseUrlWatermark">
+    <value>https://oscarwatch.org</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ApiToken">
+    <value>โทเค็น API</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ApiTokenWatermark">
+    <value>โทเค็น Bearer จาก oscarwatch.org</value>
+  </data>
+  <data name="Settings.SatelliteStatus.TestConnection">
+    <value>ทดสอบการเชื่อมต่อ</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Testing">
+    <value>กำลังทดสอบการเชื่อมต่อ OscarWatch.org…</value>
+  </data>
+  <data name="Settings.SatelliteStatus.EnterApiToken">
+    <value>กรอกโทเค็น API ของ OscarWatch.org ก่อน</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ConnectionOk">
+    <value>เชื่อมต่อแล้ว: {0}</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ConnectionFailed">
+    <value>การเชื่อมต่อล้มเหลว: {0}</value>
+  </data>
+  <data name="SatStatus.Report.Title">
+    <value>รายงานสถานะดาวเทียม</value>
+  </data>
+  <data name="SatStatus.Report.Satellite">
+    <value>ดาวเทียม: {0}</value>
+  </data>
+  <data name="SatStatus.Report.Mode">
+    <value>โหมด: {0}</value>
+  </data>
+  <data name="SatStatus.Report.StatusPrompt">
+    <value>สถานะ</value>
+  </data>
+  <data name="SatStatus.Report.Status.On">
+    <value>On</value>
+  </data>
+  <data name="SatStatus.Report.Status.Off">
+    <value>Off</value>
+  </data>
+  <data name="SatStatus.Report.Status.TelemetryOnly">
+    <value>Telemetry only</value>
+  </data>
+  <data name="SatStatus.Report.Submit">
+    <value>ส่ง</value>
+  </data>
+  <data name="SatStatus.Report.Stored">
+    <value>เก็บรายงานสถานะดาวเทียมแล้ว</value>
+  </data>
+  <data name="SatStatus.Report.Duplicate">
+    <value>รายงานซ้ำ: เพิ่งถูกเก็บไปไม่นาน</value>
+  </data>
+  <data name="SatStatus.Report.Failed">
+    <value>รายงานสถานะดาวเทียมล้มเหลว: {0}</value>
+  </data>
+  <data name="SatStatus.Report.BelowElevation">
+    <value>รายงานสถานะดาวเทียมได้เฉพาะเมื่อมุมเงยอย่างน้อย −1°</value>
+  </data>
+  <data name="SatStatus.Community.OverlayTitle">
+    <value>สถานะชุมชน (โหมดที่เลือก)</value>
+  </data>
+  <data name="SatStatus.Community.PassTitle">
+    <value>{0} · สถานะชุมชน ({1}ชม.)</value>
+  </data>
+  <data name="SatStatus.Community.ReportCount">
+    <value>รายงานในหน้าต่าง: {0}</value>
+  </data>
+  <data name="SatStatus.Community.LastReport">
+    <value>รายงานล่าสุด {0}</value>
+  </data>
+  <data name="SatStatus.Community.LastReportInline">
+    <value>รายงานล่าสุด {0}</value>
+  </data>
+  <data name="SatStatus.Community.StaleNote">
+    <value>รายงานล่าสุดเก่ากว่า 3 ชั่วโมง</value>
+  </data>
+  <data name="SatStatus.Community.WindowNote">
+    <value>รายงานชุมชน, {0} ชั่วโมงล่าสุด</value>
+  </data>
+  <data name="SatStatus.Community.NoModeData">
+    <value>ไม่มีข้อมูลโหมด</value>
+  </data>
+  <data name="SatStatus.Community.YourSelection">
+    <value>การเลือกล่าสุดของคุณ</value>
+  </data>
+  <data name="SatStatus.Community.DefaultMode">
+    <value>ค่าเริ่มต้น</value>
+  </data>
+  <data name="SatStatus.Community.PassAutomation">
+    <value>{0}, {1}: {2}</value>
+  </data>
+  <data name="SatStatus.Community.Short.On">
+    <value>On</value>
+  </data>
+  <data name="SatStatus.Community.Short.Off">
+    <value>Off</value>
+  </data>
+  <data name="SatStatus.Community.Short.Telem">
+    <value>Telem.</value>
+  </data>
+  <data name="SatStatus.Community.Short.Unknown">
+    <value>?</value>
+  </data>
+  <data name="SatStatus.Community.NoRecentReports">
+    <value>ไม่มีรายงานล่าสุด</value>
+  </data>
+  <data name="Settings.SatelliteLink.Section">
+    <value>ลิงก์ดาวเทียม</value>
+  </data>
+  <data name="Settings.SatelliteLink.Intro">
+    <value>กระจายชื่อดาวเทียมที่โฟกัส, ความถี่, โหมด และข้อมูลการติดตามไปยังแอปพลิเคชันล็อกผ่าน WebSocket ในเครื่อง (ตัวสืบทอดของ SatPC32 DDE) ดูวิธีใช้สำหรับ API</value>
+  </data>
+  <data name="Settings.SatelliteLink.Enable">
+    <value>เปิดเซิร์ฟเวอร์ WebSocket ลิงก์ดาวเทียม</value>
+  </data>
+  <data name="Settings.SatelliteLink.Port">
+    <value>พอร์ต</value>
+  </data>
+  <data name="Settings.SatelliteLink.AllowLan">
+    <value>อนุญาตการเชื่อมต่อจากเครือข่ายภายใน</value>
+  </data>
+  <data name="Settings.SatelliteLink.AllowLanNote">
+    <value>เมื่อปิด มีเพียงแอปพลิเคชันบนเครื่องนี้ที่เชื่อมต่อได้ (127.0.0.1) เมื่อเปิด OscarWatch จะรับฟังบนที่อยู่ IP ของ LAN ของคุณ บน Windows ให้อนุญาต OscarWatch เมื่อระบบไฟร์วอลล์ถาม บน macOS หรือ Linux ให้อนุญาตพอร์ตในไฟร์วอลล์หากลูกข่าย LAN เชื่อมต่อไม่ได้</value>
+  </data>
+  <data name="Settings.SatelliteLink.OnlyWhenInRange">
+    <value>กระจายเฉพาะเมื่อดาวเทียมอยู่เหนือขอบฟ้า</value>
+  </data>
+  <data name="Settings.SatelliteLink.UpdateInterval">
+    <value>ช่วงอัปเดต (ms)</value>
+  </data>
+  <data name="Settings.SatelliteLink.UpdateIntervalNote">
+    <value>เวลาต่ำสุดระหว่างเพย์โหลดที่เหมือนกัน การเปลี่ยนโฟกัสและโหมดถูกส่งทันที</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlPreview">
+    <value>URL การเชื่อมต่อ</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlLocal">
+    <value>ws://127.0.0.1:{0}/</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlLan">
+    <value>ws://&lt;IP ของเครื่องนี้&gt;:{0}/ (ทุกอินเทอร์เฟซ)</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestConnection">
+    <value>ทดสอบพอร์ต</value>
+  </data>
+  <data name="Settings.SatelliteLink.OpenHelp">
+    <value>เปิดวิธีใช้</value>
+  </data>
+  <data name="Settings.SatelliteLink.Testing">
+    <value>กำลังทดสอบพอร์ต</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestOk">
+    <value>พอร์ต {0} พร้อมใช้บนอินเทอร์เฟซที่เลือก</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestFailed">
+    <value>ไม่สามารถรับฟังพอร์ต {0}: {1}</value>
+  </data>
+  <data name="Settings.Cloudlog.Section">
+    <value>Cloudlog</value>
+  </data>
+  <data name="Settings.Cloudlog.Intro">
+    <value>โพสต์ TX/RX ดาวเทียมไป Cloudlog เมื่อความถี่หรือโหมดเปลี่ยน รวมทั้ง keepalive เป็นระยะเมื่อไม่เปลี่ยน การทดสอบการเชื่อมต่อโหลดล็อกบุ๊กของคุณสำหรับค้นหากริดบนโรว์ hams.at</value>
+  </data>
+  <data name="Settings.Cloudlog.Enable">
+    <value>เปิด API วิทยุ Cloudlog (จำเป็นสำหรับการอัปเดตสด)</value>
+  </data>
+  <data name="Settings.Cloudlog.BaseUrl">
+    <value>URL ฐานของ Cloudlog</value>
+  </data>
+  <data name="Settings.Cloudlog.BaseUrlWatermark">
+    <value>https://your.cloudlog.site</value>
+  </data>
+  <data name="Settings.Cloudlog.ApiKey">
+    <value>คีย์ API</value>
+  </data>
+  <data name="Settings.Cloudlog.ApiKeyWatermark">
+    <value>คีย์ API อ่าน/เขียน</value>
+  </data>
+  <data name="Settings.Cloudlog.RadioName">
+    <value>ชื่อวิทยุใน Cloudlog</value>
+  </data>
+  <data name="Settings.Cloudlog.RadioNameWatermark">
+    <value>OscarWatch</value>
+  </data>
+  <data name="Settings.Cloudlog.RadioNameNote">
+    <value>ค่าเริ่มต้นคือ OscarWatch ต้องตรงกับรายการวิทยุที่ Cloudlog กำหนด QSO ได้</value>
+  </data>
+  <data name="Settings.Cloudlog.MinInterval">
+    <value>ช่วง keepalive (ms)</value>
+  </data>
+  <data name="Settings.Cloudlog.MinIntervalNote">
+    <value>โพสต์ทันทีเมื่ออัปลิงก์, ดาวน์ลิงก์, โหมด หรือดาวเทียมเปลี่ยน ทำซ้ำสถานะเดิมตามช่วงนี้ (ค่าเริ่มต้น 10 นาที) เพื่อให้ Cloudlog ซิงค์ระหว่างการติดต่อที่ยาว</value>
+  </data>
+  <data name="Settings.Cloudlog.TestConnection">
+    <value>ทดสอบการเชื่อมต่อ</value>
+  </data>
+  <data name="Settings.Cloudlog.Testing">
+    <value>กำลังทดสอบ…</value>
+  </data>
+  <data name="Settings.Cloudlog.EnterCredentials">
+    <value>กรอก URL และคีย์ API (แท็บออกจากแต่ละช่อง หรือคลิกทดสอบอีกครั้ง)</value>
+  </data>
+  <data name="Settings.Cloudlog.Logbook">
+    <value>ล็อกบุ๊ก</value>
+  </data>
+  <data name="Settings.Cloudlog.CheckRoveGrids">
+    <value>ไฮไลต์กริดที่ฉันยังต้องการบนโรว์ hams.at</value>
+  </data>
+  <data name="Settings.Cloudlog.LogbooksLoaded">
+    <value>พบล็อกบุ๊ก {0} เล่ม</value>
+  </data>
+  <data name="Settings.Cloudlog.ConnectionOk">
+    <value>การเชื่อมต่อปกติ: ส่ง CAT ทดสอบไปที่ {0}</value>
+  </data>
+  <data name="Settings.Cloudlog.ConnectionOkWithLogbooks">
+    <value>{0} การทดสอบ CAT วิทยุสำเร็จ</value>
+  </data>
+  <data name="Settings.Cloudlog.LogbooksOnly">
+    <value>{0} การทดสอบ CAT วิทยุล้มเหลว: {1}</value>
+  </data>
+  <data name="Settings.Cloudlog.LoadFailed">
+    <value>ไม่สามารถโหลดล็อกบุ๊กได้: {0}</value>
+  </data>
+  <data name="Settings.Cloudlog.ConnectionFailed">
+    <value>การเชื่อมต่อล้มเหลว</value>
+  </data>
+  <data name="Settings.Browse.RecordingFolder">
+    <value>เลือกโฟลเดอร์บันทึกเสียง</value>
+  </data>
+  <data name="Settings.Browse.TleFile">
+    <value>เลือกไฟล์ TLE</value>
+  </data>
+  <data name="Settings.SaveFailed.Title">
+    <value>ไม่สามารถบันทึกการตั้งค่าได้</value>
+  </data>
+  <data name="Pass.Time.Local">
+    <value>เวลาท้องถิ่น</value>
+  </data>
+  <data name="Pass.Time.Utc">
+    <value>UTC</value>
+  </data>
+  <data name="Pass.TimesShownIn">
+    <value>แสดงเวลาเป็น</value>
+  </data>
+  <data name="Pass.MinElevation">
+    <value>มุมเงยต่ำสุด (°)</value>
+  </data>
+  <data name="Pass.MinDuration">
+    <value>ระยะเวลาต่ำสุด (นาที)</value>
+  </data>
+  <data name="Pass.HoursAhead">
+    <value>ชั่วโมงข้างหน้า</value>
+  </data>
+  <data name="Pass.Computing">
+    <value>กำลังคำนวณพาส…</value>
+  </data>
+  <data name="Pass.ComputingMutual">
+    <value>กำลังคำนวณพาสร่วม…</value>
+  </data>
+  <data name="Pass.CountPasses">
+    <value>{0} พาสใน {1} ชม. ถัดไป</value>
+  </data>
+  <data name="Pass.CountMutual">
+    <value>{0} พาสร่วมใน {1} ชม. ถัดไป</value>
+  </data>
+  <data name="Pass.CountMutualInRange">
+    <value>{0} พาสร่วมจาก {1} ถึง {2}</value>
+  </data>
+  <data name="Pass.Failed">
+    <value>พยากรณ์พาสล้มเหลว: {0}</value>
+  </data>
+  <data name="Pass.FailedMutual">
+    <value>พยากรณ์พาสร่วมล้มเหลว: {0}</value>
+  </data>
+  <data name="Planner.Section.StationFilters">
+    <value>สถานีและตัวกรอง</value>
+  </data>
+  <data name="Planner.UseActiveStation">
+    <value>ใช้เป็นสถานีที่ใช้งาน</value>
+  </data>
+  <data name="Planner.DisplayNameWatermark">
+    <value>ชื่อที่แสดง</value>
+  </data>
+  <data name="Planner.Maidenhead">
+    <value>Maidenhead</value>
+  </data>
+  <data name="Planner.AltAsl">
+    <value>สูงเหนือน้ำทะเล (ม.)</value>
+  </data>
+  <data name="Planner.RefreshPasses">
+    <value>รีเฟรชพาส</value>
+  </data>
+  <data name="Planner.FiltersNote">
+    <value>ตัวกรองมีผลกับรายการนี้และหน้าต่างหลักเมื่อคุณปิด</value>
+  </data>
+  <data name="Planner.PassesHeader">
+    <value>พาส</value>
+  </data>
+  <data name="Planner.SatelliteFilter.All">
+    <value>ดาวเทียมทั้งหมด</value>
+  </data>
+  <data name="Planner.OpenPassRadarGallery">
+    <value>แกลเลอรีเรดาร์พาส</value>
+  </data>
+  <data name="Planner.Col.Satellite">
+    <value>ดาวเทียม</value>
+  </data>
+  <data name="Planner.Col.AosLos">
+    <value>AOS – LOS</value>
+  </data>
+  <data name="Planner.Col.Tca">
+    <value>TCA</value>
+  </data>
+  <data name="Planner.Col.Azimuth">
+    <value>อะซิมัท</value>
+  </data>
+  <data name="Planner.Col.MaxEl">
+    <value>มุมเงยสูงสุด</value>
+  </data>
+  <data name="Planner.Col.Duration">
+    <value>ระยะเวลา</value>
+  </data>
+  <data name="Planner.Col.Calendar">
+    <value>ปฏิทิน</value>
+  </data>
+  <data name="Planner.Col.Schedule">
+    <value>ตั้งเวลา</value>
+  </data>
+  <data name="Planner.AddToCalendar">
+    <value>เพิ่มในปฏิทิน</value>
+  </data>
+  <data name="Planner.Export.CalendarTip">
+    <value>บันทึกไฟล์ iCalendar สำหรับดาวเทียมนี้ หรือเพิ่มพาสนี้ใน Google Calendar</value>
+  </data>
+  <data name="Planner.Export.SaveIcs">
+    <value>บันทึก iCalendar (.ics)</value>
+  </data>
+  <data name="Planner.Export.SaveIcsTip">
+    <value>ส่งออกพาสทั้งหมดของดาวเทียมนี้เป็นไฟล์ iCalendar (.ics)</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendar">
+    <value>เพิ่มพาสนี้ใน Google Calendar</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarTip">
+    <value>เปิด Google Calendar ในเบราว์เซอร์พร้อมกรอกพาสนี้แล้ว</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarOpened">
+    <value>เปิด Google Calendar สำหรับ {0} แล้ว</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarFailed">
+    <value>ไม่สามารถเปิด Google Calendar ได้: {0}</value>
+  </data>
+  <data name="Planner.PortableName">
+    <value>พกพา {0}</value>
+  </data>
+  <data name="Planner.Export.RefreshFirst">
+    <value>รีเฟรชพาสก่อนส่งออก</value>
+  </data>
+  <data name="Planner.Export.Title">
+    <value>ส่งออกพาส {0}</value>
+  </data>
+  <data name="Planner.Export.FileType">
+    <value>iCalendar</value>
+  </data>
+  <data name="Planner.Export.CalendarTitle">
+    <value>OscarWatch: {0} @ {1}</value>
+  </data>
+  <data name="Planner.Export.Done">
+    <value>ส่งออก {0} พาสของ{1}แล้ว</value>
+  </data>
+  <data name="Planner.Export.SatelliteFile">
+    <value>ดาวเทียม</value>
+  </data>
+  <data name="Planner.ContextMenu.CopySatelliteDetails">
+    <value>คัดลอกรายละเอียดดาวเทียม</value>
+  </data>
+  <data name="Planner.ContextMenu.ViewPassPlot">
+    <value>ดูแผนภาพพาส</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadar">
+    <value>เปิดเรดาร์พาส</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadarGallery">
+    <value>เปิดแกลเลอรีเรดาร์พาส (ทุกพาส)</value>
+  </data>
+  <data name="Mutual.Section.StationsFilters">
+    <value>สถานีและตัวกรอง</value>
+  </data>
+  <data name="Mutual.Section.Stations">
+    <value>สถานี</value>
+  </data>
+  <data name="Mutual.Section.PassCriteria">
+    <value>เกณฑ์พาส</value>
+  </data>
+  <data name="Mutual.Section.SearchPeriod">
+    <value>ช่วงค้นหา</value>
+  </data>
+  <data name="Mutual.Wizard.Progress">
+    <value>ขั้นตอน {0} จาก {1}: {2}</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Stations">
+    <value>สถานี</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Criteria">
+    <value>เกณฑ์พาส</value>
+  </data>
+  <data name="Mutual.Wizard.Step.When">
+    <value>ช่วงค้นหา</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Results">
+    <value>ผลลัพธ์</value>
+  </data>
+  <data name="Mutual.Wizard.StationsIntro">
+    <value>กรอกกริดสแควร์ Maidenhead ของผู้ปฏิบัติการปลายทาง สถานีที่ใช้งานของคุณใช้สำหรับฝั่งท้องถิ่น</value>
+  </data>
+  <data name="Mutual.Wizard.CriteriaIntro">
+    <value>ตั้งมุมเงยต่ำสุด, ระยะเวลาพาส และการทับซ้อนที่ต้องการสำหรับหน้าต่างร่วม</value>
+  </data>
+  <data name="Mutual.Wizard.EditSearch">
+    <value>แก้ไขการค้นหา</value>
+  </data>
+  <data name="Mutual.YourStation">
+    <value>สถานีของคุณ</value>
+  </data>
+  <data name="Mutual.RemoteOperator">
+    <value>ผู้ปฏิบัติการปลายทาง</value>
+  </data>
+  <data name="Mutual.RemoteOperatorWatermark">
+    <value>สัญญาณเรียกขานหรือชื่อ (ไม่บังคับ)</value>
+  </data>
+  <data name="Mutual.RemoteGrid">
+    <value>กริด Maidenhead ปลายทาง</value>
+  </data>
+  <data name="Mutual.Description">
+    <value>ค้นหาพาสเมื่อดาวเทียมอยู่เหนือมุมเงยต่ำสุดทั้งที่สถานีของคุณและกริดสแควร์ปลายทางในเวลาเดียวกัน</value>
+  </data>
+  <data name="Mutual.FindPasses">
+    <value>ค้นหาพาสร่วม</value>
+  </data>
+  <data name="Mutual.MinPassDuration">
+    <value>ระยะเวลาพาสต่ำสุด (นาที)</value>
+  </data>
+  <data name="Mutual.MinOverlap">
+    <value>การทับซ้อนต่ำสุด (นาที)</value>
+  </data>
+  <data name="Mutual.TimeWindow.Label">
+    <value>หน้าต่างค้นหา</value>
+  </data>
+  <data name="Mutual.TimeWindow.HoursAhead">
+    <value>ชั่วโมงข้างหน้าจากตอนนี้</value>
+  </data>
+  <data name="Mutual.TimeWindow.DateRange">
+    <value>ช่วงกำหนดเอง</value>
+  </data>
+  <data name="Mutual.RangeStart">
+    <value>เริ่ม</value>
+  </data>
+  <data name="Mutual.RangeEnd">
+    <value>สิ้นสุด</value>
+  </data>
+  <data name="Mutual.RangeStartDate">
+    <value>วันที่เริ่ม</value>
+  </data>
+  <data name="Mutual.RangeStartTime">
+    <value>เวลาเริ่ม</value>
+  </data>
+  <data name="Mutual.RangeEndDate">
+    <value>วันที่สิ้นสุด</value>
+  </data>
+  <data name="Mutual.RangeEndTime">
+    <value>เวลาสิ้นสุด</value>
+  </data>
+  <data name="Mutual.PassesHeader">
+    <value>พาสร่วม</value>
+  </data>
+  <data name="Mutual.ResultsContext">
+    <value>{0} ↔ {1}</value>
+  </data>
+  <data name="Mutual.Col.Satellite">
+    <value>ดาวเทียม</value>
+  </data>
+  <data name="Mutual.Col.MutualWindow">
+    <value>หน้าต่างร่วม</value>
+  </data>
+  <data name="Mutual.Col.Overlap">
+    <value>ทับซ้อน</value>
+  </data>
+  <data name="Mutual.Col.MaxElPair">
+    <value>มุมเงยสูงสุด°</value>
+  </data>
+  <data name="Mutual.Col.YourAosLos">
+    <value>AOS–LOS ของคุณ</value>
+  </data>
+  <data name="Mutual.Col.RemoteAosLos">
+    <value>AOS–LOS ปลายทาง</value>
+  </data>
+  <data name="Mutual.Status.EnterGrid">
+    <value>กรอกกริดสแควร์ Maidenhead ของผู้ปฏิบัติการปลายทาง (อย่างน้อย 4 ตัวอักษร)</value>
+  </data>
+  <data name="Mutual.Status.NoPasses">
+    <value>ไม่มีพาสร่วมใน {0} ชม. ถัดไปสำหรับ {1} และ {2}</value>
+  </data>
+  <data name="Mutual.Status.NoPassesInRange">
+    <value>ไม่มีพาสร่วมจาก {0} ถึง {1} สำหรับ {2} และ {3}</value>
+  </data>
+  <data name="Mutual.Status.InvalidRange">
+    <value>วันที่และเวลาสิ้นสุดต้องอยู่หลังจุดเริ่ม</value>
+  </data>
+  <data name="Mutual.Status.RangeTooLong">
+    <value>หน้าต่างค้นหาต้องไม่เกิน {0} วัน</value>
+  </data>
+  <data name="Mutual.Status.InvalidGrid">
+    <value>กริดสแควร์ Maidenhead ไม่ถูกต้อง</value>
+  </data>
+  <data name="Mutual.OpenVisualizer">
+    <value>เปิดวิชวลไลเซอร์</value>
+  </data>
+  <data name="Mutual.Visualizer.DoubleClickHint">
+    <value>ดับเบิลคลิกพาสเพื่อเปิดวิชวลไลเซอร์พาสร่วม คลิกขวาสำหรับตัวเลือกเพิ่มเติม</value>
+  </data>
+  <data name="Mutual.Copy.Title">
+    <value>พาสร่วม: {0}</value>
+  </data>
+  <data name="Mutual.Copy.Between">
+    <value>ระหว่าง {0} และ {1}</value>
+  </data>
+  <data name="Mutual.Copy.TimesIn">
+    <value>แสดงเวลาเป็น {0}</value>
+  </data>
+  <data name="Mutual.Copy.MutualWindow">
+    <value>หน้าต่างร่วม</value>
+  </data>
+  <data name="Mutual.Copy.MutualWindowLine">
+    <value>  {0} ({1})</value>
+  </data>
+  <data name="Mutual.Copy.YourPass">
+    <value>พาสของคุณ: {0}</value>
+  </data>
+  <data name="Mutual.Copy.RemotePass">
+    <value>พาสปลายทาง: {0}</value>
+  </data>
+  <data name="Mutual.Copy.PassTimes">
+    <value>  {0}</value>
+  </data>
+  <data name="Mutual.Copy.MaxElevation">
+    <value>  มุมเงยสูงสุด {0:F1}°</value>
+  </data>
+  <data name="Mutual.Copy.Azimuth">
+    <value>  อะซิมัท AOS {0:F1}° · อะซิมัท LOS {1:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.Heading">
+    <value>พาสทับซ้อนระหว่าง {0} และ {1} ผ่าน {2}</value>
+  </data>
+  <data name="Mutual.Visualizer.Subtitle">
+    <value>การทับซ้อนนาน {0} เริ่ม {1} ({2})</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassLocal">
+    <value>พาสเต็มจาก {0}</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassRemote">
+    <value>พาสเต็มจาก {0}</value>
+  </data>
+  <data name="Mutual.Visualizer.StationStats">
+    <value>{0} · AOS Az: {1:F1}° · Max El: {2:F1}° · LOS Az: {3:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.PlotTooltip">
+    <value>{0} · Az: {1:F1}° · El: {2:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.PlotTooltipWithRotor">
+    <value>{0} · Az: {1:F1}° · โรเตอร์: {2:F0}° · El: {3:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Aos">
+    <value>AOS (เริ่มหน้าต่างร่วม)</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Los">
+    <value>LOS (จบหน้าต่างร่วม)</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Sunlit">
+    <value>โดนแสงอาทิตย์</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Eclipse">
+    <value>เอคลิปส์</value>
+  </data>
+  <data name="Mutual.Visualizer.Screenshot">
+    <value>ภาพหน้าจอ</value>
+  </data>
+  <data name="Sunlight.Section.SatelliteRange">
+    <value>ดาวเทียมและช่วง</value>
+  </data>
+  <data name="Sunlight.Satellite">
+    <value>ดาวเทียม</value>
+  </data>
+  <data name="Sunlight.StartDateUtc">
+    <value>วันที่เริ่ม (UTC)</value>
+  </data>
+  <data name="Sunlight.DaysAhead">
+    <value>วันข้างหน้า</value>
+  </data>
+  <data name="Sunlight.Predict">
+    <value>พยากรณ์</value>
+  </data>
+  <data name="Sunlight.Legend.Sunlight">
+    <value>แสงอาทิตย์</value>
+  </data>
+  <data name="Sunlight.Legend.Eclipse">
+    <value>เอคลิปส์</value>
+  </data>
+  <data name="Sunlight.ContinuousPeriods">
+    <value>ช่วงแสงอาทิตย์ต่อเนื่อง</value>
+  </data>
+  <data name="Sunlight.MinDuration">
+    <value>ระยะเวลาต่ำสุด (นาที)</value>
+  </data>
+  <data name="Sunlight.Col.StartLocal">
+    <value>เริ่ม (ท้องถิ่น)</value>
+  </data>
+  <data name="Sunlight.Col.EndLocal">
+    <value>สิ้นสุด (ท้องถิ่น)</value>
+  </data>
+  <data name="Sunlight.Col.Duration">
+    <value>ระยะเวลา</value>
+  </data>
+  <data name="Sunlight.Status.SelectPredict">
+    <value>เลือกดาวเทียมแล้วคลิกพยากรณ์</value>
+  </data>
+  <data name="Sunlight.Status.NoSatellites">
+    <value>ไม่มีดาวเทียมที่เปิดใช้: ใช้ ดาวเทียม → เลือกดาวเทียม ก่อน</value>
+  </data>
+  <data name="Sunlight.Status.Computing">
+    <value>กำลังคำนวณแสงสำหรับ {0}…</value>
+  </data>
+  <data name="Sunlight.Status.Segments">
+    <value>{0} ส่วนแสงใน {1} วัน</value>
+  </data>
+  <data name="Sunlight.Status.Cancelled">
+    <value>ยกเลิกการพยากรณ์แล้ว</value>
+  </data>
+  <data name="Sunlight.Status.Failed">
+    <value>พยากรณ์ล้มเหลว: {0}</value>
+  </data>
+  <data name="Sunlight.Summary.SunlitPercent">
+    <value>{0}% อยู่ในแสงอาทิตย์โดยรวม</value>
+  </data>
+  <data name="Sunlight.Summary.LongestSun">
+    <value>แสงอาทิตย์ต่อเนื่องยาวสุด {0} ({1} – {2})</value>
+  </data>
+  <data name="Sunlight.Summary.LongestEclipse">
+    <value>เอคลิปส์ยาวสุด {0}</value>
+  </data>
+  <data name="Picker.SearchWatermark">
+    <value>ค้นหาดาวเทียม…</value>
+  </data>
+  <data name="Picker.Filter.All">
+    <value>ทั้งหมด</value>
+  </data>
+  <data name="Picker.Filter.Selected">
+    <value>ที่เลือก</value>
+  </data>
+  <data name="Picker.Filter.NotSelected">
+    <value>ที่ยังไม่เลือก</value>
+  </data>
+  <data name="DbEditor.Intro">
+    <value>จัดการโหมดทรานสปอนเดอร์ดาวเทียม (ความถี่เป็น kHz) บันทึกไปยังโฟลเดอร์ AppData ของผู้ใช้</value>
+  </data>
+  <data name="DbEditor.Path.User">
+    <value>ฐานข้อมูลผู้ใช้: {0}</value>
+  </data>
+  <data name="DbEditor.Path.Shipped">
+    <value>ค่าเริ่มต้นที่มาพร้อมแอป: {0}</value>
+  </data>
+  <data name="DbEditor.SearchWatermark">
+    <value>ค้นหาดาวเทียม…</value>
+  </data>
+  <data name="DbEditor.ImportJson">
+    <value>นำเข้า JSON…</value>
+  </data>
+  <data name="DbEditor.ExportJson">
+    <value>ส่งออก JSON…</value>
+  </data>
+  <data name="DbEditor.CheckUpdates">
+    <value>ตรวจหาการอัปเดต</value>
+  </data>
+  <data name="DbEditor.AddSatellite">
+    <value>เพิ่มดาวเทียม</value>
+  </data>
+  <data name="DbEditor.RestoreDefaults">
+    <value>คืนค่าเริ่มต้น</value>
+  </data>
+  <data name="DbEditor.RemoveSatellite">
+    <value>ลบดาวเทียม</value>
+  </data>
+  <data name="DbEditor.Satellite">
+    <value>ดาวเทียม</value>
+  </data>
+  <data name="DbEditor.NameWatermark">
+    <value>ชื่อที่ต้องการ (แสดงบนแผนที่)</value>
+  </data>
+  <data name="DbEditor.NoradIdLabel">
+    <value>NORAD ID</value>
+  </data>
+  <data name="DbEditor.NoradIdWatermark">
+    <value>ไม่บังคับ: ให้ตรงกับ tle.oscarwatch.org (เช่น 27607)</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesLabel">
+    <value>ชื่ออื่น</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesWatermark">
+    <value>คั่นด้วยจุลภาค (เช่น UmKA-1, RS40-S)</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesHint">
+    <value>ใช้จับคู่ชื่อ TLE และฐานข้อมูลที่เผยแพร่เมื่อต่างจากชื่อที่ต้องการ การเปลี่ยนชื่อจะเก็บชื่อเดิมไว้ที่นี่โดยอัตโนมัติ แนะนำให้มี NORAD ID เมื่อตั้งนามแฝง</value>
+  </data>
+  <data name="DbEditor.ModesHeader">
+    <value>โหมดทรานสปอนเดอร์</value>
+  </data>
+  <data name="DbEditor.AddMode">
+    <value>เพิ่มโหมด</value>
+  </data>
+  <data name="DbEditor.Duplicate">
+    <value>ทำซ้ำ</value>
+  </data>
+  <data name="DbEditor.Remove">
+    <value>ลบ</value>
+  </data>
+  <data name="DbEditor.ModeDetails">
+    <value>รายละเอียดโหมด</value>
+  </data>
+  <data name="DbEditor.TypeLabel">
+    <value>ชนิด / ป้าย</value>
+  </data>
+  <data name="DbEditor.DownlinkKhz">
+    <value>ดาวน์ลิงก์ (kHz)</value>
+  </data>
+  <data name="DbEditor.UplinkKhz">
+    <value>อัปลิงก์ (kHz)</value>
+  </data>
+  <data name="DbEditor.DownlinkMode">
+    <value>โหมดดาวน์ลิงก์</value>
+  </data>
+  <data name="DbEditor.UplinkMode">
+    <value>โหมดอัปลิงก์</value>
+  </data>
+  <data name="DbEditor.Doppler">
+    <value>ดอปเพลอร์</value>
+  </data>
+  <data name="DbEditor.CtcssAccess">
+    <value>CTCSS access (Hz)</value>
+  </data>
+  <data name="DbEditor.CtcssArm">
+    <value>CTCSS arm (Hz)</value>
+  </data>
+  <data name="DbEditor.ModeHint">
+    <value>ตั้งอัปลิงก์เป็น 0 สำหรับบีคอนเท่านั้น เว้น CTCSS เป็น 0 หากไม่มี โหมด FM ใช้ Hz (เช่น 67.0)</value>
+  </data>
+  <data name="DbEditor.FileType.Json">
+    <value>JSON</value>
+  </data>
+  <data name="DbEditor.Mode.NewMode">
+    <value>โหมดใหม่</value>
+  </data>
+  <data name="DbEditor.Mode.CopySuffix">
+    <value> สำเนา</value>
+  </data>
+  <data name="DbEditor.Status.Loaded">
+    <value>โหลดดาวเทียม {0} ดวงแล้ว</value>
+  </data>
+  <data name="DbEditor.Status.AddCancelled">
+    <value>ยกเลิกการเพิ่มดาวเทียมแล้ว</value>
+  </data>
+  <data name="DbEditor.Status.AlreadyExists">
+    <value>ดาวเทียม “{0}” อยู่ในฐานข้อมูลแล้ว</value>
+  </data>
+  <data name="DbEditor.Status.Added">
+    <value>เพิ่ม {0} แล้ว</value>
+  </data>
+  <data name="DbEditor.Status.RemovedSatellite">
+    <value>ลบดาวเทียมแล้ว</value>
+  </data>
+  <data name="DbEditor.Status.AddedMode">
+    <value>เพิ่มโหมดทรานสปอนเดอร์แล้ว</value>
+  </data>
+  <data name="DbEditor.Status.RemovedMode">
+    <value>ลบโหมดทรานสปอนเดอร์แล้ว</value>
+  </data>
+  <data name="DbEditor.Status.DuplicatedMode">
+    <value>ทำซ้ำโหมดแล้ว</value>
+  </data>
+  <data name="DbEditor.Status.Saved">
+    <value>บันทึกแล้ว</value>
+  </data>
+  <data name="DbEditor.Status.AliasesWithoutNorad">
+    <value>เคล็ดลับ: ตั้ง NORAD ID เมื่อใช้ชื่ออื่น เพื่อให้อัปเดตยังจับคู่ดาวเทียมนี้ได้</value>
+  </data>
+  <data name="DbEditor.Status.Restored">
+    <value>คืนฐานข้อมูลที่มาพร้อมแอปแล้ว</value>
+  </data>
+  <data name="DbEditor.Export.Title">
+    <value>ส่งออกฐานข้อมูลทรานสปอนเดอร์</value>
+  </data>
+  <data name="DbEditor.Status.Exported">
+    <value>ส่งออกดาวเทียม {0} ดวงเป็น JSON แล้ว</value>
+  </data>
+  <data name="DbEditor.Status.ExportFailed">
+    <value>ส่งออกล้มเหลว: {0}</value>
+  </data>
+  <data name="DbEditor.Import.Title">
+    <value>นำเข้าฐานข้อมูลทรานสปอนเดอร์</value>
+  </data>
+  <data name="DbEditor.Status.ReadingImport">
+    <value>กำลังอ่านไฟล์นำเข้า…</value>
+  </data>
+  <data name="DbEditor.Status.InvalidDatabase">
+    <value>ฐานข้อมูลไม่ถูกต้อง: {0}</value>
+  </data>
+  <data name="DbEditor.Status.ImportNoChanges">
+    <value>ไฟล์นำเข้าตรงกับตัวแก้ไข (ไม่มีรายการใหม่หรือที่เปลี่ยน)</value>
+  </data>
+  <data name="DbEditor.Status.ImportCancelled">
+    <value>ยกเลิกการนำเข้าแล้ว</value>
+  </data>
+  <data name="DbEditor.Status.ImportApplied">
+    <value>นำเข้าไปยังตัวแก้ไขแล้ว: กดบันทึกเพื่อเขียนลงฐานข้อมูลผู้ใช้</value>
+  </data>
+  <data name="DbEditor.Status.ImportFailed">
+    <value>นำเข้าล้มเหลว: {0}</value>
+  </data>
+  <data name="DbEditor.Status.CheckingUpdates">
+    <value>กำลังตรวจหาการอัปเดตฐานข้อมูลทรานสปอนเดอร์…</value>
+  </data>
+  <data name="DbEditor.Status.UpToDate">
+    <value>ฐานข้อมูลทรานสปอนเดอร์เป็นรุ่นล่าสุดแล้ว</value>
+  </data>
+  <data name="DbEditor.Status.UpdatesApplied">
+    <value>ใช้การอัปเดตแล้ว</value>
+  </data>
+  <data name="DbEditor.Status.NoChangesApplied">
+    <value>ไม่ได้ใช้การเปลี่ยนแปลง</value>
+  </data>
+  <data name="DbEditor.Status.UpdateCheckFailed">
+    <value>ตรวจการอัปเดตล้มเหลว: {0}</value>
+  </data>
+  <data name="DbEditor.Status.InEditor">
+    <value>ดาวเทียม {0} ดวงในตัวแก้ไข</value>
+  </data>
+  <data name="DbMerge.Title.Remote">
+    <value>การอัปเดตฐานข้อมูลทรานสปอนเดอร์</value>
+  </data>
+  <data name="DbMerge.Title.Import">
+    <value>รวมฐานข้อมูลทรานสปอนเดอร์ที่นำเข้า</value>
+  </data>
+  <data name="DbMerge.ApplySelected">
+    <value>ใช้รายการที่เลือก</value>
+  </data>
+  <data name="DbMerge.NewSatellites">
+    <value>ดาวเทียมใหม่</value>
+  </data>
+  <data name="DbMerge.NoradIdBackfills">
+    <value>หมายเลขแคตตาล็อก NORAD</value>
+  </data>
+  <data name="DbMerge.NewModes">
+    <value>โหมดทรานสปอนเดอร์ใหม่</value>
+  </data>
+  <data name="DbMerge.Conflicts">
+    <value>ความขัดแย้ง</value>
+  </data>
+  <data name="DbMerge.YoursFormat">
+    <value>ของคุณ: {0}</value>
+  </data>
+  <data name="DbMerge.Source.Import">
+    <value>ไฟล์ที่นำเข้า</value>
+  </data>
+  <data name="DbMerge.Source.Remote">
+    <value>tle.oscarwatch.org</value>
+  </data>
+  <data name="DbMerge.UseImported">
+    <value>ใช้รุ่นที่นำเข้า</value>
+  </data>
+  <data name="DbMerge.UsePublished">
+    <value>ใช้รุ่นที่เผยแพร่</value>
+  </data>
+  <data name="DbMerge.UseLocal">
+    <value>ใช้รุ่นในเครื่อง</value>
+  </data>
+  <data name="DbMerge.Prefix.Imported">
+    <value>นำเข้า</value>
+  </data>
+  <data name="DbMerge.Prefix.Published">
+    <value>เผยแพร่</value>
+  </data>
+  <data name="DbMerge.Intro.Import">
+    <value>รายการใหม่ถูกเลือกเป็นค่าเริ่มต้น สำหรับความขัดแย้ง ให้ยืนยันสำเนาในตัวแก้ไขหรือเลือกรุ่นที่นำเข้า</value>
+  </data>
+  <data name="DbMerge.Intro.Remote">
+    <value>รายการใหม่ถูกเลือกเป็นค่าเริ่มต้น สำหรับความขัดแย้ง ให้ยืนยันสำเนาในเครื่องหรือเลือกรุ่นที่เผยแพร่</value>
+  </data>
+  <data name="DbMerge.Intro.NoradIds">
+    <value>หมายเลขแคตตาล็อกเหล่านี้จะถูกเพิ่มให้ดาวเทียมในฐานข้อมูลท้องถิ่นที่ยังไม่มี กดใช้รายการที่เลือกเพื่ออัปเดต</value>
+  </data>
+  <data name="DbMerge.Summary.Matches">
+    <value>ฐานข้อมูลทรานสปอนเดอร์ของคุณตรงกับ {0}</value>
+  </data>
+  <data name="DbMerge.Summary.OneNewSatellite">
+    <value>ดาวเทียมใหม่ {0} ดวง</value>
+  </data>
+  <data name="DbMerge.Summary.ManyNewSatellites">
+    <value>ดาวเทียมใหม่ {0} ดวง</value>
+  </data>
+  <data name="DbMerge.Summary.OneNewMode">
+    <value>โหมดใหม่ {0} โหมด</value>
+  </data>
+  <data name="DbMerge.Summary.ManyNewModes">
+    <value>โหมดใหม่ {0} โหมด</value>
+  </data>
+  <data name="DbMerge.Summary.OneConflict">
+    <value>ความขัดแย้ง {0} รายการ</value>
+  </data>
+  <data name="DbMerge.Summary.ManyConflicts">
+    <value>ความขัดแย้ง {0} รายการ</value>
+  </data>
+  <data name="DbMerge.Summary.OneNoradId">
+    <value>หมายเลขแคตตาล็อก NORAD {0} รายการ</value>
+  </data>
+  <data name="DbMerge.Summary.ManyNoradIds">
+    <value>หมายเลขแคตตาล็อก NORAD {0} รายการ</value>
+  </data>
+  <data name="DbMerge.Summary.FromSuffix">
+    <value> จาก {0}</value>
+  </data>
+  <data name="DbMerge.Item.SatelliteOneMode">
+    <value>{0} (1 โหมด)</value>
+  </data>
+  <data name="DbMerge.Item.SatelliteManyModes">
+    <value>{0} ({1} โหมด)</value>
+  </data>
+  <data name="DbMerge.Item.ModeLine">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="DbMerge.Item.NoradIdLine">
+    <value>{0} → {1}</value>
+  </data>
+  <data name="DbAdd.Title">
+    <value>เพิ่มดาวเทียม</value>
+  </data>
+  <data name="DbAdd.Intro.WithCatalog">
+    <value>เลือกดาวเทียมจากแคตตาล็อก TLE ของคุณ หรือกรอกชื่อกำหนดเองด้านล่าง</value>
+  </data>
+  <data name="DbAdd.Intro.NoCatalog">
+    <value>ดาวเทียม TLE ทุกดวงอยู่ในฐานข้อมูลนี้แล้ว กรอกชื่อกำหนดเองด้านล่าง</value>
+  </data>
+  <data name="DbAdd.SearchWatermark">
+    <value>ค้นหาแคตตาล็อก TLE…</value>
+  </data>
+  <data name="DbAdd.CustomNameLabel">
+    <value>ชื่อกำหนดเอง (ไม่บังคับหากเลือกด้านบนแล้ว)</value>
+  </data>
+  <data name="DbAdd.CustomNameWatermark">
+    <value>พิมพ์ชื่อหากไม่อยู่ในรายการ…</value>
+  </data>
+  <data name="DbAdd.Error.PickOne">
+    <value>เลือกดาวเทียม TLE หรือกรอกชื่อกำหนดเอง</value>
+  </data>
+  <data name="Update.Available.Title">
+    <value>มีการอัปเดต</value>
+  </data>
+  <data name="Update.Available.Message">
+    <value>มี OscarWatch รุ่นใหม่กว่า
+
+คุณกำลังใช้ {0}
+ล่าสุด: {1} ({2})</value>
+  </data>
+  <data name="Update.ViewRelease">
+    <value>ดูรุ่น</value>
+  </data>
+  <data name="Update.RemindLater">
+    <value>เตือนฉันทีหลัง</value>
+  </data>
+  <data name="Update.SkipVersion">
+    <value>ข้ามรุ่นนี้</value>
+  </data>
+  <data name="ReleaseNotes.Title">
+    <value>บันทึกประจำรุ่น</value>
+  </data>
+  <data name="ReleaseNotes.Loading">
+    <value>กำลังโหลดบันทึกประจำรุ่น…</value>
+  </data>
+  <data name="ReleaseNotes.LoadFailed">
+    <value>ไม่สามารถโหลดบันทึกประจำรุ่นได้: {0}</value>
+  </data>
+  <data name="ReleaseNotes.ViewOnGitHub">
+    <value>ดูบน GitHub</value>
+  </data>
+  <data name="Settings.Tab.Qrz">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Section">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Intro">
+    <value>ค้นหาชื่อผู้ปฏิบัติงาน (และกริดหากว่าง) จาก QRZ เมื่อคุณพิมพ์สัญญาณเรียกใน OscarWatch Logbook การใช้ XML Data ต้องสมัครสมาชิก QRZ ชื่อผู้ใช้และรหัสผ่านเก็บไว้ในเครื่องนี้</value>
+  </data>
+  <data name="Settings.Qrz.Enable">
+    <value>เปิดการค้นหาป้ายเรียก QRZ ใน OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.Qrz.Username">
+    <value>ชื่อผู้ใช้ QRZ</value>
+  </data>
+  <data name="Settings.Qrz.UsernameWatermark">
+    <value>สัญญาณเรียก</value>
+  </data>
+  <data name="Settings.Qrz.Password">
+    <value>รหัสผ่าน QRZ</value>
+  </data>
+  <data name="Settings.Qrz.PasswordWatermark">
+    <value>รหัสผ่านบัญชี</value>
+  </data>
+  <data name="Settings.Qrz.TestConnection">
+    <value>ทดสอบการเชื่อมต่อ</value>
+  </data>
+  <data name="Settings.Qrz.Testing">
+    <value>กำลังทดสอบ…</value>
+  </data>
+  <data name="Settings.Qrz.EnterCredentials">
+    <value>ป้อนชื่อผู้ใช้และรหัสผ่าน QRZ (ออกจากแต่ละช่องหรือกดทดสอบอีกครั้ง)</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOk">
+    <value>เชื่อมต่อสำเร็จ สมาชิก XML ใช้ได้ถึง {0}</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOkNoExpiry">
+    <value>เชื่อมต่อสำเร็จ</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionFailed">
+    <value>ไม่สามารถเข้าสู่ QRZ ได้: {0}</value>
+  </data>
+  <data name="Settings.Qrz.SubscriptionRequired">
+    <value>QRZ XML Data ต้องสมัครสมาชิก โปรดตรวจสอบสิทธิ์ XML ในบัญชี QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Timeout">
+    <value>QRZ ไม่ตอบกลับทันเวลา</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.Intro">
+    <value>เติมชื่อ (และกริดหากว่าง) จาก QRZ เมื่อพิมพ์สัญญาณเรียก จะไม่ทับชื่อที่คุณพิมพ์แล้ว หรือชื่อที่ดึงมาจาก QSO เดิมในสมุดนี้</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.CredentialsNote">
+    <value>ต้องสมัคร QRZ XML Data ชื่อผู้ใช้และรหัสผ่านเก็บไว้กับค่าตั้ง OscarWatch อื่น ๆ บนเครื่องนี้</value>
+  </data>
+  <data name="Logbook.CallHint.Qrz">
+    <value>ชื่อจาก QRZ</value>
+  </data>
+  <data name="Settings.Tab.HamQth">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Section">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Intro">
+    <value>ค้นหาชื่อผู้ปฏิบัติงาน (และกริดหากว่าง) จาก HamQTH เมื่อคุณพิมพ์สัญญาณเรียกใน OscarWatch Logbook บัญชี HamQTH ฟรีก็พอ (ไม่ต้องสมัคร XML แบบเสียเงิน) ใช้เมื่อ QRZ ปิด ไม่พบ หรือยังไม่ได้ตั้งค่า ชื่อผู้ใช้และรหัสผ่านเก็บไว้ในเครื่องนี้</value>
+  </data>
+  <data name="Settings.HamQth.Enable">
+    <value>เปิดการค้นหาป้ายเรียก HamQTH ใน OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.HamQth.Username">
+    <value>ชื่อผู้ใช้ HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.UsernameWatermark">
+    <value>สัญญาณเรียก</value>
+  </data>
+  <data name="Settings.HamQth.Password">
+    <value>รหัสผ่าน HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.PasswordWatermark">
+    <value>รหัสผ่านบัญชี</value>
+  </data>
+  <data name="Settings.HamQth.TestConnection">
+    <value>ทดสอบการเชื่อมต่อ</value>
+  </data>
+  <data name="Settings.HamQth.Testing">
+    <value>กำลังทดสอบ…</value>
+  </data>
+  <data name="Settings.HamQth.EnterCredentials">
+    <value>ป้อนชื่อผู้ใช้และรหัสผ่าน HamQTH (ออกจากแต่ละช่องหรือกดทดสอบอีกครั้ง)</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionOk">
+    <value>เชื่อมต่อสำเร็จ</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionFailed">
+    <value>ไม่สามารถเข้าสู่ HamQTH ได้: {0}</value>
+  </data>
+  <data name="Settings.HamQth.Timeout">
+    <value>HamQTH ไม่ตอบกลับทันเวลา</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.Intro">
+    <value>เติมชื่อ (และกริดหากว่าง) จาก HamQTH เมื่อ QRZ ปิด ไม่พบ หรือยังไม่ได้ตั้งค่า จะไม่ทับชื่อที่คุณพิมพ์แล้ว หรือชื่อที่ดึงมาจาก QSO เดิมในสมุดนี้</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.CredentialsNote">
+    <value>ต้องมีบัญชี HamQTH ฟรี ชื่อผู้ใช้และรหัสผ่านเก็บไว้กับค่าตั้ง OscarWatch อื่น ๆ บนเครื่องนี้</value>
+  </data>
+  <data name="Logbook.CallHint.HamQth">
+    <value>ชื่อจาก HamQTH</value>
+  </data>
+</root>

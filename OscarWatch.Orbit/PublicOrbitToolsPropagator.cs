@@ -11,6 +11,12 @@ public sealed class PublicOrbitToolsPropagator : IOrbitPropagator
 
     private readonly Dictionary<(double, double, double), Zeptomoby.OrbitTools.Site> _siteCache = new();
 
+    /// <summary>Test hook: number of satellite <c>PositionEci</c> evaluations.</summary>
+    internal long SatellitePositionEciCount { get; private set; }
+
+    /// <summary>Test hook: number of observer/satellite range-rate evaluations.</summary>
+    internal long RangeRateComputationCount { get; private set; }
+
     public IReadOnlyCollection<string> LoadedNoradIds
     {
         get
@@ -38,6 +44,8 @@ public sealed class PublicOrbitToolsPropagator : IOrbitPropagator
         {
             _satellites.Clear();
             _siteCache.Clear();
+            SatellitePositionEciCount = 0;
+            RangeRateComputationCount = 0;
         }
     }
 
@@ -52,6 +60,7 @@ public sealed class PublicOrbitToolsPropagator : IOrbitPropagator
         lock (_gate)
         {
             var orbit = GetOrbitUnlocked(noradId);
+            SatellitePositionEciCount++;
             return OrbitToolsMapping.ToGeoCoordinate(orbit.PositionEci(utc));
         }
     }
@@ -61,6 +70,7 @@ public sealed class PublicOrbitToolsPropagator : IOrbitPropagator
         lock (_gate)
         {
             var orbit = GetOrbitUnlocked(noradId);
+            SatellitePositionEciCount++;
             return OrbitToolsMapping.ToEciPosition(orbit.PositionEci(utc));
         }
     }
@@ -70,17 +80,8 @@ public sealed class PublicOrbitToolsPropagator : IOrbitPropagator
         lock (_gate)
         {
             var orbit = GetOrbitUnlocked(noradId);
-            var key = (
-                Math.Round(site.LatitudeDeg, 6),
-                Math.Round(site.LongitudeDeg, 6),
-                Math.Round(site.AltitudeKm, 6));
-
-            if (!_siteCache.TryGetValue(key, out var groundSite))
-            {
-                groundSite = OrbitToolsMapping.CreateSite(site);
-                _siteCache[key] = groundSite;
-            }
-
+            var groundSite = GetOrCreateSiteUnlocked(site);
+            SatellitePositionEciCount++;
             var satEci = orbit.PositionEci(utc);
             var topo = groundSite.GetLookAngle(satEci);
             var rangeRate = ComputeRangeRateKmPerSec(groundSite, satEci, utc);
@@ -88,13 +89,67 @@ public sealed class PublicOrbitToolsPropagator : IOrbitPropagator
         }
     }
 
-    private static double ComputeRangeRateKmPerSec(
+    /// <inheritdoc />
+    public LiveSatelliteGeometry GetLiveGeometry(
+        string noradId,
+        GroundStation site,
+        DateTime utc,
+        bool includeRangeRate = true)
+    {
+        lock (_gate)
+        {
+            var orbit = GetOrbitUnlocked(noradId);
+            // One SGP4 evaluation shared by look angles, subpoint, and ECI.
+            SatellitePositionEciCount++;
+            var satEci = orbit.PositionEci(utc);
+            var subpoint = OrbitToolsMapping.ToGeoCoordinate(satEci);
+            var eci = OrbitToolsMapping.ToEciPosition(satEci);
+
+            LookAngles? look = null;
+            Exception? lookError = null;
+            try
+            {
+                var groundSite = GetOrCreateSiteUnlocked(site);
+                var topo = groundSite.GetLookAngle(satEci);
+                var rangeRate = includeRangeRate
+                    ? ComputeRangeRateKmPerSec(groundSite, satEci, utc)
+                    : 0;
+                look = OrbitToolsMapping.ToLookAngles(topo, rangeRate);
+            }
+            catch (Exception ex)
+            {
+                // Preserve TrackingOrchestrator behaviour: look stays null; subpoint/ECI remain.
+                lookError = ex;
+            }
+
+            return new LiveSatelliteGeometry(look, subpoint, eci, lookError);
+        }
+    }
+
+    private Zeptomoby.OrbitTools.Site GetOrCreateSiteUnlocked(GroundStation site)
+    {
+        var key = (
+            Math.Round(site.LatitudeDeg, 6),
+            Math.Round(site.LongitudeDeg, 6),
+            Math.Round(site.AltitudeKm, 6));
+
+        if (!_siteCache.TryGetValue(key, out var groundSite))
+        {
+            groundSite = OrbitToolsMapping.CreateSite(site);
+            _siteCache[key] = groundSite;
+        }
+
+        return groundSite;
+    }
+
+    private double ComputeRangeRateKmPerSec(
         Zeptomoby.OrbitTools.Site groundSite,
         Zeptomoby.OrbitTools.EciTime satEci,
         DateTime utc)
     {
         try
         {
+            RangeRateComputationCount++;
             var obsEci = groundSite.PositionEci(utc);
             return RangeRateCalculator.ComputeKmPerSec(satEci, obsEci);
         }

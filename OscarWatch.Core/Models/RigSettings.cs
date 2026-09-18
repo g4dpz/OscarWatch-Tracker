@@ -14,6 +14,9 @@ public sealed class RigSettings
     /// <summary>Factory CI-V USB default baud for IC-905 (must match radio Set mode).</summary>
     public const int Ic905DefaultBaudRate = 115200;
 
+    /// <summary>Typical CI-V baud for IC-7100 (must match radio menu; USB max 19200).</summary>
+    public const int Ic7100DefaultBaudRate = 19200;
+
     /// <summary>Typical menu 031 CAT RATE for FT-991 / FT-991A (4800–38400 supported).</summary>
     public const int Ft991DefaultBaudRate = 38400;
 
@@ -155,6 +158,7 @@ public sealed class RigSettings
         type is RigType.YaesuFt817 or RigType.YaesuFt818 or RigType.YaesuFtx1
             or RigType.YaesuFt991 or RigType.YaesuFt991a
             or RigType.IcomIc705 or RigType.IcomIc7300 or RigType.IcomIc905
+            or RigType.IcomIc7100
             or RigType.IcomIc706 or RigType.IcomIc706Mkii or RigType.IcomIc706MkiiG
             or RigType.KenwoodThD74 or RigType.KenwoodThD75;
 
@@ -211,6 +215,7 @@ public sealed class RigSettings
         RigType.IcomIc705 => "A4",
         RigType.IcomIc7300 => "94",
         RigType.IcomIc905 => "AC",
+        RigType.IcomIc7100 => "88",
         RigType.IcomIc706 => "48",
         RigType.IcomIc706Mkii => "4C",
         RigType.IcomIc706MkiiG => "58",

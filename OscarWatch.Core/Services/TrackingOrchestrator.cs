@@ -21,6 +21,9 @@ public sealed class TrackingOrchestrator
     private readonly HashSet<string> _loggedStateSkips = new(StringComparer.Ordinal);
     private List<SatelliteCatalogEntry> _cachedEnabledSats = new();
     private int _lastNonFocusedRecomputeIndex;
+    
+    // Reusable collection for stale tracks to avoid allocation every 250ms
+    private readonly List<(SatelliteCatalogEntry Sat, SatelliteVisualCache.Entry Cache, int Priority)> _staleTracksBuffer = new();
 
     // Sun position cache: sun moves ~0.004°/min, so 30-second cache is very effective
     // Note: If map time is scrubbed by less than 30s, illumination uses a stale sun position.
@@ -57,6 +60,7 @@ public sealed class TrackingOrchestrator
     {
         _propagator.Clear();
         _visualCache.Clear();
+        _staleTracksBuffer.Clear(); // Clear buffer to avoid retaining stale cache references
         _loggedLookAngleSkips.Clear();
         _loggedStateSkips.Clear();
         _bufferA.Clear();
@@ -101,7 +105,11 @@ public sealed class TrackingOrchestrator
     }
 
     /// <summary>Clears cached ground tracks and footprints (e.g. after map-time scrub).</summary>
-    public void InvalidateVisualCache() => _visualCache.Clear();
+    public void InvalidateVisualCache()
+    {
+        _visualCache.Clear();
+        _staleTracksBuffer.Clear(); // Clear buffer to avoid retaining stale cache references
+    }
 
     /// <summary>Gets sun position with caching. Sun moves ~0.004°/min so 30-second cache is effective.</summary>
     private EciPosition GetCachedSunPosition(DateTime utc)
@@ -131,18 +139,31 @@ public sealed class TrackingOrchestrator
 
             try
             {
-                LookAngles? look = null;
+                LiveSatelliteGeometry geometry;
                 try
                 {
-                    look = _propagator.GetLookAngles(sat.NoradId, site, utc);
+                    // Doppler / Satellite Link / frequency overlay only consume range rate for the
+                    // focused sat. Skip observer ECI + range-rate maths for everyone else.
+                    var includeRangeRate = !string.IsNullOrWhiteSpace(groundTrackNoradId)
+                        && string.Equals(sat.NoradId, groundTrackNoradId, StringComparison.OrdinalIgnoreCase);
+                    geometry = _propagator.GetLiveGeometry(sat.NoradId, site, utc, includeRangeRate);
                 }
                 catch (Exception ex)
                 {
-                    if (_loggedLookAngleSkips.Add(sat.NoradId))
-                        _diagnostics.LookAnglesSkipped(sat.NoradId, utc, ex);
+                    if (_loggedStateSkips.Add(sat.NoradId))
+                        _diagnostics.SatelliteStateSkipped(sat.NoradId, utc, ex);
+                    continue;
                 }
 
-                var subpoint = _propagator.GetSubpoint(sat.NoradId, utc);
+                if (geometry.LookAngles is null && geometry.LookAnglesError is { } lookEx
+                    && _loggedLookAngleSkips.Add(sat.NoradId))
+                {
+                    _diagnostics.LookAnglesSkipped(sat.NoradId, utc, lookEx);
+                }
+
+                var look = geometry.LookAngles;
+                var subpoint = geometry.Subpoint;
+                var satEci = geometry.Eci;
                 var cache = _visualCache.GetOrAdd(sat.NoradId);
 
                 double? motionHeadingDeg;
@@ -218,7 +239,6 @@ public sealed class TrackingOrchestrator
                     ? cache.FootprintRadiusDeg
                     : FootprintGeometry.EstimateRingRadiusDeg(subpoint, footprint);
 
-                var satEci = _propagator.GetEciPosition(sat.NoradId, utc);
                 var isSunlit = SatelliteIllumination.IsSunlit(satEci, sunEci);
                 states.Add(new SatelliteTrackState
                 {
@@ -241,8 +261,9 @@ public sealed class TrackingOrchestrator
             }
         }
 
-        // Staggered non-focused ground track recomputation: max 2 per tick, 20ms timeout
-        var nonFocusedStale = new List<(SatelliteCatalogEntry Sat, SatelliteVisualCache.Entry Cache)>();
+        // Staggered non-focused ground track recomputation: max 2 per tick, 20ms timeout.
+        // Prefer above-horizon satellites so visible tracks stay fresh.
+        _staleTracksBuffer.Clear();
         foreach (var sat in sats)
         {
             if (!_propagator.HasSatellite(sat.NoradId))
@@ -251,22 +272,45 @@ public sealed class TrackingOrchestrator
                 && !string.IsNullOrWhiteSpace(groundTrackNoradId))
                 continue;
             if (!_visualCache.TryGetFreshGroundTrack(sat.NoradId, utc, isFocused: false, out _))
-                nonFocusedStale.Add((sat, _visualCache.GetOrAdd(sat.NoradId)));
+            {
+                LookAngles? look = null;
+                for (var si = 0; si < states.Count; si++)
+                {
+                    if (states[si].NoradId == sat.NoradId)
+                    {
+                        look = states[si].LookAngles;
+                        break;
+                    }
+                }
+
+                _staleTracksBuffer.Add((sat, _visualCache.GetOrAdd(sat.NoradId), GroundTrackRebuildPriority(look)));
+            }
         }
 
-        if (nonFocusedStale.Count > 0)
+        if (_staleTracksBuffer.Count > 0)
         {
             var sw = Stopwatch.StartNew();
             var recomputedCount = 0;
-            var startIndex = _lastNonFocusedRecomputeIndex % nonFocusedStale.Count;
+            var preferredPriority = MinStalePriority(_staleTracksBuffer);
+            var preferredCount = CountStaleWithPriority(_staleTracksBuffer, preferredPriority);
+            var startIndex = preferredCount > 0
+                ? _lastNonFocusedRecomputeIndex % preferredCount
+                : 0;
+            var preferredSeen = 0;
 
-            for (var i = 0; i < nonFocusedStale.Count && recomputedCount < 2; i++)
+            for (var i = 0; i < _staleTracksBuffer.Count && recomputedCount < 2; i++)
             {
                 if (sw.ElapsedMilliseconds >= 20)
                     break;
 
-                var idx = (startIndex + i) % nonFocusedStale.Count;
-                var (staleSat, staleCache) = nonFocusedStale[idx];
+                // Walk preferred-priority entries in round-robin order first.
+                var idx = FindNthStaleWithPriority(
+                    _staleTracksBuffer, preferredPriority, (startIndex + preferredSeen) % preferredCount);
+                preferredSeen++;
+                if (idx < 0)
+                    break;
+
+                var (staleSat, staleCache, _) = _staleTracksBuffer[idx];
 
                 var periodMin = EstimatePeriodMinutes(staleSat);
                 var halfPeriod = TimeSpan.FromMinutes(periodMin / 2.0);
@@ -289,6 +333,7 @@ public sealed class TrackingOrchestrator
                             LookAngles = s.LookAngles,
                             MotionHeadingDeg = s.MotionHeadingDeg,
                             GroundTrack = track,
+                            NextOrbitGroundTrack = s.NextOrbitGroundTrack,
                             Footprint = s.Footprint,
                             FootprintRadiusDeg = s.FootprintRadiusDeg,
                             IsSunlit = s.IsSunlit
@@ -300,15 +345,63 @@ public sealed class TrackingOrchestrator
                 recomputedCount++;
             }
 
-            _lastNonFocusedRecomputeIndex = (startIndex + recomputedCount) % Math.Max(1, nonFocusedStale.Count);
+            _lastNonFocusedRecomputeIndex = preferredCount > 0
+                ? (startIndex + recomputedCount) % preferredCount
+                : 0;
         }
 
         _useBufferA = !_useBufferA;
         return states;
     }
 
-    private static bool ShouldBuildGroundTrack(string noradId, string? groundTrackNoradId) =>
-        true; // Always build ground tracks for all satellites (was: only for focused)
+    /// <summary>0 = above horizon (rebuild first); 1 = below / unknown.</summary>
+    internal static int GroundTrackRebuildPriority(LookAngles? look)
+        => look is { ElevationDeg: >= 0 } ? 0 : 1;
+
+    private static int MinStalePriority(
+        List<(SatelliteCatalogEntry Sat, SatelliteVisualCache.Entry Cache, int Priority)> buffer)
+    {
+        var min = int.MaxValue;
+        for (var i = 0; i < buffer.Count; i++)
+        {
+            if (buffer[i].Priority < min)
+                min = buffer[i].Priority;
+        }
+
+        return min;
+    }
+
+    private static int CountStaleWithPriority(
+        List<(SatelliteCatalogEntry Sat, SatelliteVisualCache.Entry Cache, int Priority)> buffer,
+        int priority)
+    {
+        var count = 0;
+        for (var i = 0; i < buffer.Count; i++)
+        {
+            if (buffer[i].Priority == priority)
+                count++;
+        }
+
+        return count;
+    }
+
+    private static int FindNthStaleWithPriority(
+        List<(SatelliteCatalogEntry Sat, SatelliteVisualCache.Entry Cache, int Priority)> buffer,
+        int priority,
+        int n)
+    {
+        var seen = 0;
+        for (var i = 0; i < buffer.Count; i++)
+        {
+            if (buffer[i].Priority != priority)
+                continue;
+            if (seen == n)
+                return i;
+            seen++;
+        }
+
+        return -1;
+    }
 
     private double? TryEstimateMotionHeadingDeg(string noradId, DateTime utc, GeoCoordinate subpoint)
     {

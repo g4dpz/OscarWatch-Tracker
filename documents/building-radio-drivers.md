@@ -84,6 +84,7 @@ Per-radio subclasses only override what differs, usually **`SetSatelliteMode`**:
 | [`IcomIc705Driver`](../OscarWatch/Rig/IcomIc705Driver.cs) | `IcomIc705` | no-op (dual-radio VFO A only) |
 | [`IcomIc7300Driver`](../OscarWatch/Rig/IcomIc7300Driver.cs) | `IcomIc7300` | no-op (dual-radio VFO A only) |
 | [`IcomIc905Driver`](../OscarWatch/Rig/IcomIc905Driver.cs) | `IcomIc905` | no-op (dual-radio VFO A only) |
+| [`IcomIc7100Driver`](../OscarWatch/Rig/IcomIc7100Driver.cs) | `IcomIc7100` | no-op (dual-radio VFO A only) |
 | [`IcomIc706SeriesDriver`](../OscarWatch/Rig/IcomIc706SeriesDriver.cs) | `IcomIc706`, `IcomIc706Mkii`, `IcomIc706MkiiG` | no-op (dual-radio VFO A only) |
 
 **IC-9700 digital modes:** database `DATA-USB` / `DATA-LSB` send base SSB (`06 01` / `06 00`) then DATA on with FIL1 (`1A 06 01 01`) — USB-D / LSB-D. Command `26` is unavailable in SAT mode; IC-910/9100 keep voice SSB only for `DATA-*` strings.
@@ -143,7 +144,7 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 - Radio menu **#37**: CAT baud matches Settings (often **57600**).
 - **CT-62** (or equivalent) on the **CAT/LINEAR** jack.
 - Two-way CAT firmware (serial **8G05xxxx+**).
-- On a real pass: SAT mode engages, RX/TX doppler tracks, uplink CTCSS on SAT TX.
+- On a real pass: SAT mode engages, RX/TX doppler tracks, uplink CTCSS on SAT TX (encode-only, like TS-2000; tone decode mutes receive on satellite downlinks).
 
 ## Reference: Yaesu FT-817 / FT-818 (shipped)
 
@@ -222,6 +223,26 @@ Keep **protocol parsing in the app project**; put only reusable math (frequency 
 - Enable **Settings → Radio → Dual radio**; configure each leg (type, COM, baud, CI-V address for IC-7300 legs).
 - Match **CI-V address** and **baud** in the radio CI-V menu (defaults 94H / 115200).
 - One COM port per leg — use the USB CI-V serial port.
+- On a real pass: both legs get doppler; CTCSS on uplink only.
+
+## Reference: ICOM IC-7100 (shipped, dual radio only)
+
+| Piece | Path |
+|-------|------|
+| Driver | [`OscarWatch/Rig/IcomIc7100Driver.cs`](../OscarWatch/Rig/IcomIc7100Driver.cs) |
+
+- **Dual radio only** (`RigSettings.DualRadioEnabled`): IC-7100 is not offered in the single-radio driver list. Each endpoint is one physical radio on VFO A (RigController uses `Main`, mapped to VFO A in the driver).
+- No dedicated satellite mode — `SetSatelliteMode` is a no-op; dual pass init sets mode and frequency directly.
+- Default CI-V address **88**; default baud **19200** (must match radio menu; USB max is 19200).
+- HF/6 m, 2 m, and 70 cm (1.8–54 MHz, 144–148 MHz, 430–450 MHz). Typical for AO-07 Mode A downlink on 10 m, or as either leg of a VHF/UHF dual station. **23 cm** is outside hardware coverage.
+- Mixed pairs need no special controller logic.
+
+### Hardware checklist (IC-7100 dual)
+
+- Enable **Settings → Radio → Dual radio**; configure each leg (type, COM, baud, CI-V address for IC-7100 legs).
+- Set **CI-V Output (USB)** On, or use the **REMOTE** jack.
+- Match **CI-V address** and **baud** in the radio CI-V menu (defaults 88H / 19200).
+- One COM port per leg.
 - On a real pass: both legs get doppler; CTCSS on uplink only.
 
 ## Reference: ICOM IC-706 series (shipped, dual radio only)

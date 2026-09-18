@@ -1,3 +1,4 @@
+using OscarWatch.Core.Display;
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Radio;
@@ -50,6 +51,63 @@ public class DopplerPassLoggerTests
 
         if (Directory.Exists(tempDir))
             Directory.Delete(tempDir, recursive: true);
+    }
+
+    [Fact]
+    public void PruneOlderThanRetention_deletes_csvs_older_than_14_days()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), "OscarWatchTests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempDir);
+        try
+        {
+            var now = new DateTime(2026, 9, 8, 12, 0, 0, DateTimeKind.Utc);
+            var keepPath = Path.Combine(tempDir, "keep-doppler.csv");
+            var dropPath = Path.Combine(tempDir, "old-doppler.csv");
+            var otherPath = Path.Combine(tempDir, "notes.txt");
+            File.WriteAllText(keepPath, "keep");
+            File.WriteAllText(dropPath, "drop");
+            File.WriteAllText(otherPath, "ignore");
+            File.SetLastWriteTimeUtc(keepPath, now.AddDays(-13));
+            File.SetLastWriteTimeUtc(dropPath, now.AddDays(-15));
+            File.SetLastWriteTimeUtc(otherPath, now.AddDays(-30));
+
+            var deleted = DopplerPassLogFileNameFormat.PruneOlderThanRetention(tempDir, now);
+
+            Assert.Equal(1, deleted);
+            Assert.True(File.Exists(keepPath));
+            Assert.False(File.Exists(dropPath));
+            Assert.True(File.Exists(otherPath));
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir))
+                Directory.Delete(tempDir, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void PruneOlderThanRetention_protects_active_path()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), "OscarWatchTests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempDir);
+        try
+        {
+            var now = new DateTime(2026, 9, 8, 12, 0, 0, DateTimeKind.Utc);
+            var active = Path.Combine(tempDir, "active-doppler.csv");
+            File.WriteAllText(active, "active");
+            File.SetLastWriteTimeUtc(active, now.AddDays(-20));
+
+            var deleted = DopplerPassLogFileNameFormat.PruneOlderThanRetention(
+                tempDir, now, protectPath: active);
+
+            Assert.Equal(0, deleted);
+            Assert.True(File.Exists(active));
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir))
+                Directory.Delete(tempDir, recursive: true);
+        }
     }
 
     [Fact]

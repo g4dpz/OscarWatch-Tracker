@@ -1,5 +1,7 @@
 using OscarWatch.Core.Cloudlog;
+using OscarWatch.Core.HamQth;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Qrz;
 using OscarWatch.Core.Services;
 using OscarWatch.Localization;
 using OscarWatch.ViewModels;
@@ -85,6 +87,8 @@ public sealed class SettingsRecordingDevicesTests
             recording,
             new StubCloudlogRadioSyncService(),
             new StubCloudlogLookupService(),
+            new StubQrzCallbookService(),
+            new StubHamQthCallbookService(),
             new StubHamsAtRovesService(),
             new StubGpsService(),
             new StubSatelliteLinkBroadcastService(),
@@ -199,6 +203,38 @@ public sealed class SettingsRecordingDevicesTests
             CloudlogSettings settings,
             CancellationToken cancellationToken = default) =>
             Task.FromResult(new CloudlogStationProfilesResult());
+    }
+
+    private sealed class StubQrzCallbookService : IQrzCallbookService
+    {
+        public bool CanLookup(QrzSettings? settings) => false;
+
+        public Task<QrzConnectionTestResult> TestConnectionAsync(
+            QrzSettings settings,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(QrzConnectionTestResult.Success(null));
+
+        public Task<QrzCallbookEntry?> LookupAsync(
+            QrzSettings settings,
+            string callsign,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<QrzCallbookEntry?>(null);
+    }
+
+    private sealed class StubHamQthCallbookService : IHamQthCallbookService
+    {
+        public bool CanLookup(HamQthSettings? settings) => false;
+
+        public Task<HamQthConnectionTestResult> TestConnectionAsync(
+            HamQthSettings settings,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(HamQthConnectionTestResult.Success());
+
+        public Task<QrzCallbookEntry?> LookupAsync(
+            HamQthSettings settings,
+            string callsign,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<QrzCallbookEntry?>(null);
     }
 
     private sealed class StubHamsAtRovesService : IHamsAtRovesService

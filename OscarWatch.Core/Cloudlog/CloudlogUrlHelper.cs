@@ -8,6 +8,9 @@ public static class CloudlogUrlHelper
             return "";
 
         var trimmed = url.Trim().TrimEnd('/');
+        if (trimmed.Length == 0)
+            return "";
+
         if (!trimmed.Contains("://", StringComparison.Ordinal))
             trimmed = "https://" + trimmed;
 

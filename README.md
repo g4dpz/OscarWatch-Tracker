@@ -80,7 +80,7 @@ Plain-language help ships with the app: **Help → Operator guide** (also in the
 - **TLE auto-update**: manual refresh, on startup (if stale), or every 6 hours while running (Settings → Tracking)
 - **Satellite picker**: choose which spacecraft to track
 - **Pass predictions**: upcoming passes with TCA (time of closest approach / max elevation), min-elevation and min-duration filters; sidebar **View pass plot** for a single-station polar chart
-- **Pass planner**: multi-station profiles (home / portable), pass quality filters, satellite filter, **pass radar gallery** (polar plots for all upcoming passes of one satellite), and `.ics` calendar export for contest or field-day planning
+- **Pass planner**: multi-station profiles (home / portable), pass quality filters, satellite filter, **pass radar gallery** (polar plots for all upcoming passes of one satellite), `.ics` calendar export, and **Add this pass to Google Calendar**
 - **Mutual pass finder**: find passes visible from two stations at once (Passes → Mutual pass finder)
 - **DX station monitor**: enter a remote Maidenhead grid on the map; see where that station is and live azimuth/elevation for the focused satellite from their QTH (compact draggable overlay)
 - **Live telemetry**: azimuth, elevation, range, and altitude updated every second (UTC)
@@ -112,6 +112,7 @@ OscarWatch talks to rigs and rotators over **serial CAT** (COM port on Windows, 
 | **ICOM IC-705**     | CI-V              | **Dual radio only**: one or two IC-705s, or mixed with FT-817/818; one VFO per radio; per-leg CI-V address (default `A4`) |
 | **ICOM IC-7300**    | CI-V              | **Dual radio only**: HF/6 m leg (1.8–54 MHz); default CI-V `94` / 115200; typical AO-07 Mode A downlink paired with a 2 m uplink radio |
 | **ICOM IC-905**     | CI-V              | **Dual radio only**: one VFO per radio; default CI-V `AC` / 115200; VHF/UHF plus SHF (13 cm / 6 cm / 3 cm) |
+| **ICOM IC-7100**    | CI-V              | **Dual radio only**: one VFO per radio; default CI-V `88` / 19200; HF/6 m, 2 m, and 70 cm (AO-07 Mode A downlink on 10 m); 23 cm not supported |
 | **ICOM IC-706 / IC-706MKII / IC-706MKIIG** | CI-V | **Dual radio only**: shared CI-V driver; default addresses `48` / `4C` / `58`. All three cover HF/6 m and 2m; MKIIG adds 70cm (AO-07 Mode A downlink on 10 m). 23cm not supported |
 | **Yaesu FT-991 / FT-991A** | Yaesu ASCII CAT (8N2) | **Dual radio only**: one or two FT-991(A)s, or mixed with other dual legs; VFO-A per radio; FM dial lock via `LK` |
 | **Yaesu FTX-1 Field / FTX-1optima** | Yaesu ASCII CAT (8N2) | **Dual radio only**: same newcat subset as FT-991; use CAT-1 (Enhanced COM) per leg; HF/50/144/430 coverage |
@@ -139,11 +140,12 @@ Pull requests for more native rig support are welcome. A HamLib backend is not o
 | Controller       | Protocol    | Notes                                               |
 | ---------------- | ----------- | --------------------------------------------------- |
 | **Yaesu GS-232** | GS-232      | Yaesu rotators and many GS-232 clones               |
-| **SPID**         | SP (native) | Rot1Prog, Rot2Prog, rot2proG — set controller to **SP** mode and **Auto (A)**; 600 baud default (1200 for Rot1Prog) |
+| **SPID**         | SP (native) | Rot1Prog, Rot2Prog, rot2proG: set controller to **SP** mode and **Auto (A)**; 600 baud default (1200 for Rot1Prog) |
+| **SPID MD-01 / MD-02** | Rot2Prog over TCP | Native Ethernet: host/port (default **23**); set MOTOR CONFIGURATION to **ETH** and protocol to **SPID ROT2** |
 | **EasyComm**     | EasyComm II | M2 and other EasyComm-compatible controllers (SPID also works in **EC** mode if you prefer) |
-| **OZ9AAR URC**   | TCP/JSON    | Ultimate Rotator Controller — host/port (default **1111**); set URC to **REM** mode |
+| **OZ9AAR URC**   | TCP/JSON    | Ultimate Rotator Controller: host/port (default **1111**); set URC to **REM** mode |
 
-GS-232, SPID, EasyComm, and SAEBRTrack can also use **TCP serial** (e.g. ser2net) instead of a local COM port — choose **Connection → TCP serial** under Settings → Rotator.
+GS-232, SPID, EasyComm, and SAEBRTrack can also use **TCP serial** (e.g. ser2net) instead of a local COM port: choose **Connection → TCP serial** under Settings → Rotator.
 
 
 Pass tracking when elevation is above the track-start threshold; manual **Park** in the sidebar; **manual rotator** in Standby (menu **Rotator…**: set az/el, Rotate, Stop, Park for a quick contact without resuming pass tracking). Azimuth range **360°** or **450°** (e.g. G-5500). On **450°** rotators, optional **smart azimuth** chooses 361–450° commands for the shortest path when the pass will cross north (Settings → Rotator). Elevation range **0–90°** or **0–180°** (over-the-top). Optional **keyhole avoidance** on **0–180°** mounts pre-positions for high-elevation zenith passes; see [help](help/rotators.html#keyhole-avoidance). Optional **calibration offsets** correct pass tracking and manual moves; park uses your configured park az/el exactly.
@@ -163,8 +165,8 @@ Open **Settings** from the menu. Tabs:
 | **Appearance** | Light / dark / system theme; 12- or 24-hour clock; footprint motion arrows and optional greyline on/off                                                                                                                                       |
 | **Voice**      | Enable announcements, trigger elevation (default −3°), voice selection, test button                                                                                                                                                            |
 | **Recording**  | Automatic pass WAV capture, input device, start/stop elevation, output folder, test clip                                                                                                                                                       |
-| **Rotator**    | Type (GS-232 / SPID / EasyComm / SAEBRTrack / OZ9AAR URC TCP), Serial or TCP serial connection (COM or host/port), 360°/450° azimuth, smart 450°, **0–90° / 0–180° elevation**, optional keyhole avoidance (0–180° only), park, track-start elevation, calibration offsets |
-| **Radio**      | Rig type, COM port, **Dual radio** (FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, IC-706 series, SDR rigctl downlink, or mixed; separate downlink/uplink), region, per-leg CI-V address for ICOM dual legs, linear CW receive mode (USB/LSB vs CW on both VFOs), Doppler CAT thresholds (FM default 350 Hz, SSB/CW default 50 Hz; adaptive and lead on by default), resume CAT after dial / uplink wait after dial (see [help](help/radio-doppler-tuning.html#passband-knob)), pause CAT |
+| **Rotator**    | Type (GS-232 / SPID / SPID MD-01 TCP / EasyComm / SAEBRTrack / OZ9AAR URC TCP / Green Heron RT-21), Serial or TCP serial connection (COM or host/port), 360°/450° azimuth, smart 450°, **0–90° / 0–180° elevation**, optional keyhole avoidance (0–180° only), park, track-start elevation, calibration offsets |
+| **Radio**      | Rig type, COM port, **Dual radio** (FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, IC-7100, IC-706 series, SDR rigctl downlink, or mixed; separate downlink/uplink), region, per-leg CI-V address for ICOM dual legs, linear CW receive mode (USB/LSB vs CW on both VFOs), Doppler CAT thresholds (FM default 350 Hz, SSB/CW default 50 Hz; adaptive and lead on by default), resume CAT after dial / uplink wait after dial (see [help](help/radio-doppler-tuning.html#passband-knob)), pause CAT |
 | **Integrations** | **GPS** (NMEA serial: COM port, auto-update station, optional GPS UTC for tracking — see [help](help/settings.html#gps)); **hams.at** roves; **Cloudlog** (URL, API key, logbook, radio API)                                              |
 
 
@@ -260,6 +262,7 @@ Step-by-step operator notes: [help/settings.html#ffmpeg](help/settings.html#ffmp
 | Transponder DB (user)   | `%AppData%/OscarWatch/satellite_database.json`                                                   |
 | Transponder DB (remote) | [tle.oscarwatch.org/satellite_database.json](https://tle.oscarwatch.org/satellite_database.json) |
 | Logs                    | `%AppData%/OscarWatch/logs/` (daily rolling `oscarwatch-YYYYMMDD.log`, 14 days retained)         |
+| Doppler pass CSVs       | `%AppData%/OscarWatch/doppler-logs/` (optional; CSVs older than 14 days pruned)                 |
 | OscarWatch Logbook      | `%AppData%/OscarWatch/qso_logbook.db` (local SQLite; export ADIF for backup)                     |
 
 
@@ -282,6 +285,10 @@ OscarWatch strings live in `.resx` files under `OscarWatch/Resources/`. **Britis
 | Portuguese (Brazil) | `pt-BR` | `Strings.pt-BR.resx` |
 | Chinese (Simplified) | `zh-CN` | `Strings.zh-CN.resx` |
 | Spanish | `es` | `Strings.es.resx` |
+| Thai | `th` | `Strings.th.resx` |
+| Indonesian | `id` | `Strings.id.resx` |
+| Russian | `ru` | `Strings.ru.resx` |
+| German | `de` | `Strings.de.resx` |
 
 **Using another language:** **Settings → Appearance → Language**, then restart the app.
 
@@ -326,6 +333,8 @@ dotnet run -c Release --project OscarWatch/OscarWatch.csproj
 ### Cross-platform publish
 
 #### GitHub Actions
+
+**[CI](.github/workflows/ci.yml)** builds and tests on Ubuntu and Windows for pull requests to `main` and for pushes to `main`.
 
 **[Publish](.github/workflows/publish.yml)** runs on a version tag (`v`*) or a manual workflow dispatch. It builds and tests on Linux, then publishes installable packages per platform.
 

@@ -340,6 +340,30 @@
   <data name="A11y.SatelliteEclipse">
     <value>Satélite em eclipse</value>
   </data>
+  <data name="Main.WorldMap">
+    <value>Mapa-múndi</value>
+  </data>
+  <data name="A11y.Plot.NoSatellites">
+    <value>{0}. Nenhum satélite selecionado.</value>
+  </data>
+  <data name="A11y.Plot.SelectWithArrows">
+    <value>{0}. {1} satélite(s). Use as setas para selecionar e Enter para confirmar.</value>
+  </data>
+  <data name="A11y.Plot.SatelliteCount">
+    <value>{0}. {1} satélite(s).</value>
+  </data>
+  <data name="A11y.Plot.FocusedWithLookAngles">
+    <value>{0}. Focado {1}. Azimute {2:F1} graus, elevação {3:F1} graus, altitude {4:F0} quilômetros.</value>
+  </data>
+  <data name="A11y.Plot.FocusedBelowHorizon">
+    <value>{0}. Focado {1}. Altitude {2:F0} quilômetros, abaixo do horizonte.</value>
+  </data>
+  <data name="A11y.SkyPlot.TabHint">
+    <value>Gráfico do céu. Tab aqui e use as setas para mudar o satélite selecionado.</value>
+  </data>
+  <data name="A11y.SkyPlot.AllBelowHorizon">
+    <value>Todos os satélites abaixo do horizonte</value>
+  </data>
   <data name="Main.Radio">
     <value>Rádio</value>
   </data>
@@ -534,8 +558,14 @@ Continuar?</value>
   <data name="Menu.Passes.Sunlight">
     <value>_Previsão de Luz Solar</value>
   </data>
+  <data name="Menu.Passes.DopplerInsights">
+    <value>Análise da passagem Doppler</value>
+  </data>
   <data name="Menu.Rotator">
     <value>_Rotor</value>
+  </data>
+  <data name="Menu.Tools">
+    <value>_Ferramentas</value>
   </data>
   <data name="Menu.Satellites">
     <value>_Satélites</value>
@@ -594,6 +624,24 @@ Continuar?</value>
   <data name="Settings.MultiTrackOverlay.Note">
     <value>Trajetória esmaecida da próxima órbita atrás do satélite em foco.</value>
   </data>
+  <data name="Settings.MapCentre">
+    <value>Longitude do centro do mapa</value>
+  </data>
+  <data name="Settings.MapCentre.Note">
+    <value>Greenwich (0°), gridsquare da estação ou uma longitude personalizada.</value>
+  </data>
+  <data name="Settings.MapCentre.Greenwich">
+    <value>Greenwich (0°)</value>
+  </data>
+  <data name="Settings.MapCentre.Station">
+    <value>Gridsquare da estação</value>
+  </data>
+  <data name="Settings.MapCentre.Custom">
+    <value>Longitude personalizada</value>
+  </data>
+  <data name="Settings.MapCentre.CustomLongitude">
+    <value>Longitude central personalizada (°)</value>
+  </data>
   <data name="Settings.Language">
     <value>Idioma</value>
   </data>
@@ -611,6 +659,18 @@ Continuar?</value>
   </data>
   <data name="Settings.Language.Spanish">
     <value>Espanhol</value>
+  </data>
+  <data name="Settings.Language.Thai">
+    <value>ไทย</value>
+  </data>
+  <data name="Settings.Language.Indonesian">
+    <value>Bahasa Indonesia</value>
+  </data>
+  <data name="Settings.Language.Russian">
+    <value>Русский</value>
+  </data>
+  <data name="Settings.Language.German">
+    <value>Deutsch</value>
   </data>
   <data name="Settings.Language.RestartNote">
     <value>É necessário reiniciar o OscarWatch para que a alteração de idioma tenha efeito.</value>
@@ -797,6 +857,15 @@ Continuar?</value>
   </data>
   <data name="Rig.FlexControlFailedDetail">
     <value>Falha na configuração de satélite do FlexRadio: {0}</value>
+  </data>
+  <data name="Rig.Ts2000SatlUnconfirmed">
+    <value>Rastreando (SATL do TS-2000 não confirmado; usando FA/FB)</value>
+  </data>
+  <data name="Rig.Ts2000SatlWarningTitle">
+    <value>Modo satélite do TS-2000 não confirmado</value>
+  </data>
+  <data name="Rig.Ts2000SatlWarningMessage">
+    <value>O rádio não confirmou SATL via CAT (SA;). O OscarWatch continuará a correção Doppler em FA/FB, mas para o melhor resultado pressione SAT no rádio, desligue o modo memória, feche qualquer menu do painel frontal e volte a selecionar o satélite para tentar o SATL completo. Consulte Configurações → Rádio para a nota CAT do TS-2000.</value>
   </data>
   <data name="Rig.NoComPort">
     <value>Nenhuma porta COM selecionada</value>
@@ -1044,6 +1113,27 @@ Continuar?</value>
   <data name="Logbook.ExportAdif.Dialog.Intro">
     <value>Escolha se este ficheiro é para envio ao Logbook of the World. O LoTW usa nomes de satélite diferentes em algumas espaçonaves.</value>
   </data>
+  <data name="Logbook.ExportAdif.Dialog.Scope.All">
+    <value>Todos os QSOs do logbook</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Scope.DateRange">
+    <value>QSOs no intervalo de datas UTC</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.FromUtc">
+    <value>De (UTC)</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.ToUtc">
+    <value>Até (UTC)</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountOne">
+    <value>1 QSO será exportado.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountMany">
+    <value>{0} QSOs serão exportados.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountNone">
+    <value>Nenhum QSO corresponde a este intervalo de exportação.</value>
+  </data>
   <data name="Logbook.ExportAdif.Dialog.ForLotw">
     <value>Remapear nomes de satélite para LoTW</value>
   </data>
@@ -1082,6 +1172,18 @@ Continuar?</value>
   </data>
   <data name="Logbook.Status.QsoCountMany">
     <value>{0} — {1} QSOs</value>
+  </data>
+  <data name="Logbook.Status.ExportedOne">
+    <value>Exportado 1 QSO para ADIF.</value>
+  </data>
+  <data name="Logbook.Status.ExportedMany">
+    <value>Exportados {0} QSOs para ADIF.</value>
+  </data>
+  <data name="Logbook.Status.ExportedOneRange">
+    <value>Exportado 1 QSO para ADIF ({0} UTC).</value>
+  </data>
+  <data name="Logbook.Status.ExportedManyRange">
+    <value>Exportados {0} QSOs para ADIF ({1} UTC).</value>
   </data>
   <data name="Logbook.CloudlogStatus.Pending">
     <value>Pendente</value>
@@ -1887,6 +1989,9 @@ Continuar?</value>
   <data name="Settings.Station.GridSquare">
     <value>Grid Locator</value>
   </data>
+  <data name="Settings.Station.GridSquareNote">
+    <value>Localizador em maiúsculas do campo (IO) até 8 caracteres. Em uma linha de grade, separe os quadrados com vírgulas (ex.: IO77,IO87).</value>
+  </data>
   <data name="Settings.Station.Altitude">
     <value>Altitude "ASL" (m)</value>
   </data>
@@ -1894,10 +1999,10 @@ Continuar?</value>
     <value>Máscara de horizonte</value>
   </data>
   <data name="Settings.Station.HorizonMaskHelp">
-    <value>Skyline opcional para árvores, edifícios e colinas. Clique no gráfico polar para adicionar pontos; arraste para mover; clique com o botão direito para remover. Vazia = não usada — só a elevação mínima de rastreamento se aplica. Os passes usam o maior valor entre a máscara e esse mínimo em cada azimute.</value>
+    <value>Skyline opcional para árvores, edifícios e colinas. Clique no gráfico polar para adicionar pontos; arraste para mover; clique com o botão direito para remover. Vazia = não usada (só a elevação mínima de rastreamento se aplica). Os passes usam o maior valor entre a máscara e esse mínimo em cada azimute. Não comanda o rotor; use Iniciar rastreamento na elevação para isso.</value>
   </data>
   <data name="Settings.Station.HorizonMaskSummary">
-    <value>Skyline opcional para árvores, edifícios e colinas. Vazia = não usada — só a elevação mínima de rastreamento se aplica.</value>
+    <value>Skyline opcional para árvores, edifícios e colinas. Vazia = não usada (só a elevação mínima de rastreamento se aplica). Não comanda o rotor.</value>
   </data>
   <data name="Settings.Station.HorizonMaskEdit">
     <value>Editar máscara de horizonte…</value>
@@ -2101,7 +2206,7 @@ Continuar?</value>
     <value>Habilitar controle de rádio</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>Dois rádios (downlink e uplink separados: FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, série IC-706, TH-D74/D75 ou misto)</value>
+    <value>Dois rádios (downlink e uplink separados: FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, IC-7100, série IC-706, TH-D74/D75 ou misto)</value>
   </data>
   <data name="Settings.Radio.DualIncompleteBoth">
     <value>Selecione portas COM para os rádios de downlink e uplink.</value>
@@ -2244,6 +2349,27 @@ Continuar?</value>
   <data name="Settings.Radio.FlexHint">
     <value>Pick a discovered radio or enter the IP manually (TCP port 4992). OscarWatch connects directly to the radio over the SmartSDR TCP/IP API (not by automating SmartSDR for Windows), enables full duplex, and drives separate RX/TX slices for Doppler. Use the antenna port map below when transverters use different RX A/RX B or ANT/XVTR paths per band. Dual-SCU models are required for true full duplex (e.g. 8600/8600M; also 6600/6700).</value>
   </data>
+  <data name="Settings.Radio.FlexAntennaPorts">
+    <value>Portas de antena por banda</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPortsHint">
+    <value>Ao mudar entre satélites U/V ↔ V/U, o OscarWatch define as portas RX/TX do rádio a partir das bandas de downlink e uplink (ao focar o satélite / na preparação da passagem, não só quando está acima do horizonte). Deixar inalterado mantém a porta atual do rádio. RX A e RX B são só recepção; associe TX a ANT ou XVTR conforme o cabeamento.</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaLeaveUnchanged">
+    <value>Deixar inalterado</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfRxAnt">
+    <value>Recepção VHF (2 m)</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfRxAnt">
+    <value>Recepção UHF (70 cm+)</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfTxAnt">
+    <value>Transmissão VHF (2 m)</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfTxAnt">
+    <value>Transmissão UHF (70 cm+)</value>
+  </data>
   <data name="Settings.Radio.FlexDuplexWarning">
     <value>This model may not support full duplex (single SCU). Satellite use typically needs a dual-SCU Flex such as an 8600/8600M (or a dual-SCU 6000-series radio) with suitable isolation or transverters.</value>
   </data>
@@ -2258,6 +2384,9 @@ Continuar?</value>
   </data>
   <data name="Settings.Radio.Ic905CivHint">
     <value>IC-905 padrão de fábrica AC. Deve corresponder ao modo Set CI-V do rádio.</value>
+  </data>
+  <data name="Settings.Radio.Ic7100CivHint">
+    <value>IC-7100 padrão de fábrica 88H. Deve corresponder ao menu CI-V do rádio.</value>
   </data>
   <data name="Settings.Radio.Ic706CivHint">
     <value>IC-706 padrão de fábrica 48H. Deve corresponder ao endereço CI-V (Initial Set Mode).</value>
@@ -2282,6 +2411,9 @@ Continuar?</value>
   </data>
   <data name="Settings.Radio.Ic905Hint">
     <value>IC-905: Apenas dual radio. Combine o endereço CI-V (padrão AC) e o baud (padrão 115200) no modo Set. Use a porta serial USB CI-V. Uma COM por perna — cobre VHF/UHF/SHF incluindo 13 cm, 6 cm e 3 cm.</value>
+  </data>
+  <data name="Settings.Radio.Ic7100Hint">
+    <value>IC-7100: Apenas dual radio. Defina CI-V Output (USB) On (ou use o conector REMOTE). Combine o endereço CI-V (padrão 88H) e o baud (padrão 19200) no menu CI-V. Uma COM por perna: cobre HF/6 m, 2 m e 70 cm (AO-07 Modo A no downlink em 10 m); 23 cm não é suportado.</value>
   </data>
   <data name="Settings.Radio.Ic706Hint">
     <value>IC-706: CI-V via jack REMOTE (ou CT-17). HF/6 m e 2 m (sem 70 cm). Defina endereço e baud no Initial Set Mode (LOCK na ligar) para corresponder às Configurações (padrão 48H / 19200). CI-V TRN On recomendado. Downlink AO-07 Modo A em 10 m suportado.</value>
@@ -2368,7 +2500,7 @@ Continuar?</value>
     <value>Tipo de rotor</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232 para Yaesu e clones. SPID para controladores em modo SP (Rot1Prog / Rot2Prog). EasyComm para modo EC (SPID, M2 e outros controladores de protocolo texto). SAEBRTrack para interfaces clássicas de seguimento por satélite (9600 baud). OZ9AAR URC (TCP) para Ultimate Rotator Controller via Ethernet (porta 1111; modo REM/remoto). Green Heron RT-21 Az-El usa duas portas COM (azimute e elevação), protocolo DCU-1 a 4800 baud; não selecione GS-232. Os protocolos série também podem usar um servidor série TCP (por exemplo ser2net) em vez de uma porta COM local.</value>
+    <value>GS-232 para Yaesu e clones. SPID para controladores em modo SP (Rot1Prog / Rot2Prog). SPID MD-01 / MD-02 (TCP) para Ethernet nativo (protocolo SPID ROT2, porta 23). EasyComm para modo EC (SPID, M2 e outros controladores de protocolo texto). SAEBRTrack para interfaces clássicas de seguimento por satélite (9600 baud). OZ9AAR URC (TCP) para Ultimate Rotator Controller via Ethernet (porta 1111; modo REM/remoto). Green Heron RT-21 Az-El usa duas portas COM (azimute e elevação), protocolo DCU-1 a 4800 baud; não selecione GS-232. Os protocolos série também podem usar um servidor série TCP (por exemplo ser2net) em vez de uma porta COM local.</value>
   </data>
   <data name="Settings.Rotator.AzimuthPort">
     <value>Porta série de azimute</value>
@@ -2403,6 +2535,9 @@ Continuar?</value>
   <data name="Settings.Rotator.NetworkNoteTcpSerial">
     <value>O OscarWatch liga-se como cliente TCP a um túnel série em bruto (por exemplo ser2net). Configure a velocidade e as opções série no servidor. Preferível em rede local — latência elevada pode causar timeouts.</value>
   </data>
+  <data name="Settings.Rotator.NetworkNoteSpidMd01">
+    <value>O OscarWatch liga-se como cliente TCP à porta Ethernet do MD-01 / MD-02. No controlador, defina MOTOR CONFIGURATION como ETH e o protocolo como SPID ROT2. A porta TCP predefinida é 23. Só um cliente pode ligar de cada vez. Recomenda-se firmware 1.2507 ou posterior.</value>
+  </data>
   <data name="Settings.Rotator.SmartAzimuth">
     <value>Azimute inteligente 450° (caminho mais curto sobre o norte)</value>
   </data>
@@ -2422,7 +2557,7 @@ Continuar?</value>
     <value>Ativar evitar keyhole</value>
   </data>
   <data name="Settings.Rotator.KeyholeNote">
-    <value>Quando ativado, passagens de alta elevação em que o rotor não acompanha perto do zênite são analisadas, e o rotor pode pré-posicionar-se numa orientação invertida para minimizar perda de sinal. Disponível apenas com faixa de elevação 0–180°.</value>
+    <value>Quando ativado, passagens de alta elevação em que o rotor não acompanha perto do zênite são analisadas, e o rotor pode pré-posicionar-se numa orientação invertida para minimizar perda de sinal. O pré-posicionamento gira o azimute na elevação de início de rastreamento (não abaixo de 0°). Disponível apenas com faixa de elevação 0–180°.</value>
   </data>
   <data name="Settings.Rotator.KeyholeSlewRate">
     <value>Velocidade de rotação (°/s)</value>
@@ -2440,7 +2575,13 @@ Continuar?</value>
     <value>Iniciar rastreamento na elevação (°)</value>
   </data>
   <data name="Settings.Rotator.TrackStartNote">
-    <value>O padrão é -3° (abaixo do horizonte). Faixa de -90° a 90°. O rotor começa a girar quando o satélite rastreado sobe acima desta elevação e estaciona quando cai abaixo (após uma confirmação curta para que uma única falha não interrompa o passe).</value>
+    <value>O padrão é -3° (abaixo do horizonte). Faixa de -90° a 90°. O rotor começa a girar quando o satélite rastreado sobe acima desta elevação e estaciona quando cai abaixo (após uma confirmação curta para que uma única falha não interrompa o passe). O pré-posicionamento de keyhole usa esta elevação como piso (não abaixo de 0°).</value>
+  </data>
+  <data name="Settings.Rotator.MovementThreshold">
+    <value>Limiar de movimento (°)</value>
+  </data>
+  <data name="Settings.Rotator.MovementThresholdNote">
+    <value>Mudança angular mínima antes de enviar um novo alvo. Se o rotor informar uma posição ainda fora deste limiar, o último comando é reenviado para que um encoder ruidoso que pare cedo volte a arrancar. Parar cancela essa repetição. Valores menores dão rastreamento mais preciso; valores maiores reduzem o desgaste. Padrão: 1,0°.</value>
   </data>
   <data name="Settings.Rotator.ParkAzimuth">
     <value>Azimute de estacionamento (°)</value>
@@ -2520,11 +2661,32 @@ Continuar?</value>
   <data name="Settings.Recording.OutputWatermark">
     <value>Padrão: %AppData%/OscarWatch/recordings</value>
   </data>
+  <data name="Settings.Recording.FolderUsageOne">
+    <value>1 arquivo · {0}</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageMany">
+    <value>{0} arquivos · {1}</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageEmpty">
+    <value>Ainda não há gravações nesta pasta</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageMissing">
+    <value>A pasta será criada quando a primeira gravação for salva</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageError">
+    <value>Não foi possível ler o tamanho da pasta</value>
+  </data>
+  <data name="Settings.Recording.OpenFolder">
+    <value>Abrir pasta</value>
+  </data>
   <data name="Settings.Recording.TestButton">
     <value>Testar gravação (5 s)</value>
   </data>
   <data name="Settings.Recording.Unavailable">
     <value>A gravação de áudio não está disponível neste sistema.</value>
+  </data>
+  <data name="Settings.Recording.DevicesLoading">
+    <value>A carregar dispositivos de áudio…</value>
   </data>
   <data name="Settings.Recording.SelectDeviceFirst">
     <value>Selecione um dispositivo de entrada primeiro.</value>
@@ -2995,10 +3157,28 @@ Continuar?</value>
     <value>Agenda</value>
   </data>
   <data name="Planner.AddToCalendar">
-    <value>Adicionar ao Calendário</value>
+    <value>Adicionar ao calendário</value>
   </data>
   <data name="Planner.Export.CalendarTip">
+    <value>Salvar um arquivo iCalendar deste satélite, ou adicionar esta passagem ao Google Calendar</value>
+  </data>
+  <data name="Planner.Export.SaveIcs">
+    <value>Salvar iCalendar (.ics)</value>
+  </data>
+  <data name="Planner.Export.SaveIcsTip">
     <value>Exportar todas as passagens deste satélite para um arquivo iCalendar (.ics)</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendar">
+    <value>Adicionar esta passagem ao Google Calendar</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarTip">
+    <value>Abrir o Google Calendar no navegador com esta passagem preenchida</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarOpened">
+    <value>Google Calendar aberto para {0}</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarFailed">
+    <value>Não foi possível abrir o Google Calendar: {0}</value>
   </data>
   <data name="Planner.PortableName">
     <value>Portátil {0}</value>
@@ -3504,6 +3684,9 @@ Continuar?</value>
   <data name="DbMerge.NewSatellites">
     <value>Novos satélites</value>
   </data>
+  <data name="DbMerge.NoradIdBackfills">
+    <value>IDs de catálogo NORAD</value>
+  </data>
   <data name="DbMerge.NewModes">
     <value>Novos modos de transmissores/transponders</value>
   </data>
@@ -3540,6 +3723,9 @@ Continuar?</value>
   <data name="DbMerge.Intro.Remote">
     <value>Novas entradas são selecionadas por padrão. Para conflitos, confirme sua cópia local ou escolha a versão publicada.</value>
   </data>
+  <data name="DbMerge.Intro.NoradIds">
+    <value>Estes números de catálogo serão adicionados aos satélites da sua base local que ainda não tenham um. Clique em Aplicar selecionados para atualizar.</value>
+  </data>
   <data name="DbMerge.Summary.Matches">
     <value>Seu banco de dados de transmissores/transponders corresponde a {0}.</value>
   </data>
@@ -3561,6 +3747,12 @@ Continuar?</value>
   <data name="DbMerge.Summary.ManyConflicts">
     <value>{0} conflitos</value>
   </data>
+  <data name="DbMerge.Summary.OneNoradId">
+    <value>{0} ID de catálogo NORAD</value>
+  </data>
+  <data name="DbMerge.Summary.ManyNoradIds">
+    <value>{0} IDs de catálogo NORAD</value>
+  </data>
   <data name="DbMerge.Summary.FromSuffix">
     <value> de {0}.</value>
   </data>
@@ -3572,6 +3764,9 @@ Continuar?</value>
   </data>
   <data name="DbMerge.Item.ModeLine">
     <value>{0} · {1}</value>
+  </data>
+  <data name="DbMerge.Item.NoradIdLine">
+    <value>{0} → {1}</value>
   </data>
   <data name="DbAdd.Title">
     <value>Adicionar satélite</value>
@@ -3623,5 +3818,113 @@ Mais recente: {1} ({2})</value>
   </data>
   <data name="ReleaseNotes.ViewOnGitHub">
     <value>Ver no GitHub</value>
+  </data>
+  <data name="Settings.Tab.Qrz">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Section">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Intro">
+    <value>Consulta o nome do operador (e o grid se estiver vazio) no QRZ ao escrever um indicativo no OscarWatch Logbook. O acesso XML Data precisa de uma assinatura QRZ. O usuário e a senha ficam neste computador.</value>
+  </data>
+  <data name="Settings.Qrz.Enable">
+    <value>Ativar consulta de indicativos QRZ no OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.Qrz.Username">
+    <value>Usuário QRZ</value>
+  </data>
+  <data name="Settings.Qrz.UsernameWatermark">
+    <value>indicativo</value>
+  </data>
+  <data name="Settings.Qrz.Password">
+    <value>Senha QRZ</value>
+  </data>
+  <data name="Settings.Qrz.PasswordWatermark">
+    <value>senha da conta</value>
+  </data>
+  <data name="Settings.Qrz.TestConnection">
+    <value>Testar conexão</value>
+  </data>
+  <data name="Settings.Qrz.Testing">
+    <value>Testando…</value>
+  </data>
+  <data name="Settings.Qrz.EnterCredentials">
+    <value>Digite o usuário e a senha QRZ (saia de cada campo ou clique em Testar de novo).</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOk">
+    <value>Conexão OK. Assinatura XML válida até {0}.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOkNoExpiry">
+    <value>Conexão OK.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionFailed">
+    <value>Não foi possível entrar no QRZ: {0}</value>
+  </data>
+  <data name="Settings.Qrz.SubscriptionRequired">
+    <value>QRZ XML Data exige uma assinatura. Verifique o acesso XML na sua conta QRZ.</value>
+  </data>
+  <data name="Settings.Qrz.Timeout">
+    <value>O QRZ não respondeu a tempo.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.Intro">
+    <value>Preenche Nome (e Grid se estiver vazio) a partir do QRZ ao escrever um indicativo. Não substitui um nome que você digitou ou que veio de um QSO anterior neste logbook.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.CredentialsNote">
+    <value>É necessária uma assinatura QRZ XML Data. Usuário e senha são guardados com as outras configurações do OscarWatch neste computador.</value>
+  </data>
+  <data name="Logbook.CallHint.Qrz">
+    <value>Nome do QRZ.</value>
+  </data>
+  <data name="Settings.Tab.HamQth">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Section">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Intro">
+    <value>Consulta o nome do operador (e o grid se estiver vazio) no HamQTH ao escrever um indicativo no OscarWatch Logbook. Uma conta gratuita HamQTH basta (sem assinatura XML paga). Usado quando o QRZ está desligado, não encontra o indicativo ou não está configurado. O usuário e a senha ficam neste computador.</value>
+  </data>
+  <data name="Settings.HamQth.Enable">
+    <value>Ativar consulta de indicativos HamQTH no OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.HamQth.Username">
+    <value>Usuário HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.UsernameWatermark">
+    <value>indicativo</value>
+  </data>
+  <data name="Settings.HamQth.Password">
+    <value>Senha HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.PasswordWatermark">
+    <value>senha da conta</value>
+  </data>
+  <data name="Settings.HamQth.TestConnection">
+    <value>Testar conexão</value>
+  </data>
+  <data name="Settings.HamQth.Testing">
+    <value>Testando…</value>
+  </data>
+  <data name="Settings.HamQth.EnterCredentials">
+    <value>Digite o usuário e a senha HamQTH (saia de cada campo ou clique em Testar de novo).</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionOk">
+    <value>Conexão OK.</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionFailed">
+    <value>Não foi possível entrar no HamQTH: {0}</value>
+  </data>
+  <data name="Settings.HamQth.Timeout">
+    <value>O HamQTH não respondeu a tempo.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.Intro">
+    <value>Preenche Nome (e Grid se estiver vazio) a partir do HamQTH quando o QRZ está desligado, não encontra o indicativo ou não está configurado. Não substitui um nome que você digitou ou que veio de um QSO anterior neste logbook.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.CredentialsNote">
+    <value>É necessária uma conta gratuita HamQTH. Usuário e senha são guardados com as outras configurações do OscarWatch neste computador.</value>
+  </data>
+  <data name="Logbook.CallHint.HamQth">
+    <value>Nome do HamQTH.</value>
   </data>
 </root>

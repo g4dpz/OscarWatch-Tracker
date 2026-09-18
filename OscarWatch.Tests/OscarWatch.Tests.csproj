@@ -20,10 +20,14 @@
     <ProjectReference Include="..\OscarWatch.Core\OscarWatch.Core.csproj" />
     <ProjectReference Include="..\OscarWatch.Orbit\OscarWatch.Orbit.csproj" />
   </ItemGroup>
-  <ItemGroup>
+    <ItemGroup>
     <None Update="Fixtures\radio_golden.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="..\OscarWatch\Resources\Strings*.resx">
+      <Link>Resources\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\OscarWatch\Assets\cty.dat">
       <Link>Assets\cty.dat</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

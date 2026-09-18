@@ -23,4 +23,15 @@ public sealed class CloudlogUrlHelperTests
 
         Assert.Equal(string.Empty, result);
     }
+
+    [Theory]
+    [InlineData("/")]
+    [InlineData("///")]
+    [InlineData("  /  ")]
+    public void Slash_only_input_returns_empty_string(string input)
+    {
+        var result = CloudlogUrlHelper.NormalizeBaseUrl(input);
+
+        Assert.Equal(string.Empty, result);
+    }
 }

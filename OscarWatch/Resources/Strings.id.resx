@@ -1,0 +1,3934 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+  <resheader name="resmimetype">text/microsoft-resx</resheader>
+  <resheader name="version">2.0</resheader>
+  <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</resheader>
+  <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</resheader>
+  <data name="About.Copyright">
+    <value>Copyright © 2025–2026 Peter Goodhall (MM9SQL)</value>
+  </data>
+  <data name="About.Description">
+    <value>Pelacakan satelit desktop untuk operator radio amatir. Lacak lintasan, kontrol CAT terkoreksi Doppler, pelacakan rotator, dan mode transponder dari basis data satelit OscarWatch.</value>
+  </data>
+  <data name="About.DonateNote">
+    <value>Jika Anda berdonasi, sampaikan callsign Anda kepada Peter agar bisa diucapkan terima kasih.</value>
+  </data>
+  <data name="About.Github">
+    <value>github.com/magicbug/OscarWatch-Tracker</value>
+  </data>
+  <data name="About.License">
+    <value>Licensed under the GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later). Lihat LICENSE.md di repositori sumber.</value>
+  </data>
+  <data name="About.PayPal">
+    <value>PayPal</value>
+  </data>
+  <data name="About.SponsorGithub">
+    <value>Sponsori di GitHub</value>
+  </data>
+  <data name="About.SupportIntro">
+    <value>OscarWatch gratis dan bersumber terbuka. Jika bermanfaat, Anda bisa mendukung pengembangannya:</value>
+  </data>
+  <data name="About.Supporters">
+    <value>Pendukung</value>
+  </data>
+  <data name="About.Title">
+    <value>Tentang OscarWatch</value>
+  </data>
+  <data name="About.TleSource">
+    <value>Katalog TLE: tle.oscarwatch.org</value>
+  </data>
+  <data name="App.Title">
+    <value>OscarWatch</value>
+  </data>
+  <data name="Common.Add">
+    <value>Tambah</value>
+  </data>
+  <data name="Common.Browse">
+    <value>Telusuri…</value>
+  </data>
+  <data name="Common.Cancel">
+    <value>Batal</value>
+  </data>
+  <data name="Common.Back">
+    <value>Kembali</value>
+  </data>
+  <data name="Common.Next">
+    <value>Berikutnya</value>
+  </data>
+  <data name="Common.Close">
+    <value>Tutup</value>
+  </data>
+  <data name="Common.Copy">
+    <value>Salin</value>
+  </data>
+  <data name="Common.Delete">
+    <value>Hapus</value>
+  </data>
+  <data name="Common.Now">
+    <value>Sekarang</value>
+  </data>
+  <data name="Common.Ok">
+    <value>OK</value>
+  </data>
+  <data name="Common.Refresh">
+    <value>Segarkan</value>
+  </data>
+  <data name="Common.Save">
+    <value>Simpan</value>
+  </data>
+  <data name="Common.Show">
+    <value>Tampilkan</value>
+  </data>
+  <data name="Main.Alt">
+    <value>  ·  Alt </value>
+  </data>
+  <data name="Main.Az">
+    <value>Az </value>
+  </data>
+  <data name="Main.Eclipse">
+    <value>Gerhana</value>
+  </data>
+  <data name="Main.El">
+    <value>  ·  El </value>
+  </data>
+  <data name="Main.Elevation.BelowHorizon">
+    <value>di bawah horizon</value>
+  </data>
+  <data name="Main.Live">
+    <value>Langsung</value>
+  </data>
+  <data name="Main.MapTimeStatus.Live">
+    <value>Langsung</value>
+  </data>
+  <data name="Main.Gps.Status">
+    <value>GPS</value>
+  </data>
+  <data name="Main.Gps.StatusWithGrid">
+    <value>GPS ({0})</value>
+  </data>
+  <data name="Main.Gps.Time">
+    <value>Waktu GPS</value>
+  </data>
+  <data name="Main.Gps.Tooltip.Fix">
+    <value>Fix GPS aktif</value>
+  </data>
+  <data name="Main.Gps.Tooltip.NoFix">
+    <value>GPS aktif, belum ada fix</value>
+  </data>
+  <data name="Main.Gps.TimeTooltip.Active">
+    <value>Pelacakan satelit memakai UTC GPS</value>
+  </data>
+  <data name="Main.Gps.TimeTooltip.Inactive">
+    <value>Waktu GPS aktif, menunggu fix</value>
+  </data>
+  <data name="Main.SatelliteLink.Waiting">
+    <value>Sat Link • Menunggu</value>
+  </data>
+  <data name="Main.SatelliteLink.Clients">
+    <value>Sat Link • {0} Klien</value>
+  </data>
+  <data name="Main.SatelliteLink.Error">
+    <value>Sat Link • Error</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Waiting">
+    <value>WebSocket tautan satelit sedang mendengar di port {0} ({1}). Menunggu klien.</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Clients">
+    <value>WebSocket tautan satelit di port {0} ({1}). {2} klien terhubung.</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Error">
+    <value>Tautan Satelit Gagal: {0}</value>
+  </data>
+  <data name="Main.SatelliteLink.Bind.Local">
+    <value>hanya PC ini</value>
+  </data>
+  <data name="Main.SatelliteLink.Bind.Lan">
+    <value>jaringan lokal</value>
+  </data>
+  <data name="Main.Pass.AosIn">
+    <value>{0} AOS dalam {1}</value>
+  </data>
+  <data name="Main.Pass.LosIn">
+    <value>{0} LOS dalam {1}</value>
+  </data>
+  <data name="Main.Pass.InProgress">
+    <value>{0}: sedang berlangsung</value>
+  </data>
+  <data name="Main.Pass.None">
+    <value>Tidak ada lintasan mendatang</value>
+  </data>
+  <data name="Main.Passes">
+    <value>Lintasan Mendatang</value>
+  </data>
+  <data name="Main.Timeline.Close">
+    <value>Sembunyikan timeline elevasi lintasan</value>
+  </data>
+  <data name="Main.Timeline.Detach">
+    <value>Lepaskan timeline elevasi lintasan ke jendela terpisah</value>
+  </data>
+  <data name="Main.Timeline.ResizeGrip">
+    <value>Seret untuk mengubah ukuran timeline elevasi lintasan</value>
+  </data>
+  <data name="Main.Timeline.Description">
+    <value>Lintasan mendatang menurut elevasi. Klik lintasan untuk memfokuskan satelit itu di peta. Gulir roda tetikus untuk memperbesar jendela waktu (30 menit sampai 6 jam). Mengikuti waktu peta saat Anda geser maju atau mundur.</value>
+  </data>
+  <data name="Main.Timeline.Elevation45">
+    <value>45°</value>
+  </data>
+  <data name="Main.Timeline.PassTooltip">
+    <value>{0}
+AOS: {1}
+LOS: {2}
+Elevasi maks: {3}
+Durasi: {4}</value>
+  </data>
+  <data name="Main.Timeline.TimeAxisUtc">
+    <value>UTC</value>
+  </data>
+  <data name="Main.Timeline.WindowMinutes">
+    <value>{0} mnt</value>
+  </data>
+  <data name="Main.Timeline.WindowHours">
+    <value>{0} j</value>
+  </data>
+  <data name="Main.HamsAtRoves">
+    <value>Rove Mendatang</value>
+  </data>
+  <data name="Main.HamsAtRoves.Empty">
+    <value>Tidak ada rove yang bisa dikerjakan untuk lokasi hams.at Anda.</value>
+  </data>
+  <data name="Main.HamsAtRoves.LoadFailed">
+    <value>Tidak bisa memuat rove dari hams.at.</value>
+  </data>
+  <data name="Main.HamsAtRoves.Unavailable">
+    <value>hams.at sedang tidak tersedia. Rove akan disegarkan otomatis.</value>
+  </data>
+  <data name="Main.HamsAtRoves.InvalidApiKey">
+    <value>Kunci API hams.at tidak valid. Periksa di Pengaturan.</value>
+  </data>
+  <data name="Main.HamsAtRoves.RateLimited">
+    <value>hams.at membatasi laju permintaan ini. Coba lagi nanti.</value>
+  </data>
+  <data name="Main.HamsAtRoves.Timeout">
+    <value>hams.at tidak merespons tepat waktu. Coba lagi nanti.</value>
+  </data>
+  <data name="Main.HamsAtRoves.Network">
+    <value>Tidak bisa menjangkau hams.at. Periksa koneksi internet Anda.</value>
+  </data>
+  <data name="Main.HamsAtRoves.UnexpectedResponse">
+    <value>hams.at mengembalikan respons yang tidak terduga. Coba lagi nanti.</value>
+  </data>
+  <data name="Main.HamsAtRoves.ResizeGrip">
+    <value>Seret untuk mengubah ukuran daftar rove</value>
+  </data>
+  <data name="Pass.Rec">
+    <value>REC</value>
+  </data>
+  <data name="Pass.Passing">
+    <value>Melintas</value>
+  </data>
+  <data name="Pass.OpenVisualizer">
+    <value>Lihat Plot Lintasan</value>
+  </data>
+  <data name="Pass.Schedule.Add">
+    <value>Jadwalkan lintasan</value>
+  </data>
+  <data name="Pass.Schedule.Remove">
+    <value>Hapus dari jadwal</value>
+  </data>
+  <data name="Pass.Schedule.AddShort">
+    <value>Jadwalkan</value>
+  </data>
+  <data name="Pass.Schedule.RemoveShort">
+    <value>Terjadwal</value>
+  </data>
+  <data name="Pass.Schedule.AddTooltip">
+    <value>Jadwalkan lintasan ini untuk bunyi dan peringatan sebelum AOS</value>
+  </data>
+  <data name="Pass.Schedule.RemoveTooltip">
+    <value>Hapus lintasan ini dari jadwal</value>
+  </data>
+  <data name="Pass.HamsAt.PostActivation">
+    <value>Kirim aktivasi ke hams.at</value>
+  </data>
+  <data name="Pass.HamsAt.EnterApiKey">
+    <value>Masukkan kunci API hams.at di Pengaturan terlebih dahulu.</value>
+  </data>
+  <data name="Pass.HamsAt.InvalidNorad">
+    <value>Lintasan ini tidak punya nomor katalog NORAD yang valid.</value>
+  </data>
+  <data name="Pass.HamsAt.Posted">
+    <value>Aktivasi dikirim ke hams.at.</value>
+  </data>
+  <data name="Pass.HamsAt.Failed">
+    <value>Tidak bisa mengirim aktivasi ke hams.at: {0}</value>
+  </data>
+  <data name="Pass.HamsAt.OpenAfterPost">
+    <value>Buka peringatan di hams.at setelah mengirim</value>
+  </data>
+  <data name="Pass.Schedule.AlertTitle">
+    <value>Lintasan terjadwal</value>
+  </data>
+  <data name="Pass.Schedule.AlertBadge">
+    <value>Pengingat</value>
+  </data>
+  <data name="Pass.Schedule.AlertCountdown">
+    <value>AOS dalam {0}</value>
+  </data>
+  <data name="Pass.Schedule.AlertAosAt">
+    <value>pukul {0}</value>
+  </data>
+  <data name="Pass.Schedule.AlertMessage">
+    <value>{0} AOS dalam {1} (pukul {2})</value>
+  </data>
+  <data name="Pass.Visualizer.Heading">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="Pass.Visualizer.Subtitle">
+    <value>Durasi {0} · {1} ({2})</value>
+  </data>
+  <data name="Pass.Visualizer.Smart450.Extended">
+    <value>Smart450 memakai pita diperluas (361–450°) pada lintasan ini.</value>
+  </data>
+  <data name="Pass.Visualizer.Smart450.Primary">
+    <value>Smart450 tetap di pita utama (0–360°) pada lintasan ini.</value>
+  </data>
+  <data name="Pass.TimeRange">
+    <value>{0} sampai {1}</value>
+  </data>
+  <data name="Pass.Details">
+    <value>Durasi: {0} | Elevasi Maks: {1}</value>
+  </data>
+  <data name="Pass.Duration">
+    <value>Durasi: {0}</value>
+  </data>
+  <data name="Pass.MaxElevation">
+    <value>Elevasi Maks: {0}</value>
+  </data>
+  <data name="Pass.DurationMinutes">
+    <value>{0} mnt</value>
+  </data>
+  <data name="Pass.DurationOneMinute">
+    <value>1 mnt</value>
+  </data>
+  <data name="ComPort.DualRadioSamePort">
+    <value>Radio downlink dan uplink sama-sama memakai {0}. Pakai port COM yang berbeda untuk tiap radio.</value>
+  </data>
+  <data name="ComPort.RotatorAzElSamePort">
+    <value>Azimut dan elevasi rotator sama-sama memakai {0}. Pakai port COM yang berbeda untuk tiap sumbu.</value>
+  </data>
+  <data name="ComPort.RotatorAndDownlink">
+    <value>Rotator dan radio downlink sama-sama memakai {0}. Pakai port COM yang berbeda atau nonaktifkan salah satu perangkat.</value>
+  </data>
+  <data name="ComPort.RotatorAndUplink">
+    <value>Rotator dan radio uplink sama-sama memakai {0}. Pakai port COM yang berbeda atau nonaktifkan salah satu perangkat.</value>
+  </data>
+  <data name="ComPort.RotatorAndRadio">
+    <value>Rotator dan radio sama-sama memakai {0}. Pakai port COM yang berbeda atau nonaktifkan salah satu perangkat.</value>
+  </data>
+  <data name="ComPort.GpsAndRotator">
+    <value>GPS dan rotator sama-sama memakai {0}. Pakai port COM yang berbeda atau nonaktifkan salah satu perangkat.</value>
+  </data>
+  <data name="ComPort.GpsAndRadio">
+    <value>GPS dan radio sama-sama memakai {0}. Pakai port COM yang berbeda atau nonaktifkan salah satu perangkat.</value>
+  </data>
+  <data name="ComPort.GpsAndDownlink">
+    <value>GPS dan radio downlink sama-sama memakai {0}. Pakai port COM yang berbeda atau nonaktifkan salah satu perangkat.</value>
+  </data>
+  <data name="ComPort.GpsAndUplink">
+    <value>GPS dan radio uplink sama-sama memakai {0}. Pakai port COM yang berbeda atau nonaktifkan salah satu perangkat.</value>
+  </data>
+  <data name="A11y.SatelliteSunlight">
+    <value>Satelit di cahaya matahari</value>
+  </data>
+  <data name="A11y.SatelliteEclipse">
+    <value>Satelit dalam gerhana</value>
+  </data>
+  <data name="Main.WorldMap">
+    <value>Peta dunia</value>
+  </data>
+  <data name="A11y.Plot.NoSatellites">
+    <value>{0}. Tidak ada satelit yang dipilih.</value>
+  </data>
+  <data name="A11y.Plot.SelectWithArrows">
+    <value>{0}. {1} satelit. Gunakan tombol panah untuk memilih, Enter untuk mengonfirmasi.</value>
+  </data>
+  <data name="A11y.Plot.SatelliteCount">
+    <value>{0}. {1} satelit.</value>
+  </data>
+  <data name="A11y.Plot.FocusedWithLookAngles">
+    <value>{0}. Terfokus {1}. Azimut {2:F1} derajat, elevasi {3:F1} derajat, ketinggian {4:F0} kilometer.</value>
+  </data>
+  <data name="A11y.Plot.FocusedBelowHorizon">
+    <value>{0}. Terfokus {1}. Ketinggian {2:F0} kilometer, di bawah horizon.</value>
+  </data>
+  <data name="A11y.SkyPlot.TabHint">
+    <value>Plot langit. Tab ke sini, lalu gunakan tombol panah untuk mengganti satelit yang dipilih.</value>
+  </data>
+  <data name="A11y.SkyPlot.AllBelowHorizon">
+    <value>Semua satelit di bawah horizon</value>
+  </data>
+  <data name="Main.Radio">
+    <value>Radio</value>
+  </data>
+  <data name="Main.Radio.CatPause">
+    <value>Jeda CAT</value>
+  </data>
+  <data name="Main.Radio.CatPauseTip">
+    <value>Berhenti mengirim pembaruan frekuensi ke radio agar Anda bisa menyetel secara manual.</value>
+  </data>
+  <data name="Main.Radio.CatResume">
+    <value>Lanjutkan CAT</value>
+  </data>
+  <data name="Main.Radio.Rx">
+    <value>RX </value>
+  </data>
+  <data name="Main.Radio.Tx">
+    <value>TX </value>
+  </data>
+  <data name="Main.Range">
+    <value>Jarak </value>
+  </data>
+  <data name="Main.Rotator">
+    <value>Rotator</value>
+  </data>
+  <data name="Main.Rotator.Az">
+    <value>Az</value>
+  </data>
+  <data name="Main.Rotator.El">
+    <value>El</value>
+  </data>
+  <data name="Main.Rotator.Park">
+    <value>Parkir rotator</value>
+  </data>
+  <data name="Main.Rotator.Stop">
+    <value>Hentikan rotator</value>
+  </data>
+  <data name="Main.Rotator.Stop.ToolTip">
+    <value>Hentikan gerakan rotator segera (darurat)</value>
+  </data>
+  <data name="Main.Rotator.Resume">
+    <value>Lanjutkan</value>
+  </data>
+  <data name="Main.Rotator.Parked">
+    <value>Diparkir</value>
+  </data>
+  <data name="Main.Satellite">
+    <value>Satelit</value>
+  </data>
+  <data name="Main.SkyPlot">
+    <value>Plot langit</value>
+  </data>
+  <data name="Main.SkyPlot.Hint">
+    <value>Klik satelit untuk memilihnya, atau gunakan tombol panah saat terfokus. Garis menunjukkan jalur lintasannya; crosshair menandai arah rotator saat terhubung.</value>
+  </data>
+  <data name="Main.Standby.Hint">
+    <value>Hanya menjelajah: rotator diparkir, CAT dijeda</value>
+  </data>
+  <data name="Main.Standby.Pause">
+    <value>Siaga</value>
+  </data>
+  <data name="Main.Standby.Resume">
+    <value>Lanjutkan</value>
+  </data>
+  <data name="Main.Sunlight">
+    <value>Cahaya matahari</value>
+  </data>
+  <data name="MapTime.Back15">
+    <value>−15m</value>
+  </data>
+  <data name="MapTime.Back5">
+    <value>−5m</value>
+  </data>
+  <data name="MapTime.Forward15">
+    <value>+15m</value>
+  </data>
+  <data name="MapTime.Forward5">
+    <value>+5m</value>
+  </data>
+  <data name="MapTime.FromNow">
+    <value>{0} dari sekarang</value>
+  </data>
+  <data name="MapTime.Live">
+    <value>Langsung</value>
+  </data>
+  <data name="MapTime.Tip.Back15">
+    <value>Tampilkan peta 15 menit lebih awal</value>
+  </data>
+  <data name="MapTime.Tip.Back5">
+    <value>Tampilkan peta 5 menit lebih awal</value>
+  </data>
+  <data name="MapTime.Tip.Forward15">
+    <value>Tampilkan peta 15 menit kemudian</value>
+  </data>
+  <data name="MapTime.Tip.Forward5">
+    <value>Tampilkan peta 5 menit kemudian</value>
+  </data>
+  <data name="MapTime.Tip.Now">
+    <value>Kembalikan peta ke waktu langsung</value>
+  </data>
+  <data name="Menu.File">
+    <value>_Berkas</value>
+  </data>
+  <data name="Menu.File.Close">
+    <value>_Tutup</value>
+  </data>
+  <data name="Menu.File.Export">
+    <value>_Ekspor</value>
+  </data>
+  <data name="Menu.File.Import">
+    <value>_Impor</value>
+  </data>
+  <data name="Menu.File.Export.Settings">
+    <value>Pengaturan</value>
+  </data>
+  <data name="Menu.File.Import.Settings">
+    <value>Pengaturan</value>
+  </data>
+  <data name="Menu.File.Export.TransponderDatabase">
+    <value>Basis Data Transponder</value>
+  </data>
+  <data name="Menu.File.Import.TransponderDatabase">
+    <value>Basis Data Transponder</value>
+  </data>
+  <data name="File.Export.Settings.Title">
+    <value>Ekspor Pengaturan</value>
+  </data>
+  <data name="File.Import.Settings.Title">
+    <value>Impor Pengaturan</value>
+  </data>
+  <data name="File.Import.Settings.ConfirmTitle">
+    <value>Ganti Pengaturan?</value>
+  </data>
+  <data name="File.Import.Settings.ConfirmMessage">
+    <value>Impor mengganti semua pengaturan saat ini dengan berkas yang dipilih. Port COM, perangkat audio, dan nilai khusus mesin lain mungkin perlu disesuaikan di PC ini. Kunci API dalam berkas dipulihkan sebagaimana tersimpan.
+
+Lanjutkan?</value>
+  </data>
+  <data name="File.Export.Settings.Success">
+    <value>Pengaturan diekspor.</value>
+  </data>
+  <data name="File.Import.Settings.Success">
+    <value>Pengaturan diimpor.</value>
+  </data>
+  <data name="File.Export.TransponderDatabase.Title">
+    <value>Ekspor Basis Data Transponder</value>
+  </data>
+  <data name="File.Import.TransponderDatabase.Title">
+    <value>Impor Basis Data Transponder</value>
+  </data>
+  <data name="File.Export.Failed">
+    <value>Ekspor gagal: {0}</value>
+  </data>
+  <data name="File.Import.Failed">
+    <value>Impor gagal: {0}</value>
+  </data>
+  <data name="File.Import.Settings.Invalid">
+    <value>Berkas pengaturan tidak valid: {0}</value>
+  </data>
+  <data name="Menu.Help">
+    <value>Ban_tuan</value>
+  </data>
+  <data name="Menu.Help.About">
+    <value>_Tentang OscarWatch</value>
+  </data>
+  <data name="Menu.Help.Logs">
+    <value>Buka Folder _Log</value>
+  </data>
+  <data name="Menu.Help.CopyDiagnostics">
+    <value>Salin _Diagnostik</value>
+  </data>
+  <data name="Menu.Help.OperatorGuide">
+    <value>_Panduan Operator</value>
+  </data>
+  <data name="Menu.Help.CheckForUpdates">
+    <value>Periksa Pem_baruan</value>
+  </data>
+  <data name="Menu.Help.ReleaseNotes">
+    <value>Catatan _Rilis</value>
+  </data>
+  <data name="Menu.Help.Recordings">
+    <value>Buka Folder Reka_man</value>
+  </data>
+  <data name="Menu.Passes">
+    <value>_Lintasan</value>
+  </data>
+  <data name="Menu.Passes.Mutual">
+    <value>Perencana Lintasan _Bersama</value>
+  </data>
+  <data name="Menu.Passes.Planner">
+    <value>Perencana _Lintasan</value>
+  </data>
+  <data name="Menu.Passes.Sunlight">
+    <value>Prediksi _Cahaya Matahari</value>
+  </data>
+  <data name="Menu.Passes.DopplerInsights">
+    <value>Wawasan Lintasan Doppler</value>
+  </data>
+  <data name="Menu.Rotator">
+    <value>_Rotator</value>
+  </data>
+  <data name="Menu.Tools">
+    <value>_Alat</value>
+  </data>
+  <data name="Menu.Tools.QsoLogbook">
+    <value>_Logbook OscarWatch</value>
+  </data>
+  <data name="Menu.Satellites">
+    <value>_Satelit</value>
+  </data>
+  <data name="Menu.Satellites.ManageDatabase">
+    <value>_Kelola Basis Data Transponder</value>
+  </data>
+  <data name="Menu.Satellites.RefreshTles">
+    <value>_Segarkan TLE</value>
+  </data>
+  <data name="Menu.Satellites.Select">
+    <value>_Pilih Satelit</value>
+  </data>
+  <data name="Menu.Satellites.UpdateDatabase">
+    <value>Perbarui _basis data transponder…</value>
+  </data>
+  <data name="Menu.Settings">
+    <value>Pengatura_n</value>
+  </data>
+  <data name="Menu.Window">
+    <value>_Jendela</value>
+  </data>
+  <data name="Menu.Window.PassElevationTimeline">
+    <value>Timeline _elevasi lintasan</value>
+  </data>
+  <data name="Window.PassElevationTimeline.Title">
+    <value>Timeline elevasi lintasan</value>
+  </data>
+  <data name="Picker.SelectAll">
+    <value>Pilih Semua</value>
+  </data>
+  <data name="Picker.SelectNone">
+    <value>Batalkan Semua</value>
+  </data>
+  <data name="Picker.StaleTle">
+    <value>TLE usang</value>
+  </data>
+  <data name="Picker.Title">
+    <value>Pilih satelit</value>
+  </data>
+  <data name="Settings.FootprintArrows">
+    <value>Tampilkan panah gerak footprint</value>
+  </data>
+  <data name="Settings.FootprintArrows.Note">
+    <value>Panah di dalam tiap footprint yang menunjukkan arah ground-track.</value>
+  </data>
+  <data name="Settings.GreylineOverlay">
+    <value>Tampilkan greyline siang/malam di peta</value>
+  </data>
+  <data name="Settings.GreylineOverlay.Note">
+    <value>Bayangan malam dan terminator; mengikuti waktu peta saat Anda geser.</value>
+  </data>
+  <data name="Settings.MultiTrackOverlay">
+    <value>Tampilkan jejak ground track orbit berikutnya</value>
+  </data>
+  <data name="Settings.MultiTrackOverlay.Note">
+    <value>Jejak orbit berikutnya yang redup di belakang jalur satelit yang sedang terfokus.</value>
+  </data>
+  <data name="Settings.MapCentre">
+    <value>Bujur pusat peta</value>
+  </data>
+  <data name="Settings.MapCentre.Note">
+    <value>Greenwich (0°), gridsquare stasiun, atau bujur kustom.</value>
+  </data>
+  <data name="Settings.MapCentre.Greenwich">
+    <value>Greenwich (0°)</value>
+  </data>
+  <data name="Settings.MapCentre.Station">
+    <value>Gridsquare stasiun</value>
+  </data>
+  <data name="Settings.MapCentre.Custom">
+    <value>Bujur kustom</value>
+  </data>
+  <data name="Settings.MapCentre.CustomLongitude">
+    <value>Bujur pusat kustom (°)</value>
+  </data>
+  <data name="Settings.Language">
+    <value>Bahasa</value>
+  </data>
+  <data name="Settings.Language.English">
+    <value>English (UK)</value>
+  </data>
+  <data name="Settings.Language.Japanese">
+    <value>日本語</value>
+  </data>
+  <data name="Settings.Language.PortugueseBrazil">
+    <value>Português (Brasil)</value>
+  </data>
+  <data name="Settings.Language.SimplifiedChinese">
+    <value>简体中文</value>
+  </data>
+  <data name="Settings.Language.Spanish">
+    <value>Español</value>
+  </data>
+  <data name="Settings.Language.Thai">
+    <value>ไทย</value>
+  </data>
+  <data name="Settings.Language.Indonesian">
+    <value>Bahasa Indonesia</value>
+  </data>
+  <data name="Settings.Language.Russian">
+    <value>Русский</value>
+  </data>
+  <data name="Settings.Language.German">
+    <value>Deutsch</value>
+  </data>
+  <data name="Settings.Language.RestartNote">
+    <value>Anda harus memulai ulang OscarWatch agar perubahan bahasa berlaku.</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Title">
+    <value>Perlu mulai ulang</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Message">
+    <value>OscarWatch harus dimulai ulang agar bahasa baru berlaku. Mulai ulang sekarang?</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.RestartNow">
+    <value>Mulai ulang sekarang</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Later">
+    <value>Nanti</value>
+  </data>
+  <data name="Settings.Appearance.Section.LocaleTime">
+    <value>Lokal &amp; waktu</value>
+  </data>
+  <data name="Settings.Appearance.Section.Map">
+    <value>Peta</value>
+  </data>
+  <data name="Settings.Appearance.Section.Theme">
+    <value>Tema</value>
+  </data>
+  <data name="Settings.Appearance.Section.Updates">
+    <value>Pembaruan</value>
+  </data>
+  <data name="Settings.Tab.Appearance">
+    <value>Tampilan</value>
+  </data>
+  <data name="Settings.Tab.Cloudlog">
+    <value>Cloudlog</value>
+  </data>
+  <data name="Settings.Tab.Integrations">
+    <value>Integrasi</value>
+  </data>
+  <data name="Settings.Tab.Radio">
+    <value>Radio</value>
+  </data>
+  <data name="Settings.Tab.Recording">
+    <value>Rekaman</value>
+  </data>
+  <data name="Settings.Tab.Rotator">
+    <value>Rotator</value>
+  </data>
+  <data name="Settings.Tab.Station">
+    <value>Stasiun</value>
+  </data>
+  <data name="Settings.Tab.Tle">
+    <value>TLE</value>
+  </data>
+  <data name="Settings.Tab.Tracking">
+    <value>Pelacakan</value>
+  </data>
+  <data name="Settings.Tab.Voice">
+    <value>Suara</value>
+  </data>
+  <data name="Settings.ClockFormat">
+    <value>Format jam</value>
+  </data>
+  <data name="Settings.ClockFormat.12Hour">
+    <value>12 jam (AM/PM)</value>
+  </data>
+  <data name="Settings.ClockFormat.24Hour">
+    <value>24 jam</value>
+  </data>
+  <data name="Settings.ClockFormat.Note">
+    <value>Berlaku untuk gaya jam 12 jam atau 24 jam bagi waktu di aplikasi.</value>
+  </data>
+  <data name="Settings.TimeDisplay">
+    <value>Waktu ditampilkan dalam</value>
+  </data>
+  <data name="Settings.TimeDisplay.Note">
+    <value>Lokal atau UTC untuk jendela utama. Perencana lintasan dan lintasan bersama punya kontrol sendiri.</value>
+  </data>
+  <data name="Settings.Theme">
+    <value>Tema</value>
+  </data>
+  <data name="Settings.Theme.Note">
+    <value>Sistem mengikuti OS Anda. Gambar peta dunia untuk saat ini tetap terang di semua mode.</value>
+  </data>
+  <data name="Settings.Title">
+    <value>Pengaturan</value>
+  </data>
+  <data name="Status.ComputingPasses">
+    <value>Menghitung lintasan…</value>
+  </data>
+  <data name="Status.HelpMissing">
+    <value>Berkas bantuan tidak ditemukan. Instal ulang atau jalankan dari build yang dipublikasikan</value>
+  </data>
+  <data name="Status.LoadingSettings">
+    <value>Memulai…</value>
+  </data>
+  <data name="Status.LoadingSettingsFull">
+    <value>Memuat pengaturan…</value>
+  </data>
+  <data name="Status.LoadingTle">
+    <value>Memuat katalog TLE…</value>
+  </data>
+  <data name="Status.DiagnosticsCopied">
+    <value>Diagnostik disalin ke papan klip.</value>
+  </data>
+  <data name="Status.DiagnosticsCopyFailed">
+    <value>Tidak bisa menyalin diagnostik.</value>
+  </data>
+  <data name="Status.LogsFolderFailed">
+    <value>Tidak bisa membuka folder log</value>
+  </data>
+  <data name="Status.NoSatellites">
+    <value>{0} | 0 diaktifkan. Menu Satelit → aktifkan beberapa</value>
+  </data>
+  <data name="Status.NoTle">
+    <value>Tidak ada data TLE. Periksa Pengaturan → TLE atau gunakan Satelit → Segarkan TLE</value>
+  </data>
+  <data name="Status.RecordingsFolderFailed">
+    <value>Tidak bisa membuka folder rekaman</value>
+  </data>
+  <data name="Status.RefreshingTle">
+    <value>Menyegarkan TLE…</value>
+  </data>
+  <data name="Status.SatellitesEnabled">
+    <value>{0} | {1} satelit diaktifkan</value>
+  </data>
+  <data name="Status.TleAge">
+    <value>TLE {0} yang lalu ({1})</value>
+  </data>
+  <data name="Status.TleCached">
+    <value>TLE tersimpan cache ({0})</value>
+  </data>
+  <data name="Status.TleNotLoaded">
+    <value>TLE belum dimuat</value>
+  </data>
+  <data name="Status.TleRefreshFailed">
+    <value>Penyegaran TLE gagal: {0}</value>
+  </data>
+  <data name="Status.TleReloadFailed">
+    <value>Muat ulang TLE gagal: {0}</value>
+  </data>
+  <data name="Status.TransponderChecking">
+    <value>Memeriksa basis data transponder…</value>
+  </data>
+  <data name="Status.TransponderUpToDate">
+    <value>Basis data transponder sudah yang terbaru.</value>
+  </data>
+  <data name="Status.AppUpdateChecking">
+    <value>Memeriksa pembaruan aplikasi…</value>
+  </data>
+  <data name="Status.AppUpdateUpToDate">
+    <value>OscarWatch sudah yang terbaru ({0}).</value>
+  </data>
+  <data name="Status.AppUpdateFailed">
+    <value>Tidak bisa memeriksa pembaruan: {0}</value>
+  </data>
+  <data name="Status.TransponderUpdated">
+    <value>Basis data transponder diperbarui.</value>
+  </data>
+  <data name="Status.TleNotLoadedShort">
+    <value>TLE belum dimuat</value>
+  </data>
+  <data name="Status.LineNoSatellites">
+    <value>{0} | 0 diaktifkan. Menu Satelit → aktifkan beberapa</value>
+  </data>
+  <data name="Status.CloudlogError">
+    <value>Cloudlog: {0}</value>
+  </data>
+  <data name="Status.TransponderUpdateFailed">
+    <value>Pembaruan transponder gagal: {0}</value>
+  </data>
+  <data name="Rig.Connected">
+    <value>Terhubung</value>
+  </data>
+  <data name="Rig.Disconnected">
+    <value>Terputus</value>
+  </data>
+  <data name="Rig.CatPaused">
+    <value>CAT dijeda (penyetelan manual)</value>
+  </data>
+  <data name="Rig.Tracking">
+    <value>Melacak</value>
+  </data>
+  <data name="Rig.FlexControlFailed">
+    <value>Penyiapan satelit FlexRadio gagal</value>
+  </data>
+  <data name="Rig.FlexControlFailedDetail">
+    <value>Penyiapan satelit FlexRadio gagal: {0}</value>
+  </data>
+  <data name="Rig.Ts2000SatlUnconfirmed">
+    <value>Melacak (SATL TS-2000 belum dikonfirmasi; memakai FA/FB)</value>
+  </data>
+  <data name="Rig.Ts2000SatlWarningTitle">
+    <value>Mode satelit TS-2000 belum dikonfirmasi</value>
+  </data>
+  <data name="Rig.Ts2000SatlWarningMessage">
+    <value>Radio tidak mengonfirmasi SATL lewat CAT (SA;). OscarWatch akan tetap mengoreksi Doppler di FA/FB, tetapi untuk hasil terbaik tekan SAT di radio, matikan mode memori, dan tutup menu panel depan, lalu pilih ulang satelit untuk mencoba SATL penuh. Lihat Pengaturan → Radio untuk petunjuk CAT TS-2000.</value>
+  </data>
+  <data name="Rig.NoComPort">
+    <value>Tidak ada port COM yang dipilih</value>
+  </data>
+  <data name="Rig.SelectDualComPorts">
+    <value>Pilih port COM untuk radio downlink dan uplink</value>
+  </data>
+  <data name="Rig.NotConnected">
+    <value>Rig tidak terhubung</value>
+  </data>
+  <data name="Rig.NotConnectedPort">
+    <value>Rig tidak terhubung ({0})</value>
+  </data>
+  <data name="Rig.DualNotConnected">
+    <value>Radio ganda tidak terhubung</value>
+  </data>
+  <data name="Rig.DualNotConnectedDetail">
+    <value>Radio ganda tidak terhubung: {0}</value>
+  </data>
+  <data name="Rig.NotConnectedDetail">
+    <value>Rig tidak terhubung: {0}</value>
+  </data>
+  <data name="Rig.NotConnectedPortDetail">
+    <value>Rig tidak terhubung ({0}): {1}</value>
+  </data>
+  <data name="Rig.SerialPortNotFound">
+    <value>Port serial tidak ditemukan ({0}). Periksa kabel USB dan segarkan daftar port.</value>
+  </data>
+  <data name="Rig.SerialPortBusy">
+    <value>Port serial sedang dipakai ({0}). Tutup aplikasi CAT lain atau pilih port lain.</value>
+  </data>
+  <data name="Rig.DualEndpointSerialPortNotFound">
+    <value>Port serial {0} tidak ditemukan ({1}). Periksa kabel USB dan segarkan daftar port.</value>
+  </data>
+  <data name="Rig.DualEndpointSerialPortBusy">
+    <value>Port serial {0} sedang dipakai ({1}). Tutup aplikasi CAT lain atau pilih port lain.</value>
+  </data>
+  <data name="Rig.DualRadioSamePort">
+    <value>Radio downlink dan uplink memakai port serial yang sama. Pakai port yang berbeda untuk tiap radio.</value>
+  </data>
+  <data name="App.AlreadyRunningTitle">
+    <value>OscarWatch sudah berjalan</value>
+  </data>
+  <data name="App.AlreadyRunningMessage">
+    <value>OscarWatch sudah berjalan, tetapi jendelanya tidak bisa diaktifkan. Jika jendela tidak muncul, akhiri OscarWatch.exe di Pengelola Tugas lalu coba lagi.</value>
+  </data>
+  <data name="Window.PassPlanner.Title">
+    <value>Perencana lintasan</value>
+  </data>
+  <data name="Window.Logbook.Title">
+    <value>Logbook OscarWatch</value>
+  </data>
+  <data name="Window.CreateLogbook.Title">
+    <value>Logbook baru</value>
+  </data>
+  <data name="Window.EditLogbook.Title">
+    <value>Sunting logbook</value>
+  </data>
+  <data name="Logbook.CreateLogbook.Intro">
+    <value>Buat logbook terpisah untuk aktivasi portabel, kontes, atau sesi operasi lain.</value>
+  </data>
+  <data name="Logbook.EditLogbook.Intro">
+    <value>Perbarui nama, callsign, dan grid untuk logbook ini. Rekaman QSO yang ada tidak diubah.</value>
+  </data>
+  <data name="Logbook.EditLogbook">
+    <value>Sunting logbook</value>
+  </data>
+  <data name="Logbook.DeleteLogbook.ConfirmTitle">
+    <value>Hapus logbook</value>
+  </data>
+  <data name="Logbook.DeleteLogbook.ConfirmMessage">
+    <value>Hapus “{0}” beserta semua QSO di dalamnya? Ini tidak bisa dibatalkan.</value>
+  </data>
+  <data name="Logbook.DeleteQso.ConfirmTitle">
+    <value>Hapus QSO</value>
+  </data>
+  <data name="Logbook.DeleteQso.ConfirmMessage">
+    <value>Hapus QSO dengan {0} pada {1}? Ini tidak bisa dibatalkan.</value>
+  </data>
+  <data name="Logbook.LogbookLabel">
+    <value>Logbook</value>
+  </data>
+  <data name="Logbook.Menu.Logbook">
+    <value>Logbook</value>
+  </data>
+  <data name="Logbook.Menu.DeleteLogbook">
+    <value>Hapus logbook</value>
+  </data>
+  <data name="Logbook.Menu.NoLogbook">
+    <value>Tidak ada logbook yang dipilih</value>
+  </data>
+  <data name="Logbook.Menu.Edit">
+    <value>Sunting</value>
+  </data>
+  <data name="Logbook.Menu.Export">
+    <value>Ekspor</value>
+  </data>
+  <data name="Logbook.Menu.Settings">
+    <value>Pengaturan</value>
+  </data>
+  <data name="Window.LogbookSettings.Title">
+    <value>Pengaturan logbook</value>
+  </data>
+  <data name="Logbook.Settings.Saved">
+    <value>Pengaturan logbook disimpan.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.Intro">
+    <value>Unggah QSO baru ke Cloudlog secara otomatis saat mencatat. URL Cloudlog dan kunci API berasal dari Pengaturan → Integrasi.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlLabel">
+    <value>URL Cloudlog</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlNote">
+    <value>Atur URL dan kunci API di Pengaturan aplikasi utama → Integrasi.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NotConfigured">
+    <value>Belum dikonfigurasi. Buka Pengaturan → Integrasi</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.AutoUpload">
+    <value>Aktifkan unggah QSO otomatis</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfile">
+    <value>Lokasi stasiun</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfileNote">
+    <value>Profil stasiun Cloudlog yang dipakai saat mengirim QSO. Unggahan yang gagal diulang otomatis.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RefreshProfiles">
+    <value>Segarkan</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryFailed">
+    <value>Ulangi unggahan yang gagal</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryStarted">
+    <value>Mengulangi unggahan yang gagal…</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ProfilesLoaded">
+    <value>{0} lokasi stasiun dimuat.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NoProfiles">
+    <value>Tidak ada lokasi stasiun yang dikembalikan dari Cloudlog.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.LoadProfilesFailed">
+    <value>Tidak bisa memuat lokasi stasiun dari Cloudlog.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ConfigureIntegrationsFirst">
+    <value>Konfigurasi Cloudlog di Pengaturan → Integrasi sebelum mengaktifkan unggah.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationRequired">
+    <value>Pilih lokasi stasiun untuk unggah Cloudlog.</value>
+  </data>
+  <data name="Logbook.Menu.SettingsComingSoon">
+    <value>Pengaturan logbook</value>
+  </data>
+  <data name="Logbook.NewLogbook">
+    <value>Logbook baru</value>
+  </data>
+  <data name="Logbook.NewName">
+    <value>Nama</value>
+  </data>
+  <data name="Logbook.NewNameWatermark">
+    <value>Aktivasi portabel, kontes, dll.</value>
+  </data>
+  <data name="Logbook.MyCallsign">
+    <value>Callsign saya</value>
+  </data>
+  <data name="Logbook.MyGrid">
+    <value>Grid saya</value>
+  </data>
+  <data name="Logbook.Call">
+    <value>Callsign</value>
+  </data>
+  <data name="Logbook.RstSent">
+    <value>Kirim</value>
+  </data>
+  <data name="Logbook.RstRcvd">
+    <value>Terima</value>
+  </data>
+  <data name="Logbook.Grid">
+    <value>Gridsquare</value>
+  </data>
+  <data name="Logbook.GridHint">
+    <value>2/4/6/8 karakter; pisahkan dengan koma jika di garis grid (mis. IO77,IO87).</value>
+  </data>
+  <data name="Logbook.Name">
+    <value>Nama</value>
+  </data>
+  <data name="Logbook.Comment">
+    <value>Komentar</value>
+  </data>
+  <data name="Logbook.ClearFieldsHint">
+    <value>Alt+W mengosongkan kolom entri</value>
+  </data>
+  <data name="Logbook.AddQso">
+    <value>Tambah</value>
+  </data>
+  <data name="Logbook.SaveQso">
+    <value>Simpan</value>
+  </data>
+  <data name="Logbook.EditQso">
+    <value>Sunting QSO</value>
+  </data>
+  <data name="Logbook.CancelEdit">
+    <value>Batal</value>
+  </data>
+  <data name="Logbook.EditingStatus">
+    <value>Menyunting QSO yang dicatat pada {0} UTC.</value>
+  </data>
+  <data name="Logbook.DeleteQso">
+    <value>Hapus QSO</value>
+  </data>
+  <data name="Logbook.History">
+    <value>QSO terkini</value>
+  </data>
+  <data name="Logbook.StationControl">
+    <value>Kontrol stasiun</value>
+  </data>
+  <data name="Logbook.Station.Satellite">
+    <value>Satelit</value>
+  </data>
+  <data name="Logbook.Station.Mode">
+    <value>Mode</value>
+  </data>
+  <data name="Logbook.Station.Frequencies">
+    <value>Uplink / downlink (MHz)</value>
+  </data>
+  <data name="Logbook.Station.Note">
+    <value>Nilai diambil dari pelacakan OscarWatch saat Anda menambah QSO.</value>
+  </data>
+  <data name="Logbook.Station.Tracking">
+    <value>Melacak {0}</value>
+  </data>
+  <data name="Logbook.Station.Unavailable">
+    <value>Tidak ada satelit yang dipilih atau mode belum tersinkron</value>
+  </data>
+  <data name="Logbook.ExportAdif">
+    <value>Ekspor ADIF</value>
+  </data>
+  <data name="Logbook.ExportPicker.Title">
+    <value>Ekspor ADIF</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Title">
+    <value>Ekspor ADIF</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Intro">
+    <value>Pilih QSO mana yang disertakan dan apakah nama satelit dipetakan ulang untuk Logbook of the World.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Scope.All">
+    <value>Semua QSO di logbook</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Scope.DateRange">
+    <value>QSO dalam rentang tanggal UTC</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.FromUtc">
+    <value>Dari (UTC)</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.ToUtc">
+    <value>Sampai (UTC)</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountOne">
+    <value>1 QSO akan diekspor.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountMany">
+    <value>{0} QSO akan diekspor.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountNone">
+    <value>Tidak ada QSO yang cocok dengan rentang ekspor ini.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.ForLotw">
+    <value>Petakan ulang nama satelit untuk LoTW</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Export">
+    <value>Ekspor</value>
+  </data>
+  <data name="Logbook.DefaultName">
+    <value>Logbook utama</value>
+  </data>
+  <data name="Logbook.Status.Ready">
+    <value>Siap</value>
+  </data>
+  <data name="Logbook.Status.Created">
+    <value>Logbook “{0}” dibuat.</value>
+  </data>
+  <data name="Logbook.Status.LogbookUpdated">
+    <value>Logbook “{0}” diperbarui.</value>
+  </data>
+  <data name="Logbook.Status.Deleted">
+    <value>Logbook “{0}” dihapus.</value>
+  </data>
+  <data name="Logbook.Status.StationUnavailable">
+    <value>Tunggu sampai pelacakan menampilkan satelit dan mode sebelum menambah QSO.</value>
+  </data>
+  <data name="Logbook.Status.Added">
+    <value>Mencatat {0} pada {1} UTC.</value>
+  </data>
+  <data name="Logbook.Status.Updated">
+    <value>Memperbarui {0} pada {1} UTC.</value>
+  </data>
+  <data name="Logbook.Status.Removed">
+    <value>Menghapus {0}.</value>
+  </data>
+  <data name="Logbook.Status.QsoCountOne">
+    <value>{0} · 1 QSO</value>
+  </data>
+  <data name="Logbook.Status.QsoCountMany">
+    <value>{0} · {1} QSO</value>
+  </data>
+  <data name="Logbook.Status.ExportedOne">
+    <value>Mengekspor 1 QSO ke ADIF.</value>
+  </data>
+  <data name="Logbook.Status.ExportedMany">
+    <value>Mengekspor {0} QSO ke ADIF.</value>
+  </data>
+  <data name="Logbook.Status.ExportedOneRange">
+    <value>Mengekspor 1 QSO ke ADIF ({0} UTC).</value>
+  </data>
+  <data name="Logbook.Status.ExportedManyRange">
+    <value>Mengekspor {0} QSO ke ADIF ({1} UTC).</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Pending">
+    <value>Tertunda</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Sent">
+    <value>Terkirim</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Failed">
+    <value>Gagal</value>
+  </data>
+  <data name="Logbook.Error.GridTooMany">
+    <value>Paling banyak {0} kotak grid didukung.</value>
+  </data>
+  <data name="Logbook.Error.GridInvalidSegment">
+    <value>Locator “{0}” tidak valid. Pakai 2, 4, 6, atau 8 karakter Maidenhead.</value>
+  </data>
+  <data name="Logbook.Error.NameRequired">
+    <value>Masukkan nama logbook.</value>
+  </data>
+  <data name="Logbook.CallHint.Previous">
+    <value>QSO sebelumnya ditemukan di logbook ini.</value>
+  </data>
+  <data name="Logbook.CallHint.PreviousWithGrid">
+    <value>QSO sebelumnya: grid {0}.</value>
+  </data>
+  <data name="Logbook.CallStatus.Worked">
+    <value>Sudah</value>
+  </data>
+  <data name="Logbook.CallStatus.NotWorked">
+    <value>Belum</value>
+  </data>
+  <data name="Logbook.DxccStatus.Worked">
+    <value>Sudah</value>
+  </data>
+  <data name="Logbook.DxccStatus.New">
+    <value>Baru</value>
+  </data>
+  <data name="Logbook.DxccBadge">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="Logbook.Menu.UpdateCountryFile">
+    <value>Perbarui berkas negara</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdating">
+    <value>Memperbarui berkas negara…</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdated">
+    <value>Berkas negara diperbarui.</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdateFailed">
+    <value>Tidak bisa memperbarui berkas negara: {0}</value>
+  </data>
+  <data name="Logbook.Column.Country">
+    <value>Negara</value>
+  </data>
+  <data name="Logbook.Column.DateTime">
+    <value>Tanggal/waktu (UTC)</value>
+  </data>
+  <data name="Logbook.UtcClockLabel">
+    <value>Waktu QSO (UTC)</value>
+  </data>
+  <data name="Logbook.Column.Call">
+    <value>Call</value>
+  </data>
+  <data name="Logbook.Column.Grid">
+    <value>Grid</value>
+  </data>
+  <data name="Logbook.Column.Satellite">
+    <value>SAT</value>
+  </data>
+  <data name="Logbook.Column.Mode">
+    <value>Mode</value>
+  </data>
+  <data name="Logbook.Column.RstSent">
+    <value>Kirim</value>
+  </data>
+  <data name="Logbook.Column.RstRcvd">
+    <value>Terima</value>
+  </data>
+  <data name="Logbook.Column.Cloudlog">
+    <value>Cloudlog</value>
+  </data>
+  <data name="Logbook.Column.Comment">
+    <value>Komentar</value>
+  </data>
+  <data name="Window.MutualPass.Title">
+    <value>Pencari lintasan bersama</value>
+  </data>
+  <data name="Window.MutualPassVisualizer.Title">
+    <value>Visualisasi lintasan bersama</value>
+  </data>
+  <data name="Window.PassVisualizer.Title">
+    <value>Visualisasi lintasan</value>
+  </data>
+  <data name="Window.PassRadarGallery.Title">
+    <value>Galeri radar lintasan</value>
+  </data>
+  <data name="PassRadar.Gallery.Heading">
+    <value>{0} radar lintasan · {1}</value>
+  </data>
+  <data name="PassRadar.Gallery.Subtitle">
+    <value>{0} lintasan · {1} j ke depan · el min {2:F0}° ({3})</value>
+  </data>
+  <data name="Window.DopplerInsights.Title">
+    <value>Wawasan Lintasan Doppler</value>
+  </data>
+  <data name="Window.Sunlight.Title">
+    <value>Prediksi Cahaya Matahari</value>
+  </data>
+  <data name="DopplerInsights.Header">
+    <value>Wawasan Lintasan Doppler</value>
+  </data>
+  <data name="DopplerInsights.Subtitle">
+    <value>Muat log lintasan untuk melihat saran penyetelan yang jelas bagi pengaturan ambang Adaptif dan Lead Doppler CAT.</value>
+  </data>
+  <data name="DopplerInsights.OpenCsv">
+    <value>Buka CSV</value>
+  </data>
+  <data name="DopplerInsights.LoadLatest">
+    <value>Muat terbaru</value>
+  </data>
+  <data name="DopplerInsights.OpenFolder">
+    <value>Buka folder log</value>
+  </data>
+  <data name="DopplerInsights.Picker.Title">
+    <value>Pilih CSV lintasan Doppler</value>
+  </data>
+  <data name="DopplerInsights.Picker.CompareTitle">
+    <value>Pilih CSV lintasan Doppler pembanding</value>
+  </data>
+  <data name="DopplerInsights.OpenCompareCsv">
+    <value>Buka CSV pembanding</value>
+  </data>
+  <data name="DopplerInsights.ClearCompare">
+    <value>Hapus pembanding</value>
+  </data>
+  <data name="DopplerInsights.Section.Summary">
+    <value>Ringkasan</value>
+  </data>
+  <data name="DopplerInsights.Section.Chart">
+    <value>Grafik deret waktu (padat = utama, putus-putus = pembanding)</value>
+  </data>
+  <data name="DopplerInsights.Chart.Legend">
+    <value>Biru = galat pelacakan downlink, Oranye = galat pelacakan uplink, Pita teal = zona ambang adaptif, Putus-putus = ambang dasar, Tanda ungu = koreksi CAT, Strip abu-abu = elevasi satelit, Garis kuning = TCA (elevasi tertinggi)</value>
+  </data>
+  <data name="DopplerInsights.Chart.Explain">
+    <value>Setiap garis berwarna menunjukkan seberapa jauh frekuensi radio menyimpang dari target Doppler yang dihitung. Saat galat mencapai ambang, OscarWatch mengirim koreksi CAT (tanda ungu) dan galat turun kembali. Siklus yang lebih kecil dan lebih halus berarti pelacakan lebih baik.</value>
+  </data>
+  <data name="DopplerInsights.Chart.YAxis">
+    <value>Galat pelacakan (Hz)</value>
+  </data>
+  <data name="DopplerInsights.Chart.ElevationLabel">
+    <value>El °</value>
+  </data>
+  <data name="DopplerInsights.Chart.TcaLabel">
+    <value>TCA</value>
+  </data>
+  <data name="DopplerInsights.Chart.Hint">
+    <value>Gunakan tombol +/− untuk zoom, atau gulir mendatar untuk geser</value>
+  </data>
+  <data name="DopplerInsights.Section.Bars">
+    <value>Bilah aktivitas (persen baris)</value>
+  </data>
+  <data name="DopplerInsights.Section.Analysis">
+    <value>Rincian analisis</value>
+  </data>
+  <data name="DopplerInsights.Tab.Activity">
+    <value>Bilah aktivitas</value>
+  </data>
+  <data name="DopplerInsights.Tab.Overview">
+    <value>Ikhtisar</value>
+  </data>
+  <data name="DopplerInsights.Tab.Events">
+    <value>Peristiwa terkini</value>
+  </data>
+  <data name="DopplerInsights.Tab.Chart">
+    <value>Grafik</value>
+  </data>
+  <data name="DopplerInsights.Tab.Tuning">
+    <value>Panduan penyetelan</value>
+  </data>
+  <data name="DopplerInsights.Tab.Files">
+    <value>Berkas</value>
+  </data>
+  <data name="DopplerInsights.Tab.Comparison">
+    <value>Perbandingan</value>
+  </data>
+  <data name="DopplerInsights.Tab.Analysis">
+    <value>Analisis</value>
+  </data>
+  <data name="DopplerInsights.Section.Recommendations">
+    <value>Rekomendasi</value>
+  </data>
+  <data name="DopplerInsights.Section.HowTo">
+    <value>Cara memakai ini untuk menyetel radio</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Intro">
+    <value>Pakai panel ini untuk membandingkan satu lintasan sebelum dan sesudah mengubah pengaturan.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step1">
+    <value>1) Jika "Ditekan oleh ambang" sangat tinggi dan penulisan RX/TX rendah, turunkan sedikit ambang Doppler.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step2">
+    <value>2) Jika laju penulisan RX/TX sangat tinggi, naikkan ambang atau jeda CAT untuk mengurangi chatter.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step3">
+    <value>3) Jika peak slew tinggi dan pelacakan tertinggal, aktifkan/naikkan Lead Doppler untuk latensi CAT.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step4">
+    <value>4) Pakai mode banding: usahakan delta p95 lebih rendah dengan laju tulis yang stabil dan lebih sedikit campur tangan manual.</value>
+  </data>
+  <data name="DopplerInsights.Section.Events">
+    <value>Peristiwa terkini</value>
+  </data>
+  <data name="DopplerInsights.Bar.RxWrites">
+    <value>Laju tulis RX</value>
+  </data>
+  <data name="DopplerInsights.Bar.TxWrites">
+    <value>Laju tulis TX</value>
+  </data>
+  <data name="DopplerInsights.Bar.BelowThreshold">
+    <value>Ditekan oleh ambang</value>
+  </data>
+  <data name="DopplerInsights.Bar.Interactive">
+    <value>Periode manual/interaktif</value>
+  </data>
+  <data name="DopplerInsights.Status.Ready">
+    <value>Pilih berkas CSV atau muat log lintasan terbaru.</value>
+  </data>
+  <data name="DopplerInsights.Status.Loading">
+    <value>Memuat log lintasan Doppler</value>
+  </data>
+  <data name="DopplerInsights.Status.Loaded">
+    <value>Dimuat {0} baris.</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadingCompare">
+    <value>Memuat log lintasan pembanding</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadedCompare">
+    <value>Pembanding dimuat dengan {0} baris.</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderOk">
+    <value>Folder log Doppler dibuka.</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderFailed">
+    <value>Tidak bisa membuka folder log Doppler: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadFailed">
+    <value>Tidak bisa memuat log: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.FileMissing">
+    <value>Berkas yang dipilih tidak ditemukan.</value>
+  </data>
+  <data name="DopplerInsights.Status.NoLogsFolder">
+    <value>Folder log Doppler belum ditemukan: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.NoCsvLogs">
+    <value>Tidak ada berkas CSV Doppler di: {0}</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Empty">
+    <value>Tidak ada data lintasan yang dimuat.</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Value">
+    <value>Satelit: {0}. Jendela lintasan: {1} sampai {2} UTC ({3} mnt). Baris: {4} total, {5} snapshot, {6} tulis CAT, {7} perubahan offset.</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Empty">
+    <value>Metrik ambang tidak tersedia.</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Value">
+    <value>Ambang: dasar {0} Hz, efektif {1} Hz (pengurangan adaptif {2}%). Baris ditekan: {3}%.</value>
+  </data>
+  <data name="DopplerInsights.Activity.Empty">
+    <value>Metrik aktivitas tulis tidak tersedia.</value>
+  </data>
+  <data name="DopplerInsights.Activity.Value">
+    <value>Tulis: RX {0}%, TX {1}%. Baris interaktif: {2}%. Baris CAT dijeda: {3}. Baris Lead aktif: {4}%.</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Empty">
+    <value>Metrik delta frekuensi tidak tersedia.</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Value">
+    <value>Delta: RX rata-rata {0} Hz, RX p95 {1} Hz, TX rata-rata {2} Hz, TX p95 {3} Hz. Peak slew: {4} Hz/s.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Empty">
+    <value>Tidak ada pembanding yang dimuat.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Value">
+    <value>Utama [{0}] tulis RX/TX {1}%/{2}%, p95 RX/TX {3}/{4} Hz. Pembanding [{5}] tulis RX/TX {6}%/{7}%, p95 RX/TX {8}/{9} Hz.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyTitle">
+    <value>Muat lintasan pembanding untuk melihat apakah perubahan pengaturan memperbaiki pelacakan.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyText">
+    <value>Saat Anda memuat CSV kedua (setelah mengubah ambang Doppler, jeda CAT, atau pengaturan lead), bagian ini menunjukkan apakah lintasan baru lebih baik atau lebih buruk.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.BetterTitle">
+    <value>✓ Lintasan pembanding lebih baik</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.WorseTitle">
+    <value>✗ Lintasan pembanding lebih buruk</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.MixedTitle">
+    <value>~ Lintasan pembanding campuran</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.Value">
+    <value>Tulis RX {0}%, tulis TX {1}%, p95 RX {2} Hz, p95 TX {3} Hz. Lanjut: {4}</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.IncreaseAggression">
+    <value>Turunkan sedikit ambang atau jeda CAT untuk meningkatkan agresivitas penyetelan.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.StabilizeWrites">
+    <value>Naikkan sedikit ambang atau jeda CAT untuk mengurangi chatter tulis.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.KeepSettings">
+    <value>Pertahankan pengaturan ini: sudah berjalan baik!</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.SmallStep">
+    <value>Lakukan penyesuaian kecil lalu bandingkan lagi.</value>
+  </data>
+  <data name="DopplerInsights.Chart.Empty">
+    <value>Muat CSV Doppler untuk melihat plot deret waktu delta RX/TX, ambang, dan peristiwa tulis.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Empty">
+    <value>Rekam satu lintasan penuh untuk menghasilkan rekomendasi penyetelan.</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdHigh">
+    <value>Ambang tampak tinggi untuk lintasan ini. Pertimbangkan menurunkan ambang Doppler agar CAT bisa bereaksi lebih cepat.</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdLow">
+    <value>Laju tulis sangat tinggi. Jika audio terdengar cerewet, naikkan sedikit ambang Doppler atau perbesar jeda CAT.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Interactive">
+    <value>Penyetelan manual terjadi selama lintasan ini. Jika tidak disengaja, periksa kestabilan CAT dan penyelarasan transponder.</value>
+  </data>
+  <data name="DopplerInsights.Reco.CatPaused">
+    <value>Baris CAT dijeda terdeteksi. Pastikan jeda CAT tidak tertinggal aktif selama pelacakan.</value>
+  </data>
+  <data name="DopplerInsights.Reco.EnableLead">
+    <value>Slew Doppler tinggi dengan pemakaian lead rendah. Aktifkan Lead Doppler untuk latensi CAT pada kaki lintasan yang curam.</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveThreshold">
+    <value>Ambang adaptif sedang aktif. Bandingkan dengan lintasan saat dinonaktifkan untuk memastikan penyetelan lebih halus bagi rig Anda.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Balanced">
+    <value>Lintasan ini tampak seimbang. Pertahankan pengaturan dan bandingkan dengan lintasan lain untuk konsistensi.</value>
+  </data>
+  <data name="DopplerInsights.Reco.IncreaseLead">
+    <value>Lead Doppler aktif tetapi jarang dipakai selama kaki Doppler cepat. Coba naikkan kekuatan lead atau waktu lead di pengaturan Radio.</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveHelping">
+    <value>Ambang adaptif menurunkan pita efektif selama kaki cepat: ini tampaknya membantu. Tetap aktifkan kecuali Anda lebih suka ambang tetap.</value>
+  </data>
+  <data name="DopplerInsights.Reco.TryAdaptive">
+    <value>Slew Doppler cepat terdeteksi dengan ambang tetap. Coba aktifkan Ambang adaptif dekat TCA di pengaturan Radio.</value>
+  </data>
+  <data name="DopplerInsights.Section.Adaptive">
+    <value>Ambang adaptif</value>
+  </data>
+  <data name="DopplerInsights.Section.Lead">
+    <value>Lead Doppler (latensi CAT)</value>
+  </data>
+  <data name="DopplerInsights.Section.SettingsUsed">
+    <value>Pengaturan yang tercatat untuk lintasan ini</value>
+  </data>
+  <data name="DopplerInsights.Section.PassPhases">
+    <value>Rincian lintasan</value>
+  </data>
+  <data name="DopplerInsights.PassPhases.Intro">
+    <value>Bagaimana pelacakan berperilaku di tiap tahap lintasan. Fokus pada kaki TCA dan turun untuk Lead Doppler; periksa AOS/naik untuk penyetelan ambang.</value>
+  </data>
+  <data name="DopplerInsights.PassHeadline.Value">
+    <value>{0} · lintasan {1} mnt, elevasi puncak {2}°</value>
+  </data>
+  <data name="DopplerInsights.Tuning.CompareHint">
+    <value>Tips: ubah satu pengaturan (ambang, adaptif, waktu lead, atau kekuatan lead), jalankan lintasan lain, lalu muat kedua CSV lewat Berkas → perbandingan untuk melihat apakah pelacakan membaik.</value>
+  </data>
+  <data name="DopplerInsights.Files.Primary">
+    <value>Lintasan utama</value>
+  </data>
+  <data name="DopplerInsights.Files.Comparison">
+    <value>Lintasan pembanding</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptyTitle">
+    <value>Tidak ada lintasan yang dimuat</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptySummary">
+    <value>Buka CSV lintasan Doppler untuk mendapat panduan penyetelan bagi pengaturan radio Anda.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodTitle">
+    <value>Pelacakan tampak baik</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodSummary">
+    <value>Galat pelacakan tipikal tetap rendah (p95 downlink {0} Hz, p95 uplink {1} Hz). Tidak ada perubahan besar yang disarankan.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdTitle">
+    <value>Ambang mungkin terlalu tinggi</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdSummary">
+    <value>{0}% sampel ditekan oleh ambang: radio tidak dikoreksi cukup sering. Pertimbangkan menurunkan ambang Doppler linear.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadTitle">
+    <value>Pertimbangkan Lead Doppler</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadSummary">
+    <value>Slew Doppler cepat terdeteksi tetapi Lead Doppler mati atau jarang dipakai. Galat downlink tipikal {0} Hz.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterTitle">
+    <value>CAT mungkin terlalu agresif</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterSummary">
+    <value>CAT menulis pada {0}% sampel. Jika penyetelan terdengar patah-patah, naikkan sedikit ambang atau perbesar jeda CAT.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualTitle">
+    <value>Penyetelan manual terdeteksi</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualSummary">
+    <value>Lintasan ini mencakup {0} baris interaktif dan {1} baris CAT dijeda. Tinjau periode itu sebelum mengubah pengaturan otomatis.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyTitle">
+    <value>Ambang adaptif</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyDetail">
+    <value>Muat lintasan untuk melihat apakah ambang adaptif membantu dekat TCA.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledTitle">
+    <value>Ambang adaptif mati</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledDetail">
+    <value>Peak slew Doppler {0} Hz/s. Ambang tetap dipakai sepanjang lintasan.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledAction">
+    <value>Coba aktifkan Ambang adaptif dekat TCA di pengaturan Radio: ini menurunkan pita saat Doppler berubah cepat.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledNoAction">
+    <value>Slew sedang: ambang tetap sudah cukup kecuali Anda merasakan lag dekat TCA.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeTitle">
+    <value>Ambang menahan terlalu banyak koreksi</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeDetail">
+    <value>{0}% baris di bawah ambang (rata-rata efektif {1} Hz). Radio menunggu terlalu lama sebelum mengoreksi.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeAction">
+    <value>Turunkan ambang Doppler (SSB/CW) 10–20 Hz, atau pastikan Ambang adaptif aktif.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingTitle">
+    <value>Ambang adaptif bekerja</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingDetail">
+    <value>Ambang dikurangi ~{0}% selama kaki cepat (peak slew {1} Hz/s) tanpa chatter CAT berlebih.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingAction">
+    <value>Tetap aktifkan Ambang adaptif. Bandingkan dengan dinonaktifkan hanya jika Anda ingin nuansa ambang tetap.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralTitle">
+    <value>Ambang adaptif pengaruhnya terbatas</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralDetail">
+    <value>Pengurangan ambang rata-rata {0}%. Slew Doppler mungkin sedang selama sebagian besar lintasan.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralAction">
+    <value>Jika masih terdengar lag dekat TCA, turunkan sedikit ambang dasar, jangan nonaktifkan Ambang adaptif.</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyTitle">
+    <value>Lead Doppler</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyDetail">
+    <value>Muat lintasan untuk melihat apakah Lead Doppler mengikuti selama kaki cepat.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledTitle">
+    <value>Lead Doppler mati</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledDetail">
+    <value>Peak slew mencapai {0} Hz/s. CAT hanya memakai Doppler instan.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledAction">
+    <value>Aktifkan Lead Doppler untuk latensi CAT di pengaturan Radio, lalu catat lintasan lain.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledNoAction">
+    <value>Slew rendah: Lead Doppler opsional untuk profil lintasan ini.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakTitle">
+    <value>Lead Doppler lemah di kaki cepat</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakDetail">
+    <value>Galat downlink kaki curam mencapai {0} Hz dengan penguatan lead {1}%.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakAction">
+    <value>Naikkan kekuatan lead ke 85–100%, atau setel waktu lead secara eksplisit (coba 25–40 ms).</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingTitle">
+    <value>Lead Doppler mengikuti</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingDetail">
+    <value>Lead aktif pada {0}% baris; p95 downlink tetap {1} Hz meski slew cepat.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingAction">
+    <value>Pertahankan pengaturan lead saat ini. Jika audio terasa mendahului sinyal, turunkan sedikit kekuatan lead.</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingTitle">
+    <value>Pelacakan tertinggal di kaki cepat</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingDetail">
+    <value>p95 downlink {0} Hz, p95 uplink {1} Hz selama lintasan slew tinggi.</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingAction">
+    <value>Naikkan waktu lead (saat ini {0} ms) atau kekuatan lead ({1}%). Periksa juga jeda CAT tidak berlebihan.</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralTitle">
+    <value>Status Lead Doppler</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralDetail">
+    <value>Lead aktif pada {0}% baris. Peak slew {1} Hz/s.</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralAction">
+    <value>Haluskan dengan mode banding setelah perubahan kecil pada waktu atau kekuatan lead.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Empty">
+    <value>Komentar pengaturan tidak ditemukan di berkas log ini.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Inferred">
+    <value>Disimpulkan dari baris log: ambang dasar ~{0} Hz, lead aktif {1}% baris, pengurangan adaptif ~{2}%.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Value">
+    <value>Ambang linear {0} Hz, jeda CAT {1} ms, Ambang adaptif {2}, Lead Doppler {3}, waktu lead {4} ms, kekuatan lead {5}%.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Enabled">
+    <value>aktif</value>
+  </data>
+  <data name="DopplerInsights.Settings.Disabled">
+    <value>nonaktif</value>
+  </data>
+  <data name="DopplerInsights.Phase.Aos">
+    <value>AOS (awal)</value>
+  </data>
+  <data name="DopplerInsights.Phase.Rising">
+    <value>Naik</value>
+  </data>
+  <data name="DopplerInsights.Phase.Tca">
+    <value>Sekitar TCA</value>
+  </data>
+  <data name="DopplerInsights.Phase.Descending">
+    <value>Turun</value>
+  </data>
+  <data name="DopplerInsights.Phase.Los">
+    <value>LOS (akhir)</value>
+  </data>
+  <data name="DopplerInsights.Phase.Summary">
+    <value>Galat downlink p95 {0} Hz · tulis CAT {1}% · peak slew {2} Hz/s · elevasi maks {3}°</value>
+  </data>
+  <data name="Window.RotatorManual.Title">
+    <value>Kontrol rotator manual</value>
+  </data>
+  <data name="Window.SatelliteDatabase.Title">
+    <value>Basis data transponder</value>
+  </data>
+  <data name="Dx.Title">
+    <value>Stasiun DX</value>
+  </data>
+  <data name="Dx.GridWatermark">
+    <value>Grid Maidenhead (mis. JO22 atau JO22lk)</value>
+  </data>
+  <data name="Dx.AzTheirSky">
+    <value>Az (langit mereka)</value>
+  </data>
+  <data name="Dx.ElTheirSky">
+    <value>El (langit mereka)</value>
+  </data>
+  <data name="Dx.Clear">
+    <value>Bersihkan</value>
+  </data>
+  <data name="Dx.CollapseExpand">
+    <value>Perluas panel stasiun DX</value>
+  </data>
+  <data name="Dx.CollapseCompact">
+    <value>Ciutkan ke tampilan ringkas</value>
+  </data>
+  <data name="Dx.MapLauncher.Active">
+    <value>Tampilkan monitor stasiun DX</value>
+  </data>
+  <data name="Dx.MapLauncher.Inactive">
+    <value>Masukkan gridsquare stasiun jarak jauh</value>
+  </data>
+  <data name="Dx.Validation.MinChars">
+    <value>Masukkan minimal 4 karakter (mis. JO22 atau JO22lk).</value>
+  </data>
+  <data name="Dx.Validation.InvalidGrid">
+    <value>Kotak grid Maidenhead tidak valid.</value>
+  </data>
+  <data name="Dx.Collapsed.BelowHorizon">
+    <value>{0} · di bawah horizon</value>
+  </data>
+  <data name="Dx.Collapsed.AzElPending">
+    <value>{0} · Az … · El …</value>
+  </data>
+  <data name="Dx.Collapsed.AzEl">
+    <value>{0} · Az {1} · El {2}</value>
+  </data>
+  <data name="Freq.SelectSatellite">
+    <value>Pilih satelit</value>
+  </data>
+  <data name="Freq.SelectSatelliteHint">
+    <value>Pilih satelit di peta atau dari lintasan mendatang.</value>
+  </data>
+  <data name="Freq.NoTransponder">
+    <value>Tidak ada data transponder untuk satelit ini</value>
+  </data>
+  <data name="Freq.CollapsedNoTransponder">
+    <value>{0} · tidak ada data transponder</value>
+  </data>
+  <data name="Freq.CwSuffix">
+    <value> · CW</value>
+  </data>
+  <data name="Freq.CollapseExpand">
+    <value>Perluas panel frekuensi</value>
+  </data>
+  <data name="Freq.CollapseCompact">
+    <value>Ciutkan ke tampilan ringkas</value>
+  </data>
+  <data name="Freq.TransponderMode">
+    <value>Mode transponder</value>
+  </data>
+  <data name="Freq.UplinkTx">
+    <value>Uplink (TX)</value>
+  </data>
+  <data name="Freq.DownlinkRx">
+    <value>Downlink (RX)</value>
+  </data>
+  <data name="Freq.Sat">
+    <value>Sat</value>
+  </data>
+  <data name="Freq.Radio">
+    <value>Radio</value>
+  </data>
+  <data name="Freq.DopplerLeadEnabled">
+    <value>Lead Doppler aktif, menunggu kaki lintasan yang curam</value>
+  </data>
+  <data name="Freq.DopplerLeadActive">
+    <value>Lead Doppler aktif: CAT memprediksi ke depan di baris Radio</value>
+  </data>
+  <data name="Freq.LeadTuningTitle">
+    <value>Penyetelan lead CAT</value>
+  </data>
+  <data name="Freq.LeadTuningHint">
+    <value>Hanya sesi ini: tekan L untuk menyembunyikan. Nilai berlaku segera; pakai Pengaturan → Radio lalu Simpan agar tetap setelah mulai ulang.</value>
+  </data>
+  <data name="Freq.DopplerFull">
+    <value>Penuh</value>
+  </data>
+  <data name="Freq.DopplerTx">
+    <value>TX</value>
+  </data>
+  <data name="Freq.DopplerRx">
+    <value>RX</value>
+  </data>
+  <data name="Freq.DopplerTxFixedToolTip">
+    <value>TX tetap: hanya Doppler downlink (SatPC32 TX-Fixed). Uplink tetap di titik CQ Anda.</value>
+  </data>
+  <data name="Freq.DopplerRxFixedToolTip">
+    <value>RX tetap: hanya Doppler uplink (SatPC32 RX-Fixed). Downlink tetap di tempat.</value>
+  </data>
+  <data name="Freq.Ctcss">
+    <value>CTCSS</value>
+  </data>
+  <data name="Freq.CtcssAccess">
+    <value>Access</value>
+  </data>
+  <data name="Freq.CtcssArm">
+    <value>Arm</value>
+  </data>
+  <data name="Freq.RxOffsetKHz">
+    <value>Offset RX (kHz)</value>
+  </data>
+  <data name="Freq.TxOffsetKHz">
+    <value>Offset TX (kHz)</value>
+  </data>
+  <data name="Freq.OffsetToggleRx">
+    <value>RX</value>
+  </data>
+  <data name="Freq.OffsetToggleTx">
+    <value>TX</value>
+  </data>
+  <data name="Freq.OffsetLegToggleToolTip">
+    <value>Pindahkan offset antara downlink (RX) dan uplink (TX). Kedua offset tersimpan berlaku sekaligus.</value>
+  </data>
+  <data name="Freq.StoreOffset">
+    <value>Simpan Offset</value>
+  </data>
+  <data name="Freq.PassbandTrimTitle">
+    <value>Trim passband (dial Main)</value>
+  </data>
+  <data name="Freq.PassbandTrimSummary">
+    <value>Downlink {0} · Uplink {1}</value>
+  </data>
+  <data name="Freq.ClearPassbandTrim">
+    <value>Hapus trim passband</value>
+  </data>
+  <data name="Freq.ClearPassbandTrimToolTip">
+    <value>Menggabungkan penyetelan dial Main ini ke offset panel di atas dan kembali ke Doppler tanpa campur tangan. Frekuensi radio Anda tidak meloncat.</value>
+  </data>
+  <data name="Freq.PassbandTrimCleared">
+    <value>Trim passband dihapus dan diterapkan ke offset panel.</value>
+  </data>
+  <data name="Freq.Voice">
+    <value>Suara</value>
+  </data>
+  <data name="Freq.ReportStatus">
+    <value>Lapor</value>
+  </data>
+  <data name="Freq.ReportStatusToolTip">
+    <value>Laporkan status satelit ke OscarWatch.org untuk satelit dan mode yang terfokus (elevasi minimal −1°)</value>
+  </data>
+  <data name="Freq.StoredOffsetCleared">
+    <value>Offset tersimpan dihapus.</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedCw">
+    <value>Offset CW tersimpan dihapus.</value>
+  </data>
+  <data name="Freq.StoredOffset">
+    <value>Offset {0} Hz tersimpan.</value>
+  </data>
+  <data name="Freq.StoredOffsetCw">
+    <value>Offset CW {0} Hz tersimpan.</value>
+  </data>
+  <data name="Freq.StoredOffsetTx">
+    <value>Offset TX {0} Hz tersimpan.</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedTx">
+    <value>Offset TX tersimpan dihapus.</value>
+  </data>
+  <data name="Freq.StoredOffsetCwTx">
+    <value>Offset TX CW {0} Hz tersimpan.</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedCwTx">
+    <value>Offset TX CW tersimpan dihapus.</value>
+  </data>
+  <data name="Freq.OffsetOnDownlinkTuneUplink">
+    <value>{0} di downlink. Setel Main untuk uplink.</value>
+  </data>
+  <data name="Freq.OffsetOnDownlink">
+    <value>{0} di downlink.</value>
+  </data>
+  <data name="Freq.OffsetOnUplink">
+    <value>{0} di uplink.</value>
+  </data>
+  <data name="Freq.OffsetOnUplinkTuneDownlink">
+    <value>{0} di uplink. Setel Main untuk downlink.</value>
+  </data>
+  <data name="Freq.OffsetOnBothLegs">
+    <value>{0} di downlink, {1} di uplink.</value>
+  </data>
+  <data name="Freq.OffsetOnBothLegsRev">
+    <value>{0} di downlink, {1} di uplink. Setel Main untuk kaki yang lain.</value>
+  </data>
+  <data name="Freq.DownlinkOnlyTuneUplink">
+    <value>Hanya downlink. Setel Main untuk uplink.</value>
+  </data>
+  <data name="Freq.OffsetsDownlinkOnly">
+    <value>Offset hanya downlink.</value>
+  </data>
+  <data name="Freq.TxFixedOffsetHint">
+    <value>TX tetap (hanya Doppler downlink). {0}</value>
+  </data>
+  <data name="Freq.RxFixedOffsetHint">
+    <value>RX tetap (hanya Doppler uplink). {0}</value>
+  </data>
+  <data name="Freq.DopplerFullHint">
+    <value>Penuh: uplink dan downlink sama-sama mengikuti Doppler.</value>
+  </data>
+  <data name="Freq.DopplerTxFixedHint">
+    <value>TX tetap: uplink diam; downlink mengikuti Doppler (CQ rover).</value>
+  </data>
+  <data name="Freq.DopplerRxFixedHint">
+    <value>RX tetap: downlink diam; uplink mengikuti Doppler.</value>
+  </data>
+  <data name="Freq.OperatingCwSideband">
+    <value>CW di uplink; terima tetap USB/LSB. Ctrl+W untuk beralih.</value>
+  </data>
+  <data name="Freq.OperatingCwBoth">
+    <value>CW di uplink dan downlink. Ctrl+W untuk beralih.</value>
+  </data>
+  <data name="Freq.OperatingVoice">
+    <value>Suara memakai mode basis data. Ctrl+W beralih ke CW.</value>
+  </data>
+  <data name="Settings.Station.DisplayName">
+    <value>Nama tampilan</value>
+  </data>
+  <data name="Settings.Station.Callsign">
+    <value>Callsign</value>
+  </data>
+  <data name="Settings.Station.CallsignNote">
+    <value>Dipakai saat mengirim aktivasi satelit ke hams.at. Anda masih bisa menyuntingnya di dialog kirim.</value>
+  </data>
+  <data name="Settings.Station.Latitude">
+    <value>Lintang (°)</value>
+  </data>
+  <data name="Settings.Station.Longitude">
+    <value>Bujur (°)</value>
+  </data>
+  <data name="Settings.Station.GridSquare">
+    <value>Kotak grid Maidenhead</value>
+  </data>
+  <data name="Settings.Station.GridSquareNote">
+    <value>Locator huruf besar dari field (IO) sampai 8 karakter. Di garis grid, pisahkan kotak dengan koma (mis. IO77,IO87).</value>
+  </data>
+  <data name="Settings.Station.Altitude">
+    <value>Ketinggian ASL (m)</value>
+  </data>
+  <data name="Settings.Station.HorizonMask">
+    <value>Topeng Horizon</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskHelp">
+    <value>Opsional garis langit untuk pohon, bangunan, dan bukit. Klik plot polar untuk menambah titik; seret untuk memindah; klik kanan untuk menghapus. Kosong berarti tidak dipakai (hanya elevasi minimum pelacakan yang berlaku). Waktu lintasan memakai yang lebih tinggi antara topeng dan minimum itu di tiap azimut. Ini tidak memerintah rotator; pakai Mulai pelacakan pada elevasi untuk itu.</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskSummary">
+    <value>Opsional garis langit untuk pohon, bangunan, dan bukit. Kosong berarti tidak dipakai (hanya elevasi minimum pelacakan yang berlaku). Tidak memerintah rotator.</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskEdit">
+    <value>Sunting Topeng Horizon</value>
+  </data>
+  <data name="Window.HorizonMaskEditor.Title">
+    <value>Topeng Horizon</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskClear">
+    <value>Hapus Topeng</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskAz">
+    <value>Az (°)</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskEl">
+    <value>El (°)</value>
+  </data>
+  <data name="Settings.Gps.Title">
+    <value>GPS</value>
+  </data>
+  <data name="Settings.Gps.Intro">
+    <value>GPS NMEA serial atau gpsd jaringan untuk posisi stasiun (lintang/bujur, gridsquare, ketinggian) dan UTC opsional untuk pelacakan.</value>
+  </data>
+  <data name="Settings.Gps.Connection">
+    <value>Koneksi</value>
+  </data>
+  <data name="Settings.Gps.Connection.Serial">
+    <value>Serial (port COM)</value>
+  </data>
+  <data name="Settings.Gps.Connection.Gpsd">
+    <value>gpsd (jaringan)</value>
+  </data>
+  <data name="Settings.Gps.GpsdHost">
+    <value>Host gpsd</value>
+  </data>
+  <data name="Settings.Gps.GpsdPort">
+    <value>Port gpsd</value>
+  </data>
+  <data name="Settings.Gps.GpsdNote">
+    <value>Hubungkan ke daemon gpsd yang berjalan (port bawaan 2947). Lazim di Linux atau Raspberry Pi saat GPS sudah dibagikan di jaringan.</value>
+  </data>
+  <data name="Settings.Gps.Enable">
+    <value>Aktifkan GPS</value>
+  </data>
+  <data name="Settings.Gps.AutoUpdateStation">
+    <value>Perbarui posisi stasiun otomatis dari fix GPS</value>
+  </data>
+  <data name="Settings.Gps.UseAltitude">
+    <value>Perbarui ketinggian dari GGA</value>
+  </data>
+  <data name="Settings.Gps.UseTimeForTracking">
+    <value>Pakai UTC GPS untuk pelacakan satelit</value>
+  </data>
+  <data name="Settings.Gps.UseTimeNote">
+    <value>Memakai waktu GPS hanya untuk propagasi orbit: tidak mengubah jam sistem Windows.</value>
+  </data>
+  <data name="Settings.Gps.MinSatellites">
+    <value>Satelit minimum untuk fix</value>
+  </data>
+  <data name="Settings.Gps.RefreshStatus">
+    <value>Segarkan status</value>
+  </data>
+  <data name="Settings.Gps.ApplyFix">
+    <value>Terapkan fix ke stasiun</value>
+  </data>
+  <data name="Settings.Gps.StatusDisabled">
+    <value>GPS nonaktif.</value>
+  </data>
+  <data name="Settings.Gps.StatusNoPort">
+    <value>Pilih port COM untuk GPS.</value>
+  </data>
+  <data name="Settings.Gps.StatusNoGpsdHost">
+    <value>Masukkan nama host atau alamat IP gpsd.</value>
+  </data>
+  <data name="Settings.Gps.StatusNotConnected">
+    <value>GPS tidak terhubung.</value>
+  </data>
+  <data name="Settings.Gps.StatusNotConnectedDetail">
+    <value>GPS tidak terhubung: {0}</value>
+  </data>
+  <data name="Settings.Gps.StatusNoFix">
+    <value>Terhubung, menunggu fix GPS.</value>
+  </data>
+  <data name="Settings.Gps.StatusFix">
+    <value>Fix: {0}°, {1}° ({2} sat)</value>
+  </data>
+  <data name="Settings.Tle.Source">
+    <value>Sumber katalog TLE</value>
+  </data>
+  <data name="Settings.Tle.SourceNote">
+    <value>Sumber bawaan OscarWatch dan AMSAT.org memakai himpunan elemen GP JSON. URL kustom dan berkas lokal bisa JSON atau teks TLE tiga baris klasik.</value>
+  </data>
+  <data name="Settings.Tle.DownloadUrl">
+    <value>URL unduhan</value>
+  </data>
+  <data name="Settings.Tle.LocalFile">
+    <value>Berkas TLE lokal</value>
+  </data>
+  <data name="Settings.Tle.LocalFileWatermark">
+    <value>Path ke berkas .json, .txt, atau .tle</value>
+  </data>
+  <data name="Settings.Tle.Updates">
+    <value>Pembaruan TLE</value>
+  </data>
+  <data name="Settings.Tle.UpdatesNote">
+    <value>Unduhan otomatis hanya untuk OscarWatch dan URL kustom. Berkas lokal dibaca ulang saat Anda menyimpan pengaturan atau memilih Satelit → Segarkan TLE.</value>
+  </data>
+  <data name="Settings.Tle.Source.OscarWatch">
+    <value>OscarWatch (tle.oscarwatch.org)</value>
+  </data>
+  <data name="Settings.Tle.Source.Amsat">
+    <value>AMSAT.org (buletin GP JSON)</value>
+  </data>
+  <data name="Settings.Tle.Source.CustomUrl">
+    <value>URL kustom</value>
+  </data>
+  <data name="Settings.Tle.Source.LocalFile">
+    <value>Berkas lokal</value>
+  </data>
+  <data name="Settings.Tle.Update.Manual">
+    <value>Hanya manual</value>
+  </data>
+  <data name="Settings.Tle.Update.OnStartup">
+    <value>Saat mulai (jika lebih dari 6 jam)</value>
+  </data>
+  <data name="Settings.Tle.Update.EverySixHours">
+    <value>Setiap 6 jam selama berjalan</value>
+  </data>
+  <data name="Settings.Tracking.MinElevation">
+    <value>Elevasi minimum (°)</value>
+  </data>
+  <data name="Settings.Tracking.PassWindow">
+    <value>Jendela prediksi lintasan (jam)</value>
+  </data>
+  <data name="Settings.Tracking.PassWindowNote">
+    <value>Dipakai untuk daftar lintasan mendatang dan sebagai bawaan di perencana lintasan.</value>
+  </data>
+  <data name="Settings.Tracking.TransponderCheck">
+    <value>Periksa pembaruan basis data transponder saat mulai</value>
+  </data>
+  <data name="Settings.Tracking.TransponderCheckNote">
+    <value>Mengunduh tle.oscarwatch.org/satellite_database.json saat pembaruan tersedia. Satelit dan mode baru ditawarkan untuk digabung; suntingan lokal Anda tetap kecuali Anda menerima perubahan terbitan.</value>
+  </data>
+  <data name="Settings.AppUpdate.Enabled">
+    <value>Periksa pembaruan aplikasi saat mulai dan setiap hari selama berjalan</value>
+  </data>
+  <data name="Settings.AppUpdate.EnabledNote">
+    <value>Membandingkan dengan rilis GitHub terbaru. Anda juga bisa memeriksa dari Bantuan.</value>
+  </data>
+  <data name="Settings.Theme.System">
+    <value>Sistem</value>
+  </data>
+  <data name="Settings.Theme.Light">
+    <value>Terang</value>
+  </data>
+  <data name="Settings.Theme.Dark">
+    <value>Gelap</value>
+  </data>
+  <data name="Settings.Voice.Enable">
+    <value>Aktifkan pengumuman suara</value>
+  </data>
+  <data name="Settings.Voice.EnableNote">
+    <value>Mengumumkan tiap satelit yang diaktifkan sekali per lintasan saat melewati ambang elevasi sambil naik, misalnya: Alpha Oscar Zero Seven sedang naik.</value>
+  </data>
+  <data name="Settings.Voice.AnnounceElevation">
+    <value>Umumkan pada elevasi (°)</value>
+  </data>
+  <data name="Settings.Voice.AnnounceElevationNote">
+    <value>Bawaan −3°. Pengumuman berbunyi saat elevasi naik melewati nilai ini (nilai negatif menangkap satelit sebelum melewati horizon).</value>
+  </data>
+  <data name="Settings.Voice.VoiceLabel">
+    <value>Suara</value>
+  </data>
+  <data name="Settings.Voice.SpeechUnavailable">
+    <value>Text-to-speech tidak tersedia di sistem ini.</value>
+  </data>
+  <data name="Settings.Voice.Preview">
+    <value>Pratinjau</value>
+  </data>
+  <data name="Settings.Voice.TestAnnouncement">
+    <value>Uji pengumuman</value>
+  </data>
+  <data name="Settings.PassSchedule.Section">
+    <value>Lintasan terjadwal</value>
+  </data>
+  <data name="Settings.PassSchedule.Note">
+    <value>Tandai lintasan sebagai Terjadwal di Lintasan Mendatang atau Perencana Lintasan. OscarWatch memainkan bunyi ding dan menampilkan peringatan sebelum AOS selama aplikasi berjalan.</value>
+  </data>
+  <data name="Settings.PassSchedule.LeadMinutes">
+    <value>Menit peringatan sebelum AOS</value>
+  </data>
+  <data name="Settings.PassSchedule.SoundEnabled">
+    <value>Putar bunyi ding</value>
+  </data>
+  <data name="Settings.PassSchedule.AlertEnabled">
+    <value>Tampilkan jendela peringatan</value>
+  </data>
+  <data name="Settings.PassSchedule.TestSound">
+    <value>Uji bunyi</value>
+  </data>
+  <data name="Settings.Radio.Enable">
+    <value>Aktifkan kontrol radio</value>
+  </data>
+  <data name="Settings.Radio.DualEnable">
+    <value>Radio ganda (downlink dan uplink terpisah: FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, IC-7100, seri IC-706, TH-D74/D75, atau campuran)</value>
+  </data>
+  <data name="Settings.Radio.DualIncompleteBoth">
+    <value>Pilih port COM untuk radio downlink dan uplink.</value>
+  </data>
+  <data name="Settings.Radio.DualIncompleteDownlink">
+    <value>Pilih port COM untuk radio downlink.</value>
+  </data>
+  <data name="Settings.Radio.DualIncompleteUplink">
+    <value>Pilih port COM untuk radio uplink.</value>
+  </data>
+  <data name="Settings.Radio.Driver">
+    <value>Driver radio</value>
+  </data>
+  <data name="Settings.Radio.Label">
+    <value>Radio</value>
+  </data>
+  <data name="Settings.Radio.SerialPort">
+    <value>Port serial</value>
+  </data>
+  <data name="Settings.Radio.SelectComPort">
+    <value>Pilih atau ketik port serial</value>
+  </data>
+  <data name="Settings.Radio.SerialPortLinuxHint">
+    <value>Di Linux, pilih alias udev atau entri /dev/serial/by-id/… agar port tetap sama setelah reboot. Anda juga bisa mengetik path kustom seperti /dev/USB821H.</value>
+  </data>
+  <data name="Settings.Radio.BaudRate">
+    <value>Baud rate</value>
+  </data>
+  <data name="Settings.Radio.CivAddress">
+    <value>Alamat CI-V (hex)</value>
+  </data>
+  <data name="Settings.Radio.CivHint">
+    <value>Bawaan IC-9700 A2, bawaan IC-910 7C (hex). Pakai 60 jika radio Anda disetel begitu di menu CI-V.</value>
+  </data>
+  <data name="Settings.Radio.Ft847Hint">
+    <value>FT-847: setel baud CAT di menu radio #37 (lazim 57600). Pakai jack CAT/LINEAR dengan konverter level (mis. CT-62).</value>
+  </data>
+  <data name="Settings.Radio.Ts2000Hint">
+    <value>TS-2000: CAT 57600 8N1. Pilih SAT di radio dan matikan mode memori sebelum pelacakan; OscarWatch lalu mengaktifkan SATL lewat CAT (tata letak SA/FA/FB), tukar pita VHF/UHF otomatis.</value>
+  </data>
+  <data name="Settings.Radio.Ts2000HardwareRts">
+    <value>RTS perangkat keras (kontrol aliran)</value>
+  </data>
+  <data name="Settings.Radio.Ts2000HardwareRtsNote">
+    <value>Biarkan aktif untuk kabel CAT penuh yang meneruskan RTS (diperlukan agar radio membalas). Matikan jika kabel atau adaptor Anda tidak punya kontrol aliran perangkat keras.</value>
+  </data>
+  <data name="Settings.Radio.Ts2000Trace">
+    <value>TRACE / TRACE REV di SATL</value>
+  </data>
+  <data name="Settings.Radio.Ts2000TraceNote">
+    <value>Biarkan aktif untuk pelacakan frekuensi bawaan radio. Matikan saat OscarWatch mengelola Doppler (disarankan untuk pelacakan CAT PC); coba keduanya jika ragu.</value>
+  </data>
+  <data name="Settings.Radio.Region">
+    <value>Wilayah</value>
+  </data>
+  <data name="Settings.Radio.RegionNote">
+    <value>EU memakai tone; USA memakai tone squelch (subtone).</value>
+  </data>
+  <data name="Settings.Radio.CatDelay">
+    <value>Jeda CAT (ms)</value>
+  </data>
+  <data name="Settings.Radio.CatDelayNote">
+    <value>Waktu minimum antar perintah CAT untuk melindungi tautan serial.</value>
+  </data>
+  <data name="Settings.Radio.Downlink">
+    <value>Radio downlink</value>
+  </data>
+  <data name="Settings.Radio.SdrRigCtl">
+    <value>SDR (rigctl TCP)</value>
+  </data>
+  <data name="Settings.Radio.DummyUplink">
+    <value>Uplink dummy (hanya RX)</value>
+  </data>
+  <data name="Settings.Radio.SdrHost">
+    <value>Host rigctl</value>
+  </data>
+  <data name="Settings.Radio.SdrPort">
+    <value>Port rigctl</value>
+  </data>
+  <data name="Settings.Radio.SdrPresetSdrPlus">
+    <value>Preset SDR++ (4532)</value>
+  </data>
+  <data name="Settings.Radio.SdrPresetSdrConnect">
+    <value>Preset SDR Connect (5454)</value>
+  </data>
+  <data name="Settings.Radio.SdrTestConnection">
+    <value>Uji koneksi rigctl</value>
+  </data>
+  <data name="Settings.Radio.SdrTesting">
+    <value>Menguji koneksi rigctl…</value>
+  </data>
+  <data name="Settings.Radio.SdrEnterHostPort">
+    <value>Masukkan host dan port yang valid.</value>
+  </data>
+  <data name="Settings.Radio.SdrConnectionOk">
+    <value>Koneksi rigctl OK: pembacaan frekuensi berhasil.</value>
+  </data>
+  <data name="Settings.Radio.SdrConnectionFailed">
+    <value>Koneksi rigctl gagal: {0}</value>
+  </data>
+  <data name="Settings.Radio.SdrHint">
+    <value>Aktifkan server rigctl di SDR++ (Module Manager → rigctl_server) atau SDR Connect, lalu samakan host dan port. OscarWatch mendorong frekuensi RX Doppler dan membaca VFO waterfall untuk trim passband. Pakai jeda CAT 100 ms atau lebih di downlink.</value>
+  </data>
+  <data name="Settings.Radio.FlexSmartSdr">
+    <value>FlexRadio (SmartSDR)</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscovered">
+    <value>Radio yang ditemukan</value>
+  </data>
+  <data name="Settings.Radio.FlexHost">
+    <value>Host SmartSDR</value>
+  </data>
+  <data name="Settings.Radio.FlexPort">
+    <value>Port SmartSDR</value>
+  </data>
+  <data name="Settings.Radio.FlexTestConnection">
+    <value>Uji koneksi SmartSDR</value>
+  </data>
+  <data name="Settings.Radio.FlexTesting">
+    <value>Menguji koneksi SmartSDR…</value>
+  </data>
+  <data name="Settings.Radio.FlexEnterHostPort">
+    <value>Masukkan host dan port yang valid.</value>
+  </data>
+  <data name="Settings.Radio.FlexConnectionOk">
+    <value>Koneksi SmartSDR OK.</value>
+  </data>
+  <data name="Settings.Radio.FlexConnectionFailed">
+    <value>Koneksi SmartSDR gagal: {0}</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscoveryListening">
+    <value>Mendengarkan radio Flex di UDP 4992…</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscoveryFound">
+    <value>Ditemukan {0} radio Flex di LAN.</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscoveryFailed">
+    <value>Penemuan Flex gagal: {0}</value>
+  </data>
+  <data name="Settings.Radio.FlexHint">
+    <value>Pilih radio yang ditemukan atau masukkan IP secara manual (port TCP 4992). OscarWatch terhubung langsung ke radio lewat API TCP/IP SmartSDR (bukan dengan mengotomasi SmartSDR for Windows), mengaktifkan full duplex, dan menggerakkan slice RX/TX terpisah untuk Doppler. Pakai peta port antena di bawah saat transverter memakai jalur RX A/RX B atau ANT/XVTR yang berbeda per pita. Model dual-SCU diperlukan untuk full duplex sejati (mis. 8600/8600M; juga 6600/6700).</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPorts">
+    <value>Port antena menurut pita</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPortsHint">
+    <value>Saat beralih satelit U/V ↔ V/U, OscarWatch menyetel port RX/TX radio dari pita downlink dan uplink (saat fokus satelit / penyiapan lintasan, bukan hanya saat satelit di atas horizon). Biarkan tidak diubah mempertahankan port radio saat ini. RX A dan RX B hanya terima; petakan TX ke ANT atau XVTR sesuai pengkabelan.</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaLeaveUnchanged">
+    <value>Biarkan tidak diubah</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfRxAnt">
+    <value>Terima VHF (2 m)</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfRxAnt">
+    <value>Terima UHF (70 cm+)</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfTxAnt">
+    <value>Kirim VHF (2 m)</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfTxAnt">
+    <value>Kirim UHF (70 cm+)</value>
+  </data>
+  <data name="Settings.Radio.FlexDuplexWarning">
+    <value>Model ini mungkin tidak mendukung full duplex (SCU tunggal). Pemakaian satelit biasanya butuh Flex dual-SCU seperti 8600/8600M (atau radio seri 6000 dual-SCU) dengan isolasi atau transverter yang memadai.</value>
+  </data>
+  <data name="Settings.Radio.Uplink">
+    <value>Radio uplink</value>
+  </data>
+  <data name="Settings.Radio.Ic705CivHint">
+    <value>Bawaan pabrik IC-705 A4. Harus cocok dengan menu CI-V radio.</value>
+  </data>
+  <data name="Settings.Radio.Ic7300CivHint">
+    <value>Bawaan pabrik IC-7300 94H. Harus cocok dengan menu CI-V radio.</value>
+  </data>
+  <data name="Settings.Radio.Ic905CivHint">
+    <value>Bawaan pabrik IC-905 AC. Harus cocok dengan Set mode CI-V radio.</value>
+  </data>
+  <data name="Settings.Radio.Ic7100CivHint">
+    <value>Bawaan pabrik IC-7100 88H. Harus cocok dengan menu CI-V radio.</value>
+  </data>
+  <data name="Settings.Radio.Ic706CivHint">
+    <value>Bawaan pabrik IC-706 48H. Harus cocok dengan alamat CI-V radio (Initial Set Mode).</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiCivHint">
+    <value>Bawaan pabrik IC-706MKII 4CH. Harus cocok dengan alamat CI-V radio.</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiGCivHint">
+    <value>Bawaan pabrik IC-706MKIIG 58H. Harus cocok dengan menu 34 CI-V ADDRES.</value>
+  </data>
+  <data name="Settings.Radio.RefreshComPorts">
+    <value>Segarkan port COM</value>
+  </data>
+  <data name="Settings.Radio.Ft817Hint">
+    <value>FT-817 / FT-818: Setel menu #14 ke 4800 baud di tiap radio (38400 juga jalan). CAT 8N2: satu COM per kaki. Mencakup HF/6 m, 2m, dan 70cm (downlink AO-07 Mode A di 10 m). Linear: putar downlink untuk passband; FM mengunci dial saat pelacakan.</value>
+  </data>
+  <data name="Settings.Radio.Ic705Hint">
+    <value>IC-705: Setel Connectors → CI-V → CI-V USB Port ke Link to [CI-V] (bukan REMOTE). Samakan baud CI-V di Pengaturan (bawaan 115200). Satu port COM per kaki: pakai port berlabel CI-V jika muncul dua.</value>
+  </data>
+  <data name="Settings.Radio.Ic7300Hint">
+    <value>IC-7300: Hanya radio ganda. Cakupan HF/6 m (1,8–54 MHz). Samakan alamat CI-V (bawaan 94H) dan baud (bawaan 115200) di menu CI-V radio. Satu port COM per kaki: lazim untuk AO-07 Mode A dengan 7300 di downlink dan radio 2 m di uplink.</value>
+  </data>
+  <data name="Settings.Radio.Ic905Hint">
+    <value>IC-905: Hanya radio ganda. Samakan alamat CI-V (bawaan AC) dan baud (bawaan 115200) di Set mode. Pakai port serial USB CI-V. Satu port COM per kaki: mencakup VHF/UHF/SHF termasuk 13 cm, 6 cm, dan 3 cm.</value>
+  </data>
+  <data name="Settings.Radio.Ic7100Hint">
+    <value>IC-7100: Hanya radio ganda. Setel CI-V Output (USB) On (atau pakai jack REMOTE). Samakan alamat CI-V (bawaan 88H) dan baud (bawaan 19200) di menu CI-V radio. Satu port COM per kaki: mencakup HF/6 m, 2 m, dan 70 cm (AO-07 Mode A downlink di 10 m); 23 cm tidak didukung.</value>
+  </data>
+  <data name="Settings.Radio.Ic706Hint">
+    <value>IC-706: CI-V lewat jack REMOTE (atau CT-17). HF/6 m dan 2m (tanpa 70cm). Setel alamat dan baud CI-V di Initial Set Mode (LOCK saat power-on) agar cocok dengan Pengaturan (bawaan 48H / 19200). CI-V TRN On disarankan. Downlink AO-07 Mode A di 10 m didukung.</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiHint">
+    <value>IC-706MKII: penyiapan CI-V sama seperti IC-706. HF/6 m dan 2m (tanpa 70cm). Alamat bawaan pabrik 4CH. Downlink AO-07 Mode A di 10 m didukung.</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiGHint">
+    <value>IC-706MKIIG: CI-V lewat jack REMOTE (atau CT-17). Setel menu 34 CI-V ADDRES agar cocok dengan Pengaturan (bawaan 58H), menu 35 CI-V BAUD agar cocok dengan Pengaturan (bawaan 19200), dan menu 36 CI-V TRN On. Mencakup HF/6 m, 2m, dan 70cm (downlink AO-07 Mode A di 10 m); satelit 23cm tidak didukung.</value>
+  </data>
+  <data name="Settings.Radio.Ft991Hint">
+    <value>FT-991 / FT-991A: Samakan menu 031 CAT RATE dengan Pengaturan (bawaan 38400). CAT ASCII 8N2 dengan RTS perangkat keras: pakai port COM USB CAT. Satu COM per kaki. FM mengunci dial VFO-A saat pelacakan.</value>
+  </data>
+  <data name="Settings.Radio.Ftx1Hint">
+    <value>FTX-1 Field / FTX-1optima: Samakan menu CAT-1 RATE dengan Pengaturan (bawaan 38400). CAT ASCII 8N2 dengan RTS perangkat keras: pakai port Enhanced COM (CAT-1), bukan CAT-2. Satu COM per kaki. FM mengunci dial MAIN VFO saat pelacakan.</value>
+  </data>
+  <data name="Settings.Radio.CwSideband">
+    <value>CW linear: tetap terima di USB/LSB (kirim CW saja)</value>
+  </data>
+  <data name="Settings.Radio.CwSidebandNote">
+    <value>Berlaku saat panel frekuensi disetel ke CW pada satelit SSB linear. Dicentang adalah split lazim (CW TX, USB/LSB RX). Tidak dicentang menyetel kedua VFO ke CW.</value>
+  </data>
+  <data name="Settings.Radio.DopplerFm">
+    <value>Ambang Doppler FM (Hz)</value>
+  </data>
+  <data name="Settings.Radio.DopplerFmNote">
+    <value>FM / ISS cross-band: lebih rendah = lebih banyak pembaruan CAT (bawaan 350 Hz).</value>
+  </data>
+  <data name="Settings.Radio.DopplerSsb">
+    <value>Ambang Doppler SSB/CW (Hz)</value>
+  </data>
+  <data name="Settings.Radio.DopplerSsbNote">
+    <value>Frekuensi dikirim ke radio hanya saat drift melebihi interval ini (gaya SatPC32).</value>
+  </data>
+  <data name="Settings.Radio.DialSettle">
+    <value>Lanjutkan CAT setelah dial (ms)</value>
+  </data>
+  <data name="Settings.Radio.DialSettleNote">
+    <value>Pada USB, LSB, dan CW linear, berapa lama dial terima harus diam sebelum OscarWatch melanjutkan CAT Doppler. Bawaan 800 ms. Naikkan jika CAT menarik VFO kembali saat Anda masih menyetel; turunkan jika ingin pelacakan kembali lebih cepat.</value>
+  </data>
+  <data name="Settings.Radio.UplinkResume">
+    <value>Tunggu CAT uplink setelah dial (ms)</value>
+  </data>
+  <data name="Settings.Radio.UplinkResumeNote">
+    <value>Pada radio Main/Sub (misalnya IC-9700), jeda ekstra sebelum CAT uplink setelah Anda berhenti memutar dial, agar radio tidak meloncat ke Sub saat Anda scan. Radio ganda tidak terpengaruh. Bawaan 2500 ms.</value>
+  </data>
+  <data name="Settings.Radio.DopplerAdaptiveThreshold">
+    <value>Ambang adaptif dekat TCA</value>
+  </data>
+  <data name="Settings.Radio.DopplerAdaptiveThresholdNote">
+    <value>Jika aktif, ambang SSB/CW linear diturunkan saat slew Doppler cepat (lazim pertengahan lintasan dan pasca-TCA). Nilai SSB/CW di atas tetap sebagai langit-langit; ambang efektif bisa turun sekitar setengah (minimum 25 Hz). Mati secara bawaan.</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLog">
+    <value>Catat lintasan penyetelan Doppler (CSV)</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLogNote">
+    <value>Menulis satu CSV per lintasan dengan tulis CAT, snapshot 1 s (lead, ambang adaptif, delta), dan perubahan offset/knob. Pencatatan hanya berjalan saat satelit di atas horizon (elevasi ≥ 0°). Disimpan di AppData/OscarWatch/doppler-logs.</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLogOpenFolder">
+    <value>Buka folder log</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLead">
+    <value>Lead Doppler untuk latensi CAT</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadNote">
+    <value>Jika aktif, CAT dan baris Radio memprediksi Doppler ke depan pada kaki curam dan pasca-TCA (saat laju jarak berubah cepat). Dekat TCA, lead mereda saat laju jarak mendekati nol. AOS yang landai memakai laju saat ini. Baris Sat tetap menampilkan frekuensi pesawat ruang angkasa saat ini. Haluskan dengan waktu dan kekuatan lead di bawah.</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadMs">
+    <value>Waktu lead (ms)</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadMsNote">
+    <value>0 = otomatis (setengah jeda CAT Anda, dibatasi 50 ms, atau 75 ms pasca-TCA). Setel secara eksplisit untuk mengatur seberapa jauh Doppler diprediksi tanpa mengubah irama CAT.</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadGain">
+    <value>Kekuatan lead (%)</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadGainNote">
+    <value>100 = lead terhitung penuh. Turunkan jika radio terasa mendahului sinyal (coba 70–85). Tidak memengaruhi baris Sat.</value>
+  </data>
+  <data name="Settings.Rotator.Enable">
+    <value>Aktifkan rotator</value>
+  </data>
+  <data name="Settings.Rotator.Type">
+    <value>Jenis rotator</value>
+  </data>
+  <data name="Settings.Rotator.TypeNote">
+    <value>GS-232 untuk Yaesu dan klon. SPID untuk pengontrol mode SP (Rot1Prog / Rot2Prog). SPID MD-01 / MD-02 (TCP) untuk Ethernet bawaan (protokol SPID ROT2, port bawaan 23). EasyComm untuk mode EC (SPID, M2, dan pengontrol protokol teks lain). SAEBRTrack untuk antarmuka pelacak satelit klasik (9600 baud). OZ9AAR URC (TCP) untuk Ultimate Rotator Controller lewat Ethernet (port bawaan 1111; setel URC ke mode REM/remote). Green Heron RT-21 Az-El memakai dua port COM (azimut dan elevasi), protokol DCU-1 pada 4800 baud; jangan pilih GS-232. Protokol serial juga bisa memakai server serial TCP (mis. ser2net) alih-alih port COM lokal.</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthPort">
+    <value>Port serial azimut</value>
+  </data>
+  <data name="Settings.Rotator.ElevationPort">
+    <value>Port serial elevasi</value>
+  </data>
+  <data name="Settings.Rotator.DualSerialNote">
+    <value>RT-21 Az-El punya dua port serial USB (satu per sumbu). Tetapkan azimut dan elevasi dengan hati-hati: tertukar akan menggerakkan motor yang salah. Di Linux utamakan path by-id yang stabil agar port tidak tertukar setelah reboot.</value>
+  </data>
+  <data name="Settings.Rotator.Transport">
+    <value>Koneksi</value>
+  </data>
+  <data name="Settings.Rotator.Transport.Serial">
+    <value>Serial (port COM)</value>
+  </data>
+  <data name="Settings.Rotator.Transport.Tcp">
+    <value>Serial TCP (mis. ser2net)</value>
+  </data>
+  <data name="Settings.Rotator.NetworkHost">
+    <value>Host</value>
+  </data>
+  <data name="Settings.Rotator.NetworkHostWatermark">
+    <value>127.0.0.1 atau hostname</value>
+  </data>
+  <data name="Settings.Rotator.NetworkPort">
+    <value>Port TCP</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNote">
+    <value>OscarWatch terhubung sebagai klien TCP. Di URC, aktifkan server soket dan pilih mode pelacakan remote (REM) agar perintah GOTO menggerakkan antena. Port bawaan 1111.</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNoteTcpSerial">
+    <value>OscarWatch terhubung sebagai klien TCP ke terowongan serial mentah (misalnya ser2net). Atur baud rate dan opsi serial di server. Paling baik di jaringan lokal: latensi tinggi bisa menyebabkan timeout.</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNoteSpidMd01">
+    <value>OscarWatch terhubung sebagai klien TCP ke port Ethernet MD-01 / MD-02. Pada pengontrol, setel MOTOR CONFIGURATION ke ETH dan protokol ke SPID ROT2. Port TCP bawaan adalah 23. Hanya satu klien yang dapat terhubung pada satu waktu. Firmware 1.2507 atau lebih baru disarankan.</value>
+  </data>
+  <data name="Settings.Rotator.SmartAzimuth">
+    <value>Azimut Smart 450° (jalur terpendek melewati utara)</value>
+  </data>
+  <data name="Settings.Rotator.SmartAzimuthNote">
+    <value>Pada rotator 450° (mis. Yaesu G-5500), perintah 361–450° menghindari slew panjang kembali lewat 0° saat lintasan akan melewati utara. Lintasan yang menuju utara tetapi tetap di timur 0° tetap di pita utama.</value>
+  </data>
+  <data name="Settings.Rotator.ElevationRange">
+    <value>Rentang elevasi</value>
+  </data>
+  <data name="Settings.Rotator.ElevationRangeNote">
+    <value>0–90° untuk rotator standar. 0–180° untuk mount over-the-top (mis. Yaesu G-5500) yang bisa melacak melewati zenit.</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSection">
+    <value>Penghindaran keyhole</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeEnable">
+    <value>Aktifkan penghindaran keyhole</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeNote">
+    <value>Jika aktif, lintasan elevasi tinggi saat rotator tidak bisa mengikuti dekat zenit dianalisis, dan rotator bisa memposisikan awal dalam orientasi terbalik untuk meminimalkan kehilangan sinyal. Slew posisi awal memutar azimut pada elevasi mulai-lacak (tidak di bawah 0°). Hanya tersedia saat rentang elevasi 0–180°.</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSlewRate">
+    <value>Laju slew (°/s)</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSlewRateNote">
+    <value>Laju slew maksimum rotator dalam derajat per detik. Dipakai untuk menghitung jendela kehilangan sinyal.</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeThreshold">
+    <value>Ambang keyhole (°)</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeThresholdNote">
+    <value>Elevasi maksimum minimum agar lintasan diklasifikasikan masuk zona keyhole. Rentang valid: 60–89°.</value>
+  </data>
+  <data name="Settings.Rotator.TrackStart">
+    <value>Mulai pelacakan pada elevasi (°)</value>
+  </data>
+  <data name="Settings.Rotator.TrackStartNote">
+    <value>Bawaan −3° (di bawah horizon). Rentang −90° sampai 90°. Rotator mulai slew saat satelit yang dilacak naik di atas elevasi ini, dan parkir setelah turun di bawahnya (setelah konfirmasi singkat agar satu glitch tidak memutus lintasan). Posisi awal keyhole memakai elevasi ini sebagai lantai (tidak di bawah 0°).</value>
+  </data>
+  <data name="Settings.Rotator.MovementThreshold">
+    <value>Ambang gerakan (°)</value>
+  </data>
+  <data name="Settings.Rotator.MovementThresholdNote">
+    <value>Perubahan sudut minimum sebelum target satelit baru dikirim. Jika rotator melaporkan posisi yang masih di luar ambang ini, perintah terakhir dikirim lagi agar encoder yang berisik dan berhenti terlalu awal akan mulai lagi. Stop membatalkan pengulangan itu. Nilai lebih rendah memberi pelacakan lebih ketat; nilai lebih tinggi mengurangi aus gigi. Bawaan: 1,0°.</value>
+  </data>
+  <data name="Settings.Rotator.ParkAzimuth">
+    <value>Azimut parkir (°)</value>
+  </data>
+  <data name="Settings.Rotator.ParkElevation">
+    <value>Elevasi parkir (°)</value>
+  </data>
+  <data name="Settings.Rotator.ParkAfterPass">
+    <value>Parkir rotator setelah lintasan</value>
+  </data>
+  <data name="Settings.Rotator.ParkNote">
+    <value>Posisi parkir dipakai saat tidak ada satelit di atas ambang pelacakan. Lintasan terfokus atau satelit langsung dilacak otomatis. Parkir manual di jendela utama dan mode siaga tidak terpengaruh.</value>
+  </data>
+  <data name="Settings.Rotator.CalibrationOffsets">
+    <value>Offset kalibrasi (°)</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthOffset">
+    <value>Offset azimut</value>
+  </data>
+  <data name="Settings.Rotator.ElevationOffset">
+    <value>Offset elevasi</value>
+  </data>
+  <data name="Settings.Rotator.OffsetNote">
+    <value>Ditambahkan ke pelacakan lintasan dan perintah putar manual (bukan parkir). Pakai nilai positif jika beam berhenti sebelum target; negatif jika melewati.</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthRange360">
+    <value>0–360°</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthRange450">
+    <value>0–450°</value>
+  </data>
+  <data name="Settings.Rotator.ElevationRange90">
+    <value>0–90°</value>
+  </data>
+  <data name="Settings.Rotator.ElevationRange180">
+    <value>0–180°</value>
+  </data>
+  <data name="Settings.Recording.Enable">
+    <value>Aktifkan rekaman lintasan otomatis</value>
+  </data>
+  <data name="Settings.Recording.EnableNote">
+    <value>Merekam audio dari perangkat masukan yang dipilih saat satelit terfokus di atas elevasi mulai. Pilih WAV atau MP3 (MP3 membutuhkan ffmpeg di PATH). Berkas disimpan dengan cap waktu UTC.</value>
+  </data>
+  <data name="Settings.Recording.InputDevice">
+    <value>Perangkat masukan</value>
+  </data>
+  <data name="Settings.Recording.Format">
+    <value>Format sampel</value>
+  </data>
+  <data name="Settings.Recording.FileFormat">
+    <value>Format berkas</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Wav">
+    <value>WAV</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Mp3">
+    <value>MP3</value>
+  </data>
+  <data name="Settings.Recording.FfmpegAvailable">
+    <value>ffmpeg ditemukan di PATH. Konversi MP3 tersedia.</value>
+  </data>
+  <data name="Settings.Recording.FfmpegUnavailable">
+    <value>MP3 membutuhkan ffmpeg di PATH. Rekaman tetap WAV sampai ffmpeg diinstal.</value>
+  </data>
+  <data name="Settings.Recording.StartElevation">
+    <value>Mulai rekaman pada elevasi (°)</value>
+  </data>
+  <data name="Settings.Recording.StopElevation">
+    <value>Hentikan rekaman di bawah elevasi (°)</value>
+  </data>
+  <data name="Settings.Recording.StopNote">
+    <value>Elevasi berhenti harus sama atau di bawah elevasi mulai agar tidak bolak-balik dekat ambang.</value>
+  </data>
+  <data name="Settings.Recording.OutputFolder">
+    <value>Folder keluaran</value>
+  </data>
+  <data name="Settings.Recording.OutputWatermark">
+    <value>Bawaan: %AppData%/OscarWatch/recordings</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageOne">
+    <value>1 berkas · {0}</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageMany">
+    <value>{0} berkas · {1}</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageEmpty">
+    <value>Belum ada rekaman di folder ini</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageMissing">
+    <value>Folder akan dibuat saat rekaman pertama disimpan</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageError">
+    <value>Tidak bisa membaca ukuran folder</value>
+  </data>
+  <data name="Settings.Recording.OpenFolder">
+    <value>Buka folder</value>
+  </data>
+  <data name="Settings.Recording.TestButton">
+    <value>Uji rekaman (5 dtk)</value>
+  </data>
+  <data name="Settings.Recording.Unavailable">
+    <value>Rekaman audio tidak tersedia di sistem ini.</value>
+  </data>
+  <data name="Settings.Recording.DevicesLoading">
+    <value>Memuat perangkat audio…</value>
+  </data>
+  <data name="Settings.Recording.SelectDeviceFirst">
+    <value>Pilih perangkat masukan terlebih dahulu.</value>
+  </data>
+  <data name="Settings.Recording.TestInProgress">
+    <value>Merekam klip uji 5 dtk…</value>
+  </data>
+  <data name="Settings.Recording.TestSaved">
+    <value>Klip uji disimpan ke {0}</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Fallback">
+    <value>Disimpan sebagai WAV ({0}); konversi MP3 membutuhkan ffmpeg di PATH.</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Failed">
+    <value>Disimpan sebagai WAV ({0}); konversi MP3 gagal.</value>
+  </data>
+  <data name="Settings.Recording.Format.Mono44100">
+    <value>Mono 44,1 kHz</value>
+  </data>
+  <data name="Settings.Recording.Format.Mono48000">
+    <value>Mono 48 kHz</value>
+  </data>
+  <data name="Settings.Recording.Format.Stereo44100">
+    <value>Stereo 44,1 kHz</value>
+  </data>
+  <data name="Settings.HamsAt.Section">
+    <value>hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.Intro">
+    <value>Tampilkan rove satelit mendatang dari hams.at di bilah sisi. Hanya peringatan yang bisa dikerjakan untuk lokasi hams.at Anda yang tercantum: setel lokasi Anda di hams.at jika tidak ada yang muncul. Kunci API Anda disimpan lokal di settings.json seperti integrasi lain.</value>
+  </data>
+  <data name="Settings.HamsAt.Enable">
+    <value>Aktifkan rove mendatang hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.ApiKey">
+    <value>Kunci API hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.ApiKeyWatermark">
+    <value>Token Bearer dari hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.PanelHeight">
+    <value>Tinggi panel bilah sisi (px)</value>
+  </data>
+  <data name="Settings.HamsAt.RefreshInterval">
+    <value>Interval penyegaran (menit)</value>
+  </data>
+  <data name="Settings.HamsAt.TestConnection">
+    <value>Uji koneksi</value>
+  </data>
+  <data name="Settings.HamsAt.Testing">
+    <value>Menguji koneksi hams.at…</value>
+  </data>
+  <data name="Settings.HamsAt.EnterApiKey">
+    <value>Masukkan kunci API hams.at terlebih dahulu.</value>
+  </data>
+  <data name="Settings.HamsAt.ConnectionOk">
+    <value>Terhubung: {0}</value>
+  </data>
+  <data name="Settings.HamsAt.ConnectionFailed">
+    <value>Koneksi gagal: {0}</value>
+  </data>
+  <data name="HamsAt.Activation.Title">
+    <value>Kirim aktivasi ke hams.at</value>
+  </data>
+  <data name="HamsAt.Activation.PassSummary">
+    <value>{0} · {1} · {2}</value>
+  </data>
+  <data name="HamsAt.Activation.Callsign">
+    <value>Callsign</value>
+  </data>
+  <data name="HamsAt.Activation.Grids">
+    <value>Grid yang diaktifkan (1–4 grid, masing-masing 4 atau 6 karakter)</value>
+  </data>
+  <data name="HamsAt.Activation.Mode">
+    <value>Mode (FM, USB, CW, dll.)</value>
+  </data>
+  <data name="HamsAt.Activation.FrequencyOptional">
+    <value>Frekuensi (opsional)</value>
+  </data>
+  <data name="HamsAt.Activation.IncludeUplinkMhz">
+    <value>Uplink</value>
+  </data>
+  <data name="HamsAt.Activation.IncludeDownlinkMhz">
+    <value>Downlink</value>
+  </data>
+  <data name="HamsAt.Activation.UplinkMhz">
+    <value>Uplink (MHz)</value>
+  </data>
+  <data name="HamsAt.Activation.DownlinkMhz">
+    <value>Downlink (MHz)</value>
+  </data>
+  <data name="HamsAt.Activation.Mhz">
+    <value>MHz (opsional)</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection">
+    <value>Arah</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection.Up">
+    <value>Naik</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection.Down">
+    <value>Turun</value>
+  </data>
+  <data name="HamsAt.Activation.Comment">
+    <value>Komentar (opsional, maks 50 karakter)</value>
+  </data>
+  <data name="HamsAt.Activation.Submit">
+    <value>Kirim aktivasi</value>
+  </data>
+  <data name="HamsAt.Activation.Error.CallsignRequired">
+    <value>Masukkan callsign minimal tiga karakter.</value>
+  </data>
+  <data name="HamsAt.Activation.Error.GridsRequired">
+    <value>Masukkan setidaknya satu kotak grid Maidenhead.</value>
+  </data>
+  <data name="HamsAt.Activation.Error.ModeRequired">
+    <value>Pilih mode operasi (SSB, CW, Data, atau FM).</value>
+  </data>
+  <data name="HamsAt.Activation.Error.GridLength">
+    <value>Grid '{0}' harus 4 atau 6 karakter untuk hams.at.</value>
+  </data>
+  <data name="HamsAt.Activation.Error.MhzInvalid">
+    <value>Masukkan nilai MHz yang valid atau biarkan kolom kosong.</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Section">
+    <value>OscarWatch</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Intro">
+    <value>Laporkan apakah mode satelit Nyala, Mati, atau Telemetri saja ke OscarWatch.org. Buat token API di oscarwatch.org → Settings → API tokens. Profil situs Anda membutuhkan callsign dan gridsquare sebelum laporan diterima.</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Enable">
+    <value>Aktifkan pelaporan status satelit</value>
+  </data>
+  <data name="Settings.SatelliteStatus.AutoReportOnQso">
+    <value>Otomatis laporkan Nyala saat mencatat QSO</value>
+  </data>
+  <data name="Settings.SatelliteStatus.BaseUrl">
+    <value>URL dasar</value>
+  </data>
+  <data name="Settings.SatelliteStatus.BaseUrlWatermark">
+    <value>https://oscarwatch.org</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ApiToken">
+    <value>Token API</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ApiTokenWatermark">
+    <value>Token Bearer dari oscarwatch.org</value>
+  </data>
+  <data name="Settings.SatelliteStatus.TestConnection">
+    <value>Uji koneksi</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Testing">
+    <value>Menguji koneksi OscarWatch.org…</value>
+  </data>
+  <data name="Settings.SatelliteStatus.EnterApiToken">
+    <value>Masukkan token API OscarWatch.org terlebih dahulu.</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ConnectionOk">
+    <value>Terhubung: {0}</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ConnectionFailed">
+    <value>Koneksi gagal: {0}</value>
+  </data>
+  <data name="SatStatus.Report.Title">
+    <value>Laporkan status satelit</value>
+  </data>
+  <data name="SatStatus.Report.Satellite">
+    <value>Satelit: {0}</value>
+  </data>
+  <data name="SatStatus.Report.Mode">
+    <value>Mode: {0}</value>
+  </data>
+  <data name="SatStatus.Report.StatusPrompt">
+    <value>Status</value>
+  </data>
+  <data name="SatStatus.Report.Status.On">
+    <value>Nyala</value>
+  </data>
+  <data name="SatStatus.Report.Status.Off">
+    <value>Mati</value>
+  </data>
+  <data name="SatStatus.Report.Status.TelemetryOnly">
+    <value>Telemetri saja</value>
+  </data>
+  <data name="SatStatus.Report.Submit">
+    <value>Kirim</value>
+  </data>
+  <data name="SatStatus.Report.Stored">
+    <value>Laporan status satelit disimpan.</value>
+  </data>
+  <data name="SatStatus.Report.Duplicate">
+    <value>Laporan duplikat: sudah disimpan baru-baru ini.</value>
+  </data>
+  <data name="SatStatus.Report.Failed">
+    <value>Laporan status satelit gagal: {0}</value>
+  </data>
+  <data name="SatStatus.Report.BelowElevation">
+    <value>Status satelit hanya bisa dilaporkan saat elevasi minimal −1°.</value>
+  </data>
+  <data name="SatStatus.Community.OverlayTitle">
+    <value>Status komunitas (mode terpilih)</value>
+  </data>
+  <data name="SatStatus.Community.PassTitle">
+    <value>{0} · status komunitas ({1}j)</value>
+  </data>
+  <data name="SatStatus.Community.ReportCount">
+    <value>Laporan dalam jendela: {0}</value>
+  </data>
+  <data name="SatStatus.Community.LastReport">
+    <value>Laporan terakhir {0}</value>
+  </data>
+  <data name="SatStatus.Community.LastReportInline">
+    <value>laporan terakhir {0}</value>
+  </data>
+  <data name="SatStatus.Community.StaleNote">
+    <value>Laporan terbaru lebih dari 3 jam</value>
+  </data>
+  <data name="SatStatus.Community.WindowNote">
+    <value>Laporan komunitas, {0} jam terakhir</value>
+  </data>
+  <data name="SatStatus.Community.NoModeData">
+    <value>Tidak ada data mode</value>
+  </data>
+  <data name="SatStatus.Community.YourSelection">
+    <value>pilihan terakhir Anda</value>
+  </data>
+  <data name="SatStatus.Community.DefaultMode">
+    <value>bawaan</value>
+  </data>
+  <data name="SatStatus.Community.PassAutomation">
+    <value>{0}, {1}: {2}</value>
+  </data>
+  <data name="SatStatus.Community.Short.On">
+    <value>On</value>
+  </data>
+  <data name="SatStatus.Community.Short.Off">
+    <value>Off</value>
+  </data>
+  <data name="SatStatus.Community.Short.Telem">
+    <value>Telem.</value>
+  </data>
+  <data name="SatStatus.Community.Short.Unknown">
+    <value>?</value>
+  </data>
+  <data name="SatStatus.Community.NoRecentReports">
+    <value>Tidak ada laporan terkini</value>
+  </data>
+  <data name="Settings.SatelliteLink.Section">
+    <value>Satellite Link</value>
+  </data>
+  <data name="Settings.SatelliteLink.Intro">
+    <value>Siarkan nama satelit terfokus, frekuensi, mode, dan data pelacakan ke aplikasi logging lewat WebSocket lokal (penerus SatPC32 DDE). Lihat bantuan untuk API.</value>
+  </data>
+  <data name="Settings.SatelliteLink.Enable">
+    <value>Aktifkan server WebSocket Satellite Link</value>
+  </data>
+  <data name="Settings.SatelliteLink.Port">
+    <value>Port</value>
+  </data>
+  <data name="Settings.SatelliteLink.AllowLan">
+    <value>Izinkan koneksi dari jaringan lokal</value>
+  </data>
+  <data name="Settings.SatelliteLink.AllowLanNote">
+    <value>Jika mati, hanya aplikasi di PC ini yang bisa terhubung (127.0.0.1). Jika nyala, OscarWatch mendengar di alamat IP LAN Anda. Di Windows, izinkan OscarWatch saat prompt firewall sistem muncul. Di macOS atau Linux, izinkan port di firewall jika klien LAN tidak bisa terhubung.</value>
+  </data>
+  <data name="Settings.SatelliteLink.OnlyWhenInRange">
+    <value>Hanya siarkan saat satelit di atas horizon</value>
+  </data>
+  <data name="Settings.SatelliteLink.UpdateInterval">
+    <value>Interval pembaruan (ms)</value>
+  </data>
+  <data name="Settings.SatelliteLink.UpdateIntervalNote">
+    <value>Waktu minimum antar payload yang identik. Perubahan fokus dan mode dikirim segera.</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlPreview">
+    <value>URL koneksi</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlLocal">
+    <value>ws://127.0.0.1:{0}/</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlLan">
+    <value>ws://&lt;IP PC ini&gt;:{0}/ (semua antarmuka)</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestConnection">
+    <value>Uji Port</value>
+  </data>
+  <data name="Settings.SatelliteLink.OpenHelp">
+    <value>Buka Bantuan</value>
+  </data>
+  <data name="Settings.SatelliteLink.Testing">
+    <value>Menguji port</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestOk">
+    <value>Port {0} tersedia di antarmuka yang dipilih.</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestFailed">
+    <value>Tidak bisa mendengar di port {0}: {1}</value>
+  </data>
+  <data name="Settings.Cloudlog.Section">
+    <value>Cloudlog</value>
+  </data>
+  <data name="Settings.Cloudlog.Intro">
+    <value>Mengirim TX/RX satelit ke Cloudlog saat frekuensi atau mode berubah, plus keepalive berkala saat tidak berubah. Uji koneksi memuat logbook Anda untuk pencarian grid pada rove hams.at.</value>
+  </data>
+  <data name="Settings.Cloudlog.Enable">
+    <value>Aktifkan API radio Cloudlog (diperlukan untuk pembaruan langsung)</value>
+  </data>
+  <data name="Settings.Cloudlog.BaseUrl">
+    <value>URL dasar Cloudlog</value>
+  </data>
+  <data name="Settings.Cloudlog.BaseUrlWatermark">
+    <value>https://your.cloudlog.site</value>
+  </data>
+  <data name="Settings.Cloudlog.ApiKey">
+    <value>Kunci API</value>
+  </data>
+  <data name="Settings.Cloudlog.ApiKeyWatermark">
+    <value>kunci API baca/tulis</value>
+  </data>
+  <data name="Settings.Cloudlog.RadioName">
+    <value>Nama radio di Cloudlog</value>
+  </data>
+  <data name="Settings.Cloudlog.RadioNameWatermark">
+    <value>OscarWatch</value>
+  </data>
+  <data name="Settings.Cloudlog.RadioNameNote">
+    <value>Bawaan adalah OscarWatch. Harus cocok dengan entri radio yang bisa dipakai Cloudlog untuk menetapkan QSO.</value>
+  </data>
+  <data name="Settings.Cloudlog.MinInterval">
+    <value>Interval keepalive (ms)</value>
+  </data>
+  <data name="Settings.Cloudlog.MinIntervalNote">
+    <value>Mengirim segera saat uplink, downlink, mode, atau satelit berubah. Mengulang keadaan yang sama pada interval ini (bawaan 10 menit) agar Cloudlog tetap sinkron selama kontak panjang.</value>
+  </data>
+  <data name="Settings.Cloudlog.TestConnection">
+    <value>Uji koneksi</value>
+  </data>
+  <data name="Settings.Cloudlog.Testing">
+    <value>Menguji…</value>
+  </data>
+  <data name="Settings.Cloudlog.EnterCredentials">
+    <value>Masukkan URL dan kunci API (tab keluar dari tiap kolom atau klik Uji lagi).</value>
+  </data>
+  <data name="Settings.Cloudlog.Logbook">
+    <value>Logbook</value>
+  </data>
+  <data name="Settings.Cloudlog.CheckRoveGrids">
+    <value>Sorot grid yang masih saya butuhkan pada rove hams.at</value>
+  </data>
+  <data name="Settings.Cloudlog.LogbooksLoaded">
+    <value>{0} logbook ditemukan</value>
+  </data>
+  <data name="Settings.Cloudlog.ConnectionOk">
+    <value>Koneksi OK: CAT uji dikirim ke {0}</value>
+  </data>
+  <data name="Settings.Cloudlog.ConnectionOkWithLogbooks">
+    <value>{0}. Uji CAT radio OK.</value>
+  </data>
+  <data name="Settings.Cloudlog.LogbooksOnly">
+    <value>{0}. Uji CAT radio gagal: {1}</value>
+  </data>
+  <data name="Settings.Cloudlog.LoadFailed">
+    <value>Tidak bisa memuat logbook: {0}</value>
+  </data>
+  <data name="Settings.Cloudlog.ConnectionFailed">
+    <value>Koneksi gagal.</value>
+  </data>
+  <data name="Settings.Browse.RecordingFolder">
+    <value>Pilih folder keluaran rekaman</value>
+  </data>
+  <data name="Settings.Browse.TleFile">
+    <value>Pilih berkas TLE</value>
+  </data>
+  <data name="Settings.SaveFailed.Title">
+    <value>Tidak bisa menyimpan pengaturan</value>
+  </data>
+  <data name="Pass.Time.Local">
+    <value>Waktu lokal</value>
+  </data>
+  <data name="Pass.Time.Utc">
+    <value>UTC</value>
+  </data>
+  <data name="Pass.TimesShownIn">
+    <value>Waktu ditampilkan dalam</value>
+  </data>
+  <data name="Pass.MinElevation">
+    <value>Elevasi min (°)</value>
+  </data>
+  <data name="Pass.MinDuration">
+    <value>Durasi min (mnt)</value>
+  </data>
+  <data name="Pass.HoursAhead">
+    <value>Jam ke depan</value>
+  </data>
+  <data name="Pass.Computing">
+    <value>Menghitung lintasan…</value>
+  </data>
+  <data name="Pass.ComputingMutual">
+    <value>Menghitung lintasan bersama…</value>
+  </data>
+  <data name="Pass.CountPasses">
+    <value>{0} lintasan dalam {1} j ke depan</value>
+  </data>
+  <data name="Pass.CountMutual">
+    <value>{0} lintasan bersama dalam {1} j ke depan</value>
+  </data>
+  <data name="Pass.CountMutualInRange">
+    <value>{0} lintasan bersama dari {1} sampai {2}</value>
+  </data>
+  <data name="Pass.Failed">
+    <value>Prediksi lintasan gagal: {0}</value>
+  </data>
+  <data name="Pass.FailedMutual">
+    <value>Prediksi lintasan bersama gagal: {0}</value>
+  </data>
+  <data name="Planner.Section.StationFilters">
+    <value>Stasiun &amp; filter</value>
+  </data>
+  <data name="Planner.UseActiveStation">
+    <value>Pakai sebagai stasiun aktif</value>
+  </data>
+  <data name="Planner.DisplayNameWatermark">
+    <value>Nama tampilan</value>
+  </data>
+  <data name="Planner.Maidenhead">
+    <value>Maidenhead</value>
+  </data>
+  <data name="Planner.AltAsl">
+    <value>Alt ASL (m)</value>
+  </data>
+  <data name="Planner.RefreshPasses">
+    <value>Segarkan lintasan</value>
+  </data>
+  <data name="Planner.FiltersNote">
+    <value>Filter berlaku untuk daftar ini dan jendela utama saat Anda menutup.</value>
+  </data>
+  <data name="Planner.PassesHeader">
+    <value>Lintasan</value>
+  </data>
+  <data name="Planner.SatelliteFilter.All">
+    <value>Semua satelit</value>
+  </data>
+  <data name="Planner.OpenPassRadarGallery">
+    <value>Galeri radar lintasan</value>
+  </data>
+  <data name="Planner.Col.Satellite">
+    <value>Satelit</value>
+  </data>
+  <data name="Planner.Col.AosLos">
+    <value>AOS – LOS</value>
+  </data>
+  <data name="Planner.Col.Tca">
+    <value>TCA</value>
+  </data>
+  <data name="Planner.Col.Azimuth">
+    <value>Azimut</value>
+  </data>
+  <data name="Planner.Col.MaxEl">
+    <value>El maks</value>
+  </data>
+  <data name="Planner.Col.Duration">
+    <value>Durasi</value>
+  </data>
+  <data name="Planner.Col.Calendar">
+    <value>Kalender</value>
+  </data>
+  <data name="Planner.Col.Schedule">
+    <value>Jadwal</value>
+  </data>
+  <data name="Planner.AddToCalendar">
+    <value>Tambah ke kalender</value>
+  </data>
+  <data name="Planner.Export.CalendarTip">
+    <value>Simpan berkas iCalendar untuk satelit ini, atau tambahkan lintasan ini ke Google Calendar</value>
+  </data>
+  <data name="Planner.Export.SaveIcs">
+    <value>Simpan iCalendar (.ics)</value>
+  </data>
+  <data name="Planner.Export.SaveIcsTip">
+    <value>Ekspor semua lintasan satelit ini ke berkas iCalendar (.ics)</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendar">
+    <value>Tambahkan lintasan ini ke Google Calendar</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarTip">
+    <value>Buka Google Calendar di peramban dengan lintasan ini sudah terisi</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarOpened">
+    <value>Google Calendar dibuka untuk {0}</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarFailed">
+    <value>Tidak bisa membuka Google Calendar: {0}</value>
+  </data>
+  <data name="Planner.PortableName">
+    <value>Portabel {0}</value>
+  </data>
+  <data name="Planner.Export.RefreshFirst">
+    <value>Segarkan lintasan sebelum mengekspor.</value>
+  </data>
+  <data name="Planner.Export.Title">
+    <value>Ekspor lintasan {0}</value>
+  </data>
+  <data name="Planner.Export.FileType">
+    <value>iCalendar</value>
+  </data>
+  <data name="Planner.Export.CalendarTitle">
+    <value>OscarWatch: {0} @ {1}</value>
+  </data>
+  <data name="Planner.Export.Done">
+    <value>Diekspor {0} lintasan {1}</value>
+  </data>
+  <data name="Planner.Export.SatelliteFile">
+    <value>satelit</value>
+  </data>
+  <data name="Planner.ContextMenu.CopySatelliteDetails">
+    <value>Salin rincian satelit</value>
+  </data>
+  <data name="Planner.ContextMenu.ViewPassPlot">
+    <value>Lihat plot lintasan</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadar">
+    <value>Buka radar lintasan</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadarGallery">
+    <value>Buka galeri radar lintasan (semua lintasan)</value>
+  </data>
+  <data name="Mutual.Section.StationsFilters">
+    <value>Stasiun &amp; filter</value>
+  </data>
+  <data name="Mutual.Section.Stations">
+    <value>Stasiun</value>
+  </data>
+  <data name="Mutual.Section.PassCriteria">
+    <value>Kriteria lintasan</value>
+  </data>
+  <data name="Mutual.Section.SearchPeriod">
+    <value>Periode pencarian</value>
+  </data>
+  <data name="Mutual.Wizard.Progress">
+    <value>Langkah {0} dari {1}: {2}</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Stations">
+    <value>Stasiun</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Criteria">
+    <value>Kriteria lintasan</value>
+  </data>
+  <data name="Mutual.Wizard.Step.When">
+    <value>Periode pencarian</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Results">
+    <value>Hasil</value>
+  </data>
+  <data name="Mutual.Wizard.StationsIntro">
+    <value>Masukkan kotak grid Maidenhead operator jarak jauh. Stasiun aktif Anda dipakai untuk sisi lokal.</value>
+  </data>
+  <data name="Mutual.Wizard.CriteriaIntro">
+    <value>Setel elevasi minimum, durasi lintasan, dan tumpang tindih yang diperlukan untuk jendela bersama.</value>
+  </data>
+  <data name="Mutual.Wizard.EditSearch">
+    <value>Sunting pencarian</value>
+  </data>
+  <data name="Mutual.YourStation">
+    <value>Stasiun Anda</value>
+  </data>
+  <data name="Mutual.RemoteOperator">
+    <value>Operator jarak jauh</value>
+  </data>
+  <data name="Mutual.RemoteOperatorWatermark">
+    <value>Callsign atau nama (opsional)</value>
+  </data>
+  <data name="Mutual.RemoteGrid">
+    <value>Grid Maidenhead jarak jauh</value>
+  </data>
+  <data name="Mutual.Description">
+    <value>Temukan lintasan saat satelit di atas elevasi minimum di stasiun Anda dan di gridsquare jarak jauh pada waktu yang sama.</value>
+  </data>
+  <data name="Mutual.FindPasses">
+    <value>Cari lintasan bersama</value>
+  </data>
+  <data name="Mutual.MinPassDuration">
+    <value>Durasi lintasan min (mnt)</value>
+  </data>
+  <data name="Mutual.MinOverlap">
+    <value>Tumpang tindih min (mnt)</value>
+  </data>
+  <data name="Mutual.TimeWindow.Label">
+    <value>Jendela pencarian</value>
+  </data>
+  <data name="Mutual.TimeWindow.HoursAhead">
+    <value>Jam ke depan dari sekarang</value>
+  </data>
+  <data name="Mutual.TimeWindow.DateRange">
+    <value>Rentang kustom</value>
+  </data>
+  <data name="Mutual.RangeStart">
+    <value>Mulai</value>
+  </data>
+  <data name="Mutual.RangeEnd">
+    <value>Selesai</value>
+  </data>
+  <data name="Mutual.RangeStartDate">
+    <value>Tanggal mulai</value>
+  </data>
+  <data name="Mutual.RangeStartTime">
+    <value>Waktu mulai</value>
+  </data>
+  <data name="Mutual.RangeEndDate">
+    <value>Tanggal selesai</value>
+  </data>
+  <data name="Mutual.RangeEndTime">
+    <value>Waktu selesai</value>
+  </data>
+  <data name="Mutual.PassesHeader">
+    <value>Lintasan bersama</value>
+  </data>
+  <data name="Mutual.ResultsContext">
+    <value>{0} ↔ {1}</value>
+  </data>
+  <data name="Mutual.Col.Satellite">
+    <value>Satelit</value>
+  </data>
+  <data name="Mutual.Col.MutualWindow">
+    <value>Jendela bersama</value>
+  </data>
+  <data name="Mutual.Col.Overlap">
+    <value>Tumpang tindih</value>
+  </data>
+  <data name="Mutual.Col.MaxElPair">
+    <value>El maks°</value>
+  </data>
+  <data name="Mutual.Col.YourAosLos">
+    <value>AOS–LOS Anda</value>
+  </data>
+  <data name="Mutual.Col.RemoteAosLos">
+    <value>AOS–LOS jarak jauh</value>
+  </data>
+  <data name="Mutual.Status.EnterGrid">
+    <value>Masukkan kotak grid Maidenhead operator jarak jauh (minimal 4 karakter).</value>
+  </data>
+  <data name="Mutual.Status.NoPasses">
+    <value>Tidak ada lintasan bersama dalam {0} j ke depan untuk {1} dan {2}.</value>
+  </data>
+  <data name="Mutual.Status.NoPassesInRange">
+    <value>Tidak ada lintasan bersama dari {0} sampai {1} untuk {2} dan {3}.</value>
+  </data>
+  <data name="Mutual.Status.InvalidRange">
+    <value>Tanggal dan waktu selesai harus setelah mulai.</value>
+  </data>
+  <data name="Mutual.Status.RangeTooLong">
+    <value>Jendela pencarian tidak boleh melebihi {0} hari.</value>
+  </data>
+  <data name="Mutual.Status.InvalidGrid">
+    <value>Kotak grid Maidenhead tidak valid.</value>
+  </data>
+  <data name="Mutual.OpenVisualizer">
+    <value>Buka visualisasi</value>
+  </data>
+  <data name="Mutual.Visualizer.DoubleClickHint">
+    <value>Klik dua kali lintasan untuk membuka visualisasi lintasan bersama. Klik kanan untuk opsi lain.</value>
+  </data>
+  <data name="Mutual.Copy.Title">
+    <value>Lintasan bersama: {0}</value>
+  </data>
+  <data name="Mutual.Copy.Between">
+    <value>Antara {0} dan {1}</value>
+  </data>
+  <data name="Mutual.Copy.TimesIn">
+    <value>Waktu ditampilkan dalam {0}</value>
+  </data>
+  <data name="Mutual.Copy.MutualWindow">
+    <value>Jendela bersama</value>
+  </data>
+  <data name="Mutual.Copy.MutualWindowLine">
+    <value>  {0} ({1})</value>
+  </data>
+  <data name="Mutual.Copy.YourPass">
+    <value>Lintasan Anda: {0}</value>
+  </data>
+  <data name="Mutual.Copy.RemotePass">
+    <value>Lintasan jarak jauh: {0}</value>
+  </data>
+  <data name="Mutual.Copy.PassTimes">
+    <value>  {0}</value>
+  </data>
+  <data name="Mutual.Copy.MaxElevation">
+    <value>  Elevasi maks {0:F1}°</value>
+  </data>
+  <data name="Mutual.Copy.Azimuth">
+    <value>  Azimut AOS {0:F1}° · azimut LOS {1:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.Heading">
+    <value>Lintasan tumpang tindih antara {0} dan {1} lewat {2}</value>
+  </data>
+  <data name="Mutual.Visualizer.Subtitle">
+    <value>Tumpang tindih berlangsung {0} mulai {1} ({2})</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassLocal">
+    <value>Lintasan penuh dari {0}</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassRemote">
+    <value>Lintasan penuh dari {0}</value>
+  </data>
+  <data name="Mutual.Visualizer.StationStats">
+    <value>{0} · AOS Az: {1:F1}° · El Maks: {2:F1}° · LOS Az: {3:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.PlotTooltip">
+    <value>{0} · Az: {1:F1}° · El: {2:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.PlotTooltipWithRotor">
+    <value>{0} · Az: {1:F1}° · Rotor: {2:F0}° · El: {3:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Aos">
+    <value>AOS (awal jendela bersama)</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Los">
+    <value>LOS (akhir jendela bersama)</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Sunlit">
+    <value>Cahaya matahari</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Eclipse">
+    <value>Gerhana</value>
+  </data>
+  <data name="Mutual.Visualizer.Screenshot">
+    <value>Tangkapan layar</value>
+  </data>
+  <data name="Sunlight.Section.SatelliteRange">
+    <value>Satelit &amp; rentang</value>
+  </data>
+  <data name="Sunlight.Satellite">
+    <value>Satelit</value>
+  </data>
+  <data name="Sunlight.StartDateUtc">
+    <value>Tanggal mulai (UTC)</value>
+  </data>
+  <data name="Sunlight.DaysAhead">
+    <value>Hari ke depan</value>
+  </data>
+  <data name="Sunlight.Predict">
+    <value>Prediksi</value>
+  </data>
+  <data name="Sunlight.Legend.Sunlight">
+    <value>Cahaya matahari</value>
+  </data>
+  <data name="Sunlight.Legend.Eclipse">
+    <value>Gerhana</value>
+  </data>
+  <data name="Sunlight.ContinuousPeriods">
+    <value>Periode cahaya matahari berkelanjutan</value>
+  </data>
+  <data name="Sunlight.MinDuration">
+    <value>Durasi min (mnt)</value>
+  </data>
+  <data name="Sunlight.Col.StartLocal">
+    <value>Mulai (lokal)</value>
+  </data>
+  <data name="Sunlight.Col.EndLocal">
+    <value>Selesai (lokal)</value>
+  </data>
+  <data name="Sunlight.Col.Duration">
+    <value>Durasi</value>
+  </data>
+  <data name="Sunlight.Status.SelectPredict">
+    <value>Pilih satelit lalu klik Prediksi.</value>
+  </data>
+  <data name="Sunlight.Status.NoSatellites">
+    <value>Tidak ada satelit yang diaktifkan. Pakai Satelit → Pilih Satelit terlebih dahulu.</value>
+  </data>
+  <data name="Sunlight.Status.Computing">
+    <value>Menghitung cahaya matahari untuk {0}…</value>
+  </data>
+  <data name="Sunlight.Status.Segments">
+    <value>{0} segmen cahaya selama {1} hari.</value>
+  </data>
+  <data name="Sunlight.Status.Cancelled">
+    <value>Prediksi dibatalkan.</value>
+  </data>
+  <data name="Sunlight.Status.Failed">
+    <value>Prediksi gagal: {0}</value>
+  </data>
+  <data name="Sunlight.Summary.SunlitPercent">
+    <value>{0}% di cahaya matahari secara keseluruhan</value>
+  </data>
+  <data name="Sunlight.Summary.LongestSun">
+    <value>cahaya matahari berkelanjutan terpanjang {0} ({1} – {2})</value>
+  </data>
+  <data name="Sunlight.Summary.LongestEclipse">
+    <value>gerhana terpanjang {0}</value>
+  </data>
+  <data name="Picker.SearchWatermark">
+    <value>Cari satelit…</value>
+  </data>
+  <data name="Picker.Filter.All">
+    <value>Semua</value>
+  </data>
+  <data name="Picker.Filter.Selected">
+    <value>Terpilih</value>
+  </data>
+  <data name="Picker.Filter.NotSelected">
+    <value>Tidak terpilih</value>
+  </data>
+  <data name="DbEditor.Intro">
+    <value>Kelola mode transponder satelit (frekuensi dalam kHz). Disimpan ke folder AppData pengguna Anda.</value>
+  </data>
+  <data name="DbEditor.Path.User">
+    <value>Basis data pengguna: {0}</value>
+  </data>
+  <data name="DbEditor.Path.Shipped">
+    <value>Bawaan kiriman: {0}</value>
+  </data>
+  <data name="DbEditor.SearchWatermark">
+    <value>Cari satelit…</value>
+  </data>
+  <data name="DbEditor.ImportJson">
+    <value>Impor JSON…</value>
+  </data>
+  <data name="DbEditor.ExportJson">
+    <value>Ekspor JSON…</value>
+  </data>
+  <data name="DbEditor.CheckUpdates">
+    <value>Periksa pembaruan</value>
+  </data>
+  <data name="DbEditor.AddSatellite">
+    <value>Tambah satelit</value>
+  </data>
+  <data name="DbEditor.RestoreDefaults">
+    <value>Pulihkan bawaan</value>
+  </data>
+  <data name="DbEditor.RemoveSatellite">
+    <value>Hapus satelit</value>
+  </data>
+  <data name="DbEditor.Satellite">
+    <value>Satelit</value>
+  </data>
+  <data name="DbEditor.NameWatermark">
+    <value>Nama pilihan (ditampilkan di peta)</value>
+  </data>
+  <data name="DbEditor.NoradIdLabel">
+    <value>NORAD ID</value>
+  </data>
+  <data name="DbEditor.NoradIdWatermark">
+    <value>Opsional: cocokkan tle.oscarwatch.org (mis. 27607)</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesLabel">
+    <value>Nama alternatif</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesWatermark">
+    <value>Dipisahkan koma (mis. UmKA-1, RS40-S)</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesHint">
+    <value>Dipakai untuk mencocokkan nama TLE dan basis data terbitan saat berbeda dari nama pilihan. Mengganti nama otomatis menyimpan nama sebelumnya di sini. NORAD ID disarankan saat alias disetel.</value>
+  </data>
+  <data name="DbEditor.ModesHeader">
+    <value>Mode transponder</value>
+  </data>
+  <data name="DbEditor.AddMode">
+    <value>Tambah mode</value>
+  </data>
+  <data name="DbEditor.Duplicate">
+    <value>Duplikat</value>
+  </data>
+  <data name="DbEditor.Remove">
+    <value>Hapus</value>
+  </data>
+  <data name="DbEditor.ModeDetails">
+    <value>Rincian mode</value>
+  </data>
+  <data name="DbEditor.TypeLabel">
+    <value>Jenis / label</value>
+  </data>
+  <data name="DbEditor.DownlinkKhz">
+    <value>Downlink (kHz)</value>
+  </data>
+  <data name="DbEditor.UplinkKhz">
+    <value>Uplink (kHz)</value>
+  </data>
+  <data name="DbEditor.DownlinkMode">
+    <value>Mode downlink</value>
+  </data>
+  <data name="DbEditor.UplinkMode">
+    <value>Mode uplink</value>
+  </data>
+  <data name="DbEditor.Doppler">
+    <value>Doppler</value>
+  </data>
+  <data name="DbEditor.CtcssAccess">
+    <value>CTCSS access (Hz)</value>
+  </data>
+  <data name="DbEditor.CtcssArm">
+    <value>CTCSS arm (Hz)</value>
+  </data>
+  <data name="DbEditor.ModeHint">
+    <value>Setel uplink ke 0 untuk beacon saja. Biarkan CTCSS di 0 untuk tidak ada. Mode FM memakai Hz (mis. 67,0).</value>
+  </data>
+  <data name="DbEditor.FileType.Json">
+    <value>JSON</value>
+  </data>
+  <data name="DbEditor.Mode.NewMode">
+    <value>Mode baru</value>
+  </data>
+  <data name="DbEditor.Mode.CopySuffix">
+    <value> salinan</value>
+  </data>
+  <data name="DbEditor.Status.Loaded">
+    <value>{0} satelit dimuat.</value>
+  </data>
+  <data name="DbEditor.Status.AddCancelled">
+    <value>Tambah satelit dibatalkan.</value>
+  </data>
+  <data name="DbEditor.Status.AlreadyExists">
+    <value>Satelit “{0}” sudah ada di basis data.</value>
+  </data>
+  <data name="DbEditor.Status.Added">
+    <value>{0} ditambahkan.</value>
+  </data>
+  <data name="DbEditor.Status.RemovedSatellite">
+    <value>Satelit dihapus.</value>
+  </data>
+  <data name="DbEditor.Status.AddedMode">
+    <value>Mode transponder ditambahkan.</value>
+  </data>
+  <data name="DbEditor.Status.RemovedMode">
+    <value>Mode transponder dihapus.</value>
+  </data>
+  <data name="DbEditor.Status.DuplicatedMode">
+    <value>Mode diduplikasi.</value>
+  </data>
+  <data name="DbEditor.Status.Saved">
+    <value>Disimpan.</value>
+  </data>
+  <data name="DbEditor.Status.AliasesWithoutNorad">
+    <value>Tips: setel NORAD ID saat memakai nama alternatif agar pembaruan tetap mencocokkan satelit ini.</value>
+  </data>
+  <data name="DbEditor.Status.Restored">
+    <value>Basis data kiriman dipulihkan.</value>
+  </data>
+  <data name="DbEditor.Export.Title">
+    <value>Ekspor basis data transponder</value>
+  </data>
+  <data name="DbEditor.Status.Exported">
+    <value>{0} satelit diekspor ke JSON.</value>
+  </data>
+  <data name="DbEditor.Status.ExportFailed">
+    <value>Ekspor gagal: {0}</value>
+  </data>
+  <data name="DbEditor.Import.Title">
+    <value>Impor basis data transponder</value>
+  </data>
+  <data name="DbEditor.Status.ReadingImport">
+    <value>Membaca berkas impor…</value>
+  </data>
+  <data name="DbEditor.Status.InvalidDatabase">
+    <value>Basis data tidak valid: {0}</value>
+  </data>
+  <data name="DbEditor.Status.ImportNoChanges">
+    <value>Berkas impor cocok dengan editor (tidak ada entri baru atau berubah).</value>
+  </data>
+  <data name="DbEditor.Status.ImportCancelled">
+    <value>Impor dibatalkan.</value>
+  </data>
+  <data name="DbEditor.Status.ImportApplied">
+    <value>Impor diterapkan ke editor: tekan Simpan untuk menulis ke basis data pengguna Anda.</value>
+  </data>
+  <data name="DbEditor.Status.ImportFailed">
+    <value>Impor gagal: {0}</value>
+  </data>
+  <data name="DbEditor.Status.CheckingUpdates">
+    <value>Memeriksa pembaruan basis data transponder…</value>
+  </data>
+  <data name="DbEditor.Status.UpToDate">
+    <value>Basis data transponder sudah yang terbaru.</value>
+  </data>
+  <data name="DbEditor.Status.UpdatesApplied">
+    <value>Pembaruan diterapkan.</value>
+  </data>
+  <data name="DbEditor.Status.NoChangesApplied">
+    <value>Tidak ada perubahan yang diterapkan.</value>
+  </data>
+  <data name="DbEditor.Status.UpdateCheckFailed">
+    <value>Pemeriksaan pembaruan gagal: {0}</value>
+  </data>
+  <data name="DbEditor.Status.InEditor">
+    <value>{0} satelit di editor.</value>
+  </data>
+  <data name="DbMerge.Title.Remote">
+    <value>Pembaruan basis data transponder</value>
+  </data>
+  <data name="DbMerge.Title.Import">
+    <value>Gabungkan basis data transponder yang diimpor</value>
+  </data>
+  <data name="DbMerge.ApplySelected">
+    <value>Terapkan yang dipilih</value>
+  </data>
+  <data name="DbMerge.NewSatellites">
+    <value>Satelit baru</value>
+  </data>
+  <data name="DbMerge.NoradIdBackfills">
+    <value>ID katalog NORAD</value>
+  </data>
+  <data name="DbMerge.NewModes">
+    <value>Mode transponder baru</value>
+  </data>
+  <data name="DbMerge.Conflicts">
+    <value>Konflik</value>
+  </data>
+  <data name="DbMerge.YoursFormat">
+    <value>Milik Anda: {0}</value>
+  </data>
+  <data name="DbMerge.Source.Import">
+    <value>berkas yang diimpor</value>
+  </data>
+  <data name="DbMerge.Source.Remote">
+    <value>tle.oscarwatch.org</value>
+  </data>
+  <data name="DbMerge.UseImported">
+    <value>Pakai versi impor</value>
+  </data>
+  <data name="DbMerge.UsePublished">
+    <value>Pakai versi terbitan</value>
+  </data>
+  <data name="DbMerge.UseLocal">
+    <value>Pakai versi lokal</value>
+  </data>
+  <data name="DbMerge.Prefix.Imported">
+    <value>Impor</value>
+  </data>
+  <data name="DbMerge.Prefix.Published">
+    <value>Terbitan</value>
+  </data>
+  <data name="DbMerge.Intro.Import">
+    <value>Entri baru dipilih secara bawaan. Untuk konflik, konfirmasi salinan editor Anda atau pilih versi impor.</value>
+  </data>
+  <data name="DbMerge.Intro.Remote">
+    <value>Entri baru dipilih secara bawaan. Untuk konflik, konfirmasi salinan lokal Anda atau pilih versi terbitan.</value>
+  </data>
+  <data name="DbMerge.Intro.NoradIds">
+    <value>Nomor katalog ini akan ditambahkan ke satelit di basis data lokal yang belum punya. Klik Terapkan yang dipilih untuk memperbarui.</value>
+  </data>
+  <data name="DbMerge.Summary.Matches">
+    <value>Basis data transponder Anda cocok dengan {0}.</value>
+  </data>
+  <data name="DbMerge.Summary.OneNewSatellite">
+    <value>{0} satelit baru</value>
+  </data>
+  <data name="DbMerge.Summary.ManyNewSatellites">
+    <value>{0} satelit baru</value>
+  </data>
+  <data name="DbMerge.Summary.OneNewMode">
+    <value>{0} mode baru</value>
+  </data>
+  <data name="DbMerge.Summary.ManyNewModes">
+    <value>{0} mode baru</value>
+  </data>
+  <data name="DbMerge.Summary.OneConflict">
+    <value>{0} konflik</value>
+  </data>
+  <data name="DbMerge.Summary.ManyConflicts">
+    <value>{0} konflik</value>
+  </data>
+  <data name="DbMerge.Summary.OneNoradId">
+    <value>{0} ID katalog NORAD</value>
+  </data>
+  <data name="DbMerge.Summary.ManyNoradIds">
+    <value>{0} ID katalog NORAD</value>
+  </data>
+  <data name="DbMerge.Summary.FromSuffix">
+    <value> dari {0}.</value>
+  </data>
+  <data name="DbMerge.Item.SatelliteOneMode">
+    <value>{0} (1 mode)</value>
+  </data>
+  <data name="DbMerge.Item.SatelliteManyModes">
+    <value>{0} ({1} mode)</value>
+  </data>
+  <data name="DbMerge.Item.ModeLine">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="DbMerge.Item.NoradIdLine">
+    <value>{0} → {1}</value>
+  </data>
+  <data name="DbAdd.Title">
+    <value>Tambah satelit</value>
+  </data>
+  <data name="DbAdd.Intro.WithCatalog">
+    <value>Pilih satelit dari katalog TLE Anda, atau masukkan nama kustom di bawah.</value>
+  </data>
+  <data name="DbAdd.Intro.NoCatalog">
+    <value>Semua satelit TLE sudah ada di basis data ini. Masukkan nama kustom di bawah.</value>
+  </data>
+  <data name="DbAdd.SearchWatermark">
+    <value>Cari katalog TLE…</value>
+  </data>
+  <data name="DbAdd.CustomNameLabel">
+    <value>Nama kustom (opsional jika Anda sudah memilih di atas)</value>
+  </data>
+  <data name="DbAdd.CustomNameWatermark">
+    <value>Ketik nama jika tidak ada di daftar…</value>
+  </data>
+  <data name="DbAdd.Error.PickOne">
+    <value>Pilih satelit TLE atau masukkan nama kustom.</value>
+  </data>
+  <data name="Update.Available.Title">
+    <value>Pembaruan Tersedia</value>
+  </data>
+  <data name="Update.Available.Message">
+    <value>Versi OscarWatch yang lebih baru tersedia.
+
+Anda menjalankan {0}.
+Terbaru: {1} ({2})</value>
+  </data>
+  <data name="Update.ViewRelease">
+    <value>Lihat rilis</value>
+  </data>
+  <data name="Update.RemindLater">
+    <value>Ingatkan nanti</value>
+  </data>
+  <data name="Update.SkipVersion">
+    <value>Lewati versi ini</value>
+  </data>
+  <data name="ReleaseNotes.Title">
+    <value>Catatan Rilis</value>
+  </data>
+  <data name="ReleaseNotes.Loading">
+    <value>Memuat catatan rilis…</value>
+  </data>
+  <data name="ReleaseNotes.LoadFailed">
+    <value>Tidak bisa memuat catatan rilis: {0}</value>
+  </data>
+  <data name="ReleaseNotes.ViewOnGitHub">
+    <value>Lihat di GitHub</value>
+  </data>
+  <data name="Settings.Tab.Qrz">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Section">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Intro">
+    <value>Mencari nama operator (dan grid jika kosong) dari QRZ saat Anda mengetik tanda panggil di OscarWatch Logbook. Akses XML Data memerlukan langganan QRZ. Nama pengguna dan kata sandi tetap di komputer ini.</value>
+  </data>
+  <data name="Settings.Qrz.Enable">
+    <value>Aktifkan pencarian callbook QRZ di OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.Qrz.Username">
+    <value>Nama pengguna QRZ</value>
+  </data>
+  <data name="Settings.Qrz.UsernameWatermark">
+    <value>tanda panggil</value>
+  </data>
+  <data name="Settings.Qrz.Password">
+    <value>Kata sandi QRZ</value>
+  </data>
+  <data name="Settings.Qrz.PasswordWatermark">
+    <value>kata sandi akun</value>
+  </data>
+  <data name="Settings.Qrz.TestConnection">
+    <value>Uji koneksi</value>
+  </data>
+  <data name="Settings.Qrz.Testing">
+    <value>Menguji…</value>
+  </data>
+  <data name="Settings.Qrz.EnterCredentials">
+    <value>Masukkan nama pengguna dan kata sandi QRZ (keluar dari setiap kolom atau klik Uji lagi).</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOk">
+    <value>Koneksi OK. Langganan XML berlaku sampai {0}.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOkNoExpiry">
+    <value>Koneksi OK.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionFailed">
+    <value>Tidak dapat masuk ke QRZ: {0}</value>
+  </data>
+  <data name="Settings.Qrz.SubscriptionRequired">
+    <value>QRZ XML Data memerlukan langganan. Periksa akses XML pada akun QRZ Anda.</value>
+  </data>
+  <data name="Settings.Qrz.Timeout">
+    <value>QRZ tidak merespons tepat waktu.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.Intro">
+    <value>Mengisi Nama (dan Grid jika kosong) dari QRZ saat Anda mengetik tanda panggil. Tidak menimpa nama yang sudah Anda ketik atau yang berasal dari QSO sebelumnya di logbook ini.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.CredentialsNote">
+    <value>Diperlukan langganan QRZ XML Data. Nama pengguna dan kata sandi disimpan bersama pengaturan OscarWatch lainnya di komputer ini.</value>
+  </data>
+  <data name="Logbook.CallHint.Qrz">
+    <value>Nama dari QRZ.</value>
+  </data>
+  <data name="Settings.Tab.HamQth">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Section">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Intro">
+    <value>Mencari nama operator (dan grid jika kosong) dari HamQTH saat Anda mengetik tanda panggil di OscarWatch Logbook. Akun HamQTH gratis sudah cukup (tanpa langganan XML berbayar). Dipakai saat QRZ mati, tidak menemukan, atau belum dikonfigurasi. Nama pengguna dan kata sandi tetap di komputer ini.</value>
+  </data>
+  <data name="Settings.HamQth.Enable">
+    <value>Aktifkan pencarian callbook HamQTH di OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.HamQth.Username">
+    <value>Nama pengguna HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.UsernameWatermark">
+    <value>tanda panggil</value>
+  </data>
+  <data name="Settings.HamQth.Password">
+    <value>Kata sandi HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.PasswordWatermark">
+    <value>kata sandi akun</value>
+  </data>
+  <data name="Settings.HamQth.TestConnection">
+    <value>Uji koneksi</value>
+  </data>
+  <data name="Settings.HamQth.Testing">
+    <value>Menguji…</value>
+  </data>
+  <data name="Settings.HamQth.EnterCredentials">
+    <value>Masukkan nama pengguna dan kata sandi HamQTH (keluar dari setiap kolom atau klik Uji lagi).</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionOk">
+    <value>Koneksi OK.</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionFailed">
+    <value>Tidak dapat masuk ke HamQTH: {0}</value>
+  </data>
+  <data name="Settings.HamQth.Timeout">
+    <value>HamQTH tidak merespons tepat waktu.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.Intro">
+    <value>Mengisi Nama (dan Grid jika kosong) dari HamQTH saat QRZ mati, tidak menemukan, atau belum dikonfigurasi. Tidak menimpa nama yang sudah Anda ketik atau yang berasal dari QSO sebelumnya di logbook ini.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.CredentialsNote">
+    <value>Diperlukan akun HamQTH gratis. Nama pengguna dan kata sandi disimpan bersama pengaturan OscarWatch lainnya di komputer ini.</value>
+  </data>
+  <data name="Logbook.CallHint.HamQth">
+    <value>Nama dari HamQTH.</value>
+  </data>
+</root>

@@ -16,6 +16,8 @@ public partial class LogbookSettingsViewModel : ViewModelBase
     private readonly IQsoLogbookRepository _repository;
     private readonly ICloudlogLookupService _lookup;
     private readonly ICloudlogQsoUploadService _upload;
+    private readonly IQrzCallbookService _qrz;
+    private readonly IHamQthCallbookService _hamQth;
     private long _logbookId;
 
     public LogbookSettingsViewModel(
@@ -23,13 +25,17 @@ public partial class LogbookSettingsViewModel : ViewModelBase
         ILocalizationService localization,
         IQsoLogbookRepository repository,
         ICloudlogLookupService lookup,
-        ICloudlogQsoUploadService upload)
+        ICloudlogQsoUploadService upload,
+        IQrzCallbookService qrz,
+        IHamQthCallbookService hamQth)
     {
         _settings = settings;
         _l = localization;
         _repository = repository;
         _lookup = lookup;
         _upload = upload;
+        _qrz = qrz;
+        _hamQth = hamQth;
     }
 
     public ObservableCollection<CloudlogStationProfile> StationProfiles { get; } = [];
@@ -60,6 +66,36 @@ public partial class LogbookSettingsViewModel : ViewModelBase
     [ObservableProperty]
     private bool _isLoadingProfiles;
 
+    [ObservableProperty]
+    private bool _qrzEnabled;
+
+    [ObservableProperty]
+    private string _qrzUsername = "";
+
+    [ObservableProperty]
+    private string _qrzPassword = "";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasQrzStatus))]
+    private string _qrzTestStatus = "";
+
+    public bool HasQrzStatus => !string.IsNullOrWhiteSpace(QrzTestStatus);
+
+    [ObservableProperty]
+    private bool _hamQthEnabled;
+
+    [ObservableProperty]
+    private string _hamQthUsername = "";
+
+    [ObservableProperty]
+    private string _hamQthPassword = "";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasHamQthStatus))]
+    private string _hamQthTestStatus = "";
+
+    public bool HasHamQthStatus => !string.IsNullOrWhiteSpace(HamQthTestStatus);
+
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorText);
 
     public bool HasStatus => !string.IsNullOrWhiteSpace(StatusText);
@@ -83,6 +119,18 @@ public partial class LogbookSettingsViewModel : ViewModelBase
 
         SelectedStationProfile = null;
         StationProfiles.Clear();
+
+        var qrz = _settings.Current.Qrz ?? new QrzSettings();
+        QrzEnabled = qrz.Enabled;
+        QrzUsername = qrz.Username;
+        QrzPassword = qrz.Password;
+        QrzTestStatus = "";
+
+        var hamQth = _settings.Current.HamQth ?? new HamQthSettings();
+        HamQthEnabled = hamQth.Enabled;
+        HamQthUsername = hamQth.Username;
+        HamQthPassword = hamQth.Password;
+        HamQthTestStatus = "";
     }
 
     public async Task LoadStationProfilesAsync()
@@ -135,6 +183,91 @@ public partial class LogbookSettingsViewModel : ViewModelBase
         StatusText = _l.Get("Logbook.Settings.Cloudlog.RetryStarted");
     }
 
+    [RelayCommand]
+    private async Task TestQrzAsync()
+    {
+        QrzTestStatus = _l.Get("Settings.Qrz.Testing");
+        var settings = new QrzSettings
+        {
+            Enabled = true,
+            Username = QrzUsername.Trim(),
+            Password = QrzPassword
+        };
+
+        if (!settings.HasCredentials)
+        {
+            QrzTestStatus = _l.Get("Settings.Qrz.EnterCredentials");
+            return;
+        }
+
+        try
+        {
+            var result = await _qrz.TestConnectionAsync(settings).ConfigureAwait(true);
+            QrzTestStatus = FormatQrzTestStatus(result);
+        }
+        catch (Exception ex)
+        {
+            QrzTestStatus = ex.Message;
+        }
+    }
+
+    private string FormatQrzTestStatus(OscarWatch.Core.Qrz.QrzConnectionTestResult result)
+    {
+        if (result.Ok)
+        {
+            return string.IsNullOrWhiteSpace(result.SubscriptionExpires)
+                ? _l.Get("Settings.Qrz.ConnectionOkNoExpiry")
+                : _l.Get("Settings.Qrz.ConnectionOk", result.SubscriptionExpires);
+        }
+
+        if (result.SubscriptionRequired)
+            return _l.Get("Settings.Qrz.SubscriptionRequired");
+
+        if (string.Equals(result.ErrorMessage, "timeout", StringComparison.Ordinal))
+            return _l.Get("Settings.Qrz.Timeout");
+
+        return _l.Get("Settings.Qrz.ConnectionFailed", result.ErrorMessage ?? "");
+    }
+
+    [RelayCommand]
+    private async Task TestHamQthAsync()
+    {
+        HamQthTestStatus = _l.Get("Settings.HamQth.Testing");
+        var settings = new HamQthSettings
+        {
+            Enabled = true,
+            Username = HamQthUsername.Trim(),
+            Password = HamQthPassword
+        };
+
+        if (!settings.HasCredentials)
+        {
+            HamQthTestStatus = _l.Get("Settings.HamQth.EnterCredentials");
+            return;
+        }
+
+        try
+        {
+            var result = await _hamQth.TestConnectionAsync(settings).ConfigureAwait(true);
+            HamQthTestStatus = FormatHamQthTestStatus(result);
+        }
+        catch (Exception ex)
+        {
+            HamQthTestStatus = ex.Message;
+        }
+    }
+
+    private string FormatHamQthTestStatus(OscarWatch.Core.HamQth.HamQthConnectionTestResult result)
+    {
+        if (result.Ok)
+            return _l.Get("Settings.HamQth.ConnectionOk");
+
+        if (string.Equals(result.ErrorMessage, "timeout", StringComparison.Ordinal))
+            return _l.Get("Settings.HamQth.Timeout");
+
+        return _l.Get("Settings.HamQth.ConnectionFailed", result.ErrorMessage ?? "");
+    }
+
     public bool TrySave([NotNullWhen(true)] out QsoLogbookCloudlogSettingsRequest? request)
     {
         request = null;
@@ -158,6 +291,20 @@ public partial class LogbookSettingsViewModel : ViewModelBase
             CloudlogAutoUpload = CloudlogAutoUpload,
             CloudlogStationProfileId = SelectedStationProfile?.StationId
         };
+
+        _settings.Current.Qrz = new QrzSettings
+        {
+            Enabled = QrzEnabled,
+            Username = QrzUsername.Trim(),
+            Password = QrzPassword
+        };
+        _settings.Current.HamQth = new HamQthSettings
+        {
+            Enabled = HamQthEnabled,
+            Username = HamQthUsername.Trim(),
+            Password = HamQthPassword
+        };
+        _settings.RequestSave();
         return true;
     }
 

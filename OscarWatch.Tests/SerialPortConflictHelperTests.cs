@@ -114,6 +114,21 @@ public class SerialPortConflictHelperTests
     }
 
     [Fact]
+    public void No_conflict_when_rotator_is_spid_md01_tcp()
+    {
+        var rotator = new RotatorSettings
+        {
+            Enabled = true,
+            Type = RotatorType.SpidMd01,
+            Port = "COM3",
+            NetworkHost = "192.168.0.10",
+            NetworkPort = 23
+        };
+        var rig = new RigSettings { Enabled = true, Type = RigType.IcomIc910, Port = "COM3" };
+        Assert.False(SerialPortConflictHelper.HasConflict(rotator, rig));
+    }
+
+    [Fact]
     public void No_conflict_when_rotator_is_urc_tcp()
     {
         var rotator = new RotatorSettings

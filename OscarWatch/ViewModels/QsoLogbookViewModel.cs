@@ -6,6 +6,7 @@ using OscarWatch.Core.Dxcc;
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Logbook;
 using OscarWatch.Core.Models;
+using OscarWatch.Core.Qrz;
 using OscarWatch.Core.Services;
 using OscarWatch.Localization;
 using Serilog;
@@ -22,6 +23,8 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
     private readonly ISatelliteLinkBroadcastService _satelliteLink;
     private readonly ISatelliteStatusReportService _satelliteStatus;
     private readonly IDxccLookupService _dxccLookup;
+    private readonly IQrzCallbookService _qrz;
+    private readonly IHamQthCallbookService _hamQth;
     private readonly ILocalizationService _l;
     private readonly DispatcherTimer _liveTimer;
     private string _lastStationMode = "";
@@ -30,6 +33,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
     private QsoRecord? _editingSource;
     private int _callLookupGeneration;
     private bool _dxccBackfillStarted;
+    private CancellationTokenSource? _qrzLookupCts;
 
     public QsoLogbookViewModel(
         IQsoLogbookRepository repository,
@@ -39,6 +43,8 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         ISatelliteLinkBroadcastService satelliteLink,
         ISatelliteStatusReportService satelliteStatus,
         IDxccLookupService dxccLookup,
+        IQrzCallbookService qrz,
+        IHamQthCallbookService hamQth,
         ILocalizationService localization)
     {
         _repository = repository;
@@ -48,6 +54,8 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         _satelliteLink = satelliteLink;
         _satelliteStatus = satelliteStatus;
         _dxccLookup = dxccLookup;
+        _qrz = qrz;
+        _hamQth = hamQth;
         _l = localization;
         StatusText = _l.Get("Logbook.Status.Ready");
         StationStatusText = _l.Get("Logbook.Station.Unavailable");
@@ -735,6 +743,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         if (SelectedLogbook is null)
             return;
 
+        CancelQrzLookup();
         var generation = ++_callLookupGeneration;
         var trimmed = value.Trim();
         if (trimmed.Length < 3)
@@ -790,6 +799,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         if (previous is null)
         {
             CallHint = "";
+            await LookupCallbookIfNeededAsync(trimmed, generation).ConfigureAwait(true);
             return;
         }
 
@@ -801,6 +811,127 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
         CallHint = string.IsNullOrWhiteSpace(previous.GridSquare)
             ? _l.Get("Logbook.CallHint.Previous")
             : _l.Get("Logbook.CallHint.PreviousWithGrid", previous.GridSquare);
+
+        await LookupCallbookIfNeededAsync(trimmed, generation).ConfigureAwait(true);
+    }
+
+    private async Task LookupCallbookIfNeededAsync(string call, int generation)
+    {
+        CancelQrzLookup();
+        var qrzEnabled = _qrz.CanLookup(_settings.Current.Qrz);
+        var hamQthEnabled = _hamQth.CanLookup(_settings.Current.HamQth);
+        if (!qrzEnabled && !hamQthEnabled)
+            return;
+        if (!QrzCallsignHelper.IsPlausible(call))
+            return;
+        if (!string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(Grid))
+            return;
+
+        _qrzLookupCts = new CancellationTokenSource();
+        var token = _qrzLookupCts.Token;
+        try
+        {
+            await Task.Delay(450, token).ConfigureAwait(true);
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+
+        if (generation != _callLookupGeneration)
+            return;
+        if (!string.Equals(call, Call.Trim(), StringComparison.OrdinalIgnoreCase))
+            return;
+        if (!string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(Grid))
+            return;
+
+        QrzCallbookEntry? qrzEntry = null;
+        if (qrzEnabled)
+        {
+            try
+            {
+                qrzEntry = await _qrz.LookupAsync(_settings.Current.Qrz, call, token).ConfigureAwait(true);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            catch (Exception ex)
+            {
+                Log.Debug(ex, "QRZ callbook lookup failed for {Call}", call);
+            }
+        }
+
+        var needName = string.IsNullOrWhiteSpace(Name) && string.IsNullOrWhiteSpace(qrzEntry?.Name);
+        var needGrid = string.IsNullOrWhiteSpace(Grid) && string.IsNullOrWhiteSpace(qrzEntry?.Grid);
+        QrzCallbookEntry? hamEntry = null;
+        if (hamQthEnabled && (needName || needGrid))
+        {
+            try
+            {
+                hamEntry = await _hamQth.LookupAsync(_settings.Current.HamQth, call, token).ConfigureAwait(true);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            catch (Exception ex)
+            {
+                Log.Debug(ex, "HamQTH callbook lookup failed for {Call}", call);
+            }
+        }
+
+        if (generation != _callLookupGeneration)
+            return;
+        if (!string.Equals(call, Call.Trim(), StringComparison.OrdinalIgnoreCase))
+            return;
+
+        var name = FirstNonEmpty(Name, qrzEntry?.Name, hamEntry?.Name);
+        var grid = FirstNonEmpty(Grid, qrzEntry?.Grid, hamEntry?.Grid);
+        var nameSource = string.IsNullOrWhiteSpace(Name)
+            ? !string.IsNullOrWhiteSpace(qrzEntry?.Name) ? "qrz"
+            : !string.IsNullOrWhiteSpace(hamEntry?.Name) ? "hamqth"
+            : null
+            : null;
+
+        if (string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(name))
+        {
+            Name = name;
+            if (string.IsNullOrWhiteSpace(CallHint))
+            {
+                CallHint = nameSource == "hamqth"
+                    ? _l.Get("Logbook.CallHint.HamQth")
+                    : _l.Get("Logbook.CallHint.Qrz");
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(Grid) && !string.IsNullOrWhiteSpace(grid))
+            Grid = grid;
+    }
+
+    private static string FirstNonEmpty(params string?[] values)
+    {
+        foreach (var value in values)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+                return value.Trim();
+        }
+
+        return "";
+    }
+
+    private void CancelQrzLookup()
+    {
+        try
+        {
+            _qrzLookupCts?.Cancel();
+            _qrzLookupCts?.Dispose();
+        }
+        catch (ObjectDisposedException)
+        {
+        }
+
+        _qrzLookupCts = null;
     }
 
     private void ClearDxccBadge()
@@ -1041,6 +1172,7 @@ public partial class QsoLogbookViewModel : ViewModelBase, IDisposable
 
     public void Dispose()
     {
+        CancelQrzLookup();
         _cloudlogUpload.UploadStateChanged -= OnCloudlogUploadStateChanged;
         _liveTimer.Stop();
     }

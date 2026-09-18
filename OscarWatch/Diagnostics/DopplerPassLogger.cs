@@ -86,6 +86,17 @@ public sealed class DopplerPassLogger : IDopplerPassLogger
         {
             CloseWriterUnlocked();
 
+            try
+            {
+                var pruned = DopplerPassLogFileNameFormat.PruneOlderThanRetention(LogDirectory);
+                if (pruned > 0)
+                    Log.Information("Pruned {Count} Doppler pass log(s) older than {Days} days", pruned, DopplerPassLogFileNameFormat.RetainedFileDays);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Failed to prune old Doppler pass logs in {Directory}", LogDirectory);
+            }
+
             path = DopplerPassLogFileNameFormat.ResolveUniquePath(
                 LogDirectory,
                 context.TrackState.Name,

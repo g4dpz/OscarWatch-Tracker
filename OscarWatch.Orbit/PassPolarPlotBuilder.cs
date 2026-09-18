@@ -74,26 +74,27 @@ public static class PassPolarPlotBuilder
         var samples = new List<(DateTime, double, double, bool)>();
         for (var t = startUtc; t <= endUtc; t += SampleStep)
         {
-            var look = propagator.GetLookAngles(satellite.NoradId, site, t);
+            var geometry = propagator.GetLiveGeometry(satellite.NoradId, site, t, includeRangeRate: false);
+            if (geometry.LookAngles is not { } look)
+                continue;
             if (HorizonMaskPolarGeometry.IsObstructed(
                     site.HorizonMask, look.AzimuthDeg, look.ElevationDeg, minimumElevationDeg))
                 continue;
 
-            var satEci = propagator.GetEciPosition(satellite.NoradId, t);
             var sunEci = SunPositionCalculator.GetPosition(t);
-            var sunlit = SatelliteIllumination.IsSunlit(satEci, sunEci);
+            var sunlit = SatelliteIllumination.IsSunlit(geometry.Eci, sunEci);
             samples.Add((t, look.AzimuthDeg, look.ElevationDeg, sunlit));
         }
 
         if (samples.Count == 0 || samples[^1].Item1 < endUtc)
         {
-            var look = propagator.GetLookAngles(satellite.NoradId, site, endUtc);
-            if (!HorizonMaskPolarGeometry.IsObstructed(
+            var geometry = propagator.GetLiveGeometry(satellite.NoradId, site, endUtc, includeRangeRate: false);
+            if (geometry.LookAngles is { } look
+                && !HorizonMaskPolarGeometry.IsObstructed(
                     site.HorizonMask, look.AzimuthDeg, look.ElevationDeg, minimumElevationDeg))
             {
-                var satEci = propagator.GetEciPosition(satellite.NoradId, endUtc);
                 var sunEci = SunPositionCalculator.GetPosition(endUtc);
-                samples.Add((endUtc, look.AzimuthDeg, look.ElevationDeg, SatelliteIllumination.IsSunlit(satEci, sunEci)));
+                samples.Add((endUtc, look.AzimuthDeg, look.ElevationDeg, SatelliteIllumination.IsSunlit(geometry.Eci, sunEci)));
             }
         }
 

@@ -1,0 +1,3934 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+  <resheader name="resmimetype">text/microsoft-resx</resheader>
+  <resheader name="version">2.0</resheader>
+  <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</resheader>
+  <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</resheader>
+  <data name="About.Copyright">
+    <value>Copyright © 2025–2026 Peter Goodhall (MM9SQL)</value>
+  </data>
+  <data name="About.Description">
+    <value>Настольное сопровождение спутников для радиолюбителей. Пролёты, CAT с доплеровской коррекцией, сопровождение ротатором и режимы транспондеров по базе спутников OscarWatch.</value>
+  </data>
+  <data name="About.DonateNote">
+    <value>Если жертвуете, сообщите Peter свой позывной, чтобы он мог поблагодарить.</value>
+  </data>
+  <data name="About.Github">
+    <value>github.com/magicbug/OscarWatch-Tracker</value>
+  </data>
+  <data name="About.License">
+    <value>Лицензия GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later). См. LICENSE.md в репозитории исходного кода.</value>
+  </data>
+  <data name="About.PayPal">
+    <value>PayPal</value>
+  </data>
+  <data name="About.SponsorGithub">
+    <value>Спонсировать на GitHub</value>
+  </data>
+  <data name="About.SupportIntro">
+    <value>OscarWatch бесплатен и с открытым исходным кодом. Если программа полезна, можно поддержать разработку:</value>
+  </data>
+  <data name="About.Supporters">
+    <value>Поддержавшие</value>
+  </data>
+  <data name="About.Title">
+    <value>О программе OscarWatch</value>
+  </data>
+  <data name="About.TleSource">
+    <value>Каталог TLE: tle.oscarwatch.org</value>
+  </data>
+  <data name="App.Title">
+    <value>OscarWatch</value>
+  </data>
+  <data name="Common.Add">
+    <value>Добавить</value>
+  </data>
+  <data name="Common.Browse">
+    <value>Обзор…</value>
+  </data>
+  <data name="Common.Cancel">
+    <value>Отмена</value>
+  </data>
+  <data name="Common.Back">
+    <value>Назад</value>
+  </data>
+  <data name="Common.Next">
+    <value>Далее</value>
+  </data>
+  <data name="Common.Close">
+    <value>Закрыть</value>
+  </data>
+  <data name="Common.Copy">
+    <value>Копировать</value>
+  </data>
+  <data name="Common.Delete">
+    <value>Удалить</value>
+  </data>
+  <data name="Common.Now">
+    <value>Сейчас</value>
+  </data>
+  <data name="Common.Ok">
+    <value>ОК</value>
+  </data>
+  <data name="Common.Refresh">
+    <value>Обновить</value>
+  </data>
+  <data name="Common.Save">
+    <value>Сохранить</value>
+  </data>
+  <data name="Common.Show">
+    <value>Показать</value>
+  </data>
+  <data name="Main.Alt">
+    <value>  ·  Выс. </value>
+  </data>
+  <data name="Main.Az">
+    <value>Az </value>
+  </data>
+  <data name="Main.Eclipse">
+    <value>Затмение</value>
+  </data>
+  <data name="Main.El">
+    <value>  ·  El </value>
+  </data>
+  <data name="Main.Elevation.BelowHorizon">
+    <value>за горизонтом</value>
+  </data>
+  <data name="Main.Live">
+    <value>Онлайн</value>
+  </data>
+  <data name="Main.MapTimeStatus.Live">
+    <value>Онлайн</value>
+  </data>
+  <data name="Main.Gps.Status">
+    <value>GPS</value>
+  </data>
+  <data name="Main.Gps.StatusWithGrid">
+    <value>GPS ({0})</value>
+  </data>
+  <data name="Main.Gps.Time">
+    <value>Время GPS</value>
+  </data>
+  <data name="Main.Gps.Tooltip.Fix">
+    <value>Есть GPS-фикс</value>
+  </data>
+  <data name="Main.Gps.Tooltip.NoFix">
+    <value>GPS включён, нет фикса</value>
+  </data>
+  <data name="Main.Gps.TimeTooltip.Active">
+    <value>Сопровождение спутников идёт по UTC с GPS</value>
+  </data>
+  <data name="Main.Gps.TimeTooltip.Inactive">
+    <value>Время GPS включено, ждём фикс</value>
+  </data>
+  <data name="Main.SatelliteLink.Waiting">
+    <value>Sat Link • Ожидание</value>
+  </data>
+  <data name="Main.SatelliteLink.Clients">
+    <value>Sat Link • {0} клиент(ов)</value>
+  </data>
+  <data name="Main.SatelliteLink.Error">
+    <value>Sat Link • Ошибка</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Waiting">
+    <value>WebSocket спутникового канала слушает порт {0} ({1}). Ожидание клиентов.</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Clients">
+    <value>WebSocket спутникового канала на порту {0} ({1}). Подключено клиентов: {2}.</value>
+  </data>
+  <data name="Main.SatelliteLink.Tooltip.Error">
+    <value>Сбой спутникового канала: {0}</value>
+  </data>
+  <data name="Main.SatelliteLink.Bind.Local">
+    <value>только этот ПК</value>
+  </data>
+  <data name="Main.SatelliteLink.Bind.Lan">
+    <value>локальная сеть</value>
+  </data>
+  <data name="Main.Pass.AosIn">
+    <value>{0} AOS через {1}</value>
+  </data>
+  <data name="Main.Pass.LosIn">
+    <value>{0} LOS через {1}</value>
+  </data>
+  <data name="Main.Pass.InProgress">
+    <value>{0}: идёт пролёт</value>
+  </data>
+  <data name="Main.Pass.None">
+    <value>Нет ближайших пролётов</value>
+  </data>
+  <data name="Main.Passes">
+    <value>Ближайшие пролёты</value>
+  </data>
+  <data name="Main.Timeline.Close">
+    <value>Скрыть шкалу угла места пролётов</value>
+  </data>
+  <data name="Main.Timeline.Detach">
+    <value>Вынести шкалу угла места пролётов в отдельное окно</value>
+  </data>
+  <data name="Main.Timeline.ResizeGrip">
+    <value>Потяните, чтобы изменить размер шкалы угла места</value>
+  </data>
+  <data name="Main.Timeline.Description">
+    <value>Ближайшие пролёты по углу места. Щелчок по пролёту фокусирует спутник на карте. Колёсико мыши масштабирует окно времени (от 30 минут до 6 часов). Следует за временем карты при прокрутке вперёд или назад.</value>
+  </data>
+  <data name="Main.Timeline.Elevation45">
+    <value>45°</value>
+  </data>
+  <data name="Main.Timeline.PassTooltip">
+    <value>{0}
+AOS: {1}
+LOS: {2}
+Макс. угол места: {3}
+Длительность: {4}</value>
+  </data>
+  <data name="Main.Timeline.TimeAxisUtc">
+    <value>UTC</value>
+  </data>
+  <data name="Main.Timeline.WindowMinutes">
+    <value>{0} мин</value>
+  </data>
+  <data name="Main.Timeline.WindowHours">
+    <value>{0} ч</value>
+  </data>
+  <data name="Main.HamsAtRoves">
+    <value>Ближайшие выезды</value>
+  </data>
+  <data name="Main.HamsAtRoves.Empty">
+    <value>Нет рабочих выездов для вашей точки на hams.at.</value>
+  </data>
+  <data name="Main.HamsAtRoves.LoadFailed">
+    <value>Не удалось загрузить выезды с hams.at.</value>
+  </data>
+  <data name="Main.HamsAtRoves.Unavailable">
+    <value>hams.at временно недоступен. Выезды обновятся сами.</value>
+  </data>
+  <data name="Main.HamsAtRoves.InvalidApiKey">
+    <value>Неверный API-ключ hams.at. Проверьте его в настройках.</value>
+  </data>
+  <data name="Main.HamsAtRoves.RateLimited">
+    <value>hams.at ограничил частоту запросов. Попробуйте позже.</value>
+  </data>
+  <data name="Main.HamsAtRoves.Timeout">
+    <value>hams.at не ответил вовремя. Попробуйте позже.</value>
+  </data>
+  <data name="Main.HamsAtRoves.Network">
+    <value>Не удалось связаться с hams.at. Проверьте интернет.</value>
+  </data>
+  <data name="Main.HamsAtRoves.UnexpectedResponse">
+    <value>hams.at вернул неожиданный ответ. Попробуйте позже.</value>
+  </data>
+  <data name="Main.HamsAtRoves.ResizeGrip">
+    <value>Потяните, чтобы изменить размер списка выездов</value>
+  </data>
+  <data name="Pass.Rec">
+    <value>REC</value>
+  </data>
+  <data name="Pass.Passing">
+    <value>В пролёте</value>
+  </data>
+  <data name="Pass.OpenVisualizer">
+    <value>График пролёта</value>
+  </data>
+  <data name="Pass.Schedule.Add">
+    <value>Запланировать пролёт</value>
+  </data>
+  <data name="Pass.Schedule.Remove">
+    <value>Убрать из расписания</value>
+  </data>
+  <data name="Pass.Schedule.AddShort">
+    <value>В расписание</value>
+  </data>
+  <data name="Pass.Schedule.RemoveShort">
+    <value>В расписании</value>
+  </data>
+  <data name="Pass.Schedule.AddTooltip">
+    <value>Запланировать сигнал и оповещение перед AOS</value>
+  </data>
+  <data name="Pass.Schedule.RemoveTooltip">
+    <value>Убрать этот пролёт из расписания</value>
+  </data>
+  <data name="Pass.HamsAt.PostActivation">
+    <value>Опубликовать активацию на hams.at</value>
+  </data>
+  <data name="Pass.HamsAt.EnterApiKey">
+    <value>Сначала введите API-ключ hams.at в настройках.</value>
+  </data>
+  <data name="Pass.HamsAt.InvalidNorad">
+    <value>У этого пролёта нет действительного номера NORAD.</value>
+  </data>
+  <data name="Pass.HamsAt.Posted">
+    <value>Активация опубликована на hams.at.</value>
+  </data>
+  <data name="Pass.HamsAt.Failed">
+    <value>Не удалось опубликовать активацию на hams.at: {0}</value>
+  </data>
+  <data name="Pass.HamsAt.OpenAfterPost">
+    <value>Открыть оповещение на hams.at после публикации</value>
+  </data>
+  <data name="Pass.Schedule.AlertTitle">
+    <value>Запланированный пролёт</value>
+  </data>
+  <data name="Pass.Schedule.AlertBadge">
+    <value>Напоминание</value>
+  </data>
+  <data name="Pass.Schedule.AlertCountdown">
+    <value>AOS через {0}</value>
+  </data>
+  <data name="Pass.Schedule.AlertAosAt">
+    <value>в {0}</value>
+  </data>
+  <data name="Pass.Schedule.AlertMessage">
+    <value>{0} AOS через {1} (в {2})</value>
+  </data>
+  <data name="Pass.Visualizer.Heading">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="Pass.Visualizer.Subtitle">
+    <value>Длительность {0} · {1} ({2})</value>
+  </data>
+  <data name="Pass.Visualizer.Smart450.Extended">
+    <value>Smart450 на этом пролёте использует расширенный диапазон (361–450°).</value>
+  </data>
+  <data name="Pass.Visualizer.Smart450.Primary">
+    <value>Smart450 на этом пролёте остаётся в основном диапазоне (0–360°).</value>
+  </data>
+  <data name="Pass.TimeRange">
+    <value>{0} – {1}</value>
+  </data>
+  <data name="Pass.Details">
+    <value>Длительность: {0} | Макс. угол места: {1}</value>
+  </data>
+  <data name="Pass.Duration">
+    <value>Длительность: {0}</value>
+  </data>
+  <data name="Pass.MaxElevation">
+    <value>Макс. угол места: {0}</value>
+  </data>
+  <data name="Pass.DurationMinutes">
+    <value>{0} мин</value>
+  </data>
+  <data name="Pass.DurationOneMinute">
+    <value>1 мин</value>
+  </data>
+  <data name="ComPort.DualRadioSamePort">
+    <value>Даунлинк и аплинк оба используют {0}. Назначьте каждой радиостанции свой COM-порт.</value>
+  </data>
+  <data name="ComPort.RotatorAzElSamePort">
+    <value>Азимут и угол места ротатора оба используют {0}. Назначьте каждой оси свой COM-порт.</value>
+  </data>
+  <data name="ComPort.RotatorAndDownlink">
+    <value>Ротатор и даунлинк оба используют {0}. Назначьте разные COM-порты или отключите одно устройство.</value>
+  </data>
+  <data name="ComPort.RotatorAndUplink">
+    <value>Ротатор и аплинк оба используют {0}. Назначьте разные COM-порты или отключите одно устройство.</value>
+  </data>
+  <data name="ComPort.RotatorAndRadio">
+    <value>Ротатор и радиостанция оба используют {0}. Назначьте разные COM-порты или отключите одно устройство.</value>
+  </data>
+  <data name="ComPort.GpsAndRotator">
+    <value>GPS и ротатор оба используют {0}. Назначьте разные COM-порты или отключите одно устройство.</value>
+  </data>
+  <data name="ComPort.GpsAndRadio">
+    <value>GPS и радиостанция оба используют {0}. Назначьте разные COM-порты или отключите одно устройство.</value>
+  </data>
+  <data name="ComPort.GpsAndDownlink">
+    <value>GPS и даунлинк оба используют {0}. Назначьте разные COM-порты или отключите одно устройство.</value>
+  </data>
+  <data name="ComPort.GpsAndUplink">
+    <value>GPS и аплинк оба используют {0}. Назначьте разные COM-порты или отключите одно устройство.</value>
+  </data>
+  <data name="A11y.SatelliteSunlight">
+    <value>Спутник на солнце</value>
+  </data>
+  <data name="A11y.SatelliteEclipse">
+    <value>Спутник в затмении</value>
+  </data>
+  <data name="Main.WorldMap">
+    <value>Карта мира</value>
+  </data>
+  <data name="A11y.Plot.NoSatellites">
+    <value>{0}. Спутники не выбраны.</value>
+  </data>
+  <data name="A11y.Plot.SelectWithArrows">
+    <value>{0}. Спутников: {1}. Стрелками выберите, Enter подтверждает.</value>
+  </data>
+  <data name="A11y.Plot.SatelliteCount">
+    <value>{0}. Спутников: {1}.</value>
+  </data>
+  <data name="A11y.Plot.FocusedWithLookAngles">
+    <value>{0}. В фокусе {1}. Азимут {2:F1} градуса, угол места {3:F1} градуса, высота {4:F0} километров.</value>
+  </data>
+  <data name="A11y.Plot.FocusedBelowHorizon">
+    <value>{0}. В фокусе {1}. Высота {2:F0} километров, за горизонтом.</value>
+  </data>
+  <data name="A11y.SkyPlot.TabHint">
+    <value>Небесный график. Нажмите Tab, затем стрелками меняйте выбранный спутник.</value>
+  </data>
+  <data name="A11y.SkyPlot.AllBelowHorizon">
+    <value>Все спутники за горизонтом</value>
+  </data>
+  <data name="Main.Radio">
+    <value>Рация</value>
+  </data>
+  <data name="Main.Radio.CatPause">
+    <value>Пауза CAT</value>
+  </data>
+  <data name="Main.Radio.CatPauseTip">
+    <value>Не слать обновления частоты на рацию, чтобы крутить настройку вручную.</value>
+  </data>
+  <data name="Main.Radio.CatResume">
+    <value>Возобновить CAT</value>
+  </data>
+  <data name="Main.Radio.Rx">
+    <value>RX </value>
+  </data>
+  <data name="Main.Radio.Tx">
+    <value>TX </value>
+  </data>
+  <data name="Main.Range">
+    <value>Дальн. </value>
+  </data>
+  <data name="Main.Rotator">
+    <value>Ротатор</value>
+  </data>
+  <data name="Main.Rotator.Az">
+    <value>Az</value>
+  </data>
+  <data name="Main.Rotator.El">
+    <value>El</value>
+  </data>
+  <data name="Main.Rotator.Park">
+    <value>Парковка ротатора</value>
+  </data>
+  <data name="Main.Rotator.Stop">
+    <value>Стоп ротатора</value>
+  </data>
+  <data name="Main.Rotator.Stop.ToolTip">
+    <value>Немедленно остановить ротатор (авария)</value>
+  </data>
+  <data name="Main.Rotator.Resume">
+    <value>Продолжить</value>
+  </data>
+  <data name="Main.Rotator.Parked">
+    <value>Припаркован</value>
+  </data>
+  <data name="Main.Satellite">
+    <value>Спутник</value>
+  </data>
+  <data name="Main.SkyPlot">
+    <value>Небесный график</value>
+  </data>
+  <data name="Main.SkyPlot.Hint">
+    <value>Щёлкните спутник, чтобы выбрать его, или используйте стрелки, когда график в фокусе. Линия показывает трассу пролёта; перекрестье отмечает наведение ротатора, если он подключён.</value>
+  </data>
+  <data name="Main.Standby.Hint">
+    <value>Только просмотр: ротатор припаркован, CAT на паузе</value>
+  </data>
+  <data name="Main.Standby.Pause">
+    <value>Ожидание</value>
+  </data>
+  <data name="Main.Standby.Resume">
+    <value>Продолжить</value>
+  </data>
+  <data name="Main.Sunlight">
+    <value>Солнце</value>
+  </data>
+  <data name="MapTime.Back15">
+    <value>−15м</value>
+  </data>
+  <data name="MapTime.Back5">
+    <value>−5м</value>
+  </data>
+  <data name="MapTime.Forward15">
+    <value>+15м</value>
+  </data>
+  <data name="MapTime.Forward5">
+    <value>+5м</value>
+  </data>
+  <data name="MapTime.FromNow">
+    <value>{0} от текущего момента</value>
+  </data>
+  <data name="MapTime.Live">
+    <value>Онлайн</value>
+  </data>
+  <data name="MapTime.Tip.Back15">
+    <value>Показать карту на 15 минут раньше</value>
+  </data>
+  <data name="MapTime.Tip.Back5">
+    <value>Показать карту на 5 минут раньше</value>
+  </data>
+  <data name="MapTime.Tip.Forward15">
+    <value>Показать карту на 15 минут позже</value>
+  </data>
+  <data name="MapTime.Tip.Forward5">
+    <value>Показать карту на 5 минут позже</value>
+  </data>
+  <data name="MapTime.Tip.Now">
+    <value>Вернуть карту к текущему времени</value>
+  </data>
+  <data name="Menu.File">
+    <value>_Файл</value>
+  </data>
+  <data name="Menu.File.Close">
+    <value>_Закрыть</value>
+  </data>
+  <data name="Menu.File.Export">
+    <value>_Экспорт</value>
+  </data>
+  <data name="Menu.File.Import">
+    <value>_Импорт</value>
+  </data>
+  <data name="Menu.File.Export.Settings">
+    <value>Настройки</value>
+  </data>
+  <data name="Menu.File.Import.Settings">
+    <value>Настройки</value>
+  </data>
+  <data name="Menu.File.Export.TransponderDatabase">
+    <value>База транспондеров</value>
+  </data>
+  <data name="Menu.File.Import.TransponderDatabase">
+    <value>База транспондеров</value>
+  </data>
+  <data name="File.Export.Settings.Title">
+    <value>Экспорт настроек</value>
+  </data>
+  <data name="File.Import.Settings.Title">
+    <value>Импорт настроек</value>
+  </data>
+  <data name="File.Import.Settings.ConfirmTitle">
+    <value>Заменить настройки?</value>
+  </data>
+  <data name="File.Import.Settings.ConfirmMessage">
+    <value>Импорт заменит все текущие настройки выбранным файлом. COM-порты, аудиоустройства и другие параметры этого ПК, возможно, придётся поправить. API-ключи из файла восстанавливаются как сохранены.
+
+Продолжить?</value>
+  </data>
+  <data name="File.Export.Settings.Success">
+    <value>Настройки экспортированы.</value>
+  </data>
+  <data name="File.Import.Settings.Success">
+    <value>Настройки импортированы.</value>
+  </data>
+  <data name="File.Export.TransponderDatabase.Title">
+    <value>Экспорт базы транспондеров</value>
+  </data>
+  <data name="File.Import.TransponderDatabase.Title">
+    <value>Импорт базы транспондеров</value>
+  </data>
+  <data name="File.Export.Failed">
+    <value>Сбой экспорта: {0}</value>
+  </data>
+  <data name="File.Import.Failed">
+    <value>Сбой импорта: {0}</value>
+  </data>
+  <data name="File.Import.Settings.Invalid">
+    <value>Неверный файл настроек: {0}</value>
+  </data>
+  <data name="Menu.Help">
+    <value>_Справка</value>
+  </data>
+  <data name="Menu.Help.About">
+    <value>_О программе OscarWatch</value>
+  </data>
+  <data name="Menu.Help.Logs">
+    <value>Открыть папку _журналов</value>
+  </data>
+  <data name="Menu.Help.CopyDiagnostics">
+    <value>Копировать _диагностику</value>
+  </data>
+  <data name="Menu.Help.OperatorGuide">
+    <value>_Руководство оператора</value>
+  </data>
+  <data name="Menu.Help.CheckForUpdates">
+    <value>Проверить _обновления</value>
+  </data>
+  <data name="Menu.Help.ReleaseNotes">
+    <value>_Заметки о выпуске</value>
+  </data>
+  <data name="Menu.Help.Recordings">
+    <value>Открыть папку _записей</value>
+  </data>
+  <data name="Menu.Passes">
+    <value>_Пролёты</value>
+  </data>
+  <data name="Menu.Passes.Mutual">
+    <value>Планировщик _взаимных пролётов</value>
+  </data>
+  <data name="Menu.Passes.Planner">
+    <value>_Планировщик пролётов</value>
+  </data>
+  <data name="Menu.Passes.Sunlight">
+    <value>Прогноз _освещённости</value>
+  </data>
+  <data name="Menu.Passes.DopplerInsights">
+    <value>Анализ доплера пролёта</value>
+  </data>
+  <data name="Menu.Rotator">
+    <value>_Ротатор</value>
+  </data>
+  <data name="Menu.Tools">
+    <value>_Инструменты</value>
+  </data>
+  <data name="Menu.Tools.QsoLogbook">
+    <value>_Журнал OscarWatch</value>
+  </data>
+  <data name="Menu.Satellites">
+    <value>_Спутники</value>
+  </data>
+  <data name="Menu.Satellites.ManageDatabase">
+    <value>_База транспондеров</value>
+  </data>
+  <data name="Menu.Satellites.RefreshTles">
+    <value>Обновить _TLE</value>
+  </data>
+  <data name="Menu.Satellites.Select">
+    <value>_Выбрать спутники</value>
+  </data>
+  <data name="Menu.Satellites.UpdateDatabase">
+    <value>Обновить _базу транспондеров…</value>
+  </data>
+  <data name="Menu.Settings">
+    <value>_Настройки</value>
+  </data>
+  <data name="Menu.Window">
+    <value>_Окно</value>
+  </data>
+  <data name="Menu.Window.PassElevationTimeline">
+    <value>Шкала _угла места пролётов</value>
+  </data>
+  <data name="Window.PassElevationTimeline.Title">
+    <value>Шкала угла места пролётов</value>
+  </data>
+  <data name="Picker.SelectAll">
+    <value>Выбрать все</value>
+  </data>
+  <data name="Picker.SelectNone">
+    <value>Снять все</value>
+  </data>
+  <data name="Picker.StaleTle">
+    <value>Устаревший TLE</value>
+  </data>
+  <data name="Picker.Title">
+    <value>Выбор спутников</value>
+  </data>
+  <data name="Settings.FootprintArrows">
+    <value>Показывать стрелки движения зоны покрытия</value>
+  </data>
+  <data name="Settings.FootprintArrows.Note">
+    <value>Стрелка внутри зоны покрытия показывает направление трассы.</value>
+  </data>
+  <data name="Settings.GreylineOverlay">
+    <value>Показывать серую линию день/ночь на карте</value>
+  </data>
+  <data name="Settings.GreylineOverlay.Note">
+    <value>Ночная тень и терминатор; следует за временем карты при прокрутке.</value>
+  </data>
+  <data name="Settings.MultiTrackOverlay">
+    <value>Показывать трассу следующего витка</value>
+  </data>
+  <data name="Settings.MultiTrackOverlay.Note">
+    <value>Бледная трасса следующего витка за текущей траекторией спутника в фокусе.</value>
+  </data>
+  <data name="Settings.MapCentre">
+    <value>Долгота центра карты</value>
+  </data>
+  <data name="Settings.MapCentre.Note">
+    <value>Гринвич (0°), квадрат станции или своя долгота.</value>
+  </data>
+  <data name="Settings.MapCentre.Greenwich">
+    <value>Гринвич (0°)</value>
+  </data>
+  <data name="Settings.MapCentre.Station">
+    <value>Квадрат станции</value>
+  </data>
+  <data name="Settings.MapCentre.Custom">
+    <value>Своя долгота</value>
+  </data>
+  <data name="Settings.MapCentre.CustomLongitude">
+    <value>Своя долгота центра (°)</value>
+  </data>
+  <data name="Settings.Language">
+    <value>Язык</value>
+  </data>
+  <data name="Settings.Language.English">
+    <value>English (UK)</value>
+  </data>
+  <data name="Settings.Language.Japanese">
+    <value>日本語</value>
+  </data>
+  <data name="Settings.Language.PortugueseBrazil">
+    <value>Português (Brasil)</value>
+  </data>
+  <data name="Settings.Language.SimplifiedChinese">
+    <value>简体中文</value>
+  </data>
+  <data name="Settings.Language.Spanish">
+    <value>Español</value>
+  </data>
+  <data name="Settings.Language.Thai">
+    <value>ไทย</value>
+  </data>
+  <data name="Settings.Language.Indonesian">
+    <value>Bahasa Indonesia</value>
+  </data>
+  <data name="Settings.Language.Russian">
+    <value>Русский</value>
+  </data>
+  <data name="Settings.Language.German">
+    <value>Deutsch</value>
+  </data>
+  <data name="Settings.Language.RestartNote">
+    <value>Чтобы смена языка вступила в силу, нужно перезапустить OscarWatch.</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Title">
+    <value>Нужен перезапуск</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Message">
+    <value>OscarWatch нужно перезапустить, чтобы новый язык вступил в силу. Перезапустить сейчас?</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.RestartNow">
+    <value>Перезапустить</value>
+  </data>
+  <data name="Settings.Language.RestartPrompt.Later">
+    <value>Позже</value>
+  </data>
+  <data name="Settings.Appearance.Section.LocaleTime">
+    <value>Язык и время</value>
+  </data>
+  <data name="Settings.Appearance.Section.Map">
+    <value>Карта</value>
+  </data>
+  <data name="Settings.Appearance.Section.Theme">
+    <value>Тема</value>
+  </data>
+  <data name="Settings.Appearance.Section.Updates">
+    <value>Обновления</value>
+  </data>
+  <data name="Settings.Tab.Appearance">
+    <value>Оформление</value>
+  </data>
+  <data name="Settings.Tab.Cloudlog">
+    <value>Cloudlog</value>
+  </data>
+  <data name="Settings.Tab.Integrations">
+    <value>Интеграции</value>
+  </data>
+  <data name="Settings.Tab.Radio">
+    <value>Рация</value>
+  </data>
+  <data name="Settings.Tab.Recording">
+    <value>Запись</value>
+  </data>
+  <data name="Settings.Tab.Rotator">
+    <value>Ротатор</value>
+  </data>
+  <data name="Settings.Tab.Station">
+    <value>Станция</value>
+  </data>
+  <data name="Settings.Tab.Tle">
+    <value>TLE</value>
+  </data>
+  <data name="Settings.Tab.Tracking">
+    <value>Сопровождение</value>
+  </data>
+  <data name="Settings.Tab.Voice">
+    <value>Голос</value>
+  </data>
+  <data name="Settings.ClockFormat">
+    <value>Формат часов</value>
+  </data>
+  <data name="Settings.ClockFormat.12Hour">
+    <value>12-часовой (AM/PM)</value>
+  </data>
+  <data name="Settings.ClockFormat.24Hour">
+    <value>24-часовой</value>
+  </data>
+  <data name="Settings.ClockFormat.Note">
+    <value>Задаёт 12- или 24-часовой вид времени в программе.</value>
+  </data>
+  <data name="Settings.TimeDisplay">
+    <value>Время показывать как</value>
+  </data>
+  <data name="Settings.TimeDisplay.Note">
+    <value>Местное или UTC для главного окна. У планировщика пролётов и взаимных пролётов своё переключение.</value>
+  </data>
+  <data name="Settings.Theme">
+    <value>Тема</value>
+  </data>
+  <data name="Settings.Theme.Note">
+    <value>«Система» следует за ОС. Карта мира пока светлая во всех режимах.</value>
+  </data>
+  <data name="Settings.Title">
+    <value>Настройки</value>
+  </data>
+  <data name="Status.ComputingPasses">
+    <value>Расчёт пролётов…</value>
+  </data>
+  <data name="Status.HelpMissing">
+    <value>Файлы справки не найдены: переустановите или запускайте из опубликованной сборки</value>
+  </data>
+  <data name="Status.LoadingSettings">
+    <value>Запуск…</value>
+  </data>
+  <data name="Status.LoadingSettingsFull">
+    <value>Загрузка настроек…</value>
+  </data>
+  <data name="Status.LoadingTle">
+    <value>Загрузка каталога TLE…</value>
+  </data>
+  <data name="Status.DiagnosticsCopied">
+    <value>Диагностика скопирована в буфер.</value>
+  </data>
+  <data name="Status.DiagnosticsCopyFailed">
+    <value>Не удалось скопировать диагностику.</value>
+  </data>
+  <data name="Status.LogsFolderFailed">
+    <value>Не удалось открыть папку журналов</value>
+  </data>
+  <data name="Status.NoSatellites">
+    <value>{0} | 0 включено: меню «Спутники» → включите спутники</value>
+  </data>
+  <data name="Status.NoTle">
+    <value>Нет данных TLE: проверьте Настройки → TLE или Спутники → Обновить TLE</value>
+  </data>
+  <data name="Status.RecordingsFolderFailed">
+    <value>Не удалось открыть папку записей</value>
+  </data>
+  <data name="Status.RefreshingTle">
+    <value>Обновление TLE…</value>
+  </data>
+  <data name="Status.SatellitesEnabled">
+    <value>{0} | включено спутников: {1}</value>
+  </data>
+  <data name="Status.TleAge">
+    <value>TLE {0} назад ({1})</value>
+  </data>
+  <data name="Status.TleCached">
+    <value>TLE из кэша ({0})</value>
+  </data>
+  <data name="Status.TleNotLoaded">
+    <value>TLE не загружен</value>
+  </data>
+  <data name="Status.TleRefreshFailed">
+    <value>Сбой обновления TLE: {0}</value>
+  </data>
+  <data name="Status.TleReloadFailed">
+    <value>Сбой перезагрузки TLE: {0}</value>
+  </data>
+  <data name="Status.TransponderChecking">
+    <value>Проверка базы транспондеров…</value>
+  </data>
+  <data name="Status.TransponderUpToDate">
+    <value>База транспондеров актуальна.</value>
+  </data>
+  <data name="Status.AppUpdateChecking">
+    <value>Проверка обновлений программы…</value>
+  </data>
+  <data name="Status.AppUpdateUpToDate">
+    <value>OscarWatch актуален ({0}).</value>
+  </data>
+  <data name="Status.AppUpdateFailed">
+    <value>Не удалось проверить обновления: {0}</value>
+  </data>
+  <data name="Status.TransponderUpdated">
+    <value>База транспондеров обновлена.</value>
+  </data>
+  <data name="Status.TleNotLoadedShort">
+    <value>TLE не загружен</value>
+  </data>
+  <data name="Status.LineNoSatellites">
+    <value>{0} | 0 включено: меню «Спутники» → включите спутники</value>
+  </data>
+  <data name="Status.CloudlogError">
+    <value>Cloudlog: {0}</value>
+  </data>
+  <data name="Status.TransponderUpdateFailed">
+    <value>Сбой обновления транспондеров: {0}</value>
+  </data>
+  <data name="Rig.Connected">
+    <value>Подключено</value>
+  </data>
+  <data name="Rig.Disconnected">
+    <value>Отключено</value>
+  </data>
+  <data name="Rig.CatPaused">
+    <value>CAT на паузе (ручная настройка)</value>
+  </data>
+  <data name="Rig.Tracking">
+    <value>Сопровождение</value>
+  </data>
+  <data name="Rig.FlexControlFailed">
+    <value>Не удалось настроить спутниковый режим FlexRadio</value>
+  </data>
+  <data name="Rig.FlexControlFailedDetail">
+    <value>Не удалось настроить спутниковый режим FlexRadio: {0}</value>
+  </data>
+  <data name="Rig.Ts2000SatlUnconfirmed">
+    <value>Сопровождение (SATL на TS-2000 не подтверждён; используются FA/FB)</value>
+  </data>
+  <data name="Rig.Ts2000SatlWarningTitle">
+    <value>Спутниковый режим TS-2000 не подтверждён</value>
+  </data>
+  <data name="Rig.Ts2000SatlWarningMessage">
+    <value>Рация не подтвердила SATL по CAT (SA;). OscarWatch продолжит доплеровскую коррекцию через FA/FB, но для полной работы нажмите SAT на рации, выключите режим памяти и закройте меню на панели, затем снова выберите спутник, чтобы повторить SATL. Подсказку CAT для TS-2000 см. в Настройки → Рация.</value>
+  </data>
+  <data name="Rig.NoComPort">
+    <value>COM-порт не выбран</value>
+  </data>
+  <data name="Rig.SelectDualComPorts">
+    <value>Выберите COM-порты для даунлинка и аплинка</value>
+  </data>
+  <data name="Rig.NotConnected">
+    <value>Рация не подключена</value>
+  </data>
+  <data name="Rig.NotConnectedPort">
+    <value>Рация не подключена ({0})</value>
+  </data>
+  <data name="Rig.DualNotConnected">
+    <value>Двойная рация не подключена</value>
+  </data>
+  <data name="Rig.DualNotConnectedDetail">
+    <value>Двойная рация не подключена: {0}</value>
+  </data>
+  <data name="Rig.NotConnectedDetail">
+    <value>Рация не подключена: {0}</value>
+  </data>
+  <data name="Rig.NotConnectedPortDetail">
+    <value>Рация не подключена ({0}): {1}</value>
+  </data>
+  <data name="Rig.SerialPortNotFound">
+    <value>Последовательный порт не найден ({0}). Проверьте USB-кабель и обновите список портов.</value>
+  </data>
+  <data name="Rig.SerialPortBusy">
+    <value>Последовательный порт занят ({0}). Закройте другие CAT-программы или выберите другой порт.</value>
+  </data>
+  <data name="Rig.DualEndpointSerialPortNotFound">
+    <value>Последовательный порт {0} не найден ({1}). Проверьте USB-кабель и обновите список портов.</value>
+  </data>
+  <data name="Rig.DualEndpointSerialPortBusy">
+    <value>Последовательный порт {0} занят ({1}). Закройте другие CAT-программы или выберите другой порт.</value>
+  </data>
+  <data name="Rig.DualRadioSamePort">
+    <value>Даунлинк и аплинк используют один последовательный порт. Назначьте каждой рации свой порт.</value>
+  </data>
+  <data name="App.AlreadyRunningTitle">
+    <value>OscarWatch уже запущен</value>
+  </data>
+  <data name="App.AlreadyRunningMessage">
+    <value>OscarWatch уже запущен, но окно не удалось активировать. Если окна нет, завершите OscarWatch.exe в диспетчере задач и попробуйте снова.</value>
+  </data>
+  <data name="Window.PassPlanner.Title">
+    <value>Планировщик пролётов</value>
+  </data>
+  <data name="Window.Logbook.Title">
+    <value>Журнал OscarWatch</value>
+  </data>
+  <data name="Window.CreateLogbook.Title">
+    <value>Новый журнал</value>
+  </data>
+  <data name="Window.EditLogbook.Title">
+    <value>Правка журнала</value>
+  </data>
+  <data name="Logbook.CreateLogbook.Intro">
+    <value>Создайте отдельный журнал для полевых активаций, контестов и других сессий.</value>
+  </data>
+  <data name="Logbook.EditLogbook.Intro">
+    <value>Измените имя, позывной и квадрат этого журнала. Существующие QSO не меняются.</value>
+  </data>
+  <data name="Logbook.EditLogbook">
+    <value>Правка журнала</value>
+  </data>
+  <data name="Logbook.DeleteLogbook.ConfirmTitle">
+    <value>Удалить журнал</value>
+  </data>
+  <data name="Logbook.DeleteLogbook.ConfirmMessage">
+    <value>Удалить «{0}» и все QSO в нём? Это нельзя отменить.</value>
+  </data>
+  <data name="Logbook.DeleteQso.ConfirmTitle">
+    <value>Удалить QSO</value>
+  </data>
+  <data name="Logbook.DeleteQso.ConfirmMessage">
+    <value>Удалить QSO с {0} за {1}? Это нельзя отменить.</value>
+  </data>
+  <data name="Logbook.LogbookLabel">
+    <value>Журнал</value>
+  </data>
+  <data name="Logbook.Menu.Logbook">
+    <value>Журнал</value>
+  </data>
+  <data name="Logbook.Menu.DeleteLogbook">
+    <value>Удалить журнал</value>
+  </data>
+  <data name="Logbook.Menu.NoLogbook">
+    <value>Журнал не выбран</value>
+  </data>
+  <data name="Logbook.Menu.Edit">
+    <value>Правка</value>
+  </data>
+  <data name="Logbook.Menu.Export">
+    <value>Экспорт</value>
+  </data>
+  <data name="Logbook.Menu.Settings">
+    <value>Настройки</value>
+  </data>
+  <data name="Window.LogbookSettings.Title">
+    <value>Настройки журнала</value>
+  </data>
+  <data name="Logbook.Settings.Saved">
+    <value>Настройки журнала сохранены.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.Intro">
+    <value>Автоматически отправлять новые QSO в Cloudlog при записи. URL и API-ключ Cloudlog берутся из Настройки → Интеграции.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlLabel">
+    <value>URL Cloudlog</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.UrlNote">
+    <value>URL и API-ключ задаются в настройках программы: Настройки → Интеграции.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NotConfigured">
+    <value>Не настроено: откройте Настройки → Интеграции</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.AutoUpload">
+    <value>Включить автоматическую отправку QSO</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfile">
+    <value>Место станции</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationProfileNote">
+    <value>Профиль станции Cloudlog при отправке QSO. Неудачные отправки повторяются автоматически.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RefreshProfiles">
+    <value>Обновить</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryFailed">
+    <value>Повторить неудачные отправки</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.RetryStarted">
+    <value>Повтор неудачных отправок…</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ProfilesLoaded">
+    <value>Загружено мест станции: {0}.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.NoProfiles">
+    <value>Cloudlog не вернул места станций.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.LoadProfilesFailed">
+    <value>Не удалось загрузить места станций из Cloudlog.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.ConfigureIntegrationsFirst">
+    <value>Сначала настройте Cloudlog в Настройки → Интеграции, затем включайте отправку.</value>
+  </data>
+  <data name="Logbook.Settings.Cloudlog.StationRequired">
+    <value>Выберите место станции для отправки в Cloudlog.</value>
+  </data>
+  <data name="Logbook.Menu.SettingsComingSoon">
+    <value>Настройки журнала</value>
+  </data>
+  <data name="Logbook.NewLogbook">
+    <value>Новый журнал</value>
+  </data>
+  <data name="Logbook.NewName">
+    <value>Имя</value>
+  </data>
+  <data name="Logbook.NewNameWatermark">
+    <value>Полевая активация, контест и т. п.</value>
+  </data>
+  <data name="Logbook.MyCallsign">
+    <value>Мой позывной</value>
+  </data>
+  <data name="Logbook.MyGrid">
+    <value>Мой квадрат</value>
+  </data>
+  <data name="Logbook.Call">
+    <value>Позывной</value>
+  </data>
+  <data name="Logbook.RstSent">
+    <value>Отпр.</value>
+  </data>
+  <data name="Logbook.RstRcvd">
+    <value>Прин.</value>
+  </data>
+  <data name="Logbook.Grid">
+    <value>Квадрат</value>
+  </data>
+  <data name="Logbook.GridHint">
+    <value>2/4/6/8 символов; через запятую на границе квадратов (напр. IO77,IO87).</value>
+  </data>
+  <data name="Logbook.Name">
+    <value>Имя</value>
+  </data>
+  <data name="Logbook.Comment">
+    <value>Комментарий</value>
+  </data>
+  <data name="Logbook.ClearFieldsHint">
+    <value>Alt+W очищает поля ввода</value>
+  </data>
+  <data name="Logbook.AddQso">
+    <value>Добавить</value>
+  </data>
+  <data name="Logbook.SaveQso">
+    <value>Сохранить</value>
+  </data>
+  <data name="Logbook.EditQso">
+    <value>Правка QSO</value>
+  </data>
+  <data name="Logbook.CancelEdit">
+    <value>Отмена</value>
+  </data>
+  <data name="Logbook.EditingStatus">
+    <value>Правка QSO, записанного в {0} UTC.</value>
+  </data>
+  <data name="Logbook.DeleteQso">
+    <value>Удалить QSO</value>
+  </data>
+  <data name="Logbook.History">
+    <value>Недавние QSO</value>
+  </data>
+  <data name="Logbook.StationControl">
+    <value>Параметры станции</value>
+  </data>
+  <data name="Logbook.Station.Satellite">
+    <value>Спутник</value>
+  </data>
+  <data name="Logbook.Station.Mode">
+    <value>Режим</value>
+  </data>
+  <data name="Logbook.Station.Frequencies">
+    <value>Аплинк / даунлинк (МГц)</value>
+  </data>
+  <data name="Logbook.Station.Note">
+    <value>Значения берутся из сопровождения OscarWatch при добавлении QSO.</value>
+  </data>
+  <data name="Logbook.Station.Tracking">
+    <value>Сопровождение {0}</value>
+  </data>
+  <data name="Logbook.Station.Unavailable">
+    <value>Спутник не выбран или режим не синхронизирован</value>
+  </data>
+  <data name="Logbook.ExportAdif">
+    <value>Экспорт ADIF</value>
+  </data>
+  <data name="Logbook.ExportPicker.Title">
+    <value>Экспорт ADIF</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Title">
+    <value>Экспорт ADIF</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Intro">
+    <value>Выберите, какие QSO включить и нужно ли переименовать спутники для Logbook of the World.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Scope.All">
+    <value>Все QSO журнала</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Scope.DateRange">
+    <value>QSO в диапазоне дат UTC</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.FromUtc">
+    <value>С (UTC)</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.ToUtc">
+    <value>По (UTC)</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountOne">
+    <value>Будет экспортировано 1 QSO.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountMany">
+    <value>Будет экспортировано QSO: {0}.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountNone">
+    <value>Нет QSO в этом диапазоне экспорта.</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.ForLotw">
+    <value>Переименовать спутники для LoTW</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Export">
+    <value>Экспорт</value>
+  </data>
+  <data name="Logbook.DefaultName">
+    <value>Основной журнал</value>
+  </data>
+  <data name="Logbook.Status.Ready">
+    <value>Готово</value>
+  </data>
+  <data name="Logbook.Status.Created">
+    <value>Создан журнал «{0}».</value>
+  </data>
+  <data name="Logbook.Status.LogbookUpdated">
+    <value>Обновлён журнал «{0}».</value>
+  </data>
+  <data name="Logbook.Status.Deleted">
+    <value>Удалён журнал «{0}».</value>
+  </data>
+  <data name="Logbook.Status.StationUnavailable">
+    <value>Дождитесь, пока сопровождение покажет спутник и режим, затем добавляйте QSO.</value>
+  </data>
+  <data name="Logbook.Status.Added">
+    <value>Записан {0} в {1} UTC.</value>
+  </data>
+  <data name="Logbook.Status.Updated">
+    <value>Обновлён {0} в {1} UTC.</value>
+  </data>
+  <data name="Logbook.Status.Removed">
+    <value>Удалён {0}.</value>
+  </data>
+  <data name="Logbook.Status.QsoCountOne">
+    <value>{0}: 1 QSO</value>
+  </data>
+  <data name="Logbook.Status.QsoCountMany">
+    <value>{0}: {1} QSO</value>
+  </data>
+  <data name="Logbook.Status.ExportedOne">
+    <value>Экспортировано 1 QSO в ADIF.</value>
+  </data>
+  <data name="Logbook.Status.ExportedMany">
+    <value>Экспортировано QSO в ADIF: {0}.</value>
+  </data>
+  <data name="Logbook.Status.ExportedOneRange">
+    <value>Экспортировано 1 QSO в ADIF ({0} UTC).</value>
+  </data>
+  <data name="Logbook.Status.ExportedManyRange">
+    <value>Экспортировано QSO в ADIF: {0} ({1} UTC).</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Pending">
+    <value>Ожидает</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Sent">
+    <value>Отправлено</value>
+  </data>
+  <data name="Logbook.CloudlogStatus.Failed">
+    <value>Сбой</value>
+  </data>
+  <data name="Logbook.Error.GridTooMany">
+    <value>Поддерживается не более {0} квадратов.</value>
+  </data>
+  <data name="Logbook.Error.GridInvalidSegment">
+    <value>Неверный локатор «{0}». Нужно 2, 4, 6 или 8 символов Maidenhead.</value>
+  </data>
+  <data name="Logbook.Error.NameRequired">
+    <value>Введите имя журнала.</value>
+  </data>
+  <data name="Logbook.CallHint.Previous">
+    <value>В этом журнале уже есть QSO.</value>
+  </data>
+  <data name="Logbook.CallHint.PreviousWithGrid">
+    <value>Предыдущее QSO: квадрат {0}.</value>
+  </data>
+  <data name="Logbook.CallStatus.Worked">
+    <value>Был</value>
+  </data>
+  <data name="Logbook.CallStatus.NotWorked">
+    <value>Не был</value>
+  </data>
+  <data name="Logbook.DxccStatus.Worked">
+    <value>Есть</value>
+  </data>
+  <data name="Logbook.DxccStatus.New">
+    <value>Новый</value>
+  </data>
+  <data name="Logbook.DxccBadge">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="Logbook.Menu.UpdateCountryFile">
+    <value>Обновить файл стран</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdating">
+    <value>Обновление файла стран…</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdated">
+    <value>Файл стран обновлён.</value>
+  </data>
+  <data name="Logbook.Status.CountryFileUpdateFailed">
+    <value>Не удалось обновить файл стран: {0}</value>
+  </data>
+  <data name="Logbook.Column.Country">
+    <value>Страна</value>
+  </data>
+  <data name="Logbook.Column.DateTime">
+    <value>Дата/время (UTC)</value>
+  </data>
+  <data name="Logbook.UtcClockLabel">
+    <value>Время QSO (UTC)</value>
+  </data>
+  <data name="Logbook.Column.Call">
+    <value>Поз.</value>
+  </data>
+  <data name="Logbook.Column.Grid">
+    <value>Кв.</value>
+  </data>
+  <data name="Logbook.Column.Satellite">
+    <value>SAT</value>
+  </data>
+  <data name="Logbook.Column.Mode">
+    <value>Режим</value>
+  </data>
+  <data name="Logbook.Column.RstSent">
+    <value>Отпр.</value>
+  </data>
+  <data name="Logbook.Column.RstRcvd">
+    <value>Прин.</value>
+  </data>
+  <data name="Logbook.Column.Cloudlog">
+    <value>Cloudlog</value>
+  </data>
+  <data name="Logbook.Column.Comment">
+    <value>Комментарий</value>
+  </data>
+  <data name="Window.MutualPass.Title">
+    <value>Поиск взаимных пролётов</value>
+  </data>
+  <data name="Window.MutualPassVisualizer.Title">
+    <value>Визуализатор взаимного пролёта</value>
+  </data>
+  <data name="Window.PassVisualizer.Title">
+    <value>Визуализатор пролёта</value>
+  </data>
+  <data name="Window.PassRadarGallery.Title">
+    <value>Галерея радаров пролётов</value>
+  </data>
+  <data name="PassRadar.Gallery.Heading">
+    <value>Радар пролётов {0}: {1}</value>
+  </data>
+  <data name="PassRadar.Gallery.Subtitle">
+    <value>Пролётов: {0} · ближайшие {1} ч · мин. угол {2:F0}° ({3})</value>
+  </data>
+  <data name="Window.DopplerInsights.Title">
+    <value>Анализ доплера пролёта</value>
+  </data>
+  <data name="Window.Sunlight.Title">
+    <value>Прогноз освещённости</value>
+  </data>
+  <data name="DopplerInsights.Header">
+    <value>Анализ доплера пролёта</value>
+  </data>
+  <data name="DopplerInsights.Subtitle">
+    <value>Загрузите журнал пролёта, чтобы получить понятные советы по адаптивному порогу и упреждающему Доплеру CAT.</value>
+  </data>
+  <data name="DopplerInsights.OpenCsv">
+    <value>Открыть CSV</value>
+  </data>
+  <data name="DopplerInsights.LoadLatest">
+    <value>Загрузить последний</value>
+  </data>
+  <data name="DopplerInsights.OpenFolder">
+    <value>Открыть папку журналов</value>
+  </data>
+  <data name="DopplerInsights.Picker.Title">
+    <value>Выберите CSV доплера пролёта</value>
+  </data>
+  <data name="DopplerInsights.Picker.CompareTitle">
+    <value>Выберите CSV пролёта для сравнения</value>
+  </data>
+  <data name="DopplerInsights.OpenCompareCsv">
+    <value>Открыть CSV сравнения</value>
+  </data>
+  <data name="DopplerInsights.ClearCompare">
+    <value>Сбросить сравнение</value>
+  </data>
+  <data name="DopplerInsights.Section.Summary">
+    <value>Сводка</value>
+  </data>
+  <data name="DopplerInsights.Section.Chart">
+    <value>График по времени (сплошная = основной, пунктир = сравнение)</value>
+  </data>
+  <data name="DopplerInsights.Chart.Legend">
+    <value>Синий = ошибка сопровождения даунлинка, оранжевый = ошибка аплинка, бирюзовая полоса = зона адаптивного порога, пунктир = базовый порог, фиолетовые риски = поправки CAT, серая полоса = угол места спутника, янтарная линия = TCA (максимальный угол места)</value>
+  </data>
+  <data name="DopplerInsights.Chart.Explain">
+    <value>Каждая цветная линия показывает, насколько частота рации ушла от расчётной доплеровской цели. Когда ошибка достигает порога, OscarWatch шлёт поправку CAT (фиолетовая риска), и ошибка падает. Более мелкие и ровные циклы означают лучшее сопровождение.</value>
+  </data>
+  <data name="DopplerInsights.Chart.YAxis">
+    <value>Ошибка сопровождения (Гц)</value>
+  </data>
+  <data name="DopplerInsights.Chart.ElevationLabel">
+    <value>El °</value>
+  </data>
+  <data name="DopplerInsights.Chart.TcaLabel">
+    <value>TCA</value>
+  </data>
+  <data name="DopplerInsights.Chart.Hint">
+    <value>Кнопки +/− масштабируют, горизонтальная прокрутка сдвигает график</value>
+  </data>
+  <data name="DopplerInsights.Section.Bars">
+    <value>Столбики активности (процент строк)</value>
+  </data>
+  <data name="DopplerInsights.Section.Analysis">
+    <value>Подробности анализа</value>
+  </data>
+  <data name="DopplerInsights.Tab.Activity">
+    <value>Столбики активности</value>
+  </data>
+  <data name="DopplerInsights.Tab.Overview">
+    <value>Обзор</value>
+  </data>
+  <data name="DopplerInsights.Tab.Events">
+    <value>Недавние события</value>
+  </data>
+  <data name="DopplerInsights.Tab.Chart">
+    <value>График</value>
+  </data>
+  <data name="DopplerInsights.Tab.Tuning">
+    <value>Настройка</value>
+  </data>
+  <data name="DopplerInsights.Tab.Files">
+    <value>Файлы</value>
+  </data>
+  <data name="DopplerInsights.Tab.Comparison">
+    <value>Сравнение</value>
+  </data>
+  <data name="DopplerInsights.Tab.Analysis">
+    <value>Анализ</value>
+  </data>
+  <data name="DopplerInsights.Section.Recommendations">
+    <value>Рекомендации</value>
+  </data>
+  <data name="DopplerInsights.Section.HowTo">
+    <value>Как этим настраивать рацию</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Intro">
+    <value>Сравните один пролёт до и после смены настроек.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step1">
+    <value>1) Если «Подавлено порогом» очень высоко, а записи RX/TX низкие, чуть снизьте порог Доплера.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step2">
+    <value>2) Если частота записей RX/TX очень высокая, поднимите порог или задержку CAT, чтобы меньше дребезга.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step3">
+    <value>3) Если пиковый slew высок и сопровождение отстаёт, включите или усильте упреждающий Доплер под задержку CAT.</value>
+  </data>
+  <data name="DopplerInsights.HowTo.Step4">
+    <value>4) В режиме сравнения цель: ниже дельты p95 при стабильной частоте записей и меньшем числе ручных правок.</value>
+  </data>
+  <data name="DopplerInsights.Section.Events">
+    <value>Недавние события</value>
+  </data>
+  <data name="DopplerInsights.Bar.RxWrites">
+    <value>Частота записей RX</value>
+  </data>
+  <data name="DopplerInsights.Bar.TxWrites">
+    <value>Частота записей TX</value>
+  </data>
+  <data name="DopplerInsights.Bar.BelowThreshold">
+    <value>Подавлено порогом</value>
+  </data>
+  <data name="DopplerInsights.Bar.Interactive">
+    <value>Ручные/интерактивные периоды</value>
+  </data>
+  <data name="DopplerInsights.Status.Ready">
+    <value>Выберите файл CSV или загрузите последний журнал пролёта.</value>
+  </data>
+  <data name="DopplerInsights.Status.Loading">
+    <value>Загрузка журнала доплера пролёта</value>
+  </data>
+  <data name="DopplerInsights.Status.Loaded">
+    <value>Загружено строк: {0}.</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadingCompare">
+    <value>Загрузка журнала пролёта для сравнения</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadedCompare">
+    <value>Сравнение загружено, строк: {0}.</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderOk">
+    <value>Папка журналов доплера открыта.</value>
+  </data>
+  <data name="DopplerInsights.Status.OpenFolderFailed">
+    <value>Не удалось открыть папку журналов доплера: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.LoadFailed">
+    <value>Не удалось загрузить журнал: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.FileMissing">
+    <value>Выбранный файл не найден.</value>
+  </data>
+  <data name="DopplerInsights.Status.NoLogsFolder">
+    <value>Папка журналов доплера пока не найдена: {0}</value>
+  </data>
+  <data name="DopplerInsights.Status.NoCsvLogs">
+    <value>В каталоге нет CSV доплера: {0}</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Empty">
+    <value>Данные пролёта не загружены.</value>
+  </data>
+  <data name="DopplerInsights.PassSummary.Value">
+    <value>Спутник: {0}. Окно пролёта: {1} – {2} UTC ({3} мин). Строк: {4} всего, снимков {5}, записей CAT {6}, смен смещения {7}.</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Empty">
+    <value>Метрики порога недоступны.</value>
+  </data>
+  <data name="DopplerInsights.Threshold.Value">
+    <value>Пороги: базовый {0} Гц, эффективный {1} Гц (адаптивное снижение {2}%). Подавленных строк: {3}%.</value>
+  </data>
+  <data name="DopplerInsights.Activity.Empty">
+    <value>Метрики записей недоступны.</value>
+  </data>
+  <data name="DopplerInsights.Activity.Value">
+    <value>Записи: RX {0}%, TX {1}%. Интерактивных строк: {2}%. Строк с паузой CAT: {3}. Строк с упреждением: {4}%.</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Empty">
+    <value>Метрики дельты частоты недоступны.</value>
+  </data>
+  <data name="DopplerInsights.Dynamics.Value">
+    <value>Дельты: RX средн. {0} Гц, RX p95 {1} Гц, TX средн. {2} Гц, TX p95 {3} Гц. Пиковый slew: {4} Гц/с.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Empty">
+    <value>Сравнение не загружено.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Value">
+    <value>Основной [{0}] записи RX/TX {1}%/{2}%, p95 RX/TX {3}/{4} Гц. Сравнение [{5}] записи RX/TX {6}%/{7}%, p95 RX/TX {8}/{9} Гц.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyTitle">
+    <value>Загрузите сравниваемый пролёт, чтобы увидеть, улучшили ли смены настроек сопровождение.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.EmptyText">
+    <value>Когда загрузите второй CSV (после смены порога Доплера, задержки CAT или упреждения), здесь будет видно, лучше пролёт или хуже.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.BetterTitle">
+    <value>✓ Сравниваемый пролёт лучше</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.WorseTitle">
+    <value>✗ Сравниваемый пролёт хуже</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.MixedTitle">
+    <value>~ Сравниваемый пролёт смешанный</value>
+  </data>
+  <data name="DopplerInsights.Compare.Interpretation.Value">
+    <value>Записи RX {0}%, записи TX {1}%, p95 RX {2} Гц, p95 TX {3} Гц. Дальше: {4}</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.IncreaseAggression">
+    <value>Чуть снизьте порог или задержку CAT, чтобы настройка стала агрессивнее.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.StabilizeWrites">
+    <value>Чуть поднимите порог или задержку CAT, чтобы меньше дребезга записей.</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.KeepSettings">
+    <value>Оставьте эти настройки: они работают хорошо!</value>
+  </data>
+  <data name="DopplerInsights.Compare.Action.SmallStep">
+    <value>Сделайте небольшую правку и сравните снова.</value>
+  </data>
+  <data name="DopplerInsights.Chart.Empty">
+    <value>Загрузите CSV доплера, чтобы увидеть графики дельты RX/TX, порога и событий записи.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Empty">
+    <value>Запишите полный пролёт, чтобы получить рекомендации по настройке.</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdHigh">
+    <value>Порог для этого пролёта выглядит высоким. Попробуйте снизить порог Доплера, чтобы CAT реагировал раньше.</value>
+  </data>
+  <data name="DopplerInsights.Reco.ThresholdLow">
+    <value>Частота записей очень высокая. Если звук дребезжит, чуть поднимите порог Доплера или увеличьте задержку CAT.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Interactive">
+    <value>В этом пролёте была ручная настройка. Если это не специально, проверьте стабильность CAT и выравнивание транспондера.</value>
+  </data>
+  <data name="DopplerInsights.Reco.CatPaused">
+    <value>Обнаружены строки с паузой CAT. Проверьте, не осталась ли пауза CAT включённой во время сопровождения.</value>
+  </data>
+  <data name="DopplerInsights.Reco.EnableLead">
+    <value>Высокий доплеровский slew при малом упреждении. Включите упреждающий Доплер под задержку CAT на крутых участках пролёта.</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveThreshold">
+    <value>Адаптивный порог был включён. Сравните с пролётом, где он выключен, чтобы убедиться, что настройка для вашей рации стала ровнее.</value>
+  </data>
+  <data name="DopplerInsights.Reco.Balanced">
+    <value>Пролёт выглядит сбалансированным. Оставьте настройки и сравните с другими пролётами для стабильности.</value>
+  </data>
+  <data name="DopplerInsights.Reco.IncreaseLead">
+    <value>Упреждающий Доплер был включён, но редко срабатывал на быстрых участках. Попробуйте увеличить силу или время упреждения в настройках рации.</value>
+  </data>
+  <data name="DopplerInsights.Reco.AdaptiveHelping">
+    <value>Адаптивный порог сужал полосу на быстрых участках, это, похоже, помогает. Оставьте его включённым, если не хотите фиксированный порог.</value>
+  </data>
+  <data name="DopplerInsights.Reco.TryAdaptive">
+    <value>На фиксированном пороге замечен быстрый доплеровский slew. Попробуйте включить адаптивный порог около TCA в настройках рации.</value>
+  </data>
+  <data name="DopplerInsights.Section.Adaptive">
+    <value>Адаптивный порог</value>
+  </data>
+  <data name="DopplerInsights.Section.Lead">
+    <value>Упреждающий Доплер (задержка CAT)</value>
+  </data>
+  <data name="DopplerInsights.Section.SettingsUsed">
+    <value>Настройки, записанные для этого пролёта</value>
+  </data>
+  <data name="DopplerInsights.Section.PassPhases">
+    <value>Разбор пролёта</value>
+  </data>
+  <data name="DopplerInsights.PassPhases.Intro">
+    <value>Как вело себя сопровождение на каждом этапе пролёта. Для упреждающего Доплера смотрите TCA и нисходящую ветвь; порог настраивайте по AOS и подъёму.</value>
+  </data>
+  <data name="DopplerInsights.PassHeadline.Value">
+    <value>{0}: пролёт {1} мин, пик угла места {2}°</value>
+  </data>
+  <data name="DopplerInsights.Tuning.CompareHint">
+    <value>Совет: смените одну настройку (порог, адаптив, время или силу упреждения), сделайте ещё пролёт, затем загрузите оба CSV через Файлы → сравнение, чтобы увидеть, стало ли лучше.</value>
+  </data>
+  <data name="DopplerInsights.Files.Primary">
+    <value>Основной пролёт</value>
+  </data>
+  <data name="DopplerInsights.Files.Comparison">
+    <value>Сравниваемый пролёт</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptyTitle">
+    <value>Пролёт не загружен</value>
+  </data>
+  <data name="DopplerInsights.Verdict.EmptySummary">
+    <value>Откройте CSV доплера пролёта, чтобы получить советы по настройкам рации.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodTitle">
+    <value>Сопровождение выглядит хорошо</value>
+  </data>
+  <data name="DopplerInsights.Verdict.GoodSummary">
+    <value>Типичная ошибка сопровождения оставалась низкой (даунлинк p95 {0} Гц, аплинк p95 {1} Гц). Крупных правок не требуется.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdTitle">
+    <value>Порог, возможно, слишком высок</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ThresholdSummary">
+    <value>{0}% выборок подавлено порогом: рация корректировалась недостаточно часто. Попробуйте снизить линейный порог Доплера.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadTitle">
+    <value>Стоит включить упреждающий Доплер</value>
+  </data>
+  <data name="DopplerInsights.Verdict.LeadSummary">
+    <value>Замечен быстрый доплеровский slew, но упреждающий Доплер был выключен или почти не использовался. Типичная ошибка даунлинка: {0} Гц.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterTitle">
+    <value>CAT, возможно, слишком агрессивен</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ChatterSummary">
+    <value>CAT писал в {0}% выборок. Если настройка звучала рвано, чуть поднимите порог или увеличьте задержку CAT.</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualTitle">
+    <value>Обнаружена ручная настройка</value>
+  </data>
+  <data name="DopplerInsights.Verdict.ManualSummary">
+    <value>В пролёте {0} интерактивных строк и {1} строк с паузой CAT. Разберите эти периоды, прежде чем менять автонастройки.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyTitle">
+    <value>Адаптивный порог</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.EmptyDetail">
+    <value>Загрузите пролёт, чтобы увидеть, помог ли адаптивный порог около TCA.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledTitle">
+    <value>Адаптивный порог был выключен</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledDetail">
+    <value>Пиковый доплеровский slew был {0} Гц/с. Весь пролёт шёл с фиксированным порогом.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledAction">
+    <value>Попробуйте включить адаптивный порог около TCA в настройках рации: он сужает полосу, когда Доплер меняется быстро.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.DisabledNoAction">
+    <value>Slew был умеренным: фиксированного порога достаточно, если нет отставания около TCA.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeTitle">
+    <value>Порог слишком часто блокировал поправки</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeDetail">
+    <value>{0}% строк ниже порога (эффективный средн. {1} Гц). Рация слишком долго ждала перед коррекцией.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.TooConservativeAction">
+    <value>Снизьте порог Доплера (SSB/CW) на 10–20 Гц или убедитесь, что адаптивный порог включён.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingTitle">
+    <value>Адаптивный порог работает</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingDetail">
+    <value>Порог снижался примерно на {0}% на быстрых участках (пиковый slew {1} Гц/с) без лишнего дребезга CAT.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.WorkingAction">
+    <value>Оставьте адаптив включённым. Сравнивайте с выключенным только если хотите ощущение фиксированного порога.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralTitle">
+    <value>Адаптивный порог почти не влиял</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralDetail">
+    <value>Среднее снижение порога {0}%. Доплеровский slew большую часть пролёта, возможно, был умеренным.</value>
+  </data>
+  <data name="DopplerInsights.Adaptive.NeutralAction">
+    <value>Если около TCA всё ещё слышно отставание, чуть снизьте базовый порог, а не выключайте адаптив.</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyTitle">
+    <value>Упреждающий Доплер</value>
+  </data>
+  <data name="DopplerInsights.Lead.EmptyDetail">
+    <value>Загрузите пролёт, чтобы увидеть, успевал ли упреждающий Доплер на быстрых участках.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledTitle">
+    <value>Упреждающий Доплер был выключен</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledDetail">
+    <value>Пиковый slew достиг {0} Гц/с. CAT использовал только мгновенный Доплер.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledAction">
+    <value>Включите упреждающий Доплер под задержку CAT в настройках рации и запишите ещё пролёт.</value>
+  </data>
+  <data name="DopplerInsights.Lead.DisabledNoAction">
+    <value>Slew был низким: упреждающий Доплер для этого профиля пролёта необязателен.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakTitle">
+    <value>Упреждающий Доплер слабо работал на крутых участках</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakDetail">
+    <value>Ошибка даунлинка на крутом участке достигла {0} Гц при усилении упреждения {1}%.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WeakAction">
+    <value>Поднимите силу упреждения до 85–100% или задайте время упреждения явно (попробуйте 25–40 мс).</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingTitle">
+    <value>Упреждающий Доплер успевает</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingDetail">
+    <value>Упреждение активно на {0}% строк; p95 даунлинка остался {1} Гц даже при быстром slew.</value>
+  </data>
+  <data name="DopplerInsights.Lead.WorkingAction">
+    <value>Оставьте текущие настройки упреждения. Если звук опережает сигнал, чуть снизьте силу упреждения.</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingTitle">
+    <value>Сопровождение отставало на крутых участках</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingDetail">
+    <value>Даунлинк p95 {0} Гц, аплинк p95 {1} Гц на пролёте с высоким slew.</value>
+  </data>
+  <data name="DopplerInsights.Lead.LaggingAction">
+    <value>Увеличьте время упреждения (сейчас {0} мс) или силу ({1}%). Также проверьте, что задержка CAT не слишком велика.</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralTitle">
+    <value>Состояние упреждающего Доплера</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralDetail">
+    <value>Упреждение активно на {0}% строк. Пиковый slew {1} Гц/с.</value>
+  </data>
+  <data name="DopplerInsights.Lead.NeutralAction">
+    <value>Подстройте в режиме сравнения после небольшой правки времени или силы упреждения.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Empty">
+    <value>Комментарий с настройками в этом журнале не найден.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Inferred">
+    <value>По строкам журнала: базовый порог ~{0} Гц, упреждение активно {1}% строк, адаптивное снижение ~{2}%.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Value">
+    <value>Линейный порог {0} Гц, задержка CAT {1} мс, адаптив {2}, упреждающий Доплер {3}, время упреждения {4} мс, сила {5}%.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Enabled">
+    <value>вкл.</value>
+  </data>
+  <data name="DopplerInsights.Settings.Disabled">
+    <value>выкл.</value>
+  </data>
+  <data name="DopplerInsights.Phase.Aos">
+    <value>AOS (начало)</value>
+  </data>
+  <data name="DopplerInsights.Phase.Rising">
+    <value>Подъём</value>
+  </data>
+  <data name="DopplerInsights.Phase.Tca">
+    <value>Окрестность TCA</value>
+  </data>
+  <data name="DopplerInsights.Phase.Descending">
+    <value>Спуск</value>
+  </data>
+  <data name="DopplerInsights.Phase.Los">
+    <value>LOS (конец)</value>
+  </data>
+  <data name="DopplerInsights.Phase.Summary">
+    <value>Ошибка даунлинка p95 {0} Гц · записи CAT {1}% · пиковый slew {2} Гц/с · макс. угол места {3}°</value>
+  </data>
+  <data name="Window.RotatorManual.Title">
+    <value>Ручное управление ротатором</value>
+  </data>
+  <data name="Window.SatelliteDatabase.Title">
+    <value>База транспондеров</value>
+  </data>
+  <data name="Dx.Title">
+    <value>Станция DX</value>
+  </data>
+  <data name="Dx.GridWatermark">
+    <value>Квадрат Maidenhead (напр. JO22 или JO22lk)</value>
+  </data>
+  <data name="Dx.AzTheirSky">
+    <value>Az (их небо)</value>
+  </data>
+  <data name="Dx.ElTheirSky">
+    <value>El (их небо)</value>
+  </data>
+  <data name="Dx.Clear">
+    <value>Очистить</value>
+  </data>
+  <data name="Dx.CollapseExpand">
+    <value>Развернуть панель станции DX</value>
+  </data>
+  <data name="Dx.CollapseCompact">
+    <value>Свернуть в компактный вид</value>
+  </data>
+  <data name="Dx.MapLauncher.Active">
+    <value>Показать монитор станции DX</value>
+  </data>
+  <data name="Dx.MapLauncher.Inactive">
+    <value>Введите квадрат удалённой станции</value>
+  </data>
+  <data name="Dx.Validation.MinChars">
+    <value>Введите не менее 4 символов (напр. JO22 или JO22lk).</value>
+  </data>
+  <data name="Dx.Validation.InvalidGrid">
+    <value>Неверный квадрат Maidenhead.</value>
+  </data>
+  <data name="Dx.Collapsed.BelowHorizon">
+    <value>{0} · за горизонтом</value>
+  </data>
+  <data name="Dx.Collapsed.AzElPending">
+    <value>{0} · Az … · El …</value>
+  </data>
+  <data name="Dx.Collapsed.AzEl">
+    <value>{0} · Az {1} · El {2}</value>
+  </data>
+  <data name="Freq.SelectSatellite">
+    <value>Выберите спутник</value>
+  </data>
+  <data name="Freq.SelectSatelliteHint">
+    <value>Выберите спутник на карте или из ближайших пролётов.</value>
+  </data>
+  <data name="Freq.NoTransponder">
+    <value>Нет данных транспондера для этого спутника</value>
+  </data>
+  <data name="Freq.CollapsedNoTransponder">
+    <value>{0} · нет данных транспондера</value>
+  </data>
+  <data name="Freq.CwSuffix">
+    <value> · CW</value>
+  </data>
+  <data name="Freq.CollapseExpand">
+    <value>Развернуть панель частот</value>
+  </data>
+  <data name="Freq.CollapseCompact">
+    <value>Свернуть в компактный вид</value>
+  </data>
+  <data name="Freq.TransponderMode">
+    <value>Режим транспондера</value>
+  </data>
+  <data name="Freq.UplinkTx">
+    <value>Аплинк (TX)</value>
+  </data>
+  <data name="Freq.DownlinkRx">
+    <value>Даунлинк (RX)</value>
+  </data>
+  <data name="Freq.Sat">
+    <value>Спутн.</value>
+  </data>
+  <data name="Freq.Radio">
+    <value>Рация</value>
+  </data>
+  <data name="Freq.DopplerLeadEnabled">
+    <value>Упреждающий Доплер включён, ждём крутой участок пролёта</value>
+  </data>
+  <data name="Freq.DopplerLeadActive">
+    <value>Упреждающий Доплер активен: CAT прогнозирует вперёд в строке «Рация»</value>
+  </data>
+  <data name="Freq.LeadTuningTitle">
+    <value>Настройка упреждения CAT</value>
+  </data>
+  <data name="Freq.LeadTuningHint">
+    <value>Только на сессию: L скрывает панель. Значения действуют сразу; чтобы сохранить после перезапуска, откройте Настройки → Рация и нажмите Сохранить.</value>
+  </data>
+  <data name="Freq.DopplerFull">
+    <value>Полный</value>
+  </data>
+  <data name="Freq.DopplerTx">
+    <value>TX</value>
+  </data>
+  <data name="Freq.DopplerRx">
+    <value>RX</value>
+  </data>
+  <data name="Freq.DopplerTxFixedToolTip">
+    <value>TX фиксирован: только Доплер даунлинка (SatPC32 TX-Fixed). Аплинк остаётся на вашей точке CQ.</value>
+  </data>
+  <data name="Freq.DopplerRxFixedToolTip">
+    <value>RX фиксирован: только Доплер аплинка (SatPC32 RX-Fixed). Даунлинк стоит на месте.</value>
+  </data>
+  <data name="Freq.Ctcss">
+    <value>CTCSS</value>
+  </data>
+  <data name="Freq.CtcssAccess">
+    <value>Доступ</value>
+  </data>
+  <data name="Freq.CtcssArm">
+    <value>Взвод</value>
+  </data>
+  <data name="Freq.RxOffsetKHz">
+    <value>Смещение RX (кГц)</value>
+  </data>
+  <data name="Freq.TxOffsetKHz">
+    <value>Смещение TX (кГц)</value>
+  </data>
+  <data name="Freq.OffsetToggleRx">
+    <value>RX</value>
+  </data>
+  <data name="Freq.OffsetToggleTx">
+    <value>TX</value>
+  </data>
+  <data name="Freq.OffsetLegToggleToolTip">
+    <value>Переключить смещение между даунлинком (RX) и аплинком (TX). Оба сохранённых смещения действуют сразу.</value>
+  </data>
+  <data name="Freq.StoreOffset">
+    <value>Запомнить смещение</value>
+  </data>
+  <data name="Freq.PassbandTrimTitle">
+    <value>Подстройка полосы (основной диск)</value>
+  </data>
+  <data name="Freq.PassbandTrimSummary">
+    <value>Даунлинк {0} · Аплинк {1}</value>
+  </data>
+  <data name="Freq.ClearPassbandTrim">
+    <value>Сбросить подстройку полосы</value>
+  </data>
+  <data name="Freq.ClearPassbandTrimToolTip">
+    <value>Складывает этот поиск основным диском в смещения панели выше и возвращает автоматический Доплер. Частота рации не прыгает.</value>
+  </data>
+  <data name="Freq.PassbandTrimCleared">
+    <value>Подстройка полосы сброшена и внесена в смещения панели.</value>
+  </data>
+  <data name="Freq.Voice">
+    <value>Голос</value>
+  </data>
+  <data name="Freq.ReportStatus">
+    <value>Сообщить</value>
+  </data>
+  <data name="Freq.ReportStatusToolTip">
+    <value>Сообщить статус спутника на OscarWatch.org для спутника и режима в фокусе (угол места не ниже −1°)</value>
+  </data>
+  <data name="Freq.StoredOffsetCleared">
+    <value>Сохранённое смещение сброшено.</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedCw">
+    <value>Сохранённое смещение CW сброшено.</value>
+  </data>
+  <data name="Freq.StoredOffset">
+    <value>Сохранено смещение {0} Гц.</value>
+  </data>
+  <data name="Freq.StoredOffsetCw">
+    <value>Сохранено смещение CW {0} Гц.</value>
+  </data>
+  <data name="Freq.StoredOffsetTx">
+    <value>Сохранено смещение TX {0} Гц.</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedTx">
+    <value>Сохранённое смещение TX сброшено.</value>
+  </data>
+  <data name="Freq.StoredOffsetCwTx">
+    <value>Сохранено смещение CW TX {0} Гц.</value>
+  </data>
+  <data name="Freq.StoredOffsetClearedCwTx">
+    <value>Сохранённое смещение CW TX сброшено.</value>
+  </data>
+  <data name="Freq.OffsetOnDownlinkTuneUplink">
+    <value>{0} на даунлинке. Крутите основной диск для аплинка.</value>
+  </data>
+  <data name="Freq.OffsetOnDownlink">
+    <value>{0} на даунлинке.</value>
+  </data>
+  <data name="Freq.OffsetOnUplink">
+    <value>{0} на аплинке.</value>
+  </data>
+  <data name="Freq.OffsetOnUplinkTuneDownlink">
+    <value>{0} на аплинке. Крутите основной диск для даунлинка.</value>
+  </data>
+  <data name="Freq.OffsetOnBothLegs">
+    <value>{0} на даунлинке, {1} на аплинке.</value>
+  </data>
+  <data name="Freq.OffsetOnBothLegsRev">
+    <value>{0} на даунлинке, {1} на аплинке. Крутите основной диск для другой ветви.</value>
+  </data>
+  <data name="Freq.DownlinkOnlyTuneUplink">
+    <value>Только даунлинк. Крутите основной диск для аплинка.</value>
+  </data>
+  <data name="Freq.OffsetsDownlinkOnly">
+    <value>Смещения только на даунлинке.</value>
+  </data>
+  <data name="Freq.TxFixedOffsetHint">
+    <value>TX фиксирован (только Доплер даунлинка). {0}</value>
+  </data>
+  <data name="Freq.RxFixedOffsetHint">
+    <value>RX фиксирован (только Доплер аплинка). {0}</value>
+  </data>
+  <data name="Freq.DopplerFullHint">
+    <value>Полный: и аплинк, и даунлинк следят за Доплером.</value>
+  </data>
+  <data name="Freq.DopplerTxFixedHint">
+    <value>TX фиксирован: аплинк стоит, даунлинк следит за Доплером (выездной CQ).</value>
+  </data>
+  <data name="Freq.DopplerRxFixedHint">
+    <value>RX фиксирован: даунлинк стоит, аплинк следит за Доплером.</value>
+  </data>
+  <data name="Freq.OperatingCwSideband">
+    <value>CW на аплинке; приём остаётся USB/LSB. Ctrl+W переключает.</value>
+  </data>
+  <data name="Freq.OperatingCwBoth">
+    <value>CW на аплинке и даунлинке. Ctrl+W переключает.</value>
+  </data>
+  <data name="Freq.OperatingVoice">
+    <value>Голос использует режимы из базы. Ctrl+W переключает CW.</value>
+  </data>
+  <data name="Settings.Station.DisplayName">
+    <value>Отображаемое имя</value>
+  </data>
+  <data name="Settings.Station.Callsign">
+    <value>Позывной</value>
+  </data>
+  <data name="Settings.Station.CallsignNote">
+    <value>Используется при публикации спутниковых активаций на hams.at. В диалоге публикации его всё равно можно править.</value>
+  </data>
+  <data name="Settings.Station.Latitude">
+    <value>Широта (°)</value>
+  </data>
+  <data name="Settings.Station.Longitude">
+    <value>Долгота (°)</value>
+  </data>
+  <data name="Settings.Station.GridSquare">
+    <value>Квадрат Maidenhead</value>
+  </data>
+  <data name="Settings.Station.GridSquareNote">
+    <value>Локатор заглавными от поля (IO) до 8 символов. На границе квадратов перечисляйте через запятую (напр. IO77,IO87).</value>
+  </data>
+  <data name="Settings.Station.Altitude">
+    <value>Высота над ур. моря (м)</value>
+  </data>
+  <data name="Settings.Station.HorizonMask">
+    <value>Маска горизонта</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskHelp">
+    <value>Необязательный силуэт деревьев, домов и холмов. Щелчок по полярному графику добавляет точку, перетаскивание двигает, правый щелчок удаляет. Пустая маска не используется (действует только минимальный угол места сопровождения). Времена пролётов берут большее из маски и этого минимума на каждом азимуте. Ротатор она не управляет; для этого служит «Начинать сопровождение с угла места».</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskSummary">
+    <value>Необязательный силуэт деревьев, домов и холмов. Пустая маска не используется (действует только минимальный угол места сопровождения). Ротатор не управляет.</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskEdit">
+    <value>Править маску горизонта</value>
+  </data>
+  <data name="Window.HorizonMaskEditor.Title">
+    <value>Маска горизонта</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskClear">
+    <value>Очистить маску</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskAz">
+    <value>Az (°)</value>
+  </data>
+  <data name="Settings.Station.HorizonMaskEl">
+    <value>El (°)</value>
+  </data>
+  <data name="Settings.Gps.Title">
+    <value>GPS</value>
+  </data>
+  <data name="Settings.Gps.Intro">
+    <value>Последовательный NMEA GPS или сетевой gpsd для позиции станции (широта/долгота, квадрат, высота) и по желанию UTC для сопровождения.</value>
+  </data>
+  <data name="Settings.Gps.Connection">
+    <value>Подключение</value>
+  </data>
+  <data name="Settings.Gps.Connection.Serial">
+    <value>Последовательный (COM-порт)</value>
+  </data>
+  <data name="Settings.Gps.Connection.Gpsd">
+    <value>gpsd (сеть)</value>
+  </data>
+  <data name="Settings.Gps.GpsdHost">
+    <value>Хост gpsd</value>
+  </data>
+  <data name="Settings.Gps.GpsdPort">
+    <value>Порт gpsd</value>
+  </data>
+  <data name="Settings.Gps.GpsdNote">
+    <value>Подключение к запущенному демону gpsd (порт по умолчанию 2947). Типично для Linux или Raspberry Pi, когда GPS уже раздаётся в сети.</value>
+  </data>
+  <data name="Settings.Gps.Enable">
+    <value>Включить GPS</value>
+  </data>
+  <data name="Settings.Gps.AutoUpdateStation">
+    <value>Автоматически обновлять позицию станции по GPS-фиксу</value>
+  </data>
+  <data name="Settings.Gps.UseAltitude">
+    <value>Обновлять высоту из GGA</value>
+  </data>
+  <data name="Settings.Gps.UseTimeForTracking">
+    <value>Использовать UTC GPS для сопровождения спутников</value>
+  </data>
+  <data name="Settings.Gps.UseTimeNote">
+    <value>Время GPS идёт только на расчёт орбиты и не меняет системные часы Windows.</value>
+  </data>
+  <data name="Settings.Gps.MinSatellites">
+    <value>Минимум спутников для фикса</value>
+  </data>
+  <data name="Settings.Gps.RefreshStatus">
+    <value>Обновить статус</value>
+  </data>
+  <data name="Settings.Gps.ApplyFix">
+    <value>Применить фикс к станции</value>
+  </data>
+  <data name="Settings.Gps.StatusDisabled">
+    <value>GPS выключен.</value>
+  </data>
+  <data name="Settings.Gps.StatusNoPort">
+    <value>Выберите COM-порт для GPS.</value>
+  </data>
+  <data name="Settings.Gps.StatusNoGpsdHost">
+    <value>Введите имя хоста или IP-адрес gpsd.</value>
+  </data>
+  <data name="Settings.Gps.StatusNotConnected">
+    <value>GPS не подключён.</value>
+  </data>
+  <data name="Settings.Gps.StatusNotConnectedDetail">
+    <value>GPS не подключён: {0}</value>
+  </data>
+  <data name="Settings.Gps.StatusNoFix">
+    <value>Подключено, ждём GPS-фикс.</value>
+  </data>
+  <data name="Settings.Gps.StatusFix">
+    <value>Фикс: {0}°, {1}° ({2} спутн.)</value>
+  </data>
+  <data name="Settings.Tle.Source">
+    <value>Источник каталога TLE</value>
+  </data>
+  <data name="Settings.Tle.SourceNote">
+    <value>Встроенные источники OscarWatch и AMSAT.org используют наборы элементов JSON GP. Свои URL и локальные файлы могут быть JSON или классическим трёхстрочным текстом TLE.</value>
+  </data>
+  <data name="Settings.Tle.DownloadUrl">
+    <value>URL загрузки</value>
+  </data>
+  <data name="Settings.Tle.LocalFile">
+    <value>Локальный файл TLE</value>
+  </data>
+  <data name="Settings.Tle.LocalFileWatermark">
+    <value>Путь к файлу .json, .txt или .tle</value>
+  </data>
+  <data name="Settings.Tle.Updates">
+    <value>Обновления TLE</value>
+  </data>
+  <data name="Settings.Tle.UpdatesNote">
+    <value>Автозагрузка только для OscarWatch и своих URL. Локальные файлы перечитываются при сохранении настроек или Спутники → Обновить TLE.</value>
+  </data>
+  <data name="Settings.Tle.Source.OscarWatch">
+    <value>OscarWatch (tle.oscarwatch.org)</value>
+  </data>
+  <data name="Settings.Tle.Source.Amsat">
+    <value>AMSAT.org (бюллетень JSON GP)</value>
+  </data>
+  <data name="Settings.Tle.Source.CustomUrl">
+    <value>Свой URL</value>
+  </data>
+  <data name="Settings.Tle.Source.LocalFile">
+    <value>Локальный файл</value>
+  </data>
+  <data name="Settings.Tle.Update.Manual">
+    <value>Только вручную</value>
+  </data>
+  <data name="Settings.Tle.Update.OnStartup">
+    <value>При запуске (если старше 6 часов)</value>
+  </data>
+  <data name="Settings.Tle.Update.EverySixHours">
+    <value>Каждые 6 часов, пока программа запущена</value>
+  </data>
+  <data name="Settings.Tracking.MinElevation">
+    <value>Минимальный угол места (°)</value>
+  </data>
+  <data name="Settings.Tracking.PassWindow">
+    <value>Окно прогноза пролётов (часы)</value>
+  </data>
+  <data name="Settings.Tracking.PassWindowNote">
+    <value>Для списка ближайших пролётов и как значения по умолчанию в планировщике.</value>
+  </data>
+  <data name="Settings.Tracking.TransponderCheck">
+    <value>Проверять обновления базы транспондеров при запуске</value>
+  </data>
+  <data name="Settings.Tracking.TransponderCheckNote">
+    <value>Скачивает tle.oscarwatch.org/satellite_database.json, когда есть обновления. Новые спутники и режимы предлагаются к слиянию; ваши правки сохраняются, пока вы не примете опубликованные изменения.</value>
+  </data>
+  <data name="Settings.AppUpdate.Enabled">
+    <value>Проверять обновления программы при запуске и ежедневно, пока она запущена</value>
+  </data>
+  <data name="Settings.AppUpdate.EnabledNote">
+    <value>Сравнивает с последним выпуском GitHub. Проверку можно запустить и из справки.</value>
+  </data>
+  <data name="Settings.Theme.System">
+    <value>Система</value>
+  </data>
+  <data name="Settings.Theme.Light">
+    <value>Светлая</value>
+  </data>
+  <data name="Settings.Theme.Dark">
+    <value>Тёмная</value>
+  </data>
+  <data name="Settings.Voice.Enable">
+    <value>Включить голосовые объявления</value>
+  </data>
+  <data name="Settings.Voice.EnableNote">
+    <value>Один раз за пролёт объявляет каждый включённый спутник, когда он на подъёме пересекает порог угла места, например: Alpha Oscar Zero Seven поднимается.</value>
+  </data>
+  <data name="Settings.Voice.AnnounceElevation">
+    <value>Объявлять на угле места (°)</value>
+  </data>
+  <data name="Settings.Voice.AnnounceElevationNote">
+    <value>По умолчанию −3°. Объявление срабатывает, когда угол места растёт через это значение (отрицательные значения ловят спутник ещё до горизонта).</value>
+  </data>
+  <data name="Settings.Voice.VoiceLabel">
+    <value>Голос</value>
+  </data>
+  <data name="Settings.Voice.SpeechUnavailable">
+    <value>Синтез речи на этой системе недоступен.</value>
+  </data>
+  <data name="Settings.Voice.Preview">
+    <value>Проба</value>
+  </data>
+  <data name="Settings.Voice.TestAnnouncement">
+    <value>Пробное объявление</value>
+  </data>
+  <data name="Settings.PassSchedule.Section">
+    <value>Запланированные пролёты</value>
+  </data>
+  <data name="Settings.PassSchedule.Note">
+    <value>Отмечайте пролёты как запланированные в ближайших пролётах или планировщике. OscarWatch играет сигнал и показывает оповещение перед AOS, пока программа запущена.</value>
+  </data>
+  <data name="Settings.PassSchedule.LeadMinutes">
+    <value>Минут оповещения до AOS</value>
+  </data>
+  <data name="Settings.PassSchedule.SoundEnabled">
+    <value>Играть звуковой сигнал</value>
+  </data>
+  <data name="Settings.PassSchedule.AlertEnabled">
+    <value>Показывать окно оповещения</value>
+  </data>
+  <data name="Settings.PassSchedule.TestSound">
+    <value>Проба звука</value>
+  </data>
+  <data name="Settings.Radio.Enable">
+    <value>Включить управление рацией</value>
+  </data>
+  <data name="Settings.Radio.DualEnable">
+    <value>Двойная рация (отдельные даунлинк и аплинк: FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, IC-7100, серия IC-706, TH-D74/D75 или смешанные)</value>
+  </data>
+  <data name="Settings.Radio.DualIncompleteBoth">
+    <value>Выберите COM-порты и для даунлинка, и для аплинка.</value>
+  </data>
+  <data name="Settings.Radio.DualIncompleteDownlink">
+    <value>Выберите COM-порт для рации даунлинка.</value>
+  </data>
+  <data name="Settings.Radio.DualIncompleteUplink">
+    <value>Выберите COM-порт для рации аплинка.</value>
+  </data>
+  <data name="Settings.Radio.Driver">
+    <value>Драйвер рации</value>
+  </data>
+  <data name="Settings.Radio.Label">
+    <value>Рация</value>
+  </data>
+  <data name="Settings.Radio.SerialPort">
+    <value>Последовательный порт</value>
+  </data>
+  <data name="Settings.Radio.SelectComPort">
+    <value>Выберите или введите последовательный порт</value>
+  </data>
+  <data name="Settings.Radio.SerialPortLinuxHint">
+    <value>В Linux выбирайте псевдоним udev или запись /dev/serial/by-id/…, чтобы порт не менялся после перезагрузки. Можно ввести свой путь, например /dev/USB821H.</value>
+  </data>
+  <data name="Settings.Radio.BaudRate">
+    <value>Скорость (бод)</value>
+  </data>
+  <data name="Settings.Radio.CivAddress">
+    <value>Адрес CI-V (hex)</value>
+  </data>
+  <data name="Settings.Radio.CivHint">
+    <value>IC-9700 по умолчанию A2, IC-910 по умолчанию 7C (hex). Укажите 60, если так задано в меню CI-V рации.</value>
+  </data>
+  <data name="Settings.Radio.Ft847Hint">
+    <value>FT-847: скорость CAT в меню рации №37 (обычно 57600). Разъём CAT/LINEAR с преобразователем уровня (напр. CT-62).</value>
+  </data>
+  <data name="Settings.Radio.Ts2000Hint">
+    <value>TS-2000: CAT 57600 8N1. Перед сопровождением включите SAT на рации и выключите режим памяти; OscarWatch затем включает SATL по CAT (раскладка SA/FA/FB), автосмена диапазонов УКВ/ДМВ.</value>
+  </data>
+  <data name="Settings.Radio.Ts2000HardwareRts">
+    <value>Аппаратный RTS (управление потоком)</value>
+  </data>
+  <data name="Settings.Radio.Ts2000HardwareRtsNote">
+    <value>Оставьте включённым для полных CAT-кабелей, которые проводят RTS (нужно для ответов рации). Выключите, если у кабеля или адаптера нет аппаратного управления потоком.</value>
+  </data>
+  <data name="Settings.Radio.Ts2000Trace">
+    <value>TRACE / TRACE REV в SATL</value>
+  </data>
+  <data name="Settings.Radio.Ts2000TraceNote">
+    <value>Оставьте включённым для встроенного слежения рации за частотой. Выключите, когда Доплером управляет OscarWatch (рекомендуется для CAT с ПК); если не уверены, попробуйте оба варианта.</value>
+  </data>
+  <data name="Settings.Radio.Region">
+    <value>Регион</value>
+  </data>
+  <data name="Settings.Radio.RegionNote">
+    <value>EU использует тон; USA использует тональный шумоподавитель (субтон).</value>
+  </data>
+  <data name="Settings.Radio.CatDelay">
+    <value>Задержка CAT (мс)</value>
+  </data>
+  <data name="Settings.Radio.CatDelayNote">
+    <value>Минимальный интервал между командами CAT, чтобы не перегружать последовательный канал.</value>
+  </data>
+  <data name="Settings.Radio.Downlink">
+    <value>Рация даунлинка</value>
+  </data>
+  <data name="Settings.Radio.SdrRigCtl">
+    <value>SDR (rigctl TCP)</value>
+  </data>
+  <data name="Settings.Radio.DummyUplink">
+    <value>Фиктивный аплинк (только RX)</value>
+  </data>
+  <data name="Settings.Radio.SdrHost">
+    <value>Хост rigctl</value>
+  </data>
+  <data name="Settings.Radio.SdrPort">
+    <value>Порт rigctl</value>
+  </data>
+  <data name="Settings.Radio.SdrPresetSdrPlus">
+    <value>Пресет SDR++ (4532)</value>
+  </data>
+  <data name="Settings.Radio.SdrPresetSdrConnect">
+    <value>Пресет SDR Connect (5454)</value>
+  </data>
+  <data name="Settings.Radio.SdrTestConnection">
+    <value>Проверить соединение rigctl</value>
+  </data>
+  <data name="Settings.Radio.SdrTesting">
+    <value>Проверка соединения rigctl…</value>
+  </data>
+  <data name="Settings.Radio.SdrEnterHostPort">
+    <value>Введите действительные хост и порт.</value>
+  </data>
+  <data name="Settings.Radio.SdrConnectionOk">
+    <value>Соединение rigctl в порядке: частота прочитана.</value>
+  </data>
+  <data name="Settings.Radio.SdrConnectionFailed">
+    <value>Сбой соединения rigctl: {0}</value>
+  </data>
+  <data name="Settings.Radio.SdrHint">
+    <value>Включите сервер rigctl в SDR++ (Module Manager → rigctl_server) или SDR Connect и совпадите хост и порт. OscarWatch задаёт доплеровскую частоту RX и читает VFO водопада для подстройки полосы. На даунлинке ставьте задержку CAT 100 мс или больше.</value>
+  </data>
+  <data name="Settings.Radio.FlexSmartSdr">
+    <value>FlexRadio (SmartSDR)</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscovered">
+    <value>Найденные рации</value>
+  </data>
+  <data name="Settings.Radio.FlexHost">
+    <value>Хост SmartSDR</value>
+  </data>
+  <data name="Settings.Radio.FlexPort">
+    <value>Порт SmartSDR</value>
+  </data>
+  <data name="Settings.Radio.FlexTestConnection">
+    <value>Проверить соединение SmartSDR</value>
+  </data>
+  <data name="Settings.Radio.FlexTesting">
+    <value>Проверка соединения SmartSDR…</value>
+  </data>
+  <data name="Settings.Radio.FlexEnterHostPort">
+    <value>Введите действительные хост и порт.</value>
+  </data>
+  <data name="Settings.Radio.FlexConnectionOk">
+    <value>Соединение SmartSDR в порядке.</value>
+  </data>
+  <data name="Settings.Radio.FlexConnectionFailed">
+    <value>Сбой соединения SmartSDR: {0}</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscoveryListening">
+    <value>Поиск раций Flex по UDP 4992…</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscoveryFound">
+    <value>Найдено раций Flex в LAN: {0}.</value>
+  </data>
+  <data name="Settings.Radio.FlexDiscoveryFailed">
+    <value>Сбой поиска Flex: {0}</value>
+  </data>
+  <data name="Settings.Radio.FlexHint">
+    <value>Выберите найденную рацию или введите IP вручную (TCP-порт 4992). OscarWatch подключается к рации напрямую по TCP/IP API SmartSDR (не управляя SmartSDR for Windows), включает полный дуплекс и ведёт отдельные слайсы RX/TX для Доплера. Карту антенных портов ниже используйте, когда транвертеры сидят на разных путях RX A/RX B или ANT/XVTR по диапазонам. Для настоящего полного дуплекса нужны модели с двумя SCU (напр. 8600/8600M; также 6600/6700).</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPorts">
+    <value>Антенные порты по диапазонам</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPortsHint">
+    <value>При переключении спутников U/V ↔ V/U OscarWatch выставляет порты RX/TX рации по диапазонам даунлинка и аплинка (при фокусе спутника / подготовке пролёта, не только когда борт над горизонтом). «Не менять» оставляет текущий порт рации. RX A и RX B только на приём; TX назначьте на ANT или XVTR, как разведено.</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaLeaveUnchanged">
+    <value>Не менять</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfRxAnt">
+    <value>Приём УКВ (2 м)</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfRxAnt">
+    <value>Приём ДМВ (70 см+)</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfTxAnt">
+    <value>Передача УКВ (2 м)</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfTxAnt">
+    <value>Передача ДМВ (70 см+)</value>
+  </data>
+  <data name="Settings.Radio.FlexDuplexWarning">
+    <value>Эта модель может не поддерживать полный дуплекс (один SCU). Для спутников обычно нужен Flex с двумя SCU, например 8600/8600M (или 6000-й серии с двумя SCU), с достаточной развязкой или транвертерами.</value>
+  </data>
+  <data name="Settings.Radio.Uplink">
+    <value>Рация аплинка</value>
+  </data>
+  <data name="Settings.Radio.Ic705CivHint">
+    <value>IC-705 заводской адрес A4. Должен совпадать с меню CI-V рации.</value>
+  </data>
+  <data name="Settings.Radio.Ic7300CivHint">
+    <value>IC-7300 заводской адрес 94H. Должен совпадать с меню CI-V рации.</value>
+  </data>
+  <data name="Settings.Radio.Ic905CivHint">
+    <value>IC-905 заводской адрес AC. Должен совпадать с Set mode CI-V рации.</value>
+  </data>
+  <data name="Settings.Radio.Ic7100CivHint">
+    <value>IC-7100 заводской адрес 88H. Должен совпадать с меню CI-V рации.</value>
+  </data>
+  <data name="Settings.Radio.Ic706CivHint">
+    <value>IC-706 заводской адрес 48H. Должен совпадать с адресом CI-V рации (Initial Set Mode).</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiCivHint">
+    <value>IC-706MKII заводской адрес 4CH. Должен совпадать с адресом CI-V рации.</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiGCivHint">
+    <value>IC-706MKIIG заводской адрес 58H. Должен совпадать с меню 34 CI-V ADDRES.</value>
+  </data>
+  <data name="Settings.Radio.RefreshComPorts">
+    <value>Обновить COM-порты</value>
+  </data>
+  <data name="Settings.Radio.Ft817Hint">
+    <value>FT-817 / FT-818: меню №14 на 4800 бод на каждой рации (38400 тоже работает). CAT 8N2, один COM на ветвь. Перекрывает КВ/6 м, 2 м и 70 см (даунлинк AO-07 Mode A на 10 м). Линейный: крутите даунлинк по полосе; FM фиксирует диск во время сопровождения.</value>
+  </data>
+  <data name="Settings.Radio.Ic705Hint">
+    <value>IC-705: Connectors → CI-V → CI-V USB Port в Link to [CI-V] (не REMOTE). Совпадите скорость CI-V в настройках (по умолчанию 115200). Один COM на ветвь: если портов два, берите тот, что помечен CI-V.</value>
+  </data>
+  <data name="Settings.Radio.Ic7300Hint">
+    <value>IC-7300: только двойная рация. Диапазон КВ/6 м (1,8–54 МГц). Совпадите адрес CI-V (по умолчанию 94H) и скорость (по умолчанию 115200) в меню CI-V рации. Один COM на ветвь: типично AO-07 Mode A с 7300 на даунлинке и 2-метровой рацией на аплинке.</value>
+  </data>
+  <data name="Settings.Radio.Ic905Hint">
+    <value>IC-905: только двойная рация. Совпадите адрес CI-V (по умолчанию AC) и скорость (по умолчанию 115200) в Set mode. Используйте последовательный порт USB CI-V. Один COM на ветвь: УКВ/ДМВ/СВЧ, включая 13 см, 6 см и 3 см.</value>
+  </data>
+  <data name="Settings.Radio.Ic7100Hint">
+    <value>IC-7100: только двойная рация. Включите CI-V Output (USB) (или используйте разъём REMOTE). Совпадите адрес CI-V (по умолчанию 88H) и скорость (по умолчанию 19200) в меню CI-V. Один COM на ветвь: КВ/6 м, 2 м и 70 см (AO-07 Mode A даунлинк на 10 м); 23 см не поддерживается.</value>
+  </data>
+  <data name="Settings.Radio.Ic706Hint">
+    <value>IC-706: CI-V через разъём REMOTE (или CT-17). КВ/6 м и 2 м (без 70 см). Задайте адрес и скорость CI-V в Initial Set Mode (LOCK при включении), чтобы совпали с настройками (по умолчанию 48H / 19200). Рекомендуется CI-V TRN On. Даунлинк AO-07 Mode A на 10 м поддерживается.</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiHint">
+    <value>IC-706MKII: та же настройка CI-V, что у IC-706. КВ/6 м и 2 м (без 70 см). Заводской адрес 4CH. Даунлинк AO-07 Mode A на 10 м поддерживается.</value>
+  </data>
+  <data name="Settings.Radio.Ic706MkiiGHint">
+    <value>IC-706MKIIG: CI-V через разъём REMOTE (или CT-17). Меню 34 CI-V ADDRES должно совпасть с настройками (по умолчанию 58H), меню 35 CI-V BAUD (по умолчанию 19200) и меню 36 CI-V TRN On. Перекрывает КВ/6 м, 2 м и 70 см (даунлинк AO-07 Mode A на 10 м); спутники 23 см не поддерживаются.</value>
+  </data>
+  <data name="Settings.Radio.Ft991Hint">
+    <value>FT-991 / FT-991A: совпадите меню 031 CAT RATE с настройками (по умолчанию 38400). ASCII CAT 8N2 с аппаратным RTS: порт USB CAT. Один COM на ветвь. FM фиксирует диск VFO-A во время сопровождения.</value>
+  </data>
+  <data name="Settings.Radio.Ftx1Hint">
+    <value>FTX-1 Field / FTX-1optima: совпадите меню CAT-1 RATE с настройками (по умолчанию 38400). ASCII CAT 8N2 с аппаратным RTS: порт Enhanced COM (CAT-1), не CAT-2. Один COM на ветвь. FM фиксирует диск MAIN VFO во время сопровождения.</value>
+  </data>
+  <data name="Settings.Radio.CwSideband">
+    <value>Линейный CW: приём оставлять в USB/LSB (передавать только CW)</value>
+  </data>
+  <data name="Settings.Radio.CwSidebandNote">
+    <value>Действует, когда панель частот в CW на линейных SSB-спутниках. Галочка: обычный сплит (CW TX, USB/LSB RX). Без галочки оба VFO ставятся в CW.</value>
+  </data>
+  <data name="Settings.Radio.DopplerFm">
+    <value>Порог Доплера FM (Гц)</value>
+  </data>
+  <data name="Settings.Radio.DopplerFmNote">
+    <value>FM / кроссбенд ISS: ниже = чаще обновления CAT (по умолчанию 350 Гц).</value>
+  </data>
+  <data name="Settings.Radio.DopplerSsb">
+    <value>Порог Доплера SSB/CW (Гц)</value>
+  </data>
+  <data name="Settings.Radio.DopplerSsbNote">
+    <value>Частоты уходят на рацию, только когда уход превышает этот интервал (как в SatPC32).</value>
+  </data>
+  <data name="Settings.Radio.DialSettle">
+    <value>Возобновить CAT после диска (мс)</value>
+  </data>
+  <data name="Settings.Radio.DialSettleNote">
+    <value>На линейных USB, LSB и CW: сколько приёмный диск должен стоять неподвижно, прежде чем OscarWatch вернёт доплеровский CAT. По умолчанию 800 мс. Увеличьте, если CAT забирает VFO, пока вы ещё крутите; уменьшите, если хотите сопровождение обратно быстрее.</value>
+  </data>
+  <data name="Settings.Radio.UplinkResume">
+    <value>Пауза CAT аплинка после диска (мс)</value>
+  </data>
+  <data name="Settings.Radio.UplinkResumeNote">
+    <value>На рациях Main/Sub (например IC-9700) дополнительная пауза перед CAT аплинка после остановки диска, чтобы рация не прыгала на Sub, пока вы сканируете. Двойная рация не затрагивается. По умолчанию 2500 мс.</value>
+  </data>
+  <data name="Settings.Radio.DopplerAdaptiveThreshold">
+    <value>Адаптивный порог около TCA</value>
+  </data>
+  <data name="Settings.Radio.DopplerAdaptiveThresholdNote">
+    <value>Если включено, линейный порог SSB/CW снижается, пока доплеровский slew быстрый (обычно середина пролёта и после TCA). Значение SSB/CW выше остаётся потолком; эффективный порог может упасть примерно вдвое (минимум 25 Гц). По умолчанию выкл.</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLog">
+    <value>Журнал доплеровских пролётов (CSV)</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLogNote">
+    <value>Пишет один CSV на пролёт с записями CAT, снимками раз в 1 с (упреждение, адаптивный порог, дельты) и сменами смещения/ручки. Журнал пишется, только пока спутник над горизонтом (угол места ≥ 0°). Файлы в AppData/OscarWatch/doppler-logs.</value>
+  </data>
+  <data name="Settings.Radio.DopplerPassLogOpenFolder">
+    <value>Открыть папку журналов</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLead">
+    <value>Упреждающий Доплер под задержку CAT</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadNote">
+    <value>Если включено, CAT и строка «Рация» прогнозируют Доплер вперёд на крутых участках и после TCA (когда скорость изменения дальности велика). Около TCA упреждение сходит на нет, когда скорость изменения дальности стремится к нулю. На спокойном AOS берётся текущая скорость. Строка «Спутн.» по-прежнему показывает текущую частоту борта. Точная подстройка: время и сила упреждения ниже.</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadMs">
+    <value>Время упреждения (мс)</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadMsNote">
+    <value>0 = автоматически (половина задержки CAT, не более 50 мс, или 75 мс после TCA). Задайте явно, чтобы сдвинуть прогноз Доплера без смены темпа CAT.</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadGain">
+    <value>Сила упреждения (%)</value>
+  </data>
+  <data name="Settings.Radio.DopplerCatLeadGainNote">
+    <value>100 = полное расчётное упреждение. Снизьте, если рация опережает сигнал (попробуйте 70–85). На строку «Спутн.» не влияет.</value>
+  </data>
+  <data name="Settings.Rotator.Enable">
+    <value>Включить ротатор</value>
+  </data>
+  <data name="Settings.Rotator.Type">
+    <value>Тип ротатора</value>
+  </data>
+  <data name="Settings.Rotator.TypeNote">
+    <value>GS-232 для Yaesu и клонов. SPID для контроллеров в режиме SP (Rot1Prog / Rot2Prog). SPID MD-01 / MD-02 (TCP) для встроенного Ethernet (протокол SPID ROT2, порт по умолчанию 23). EasyComm для режима EC (SPID, M2 и другие текстовые протоколы). SAEBRTrack для классических интерфейсов спутниковых трекеров (9600 бод). OZ9AAR URC (TCP) для Ultimate Rotator Controller по Ethernet (порт по умолчанию 1111; поставьте URC в режим REM/remote). Green Heron RT-21 Az-El использует два COM-порта (азимут и угол места), протокол DCU-1 на 4800 бод; не выбирайте GS-232. Последовательные протоколы также могут идти через TCP-сервер последовательного порта (напр. ser2net) вместо локального COM.</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthPort">
+    <value>Последовательный порт азимута</value>
+  </data>
+  <data name="Settings.Rotator.ElevationPort">
+    <value>Последовательный порт угла места</value>
+  </data>
+  <data name="Settings.Rotator.DualSerialNote">
+    <value>У RT-21 Az-El два USB-порта (по одному на ось). Назначайте азимут и угол места внимательно: перепутать их значит крутить не тот мотор. В Linux лучше стабильные пути by-id, чтобы порты не менялись местами после перезагрузки.</value>
+  </data>
+  <data name="Settings.Rotator.Transport">
+    <value>Подключение</value>
+  </data>
+  <data name="Settings.Rotator.Transport.Serial">
+    <value>Последовательный (COM-порт)</value>
+  </data>
+  <data name="Settings.Rotator.Transport.Tcp">
+    <value>Последовательный TCP (напр. ser2net)</value>
+  </data>
+  <data name="Settings.Rotator.NetworkHost">
+    <value>Хост</value>
+  </data>
+  <data name="Settings.Rotator.NetworkHostWatermark">
+    <value>127.0.0.1 или имя хоста</value>
+  </data>
+  <data name="Settings.Rotator.NetworkPort">
+    <value>TCP-порт</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNote">
+    <value>OscarWatch подключается как TCP-клиент. На URC включите сокет-сервер и выберите дистанционный режим (REM), чтобы команды GOTO двигали антенны. Порт по умолчанию 1111.</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNoteTcpSerial">
+    <value>OscarWatch подключается как TCP-клиент к «сырому» тоннелю последовательного порта (например ser2net). Скорость и параметры последовательного порта задаются на сервере. Лучше в локальной сети: высокая задержка даёт таймауты.</value>
+  </data>
+  <data name="Settings.Rotator.NetworkNoteSpidMd01">
+    <value>OscarWatch подключается как TCP-клиент к Ethernet-порту MD-01 / MD-02. На контроллере задайте MOTOR CONFIGURATION = ETH и протокол SPID ROT2. Порт TCP по умолчанию 23. Одновременно может быть подключён только один клиент. Рекомендуется прошивка 1.2507 или новее.</value>
+  </data>
+  <data name="Settings.Rotator.SmartAzimuth">
+    <value>Умный азимут 450° (кратчайший путь через север)</value>
+  </data>
+  <data name="Settings.Rotator.SmartAzimuthNote">
+    <value>На ротаторах 450° (напр. Yaesu G-5500) команды 361–450° избегают долгого хода через 0°, если пролёт пересечёт север. Пролёты на север, но восточнее 0°, остаются в основном диапазоне.</value>
+  </data>
+  <data name="Settings.Rotator.ElevationRange">
+    <value>Диапазон угла места</value>
+  </data>
+  <data name="Settings.Rotator.ElevationRangeNote">
+    <value>0–90° для обычных ротаторов. 0–180° для установок «через зенит» (напр. Yaesu G-5500), которые ведут за зенитом.</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSection">
+    <value>Обход «замочной скважины»</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeEnable">
+    <value>Включить обход «замочной скважины»</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeNote">
+    <value>Если включено, пролёты с высоким углом места, где ротатор не успевает около зенита, анализируются, и ротатор может заранее встать в перевёрнутой ориентации, чтобы меньше терять сигнал. Предварительный ход крутит азимут на угле начала сопровождения (не ниже 0°). Доступно только при диапазоне угла места 0–180°.</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSlewRate">
+    <value>Скорость поворота (°/с)</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeSlewRateNote">
+    <value>Максимальная скорость ротатора в градусах в секунду. Нужна для расчёта окон потери сигнала.</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeThreshold">
+    <value>Порог «замочной скважины» (°)</value>
+  </data>
+  <data name="Settings.Rotator.KeyholeThresholdNote">
+    <value>Минимальный максимальный угол места, при котором пролёт считается входящим в зону «замочной скважины». Допустимый диапазон: 60–89°.</value>
+  </data>
+  <data name="Settings.Rotator.TrackStart">
+    <value>Начинать сопровождение с угла места (°)</value>
+  </data>
+  <data name="Settings.Rotator.TrackStartNote">
+    <value>По умолчанию −3° (под горизонтом). Диапазон −90° до 90°. Ротатор начинает ход, когда сопровождаемый спутник поднимается выше этого угла, и паркуется, когда опускается ниже (после короткого подтверждения, чтобы один ложный тик не прервал пролёт). Предварительная постановка для «замочной скважины» берёт этот угол как пол (не ниже 0°).</value>
+  </data>
+  <data name="Settings.Rotator.MovementThreshold">
+    <value>Порог движения (°)</value>
+  </data>
+  <data name="Settings.Rotator.MovementThresholdNote">
+    <value>Минимальное угловое изменение, прежде чем отправляется новая цель спутника. Если ротатор сообщает позицию всё ещё вне этого порога, последняя команда повторяется, чтобы шумный энкодер, остановившийся рано, снова поехал. Стоп отменяет этот повтор. Меньшие значения дают точнее сопровождение; большие меньше изнашивают редуктор. По умолчанию: 1,0°.</value>
+  </data>
+  <data name="Settings.Rotator.ParkAzimuth">
+    <value>Азимут парковки (°)</value>
+  </data>
+  <data name="Settings.Rotator.ParkElevation">
+    <value>Угол места парковки (°)</value>
+  </data>
+  <data name="Settings.Rotator.ParkAfterPass">
+    <value>Парковать ротатор после пролёта</value>
+  </data>
+  <data name="Settings.Rotator.ParkNote">
+    <value>Позиция парковки используется, когда ни один спутник не выше порога сопровождения. Сфокусированный пролёт или живой спутник сопровождаются автоматически. Ручная парковка в главном окне и режим ожидания не затрагиваются.</value>
+  </data>
+  <data name="Settings.Rotator.CalibrationOffsets">
+    <value>Калибровочные смещения (°)</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthOffset">
+    <value>Смещение азимута</value>
+  </data>
+  <data name="Settings.Rotator.ElevationOffset">
+    <value>Смещение угла места</value>
+  </data>
+  <data name="Settings.Rotator.OffsetNote">
+    <value>Добавляется к сопровождению пролёта и ручным командам поворота (не к парковке). Положительные значения, если луч останавливается не доходя до цели; отрицательные, если перелетает.</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthRange360">
+    <value>0–360°</value>
+  </data>
+  <data name="Settings.Rotator.AzimuthRange450">
+    <value>0–450°</value>
+  </data>
+  <data name="Settings.Rotator.ElevationRange90">
+    <value>0–90°</value>
+  </data>
+  <data name="Settings.Rotator.ElevationRange180">
+    <value>0–180°</value>
+  </data>
+  <data name="Settings.Recording.Enable">
+    <value>Включить автоматическую запись пролёта</value>
+  </data>
+  <data name="Settings.Recording.EnableNote">
+    <value>Пишет звук с выбранного входа, пока спутник в фокусе выше стартового угла места. Выберите WAV или MP3 (MP3 нужен ffmpeg в PATH). Файлы сохраняются с метками UTC.</value>
+  </data>
+  <data name="Settings.Recording.InputDevice">
+    <value>Устройство входа</value>
+  </data>
+  <data name="Settings.Recording.Format">
+    <value>Формат дискретизации</value>
+  </data>
+  <data name="Settings.Recording.FileFormat">
+    <value>Формат файла</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Wav">
+    <value>WAV</value>
+  </data>
+  <data name="Settings.Recording.FileFormat.Mp3">
+    <value>MP3</value>
+  </data>
+  <data name="Settings.Recording.FfmpegAvailable">
+    <value>ffmpeg найден в PATH. Преобразование в MP3 доступно.</value>
+  </data>
+  <data name="Settings.Recording.FfmpegUnavailable">
+    <value>Для MP3 нужен ffmpeg в PATH. Записи остаются WAV, пока ffmpeg не установлен.</value>
+  </data>
+  <data name="Settings.Recording.StartElevation">
+    <value>Начинать запись с угла места (°)</value>
+  </data>
+  <data name="Settings.Recording.StopElevation">
+    <value>Останавливать запись ниже угла места (°)</value>
+  </data>
+  <data name="Settings.Recording.StopNote">
+    <value>Угол остановки должен быть не выше стартового, чтобы не дёргалось около порога.</value>
+  </data>
+  <data name="Settings.Recording.OutputFolder">
+    <value>Папка вывода</value>
+  </data>
+  <data name="Settings.Recording.OutputWatermark">
+    <value>По умолчанию: %AppData%/OscarWatch/recordings</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageOne">
+    <value>1 файл · {0}</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageMany">
+    <value>{0} файлов · {1}</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageEmpty">
+    <value>В этой папке пока нет записей</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageMissing">
+    <value>Папка будет создана при сохранении первой записи</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageError">
+    <value>Не удалось прочитать размер папки</value>
+  </data>
+  <data name="Settings.Recording.OpenFolder">
+    <value>Открыть папку</value>
+  </data>
+  <data name="Settings.Recording.TestButton">
+    <value>Пробная запись (5 с)</value>
+  </data>
+  <data name="Settings.Recording.Unavailable">
+    <value>Запись звука на этой системе недоступна.</value>
+  </data>
+  <data name="Settings.Recording.DevicesLoading">
+    <value>Загрузка аудиоустройств…</value>
+  </data>
+  <data name="Settings.Recording.SelectDeviceFirst">
+    <value>Сначала выберите устройство входа.</value>
+  </data>
+  <data name="Settings.Recording.TestInProgress">
+    <value>Запись пробного ролика 5 с…</value>
+  </data>
+  <data name="Settings.Recording.TestSaved">
+    <value>Пробный ролик сохранён в {0}</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Fallback">
+    <value>Сохранено как WAV ({0}); для MP3 нужен ffmpeg в PATH.</value>
+  </data>
+  <data name="Settings.Recording.TestSavedMp3Failed">
+    <value>Сохранено как WAV ({0}); преобразование в MP3 не удалось.</value>
+  </data>
+  <data name="Settings.Recording.Format.Mono44100">
+    <value>Моно 44,1 кГц</value>
+  </data>
+  <data name="Settings.Recording.Format.Mono48000">
+    <value>Моно 48 кГц</value>
+  </data>
+  <data name="Settings.Recording.Format.Stereo44100">
+    <value>Стерео 44,1 кГц</value>
+  </data>
+  <data name="Settings.HamsAt.Section">
+    <value>hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.Intro">
+    <value>Показывать ближайшие спутниковые выезды с hams.at в боковой панели. В списке только оповещения, помеченные как рабочие для вашей точки на hams.at: задайте точку на hams.at, если список пуст. API-ключ хранится локально в settings.json, как и у других интеграций.</value>
+  </data>
+  <data name="Settings.HamsAt.Enable">
+    <value>Включить ближайшие выезды hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.ApiKey">
+    <value>API-ключ hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.ApiKeyWatermark">
+    <value>Bearer-токен с hams.at</value>
+  </data>
+  <data name="Settings.HamsAt.PanelHeight">
+    <value>Высота боковой панели (пикс.)</value>
+  </data>
+  <data name="Settings.HamsAt.RefreshInterval">
+    <value>Интервал обновления (минуты)</value>
+  </data>
+  <data name="Settings.HamsAt.TestConnection">
+    <value>Проверить соединение</value>
+  </data>
+  <data name="Settings.HamsAt.Testing">
+    <value>Проверка соединения hams.at…</value>
+  </data>
+  <data name="Settings.HamsAt.EnterApiKey">
+    <value>Сначала введите API-ключ hams.at.</value>
+  </data>
+  <data name="Settings.HamsAt.ConnectionOk">
+    <value>Подключено: {0}</value>
+  </data>
+  <data name="Settings.HamsAt.ConnectionFailed">
+    <value>Сбой соединения: {0}</value>
+  </data>
+  <data name="HamsAt.Activation.Title">
+    <value>Опубликовать активацию на hams.at</value>
+  </data>
+  <data name="HamsAt.Activation.PassSummary">
+    <value>{0} · {1} · {2}</value>
+  </data>
+  <data name="HamsAt.Activation.Callsign">
+    <value>Позывной</value>
+  </data>
+  <data name="HamsAt.Activation.Grids">
+    <value>Активируемые квадраты (1–4 квадрата, по 4 или 6 символов)</value>
+  </data>
+  <data name="HamsAt.Activation.Mode">
+    <value>Режим (FM, USB, CW и т. д.)</value>
+  </data>
+  <data name="HamsAt.Activation.FrequencyOptional">
+    <value>Частота (необязательно)</value>
+  </data>
+  <data name="HamsAt.Activation.IncludeUplinkMhz">
+    <value>Аплинк</value>
+  </data>
+  <data name="HamsAt.Activation.IncludeDownlinkMhz">
+    <value>Даунлинк</value>
+  </data>
+  <data name="HamsAt.Activation.UplinkMhz">
+    <value>Аплинк (МГц)</value>
+  </data>
+  <data name="HamsAt.Activation.DownlinkMhz">
+    <value>Даунлинк (МГц)</value>
+  </data>
+  <data name="HamsAt.Activation.Mhz">
+    <value>МГц (необязательно)</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection">
+    <value>Направление</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection.Up">
+    <value>Вверх</value>
+  </data>
+  <data name="HamsAt.Activation.MhzDirection.Down">
+    <value>Вниз</value>
+  </data>
+  <data name="HamsAt.Activation.Comment">
+    <value>Комментарий (необязательно, до 50 символов)</value>
+  </data>
+  <data name="HamsAt.Activation.Submit">
+    <value>Опубликовать активацию</value>
+  </data>
+  <data name="HamsAt.Activation.Error.CallsignRequired">
+    <value>Введите позывной не короче трёх символов.</value>
+  </data>
+  <data name="HamsAt.Activation.Error.GridsRequired">
+    <value>Введите хотя бы один квадрат Maidenhead.</value>
+  </data>
+  <data name="HamsAt.Activation.Error.ModeRequired">
+    <value>Выберите режим работы (SSB, CW, Data или FM).</value>
+  </data>
+  <data name="HamsAt.Activation.Error.GridLength">
+    <value>Квадрат «{0}» должен быть из 4 или 6 символов для hams.at.</value>
+  </data>
+  <data name="HamsAt.Activation.Error.MhzInvalid">
+    <value>Введите действительное значение МГц или оставьте поле пустым.</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Section">
+    <value>OscarWatch</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Intro">
+    <value>Сообщайте, включён ли режим спутника (On), выключен (Off) или только телеметрия, на OscarWatch.org. Создайте API-токен в oscarwatch.org → Settings → API tokens. В профиле сайта нужны позывной и квадрат, иначе отчёты не принимаются.</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Enable">
+    <value>Включить сообщения о статусе спутника</value>
+  </data>
+  <data name="Settings.SatelliteStatus.AutoReportOnQso">
+    <value>Автоматически сообщать On при записи QSO</value>
+  </data>
+  <data name="Settings.SatelliteStatus.BaseUrl">
+    <value>Базовый URL</value>
+  </data>
+  <data name="Settings.SatelliteStatus.BaseUrlWatermark">
+    <value>https://oscarwatch.org</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ApiToken">
+    <value>API-токен</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ApiTokenWatermark">
+    <value>Bearer-токен с oscarwatch.org</value>
+  </data>
+  <data name="Settings.SatelliteStatus.TestConnection">
+    <value>Проверить соединение</value>
+  </data>
+  <data name="Settings.SatelliteStatus.Testing">
+    <value>Проверка соединения OscarWatch.org…</value>
+  </data>
+  <data name="Settings.SatelliteStatus.EnterApiToken">
+    <value>Сначала введите API-токен OscarWatch.org.</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ConnectionOk">
+    <value>Подключено: {0}</value>
+  </data>
+  <data name="Settings.SatelliteStatus.ConnectionFailed">
+    <value>Сбой соединения: {0}</value>
+  </data>
+  <data name="SatStatus.Report.Title">
+    <value>Сообщить статус спутника</value>
+  </data>
+  <data name="SatStatus.Report.Satellite">
+    <value>Спутник: {0}</value>
+  </data>
+  <data name="SatStatus.Report.Mode">
+    <value>Режим: {0}</value>
+  </data>
+  <data name="SatStatus.Report.StatusPrompt">
+    <value>Статус</value>
+  </data>
+  <data name="SatStatus.Report.Status.On">
+    <value>On</value>
+  </data>
+  <data name="SatStatus.Report.Status.Off">
+    <value>Off</value>
+  </data>
+  <data name="SatStatus.Report.Status.TelemetryOnly">
+    <value>Только телеметрия</value>
+  </data>
+  <data name="SatStatus.Report.Submit">
+    <value>Отправить</value>
+  </data>
+  <data name="SatStatus.Report.Stored">
+    <value>Отчёт о статусе спутника сохранён.</value>
+  </data>
+  <data name="SatStatus.Report.Duplicate">
+    <value>Повторный отчёт: недавно уже сохранён.</value>
+  </data>
+  <data name="SatStatus.Report.Failed">
+    <value>Сбой отчёта о статусе спутника: {0}</value>
+  </data>
+  <data name="SatStatus.Report.BelowElevation">
+    <value>Статус спутника можно сообщать только при угле места не ниже −1°.</value>
+  </data>
+  <data name="SatStatus.Community.OverlayTitle">
+    <value>Статус сообщества (выбранный режим)</value>
+  </data>
+  <data name="SatStatus.Community.PassTitle">
+    <value>{0} · статус сообщества ({1} ч)</value>
+  </data>
+  <data name="SatStatus.Community.ReportCount">
+    <value>Отчётов в окне: {0}</value>
+  </data>
+  <data name="SatStatus.Community.LastReport">
+    <value>Последний отчёт {0}</value>
+  </data>
+  <data name="SatStatus.Community.LastReportInline">
+    <value>последний отчёт {0}</value>
+  </data>
+  <data name="SatStatus.Community.StaleNote">
+    <value>Последний отчёт старше 3 часов</value>
+  </data>
+  <data name="SatStatus.Community.WindowNote">
+    <value>Отчёты сообщества за последние {0} ч</value>
+  </data>
+  <data name="SatStatus.Community.NoModeData">
+    <value>Нет данных по режиму</value>
+  </data>
+  <data name="SatStatus.Community.YourSelection">
+    <value>ваш последний выбор</value>
+  </data>
+  <data name="SatStatus.Community.DefaultMode">
+    <value>по умолчанию</value>
+  </data>
+  <data name="SatStatus.Community.PassAutomation">
+    <value>{0}, {1}: {2}</value>
+  </data>
+  <data name="SatStatus.Community.Short.On">
+    <value>On</value>
+  </data>
+  <data name="SatStatus.Community.Short.Off">
+    <value>Off</value>
+  </data>
+  <data name="SatStatus.Community.Short.Telem">
+    <value>Телем.</value>
+  </data>
+  <data name="SatStatus.Community.Short.Unknown">
+    <value>?</value>
+  </data>
+  <data name="SatStatus.Community.NoRecentReports">
+    <value>Нет недавних отчётов</value>
+  </data>
+  <data name="Settings.SatelliteLink.Section">
+    <value>Спутниковый канал</value>
+  </data>
+  <data name="Settings.SatelliteLink.Intro">
+    <value>Транслирует имя спутника в фокусе, частоты, режимы и данные сопровождения лог-программам по локальному WebSocket (преемник DDE SatPC32). API см. в справке.</value>
+  </data>
+  <data name="Settings.SatelliteLink.Enable">
+    <value>Включить WebSocket-сервер спутникового канала</value>
+  </data>
+  <data name="Settings.SatelliteLink.Port">
+    <value>Порт</value>
+  </data>
+  <data name="Settings.SatelliteLink.AllowLan">
+    <value>Разрешить подключения из локальной сети</value>
+  </data>
+  <data name="Settings.SatelliteLink.AllowLanNote">
+    <value>Если выкл., подключаются только программы на этом ПК (127.0.0.1). Если вкл., OscarWatch слушает IP-адреса LAN. В Windows разрешите OscarWatch, когда появится запрос брандмауэра. На macOS или Linux откройте порт в брандмауэре, если клиенты LAN не подключаются.</value>
+  </data>
+  <data name="Settings.SatelliteLink.OnlyWhenInRange">
+    <value>Транслировать только когда спутник над горизонтом</value>
+  </data>
+  <data name="Settings.SatelliteLink.UpdateInterval">
+    <value>Интервал обновления (мс)</value>
+  </data>
+  <data name="Settings.SatelliteLink.UpdateIntervalNote">
+    <value>Минимальное время между одинаковыми пакетами. Смена фокуса и режима уходит сразу.</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlPreview">
+    <value>URL подключения</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlLocal">
+    <value>ws://127.0.0.1:{0}/</value>
+  </data>
+  <data name="Settings.SatelliteLink.UrlLan">
+    <value>ws://&lt;IP этого ПК&gt;:{0}/ (все интерфейсы)</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestConnection">
+    <value>Проверить порт</value>
+  </data>
+  <data name="Settings.SatelliteLink.OpenHelp">
+    <value>Открыть справку</value>
+  </data>
+  <data name="Settings.SatelliteLink.Testing">
+    <value>Проверка порта</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestOk">
+    <value>Порт {0} свободен на выбранных интерфейсах.</value>
+  </data>
+  <data name="Settings.SatelliteLink.TestFailed">
+    <value>Не удалось слушать порт {0}: {1}</value>
+  </data>
+  <data name="Settings.Cloudlog.Section">
+    <value>Cloudlog</value>
+  </data>
+  <data name="Settings.Cloudlog.Intro">
+    <value>Отправляет спутниковые TX/RX в Cloudlog при смене частот или режимов, плюс периодический keepalive, пока ничего не меняется. Проверка соединения загружает ваши журналы для поиска квадратов на выездах hams.at.</value>
+  </data>
+  <data name="Settings.Cloudlog.Enable">
+    <value>Включить radio API Cloudlog (нужно для живых обновлений)</value>
+  </data>
+  <data name="Settings.Cloudlog.BaseUrl">
+    <value>Базовый URL Cloudlog</value>
+  </data>
+  <data name="Settings.Cloudlog.BaseUrlWatermark">
+    <value>https://your.cloudlog.site</value>
+  </data>
+  <data name="Settings.Cloudlog.ApiKey">
+    <value>API-ключ</value>
+  </data>
+  <data name="Settings.Cloudlog.ApiKeyWatermark">
+    <value>API-ключ на чтение/запись</value>
+  </data>
+  <data name="Settings.Cloudlog.RadioName">
+    <value>Имя рации в Cloudlog</value>
+  </data>
+  <data name="Settings.Cloudlog.RadioNameWatermark">
+    <value>OscarWatch</value>
+  </data>
+  <data name="Settings.Cloudlog.RadioNameNote">
+    <value>По умолчанию OscarWatch. Должно совпадать с записью рации, к которой Cloudlog может привязывать QSO.</value>
+  </data>
+  <data name="Settings.Cloudlog.MinInterval">
+    <value>Интервал keepalive (мс)</value>
+  </data>
+  <data name="Settings.Cloudlog.MinIntervalNote">
+    <value>Отправка сразу при смене аплинка, даунлинка, режимов или спутника. То же состояние повторяется с этим интервалом (по умолчанию 10 минут), чтобы Cloudlog не отставал на длинных связях.</value>
+  </data>
+  <data name="Settings.Cloudlog.TestConnection">
+    <value>Проверить соединение</value>
+  </data>
+  <data name="Settings.Cloudlog.Testing">
+    <value>Проверка…</value>
+  </data>
+  <data name="Settings.Cloudlog.EnterCredentials">
+    <value>Введите URL и API-ключ (уйдите с каждого поля Tab или снова нажмите Проверить).</value>
+  </data>
+  <data name="Settings.Cloudlog.Logbook">
+    <value>Журнал</value>
+  </data>
+  <data name="Settings.Cloudlog.CheckRoveGrids">
+    <value>Подсвечивать квадраты, которых ещё нет, на выездах hams.at</value>
+  </data>
+  <data name="Settings.Cloudlog.LogbooksLoaded">
+    <value>Найдено журналов: {0}</value>
+  </data>
+  <data name="Settings.Cloudlog.ConnectionOk">
+    <value>Соединение в порядке: пробный CAT отправлен в {0}</value>
+  </data>
+  <data name="Settings.Cloudlog.ConnectionOkWithLogbooks">
+    <value>{0}. Пробный CAT рации в порядке.</value>
+  </data>
+  <data name="Settings.Cloudlog.LogbooksOnly">
+    <value>{0}. Сбой пробного CAT рации: {1}</value>
+  </data>
+  <data name="Settings.Cloudlog.LoadFailed">
+    <value>Не удалось загрузить журналы: {0}</value>
+  </data>
+  <data name="Settings.Cloudlog.ConnectionFailed">
+    <value>Сбой соединения.</value>
+  </data>
+  <data name="Settings.Browse.RecordingFolder">
+    <value>Выберите папку записей</value>
+  </data>
+  <data name="Settings.Browse.TleFile">
+    <value>Выберите файл TLE</value>
+  </data>
+  <data name="Settings.SaveFailed.Title">
+    <value>Не удалось сохранить настройки</value>
+  </data>
+  <data name="Pass.Time.Local">
+    <value>Местное время</value>
+  </data>
+  <data name="Pass.Time.Utc">
+    <value>UTC</value>
+  </data>
+  <data name="Pass.TimesShownIn">
+    <value>Время показывать как</value>
+  </data>
+  <data name="Pass.MinElevation">
+    <value>Мин. угол места (°)</value>
+  </data>
+  <data name="Pass.MinDuration">
+    <value>Мин. длительность (мин)</value>
+  </data>
+  <data name="Pass.HoursAhead">
+    <value>Часов вперёд</value>
+  </data>
+  <data name="Pass.Computing">
+    <value>Расчёт пролётов…</value>
+  </data>
+  <data name="Pass.ComputingMutual">
+    <value>Расчёт взаимных пролётов…</value>
+  </data>
+  <data name="Pass.CountPasses">
+    <value>{0} пролёт(ов) за ближайшие {1} ч</value>
+  </data>
+  <data name="Pass.CountMutual">
+    <value>{0} взаимных пролёт(ов) за ближайшие {1} ч</value>
+  </data>
+  <data name="Pass.CountMutualInRange">
+    <value>{0} взаимных пролёт(ов) с {1} по {2}</value>
+  </data>
+  <data name="Pass.Failed">
+    <value>Сбой прогноза пролётов: {0}</value>
+  </data>
+  <data name="Pass.FailedMutual">
+    <value>Сбой прогноза взаимных пролётов: {0}</value>
+  </data>
+  <data name="Planner.Section.StationFilters">
+    <value>Станция и фильтры</value>
+  </data>
+  <data name="Planner.UseActiveStation">
+    <value>Использовать как активную станцию</value>
+  </data>
+  <data name="Planner.DisplayNameWatermark">
+    <value>Отображаемое имя</value>
+  </data>
+  <data name="Planner.Maidenhead">
+    <value>Maidenhead</value>
+  </data>
+  <data name="Planner.AltAsl">
+    <value>Выс. над ур. моря (м)</value>
+  </data>
+  <data name="Planner.RefreshPasses">
+    <value>Обновить пролёты</value>
+  </data>
+  <data name="Planner.FiltersNote">
+    <value>Фильтры применяются к этому списку и к главному окну при закрытии.</value>
+  </data>
+  <data name="Planner.PassesHeader">
+    <value>Пролёты</value>
+  </data>
+  <data name="Planner.SatelliteFilter.All">
+    <value>Все спутники</value>
+  </data>
+  <data name="Planner.OpenPassRadarGallery">
+    <value>Галерея радаров пролётов</value>
+  </data>
+  <data name="Planner.Col.Satellite">
+    <value>Спутник</value>
+  </data>
+  <data name="Planner.Col.AosLos">
+    <value>AOS – LOS</value>
+  </data>
+  <data name="Planner.Col.Tca">
+    <value>TCA</value>
+  </data>
+  <data name="Planner.Col.Azimuth">
+    <value>Азимут</value>
+  </data>
+  <data name="Planner.Col.MaxEl">
+    <value>Макс. El</value>
+  </data>
+  <data name="Planner.Col.Duration">
+    <value>Длительность</value>
+  </data>
+  <data name="Planner.Col.Calendar">
+    <value>Календарь</value>
+  </data>
+  <data name="Planner.Col.Schedule">
+    <value>Расписание</value>
+  </data>
+  <data name="Planner.AddToCalendar">
+    <value>Добавить в календарь</value>
+  </data>
+  <data name="Planner.Export.CalendarTip">
+    <value>Сохранить файл iCalendar для этого спутника или добавить этот пролёт в Google Calendar</value>
+  </data>
+  <data name="Planner.Export.SaveIcs">
+    <value>Сохранить iCalendar (.ics)</value>
+  </data>
+  <data name="Planner.Export.SaveIcsTip">
+    <value>Экспортировать все пролёты этого спутника в файл iCalendar (.ics)</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendar">
+    <value>Добавить этот пролёт в Google Calendar</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarTip">
+    <value>Открыть Google Calendar в браузере с заполненным пролётом</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarOpened">
+    <value>Google Calendar открыт для {0}</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarFailed">
+    <value>Не удалось открыть Google Calendar: {0}</value>
+  </data>
+  <data name="Planner.PortableName">
+    <value>Полевой {0}</value>
+  </data>
+  <data name="Planner.Export.RefreshFirst">
+    <value>Обновите пролёты перед экспортом.</value>
+  </data>
+  <data name="Planner.Export.Title">
+    <value>Экспорт пролётов {0}</value>
+  </data>
+  <data name="Planner.Export.FileType">
+    <value>iCalendar</value>
+  </data>
+  <data name="Planner.Export.CalendarTitle">
+    <value>OscarWatch: {0} @ {1}</value>
+  </data>
+  <data name="Planner.Export.Done">
+    <value>Экспортировано {0} {1} пролёт(ов)</value>
+  </data>
+  <data name="Planner.Export.SatelliteFile">
+    <value>спутник</value>
+  </data>
+  <data name="Planner.ContextMenu.CopySatelliteDetails">
+    <value>Копировать данные спутника</value>
+  </data>
+  <data name="Planner.ContextMenu.ViewPassPlot">
+    <value>График пролёта</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadar">
+    <value>Открыть радар пролёта</value>
+  </data>
+  <data name="Planner.ContextMenu.OpenPassRadarGallery">
+    <value>Открыть галерею радаров (все пролёты)</value>
+  </data>
+  <data name="Mutual.Section.StationsFilters">
+    <value>Станции и фильтры</value>
+  </data>
+  <data name="Mutual.Section.Stations">
+    <value>Станции</value>
+  </data>
+  <data name="Mutual.Section.PassCriteria">
+    <value>Критерии пролёта</value>
+  </data>
+  <data name="Mutual.Section.SearchPeriod">
+    <value>Период поиска</value>
+  </data>
+  <data name="Mutual.Wizard.Progress">
+    <value>Шаг {0} из {1}: {2}</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Stations">
+    <value>Станции</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Criteria">
+    <value>Критерии пролёта</value>
+  </data>
+  <data name="Mutual.Wizard.Step.When">
+    <value>Период поиска</value>
+  </data>
+  <data name="Mutual.Wizard.Step.Results">
+    <value>Результаты</value>
+  </data>
+  <data name="Mutual.Wizard.StationsIntro">
+    <value>Введите квадрат Maidenhead удалённого оператора. Для своей стороны берётся активная станция.</value>
+  </data>
+  <data name="Mutual.Wizard.CriteriaIntro">
+    <value>Задайте минимальный угол места, длительность пролёта и перекрытие, нужные для общего окна.</value>
+  </data>
+  <data name="Mutual.Wizard.EditSearch">
+    <value>Изменить поиск</value>
+  </data>
+  <data name="Mutual.YourStation">
+    <value>Ваша станция</value>
+  </data>
+  <data name="Mutual.RemoteOperator">
+    <value>Удалённый оператор</value>
+  </data>
+  <data name="Mutual.RemoteOperatorWatermark">
+    <value>Позывной или имя (необязательно)</value>
+  </data>
+  <data name="Mutual.RemoteGrid">
+    <value>Удалённый квадрат Maidenhead</value>
+  </data>
+  <data name="Mutual.Description">
+    <value>Найти пролёты, когда спутник одновременно выше минимального угла места и у вашей станции, и в удалённом квадрате.</value>
+  </data>
+  <data name="Mutual.FindPasses">
+    <value>Найти взаимные пролёты</value>
+  </data>
+  <data name="Mutual.MinPassDuration">
+    <value>Мин. длительность пролёта (мин)</value>
+  </data>
+  <data name="Mutual.MinOverlap">
+    <value>Мин. перекрытие (мин)</value>
+  </data>
+  <data name="Mutual.TimeWindow.Label">
+    <value>Окно поиска</value>
+  </data>
+  <data name="Mutual.TimeWindow.HoursAhead">
+    <value>Часов вперёд от сейчас</value>
+  </data>
+  <data name="Mutual.TimeWindow.DateRange">
+    <value>Свой диапазон</value>
+  </data>
+  <data name="Mutual.RangeStart">
+    <value>Начало</value>
+  </data>
+  <data name="Mutual.RangeEnd">
+    <value>Конец</value>
+  </data>
+  <data name="Mutual.RangeStartDate">
+    <value>Дата начала</value>
+  </data>
+  <data name="Mutual.RangeStartTime">
+    <value>Время начала</value>
+  </data>
+  <data name="Mutual.RangeEndDate">
+    <value>Дата конца</value>
+  </data>
+  <data name="Mutual.RangeEndTime">
+    <value>Время конца</value>
+  </data>
+  <data name="Mutual.PassesHeader">
+    <value>Взаимные пролёты</value>
+  </data>
+  <data name="Mutual.ResultsContext">
+    <value>{0} ↔ {1}</value>
+  </data>
+  <data name="Mutual.Col.Satellite">
+    <value>Спутник</value>
+  </data>
+  <data name="Mutual.Col.MutualWindow">
+    <value>Общее окно</value>
+  </data>
+  <data name="Mutual.Col.Overlap">
+    <value>Перекрытие</value>
+  </data>
+  <data name="Mutual.Col.MaxElPair">
+    <value>Макс. El°</value>
+  </data>
+  <data name="Mutual.Col.YourAosLos">
+    <value>Ваши AOS–LOS</value>
+  </data>
+  <data name="Mutual.Col.RemoteAosLos">
+    <value>Удалённые AOS–LOS</value>
+  </data>
+  <data name="Mutual.Status.EnterGrid">
+    <value>Введите квадрат Maidenhead удалённого оператора (не менее 4 символов).</value>
+  </data>
+  <data name="Mutual.Status.NoPasses">
+    <value>Нет взаимных пролётов за ближайшие {0} ч для {1} и {2}.</value>
+  </data>
+  <data name="Mutual.Status.NoPassesInRange">
+    <value>Нет взаимных пролётов с {0} по {1} для {2} и {3}.</value>
+  </data>
+  <data name="Mutual.Status.InvalidRange">
+    <value>Дата и время конца должны быть позже начала.</value>
+  </data>
+  <data name="Mutual.Status.RangeTooLong">
+    <value>Окно поиска не может превышать {0} дней.</value>
+  </data>
+  <data name="Mutual.Status.InvalidGrid">
+    <value>Неверный квадрат Maidenhead.</value>
+  </data>
+  <data name="Mutual.OpenVisualizer">
+    <value>Открыть визуализатор</value>
+  </data>
+  <data name="Mutual.Visualizer.DoubleClickHint">
+    <value>Двойной щелчок по пролёту открывает визуализатор взаимного пролёта. Правый щелчок: ещё действия.</value>
+  </data>
+  <data name="Mutual.Copy.Title">
+    <value>Взаимный пролёт: {0}</value>
+  </data>
+  <data name="Mutual.Copy.Between">
+    <value>Между {0} и {1}</value>
+  </data>
+  <data name="Mutual.Copy.TimesIn">
+    <value>Время показано как {0}</value>
+  </data>
+  <data name="Mutual.Copy.MutualWindow">
+    <value>Общее окно</value>
+  </data>
+  <data name="Mutual.Copy.MutualWindowLine">
+    <value>  {0} ({1})</value>
+  </data>
+  <data name="Mutual.Copy.YourPass">
+    <value>Ваш пролёт: {0}</value>
+  </data>
+  <data name="Mutual.Copy.RemotePass">
+    <value>Удалённый пролёт: {0}</value>
+  </data>
+  <data name="Mutual.Copy.PassTimes">
+    <value>  {0}</value>
+  </data>
+  <data name="Mutual.Copy.MaxElevation">
+    <value>  Макс. угол места {0:F1}°</value>
+  </data>
+  <data name="Mutual.Copy.Azimuth">
+    <value>  Азимут AOS {0:F1}° · азимут LOS {1:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.Heading">
+    <value>Перекрывающийся пролёт между {0} и {1} через {2}</value>
+  </data>
+  <data name="Mutual.Visualizer.Subtitle">
+    <value>Перекрытие {0}, начало {1} ({2})</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassLocal">
+    <value>Полный пролёт от {0}</value>
+  </data>
+  <data name="Mutual.Visualizer.FullPassRemote">
+    <value>Полный пролёт от {0}</value>
+  </data>
+  <data name="Mutual.Visualizer.StationStats">
+    <value>{0} · AOS Az: {1:F1}° · макс. El: {2:F1}° · LOS Az: {3:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.PlotTooltip">
+    <value>{0} · Az: {1:F1}° · El: {2:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.PlotTooltipWithRotor">
+    <value>{0} · Az: {1:F1}° · ротор: {2:F0}° · El: {3:F1}°</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Aos">
+    <value>AOS (начало общего окна)</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Los">
+    <value>LOS (конец общего окна)</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Sunlit">
+    <value>На солнце</value>
+  </data>
+  <data name="Mutual.Visualizer.Legend.Eclipse">
+    <value>Затмение</value>
+  </data>
+  <data name="Mutual.Visualizer.Screenshot">
+    <value>Снимок экрана</value>
+  </data>
+  <data name="Sunlight.Section.SatelliteRange">
+    <value>Спутник и диапазон</value>
+  </data>
+  <data name="Sunlight.Satellite">
+    <value>Спутник</value>
+  </data>
+  <data name="Sunlight.StartDateUtc">
+    <value>Дата начала (UTC)</value>
+  </data>
+  <data name="Sunlight.DaysAhead">
+    <value>Дней вперёд</value>
+  </data>
+  <data name="Sunlight.Predict">
+    <value>Прогноз</value>
+  </data>
+  <data name="Sunlight.Legend.Sunlight">
+    <value>Солнце</value>
+  </data>
+  <data name="Sunlight.Legend.Eclipse">
+    <value>Затмение</value>
+  </data>
+  <data name="Sunlight.ContinuousPeriods">
+    <value>Непрерывные периоды на солнце</value>
+  </data>
+  <data name="Sunlight.MinDuration">
+    <value>Мин. длительность (мин)</value>
+  </data>
+  <data name="Sunlight.Col.StartLocal">
+    <value>Начало (местн.)</value>
+  </data>
+  <data name="Sunlight.Col.EndLocal">
+    <value>Конец (местн.)</value>
+  </data>
+  <data name="Sunlight.Col.Duration">
+    <value>Длительность</value>
+  </data>
+  <data name="Sunlight.Status.SelectPredict">
+    <value>Выберите спутник и нажмите «Прогноз».</value>
+  </data>
+  <data name="Sunlight.Status.NoSatellites">
+    <value>Нет включённых спутников: сначала Спутники → Выбрать спутники.</value>
+  </data>
+  <data name="Sunlight.Status.Computing">
+    <value>Расчёт освещённости для {0}…</value>
+  </data>
+  <data name="Sunlight.Status.Segments">
+    <value>{0} сегментов освещённости за {1} дн.</value>
+  </data>
+  <data name="Sunlight.Status.Cancelled">
+    <value>Прогноз отменён.</value>
+  </data>
+  <data name="Sunlight.Status.Failed">
+    <value>Сбой прогноза: {0}</value>
+  </data>
+  <data name="Sunlight.Summary.SunlitPercent">
+    <value>{0}% времени на солнце</value>
+  </data>
+  <data name="Sunlight.Summary.LongestSun">
+    <value>самый длинный непрерывный свет {0} ({1} – {2})</value>
+  </data>
+  <data name="Sunlight.Summary.LongestEclipse">
+    <value>самое длинное затмение {0}</value>
+  </data>
+  <data name="Picker.SearchWatermark">
+    <value>Поиск спутников…</value>
+  </data>
+  <data name="Picker.Filter.All">
+    <value>Все</value>
+  </data>
+  <data name="Picker.Filter.Selected">
+    <value>Выбранные</value>
+  </data>
+  <data name="Picker.Filter.NotSelected">
+    <value>Не выбранные</value>
+  </data>
+  <data name="DbEditor.Intro">
+    <value>Управление режимами транспондеров спутников (частоты в кГц). Сохраняется в папку AppData пользователя.</value>
+  </data>
+  <data name="DbEditor.Path.User">
+    <value>База пользователя: {0}</value>
+  </data>
+  <data name="DbEditor.Path.Shipped">
+    <value>Поставляемые значения: {0}</value>
+  </data>
+  <data name="DbEditor.SearchWatermark">
+    <value>Поиск спутников…</value>
+  </data>
+  <data name="DbEditor.ImportJson">
+    <value>Импорт JSON…</value>
+  </data>
+  <data name="DbEditor.ExportJson">
+    <value>Экспорт JSON…</value>
+  </data>
+  <data name="DbEditor.CheckUpdates">
+    <value>Проверить обновления</value>
+  </data>
+  <data name="DbEditor.AddSatellite">
+    <value>Добавить спутник</value>
+  </data>
+  <data name="DbEditor.RestoreDefaults">
+    <value>Восстановить по умолчанию</value>
+  </data>
+  <data name="DbEditor.RemoveSatellite">
+    <value>Удалить спутник</value>
+  </data>
+  <data name="DbEditor.Satellite">
+    <value>Спутник</value>
+  </data>
+  <data name="DbEditor.NameWatermark">
+    <value>Предпочтительное имя (на карте)</value>
+  </data>
+  <data name="DbEditor.NoradIdLabel">
+    <value>NORAD ID</value>
+  </data>
+  <data name="DbEditor.NoradIdWatermark">
+    <value>Необязательно: совпадение с tle.oscarwatch.org (напр. 27607)</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesLabel">
+    <value>Альтернативные имена</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesWatermark">
+    <value>Через запятую (напр. UmKA-1, RS40-S)</value>
+  </data>
+  <data name="DbEditor.AlternativeNamesHint">
+    <value>Нужны, чтобы совпадать с именами TLE и опубликованной базы, когда они отличаются от предпочтительного. При переименовании прежнее имя сюда попадает само. При псевдонимах рекомендуется NORAD ID.</value>
+  </data>
+  <data name="DbEditor.ModesHeader">
+    <value>Режимы транспондера</value>
+  </data>
+  <data name="DbEditor.AddMode">
+    <value>Добавить режим</value>
+  </data>
+  <data name="DbEditor.Duplicate">
+    <value>Дублировать</value>
+  </data>
+  <data name="DbEditor.Remove">
+    <value>Удалить</value>
+  </data>
+  <data name="DbEditor.ModeDetails">
+    <value>Параметры режима</value>
+  </data>
+  <data name="DbEditor.TypeLabel">
+    <value>Тип / метка</value>
+  </data>
+  <data name="DbEditor.DownlinkKhz">
+    <value>Даунлинк (кГц)</value>
+  </data>
+  <data name="DbEditor.UplinkKhz">
+    <value>Аплинк (кГц)</value>
+  </data>
+  <data name="DbEditor.DownlinkMode">
+    <value>Режим даунлинка</value>
+  </data>
+  <data name="DbEditor.UplinkMode">
+    <value>Режим аплинка</value>
+  </data>
+  <data name="DbEditor.Doppler">
+    <value>Доплер</value>
+  </data>
+  <data name="DbEditor.CtcssAccess">
+    <value>CTCSS доступ (Гц)</value>
+  </data>
+  <data name="DbEditor.CtcssArm">
+    <value>CTCSS взвод (Гц)</value>
+  </data>
+  <data name="DbEditor.ModeHint">
+    <value>Аплинк 0: только маяк. CTCSS 0: без тона. Режимы FM в Гц (напр. 67.0).</value>
+  </data>
+  <data name="DbEditor.FileType.Json">
+    <value>JSON</value>
+  </data>
+  <data name="DbEditor.Mode.NewMode">
+    <value>Новый режим</value>
+  </data>
+  <data name="DbEditor.Mode.CopySuffix">
+    <value> копия</value>
+  </data>
+  <data name="DbEditor.Status.Loaded">
+    <value>Загружено спутников: {0}.</value>
+  </data>
+  <data name="DbEditor.Status.AddCancelled">
+    <value>Добавление спутника отменено.</value>
+  </data>
+  <data name="DbEditor.Status.AlreadyExists">
+    <value>Спутник «{0}» уже есть в базе.</value>
+  </data>
+  <data name="DbEditor.Status.Added">
+    <value>Добавлен {0}.</value>
+  </data>
+  <data name="DbEditor.Status.RemovedSatellite">
+    <value>Спутник удалён.</value>
+  </data>
+  <data name="DbEditor.Status.AddedMode">
+    <value>Режим транспондера добавлен.</value>
+  </data>
+  <data name="DbEditor.Status.RemovedMode">
+    <value>Режим транспондера удалён.</value>
+  </data>
+  <data name="DbEditor.Status.DuplicatedMode">
+    <value>Режим продублирован.</value>
+  </data>
+  <data name="DbEditor.Status.Saved">
+    <value>Сохранено.</value>
+  </data>
+  <data name="DbEditor.Status.AliasesWithoutNorad">
+    <value>Совет: задайте NORAD ID при альтернативных именах, чтобы обновления продолжали находить этот спутник.</value>
+  </data>
+  <data name="DbEditor.Status.Restored">
+    <value>Восстановлена поставляемая база.</value>
+  </data>
+  <data name="DbEditor.Export.Title">
+    <value>Экспорт базы транспондеров</value>
+  </data>
+  <data name="DbEditor.Status.Exported">
+    <value>Экспортировано спутников в JSON: {0}.</value>
+  </data>
+  <data name="DbEditor.Status.ExportFailed">
+    <value>Сбой экспорта: {0}</value>
+  </data>
+  <data name="DbEditor.Import.Title">
+    <value>Импорт базы транспондеров</value>
+  </data>
+  <data name="DbEditor.Status.ReadingImport">
+    <value>Чтение файла импорта…</value>
+  </data>
+  <data name="DbEditor.Status.InvalidDatabase">
+    <value>Неверная база: {0}</value>
+  </data>
+  <data name="DbEditor.Status.ImportNoChanges">
+    <value>Файл импорта совпадает с редактором (нет новых или изменённых записей).</value>
+  </data>
+  <data name="DbEditor.Status.ImportCancelled">
+    <value>Импорт отменён.</value>
+  </data>
+  <data name="DbEditor.Status.ImportApplied">
+    <value>Импорт применён к редактору: нажмите «Сохранить», чтобы записать в базу пользователя.</value>
+  </data>
+  <data name="DbEditor.Status.ImportFailed">
+    <value>Сбой импорта: {0}</value>
+  </data>
+  <data name="DbEditor.Status.CheckingUpdates">
+    <value>Проверка обновлений базы транспондеров…</value>
+  </data>
+  <data name="DbEditor.Status.UpToDate">
+    <value>База транспондеров актуальна.</value>
+  </data>
+  <data name="DbEditor.Status.UpdatesApplied">
+    <value>Обновления применены.</value>
+  </data>
+  <data name="DbEditor.Status.NoChangesApplied">
+    <value>Изменения не применены.</value>
+  </data>
+  <data name="DbEditor.Status.UpdateCheckFailed">
+    <value>Сбой проверки обновлений: {0}</value>
+  </data>
+  <data name="DbEditor.Status.InEditor">
+    <value>Спутников в редакторе: {0}.</value>
+  </data>
+  <data name="DbMerge.Title.Remote">
+    <value>Обновления базы транспондеров</value>
+  </data>
+  <data name="DbMerge.Title.Import">
+    <value>Слияние импортированной базы транспондеров</value>
+  </data>
+  <data name="DbMerge.ApplySelected">
+    <value>Применить выбранное</value>
+  </data>
+  <data name="DbMerge.NewSatellites">
+    <value>Новые спутники</value>
+  </data>
+  <data name="DbMerge.NoradIdBackfills">
+    <value>Каталожные номера NORAD</value>
+  </data>
+  <data name="DbMerge.NewModes">
+    <value>Новые режимы транспондера</value>
+  </data>
+  <data name="DbMerge.Conflicts">
+    <value>Конфликты</value>
+  </data>
+  <data name="DbMerge.YoursFormat">
+    <value>Ваше: {0}</value>
+  </data>
+  <data name="DbMerge.Source.Import">
+    <value>импортированный файл</value>
+  </data>
+  <data name="DbMerge.Source.Remote">
+    <value>tle.oscarwatch.org</value>
+  </data>
+  <data name="DbMerge.UseImported">
+    <value>Взять импортированную версию</value>
+  </data>
+  <data name="DbMerge.UsePublished">
+    <value>Взять опубликованную версию</value>
+  </data>
+  <data name="DbMerge.UseLocal">
+    <value>Взять локальную версию</value>
+  </data>
+  <data name="DbMerge.Prefix.Imported">
+    <value>Импорт</value>
+  </data>
+  <data name="DbMerge.Prefix.Published">
+    <value>Опубликовано</value>
+  </data>
+  <data name="DbMerge.Intro.Import">
+    <value>Новые записи выбраны по умолчанию. При конфликтах подтвердите копию редактора или возьмите импортированную версию.</value>
+  </data>
+  <data name="DbMerge.Intro.Remote">
+    <value>Новые записи выбраны по умолчанию. При конфликтах подтвердите локальную копию или возьмите опубликованную версию.</value>
+  </data>
+  <data name="DbMerge.Intro.NoradIds">
+    <value>Эти каталожные номера будут добавлены спутникам в локальной базе, у которых номера ещё нет. Нажмите «Применить выбранное» для обновления.</value>
+  </data>
+  <data name="DbMerge.Summary.Matches">
+    <value>Ваша база транспондеров совпадает с {0}.</value>
+  </data>
+  <data name="DbMerge.Summary.OneNewSatellite">
+    <value>{0} новый спутник</value>
+  </data>
+  <data name="DbMerge.Summary.ManyNewSatellites">
+    <value>{0} новых спутников</value>
+  </data>
+  <data name="DbMerge.Summary.OneNewMode">
+    <value>{0} новый режим</value>
+  </data>
+  <data name="DbMerge.Summary.ManyNewModes">
+    <value>{0} новых режимов</value>
+  </data>
+  <data name="DbMerge.Summary.OneConflict">
+    <value>{0} конфликт</value>
+  </data>
+  <data name="DbMerge.Summary.ManyConflicts">
+    <value>{0} конфликтов</value>
+  </data>
+  <data name="DbMerge.Summary.OneNoradId">
+    <value>{0} каталожный номер NORAD</value>
+  </data>
+  <data name="DbMerge.Summary.ManyNoradIds">
+    <value>{0} каталожных номеров NORAD</value>
+  </data>
+  <data name="DbMerge.Summary.FromSuffix">
+    <value> из {0}.</value>
+  </data>
+  <data name="DbMerge.Item.SatelliteOneMode">
+    <value>{0} (1 режим)</value>
+  </data>
+  <data name="DbMerge.Item.SatelliteManyModes">
+    <value>{0} ({1} режимов)</value>
+  </data>
+  <data name="DbMerge.Item.ModeLine">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="DbMerge.Item.NoradIdLine">
+    <value>{0} → {1}</value>
+  </data>
+  <data name="DbAdd.Title">
+    <value>Добавить спутник</value>
+  </data>
+  <data name="DbAdd.Intro.WithCatalog">
+    <value>Выберите спутник из каталога TLE или введите своё имя ниже.</value>
+  </data>
+  <data name="DbAdd.Intro.NoCatalog">
+    <value>Все спутники TLE уже в этой базе. Введите своё имя ниже.</value>
+  </data>
+  <data name="DbAdd.SearchWatermark">
+    <value>Поиск каталога TLE…</value>
+  </data>
+  <data name="DbAdd.CustomNameLabel">
+    <value>Своё имя (необязательно, если выбрали выше)</value>
+  </data>
+  <data name="DbAdd.CustomNameWatermark">
+    <value>Введите имя, если нет в списке…</value>
+  </data>
+  <data name="DbAdd.Error.PickOne">
+    <value>Выберите спутник TLE или введите своё имя.</value>
+  </data>
+  <data name="Update.Available.Title">
+    <value>Доступно обновление</value>
+  </data>
+  <data name="Update.Available.Message">
+    <value>Доступна более новая версия OscarWatch.
+
+У вас {0}.
+Последняя: {1} ({2})</value>
+  </data>
+  <data name="Update.ViewRelease">
+    <value>Смотреть выпуск</value>
+  </data>
+  <data name="Update.RemindLater">
+    <value>Напомнить позже</value>
+  </data>
+  <data name="Update.SkipVersion">
+    <value>Пропустить эту версию</value>
+  </data>
+  <data name="ReleaseNotes.Title">
+    <value>Заметки о выпуске</value>
+  </data>
+  <data name="ReleaseNotes.Loading">
+    <value>Загрузка заметок о выпуске…</value>
+  </data>
+  <data name="ReleaseNotes.LoadFailed">
+    <value>Не удалось загрузить заметки о выпуске: {0}</value>
+  </data>
+  <data name="ReleaseNotes.ViewOnGitHub">
+    <value>Смотреть на GitHub</value>
+  </data>
+  <data name="Settings.Tab.Qrz">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Section">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Intro">
+    <value>Ищет имя оператора (и пустой грид) в QRZ, когда вы вводите позывной в OscarWatch Logbook. Для XML Data нужна подписка QRZ. Имя пользователя и пароль остаются на этом компьютере.</value>
+  </data>
+  <data name="Settings.Qrz.Enable">
+    <value>Включить поиск позывных QRZ в OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.Qrz.Username">
+    <value>Имя пользователя QRZ</value>
+  </data>
+  <data name="Settings.Qrz.UsernameWatermark">
+    <value>позывной</value>
+  </data>
+  <data name="Settings.Qrz.Password">
+    <value>Пароль QRZ</value>
+  </data>
+  <data name="Settings.Qrz.PasswordWatermark">
+    <value>пароль учётной записи</value>
+  </data>
+  <data name="Settings.Qrz.TestConnection">
+    <value>Проверить соединение</value>
+  </data>
+  <data name="Settings.Qrz.Testing">
+    <value>Проверка…</value>
+  </data>
+  <data name="Settings.Qrz.EnterCredentials">
+    <value>Введите имя пользователя и пароль QRZ (выйдите из каждого поля или нажмите Проверить снова).</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOk">
+    <value>Соединение установлено. Подписка XML действует до {0}.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOkNoExpiry">
+    <value>Соединение установлено.</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionFailed">
+    <value>Не удалось войти в QRZ: {0}</value>
+  </data>
+  <data name="Settings.Qrz.SubscriptionRequired">
+    <value>Для QRZ XML Data нужна подписка. Проверьте доступ XML в учётной записи QRZ.</value>
+  </data>
+  <data name="Settings.Qrz.Timeout">
+    <value>QRZ не ответил вовремя.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.Intro">
+    <value>Заполняет имя (и грид, если он пуст) из QRZ при вводе позывного. Не затирает имя, которое вы уже ввели или которое взято из предыдущего QSO в этом журнале.</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.CredentialsNote">
+    <value>Нужна подписка QRZ XML Data. Имя пользователя и пароль хранятся вместе с другими настройками OscarWatch на этом компьютере.</value>
+  </data>
+  <data name="Logbook.CallHint.Qrz">
+    <value>Имя из QRZ.</value>
+  </data>
+  <data name="Settings.Tab.HamQth">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Section">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Intro">
+    <value>Ищет имя оператора (и пустой грид) в HamQTH, когда вы вводите позывной в OscarWatch Logbook. Достаточно бесплатной учётной записи HamQTH (платная XML-подписка не нужна). Используется, если QRZ выключен, ничего не нашёл или не настроен. Имя пользователя и пароль остаются на этом компьютере.</value>
+  </data>
+  <data name="Settings.HamQth.Enable">
+    <value>Включить поиск позывных HamQTH в OscarWatch Logbook</value>
+  </data>
+  <data name="Settings.HamQth.Username">
+    <value>Имя пользователя HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.UsernameWatermark">
+    <value>позывной</value>
+  </data>
+  <data name="Settings.HamQth.Password">
+    <value>Пароль HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.PasswordWatermark">
+    <value>пароль учётной записи</value>
+  </data>
+  <data name="Settings.HamQth.TestConnection">
+    <value>Проверить соединение</value>
+  </data>
+  <data name="Settings.HamQth.Testing">
+    <value>Проверка…</value>
+  </data>
+  <data name="Settings.HamQth.EnterCredentials">
+    <value>Введите имя пользователя и пароль HamQTH (выйдите из каждого поля или нажмите Проверить снова).</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionOk">
+    <value>Соединение установлено.</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionFailed">
+    <value>Не удалось войти в HamQTH: {0}</value>
+  </data>
+  <data name="Settings.HamQth.Timeout">
+    <value>HamQTH не ответил вовремя.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.Intro">
+    <value>Заполняет имя (и грид, если он пуст) из HamQTH, если QRZ выключен, ничего не нашёл или не настроен. Не затирает имя, которое вы уже ввели или которое взято из предыдущего QSO в этом журнале.</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.CredentialsNote">
+    <value>Нужна бесплатная учётная запись HamQTH. Имя пользователя и пароль хранятся вместе с другими настройками OscarWatch на этом компьютере.</value>
+  </data>
+  <data name="Logbook.CallHint.HamQth">
+    <value>Имя из HamQTH.</value>
+  </data>
+</root>

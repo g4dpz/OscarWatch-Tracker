@@ -28,6 +28,10 @@ The default `OscarWatch/Assets/Maps/world_map.jpg` is an equirectangular Blue Ma
 
 - **Igor Monteiro (PU4ELT)** — Brazilian Portuguese (`pt-BR`) user interface localisation
 - **Carlos (EA3HAH)** — Spanish (`es`) user interface localisation (newer strings completed with AI assistance)
+- Thai (`th`) user interface localisation (AI-assisted; pending native-speaker review)
+- Indonesian (`id`) user interface localisation (AI-assisted; pending native-speaker review)
+- Russian (`ru`) user interface localisation (AI-assisted; pending native-speaker review)
+- German (`de`) user interface localisation (AI-assisted; pending native-speaker review)
 
 ## Hardware testing
 

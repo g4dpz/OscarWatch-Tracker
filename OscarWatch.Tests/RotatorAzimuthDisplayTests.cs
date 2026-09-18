@@ -60,4 +60,49 @@ public sealed class RotatorAzimuthDisplayTests
             new RotatorPositionStatus(false, null, null, CommandedElevationDeg: 6));
         Assert.Equal("—", text);
     }
+
+    [Fact]
+    public void ResolveSkyPlotRotatorAzimuthDeg_prefers_polled_over_commanded_compass()
+    {
+        var azimuth = MainViewModel.ResolveSkyPlotRotatorAzimuthDeg(
+            new RotatorPositionStatus(true, 90, 20, CommandedAzimuthDeg: 180, CompassAzimuthDeg: 180),
+            azimuthOffsetDeg: 0);
+        Assert.Equal(90, azimuth);
+    }
+
+    [Fact]
+    public void ResolveSkyPlotRotatorAzimuthDeg_maps_overlap_mechanical_to_compass()
+    {
+        var azimuth = MainViewModel.ResolveSkyPlotRotatorAzimuthDeg(
+            new RotatorPositionStatus(true, 365, 20, CommandedAzimuthDeg: 370, CompassAzimuthDeg: 10),
+            azimuthOffsetDeg: 0);
+        Assert.Equal(5, azimuth);
+    }
+
+    [Fact]
+    public void ResolveSkyPlotRotatorAzimuthDeg_subtracts_azimuth_offset()
+    {
+        var azimuth = MainViewModel.ResolveSkyPlotRotatorAzimuthDeg(
+            new RotatorPositionStatus(true, 100, 10, CommandedAzimuthDeg: 180, CompassAzimuthDeg: 180),
+            azimuthOffsetDeg: 10);
+        Assert.Equal(90, azimuth);
+    }
+
+    [Fact]
+    public void ResolveSkyPlotRotatorAzimuthDeg_falls_back_to_compass_when_unpolled()
+    {
+        var azimuth = MainViewModel.ResolveSkyPlotRotatorAzimuthDeg(
+            new RotatorPositionStatus(true, null, 20, CommandedAzimuthDeg: 370, CompassAzimuthDeg: 10),
+            azimuthOffsetDeg: 0);
+        Assert.Equal(10, azimuth);
+    }
+
+    [Fact]
+    public void ResolveSkyPlotRotatorAzimuthDeg_disconnected_is_null()
+    {
+        var azimuth = MainViewModel.ResolveSkyPlotRotatorAzimuthDeg(
+            new RotatorPositionStatus(false, 90, 20, CommandedAzimuthDeg: 180, CompassAzimuthDeg: 180),
+            azimuthOffsetDeg: 0);
+        Assert.Null(azimuth);
+    }
 }

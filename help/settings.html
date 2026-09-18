@@ -46,6 +46,7 @@
         (trees, buildings, hills) on a polar editor: click to add points, drag to move, right-click to remove, or edit the az/el table.
         An empty mask means unused; pass prediction and plots still use <strong>Tracking → Minimum elevation</strong> alone.
         When points are set, visibility at each azimuth uses the higher of the mask and that minimum.
+        The mask does not command the rotator; that is <strong>Rotator → Start tracking at elevation</strong>.
         The same mask is stored per station profile (Settings and Pass planner) and is drawn on the sky plot and pass polar plots.
       </p>
 
@@ -116,7 +117,10 @@
         <li><strong>Sample format</strong>: mono 44.1 kHz is a good default for FM/SSB; stereo if your interface requires it.</li>
         <li><strong>File format</strong>: WAV (always works) or MP3. MP3 needs <a href="#ffmpeg"><code>ffmpeg</code> installed</a> so OscarWatch can find it on your PATH. Capture is still WAV first; OscarWatch converts when the pass ends and deletes the intermediate WAV on success. If ffmpeg is missing or conversion fails, the WAV is kept.</li>
         <li><strong>Start / stop elevation</strong>: recording begins when the <strong>focused</strong> satellite rises through the start elevation, and stops when it falls below the stop elevation. Keep stop at or below start to avoid flapping near the threshold.</li>
-        <li><strong>Output folder</strong>: leave blank to use the default <code>%AppData%\OscarWatch\recordings\</code>.</li>
+        <li><strong>Output folder</strong>: leave blank to use the default <code>%AppData%\OscarWatch\recordings\</code>.
+          Pass recordings are kept until you delete them; OscarWatch does not auto-prune audio files.
+          Settings shows the current file count and total size for that folder, with an <strong>Open folder</strong> button.
+          You can also use <strong>Help → Open recordings folder</strong>.</li>
         <li><strong>Test recording (5 s)</strong>: saves a short clip so you can confirm levels and device selection before a pass.</li>
       </ul>
       <p>
@@ -215,7 +219,7 @@ sudo apt install ffmpeg</code></pre>
       <p>
         The <strong>Integrations</strong> tab groups optional hardware and external services:
         <strong>GPS</strong>, <strong>hams.at</strong> Upcoming Roves,
-        <strong>OscarWatch</strong>, <strong>Cloudlog</strong>, and
+        <strong>OscarWatch</strong>, <strong>Cloudlog</strong>, <strong>QRZ</strong>, <strong>HamQTH</strong>, and
         <strong>Satellite link</strong>.
         Pick a section from the list on the left.
       </p>
@@ -291,6 +295,32 @@ sudo apt install ffmpeg</code></pre>
         checks each rove grid against that logbook using Cloudlog’s <code>logbook_check_grid</code> API with
         <code>band: SAT</code>, so only satellite QSOs count. Grid badges on rove rows are described in
         <a href="map-and-sidebar.html#rove-grid-badges">Map &amp; sidebar → Rove grid badges</a>.
+      </p>
+
+      <h3>QRZ</h3>
+      <p>
+        Optional callbook lookup for <a href="qso-logbook.html">OscarWatch Logbook</a>.
+        Enable it, enter your QRZ username and password, then use <strong>Test connection</strong>.
+        Credentials are stored locally in <code>settings.json</code> like other API keys.
+        Filling first names from QRZ uses the
+        <a href="https://www.qrz.com/page/xml_data.html">QRZ XML Data</a> service, which needs a QRZ
+        XML subscription. Lookups run after you type a complete callsign; they do not overwrite a name
+        you already typed or one recalled from a previous QSO in that logbook. Timeouts and missing
+        records fail quietly so logging stays fast.
+      </p>
+      <p>
+        The same username, password, and enable switch are also on
+        <strong>OscarWatch Logbook → Settings → QRZ</strong>.
+      </p>
+
+      <h3>HamQTH</h3>
+      <p>
+        Optional fallback callbook for OscarWatch Logbook. A free
+        <a href="https://www.hamqth.com/developers.php">HamQTH XML</a> account is enough
+        (no paid subscription). Enable it, enter your HamQTH username and password, then use
+        <strong>Test connection</strong>. When QRZ is off, misses a call, or is not configured,
+        OscarWatch asks HamQTH for the operator’s first name or on-air nickname, and, if Grid is empty, their locator.
+        The same fields are on <strong>OscarWatch Logbook → Settings → HamQTH</strong>.
       </p>
 
       <h3 id="satellite-link">Satellite link</h3>

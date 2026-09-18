@@ -2684,7 +2684,8 @@ public class RigControllerTests
             Enabled = true,
             Type = RigType.Dummy,
             DopplerThresholdLinearHz = 50,
-            CatDelayMs = 0
+            CatDelayMs = 0,
+            InteractiveDialSettleMs = InteractiveDialResumePolicy.MaxSettleMs
         };
 
         var mode = new SatelliteTransponderMode
@@ -2715,12 +2716,18 @@ public class RigControllerTests
         Thread.Sleep(650);
         var rxAfterInit = rig.MainHz;
 
-        rig.MainHz = rxAfterInit + 1_500;
         controller.PublishContext(settings, Build(4.2));
-        for (var i = 0; i < 14; i++)
-            controller.RunTrackingLoopOnce();
+        controller.DrainCommandQueueForTests();
 
-        Assert.Equal(rxAfterInit + 1_500, rig.MainHz);
+        long lastOperatorHz = rxAfterInit;
+        for (var i = 0; i < 14; i++)
+        {
+            lastOperatorHz = rxAfterInit + 1_500 + (i * 80);
+            rig.MainHz = lastOperatorHz;
+            controller.RunTrackingLoopOnce();
+        }
+
+        Assert.Equal(lastOperatorHz, rig.MainHz);
     }
 
     [Fact]

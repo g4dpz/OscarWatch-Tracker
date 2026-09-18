@@ -4,6 +4,42 @@
   <resheader name="version">2.0</resheader>
   <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</resheader>
   <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</resheader>
+  <data name="About.Copyright">
+    <value>Copyright © 2025–2026 Peter Goodhall (MM9SQL)</value>
+  </data>
+  <data name="About.Description">
+    <value>アマチュア無線オペレーター向けのデスクトップ衛星追跡。パス予報、ドップラー補正付き CAT 制御、ローテーター追跡、OscarWatch 衛星データベースのトランスポンダモードに対応します。</value>
+  </data>
+  <data name="About.DonateNote">
+    <value>寄付される場合は、お礼ができるようコールサインを Peter までお知らせください。</value>
+  </data>
+  <data name="About.Github">
+    <value>github.com/magicbug/OscarWatch-Tracker</value>
+  </data>
+  <data name="About.License">
+    <value>GNU Affero General Public License v3.0 以降（AGPL-3.0-or-later）でライセンスされています。ソースリポジトリの LICENSE.md を参照してください。</value>
+  </data>
+  <data name="About.PayPal">
+    <value>PayPal</value>
+  </data>
+  <data name="About.SponsorGithub">
+    <value>GitHub でスポンサーする</value>
+  </data>
+  <data name="About.SupportIntro">
+    <value>OscarWatch は無料のオープンソースです。役に立ったら、開発の継続を支援できます:</value>
+  </data>
+  <data name="About.Supporters">
+    <value>サポーター</value>
+  </data>
+  <data name="About.Title">
+    <value>OscarWatch について</value>
+  </data>
+  <data name="About.TleSource">
+    <value>TLE カタログ: tle.oscarwatch.org</value>
+  </data>
+  <data name="App.Title">
+    <value>OscarWatch</value>
+  </data>
   <data name="Common.Cancel">
     <value>キャンセル</value>
   </data>
@@ -19,6 +55,9 @@
   <data name="Common.Copy">
     <value>コピー</value>
   </data>
+  <data name="Common.Delete">
+    <value>削除</value>
+  </data>
   <data name="Common.Ok">
     <value>OK</value>
   </data>
@@ -30,6 +69,9 @@
   </data>
   <data name="Main.Eclipse">
     <value>食</value>
+  </data>
+  <data name="Main.El">
+    <value>  ·  El </value>
   </data>
   <data name="Main.Elevation.BelowHorizon">
     <value>地平線下</value>
@@ -280,17 +322,59 @@
   <data name="A11y.SatelliteEclipse">
     <value>衛星は食中</value>
   </data>
+  <data name="Main.WorldMap">
+    <value>世界地図</value>
+  </data>
+  <data name="A11y.Plot.NoSatellites">
+    <value>{0}。衛星が選択されていません。</value>
+  </data>
+  <data name="A11y.Plot.SelectWithArrows">
+    <value>{0}。衛星 {1} 機。矢印キーで選択し、Enter で確定します。</value>
+  </data>
+  <data name="A11y.Plot.SatelliteCount">
+    <value>{0}。衛星 {1} 機。</value>
+  </data>
+  <data name="A11y.Plot.FocusedWithLookAngles">
+    <value>{0}。フォーカス {1}。方位角 {2:F1} 度、仰角 {3:F1} 度、高度 {4:F0} キロメートル。</value>
+  </data>
+  <data name="A11y.Plot.FocusedBelowHorizon">
+    <value>{0}。フォーカス {1}。高度 {2:F0} キロメートル、地平線下。</value>
+  </data>
+  <data name="A11y.SkyPlot.TabHint">
+    <value>スカイプロット。ここを Tab で選び、矢印キーで衛星を切り替えます。</value>
+  </data>
+  <data name="A11y.SkyPlot.AllBelowHorizon">
+    <value>すべての衛星が地平線下</value>
+  </data>
   <data name="Main.Radio">
     <value>無線機</value>
   </data>
   <data name="Main.Radio.CatPause">
     <value>CAT一時停止</value>
   </data>
+  <data name="Main.Radio.CatPauseTip">
+    <value>周波数更新の送信を止めて、手動でチューニングできるようにします。</value>
+  </data>
   <data name="Main.Radio.CatResume">
     <value>CAT再開</value>
   </data>
+  <data name="Main.Radio.Rx">
+    <value>RX </value>
+  </data>
+  <data name="Main.Radio.Tx">
+    <value>TX </value>
+  </data>
+  <data name="Main.Range">
+    <value>距離 </value>
+  </data>
   <data name="Main.Rotator">
     <value>ローテーター</value>
+  </data>
+  <data name="Main.Rotator.Az">
+    <value>Az</value>
+  </data>
+  <data name="Main.Rotator.El">
+    <value>El</value>
   </data>
   <data name="Main.Rotator.Park">
     <value>ローテーターをパーク</value>
@@ -456,8 +540,14 @@
   <data name="Menu.Passes.Sunlight">
     <value>日照予測(_S)</value>
   </data>
+  <data name="Menu.Passes.DopplerInsights">
+    <value>ドップラーパス分析</value>
+  </data>
   <data name="Menu.Rotator">
     <value>ローテーター(_R)</value>
+  </data>
+  <data name="Menu.Tools">
+    <value>ツール(_T)</value>
   </data>
   <data name="Menu.Satellites">
     <value>衛星(_S)</value>
@@ -504,6 +594,24 @@
   <data name="Settings.MultiTrackOverlay.Note">
     <value>選択中の衛星の次の軌道を、現在の軌道の後ろに薄く表示します。</value>
   </data>
+  <data name="Settings.MapCentre">
+    <value>地図中心経度</value>
+  </data>
+  <data name="Settings.MapCentre.Note">
+    <value>グリニッジ (0°)、局のグリッドスクエア、または任意の経度。</value>
+  </data>
+  <data name="Settings.MapCentre.Greenwich">
+    <value>グリニッジ (0°)</value>
+  </data>
+  <data name="Settings.MapCentre.Station">
+    <value>局のグリッドスクエア</value>
+  </data>
+  <data name="Settings.MapCentre.Custom">
+    <value>任意の経度</value>
+  </data>
+  <data name="Settings.MapCentre.CustomLongitude">
+    <value>任意の中心経度 (°)</value>
+  </data>
   <data name="Settings.Language">
     <value>言語</value>
   </data>
@@ -521,6 +629,18 @@
   </data>
   <data name="Settings.Language.Spanish">
     <value>スペイン語</value>
+  </data>
+  <data name="Settings.Language.Thai">
+    <value>ไทย</value>
+  </data>
+  <data name="Settings.Language.Indonesian">
+    <value>Bahasa Indonesia</value>
+  </data>
+  <data name="Settings.Language.Russian">
+    <value>Русский</value>
+  </data>
+  <data name="Settings.Language.German">
+    <value>Deutsch</value>
   </data>
   <data name="Settings.Language.RestartNote">
     <value>言語を変更した場合は、OscarWatchを再起動してください。</value>
@@ -648,6 +768,9 @@
   <data name="Status.TleCached">
     <value>TLE キャッシュ ({0})</value>
   </data>
+  <data name="Status.TleNotLoaded">
+    <value>TLE 未読み込み</value>
+  </data>
   <data name="Status.TleNotLoadedShort">
     <value>TLE 未読み込み</value>
   </data>
@@ -674,6 +797,15 @@
   </data>
   <data name="Rig.FlexControlFailedDetail">
     <value>FlexRadioの衛星設定に失敗しました: {0}</value>
+  </data>
+  <data name="Rig.Ts2000SatlUnconfirmed">
+    <value>追跡中（TS-2000 の SATL 未確認。FA/FB を使用）</value>
+  </data>
+  <data name="Rig.Ts2000SatlWarningTitle">
+    <value>TS-2000 の衛星モードが確認できません</value>
+  </data>
+  <data name="Rig.Ts2000SatlWarningMessage">
+    <value>無線機が CAT (SA;) で SATL を確認しませんでした。OscarWatch は FA/FB でドップラー補正を続けますが、最良の結果には無線機で SAT を押し、メモリーモードをオフにし、前面メニューを閉じてから衛星を再選択して SATL を再試行してください。TS-2000 の CAT ヒントは 設定 → 無線機 を参照してください。</value>
   </data>
   <data name="Rig.NoComPort">
     <value>COMポート未選択</value>
@@ -996,6 +1128,9 @@
   <data name="Settings.Station.GridSquare">
     <value>メイデンヘッドグリッド</value>
   </data>
+  <data name="Settings.Station.GridSquareNote">
+    <value>フィールド（IO）から最大 8 文字の大文字ロケーター。グリッド境界ではカンマで区切ります（例: IO77,IO87）。</value>
+  </data>
   <data name="Settings.Station.Altitude">
     <value>標高 ASL (m)</value>
   </data>
@@ -1003,10 +1138,10 @@
     <value>地平線マスク</value>
   </data>
   <data name="Settings.Station.HorizonMaskHelp">
-    <value>木・建物・丘など任意のスカイラインです。極座標図をクリックして点を追加、ドラッグで移動、右クリックで削除。空なら未使用で、追跡の最低仰角のみが適用されます。パス予測は各方位でマスクと最低仰角の高い方を使います。</value>
+    <value>木・建物・丘など任意のスカイラインです。極座標図をクリックして点を追加、ドラッグで移動、右クリックで削除。空なら未使用で、追跡の最低仰角のみが適用されます。パス予測は各方位でマスクと最低仰角の高い方を使います。ローテーターは動かしません。それには「追跡開始仰角」を使います。</value>
   </data>
   <data name="Settings.Station.HorizonMaskSummary">
-    <value>木・建物・丘など任意のスカイラインです。空なら未使用で、追跡の最低仰角のみが適用されます。</value>
+    <value>木・建物・丘など任意のスカイラインです。空なら未使用で、追跡の最低仰角のみが適用されます。ローテーターは動かしません。</value>
   </data>
   <data name="Settings.Station.HorizonMaskEdit">
     <value>地平線マスクを編集…</value>
@@ -1210,7 +1345,7 @@
     <value>無線機制御を有効</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>デュアル無線機（ダウン/アップリンク別: FT-817/818、FT-991(A)、IC-705、IC-7300、IC-905、IC-706シリーズ、TH-D74/D75、または混合）</value>
+    <value>デュアル無線機（ダウン/アップリンク別: FT-817/818、FT-991(A)、IC-705、IC-7300、IC-905、IC-7100、IC-706シリーズ、TH-D74/D75、または混合）</value>
   </data>
   <data name="Settings.Radio.DualIncompleteBoth">
     <value>ダウンリンクとアップリンクの両方の無線機にCOMポートを選択してください。</value>
@@ -1356,6 +1491,27 @@
   <data name="Settings.Radio.FlexHint">
     <value>Pick a discovered radio or enter the IP manually (TCP port 4992). OscarWatch connects directly to the radio over the SmartSDR TCP/IP API (not by automating SmartSDR for Windows), enables full duplex, and drives separate RX/TX slices for Doppler. Use the antenna port map below when transverters use different RX A/RX B or ANT/XVTR paths per band. Dual-SCU models are required for true full duplex (e.g. 8600/8600M; also 6600/6700).</value>
   </data>
+  <data name="Settings.Radio.FlexAntennaPorts">
+    <value>バンド別アンテナポート</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPortsHint">
+    <value>U/V ↔ V/U の衛星を切り替えるとき、OscarWatch はダウンリンク／アップリンク帯から無線機の RX/TX ポートを設定します（衛星フォーカス／パス準備時。地平線上のときだけではありません）。「変更しない」は無線機の現在のポートを保ちます。RX A と RX B は受信専用です。TX は配線に合わせて ANT または XVTR に割り当ててください。</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaLeaveUnchanged">
+    <value>変更しない</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfRxAnt">
+    <value>VHF 受信 (2 m)</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfRxAnt">
+    <value>UHF 受信 (70 cm+)</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfTxAnt">
+    <value>VHF 送信 (2 m)</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfTxAnt">
+    <value>UHF 送信 (70 cm+)</value>
+  </data>
   <data name="Settings.Radio.FlexDuplexWarning">
     <value>This model may not support full duplex (single SCU). Satellite use typically needs a dual-SCU Flex such as an 8600/8600M (or a dual-SCU 6000-series radio) with suitable isolation or transverters.</value>
   </data>
@@ -1370,6 +1526,9 @@
   </data>
   <data name="Settings.Radio.Ic905CivHint">
     <value>IC-905 工場出荷 AC。無線機のCI-V設定と一致させてください。</value>
+  </data>
+  <data name="Settings.Radio.Ic7100CivHint">
+    <value>IC-7100 工場出荷 88H。無線機のCI-Vメニューと一致させてください。</value>
   </data>
   <data name="Settings.Radio.Ic706CivHint">
     <value>IC-706 工場出荷 48H。Initial Set Mode の CI-V アドレスと一致させてください。</value>
@@ -1394,6 +1553,9 @@
   </data>
   <data name="Settings.Radio.Ic905Hint">
     <value>IC-905: デュアル無線機専用。CI-Vアドレス（既定AC）とボーレート（既定115200）を設定モードで一致させてください。USB CI-Vシリアルポートを使用。レッグごとに1 COM — VHF/UHF/SHF（13cm、6cm、3cm含む）。</value>
+  </data>
+  <data name="Settings.Radio.Ic7100Hint">
+    <value>IC-7100: デュアル無線機専用。CI-V Output (USB) を On（またはREMOTE端子）にしてください。CI-Vアドレス（既定88H）とボーレート（既定19200）をCI-Vメニューで一致させてください。レッグごとに1 COM: HF/6m、2m、70cm（AO-07 Mode A ダウンリンクは10m）；23cmは非対応。</value>
   </data>
   <data name="Settings.Radio.Ic706Hint">
     <value>IC-706: REMOTE端子（またはCT-17）経由のCI-V。HF/6mと2m（70cm非対応）。Initial Set Mode（電源投入時LOCK）でアドレス/ボーレートを設定と一致（既定48H/19200）。CI-V TRN On推奨。AO-07 Mode Aの10mダウンリンク対応。</value>
@@ -1480,7 +1642,7 @@
     <value>ローテータータイプ</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232はYaesuおよび互換機。SPIDはSPモード（Rot1Prog / Rot2Prog）。EasyCommはECモード（SPID、M2などのテキストプロトコルコントローラ）。SAEBRTrackは古典的な衛星トラッカーインターフェース（9600ボー）。OZ9AAR URC (TCP) は Ultimate Rotator Controller（Ethernet、既定ポート1111、URCをREM/リモートモードに設定）。Green Heron RT-21 Az-ElはCOMポートが2つ（アジマスとエレベーション）、DCU-1プロトコル4800ボー。GS-232は選ばないでください。シリアルプロトコルはローカルCOMの代わりにTCPシリアルサーバー（例: ser2net）も利用できます。</value>
+    <value>GS-232はYaesuおよび互換機。SPIDはSPモード（Rot1Prog / Rot2Prog）。SPID MD-01 / MD-02 (TCP) はネイティブEthernet（プロトコル SPID ROT2、既定ポート23）。EasyCommはECモード（SPID、M2などのテキストプロトコルコントローラ）。SAEBRTrackは古典的な衛星トラッカーインターフェース（9600ボー）。OZ9AAR URC (TCP) は Ultimate Rotator Controller（Ethernet、既定ポート1111、URCをREM/リモートモードに設定）。Green Heron RT-21 Az-ElはCOMポートが2つ（アジマスとエレベーション）、DCU-1プロトコル4800ボー。GS-232は選ばないでください。シリアルプロトコルはローカルCOMの代わりにTCPシリアルサーバー（例: ser2net）も利用できます。</value>
   </data>
   <data name="Settings.Rotator.AzimuthPort">
     <value>アジマスのシリアルポート</value>
@@ -1515,6 +1677,9 @@
   <data name="Settings.Rotator.NetworkNoteTcpSerial">
     <value>OscarWatchは生のシリアルトンネル（例: ser2net）へTCPクライアントとして接続します。ボーレートやシリアル設定はサーバー側で行ってください。ローカルネットワーク向けです。遅延が大きいとタイムアウトすることがあります。</value>
   </data>
+  <data name="Settings.Rotator.NetworkNoteSpidMd01">
+    <value>OscarWatchはMD-01 / MD-02のEthernetポートへTCPクライアントとして接続します。コントローラでMOTOR CONFIGURATIONをETH、プロトコルをSPID ROT2に設定してください。既定のTCPポートは23です。同時に接続できるクライアントは1つだけです。ファームウェア1.2507以降を推奨します。</value>
+  </data>
   <data name="Settings.Rotator.SmartAzimuth">
     <value>スマート450°方位（北経由の最短経路）</value>
   </data>
@@ -1534,7 +1699,7 @@
     <value>キーホール回避を有効にする</value>
   </data>
   <data name="Settings.Rotator.KeyholeNote">
-    <value>有効にすると、天頂付近でローテーターが追いつかない高仰角パスを解析し、信号ロスを抑えるため反転方位へ事前配置することがあります。仰角範囲が 0–180° のときのみ利用できます。</value>
+    <value>有効にすると、天頂付近でローテーターが追いつかない高仰角パスを解析し、信号ロスを抑えるため反転方位へ事前配置することがあります。事前配置は追跡開始仰角で方位を回します（0°未満にはしません）。仰角範囲が 0–180° のときのみ利用できます。</value>
   </data>
   <data name="Settings.Rotator.KeyholeSlewRate">
     <value>スルー速度 (°/s)</value>
@@ -1552,7 +1717,13 @@
     <value>追跡開始仰角 (°)</value>
   </data>
   <data name="Settings.Rotator.TrackStartNote">
-    <value>既定は -3°（地平線下）。範囲 -90°～90°。追跡衛星がこの仰角を超えて上昇するときにスルーし、下回るとパークします（短い確認後のため、一瞬の不具合でパスが中断されません）。</value>
+    <value>既定は -3°（地平線下）。範囲 -90°～90°。追跡衛星がこの仰角を超えて上昇するときにスルーし、下回るとパークします（短い確認後のため、一瞬の不具合でパスが中断されません）。キーホールの事前配置もこの仰角を下限にします（0°未満にはしません）。</value>
+  </data>
+  <data name="Settings.Rotator.MovementThreshold">
+    <value>移動しきい値 (°)</value>
+  </data>
+  <data name="Settings.Rotator.MovementThresholdNote">
+    <value>新しい目標を送る前に必要な最小角度変化です。ローテーターがこのしきい値の外の位置を返す場合は、最後のコマンドを再送します。ノイズのあるエンコーダが途中で止まっても再開できます。停止すると再送はキャンセルされます。小さい値はより精密な追尾、大きい値はギアの負荷を減らします。既定: 1.0°。</value>
   </data>
   <data name="Settings.Rotator.ParkAzimuth">
     <value>パーク方位 (°)</value>
@@ -1632,11 +1803,32 @@
   <data name="Settings.Recording.OutputWatermark">
     <value>既定: %AppData%/OscarWatch/recordings</value>
   </data>
+  <data name="Settings.Recording.FolderUsageOne">
+    <value>1 ファイル · {0}</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageMany">
+    <value>{0} ファイル · {1}</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageEmpty">
+    <value>このフォルダーにはまだ録音がありません</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageMissing">
+    <value>最初の録音を保存するとフォルダーが作成されます</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageError">
+    <value>フォルダーサイズを読み取れませんでした</value>
+  </data>
+  <data name="Settings.Recording.OpenFolder">
+    <value>フォルダーを開く</value>
+  </data>
   <data name="Settings.Recording.TestButton">
     <value>テスト録音 (5秒)</value>
   </data>
   <data name="Settings.Recording.Unavailable">
     <value>このシステムでは音声録音を利用できません。</value>
+  </data>
+  <data name="Settings.Recording.DevicesLoading">
+    <value>オーディオデバイスを読み込み中…</value>
   </data>
   <data name="Settings.Recording.SelectDeviceFirst">
     <value>先に入力デバイスを選択してください。</value>
@@ -2214,6 +2406,27 @@
   <data name="Logbook.ExportAdif.Dialog.Intro">
     <value>Logbook of the World へのアップロード用かどうかを選択してください。LoTW では一部の衛星で異なる名称を使用します。</value>
   </data>
+  <data name="Logbook.ExportAdif.Dialog.Scope.All">
+    <value>ログブック内のすべての QSO</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Scope.DateRange">
+    <value>UTC 日付範囲の QSO</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.FromUtc">
+    <value>開始 (UTC)</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.ToUtc">
+    <value>終了 (UTC)</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountOne">
+    <value>1 件の QSO をエクスポートします。</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountMany">
+    <value>{0} 件の QSO をエクスポートします。</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountNone">
+    <value>このエクスポート範囲に一致する QSO はありません。</value>
+  </data>
   <data name="Logbook.ExportAdif.Dialog.ForLotw">
     <value>LoTW 用に衛星名を変換する</value>
   </data>
@@ -2252,6 +2465,18 @@
   </data>
   <data name="Logbook.Status.QsoCountMany">
     <value>{0} — QSO {1}件</value>
+  </data>
+  <data name="Logbook.Status.ExportedOne">
+    <value>1 件の QSO を ADIF にエクスポートしました。</value>
+  </data>
+  <data name="Logbook.Status.ExportedMany">
+    <value>{0} 件の QSO を ADIF にエクスポートしました。</value>
+  </data>
+  <data name="Logbook.Status.ExportedOneRange">
+    <value>1 件の QSO を ADIF にエクスポートしました（{0} UTC）。</value>
+  </data>
+  <data name="Logbook.Status.ExportedManyRange">
+    <value>{0} 件の QSO を ADIF にエクスポートしました（{1} UTC）。</value>
   </data>
   <data name="Logbook.CloudlogStatus.Pending">
     <value>保留</value>
@@ -2802,6 +3027,9 @@
   <data name="DopplerInsights.Phase.Summary">
     <value>ダウンリンク誤差 p95 {0} Hz · CAT書き込み {1}% · ピークスルー {2} Hz/s · 最大仰角 {3}°</value>
   </data>
+  <data name="Window.RotatorManual.Title">
+    <value>手動ローテーター操作</value>
+  </data>
   <data name="Window.Sunlight.Title">
     <value>日照予測</value>
   </data>
@@ -2902,7 +3130,25 @@
     <value>カレンダーに追加</value>
   </data>
   <data name="Planner.Export.CalendarTip">
+    <value>この衛星のiCalendarファイルを保存するか、このパスをGoogleカレンダーに追加</value>
+  </data>
+  <data name="Planner.Export.SaveIcs">
+    <value>iCalendar (.ics) を保存</value>
+  </data>
+  <data name="Planner.Export.SaveIcsTip">
     <value>この衛星の全パスをiCalendar (.ics) ファイルにエクスポート</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendar">
+    <value>このパスをGoogleカレンダーに追加</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarTip">
+    <value>このパスを入力した状態でブラウザーのGoogleカレンダーを開く</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarOpened">
+    <value>{0} のGoogleカレンダーを開きました</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarFailed">
+    <value>Googleカレンダーを開けませんでした: {0}</value>
   </data>
   <data name="Planner.PortableName">
     <value>ポータブル {0}</value>
@@ -3228,8 +3474,17 @@
   <data name="Common.Add">
     <value>追加</value>
   </data>
+  <data name="Common.Browse">
+    <value>参照…</value>
+  </data>
   <data name="Common.Show">
     <value>表示</value>
+  </data>
+  <data name="Main.Alt">
+    <value>  ·  Alt </value>
+  </data>
+  <data name="Main.Az">
+    <value>Az </value>
   </data>
   <data name="DbEditor.Intro">
     <value>衛星のトランスポンダモード（周波数は kHz）を管理します。ユーザー AppData フォルダに保存されます。</value>
@@ -3426,6 +3681,9 @@
   <data name="DbMerge.NewSatellites">
     <value>新しい衛星</value>
   </data>
+  <data name="DbMerge.NoradIdBackfills">
+    <value>NORAD カタログ ID</value>
+  </data>
   <data name="DbMerge.NewModes">
     <value>新しいトランスポンダモード</value>
   </data>
@@ -3462,6 +3720,9 @@
   <data name="DbMerge.Intro.Remote">
     <value>新規項目は既定で選択されています。競合はローカルの内容を確認するか、公開版を選んでください。</value>
   </data>
+  <data name="DbMerge.Intro.NoradIds">
+    <value>これらのカタログ番号は、まだ番号がないローカルデータベースの衛星に追加されます。更新するには「選択を適用」をクリックしてください。</value>
+  </data>
   <data name="DbMerge.Summary.Matches">
     <value>トランスポンダデータベースは {0} と一致しています。</value>
   </data>
@@ -3483,6 +3744,12 @@
   <data name="DbMerge.Summary.ManyConflicts">
     <value>競合 {0} 件</value>
   </data>
+  <data name="DbMerge.Summary.OneNoradId">
+    <value>NORAD カタログ ID {0} 件</value>
+  </data>
+  <data name="DbMerge.Summary.ManyNoradIds">
+    <value>NORAD カタログ ID {0} 件</value>
+  </data>
   <data name="DbMerge.Summary.FromSuffix">
     <value>（{0} より）。</value>
   </data>
@@ -3494,6 +3761,9 @@
   </data>
   <data name="DbMerge.Item.ModeLine">
     <value>{0} · {1}</value>
+  </data>
+  <data name="DbMerge.Item.NoradIdLine">
+    <value>{0} → {1}</value>
   </data>
   <data name="DbAdd.Title">
     <value>衛星を追加</value>
@@ -3548,5 +3818,113 @@
   </data>
   <data name="Window.SatelliteDatabase.Title">
     <value>トランスポンダデータベース</value>
+  </data>
+  <data name="Settings.Tab.Qrz">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Section">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Intro">
+    <value>OscarWatch Logbookでコールサインを入力すると、QRZからオペレーター名（空ならグリッドも）を検索します。XML Dataの利用にはQRZの購読が必要です。ユーザー名とパスワードはこのコンピューターに保存されます。</value>
+  </data>
+  <data name="Settings.Qrz.Enable">
+    <value>OscarWatch LogbookでQRZコールブック検索を有効にする</value>
+  </data>
+  <data name="Settings.Qrz.Username">
+    <value>QRZユーザー名</value>
+  </data>
+  <data name="Settings.Qrz.UsernameWatermark">
+    <value>コールサイン</value>
+  </data>
+  <data name="Settings.Qrz.Password">
+    <value>QRZパスワード</value>
+  </data>
+  <data name="Settings.Qrz.PasswordWatermark">
+    <value>アカウントのパスワード</value>
+  </data>
+  <data name="Settings.Qrz.TestConnection">
+    <value>接続テスト</value>
+  </data>
+  <data name="Settings.Qrz.Testing">
+    <value>テスト中…</value>
+  </data>
+  <data name="Settings.Qrz.EnterCredentials">
+    <value>QRZのユーザー名とパスワードを入力してください（各欄からフォーカスを外すか、もう一度テストを押してください）。</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOk">
+    <value>接続成功。XML購読の有効期限は {0} です。</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOkNoExpiry">
+    <value>接続成功。</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionFailed">
+    <value>QRZにサインインできませんでした: {0}</value>
+  </data>
+  <data name="Settings.Qrz.SubscriptionRequired">
+    <value>QRZ XML Dataには購読が必要です。アカウントのXMLアクセスを確認してください。</value>
+  </data>
+  <data name="Settings.Qrz.Timeout">
+    <value>QRZが時間内に応答しませんでした。</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.Intro">
+    <value>コールサインを入力すると、QRZから氏名（空ならグリッドも）を記入します。入力済みの名前や、このログブックの過去のQSOから呼び出した名前は上書きしません。</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.CredentialsNote">
+    <value>QRZ XML Dataの購読が必要です。ユーザー名とパスワードは他のOscarWatch設定とともにこのコンピューターに保存されます。</value>
+  </data>
+  <data name="Logbook.CallHint.Qrz">
+    <value>QRZの名前。</value>
+  </data>
+  <data name="Settings.Tab.HamQth">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Section">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Intro">
+    <value>OscarWatch Logbookでコールサインを入力すると、HamQTHからオペレーター名（空ならグリッドも）を検索します。無料のHamQTHアカウントで利用できます（有料XML購読は不要）。QRZがオフ、未検出、または未設定のときに使います。ユーザー名とパスワードはこのコンピューターに保存されます。</value>
+  </data>
+  <data name="Settings.HamQth.Enable">
+    <value>OscarWatch LogbookでHamQTHコールブック検索を有効にする</value>
+  </data>
+  <data name="Settings.HamQth.Username">
+    <value>HamQTHユーザー名</value>
+  </data>
+  <data name="Settings.HamQth.UsernameWatermark">
+    <value>コールサイン</value>
+  </data>
+  <data name="Settings.HamQth.Password">
+    <value>HamQTHパスワード</value>
+  </data>
+  <data name="Settings.HamQth.PasswordWatermark">
+    <value>アカウントのパスワード</value>
+  </data>
+  <data name="Settings.HamQth.TestConnection">
+    <value>接続テスト</value>
+  </data>
+  <data name="Settings.HamQth.Testing">
+    <value>テスト中…</value>
+  </data>
+  <data name="Settings.HamQth.EnterCredentials">
+    <value>HamQTHのユーザー名とパスワードを入力してください（各欄からフォーカスを外すか、もう一度テストを押してください）。</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionOk">
+    <value>接続成功。</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionFailed">
+    <value>HamQTHにサインインできませんでした: {0}</value>
+  </data>
+  <data name="Settings.HamQth.Timeout">
+    <value>HamQTHが時間内に応答しませんでした。</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.Intro">
+    <value>QRZがオフ、未検出、または未設定のとき、HamQTHから氏名（空ならグリッドも）を記入します。入力済みの名前や、このログブックの過去のQSOから呼び出した名前は上書きしません。</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.CredentialsNote">
+    <value>無料のHamQTHアカウントが必要です。ユーザー名とパスワードは他のOscarWatch設定とともにこのコンピューターに保存されます。</value>
+  </data>
+  <data name="Logbook.CallHint.HamQth">
+    <value>HamQTHの名前。</value>
   </data>
 </root>

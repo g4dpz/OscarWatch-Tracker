@@ -38,9 +38,9 @@ public interface IRotatorDriver : IDisposable
 | Method | Expectations |
 |--------|----------------|
 | `Open` | Open the serial port or TCP connection configured in the constructor. Throw or log on failure; controller will tear down and retry later. |
-| `SetPosition` | Send a move command. Use `RotatorSettings` limits for clamping. Called ~1 Hz when tracking; skip heavy work if the controller already dedupes (≥1° change). |
+| `SetPosition` | Send a move command. Use `RotatorSettings` limits for clamping. Called ~1 Hz when tracking, and again if feedback shows the beam has not arrived. |
 | `Stop` | Optional protocol stop (GS-232 `S`). No-op or GOTO-current is fine if the protocol has no stop. |
-| `GetPosition` | Poll hardware az/el for the sidebar. Return `(null, null)` on timeout or parse failure. |
+| `GetPosition` | Poll hardware az/el for the sidebar and arrival retry. Return `(null, null)` on timeout, parse failure, or when the protocol must not query (SAEBRTrack). |
 | `Dispose` | Close the port/socket; call `Stop` if appropriate. |
 
 Reference implementations:
@@ -50,7 +50,8 @@ Reference implementations:
 | Yaesu GS-232 / clones | `Waaa eee`, queries `C2`/`C`/`B` | [`Gs232Rotator.cs`](../OscarWatch/Rotator/Gs232Rotator.cs) |
 | EasyComm II | `AZ120.5 EL45.0` (LF-terminated) | [`EasyCommRotator.cs`](../OscarWatch/Rotator/EasyCommRotator.cs) |
 | SAEBRTrack | `AZ120EL045` compact whole degrees (LF-terminated); fire-and-forget — `GetPosition` returns nulls (no wire queries) | [`SaebrtRotator.cs`](../OscarWatch/Rotator/SaebrtRotator.cs) |
-| SPID Rot1Prog / Rot2Prog | 13-byte binary packets (stop/status/set) | [`SpidRotator.cs`](../OscarWatch/Rotator/SpidRotator.cs) |
+| SPID Rot1Prog / Rot2Prog | 13-byte binary packets (stop/status/set); no reply to set on classic hardware | [`SpidRotator.cs`](../OscarWatch/Rotator/SpidRotator.cs) |
+| SPID MD-01 / MD-02 (TCP) | Same Rot2Prog binary over TCP (default port 23); set-position returns a 12-byte status | [`SpidRotator.cs`](../OscarWatch/Rotator/SpidRotator.cs) via `RotatorType.SpidMd01` |
 | OZ9AAR URC (TCP) | JSON `{"POLL"}` / `{"GOTO":[az,el]}` over TCP (default port 1111) | [`UrcTcpRotator.cs`](../OscarWatch/Rotator/UrcTcpRotator.cs) |
 | Green Heron RT-21 Az-El | DCU-1 per axis on **two** COM ports (`AP1xxx.y\r;`, `BI1;`, stop `;`) | [`GreenHeronRt21Rotator.cs`](../OscarWatch/Rotator/GreenHeronRt21Rotator.cs) |
 

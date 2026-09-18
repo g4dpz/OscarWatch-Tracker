@@ -56,12 +56,42 @@ public partial class PassPlanningWindow : Window
 
     private async void OnExportSatelliteClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is not Button { Tag: PassPlanningPassRow row }
+        if (TryGetPassRow(sender) is not { } row
             || DataContext is not PassPlanningViewModel vm)
             return;
 
         await vm.ExportSatelliteIcsAsync(this, row);
     }
+
+    private async void OnExportSelectedSatelliteClick(object? sender, RoutedEventArgs e)
+    {
+        if (PassesDataGrid.SelectedItem is not PassPlanningPassRow row
+            || DataContext is not PassPlanningViewModel vm)
+            return;
+
+        await vm.ExportSatelliteIcsAsync(this, row);
+    }
+
+    private void OnAddGoogleCalendarClick(object? sender, RoutedEventArgs e)
+    {
+        if (TryGetPassRow(sender) is not { } row
+            || DataContext is not PassPlanningViewModel vm)
+            return;
+
+        vm.OpenGoogleCalendar(row);
+    }
+
+    private void OnAddGoogleCalendarSelectedClick(object? sender, RoutedEventArgs e)
+    {
+        if (PassesDataGrid.SelectedItem is not PassPlanningPassRow row
+            || DataContext is not PassPlanningViewModel vm)
+            return;
+
+        vm.OpenGoogleCalendar(row);
+    }
+
+    private static PassPlanningPassRow? TryGetPassRow(object? sender) =>
+        sender is MenuItem { Tag: PassPlanningPassRow row } ? row : null;
 
     private void OnToggleScheduleClick(object? sender, RoutedEventArgs e)
     {

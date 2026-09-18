@@ -63,12 +63,12 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
 
     static PassElevationTimelineControl()
     {
+        // MapDisplayUtc is handled with a 1 px time throttle (see ShouldInvalidateForTimeAdvance).
         AffectsRender<PassElevationTimelineControl>(
             PassesProperty,
             TimeWindowMinutesProperty,
             FocusedNoradIdProperty,
             GroundStationProperty,
-            MapDisplayUtcProperty,
             DisplayTimesInUtcProperty,
             Use24HourClockProperty);
         ClipToBoundsProperty.OverrideDefaultValue<PassElevationTimelineControl>(true);
@@ -77,8 +77,13 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
 
     public PassElevationTimelineControl()
     {
+        // Poll only: invalidate when the now-line / window drift reaches ≥ 1 px.
         _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-        _refreshTimer.Tick += (_, _) => InvalidateVisual();
+        _refreshTimer.Tick += (_, _) =>
+        {
+            if (ShouldInvalidateForTimeAdvance())
+                InvalidateVisual();
+        };
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -98,6 +103,8 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         _renderCache.Clear();
         _labelCache.Clear();
         _tooltipCacheDirty = true;
+        _lastRenderedWindowStartUtc = DateTime.MinValue;
+        _lastRenderedLiveUtc = DateTime.MinValue;
         base.OnThemeChanged();
     }
 
@@ -114,6 +121,8 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     private readonly RenderResourceCache _renderCache = new();
     private readonly FormattedTextCache _labelCache = new();
     private readonly DispatcherTimer _refreshTimer;
+    private DateTime _lastRenderedWindowStartUtc = DateTime.MinValue;
+    private DateTime _lastRenderedLiveUtc = DateTime.MinValue;
 
     // --- Cached pass geometry and optimization fields ---
 
@@ -207,12 +216,66 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         else if (change.Property == BoundsProperty)
         {
             InvalidateGeometryCache();
+            _lastRenderedWindowStartUtc = DateTime.MinValue;
+            _lastRenderedLiveUtc = DateTime.MinValue;
+        }
+        else if (change.Property == MapDisplayUtcProperty)
+        {
+            if (ShouldInvalidateForTimeAdvance())
+                InvalidateVisual();
+        }
+        else if (change.Property == TimeWindowMinutesProperty)
+        {
+            _lastRenderedWindowStartUtc = DateTime.MinValue;
+            _lastRenderedLiveUtc = DateTime.MinValue;
         }
         else if (change.Property == DisplayTimesInUtcProperty || 
                  change.Property == Use24HourClockProperty)
         {
             _tooltipCacheDirty = true;
         }
+    }
+
+    /// <summary>
+    /// True when the map window start or live-now position has drifted by ≥ 1 pixel
+    /// since the last paint (typical 2 h window: several seconds between redraws).
+    /// </summary>
+    internal bool ShouldInvalidateForTimeAdvance()
+    {
+        var plotWidth = Bounds.Width - ElevationScaleLeftPadding;
+        return HasTimeAdvancedBeyondThreshold(
+            MapDisplayUtc,
+            DateTime.UtcNow,
+            _lastRenderedWindowStartUtc,
+            _lastRenderedLiveUtc,
+            plotWidth,
+            TimeWindowMinutes);
+    }
+
+    /// <summary>
+    /// Returns true when either the window start or live clock has moved enough that the
+    /// corresponding X position would change by at least one pixel.
+    /// </summary>
+    internal static bool HasTimeAdvancedBeyondThreshold(
+        DateTime windowStartUtc,
+        DateTime liveUtc,
+        DateTime lastRenderedWindowStartUtc,
+        DateTime lastRenderedLiveUtc,
+        double plotWidth,
+        int windowMinutes,
+        double thresholdPx = 1.0)
+    {
+        if (plotWidth <= 0 || windowMinutes <= 0)
+            return true;
+
+        if (lastRenderedWindowStartUtc == DateTime.MinValue || lastRenderedLiveUtc == DateTime.MinValue)
+            return true;
+
+        var minutesPerPixel = windowMinutes / plotWidth;
+        var thresholdMinutes = minutesPerPixel * thresholdPx;
+        var windowDelta = Math.Abs((windowStartUtc - lastRenderedWindowStartUtc).TotalMinutes);
+        var liveDelta = Math.Abs((liveUtc - lastRenderedLiveUtc).TotalMinutes);
+        return windowDelta >= thresholdMinutes || liveDelta >= thresholdMinutes;
     }
 
     /// <summary>
@@ -348,7 +411,7 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
     /// <summary>
     /// Gets cached tooltip text for a pass.
     /// </summary>
-    private string GetCachedTooltip(PassInfo pass)
+    internal string GetCachedTooltip(PassInfo pass)
     {
         if (_tooltipCacheDirty)
         {
@@ -533,6 +596,8 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
         if (ShouldShowEmptyState(windowMinutes, windowStartUtc))
         {
             DrawEmptyState(context, w, h, palette);
+            _lastRenderedWindowStartUtc = windowStartUtc;
+            _lastRenderedLiveUtc = liveUtc;
             return;
         }
 
@@ -544,6 +609,9 @@ public sealed class PassElevationTimelineControl : ThemeAwareControl
 
         // --- Live "now" indicator (wall-clock time vs map window) ---
         DrawLiveNowIndicator(context, plotLeft, plotTop, plotBottom, plotWidth, windowMinutes, windowStartUtc, liveUtc, palette);
+
+        _lastRenderedWindowStartUtc = windowStartUtc;
+        _lastRenderedLiveUtc = liveUtc;
     }
 
     private void DrawGrid(

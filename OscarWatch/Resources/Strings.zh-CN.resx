@@ -340,6 +340,30 @@
   <data name="A11y.SatelliteEclipse">
     <value>卫星处于地影中</value>
   </data>
+  <data name="Main.WorldMap">
+    <value>世界地图</value>
+  </data>
+  <data name="A11y.Plot.NoSatellites">
+    <value>{0}。未选择卫星。</value>
+  </data>
+  <data name="A11y.Plot.SelectWithArrows">
+    <value>{0}。{1} 颗卫星。使用方向键选择，Enter 确认。</value>
+  </data>
+  <data name="A11y.Plot.SatelliteCount">
+    <value>{0}。{1} 颗卫星。</value>
+  </data>
+  <data name="A11y.Plot.FocusedWithLookAngles">
+    <value>{0}。已聚焦 {1}。方位角 {2:F1} 度，仰角 {3:F1} 度，高度 {4:F0} 千米。</value>
+  </data>
+  <data name="A11y.Plot.FocusedBelowHorizon">
+    <value>{0}。已聚焦 {1}。高度 {2:F0} 千米，位于地平线以下。</value>
+  </data>
+  <data name="A11y.SkyPlot.TabHint">
+    <value>天空图。在此按 Tab，然后用方向键切换所选卫星。</value>
+  </data>
+  <data name="A11y.SkyPlot.AllBelowHorizon">
+    <value>所有卫星均在地平线以下</value>
+  </data>
   <data name="Main.Radio">
     <value>电台</value>
   </data>
@@ -534,8 +558,14 @@
   <data name="Menu.Passes.Sunlight">
     <value>_日照预测</value>
   </data>
+  <data name="Menu.Passes.DopplerInsights">
+    <value>多普勒过境分析</value>
+  </data>
   <data name="Menu.Rotator">
     <value>_天线旋转器</value>
+  </data>
+  <data name="Menu.Tools">
+    <value>工具(_T)</value>
   </data>
   <data name="Menu.Satellites">
     <value>_卫星</value>
@@ -594,6 +624,24 @@
   <data name="Settings.MultiTrackOverlay.Note">
     <value>在当前轨迹后以淡线显示选中卫星的下一轨地面轨迹。</value>
   </data>
+  <data name="Settings.MapCentre">
+    <value>地图中心经度</value>
+  </data>
+  <data name="Settings.MapCentre.Note">
+    <value>格林尼治 (0°)、台站网格或自定义经度。</value>
+  </data>
+  <data name="Settings.MapCentre.Greenwich">
+    <value>格林尼治 (0°)</value>
+  </data>
+  <data name="Settings.MapCentre.Station">
+    <value>台站网格</value>
+  </data>
+  <data name="Settings.MapCentre.Custom">
+    <value>自定义经度</value>
+  </data>
+  <data name="Settings.MapCentre.CustomLongitude">
+    <value>自定义中心经度 (°)</value>
+  </data>
   <data name="Settings.Language">
     <value>语言</value>
   </data>
@@ -611,6 +659,18 @@
   </data>
   <data name="Settings.Language.Spanish">
     <value>西班牙语</value>
+  </data>
+  <data name="Settings.Language.Thai">
+    <value>ไทย</value>
+  </data>
+  <data name="Settings.Language.Indonesian">
+    <value>Bahasa Indonesia</value>
+  </data>
+  <data name="Settings.Language.Russian">
+    <value>Русский</value>
+  </data>
+  <data name="Settings.Language.German">
+    <value>Deutsch</value>
   </data>
   <data name="Settings.Language.RestartNote">
     <value>更改语言后须重启 OscarWatch 方可生效。</value>
@@ -797,6 +857,15 @@
   </data>
   <data name="Rig.FlexControlFailedDetail">
     <value>FlexRadio 卫星设置失败：{0}</value>
+  </data>
+  <data name="Rig.Ts2000SatlUnconfirmed">
+    <value>跟踪中（未确认 TS-2000 SATL；使用 FA/FB）</value>
+  </data>
+  <data name="Rig.Ts2000SatlWarningTitle">
+    <value>未确认 TS-2000 卫星模式</value>
+  </data>
+  <data name="Rig.Ts2000SatlWarningMessage">
+    <value>电台未通过 CAT (SA;) 确认 SATL。OscarWatch 将继续在 FA/FB 上进行多普勒校正，但为获得最佳效果，请在电台上按 SAT、关闭记忆模式并关闭前面板菜单，然后重新选择卫星以重试完整 SATL。TS-2000 的 CAT 说明见 设置 → 电台。</value>
   </data>
   <data name="Rig.NoComPort">
     <value>未选择 COM 端口</value>
@@ -1044,6 +1113,27 @@
   <data name="Logbook.ExportAdif.Dialog.Intro">
     <value>选择此文件是否用于上传到 Logbook of the World。LoTW 对部分卫星使用不同的名称。</value>
   </data>
+  <data name="Logbook.ExportAdif.Dialog.Scope.All">
+    <value>日志中的全部 QSO</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.Scope.DateRange">
+    <value>UTC 日期范围内的 QSO</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.FromUtc">
+    <value>起始 (UTC)</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.ToUtc">
+    <value>结束 (UTC)</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountOne">
+    <value>将导出 1 条 QSO。</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountMany">
+    <value>将导出 {0} 条 QSO。</value>
+  </data>
+  <data name="Logbook.ExportAdif.Dialog.CountNone">
+    <value>没有符合此导出范围的 QSO。</value>
+  </data>
   <data name="Logbook.ExportAdif.Dialog.ForLotw">
     <value>为 LoTW 重新映射卫星名称</value>
   </data>
@@ -1082,6 +1172,18 @@
   </data>
   <data name="Logbook.Status.QsoCountMany">
     <value>{0} — {1} 条 QSO</value>
+  </data>
+  <data name="Logbook.Status.ExportedOne">
+    <value>已将 1 条 QSO 导出为 ADIF。</value>
+  </data>
+  <data name="Logbook.Status.ExportedMany">
+    <value>已将 {0} 条 QSO 导出为 ADIF。</value>
+  </data>
+  <data name="Logbook.Status.ExportedOneRange">
+    <value>已将 1 条 QSO 导出为 ADIF（{0} UTC）。</value>
+  </data>
+  <data name="Logbook.Status.ExportedManyRange">
+    <value>已将 {0} 条 QSO 导出为 ADIF（{1} UTC）。</value>
   </data>
   <data name="Logbook.CloudlogStatus.Pending">
     <value>待上传</value>
@@ -1887,6 +1989,9 @@
   <data name="Settings.Station.GridSquare">
     <value>梅登黑德网格</value>
   </data>
+  <data name="Settings.Station.GridSquareNote">
+    <value>从字段（IO）起最多 8 个大写字符的定位符。若在网格线上，请用逗号分隔方格（例如 IO77,IO87）。</value>
+  </data>
   <data name="Settings.Station.Altitude">
     <value>海拔高度（米）</value>
   </data>
@@ -1894,10 +1999,10 @@
     <value>地平线遮罩</value>
   </data>
   <data name="Settings.Station.HorizonMaskHelp">
-    <value>可选天际线（树木、建筑、山丘）。在极坐标图上单击添加点，拖动移动，右键删除。留空表示未使用，仅应用跟踪最低仰角。过境预测在每个方位取遮罩与该最低仰角中的较大值。</value>
+    <value>可选天际线（树木、建筑、山丘）。在极坐标图上单击添加点，拖动移动，右键删除。留空表示未使用，仅应用跟踪最低仰角。过境预测在每个方位取遮罩与该最低仰角中的较大值。不会驱动旋转器；旋转器请用“开始跟踪仰角”。</value>
   </data>
   <data name="Settings.Station.HorizonMaskSummary">
-    <value>可选天际线（树木、建筑、山丘）。留空表示未使用，仅应用跟踪最低仰角。</value>
+    <value>可选天际线（树木、建筑、山丘）。留空表示未使用，仅应用跟踪最低仰角。不会驱动旋转器。</value>
   </data>
   <data name="Settings.Station.HorizonMaskEdit">
     <value>编辑地平线遮罩…</value>
@@ -2101,7 +2206,7 @@
     <value>启用电台控制</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>双电台（独立的下行和上行: FT-817/818、FT-991(A)、IC-705、IC-7300、IC-905、IC-706 系列、TH-D74/D75 或混合）</value>
+    <value>双电台（独立的下行和上行: FT-817/818、FT-991(A)、IC-705、IC-7300、IC-905、IC-7100、IC-706 系列、TH-D74/D75 或混合）</value>
   </data>
   <data name="Settings.Radio.DualIncompleteBoth">
     <value>请为下行和上行电台选择 COM 端口。</value>
@@ -2244,6 +2349,27 @@
   <data name="Settings.Radio.FlexHint">
     <value>Pick a discovered radio or enter the IP manually (TCP port 4992). OscarWatch connects directly to the radio over the SmartSDR TCP/IP API (not by automating SmartSDR for Windows), enables full duplex, and drives separate RX/TX slices for Doppler. Use the antenna port map below when transverters use different RX A/RX B or ANT/XVTR paths per band. Dual-SCU models are required for true full duplex (e.g. 8600/8600M; also 6600/6700).</value>
   </data>
+  <data name="Settings.Radio.FlexAntennaPorts">
+    <value>按波段的天线端口</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaPortsHint">
+    <value>在 U/V ↔ V/U 卫星之间切换时，OscarWatch 会根据下行和上行波段设置电台的 RX/TX 端口（在聚焦卫星或过境准备时，而不仅是卫星位于地平线以上时）。“保持不变”会保留电台当前端口。RX A 和 RX B 仅用于接收；请按接线将 TX 映射到 ANT 或 XVTR。</value>
+  </data>
+  <data name="Settings.Radio.FlexAntennaLeaveUnchanged">
+    <value>保持不变</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfRxAnt">
+    <value>VHF 接收（2 米）</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfRxAnt">
+    <value>UHF 接收（70 厘米+）</value>
+  </data>
+  <data name="Settings.Radio.FlexVhfTxAnt">
+    <value>VHF 发射（2 米）</value>
+  </data>
+  <data name="Settings.Radio.FlexUhfTxAnt">
+    <value>UHF 发射（70 厘米+）</value>
+  </data>
   <data name="Settings.Radio.FlexDuplexWarning">
     <value>This model may not support full duplex (single SCU). Satellite use typically needs a dual-SCU Flex such as an 8600/8600M (or a dual-SCU 6000-series radio) with suitable isolation or transverters.</value>
   </data>
@@ -2258,6 +2384,9 @@
   </data>
   <data name="Settings.Radio.Ic905CivHint">
     <value>IC-905 出厂默认 AC。必须与电台 CI-V 设置模式匹配。</value>
+  </data>
+  <data name="Settings.Radio.Ic7100CivHint">
+    <value>IC-7100 出厂默认 88H。必须与电台 CI-V 菜单匹配。</value>
   </data>
   <data name="Settings.Radio.Ic706CivHint">
     <value>IC-706 出厂默认 48H。必须与 Initial Set Mode 中的 CI-V 地址匹配。</value>
@@ -2282,6 +2411,9 @@
   </data>
   <data name="Settings.Radio.Ic905Hint">
     <value>IC-905：仅双电台。在设置模式中匹配 CI-V 地址（默认 AC）和波特率（默认 115200）。使用 USB CI-V 串口。每台电台一个 COM — 覆盖 VHF/UHF/SHF（含 13 cm、6 cm、3 cm）。</value>
+  </data>
+  <data name="Settings.Radio.Ic7100Hint">
+    <value>IC-7100：仅双电台。将 CI-V Output (USB) 设为 On（或使用 REMOTE 接口）。在电台 CI-V 菜单中匹配地址（默认 88H）和波特率（默认 19200）。每台电台一个 COM: 覆盖 HF/6 m、2 m 和 70 cm（AO-07 Mode A 下行在 10 m）；不支持 23 cm。</value>
   </data>
   <data name="Settings.Radio.Ic706Hint">
     <value>IC-706：通过 REMOTE 接口（或 CT-17）进行 CI-V 控制。HF/6 m 和 2m（无 70cm）。在 Initial Set Mode（开机时按 LOCK）中将地址/波特率与设置匹配（默认 48H / 19200）。建议 CI-V TRN 设为 On。支持 AO-07 Mode A 10m 下行。</value>
@@ -2368,7 +2500,7 @@
     <value>旋转器类型</value>
   </data>
   <data name="Settings.Rotator.TypeNote">
-    <value>GS-232 用于 Yaesu 及兼容型号。SPID 用于 SP 模式控制器（Rot1Prog / Rot2Prog）。EasyComm 用于 EC 模式（SPID、M2 及其他文本协议控制器）。SAEBRTrack 用于经典卫星跟踪接口（9600 波特）。OZ9AAR URC (TCP) 用于 Ultimate Rotator Controller（以太网，默认端口 1111；请将 URC 设为 REM/远程模式）。Green Heron RT-21 Az-El 使用两个 COM 端口（方位角与仰角），DCU-1 协议、4800 波特；请勿选择 GS-232。串口协议也可通过 TCP 串口服务器（例如 ser2net）连接，而无需本地 COM 口。</value>
+    <value>GS-232 用于 Yaesu 及兼容型号。SPID 用于 SP 模式控制器（Rot1Prog / Rot2Prog）。SPID MD-01 / MD-02 (TCP) 用于原生以太网（协议 SPID ROT2，默认端口 23）。EasyComm 用于 EC 模式（SPID、M2 及其他文本协议控制器）。SAEBRTrack 用于经典卫星跟踪接口（9600 波特）。OZ9AAR URC (TCP) 用于 Ultimate Rotator Controller（以太网，默认端口 1111；请将 URC 设为 REM/远程模式）。Green Heron RT-21 Az-El 使用两个 COM 端口（方位角与仰角），DCU-1 协议、4800 波特；请勿选择 GS-232。串口协议也可通过 TCP 串口服务器（例如 ser2net）连接，而无需本地 COM 口。</value>
   </data>
   <data name="Settings.Rotator.AzimuthPort">
     <value>方位角串口</value>
@@ -2403,6 +2535,9 @@
   <data name="Settings.Rotator.NetworkNoteTcpSerial">
     <value>OscarWatch 作为 TCP 客户端连接到原始串口隧道（例如 ser2net）。请在服务器端配置波特率和串口选项。建议在局域网使用——高延迟可能导致超时。</value>
   </data>
+  <data name="Settings.Rotator.NetworkNoteSpidMd01">
+    <value>OscarWatch 作为 TCP 客户端连接到 MD-01 / MD-02 的以太网端口。请在控制器上将 MOTOR CONFIGURATION 设为 ETH，协议设为 SPID ROT2。默认 TCP 端口为 23。同一时间只能连接一个客户端。建议使用固件 1.2507 或更高版本。</value>
+  </data>
   <data name="Settings.Rotator.SmartAzimuth">
     <value>智能 450° 方位角（经北方最短路径）</value>
   </data>
@@ -2422,7 +2557,7 @@
     <value>启用 Keyhole 规避</value>
   </data>
   <data name="Settings.Rotator.KeyholeNote">
-    <value>启用后，会分析天顶附近旋转器跟不上卫星的高仰角过顶；必要时可预先转到反向方位（翻转）以减少信号丢失。仅在选择 0–180° 仰角范围时可用。</value>
+    <value>启用后，会分析天顶附近旋转器跟不上卫星的高仰角过顶；必要时可预先转到反向方位（翻转）以减少信号丢失。预定位在跟踪起始仰角上转动方位角（不会低于 0°）。仅在选择 0–180° 仰角范围时可用。</value>
   </data>
   <data name="Settings.Rotator.KeyholeSlewRate">
     <value>旋转速率（°/s）</value>
@@ -2440,7 +2575,13 @@
     <value>开始跟踪仰角（°）</value>
   </data>
   <data name="Settings.Rotator.TrackStartNote">
-    <value>默认为 -3°（地平线以下）。范围 -90° 至 90°。当跟踪的卫星上升到该仰角以上时，旋转器开始转动，一旦下降到该仰角以下就停止（经短暂确认，避免单次抖动中断跟踪）。</value>
+    <value>默认为 -3°（地平线以下）。范围 -90° 至 90°。当跟踪的卫星上升到该仰角以上时，旋转器开始转动，一旦下降到该仰角以下就停止（经短暂确认，避免单次抖动中断跟踪）。过顶预定位也以该仰角为下限（不会低于 0°）。</value>
+  </data>
+  <data name="Settings.Rotator.MovementThreshold">
+    <value>移动阈值（°）</value>
+  </data>
+  <data name="Settings.Rotator.MovementThresholdNote">
+    <value>发送新目标前所需的最小角度变化。如果旋转器回报的位置仍超出该阈值，会重发上一次指令，以便编码器噪声导致提前停止时能再次启动。停止会取消该重试。较小的值跟踪更紧，较大的值减少齿轮磨损。默认：1.0°。</value>
   </data>
   <data name="Settings.Rotator.ParkAzimuth">
     <value>停靠方位角（°）</value>
@@ -2520,11 +2661,32 @@
   <data name="Settings.Recording.OutputWatermark">
     <value>默认值：%AppData%/OscarWatch/recordings</value>
   </data>
+  <data name="Settings.Recording.FolderUsageOne">
+    <value>1 个文件 · {0}</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageMany">
+    <value>{0} 个文件 · {1}</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageEmpty">
+    <value>此文件夹中尚无录音</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageMissing">
+    <value>保存首次录音时将创建文件夹</value>
+  </data>
+  <data name="Settings.Recording.FolderUsageError">
+    <value>无法读取文件夹大小</value>
+  </data>
+  <data name="Settings.Recording.OpenFolder">
+    <value>打开文件夹</value>
+  </data>
   <data name="Settings.Recording.TestButton">
     <value>测试录音（5 秒）</value>
   </data>
   <data name="Settings.Recording.Unavailable">
     <value>此系统不支持音频录制。</value>
+  </data>
+  <data name="Settings.Recording.DevicesLoading">
+    <value>正在加载音频设备…</value>
   </data>
   <data name="Settings.Recording.SelectDeviceFirst">
     <value>首先选择输入设备。</value>
@@ -2998,7 +3160,25 @@
     <value>添加到日历</value>
   </data>
   <data name="Planner.Export.CalendarTip">
+    <value>保存此卫星的 iCalendar 文件，或将此次过境添加到 Google 日历</value>
+  </data>
+  <data name="Planner.Export.SaveIcs">
+    <value>保存 iCalendar (.ics)</value>
+  </data>
+  <data name="Planner.Export.SaveIcsTip">
     <value>将此卫星的所有过境导出到 iCalendar (.ics) 文件</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendar">
+    <value>将此次过境添加到 Google 日历</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarTip">
+    <value>在浏览器中打开 Google 日历并填入此次过境</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarOpened">
+    <value>已为 {0} 打开 Google 日历</value>
+  </data>
+  <data name="Planner.Export.GoogleCalendarFailed">
+    <value>无法打开 Google 日历：{0}</value>
   </data>
   <data name="Planner.PortableName">
     <value>便携式 {0}</value>
@@ -3504,6 +3684,9 @@
   <data name="DbMerge.NewSatellites">
     <value>新卫星</value>
   </data>
+  <data name="DbMerge.NoradIdBackfills">
+    <value>NORAD 目录编号</value>
+  </data>
   <data name="DbMerge.NewModes">
     <value>新转发器模式</value>
   </data>
@@ -3540,6 +3723,9 @@
   <data name="DbMerge.Intro.Remote">
     <value>默认会选中新条目。对于冲突项，请确认您的本地副本，或选择已发布的版本。</value>
   </data>
+  <data name="DbMerge.Intro.NoradIds">
+    <value>这些目录编号将添加到本地数据库中尚无编号的卫星。点击“应用所选项”进行更新。</value>
+  </data>
   <data name="DbMerge.Summary.Matches">
     <value>您的转发器数据库与 {0} 匹配。</value>
   </data>
@@ -3561,6 +3747,12 @@
   <data name="DbMerge.Summary.ManyConflicts">
     <value>{0} 个冲突</value>
   </data>
+  <data name="DbMerge.Summary.OneNoradId">
+    <value>{0} 个 NORAD 目录编号</value>
+  </data>
+  <data name="DbMerge.Summary.ManyNoradIds">
+    <value>{0} 个 NORAD 目录编号</value>
+  </data>
   <data name="DbMerge.Summary.FromSuffix">
     <value>来自 {0}。</value>
   </data>
@@ -3572,6 +3764,9 @@
   </data>
   <data name="DbMerge.Item.ModeLine">
     <value>{0}·{1}</value>
+  </data>
+  <data name="DbMerge.Item.NoradIdLine">
+    <value>{0} → {1}</value>
   </data>
   <data name="DbAdd.Title">
     <value>添加卫星</value>
@@ -3623,5 +3818,113 @@
   </data>
   <data name="ReleaseNotes.ViewOnGitHub">
     <value>在 GitHub 上查看</value>
+  </data>
+  <data name="Settings.Tab.Qrz">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Section">
+    <value>QRZ</value>
+  </data>
+  <data name="Settings.Qrz.Intro">
+    <value>在 OscarWatch Logbook 中输入呼号时，从 QRZ 查询对方姓名（以及空的网格）。XML Data 需要 QRZ 订阅。用户名和密码保存在本机。</value>
+  </data>
+  <data name="Settings.Qrz.Enable">
+    <value>在 OscarWatch Logbook 中启用 QRZ 呼号查询</value>
+  </data>
+  <data name="Settings.Qrz.Username">
+    <value>QRZ 用户名</value>
+  </data>
+  <data name="Settings.Qrz.UsernameWatermark">
+    <value>呼号</value>
+  </data>
+  <data name="Settings.Qrz.Password">
+    <value>QRZ 密码</value>
+  </data>
+  <data name="Settings.Qrz.PasswordWatermark">
+    <value>账户密码</value>
+  </data>
+  <data name="Settings.Qrz.TestConnection">
+    <value>测试连接</value>
+  </data>
+  <data name="Settings.Qrz.Testing">
+    <value>正在测试…</value>
+  </data>
+  <data name="Settings.Qrz.EnterCredentials">
+    <value>请输入 QRZ 用户名和密码（离开各字段或再次点击测试）。</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOk">
+    <value>连接成功。XML 订阅有效期至 {0}。</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionOkNoExpiry">
+    <value>连接成功。</value>
+  </data>
+  <data name="Settings.Qrz.ConnectionFailed">
+    <value>无法登录 QRZ：{0}</value>
+  </data>
+  <data name="Settings.Qrz.SubscriptionRequired">
+    <value>QRZ XML Data 需要订阅。请在 QRZ 账户中检查 XML 访问权限。</value>
+  </data>
+  <data name="Settings.Qrz.Timeout">
+    <value>QRZ 未及时响应。</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.Intro">
+    <value>输入呼号时从 QRZ 填写姓名（以及空的网格）。不会覆盖您已输入的姓名，也不会覆盖本日志中以往 QSO 带出的姓名。</value>
+  </data>
+  <data name="Logbook.Settings.Qrz.CredentialsNote">
+    <value>需要 QRZ XML Data 订阅。用户名和密码与其他 OscarWatch 设置一起保存在本机。</value>
+  </data>
+  <data name="Logbook.CallHint.Qrz">
+    <value>来自 QRZ 的姓名。</value>
+  </data>
+  <data name="Settings.Tab.HamQth">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Section">
+    <value>HamQTH</value>
+  </data>
+  <data name="Settings.HamQth.Intro">
+    <value>在 OscarWatch Logbook 中输入呼号时，从 HamQTH 查询对方姓名（以及空的网格）。免费 HamQTH 账户即可（无需付费 XML 订阅）。在 QRZ 关闭、未找到或未配置时使用。用户名和密码保存在本机。</value>
+  </data>
+  <data name="Settings.HamQth.Enable">
+    <value>在 OscarWatch Logbook 中启用 HamQTH 呼号查询</value>
+  </data>
+  <data name="Settings.HamQth.Username">
+    <value>HamQTH 用户名</value>
+  </data>
+  <data name="Settings.HamQth.UsernameWatermark">
+    <value>呼号</value>
+  </data>
+  <data name="Settings.HamQth.Password">
+    <value>HamQTH 密码</value>
+  </data>
+  <data name="Settings.HamQth.PasswordWatermark">
+    <value>账户密码</value>
+  </data>
+  <data name="Settings.HamQth.TestConnection">
+    <value>测试连接</value>
+  </data>
+  <data name="Settings.HamQth.Testing">
+    <value>正在测试…</value>
+  </data>
+  <data name="Settings.HamQth.EnterCredentials">
+    <value>请输入 HamQTH 用户名和密码（离开各字段或再次点击测试）。</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionOk">
+    <value>连接成功。</value>
+  </data>
+  <data name="Settings.HamQth.ConnectionFailed">
+    <value>无法登录 HamQTH：{0}</value>
+  </data>
+  <data name="Settings.HamQth.Timeout">
+    <value>HamQTH 未及时响应。</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.Intro">
+    <value>当 QRZ 关闭、未找到或未配置时，从 HamQTH 填写姓名（以及空的网格）。不会覆盖您已输入的姓名，也不会覆盖本日志中以往 QSO 带出的姓名。</value>
+  </data>
+  <data name="Logbook.Settings.HamQth.CredentialsNote">
+    <value>需要免费 HamQTH 账户。用户名和密码与其他 OscarWatch 设置一起保存在本机。</value>
+  </data>
+  <data name="Logbook.CallHint.HamQth">
+    <value>来自 HamQTH 的姓名。</value>
   </data>
 </root>

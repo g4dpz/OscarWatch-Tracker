@@ -50,6 +50,11 @@ public sealed class RotatorController : IRotatorController, IDisposable
     private bool _standbyActive;
     private bool _standbyManualActive;
     private bool _trackingHoldAfterStop;
+    /// <summary>
+    /// Re-issue the last SetPosition while polled az/el is still outside the movement threshold.
+    /// Cleared by Stop so a cancelled slew is not restarted.
+    /// </summary>
+    private bool _retryUntilArrived;
     /// <summary>True after we have commanded track for the current pass (el ≥ track start).</summary>
     private bool _passTrackingActive;
     private int _parkAfterPassStreak;
@@ -351,7 +356,13 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
         if (_standbyActive)
         {
-            if (!_standbyManualActive && settings.ParkAfterPass)
+            if (_standbyManualActive)
+            {
+                RetryLastCommandIfNotArrived(settings);
+                return;
+            }
+
+            if (settings.ParkAfterPass)
                 TryPark(settings);
             return;
         }
@@ -516,6 +527,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _rotator.SetPosition(az, el, settings);
             _lastAzimuth = Math.Round(az);
             _lastElevation = Math.Round(el);
+            _retryUntilArrived = true;
         }
         catch (Exception ex)
         {
@@ -540,6 +552,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         try
         {
             _rotator.Stop();
+            _retryUntilArrived = false;
             if (!_standbyActive)
                 _trackingHoldAfterStop = true;
         }
@@ -566,6 +579,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _manualParkActive = false;
             _standbyManualActive = false;
             _trackingHoldAfterStop = false;
+            _retryUntilArrived = false;
             _passTrackingActive = false;
             _parkAfterPassStreak = 0;
             return;
@@ -609,6 +623,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
         _standbyActive = false;
         _standbyManualActive = false;
         _trackingHoldAfterStop = false;
+        _retryUntilArrived = false;
         _passTrackingActive = false;
         _parkAfterPassStreak = 0;
         _displayAzimuth = null;
@@ -713,7 +728,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
     /// <summary>
     /// Handles the keyhole pre-positioning branch. If a FlippedStart plan is active and the
     /// current time is within the pre-position window (AOS − PrePositionLeadTime to AOS),
-    /// commands the rotator to slew to the flipped start azimuth at 0° elevation.
+    /// commands the rotator to slew to the flipped start azimuth at the track-start elevation
+    /// (not below 0°).
     /// Returns true if pre-positioning was handled (caller should return early), false otherwise.
     /// </summary>
     private bool TryHandleKeyholePrePosition(RotatorSettings settings, SatelliteTrackState? target)
@@ -758,11 +774,19 @@ public sealed class RotatorController : IRotatorController, IDisposable
             return false;
         }
 
-        // Slew to flipped start azimuth at 0° elevation
+        // Slew azimuth at the rotator floor (track-start), never below the horizon.
         _isPrePositioning = true;
-        TryTrack(settings, _keyholePlan.FlippedStartAzimuthDeg.Value, 0, null);
+        TryTrack(settings, _keyholePlan.FlippedStartAzimuthDeg.Value, KeyholePrePositionElevationDeg(settings), null);
         return true;
     }
+
+    /// <summary>
+    /// Elevation used when slewing to a flipped start azimuth before AOS.
+    /// Follows <see cref="RotatorSettings.TrackStartElevationDeg"/>, clamped to 0° so a
+    /// default below-horizon track-start still pre-positions on the horizon.
+    /// </summary>
+    internal static double KeyholePrePositionElevationDeg(RotatorSettings settings) =>
+        Math.Max(0, settings.TrackStartElevationDeg);
 
     /// <summary>
     /// Determines whether the rotator should currently be tracking in flipped mode.
@@ -871,7 +895,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
             var losCompass = RotatorCalibration.ApplyAzimuthOffset(
                 _activePassInfo.LosAzimuthDeg, settings);
             remainingPathCrossesNorth = losCompass is { } losAz
-                && RotatorAzimuthPlanner.IndicatesEastToWestNorthCrossing(commandAzInput, losAz);
+                && RotatorAzimuthPlanner.RemainingPathCrossesNorthEastToWest(
+                    commandAzInput, losAz, aheadForPlanner);
         }
 
         var useSmartAzimuth = settings.SmartAzimuth450 && settings.MaxAzimuthDeg > 360;
@@ -891,7 +916,8 @@ public sealed class RotatorController : IRotatorController, IDisposable
 
         var send = _lastAzimuth is null || _lastElevation is null
             || Math.Abs(commandAz - _lastAzimuth.Value) >= settings.MovementThresholdDeg
-            || Math.Abs(commandEl - _lastElevation.Value) >= settings.MovementThresholdDeg;
+            || Math.Abs(commandEl - _lastElevation.Value) >= settings.MovementThresholdDeg
+            || HasOutstandingArrivalError(settings, commandAz, commandEl);
 
         if (!send)
             return;
@@ -901,6 +927,7 @@ public sealed class RotatorController : IRotatorController, IDisposable
             _rotator.SetPosition(commandAz, commandEl, settings);
             _lastAzimuth = Math.Round(commandAz);
             _lastElevation = Math.Round(commandEl);
+            _retryUntilArrived = true;
             _parked = false;
             // Poll before the worker signals command completion so GetPositionStatus
             // reflects commanded az/el without waiting for the next loop iteration.
@@ -918,16 +945,20 @@ public sealed class RotatorController : IRotatorController, IDisposable
         if (afterPass && !settings.ParkAfterPass)
             return;
 
-        if (_rotator is null || (_parked && !force))
+        if (_rotator is null)
+            return;
+
+        var az = settings.ParkAzimuthDeg;
+        var el = settings.ParkElevationDeg;
+        if (_parked && !force && !HasOutstandingArrivalError(settings, az, el))
             return;
 
         try
         {
-            var az = settings.ParkAzimuthDeg;
-            var el = settings.ParkElevationDeg;
             _rotator.SetPosition(az, el, settings);
             _lastAzimuth = az;
             _lastElevation = el;
+            _retryUntilArrived = true;
             _parked = true;
             ClearTrackingAzimuthDisplay();
         }
@@ -936,6 +967,48 @@ public sealed class RotatorController : IRotatorController, IDisposable
             Log.Warning(ex, "Rotator park failed");
             TearDownRotator();
         }
+    }
+
+    /// <summary>
+    /// Re-sends the last commanded az/el when hardware feedback still shows the beam short of the target.
+    /// Used in standby after a manual Rotate so a noisy encoder stop does not leave the antenna off-pointed.
+    /// </summary>
+    private void RetryLastCommandIfNotArrived(RotatorSettings settings)
+    {
+        if (_rotator is null || !_retryUntilArrived)
+            return;
+        if (_lastAzimuth is not { } az || _lastElevation is not { } el)
+            return;
+        if (!HasOutstandingArrivalError(settings, az, el))
+            return;
+
+        try
+        {
+            _rotator.SetPosition(az, el, settings);
+            PollPosition();
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Rotator arrival retry failed at Az={Az} El={El}", az, el);
+            TearDownRotator();
+        }
+    }
+
+    /// <summary>
+    /// True when polled az or el is still outside the movement threshold of the commanded position.
+    /// Missing feedback (null poll, SAEBRTrack) is treated as unknown, not as a miss, so we do not spam.
+    /// </summary>
+    private bool HasOutstandingArrivalError(RotatorSettings settings, double commandAz, double commandEl)
+    {
+        if (!_retryUntilArrived)
+            return false;
+
+        var threshold = settings.MovementThresholdDeg;
+        var azimuthOff = _displayAzimuth is { } az
+            && !RotatorAzimuthPlanner.IsWithinAzimuthThreshold(az, commandAz, threshold);
+        var elevationOff = _displayElevation is { } el
+            && Math.Abs(el - commandEl) >= threshold;
+        return azimuthOff || elevationOff;
     }
 
     private void PollPosition()

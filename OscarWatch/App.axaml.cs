@@ -69,6 +69,8 @@ public partial class App : Application
         services.AddSingleton<ICloudlogRadioSyncService, CloudlogRadioSyncService>();
         services.AddSingleton<ISatelliteLinkBroadcastService, SatelliteLinkBroadcastService>();
         services.AddSingleton<ICloudlogLookupService, CloudlogLookupService>();
+        services.AddSingleton<IQrzCallbookService, QrzCallbookService>();
+        services.AddSingleton<IHamQthCallbookService, HamQthCallbookService>();
         services.AddSingleton<CloudlogQsoClient>();
         services.AddSingleton<ICloudlogQsoUploadService, CloudlogQsoUploadService>();
         var bundledDb = Path.Combine(AppContext.BaseDirectory, "Assets", "satellite_database.json");
