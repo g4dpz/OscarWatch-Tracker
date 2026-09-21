@@ -678,7 +678,9 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         {
             var defaultLabel = _l.Get("Ft4.Audio.SystemDefault");
             var savedIn = _settings.Current.Ft4.InputDeviceId ?? "";
+            var savedInName = _settings.Current.Ft4.InputDeviceDisplayName ?? "";
             var savedOut = _settings.Current.Ft4.OutputDeviceId ?? "";
+            var savedOutName = _settings.Current.Ft4.OutputDeviceDisplayName ?? "";
 
             InputDeviceOptions.Clear();
             InputDeviceOptions.Add(new Ft4AudioDeviceOption("", defaultLabel));
@@ -690,15 +692,54 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
             foreach (var d in _modem.GetOutputDevices())
                 OutputDeviceOptions.Add(new Ft4AudioDeviceOption(d.Id, d.DisplayName));
 
-            SelectedInputDevice = InputDeviceOptions.FirstOrDefault(o => o.Id == savedIn)
+            SelectedInputDevice = FindAudioDeviceOption(InputDeviceOptions, savedIn, savedInName)
                 ?? InputDeviceOptions[0];
-            SelectedOutputDevice = OutputDeviceOptions.FirstOrDefault(o => o.Id == savedOut)
+            SelectedOutputDevice = FindAudioDeviceOption(OutputDeviceOptions, savedOut, savedOutName)
                 ?? OutputDeviceOptions[0];
         }
         finally
         {
             _loadingDevices = false;
         }
+    }
+
+    private static Ft4AudioDeviceOption? FindAudioDeviceOption(
+        IEnumerable<Ft4AudioDeviceOption> options,
+        string? deviceId,
+        string? deviceDisplayName)
+    {
+        if (!string.IsNullOrWhiteSpace(deviceId))
+        {
+            var byId = options.FirstOrDefault(o =>
+                string.Equals(o.Id, deviceId, StringComparison.OrdinalIgnoreCase));
+            if (byId is not null)
+                return byId;
+        }
+
+        if (!string.IsNullOrWhiteSpace(deviceDisplayName))
+        {
+            var formattedSaved = OscarWatch.Recording.RecordingDeviceNameFormatter.Format(deviceDisplayName);
+            var byDisplay = options.FirstOrDefault(o =>
+            {
+                if (string.IsNullOrWhiteSpace(o.Id))
+                    return false;
+                if (string.Equals(o.DisplayName, deviceDisplayName, StringComparison.OrdinalIgnoreCase))
+                    return true;
+                return string.Equals(
+                    OscarWatch.Recording.RecordingDeviceNameFormatter.Format(o.DisplayName),
+                    formattedSaved,
+                    StringComparison.OrdinalIgnoreCase);
+            });
+            if (byDisplay is not null)
+                return byDisplay;
+
+            // Keep the saved choice visible when PortAudio no longer lists it.
+            return new Ft4AudioDeviceOption(
+                string.IsNullOrWhiteSpace(deviceId) ? deviceDisplayName : deviceId!,
+                deviceDisplayName);
+        }
+
+        return null;
     }
 
     private void RefreshPttPorts()

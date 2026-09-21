@@ -78,7 +78,9 @@ public sealed class Ft4ModemService : IDisposable
             return;
         try
         {
-            _audio.StartCapture(_settings.Current.Ft4.InputDeviceId);
+            _audio.StartCapture(
+                _settings.Current.Ft4.InputDeviceId,
+                _settings.Current.Ft4.InputDeviceDisplayName);
             _deviceSampleRate = _audio.CaptureSampleRate;
             Status = "Listening.";
             Changed?.Invoke();
@@ -152,7 +154,9 @@ public sealed class Ft4ModemService : IDisposable
         Ft8Native.ow_ft8_clear_callsigns();
         Ft8Native.ow_ft8_remember_callsign(call);
 
-        _audio.StartCapture(_settings.Current.Ft4.InputDeviceId);
+        _audio.StartCapture(
+            _settings.Current.Ft4.InputDeviceId,
+            _settings.Current.Ft4.InputDeviceDisplayName);
         _deviceSampleRate = _audio.CaptureSampleRate;
         _slotBuffer.Clear();
         _currentSlotStart = DateTime.MinValue;
@@ -423,7 +427,11 @@ public sealed class Ft4ModemService : IDisposable
         try
         {
             var ft4 = _settings.Current.Ft4;
-            _audio.PlayPcm(pcm, ft4.TxLevel, ft4.OutputDeviceId);
+            _audio.PlayPcm(
+                pcm,
+                ft4.TxLevel,
+                ft4.OutputDeviceId,
+                ft4.OutputDeviceDisplayName);
 
             while (!ct.IsCancellationRequested)
             {

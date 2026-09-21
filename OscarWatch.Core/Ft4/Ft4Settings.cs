@@ -21,15 +21,41 @@ public sealed class Ft4Settings
     /// <summary>Milliseconds to keep PTT after audio ends.</summary>
     public int PttTailMs { get; set; } = 100;
 
-    /// <summary>PortAudio input device id (empty = default).</summary>
+    /// <summary>Durable PortAudio device name for capture (not a volatile enumeration index). Empty = system default.</summary>
     public string InputDeviceId { get; set; } = "";
 
     public string InputDeviceDisplayName { get; set; } = "";
 
-    /// <summary>PortAudio output device id (empty = default).</summary>
+    /// <summary>Durable PortAudio device name for playback (not a volatile enumeration index). Empty = system default.</summary>
     public string OutputDeviceId { get; set; } = "";
 
     public string OutputDeviceDisplayName { get; set; } = "";
+
+    /// <summary>
+    /// Clears legacy numeric PortAudio indices so rematch uses the stored display names
+    /// (same pattern as pass recording).
+    /// </summary>
+    public void MigrateLegacyNumericDeviceIds()
+    {
+        if (IsLegacyNumericId(InputDeviceId))
+            InputDeviceId = "";
+        if (IsLegacyNumericId(OutputDeviceId))
+            OutputDeviceId = "";
+    }
+
+    private static bool IsLegacyNumericId(string? deviceId)
+    {
+        var id = deviceId?.Trim() ?? "";
+        if (id.Length == 0)
+            return false;
+        for (var i = 0; i < id.Length; i++)
+        {
+            if (!char.IsAsciiDigit(id[i]))
+                return false;
+        }
+
+        return true;
+    }
 
     /// <summary>Transmit audio level 0–1.</summary>
     public double TxLevel { get; set; } = 0.35;

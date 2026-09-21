@@ -916,7 +916,7 @@
     <value>_OscarWatch 日志</value>
   </data>
   <data name="Menu.Tools.Ft4">
-    <value>_FT4</value>
+    <value>_OscarWatch FT4</value>
   </data>
   <data name="Window.Logbook.Title">
     <value>OscarWatch 日志</value>
@@ -3931,10 +3931,10 @@
     <value>来自 HamQTH 的姓名。</value>
   </data>
   <data name="Window.Ft4.Title">
-    <value>FT4</value>
+    <value>OscarWatch FT4</value>
   </data>
   <data name="Window.Ft4Settings.Title">
-    <value>FT4 设置</value>
+    <value>OscarWatch FT4 设置</value>
   </data>
   <data name="Ft4.OpenSettings">
     <value>设置</value>
@@ -3947,6 +3947,9 @@
   </data>
   <data name="Ft4.Settings.ModemSection">
     <value>调制解调器</value>
+  </data>
+  <data name="Ft4.Settings.AppearanceSection">
+    <value>外观</value>
   </data>
   <data name="Ft4.Ptt.LeadMs">
     <value>PTT 提前 (ms)</value>
@@ -4138,13 +4141,16 @@
     <value>UTC</value>
   </data>
   <data name="Ft4.Decodes.Kind">
-    <value></value>
+    <value>TX</value>
   </data>
   <data name="Ft4.Decodes.Snr">
     <value>SNR</value>
   </data>
   <data name="Ft4.Decodes.Hz">
     <value>Hz</value>
+  </data>
+  <data name="Ft4.Decodes.Message">
+    <value>消息</value>
   </data>
   <data name="Ft4.Decodes.Tx">
     <value>TX</value>

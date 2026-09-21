@@ -575,7 +575,7 @@ LOS: {2}
     <value>ล็อกบุ๊ก OscarWatch(_O)</value>
   </data>
   <data name="Menu.Tools.Ft4">
-    <value>_FT4</value>
+    <value>_OscarWatch FT4</value>
   </data>
   <data name="Menu.Satellites">
     <value>ดาวเทียม(_S)</value>
@@ -3935,10 +3935,10 @@ LOS: {2}
     <value>ชื่อจาก HamQTH</value>
   </data>
   <data name="Window.Ft4.Title">
-    <value>FT4</value>
+    <value>OscarWatch FT4</value>
   </data>
   <data name="Window.Ft4Settings.Title">
-    <value>การตั้งค่า FT4</value>
+    <value>การตั้งค่า OscarWatch FT4</value>
   </data>
   <data name="Ft4.OpenSettings">
     <value>การตั้งค่า</value>
@@ -3951,6 +3951,9 @@ LOS: {2}
   </data>
   <data name="Ft4.Settings.ModemSection">
     <value>โมเด็ม</value>
+  </data>
+  <data name="Ft4.Settings.AppearanceSection">
+    <value>ลักษณะที่แสดง</value>
   </data>
   <data name="Ft4.Ptt.LeadMs">
     <value>นำหน้า PTT (ms)</value>
@@ -4142,13 +4145,16 @@ LOS: {2}
     <value>UTC</value>
   </data>
   <data name="Ft4.Decodes.Kind">
-    <value></value>
+    <value>TX</value>
   </data>
   <data name="Ft4.Decodes.Snr">
     <value>SNR</value>
   </data>
   <data name="Ft4.Decodes.Hz">
     <value>Hz</value>
+  </data>
+  <data name="Ft4.Decodes.Message">
+    <value>ข้อความ</value>
   </data>
   <data name="Ft4.Decodes.Tx">
     <value>TX</value>

@@ -575,7 +575,7 @@ Lanjutkan?</value>
     <value>_Logbook OscarWatch</value>
   </data>
   <data name="Menu.Tools.Ft4">
-    <value>_FT4</value>
+    <value>_OscarWatch FT4</value>
   </data>
   <data name="Menu.Satellites">
     <value>_Satelit</value>
@@ -3935,10 +3935,10 @@ Terbaru: {1} ({2})</value>
     <value>Nama dari HamQTH.</value>
   </data>
   <data name="Window.Ft4.Title">
-    <value>FT4</value>
+    <value>OscarWatch FT4</value>
   </data>
   <data name="Window.Ft4Settings.Title">
-    <value>Pengaturan FT4</value>
+    <value>Pengaturan OscarWatch FT4</value>
   </data>
   <data name="Ft4.OpenSettings">
     <value>Pengaturan</value>
@@ -3951,6 +3951,9 @@ Terbaru: {1} ({2})</value>
   </data>
   <data name="Ft4.Settings.ModemSection">
     <value>Modem</value>
+  </data>
+  <data name="Ft4.Settings.AppearanceSection">
+    <value>Tampilan</value>
   </data>
   <data name="Ft4.Ptt.LeadMs">
     <value>Lead PTT (ms)</value>
@@ -4142,13 +4145,16 @@ Terbaru: {1} ({2})</value>
     <value>UTC</value>
   </data>
   <data name="Ft4.Decodes.Kind">
-    <value></value>
+    <value>TX</value>
   </data>
   <data name="Ft4.Decodes.Snr">
     <value>SNR</value>
   </data>
   <data name="Ft4.Decodes.Hz">
     <value>Hz</value>
+  </data>
+  <data name="Ft4.Decodes.Message">
+    <value>Pesan</value>
   </data>
   <data name="Ft4.Decodes.Tx">
     <value>TX</value>

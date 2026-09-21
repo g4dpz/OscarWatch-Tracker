@@ -2209,7 +2209,7 @@
     <value>_OscarWatchログブック</value>
   </data>
   <data name="Menu.Tools.Ft4">
-    <value>_FT4</value>
+    <value>_OscarWatch FT4</value>
   </data>
   <data name="Window.Logbook.Title">
     <value>OscarWatchログブック</value>
@@ -3931,10 +3931,10 @@
     <value>HamQTHの名前。</value>
   </data>
   <data name="Window.Ft4.Title">
-    <value>FT4</value>
+    <value>OscarWatch FT4</value>
   </data>
   <data name="Window.Ft4Settings.Title">
-    <value>FT4設定</value>
+    <value>OscarWatch FT4設定</value>
   </data>
   <data name="Ft4.OpenSettings">
     <value>設定</value>
@@ -3947,6 +3947,9 @@
   </data>
   <data name="Ft4.Settings.ModemSection">
     <value>モデム</value>
+  </data>
+  <data name="Ft4.Settings.AppearanceSection">
+    <value>外観</value>
   </data>
   <data name="Ft4.Ptt.LeadMs">
     <value>PTT先行 (ms)</value>
@@ -4138,13 +4141,16 @@
     <value>UTC</value>
   </data>
   <data name="Ft4.Decodes.Kind">
-    <value></value>
+    <value>TX</value>
   </data>
   <data name="Ft4.Decodes.Snr">
     <value>SNR</value>
   </data>
   <data name="Ft4.Decodes.Hz">
     <value>Hz</value>
+  </data>
+  <data name="Ft4.Decodes.Message">
+    <value>メッセージ</value>
   </data>
   <data name="Ft4.Decodes.Tx">
     <value>TX</value>

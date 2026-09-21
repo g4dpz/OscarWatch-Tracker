@@ -43,15 +43,19 @@ public sealed class Ft4AudioService : IDisposable
         if (!_portAudioReady)
             return [];
 
-        var list = new List<AudioInputDevice>();
+        var candidates = new List<RecordingDeviceCandidate>();
         for (var i = 0; i < PortAudio.DeviceCount; i++)
         {
             var info = PortAudio.GetDeviceInfo(i);
-            if (info.maxInputChannels > 0)
-                list.Add(new AudioInputDevice(i.ToString(), info.name ?? $"Input {i}"));
+            if (info.maxInputChannels <= 0)
+                continue;
+            candidates.Add(new RecordingDeviceCandidate(
+                i,
+                info.name ?? $"Input {i}",
+                info.defaultLowInputLatency));
         }
 
-        return list;
+        return RecordingDeviceListBuilder.Build(candidates);
     }
 
     public IReadOnlyList<AudioInputDevice> GetOutputDevices()
@@ -60,18 +64,22 @@ public sealed class Ft4AudioService : IDisposable
         if (!_portAudioReady)
             return [];
 
-        var list = new List<AudioInputDevice>();
+        var candidates = new List<RecordingDeviceCandidate>();
         for (var i = 0; i < PortAudio.DeviceCount; i++)
         {
             var info = PortAudio.GetDeviceInfo(i);
-            if (info.maxOutputChannels > 0)
-                list.Add(new AudioInputDevice(i.ToString(), info.name ?? $"Output {i}"));
+            if (info.maxOutputChannels <= 0)
+                continue;
+            candidates.Add(new RecordingDeviceCandidate(
+                i,
+                info.name ?? $"Output {i}",
+                info.defaultLowOutputLatency));
         }
 
-        return list;
+        return RecordingDeviceListBuilder.Build(candidates);
     }
 
-    public void StartCapture(string? deviceId)
+    public void StartCapture(string? deviceId, string? deviceDisplayName = null)
     {
         lock (_gate)
         {
@@ -84,7 +92,14 @@ public sealed class Ft4AudioService : IDisposable
             {
             }
 
-            var deviceIndex = ResolveDeviceIndex(deviceId, input: true);
+            var deviceIndex = ResolveDeviceIndex(deviceId, deviceDisplayName, input: true);
+            if (deviceIndex < 0)
+            {
+                throw new InvalidOperationException(
+                    "FT4 input soundcard is no longer available. " +
+                    "Open FT4 Settings, click Refresh, and re-select the input device.");
+            }
+
             var info = PortAudio.GetDeviceInfo(deviceIndex);
             _captureSampleRate = (int)Math.Round(info.defaultSampleRate);
             if (_captureSampleRate < 8000)
@@ -108,7 +123,11 @@ public sealed class Ft4AudioService : IDisposable
                 callback: OnInput,
                 userData: IntPtr.Zero);
             _input.Start();
-            Log.Information("FT4 capture started on device {Device} at {Rate} Hz", deviceIndex, _captureSampleRate);
+            Log.Information(
+                "FT4 capture started on '{Device}' (index {Index}) at {Rate} Hz",
+                info.name,
+                deviceIndex,
+                _captureSampleRate);
         }
     }
 
@@ -142,7 +161,7 @@ public sealed class Ft4AudioService : IDisposable
         }
     }
 
-    public void PlayPcm(float[] samples12k, double level, string? deviceId)
+    public void PlayPcm(float[] samples12k, double level, string? deviceId, string? deviceDisplayName = null)
     {
         lock (_gate)
         {
@@ -152,7 +171,14 @@ public sealed class Ft4AudioService : IDisposable
 
             StopPlaybackUnlocked();
 
-            var deviceIndex = ResolveDeviceIndex(deviceId, input: false);
+            var deviceIndex = ResolveDeviceIndex(deviceId, deviceDisplayName, input: false);
+            if (deviceIndex < 0)
+            {
+                throw new InvalidOperationException(
+                    "FT4 output soundcard is no longer available. " +
+                    "Open FT4 Settings, click Refresh, and re-select the output device.");
+            }
+
             var info = PortAudio.GetDeviceInfo(deviceIndex);
             _playbackSampleRate = (int)Math.Round(info.defaultSampleRate);
             if (_playbackSampleRate < 8000)
@@ -319,18 +345,27 @@ public sealed class Ft4AudioService : IDisposable
         }
     }
 
-    private static int ResolveDeviceIndex(string? deviceId, bool input)
+    private static int ResolveDeviceIndex(string? deviceId, string? deviceDisplayName, bool input)
     {
-        if (int.TryParse(deviceId, out var index)
-            && index >= 0
-            && index < PortAudio.DeviceCount)
+        if (string.IsNullOrWhiteSpace(deviceId) && string.IsNullOrWhiteSpace(deviceDisplayName))
+            return input ? PortAudio.DefaultInputDevice : PortAudio.DefaultOutputDevice;
+
+        var snapshots = new List<RecordingDeviceResolver.InputDeviceSnapshot>();
+        for (var i = 0; i < PortAudio.DeviceCount; i++)
         {
-            var info = PortAudio.GetDeviceInfo(index);
-            if (input ? info.maxInputChannels > 0 : info.maxOutputChannels > 0)
-                return index;
+            var info = PortAudio.GetDeviceInfo(i);
+            var channels = input ? info.maxInputChannels : info.maxOutputChannels;
+            if (channels <= 0)
+                continue;
+            var latency = input ? info.defaultLowInputLatency : info.defaultLowOutputLatency;
+            snapshots.Add(new RecordingDeviceResolver.InputDeviceSnapshot(
+                i,
+                info.name ?? "",
+                latency,
+                channels));
         }
 
-        return input ? PortAudio.DefaultInputDevice : PortAudio.DefaultOutputDevice;
+        return RecordingDeviceResolver.ResolveIndex(deviceId, deviceDisplayName, snapshots);
     }
 
     private static float[] Resample(float[] input, int inRate, int outRate)

@@ -571,7 +571,7 @@ Continue?</value>
     <value>_OscarWatch Logbook</value>
   </data>
   <data name="Menu.Tools.Ft4">
-    <value>_FT4</value>
+    <value>_OscarWatch FT4</value>
   </data>
   <data name="Menu.Satellites">
     <value>_Satellites</value>
@@ -3931,10 +3931,10 @@ Latest: {1} ({2})</value>
     <value>Name from HamQTH.</value>
   </data>
   <data name="Window.Ft4.Title">
-    <value>FT4</value>
+    <value>OscarWatch FT4</value>
   </data>
   <data name="Window.Ft4Settings.Title">
-    <value>FT4 settings</value>
+    <value>OscarWatch FT4 settings</value>
   </data>
   <data name="Ft4.OpenSettings">
     <value>Settings</value>
@@ -3947,6 +3947,9 @@ Latest: {1} ({2})</value>
   </data>
   <data name="Ft4.Settings.ModemSection">
     <value>Modem</value>
+  </data>
+  <data name="Ft4.Settings.AppearanceSection">
+    <value>Appearance</value>
   </data>
   <data name="Ft4.Ptt.LeadMs">
     <value>PTT lead (ms)</value>
@@ -4138,7 +4141,7 @@ Latest: {1} ({2})</value>
     <value>UTC</value>
   </data>
   <data name="Ft4.Decodes.Kind">
-    <value></value>
+    <value>TX</value>
   </data>
   <data name="Ft4.Decodes.Snr">
     <value>SNR</value>
@@ -4148,6 +4151,9 @@ Latest: {1} ({2})</value>
   </data>
   <data name="Ft4.Decodes.Tx">
     <value>TX</value>
+  </data>
+  <data name="Ft4.Decodes.Message">
+    <value>Message</value>
   </data>
   <data name="Ft4.TxMessage">
     <value>TX message</value>

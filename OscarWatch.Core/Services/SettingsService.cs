@@ -333,6 +333,7 @@ public sealed class SettingsService : ISettingsService, IDisposable
         settings.PassRecording ??= new PassRecordingSettings();
         settings.PassRecording.MigrateLegacyNumericDeviceId();
         settings.Ft4 ??= new Ft4Settings();
+        settings.Ft4.MigrateLegacyNumericDeviceIds();
         settings.Ft4.UplinkCalibrationKHzBySatellite ??=
             new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
         settings.QsoLogbook ??= new QsoLogbookSettings();
