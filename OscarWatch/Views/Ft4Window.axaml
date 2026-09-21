@@ -128,6 +128,7 @@
           <controls:Ft4WaterfallControl Height="180"
                                         Spectrum="{Binding SpectrumBins}"
                                         TxAudioHz="{Binding TxAudioHz, Mode=TwoWay}"
+                                        RxAudioHz="{Binding RxAudioHz, Mode=TwoWay}"
                                         StatusText="{Binding WaterfallStatusText}" />
         </DockPanel>
       </Border>

@@ -60,6 +60,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         var ft4 = _settings.Current.Ft4;
         _skipRrr = ft4.SkipRrr;
         _txAudioHz = Math.Clamp(ft4.TxAudioHz, 200, 3000);
+        _rxAudioHz = _txAudioHz;
         _txLevel = Math.Clamp(ft4.TxLevel, 0.05, 1.0);
         _holdTxFrequency = ft4.HoldTxFrequency;
         _audioDopplerTx = ft4.AudioDopplerTx;
@@ -170,6 +171,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     [ObservableProperty] private string? _selectedEchoCalibrationSatellite;
     [ObservableProperty] private double _echoCalibrationHz;
     [ObservableProperty] private double _txAudioHz = 1500;
+    [ObservableProperty] private double _rxAudioHz = 1500;
     [ObservableProperty] private double _txLevel = 0.35;
     [ObservableProperty] private bool _txEnabled;
     [ObservableProperty] private bool _pttInvert;
@@ -288,6 +290,19 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         if (_modem.Sequencer is not null)
             _modem.Sequencer.TxAudioHz = clamped;
         _settings.RequestSave();
+    }
+
+    private void RefreshRxMarker()
+    {
+        foreach (var d in Decodes)
+        {
+            if (!d.IsReceiveActivity)
+                continue;
+            RxAudioHz = Math.Clamp(d.FreqHz, 200, 3000);
+            return;
+        }
+
+        RxAudioHz = TxAudioHz;
     }
 
     partial void OnTxLevelChanged(double value)
@@ -510,6 +525,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
             TxAudioHz = decode.FreqHz;
         else if (_modem.Sequencer is not null)
             TxAudioHz = _modem.Sequencer.TxAudioHz;
+        RxAudioHz = Math.Clamp(decode.FreqHz, 200, 3000);
         StatusLine = _l.Get("Ft4.Status.Answering", decode.Text);
         OnPropertyChanged(nameof(CanManualLog));
         ManualLogCommand.NotifyCanExecuteChanged();
@@ -520,6 +536,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     {
         _modem.ClearDecodes();
         Decodes.Clear();
+        RxAudioHz = TxAudioHz;
         StatusLine = _l.Get("Ft4.Status.DecodesCleared");
     }
 
@@ -821,6 +838,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
             Decodes.Clear();
             foreach (var d in _modem.Decodes)
                 Decodes.Add(d);
+            RefreshRxMarker();
         });
     }
 

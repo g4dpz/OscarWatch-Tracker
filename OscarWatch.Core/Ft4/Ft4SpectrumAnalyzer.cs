@@ -7,6 +7,12 @@ public static class Ft4SpectrumAnalyzer
     public const double DefaultMaxHz = 3000;
 
     /// <summary>
+    /// Half-width of the WSJT-X-style FT4 filter brackets around the selected tone (Hz).
+    /// FT4 uses 4 tones at 20.833 Hz spacing (≈62.5 Hz span); brackets are drawn a little wider (~90 Hz total).
+    /// </summary>
+    public const double Ft4FilterHalfWidthHz = 45;
+
+    /// <summary>
     /// Compute power spectrum bins for <paramref name="minHz"/>..<paramref name="maxHz"/>
     /// from mono PCM at <paramref name="sampleRate"/>. Returns false if too few samples.
     /// </summary>
