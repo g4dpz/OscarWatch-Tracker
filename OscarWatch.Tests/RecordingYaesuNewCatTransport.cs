@@ -5,6 +5,8 @@ internal sealed class RecordingYaesuNewCatTransport : OscarWatch.Rig.IYaesuNewCa
     public List<string> SentCommands { get; } = [];
     public Queue<string> Responses { get; } = new();
     public long VfoAHz { get; set; } = 435_750_000;
+    /// <summary>Watts returned for <c>PC;</c> reads (FT-991 POWER CONTROL).</summary>
+    public int RfPowerWatts { get; set; } = 25;
     public bool IsOpen { get; private set; }
 
     /// <summary>When true, set commands fail (simulates <c>?;</c> rejection).</summary>
@@ -38,6 +40,9 @@ internal sealed class RecordingYaesuNewCatTransport : OscarWatch.Rig.IYaesuNewCa
             return cmd[1] == 'B'
                 ? $"FB{VfoAHz:D9};"
                 : $"FA{VfoAHz:D9};";
+
+        if (cmd is "PC;")
+            return $"PC{RfPowerWatts:D3};";
 
         // Reads without a canned reply return null; sets must not use Transact in production.
         return null;

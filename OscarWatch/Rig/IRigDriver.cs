@@ -36,13 +36,24 @@ public interface IRigDriver : IDisposable
     }
 
     /// <summary>
-    /// True when <see cref="TryReadRfPowerLevel"/> can read the set RF power (CI-V 0x14 0x0A style).
+    /// True when CAT can report set RF power via <see cref="TryReadRfPowerWatts"/> and/or
+    /// <see cref="TryReadRfPowerLevel"/>.
     /// </summary>
     bool SupportsRfPowerRead => false;
 
     /// <summary>
-    /// Read the set RF power as a 0–255 relative level (not watts). Returns false when unsupported
-    /// or the radio did not answer.
+    /// Read the set RF power in watts when the radio reports watts directly (e.g. Yaesu <c>PC;</c>).
+    /// Returns false when unsupported or the radio did not answer.
+    /// </summary>
+    bool TryReadRfPowerWatts(out double watts)
+    {
+        watts = 0;
+        return false;
+    }
+
+    /// <summary>
+    /// Read the set RF power as a 0–255 relative level (ICOM CI-V 0x14 0x0A). Returns false when
+    /// unsupported or the radio did not answer. Prefer <see cref="TryReadRfPowerWatts"/> when available.
     /// </summary>
     bool TryReadRfPowerLevel(out int level0To255)
     {

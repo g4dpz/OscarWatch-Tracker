@@ -51,11 +51,26 @@ public class YaesuFt991Driver : IRigDriver
     public bool IsConnected => _transport.IsOpen;
     public bool SupportsTracking => true;
     public bool SupportsVfoExchange => false;
+    public bool SupportsRfPowerRead => true;
 
     public void Open()
     {
         _transport.Open();
         SetDialLock(false);
+    }
+
+    public bool TryReadRfPowerWatts(out double watts)
+    {
+        watts = 0;
+        if (!_transport.IsOpen)
+            return false;
+
+        var reply = _transport.Transact(YaesuFt991CatCodec.BuildReadPowerCommand(), _catDelayMs);
+        if (reply is null || !YaesuFt991CatCodec.TryParsePowerWatts(reply, out var value))
+            return false;
+
+        watts = value;
+        return true;
     }
 
     public long? ReadFrequencyHz(RigVfo vfo)

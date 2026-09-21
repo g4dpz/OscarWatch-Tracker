@@ -2693,6 +2693,11 @@ public sealed class RigController : IRigController, IDisposable
             if (driver is null || !driver.SupportsRfPowerRead)
                 return null;
 
+            // Yaesu FT-991 / FT-991A (and shared newcat): PC; returns watts directly.
+            if (driver.TryReadRfPowerWatts(out var wattsDirect))
+                return wattsDirect;
+
+            // ICOM CI-V: relative 0–255 mapped via band maximum.
             if (!driver.TryReadRfPowerLevel(out var level))
                 return null;
 

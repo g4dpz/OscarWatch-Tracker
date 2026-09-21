@@ -48,4 +48,23 @@ public sealed class YaesuFt991CatCodecTests
     {
         Assert.Equal("AB;", YaesuFt991CatCodec.BuildCopyVfoAToBCommand());
     }
+
+    [Theory]
+    [InlineData("PC005;", 5)]
+    [InlineData("PC030;", 30)]
+    [InlineData("PC100;", 100)]
+    [InlineData("pc050;", 50)]
+    public void TryParsePowerWatts_reads_pc_answer(string reply, int expected)
+    {
+        Assert.True(YaesuFt991CatCodec.TryParsePowerWatts(reply, out var watts));
+        Assert.Equal(expected, watts);
+    }
+
+    [Theory]
+    [InlineData("PC000;")]
+    [InlineData("PC101;")]
+    [InlineData("PC;")]
+    [InlineData("")]
+    public void TryParsePowerWatts_rejects_out_of_range(string reply) =>
+        Assert.False(YaesuFt991CatCodec.TryParsePowerWatts(reply, out _));
 }
