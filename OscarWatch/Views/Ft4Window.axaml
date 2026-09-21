@@ -28,6 +28,13 @@
       <Setter Property="FontSize" Value="12" />
       <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
+    <!-- Same typeface as values so label/value baselines match on the status strip. -->
+    <Style Selector="TextBlock.ft4-status-label">
+      <Setter Property="FontFamily" Value="Consolas,Courier New,monospace" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Opacity" Value="0.75" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
     <Style Selector="ProgressBar.ft4-slot">
       <Setter Property="Height" Value="10" />
       <Setter Property="MinHeight" Value="10" />
@@ -44,7 +51,17 @@
     </Style>
   </Window.Styles>
 
-  <DockPanel Margin="10">
+  <DockPanel>
+    <!-- Edge-to-edge waterfall (top / left / right of the client area). -->
+    <controls:Ft4WaterfallControl DockPanel.Dock="Top"
+                                  Height="200"
+                                  Spectrum="{Binding SpectrumBins}"
+                                  TxAudioHz="{Binding TxAudioHz, Mode=TwoWay}"
+                                  RxAudioHz="{Binding RxAudioHz, Mode=TwoWay}"
+                                  HoldTxFrequency="{Binding HoldTxFrequency}"
+                                  StatusText="{Binding WaterfallStatusText}" />
+
+    <DockPanel Margin="10">
     <!-- Status bar: slot progress, clock/Doppler, status -->
     <Border DockPanel.Dock="Bottom"
             BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
@@ -74,23 +91,25 @@
                      VerticalAlignment="Center" />
         </Grid>
 
-        <StackPanel Orientation="Horizontal" Spacing="14">
-          <StackPanel Orientation="Horizontal" Spacing="6">
+        <StackPanel Orientation="Horizontal"
+                    Spacing="14"
+                    VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
             <TextBlock Text="{loc:Localize Key=Ft4.SlotClock}"
-                       Classes="ft4-meta" />
+                       Classes="ft4-status-label" />
             <TextBlock Text="{Binding SlotClockText}"
                        Classes="ft4-mono"
                        FontWeight="SemiBold" />
           </StackPanel>
-          <StackPanel Orientation="Horizontal" Spacing="4">
+          <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
             <TextBlock Text="{loc:Localize Key=Ft4.DopplerUplink}"
-                       Classes="ft4-meta" />
+                       Classes="ft4-status-label" />
             <TextBlock Text="{Binding DopplerUplinkText}"
                        Classes="ft4-mono" />
           </StackPanel>
-          <StackPanel Orientation="Horizontal" Spacing="4">
+          <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
             <TextBlock Text="{loc:Localize Key=Ft4.DopplerDownlink}"
-                       Classes="ft4-meta" />
+                       Classes="ft4-status-label" />
             <TextBlock Text="{Binding DopplerDownlinkText}"
                        Classes="ft4-mono" />
           </StackPanel>
@@ -114,27 +133,9 @@
       </StackPanel>
     </Border>
 
-    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="8">
-      <!-- Waterfall -->
-      <Border Grid.Row="0" Classes="ft4-panel" Padding="8">
-        <DockPanel>
-          <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8" LastChildFill="False">
-            <Button DockPanel.Dock="Right"
-                    Content="{loc:Localize Key=Ft4.OpenSettings}"
-                    Click="OnSettingsClick"
-                    MinWidth="96"
-                    VerticalAlignment="Center" />
-          </DockPanel>
-          <controls:Ft4WaterfallControl Height="180"
-                                        Spectrum="{Binding SpectrumBins}"
-                                        TxAudioHz="{Binding TxAudioHz, Mode=TwoWay}"
-                                        RxAudioHz="{Binding RxAudioHz, Mode=TwoWay}"
-                                        StatusText="{Binding WaterfallStatusText}" />
-        </DockPanel>
-      </Border>
-
+    <Grid RowDefinitions="*,Auto" RowSpacing="8">
       <!-- Decodes -->
-      <Border Grid.Row="1" Classes="ft4-panel" Padding="8">
+      <Border Grid.Row="0" Classes="ft4-panel" Padding="8">
         <DockPanel>
           <DockPanel DockPanel.Dock="Top"
                      Margin="0,0,0,8"
@@ -152,6 +153,9 @@
               <Button Content="{loc:Localize Key=Ft4.SaveActivity}"
                       Command="{Binding SaveActivityCommand}"
                       MinWidth="110" />
+              <Button Content="{loc:Localize Key=Ft4.OpenSettings}"
+                      Click="OnSettingsClick"
+                      MinWidth="96" />
             </StackPanel>
           </DockPanel>
 
@@ -274,7 +278,7 @@
       </Border>
 
       <!-- TX -->
-      <Border Grid.Row="2" Classes="ft4-panel" Padding="10">
+      <Border Grid.Row="1" Classes="ft4-panel" Padding="10">
         <StackPanel Spacing="8">
           <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
             <TextBlock Grid.Column="0"
@@ -337,5 +341,6 @@
         </StackPanel>
       </Border>
     </Grid>
+    </DockPanel>
   </DockPanel>
 </Window>
