@@ -36,6 +36,21 @@ public interface IRigDriver : IDisposable
     }
 
     /// <summary>
+    /// True when <see cref="TryReadRfPowerLevel"/> can read the set RF power (CI-V 0x14 0x0A style).
+    /// </summary>
+    bool SupportsRfPowerRead => false;
+
+    /// <summary>
+    /// Read the set RF power as a 0–255 relative level (not watts). Returns false when unsupported
+    /// or the radio did not answer.
+    /// </summary>
+    bool TryReadRfPowerLevel(out int level0To255)
+    {
+        level0To255 = 0;
+        return false;
+    }
+
+    /// <summary>
     /// Toggle RTS or DTR on the CAT serial port. Returns false when the driver cannot
     /// expose handshake lines (e.g. network Flex, or RTS already used for flow control).
     /// </summary>

@@ -46,6 +46,16 @@
         Doppler readouts stay useful during a pass. Set your callsign and Maidenhead grid under
         <strong>Settings → Station</strong> before enabling transmit.
       </p>
+      <p>
+        OscarWatch FT4 is for linear/USB-style modes only. The Tools menu item is disabled, and transmit
+        is blocked, when the focused mode is FM or when FO-29 is focused (FO-29’s licence does not allow
+        this digital mode).
+      </p>
+      <p>
+        On ICOM radios that report RF power over CI-V (for example the IC-9700), OscarWatch reads the
+        set power before transmit. If it is more than 30 W, transmit is blocked until you turn the
+        RF power control down. Radios that cannot report power are not blocked by this check.
+      </p>
 
       <h2>What you will see</h2>
       <ul>

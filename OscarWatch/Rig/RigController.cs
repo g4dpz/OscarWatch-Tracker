@@ -188,6 +188,27 @@ public sealed class RigController : IRigController, IDisposable
     public void ForceFt4DopplerStep() =>
         Enqueue(new RigCommand(RigCommandKind.ForceFt4DopplerStep));
 
+    public bool TryGetUplinkRfPowerWatts(out double watts)
+    {
+        watts = 0;
+        var command = new RigCommand(RigCommandKind.ReadUplinkRfPower);
+        try
+        {
+            EnqueueAndWait(command, TimeSpan.FromSeconds(2));
+        }
+        catch (TimeoutException ex)
+        {
+            Log.Debug(ex, "RF power read timed out");
+            return false;
+        }
+
+        if (command.RfPowerWatts is not { } value)
+            return false;
+
+        watts = value;
+        return true;
+    }
+
     public void Disconnect()
     {
         _disconnectRequested = true;
@@ -364,6 +385,10 @@ public sealed class RigController : IRigController, IDisposable
                         _forceFrequencyApply = true;
                         RunLoopIteration(ignoreDopplerSuspend: true);
                     }
+                    break;
+
+                case RigCommandKind.ReadUplinkRfPower:
+                    command.RfPowerWatts = TryReadUplinkRfPowerWattsOnWorker();
                     break;
 
                 case RigCommandKind.Disconnect:
@@ -2660,6 +2685,33 @@ public sealed class RigController : IRigController, IDisposable
         }
     }
 
+    private double? TryReadUplinkRfPowerWattsOnWorker()
+    {
+        try
+        {
+            var driver = TxDriver();
+            if (driver is null || !driver.SupportsRfPowerRead)
+                return null;
+
+            if (!driver.TryReadRfPowerLevel(out var level))
+                return null;
+
+            var hz = _lastRigTxHz;
+            if (_cachedContext is { Corrected.RadioTransmitKHz: var txKHz } && txKHz > 0)
+                hz = (long)Math.Round(txKHz * 1000.0);
+
+            if (!IcomRfPowerEstimator.TryEstimateWatts(driver.RigType, hz, level, out var watts))
+                return null;
+
+            return watts;
+        }
+        catch (Exception ex)
+        {
+            Log.Debug(ex, "Uplink RF power read failed");
+            return null;
+        }
+    }
+
     private (RigStatusKind Kind, string? Port, string? Detail) DescribeConnectionFailure(RigSettings settings)
     {
         if (_lastConnectErrorKind == SerialPortConnectErrorKind.DualSamePort)
@@ -2700,6 +2752,7 @@ public sealed class RigController : IRigController, IDisposable
         SetHandshakePtt,
         SetFt4SlotGatedDoppler,
         ForceFt4DopplerStep,
+        ReadUplinkRfPower,
         Disconnect,
         Drain,
         Shutdown
@@ -2738,6 +2791,7 @@ public sealed class RigController : IRigController, IDisposable
         public bool HandshakeUseRts { get; }
         public bool HandshakeAssert { get; }
         public bool Ft4HoldDoppler { get; }
+        public double? RfPowerWatts { get; set; }
         public ManualResetEventSlim? Completed { get; set; }
     }
 }

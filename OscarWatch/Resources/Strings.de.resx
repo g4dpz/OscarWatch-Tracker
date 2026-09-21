@@ -4084,6 +4084,15 @@ Aktuell: {1} ({2})</value>
   <data name="Ft4.Status.TxHalted">
     <value>Senden gestoppt</value>
   </data>
+  <data name="Ft4.Blocked.FmSatellite">
+    <value>FT4 ist auf FM-Satelliten nicht verfügbar</value>
+  </data>
+  <data name="Ft4.Blocked.Fo29">
+    <value>FT4 ist auf FO-29 nicht erlaubt (Lizenzbeschränkung)</value>
+  </data>
+  <data name="Ft4.Blocked.RfPowerTooHigh">
+    <value>FT4-Senden gesperrt: HF-Leistung liegt über {0} W. Bitte die Leistung am Funkgerät reduzieren.</value>
+  </data>
   <data name="Ft4.Status.CallingCq">
     <value>CQ rufen</value>
   </data>

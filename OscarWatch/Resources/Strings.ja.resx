@@ -4080,6 +4080,15 @@
   <data name="Ft4.Status.TxHalted">
     <value>送信停止</value>
   </data>
+  <data name="Ft4.Blocked.FmSatellite">
+    <value>FM衛星ではFT4を利用できません</value>
+  </data>
+  <data name="Ft4.Blocked.Fo29">
+    <value>FO-29ではFT4は許可されていません（ライセンス制限）</value>
+  </data>
+  <data name="Ft4.Blocked.RfPowerTooHigh">
+    <value>FT4送信をブロックしました: RF出力が{0} Wを超えています。ラジオの出力を下げてください。</value>
+  </data>
   <data name="Ft4.Status.CallingCq">
     <value>CQ呼び出し中</value>
   </data>

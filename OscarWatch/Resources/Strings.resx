@@ -4080,6 +4080,15 @@ Latest: {1} ({2})</value>
   <data name="Ft4.Status.TxHalted">
     <value>Transmit halted</value>
   </data>
+  <data name="Ft4.Blocked.FmSatellite">
+    <value>FT4 is not available on FM satellites</value>
+  </data>
+  <data name="Ft4.Blocked.Fo29">
+    <value>FT4 is not permitted on FO-29 (licence restriction)</value>
+  </data>
+  <data name="Ft4.Blocked.RfPowerTooHigh">
+    <value>FT4 transmit blocked: RF power is above {0} W. Reduce power on the radio.</value>
+  </data>
   <data name="Ft4.Status.CallingCq">
     <value>Calling CQ</value>
   </data>

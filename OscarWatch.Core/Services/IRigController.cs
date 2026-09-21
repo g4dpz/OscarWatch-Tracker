@@ -32,6 +32,13 @@ public interface IRigController
     /// <summary>Apply one Doppler write now while FT4 slot-gating is active (slot boundary).</summary>
     void ForceFt4DopplerStep();
 
+    /// <summary>
+    /// Read the uplink radio’s set RF power in approximate watts when the driver supports it
+    /// (e.g. ICOM CI-V 0x14 0x0A mapped via band maximum). Returns false when unsupported,
+    /// disconnected, or the read failed.
+    /// </summary>
+    bool TryGetUplinkRfPowerWatts(out double watts);
+
     void Disconnect();
 
     /// <summary>Disconnect and block until the rig worker has torn down drivers and cleared tracking state.</summary>

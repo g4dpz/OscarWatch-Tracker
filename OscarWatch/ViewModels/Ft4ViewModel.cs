@@ -869,6 +869,8 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
 
         if (_modem.IsRunning)
         {
+            _modem.RefreshSatelliteEligibility();
+
             var snap = _tracker.GetCurrent();
             var sat = string.IsNullOrWhiteSpace(snap.SatelliteName) ? null : snap.SatelliteName;
             WaterfallStatusText = sat is null

@@ -4084,6 +4084,15 @@ Terbaru: {1} ({2})</value>
   <data name="Ft4.Status.TxHalted">
     <value>Transmit dihentikan</value>
   </data>
+  <data name="Ft4.Blocked.FmSatellite">
+    <value>FT4 tidak tersedia pada satelit FM</value>
+  </data>
+  <data name="Ft4.Blocked.Fo29">
+    <value>FT4 tidak diizinkan di FO-29 (pembatasan lisensi)</value>
+  </data>
+  <data name="Ft4.Blocked.RfPowerTooHigh">
+    <value>Transmit FT4 diblokir: daya RF di atas {0} W. Turunkan daya pada radio.</value>
+  </data>
   <data name="Ft4.Status.CallingCq">
     <value>Memanggil CQ</value>
   </data>

@@ -6,6 +6,8 @@ namespace OscarWatch.Tests;
 internal sealed class RecordingIcomCivTransport : IIcomCivTransport
 {
     public long MainHz { get; set; } = 435_750_000;
+    /// <summary>CI-V RF power level 0–255 returned for 0x14 0x0A reads.</summary>
+    public int RfPowerLevel { get; set; } = 64;
     public Queue<byte[]> SetFrequencyResponses { get; } = new();
     public Queue<byte[]> CommandResponses { get; } = new();
     public byte[]? NextReadResponse { get; set; }
@@ -32,6 +34,7 @@ internal sealed class RecordingIcomCivTransport : IIcomCivTransport
             0x05 => HandleSetFrequency(body),
             0x03 => NextReadResponse ?? BuildReadResponse(MainHz),
             0x07 => [0xFE, 0xFE, 0x60, 0x00, 0xFB, 0xFD],
+            0x14 when body.Length >= 2 && body[1] == 0x0A => BuildRfPowerResponse(RfPowerLevel),
             _ => [0xFE, 0xFE, 0x60, 0x00, 0xFB, 0xFD]
         };
     }
@@ -82,6 +85,12 @@ internal sealed class RecordingIcomCivTransport : IIcomCivTransport
     {
         var body = IcomCivCodec.EncodeSetFrequencyHz(hz);
         return [0xFE, 0xFE, 0x60, 0x00, 0x00, body[1], body[2], body[3], body[4], body[5], 0xFB, 0xFD];
+    }
+
+    private static byte[] BuildRfPowerResponse(int level)
+    {
+        var (high, low) = IcomCivCodec.EncodeLevel255(level);
+        return [0xFE, 0xFE, 0xE0, 0xA2, 0x14, 0x0A, high, low, 0xFD];
     }
 
     public void Dispose() => IsOpen = false;

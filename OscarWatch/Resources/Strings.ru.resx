@@ -4084,6 +4084,15 @@ LOS: {2}
   <data name="Ft4.Status.TxHalted">
     <value>Передача остановлена</value>
   </data>
+  <data name="Ft4.Blocked.FmSatellite">
+    <value>FT4 недоступен на ЧМ-спутниках</value>
+  </data>
+  <data name="Ft4.Blocked.Fo29">
+    <value>FT4 не разрешён на FO-29 (ограничение лицензии)</value>
+  </data>
+  <data name="Ft4.Blocked.RfPowerTooHigh">
+    <value>Передача FT4 заблокирована: мощность ВЧ выше {0} Вт. Уменьшите мощность на радиостанции.</value>
+  </data>
   <data name="Ft4.Status.CallingCq">
     <value>Вызов CQ</value>
   </data>

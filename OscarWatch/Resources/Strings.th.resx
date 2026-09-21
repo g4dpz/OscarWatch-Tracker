@@ -4084,6 +4084,15 @@ LOS: {2}
   <data name="Ft4.Status.TxHalted">
     <value>หยุดการส่งแล้ว</value>
   </data>
+  <data name="Ft4.Blocked.FmSatellite">
+    <value>ไม่สามารถใช้ FT4 บนดาวเทียม FM ได้</value>
+  </data>
+  <data name="Ft4.Blocked.Fo29">
+    <value>ไม่อนุญาตให้ใช้ FT4 บน FO-29 (ข้อจำกัดใบอนุญาต)</value>
+  </data>
+  <data name="Ft4.Blocked.RfPowerTooHigh">
+    <value>บล็อกการส่ง FT4: กำลัง RF สูงกว่า {0} W โปรดลดกำลังบนวิทยุ</value>
+  </data>
   <data name="Ft4.Status.CallingCq">
     <value>กำลังเรียก CQ</value>
   </data>

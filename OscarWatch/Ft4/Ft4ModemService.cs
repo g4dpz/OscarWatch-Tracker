@@ -206,6 +206,9 @@ public sealed class Ft4ModemService : IDisposable
 
     public void StartCq(bool evenSlot)
     {
+        if (!EnsureTransmitAllowed())
+            return;
+
         _sequencer?.StartCq(evenSlot);
         _lastLoggedKey = null;
         _lastRelevantDecodeUtc = DateTime.UtcNow;
@@ -215,6 +218,9 @@ public sealed class Ft4ModemService : IDisposable
 
     public void EnableTx()
     {
+        if (!EnsureTransmitAllowed())
+            return;
+
         _sequencer?.EnableTx();
         // Reset idle timeout so re-arming after a watchdog halt does not trip again immediately.
         _lastRelevantDecodeUtc = DateTime.UtcNow;
@@ -237,12 +243,74 @@ public sealed class Ft4ModemService : IDisposable
     {
         if (_sequencer is null)
             return;
+        if (!EnsureTransmitAllowed())
+            return;
+
         var even = Ft4SlotClock.IsEvenSlot(decode.SlotUtc, Ft4SlotClock.Ft4SlotSeconds);
         _sequencer.StartAnswer(decode, oppositeEvenSlot: !even);
         _lastLoggedKey = null;
         _lastRelevantDecodeUtc = DateTime.UtcNow;
         Status = _l.Get("Ft4.Status.Answering", decode.Text);
         Changed?.Invoke();
+    }
+
+    /// <summary>
+    /// Re-check satellite eligibility while listening (e.g. operator switched to FM or FO-29).
+    /// Halts TX when the focused satellite is not allowed for FT4.
+    /// </summary>
+    public void RefreshSatelliteEligibility()
+    {
+        var reason = EvaluateTransmitBlock();
+        if (reason == Ft4SatelliteEligibility.BlockReason.None)
+            return;
+
+        if (_sequencer?.TransmitEnabled == true)
+            HaltTx();
+
+        var msg = _l.Get(Ft4SatelliteEligibility.StatusKey(reason));
+        if (string.Equals(Status, msg, StringComparison.Ordinal))
+            return;
+
+        Status = msg;
+        Changed?.Invoke();
+    }
+
+    private bool EnsureTransmitAllowed()
+    {
+        var reason = EvaluateTransmitBlock();
+        if (reason != Ft4SatelliteEligibility.BlockReason.None)
+        {
+            if (_sequencer?.TransmitEnabled == true)
+                HaltTx();
+
+            Status = _l.Get(Ft4SatelliteEligibility.StatusKey(reason));
+            Changed?.Invoke();
+            return false;
+        }
+
+        if (_rig.TryGetUplinkRfPowerWatts(out var watts) && Ft4RfPowerLimit.ExceedsLimit(watts))
+        {
+            if (_sequencer?.TransmitEnabled == true)
+                HaltTx();
+
+            Status = _l.Get(Ft4RfPowerLimit.StatusKey, (int)Ft4RfPowerLimit.MaxWatts);
+            Changed?.Invoke();
+            return false;
+        }
+
+        return true;
+    }
+
+    private Ft4SatelliteEligibility.BlockReason EvaluateTransmitBlock()
+    {
+        var snap = _snapshot.GetCurrent();
+        var name = !string.IsNullOrWhiteSpace(snap.SatelliteName)
+            ? snap.SatelliteName
+            : _frequencies.SatelliteName;
+        var norad = !string.IsNullOrWhiteSpace(_snapshot.FocusedNoradId)
+            ? _snapshot.FocusedNoradId
+            : _tracking.FocusedNoradId;
+        return Ft4SatelliteEligibility.Evaluate(name, norad, _frequencies.SelectedMode);
     }
 
     /// <summary>Clear the on-screen decode / activity list (does not stop the modem).</summary>
@@ -360,6 +428,9 @@ public sealed class Ft4ModemService : IDisposable
     {
         var seq = _sequencer;
         if (seq is null || !seq.TransmitEnabled || string.IsNullOrWhiteSpace(seq.CurrentTxMessage))
+            return;
+
+        if (!EnsureTransmitAllowed())
             return;
 
         if (Ft4SlotClock.IsEvenSlot(slotStart, Ft4SlotClock.Ft4SlotSeconds) != seq.PreferEvenSlot)

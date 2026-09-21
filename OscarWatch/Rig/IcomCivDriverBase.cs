@@ -297,6 +297,24 @@ public abstract class IcomCivDriverBase : IRigDriver
 
     public bool SupportsCatPtt => true;
 
+    public bool SupportsRfPowerRead => true;
+
+    public bool TryReadRfPowerLevel(out int level0To255)
+    {
+        level0To255 = 0;
+        if (_transport is null || !IsConnected)
+            return false;
+
+        Thread.Sleep(_catDelayMs);
+        var response = _transport.WriteCommand(IcomCivCodec.EncodeReadRfPowerCommand(), _catDelayMs);
+        var level = IcomCivCodec.DecodeLevel255FromResponse(response);
+        if (level is null)
+            return false;
+
+        level0To255 = level.Value;
+        return true;
+    }
+
     public void SetPtt(bool transmit) =>
         SendWithAckRetry(
             transmit ? [0x1C, 0x00, 0x01] : [0x1C, 0x00, 0x00],

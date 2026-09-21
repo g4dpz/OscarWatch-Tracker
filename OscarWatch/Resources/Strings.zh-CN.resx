@@ -4080,6 +4080,15 @@
   <data name="Ft4.Status.TxHalted">
     <value>已停止发射</value>
   </data>
+  <data name="Ft4.Blocked.FmSatellite">
+    <value>FM 卫星上不可使用 FT4</value>
+  </data>
+  <data name="Ft4.Blocked.Fo29">
+    <value>FO-29 不允许使用 FT4（许可证限制）</value>
+  </data>
+  <data name="Ft4.Blocked.RfPowerTooHigh">
+    <value>已阻止 FT4 发射：射频功率高于 {0} W。请调低电台功率。</value>
+  </data>
   <data name="Ft4.Status.CallingCq">
     <value>正在呼叫 CQ</value>
   </data>
