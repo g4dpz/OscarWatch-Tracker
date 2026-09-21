@@ -120,9 +120,17 @@
       <p>
         Encode and decode use a bundled native library (<code>oscarwatch_ft8</code>) based on
         <a href="https://github.com/kgoba/ft8_lib" target="_blank" rel="noopener">ft8_lib</a> (MIT).
-        If the status line reports that the native library is missing, rebuild or reinstall so
-        <code>oscarwatch_ft8.dll</code> (Windows) is next to the application or under
-        <code>runtimes/&lt;rid&gt;/native/</code>.
+        Release packages ship the matching binary for each platform:
+      </p>
+      <ul>
+        <li><strong>Windows</strong>: <code>oscarwatch_ft8.dll</code></li>
+        <li><strong>macOS</strong>: <code>oscarwatch_ft8.dylib</code> (Apple Silicon <code>osx-arm64</code> and Intel <code>osx-x64</code>)</li>
+        <li><strong>Linux</strong>: <code>oscarwatch_ft8.so</code></li>
+      </ul>
+      <p>
+        If the status line reports that the native library is missing, rebuild or reinstall so the
+        file sits next to the application or under <code>runtimes/&lt;rid&gt;/native/</code>.
+        See <code>native/oscarwatch_ft8/README.md</code> for a local CMake build.
       </p>
     </main>
 

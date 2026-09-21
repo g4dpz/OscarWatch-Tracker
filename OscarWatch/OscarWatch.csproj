@@ -94,5 +94,13 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>oscarwatch_ft8.dll</TargetPath>
     </Content>
+    <Content Include="runtimes\osx-arm64\native\oscarwatch_ft8.dylib" Condition="Exists('runtimes\osx-arm64\native\oscarwatch_ft8.dylib')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>oscarwatch_ft8.dylib</TargetPath>
+    </Content>
+    <Content Include="runtimes\osx-x64\native\oscarwatch_ft8.dylib" Condition="Exists('runtimes\osx-x64\native\oscarwatch_ft8.dylib')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>oscarwatch_ft8.dylib</TargetPath>
+    </Content>
   </ItemGroup>
 </Project>
