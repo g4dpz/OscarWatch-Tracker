@@ -1801,7 +1801,7 @@
     <value>出力フォルダ</value>
   </data>
   <data name="Settings.Recording.OutputWatermark">
-    <value>既定: %AppData%/OscarWatch/recordings</value>
+    <value>既定: {0}</value>
   </data>
   <data name="Settings.Recording.FolderUsageOne">
     <value>1 ファイル · {0}</value>

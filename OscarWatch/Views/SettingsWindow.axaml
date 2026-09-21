@@ -1240,7 +1240,7 @@
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
               <TextBox Grid.Column="0"
                        Text="{Binding RecordingOutputFolder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                       Watermark="{loc:Localize Key=Settings.Recording.OutputWatermark}" />
+                       Watermark="{Binding RecordingOutputFolderWatermark}" />
               <Button Grid.Column="1"
                       Content="{loc:Localize Key=Common.Browse}"
                       Click="OnBrowseRecordingFolderClick" />

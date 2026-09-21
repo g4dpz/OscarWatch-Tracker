@@ -176,6 +176,9 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     [ObservableProperty]
     private string _recordingOutputFolder = "";
 
+    public string RecordingOutputFolderWatermark =>
+        _l.Get("Settings.Recording.OutputWatermark", RecordingFileNameFormat.GetDefaultOutputFolderDisplay());
+
     [ObservableProperty]
     private string _recordingFolderUsageText = "";
 

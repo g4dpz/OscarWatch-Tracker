@@ -51,6 +51,41 @@ public static class RecordingFileNameFormat
             "OscarWatch",
             "recordings");
 
+    /// <summary>
+    /// Operator-facing default path: <c>%APPDATA%\…</c> on Windows, <c>~/…</c> on Linux and macOS.
+    /// </summary>
+    public static string GetDefaultOutputFolderDisplay()
+    {
+        var folder = GetDefaultOutputFolder();
+        if (OperatingSystem.IsWindows())
+        {
+            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            if (!string.IsNullOrEmpty(appData)
+                && folder.StartsWith(appData, StringComparison.OrdinalIgnoreCase))
+            {
+                var tail = folder[appData.Length..].TrimStart('\\', '/');
+                return string.IsNullOrEmpty(tail)
+                    ? "%APPDATA%"
+                    : "%APPDATA%\\" + tail.Replace('/', '\\');
+            }
+
+            return folder;
+        }
+
+        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        if (!string.IsNullOrEmpty(home) && folder.StartsWith(home, StringComparison.Ordinal))
+        {
+            var remainder = folder[home.Length..].Replace('\\', '/');
+            if (remainder.Length == 0)
+                return "~";
+            if (remainder[0] != '/')
+                remainder = "/" + remainder;
+            return "~" + remainder;
+        }
+
+        return folder.Replace('\\', '/');
+    }
+
     public static string ResolveOutputFolder(string? configuredFolder) =>
         string.IsNullOrWhiteSpace(configuredFolder)
             ? GetDefaultOutputFolder()

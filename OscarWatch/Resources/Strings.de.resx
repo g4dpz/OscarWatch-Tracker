@@ -2663,7 +2663,7 @@ Fortfahren?</value>
     <value>Ausgabeordner</value>
   </data>
   <data name="Settings.Recording.OutputWatermark">
-    <value>Standard: %AppData%/OscarWatch/recordings</value>
+    <value>Standard: {0}</value>
   </data>
   <data name="Settings.Recording.FolderUsageOne">
     <value>1 Datei · {0}</value>

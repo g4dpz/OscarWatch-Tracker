@@ -2659,7 +2659,7 @@
     <value>输出文件夹</value>
   </data>
   <data name="Settings.Recording.OutputWatermark">
-    <value>默认值：%AppData%/OscarWatch/recordings</value>
+    <value>默认值：{0}</value>
   </data>
   <data name="Settings.Recording.FolderUsageOne">
     <value>1 个文件 · {0}</value>

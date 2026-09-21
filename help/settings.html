@@ -117,7 +117,7 @@
         <li><strong>Sample format</strong>: mono 44.1 kHz is a good default for FM/SSB; stereo if your interface requires it.</li>
         <li><strong>File format</strong>: WAV (always works) or MP3. MP3 needs <a href="#ffmpeg"><code>ffmpeg</code> installed</a> so OscarWatch can find it on your PATH. Capture is still WAV first; OscarWatch converts when the pass ends and deletes the intermediate WAV on success. If ffmpeg is missing or conversion fails, the WAV is kept.</li>
         <li><strong>Start / stop elevation</strong>: recording begins when the <strong>focused</strong> satellite rises through the start elevation, and stops when it falls below the stop elevation. Keep stop at or below start to avoid flapping near the threshold.</li>
-        <li><strong>Output folder</strong>: leave blank to use the default <code>%AppData%\OscarWatch\recordings\</code>.
+        <li><strong>Output folder</strong>: leave blank to use the default (<code>%APPDATA%\OscarWatch\recordings</code> on Windows, <code>~/.config/OscarWatch/recordings</code> on Linux, <code>~/Library/Application Support/OscarWatch/recordings</code> on macOS).
           Pass recordings are kept until you delete them; OscarWatch does not auto-prune audio files.
           Settings shows the current file count and total size for that folder, with an <strong>Open folder</strong> button.
           You can also use <strong>Help → Open recordings folder</strong>.</li>

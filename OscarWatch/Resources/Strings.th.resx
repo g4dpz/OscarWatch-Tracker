@@ -2663,7 +2663,7 @@ LOS: {2}
     <value>โฟลเดอร์ผลลัพธ์</value>
   </data>
   <data name="Settings.Recording.OutputWatermark">
-    <value>ค่าเริ่มต้น: %AppData%/OscarWatch/recordings</value>
+    <value>ค่าเริ่มต้น: {0}</value>
   </data>
   <data name="Settings.Recording.FolderUsageOne">
     <value>1 ไฟล์ · {0}</value>

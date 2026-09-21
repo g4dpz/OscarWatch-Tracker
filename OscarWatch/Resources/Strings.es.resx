@@ -2659,7 +2659,7 @@
     <value>Carpeta de grabaciones</value>
   </data>
   <data name="Settings.Recording.OutputWatermark">
-    <value>Predeterminado: %AppData%/OscarWatch/recordings</value>
+    <value>Predeterminado: {0}</value>
   </data>
   <data name="Settings.Recording.FolderUsageOne">
     <value>1 archivo · {0}</value>
