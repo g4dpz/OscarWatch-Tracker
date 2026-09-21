@@ -85,4 +85,10 @@ internal sealed class RecordingIcomCivTransport : IIcomCivTransport
     }
 
     public void Dispose() => IsOpen = false;
+
+    public void SetHandshakeLine(bool useRts, bool assert)
+    {
+        // Test transport: record only.
+        SentCommandBodies.Add(useRts ? $"rts={(assert ? 1 : 0)}" : $"dtr={(assert ? 1 : 0)}");
+    }
 }

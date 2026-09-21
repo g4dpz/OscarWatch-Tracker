@@ -249,6 +249,53 @@ public class FrequencyOverlayRigContextTests
         Assert.InRange(ctx.Corrected.RadioTransmitKHz - baseline.RadioTransmitKHz, -1.6, -1.4);
     }
 
+    [Fact]
+    public void TryBuildRigTrackingContext_adds_ft4_uplink_calibration_to_transmit_offset()
+    {
+        var settings = new TestSettingsService();
+        settings.Current.Ft4.SetUplinkCalibrationKHz("HO-113", 0.25);
+        var database = new TestSatelliteDatabaseService(
+        [
+            new SatelliteRadioEntry
+            {
+                Name = "HO-113",
+                Modes =
+                [
+                    new SatelliteTransponderMode
+                    {
+                        Type = "FT4",
+                        DownlinkKHz = 435_500,
+                        UplinkKHz = 145_900,
+                        DownlinkMode = "USB",
+                        UplinkMode = "USB",
+                        Doppler = "REV"
+                    }
+                ]
+            }
+        ]);
+
+        var vm = new FrequencyOverlayViewModel(settings, database, LocalizationService.Instance);
+        var state = new SatelliteTrackState
+        {
+            Name = "HO-113",
+            NoradId = "43803",
+            Subpoint = new GeoCoordinate(0, 0),
+            LookAngles = new LookAngles(180, 20, 800, 0)
+        };
+        vm.Update(state);
+        vm.TransmitOffsetKHz = -0.10;
+
+        var ctx = vm.TryBuildRigTrackingContext(state);
+        Assert.NotNull(ctx);
+        Assert.Equal("FT4", ctx.Mode.Type);
+        Assert.Equal(0.15, ctx.TransmitOffsetKHz, 3);
+
+        var withoutCal = DopplerFrequencyCalculator.Compute(ctx.Mode, 0, receiveOffsetKHz: 0, transmitOffsetKHz: -0.10);
+        var withCal = DopplerFrequencyCalculator.Compute(ctx.Mode, 0, receiveOffsetKHz: 0, transmitOffsetKHz: 0.15);
+        Assert.Equal(withCal.RadioTransmitKHz, ctx.Corrected.RadioTransmitKHz, 3);
+        Assert.NotEqual(withoutCal.RadioTransmitKHz, ctx.Corrected.RadioTransmitKHz, 3);
+    }
+
     private sealed class TestSettingsService : ISettingsService
     {
         public AppSettings Current { get; } = new();

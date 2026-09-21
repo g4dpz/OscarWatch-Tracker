@@ -116,6 +116,10 @@ public sealed class DiagnosticsBundleBuilderTests
         public void PublishContext(RigSettings settings, RigTrackingContext? context, bool reinitializePass = false, bool? catPausedOverride = null) { }
         public void Update(RigSettings settings, RigTrackingContext? context) { }
         public void ApplySelectedCtcss(RigSettings settings, RigTrackingContext? context) { }
+        public void SetPtt(bool transmit) { }
+        public void SetHandshakePtt(bool useRts, bool assert) { }
+        public void SetFt4SlotGatedDoppler(bool hold) { }
+        public void ForceFt4DopplerStep() { }
         public void Disconnect() { }
         public void DisconnectAndWait() { }
     }

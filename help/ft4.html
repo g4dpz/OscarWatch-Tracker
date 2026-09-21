@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FT4 - OscarWatch Help</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <a href="index.html" class="brand-home" title="Home"><img src="oscarwatch-icon.png" alt="" class="brand-icon" width="56" height="56" /></a>
+        <div class="brand-text">
+          <h1>FT4</h1>
+          <p class="tagline">Satellite-focused FT4 modem inside OscarWatch</p>
+        </div>
+      </div>
+      <nav aria-label="Help topics">
+        <ul>
+          <li><a href="quick-start.html">Quick start</a></li>
+          <li><a href="map-and-sidebar.html">Map &amp; sidebar</a></li>
+          <li><a href="frequencies.html">Frequencies</a></li>
+          <li><a href="satellites.html">Satellites &amp; TLEs</a></li>
+          <li><a href="passes.html">Pass planning</a></li>
+          <li><a href="radio-rotator.html">Radio &amp; rotator</a></li>
+          <li><a href="settings.html">Settings</a></li>
+          <li><a href="keyboard-shortcuts.html">Shortcuts</a></li>
+          <li><a href="troubleshooting.html">Problems?</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <p class="lead">
+        OscarWatch includes an in-app <strong>FT4</strong> window for duplex satellite work:
+        decode, transmit, PTT, auto-sequence, echo uplink calibration, and logbook save.
+        Open it from <strong>Tools → FT4</strong>.
+      </p>
+
+      <h2>Opening FT4</h2>
+      <p>
+        Go to <strong>Tools → FT4</strong>. Only one FT4 window is open at a time; choosing the menu again
+        brings the existing window to the front. Focus a satellite on the main map so uplink and downlink
+        Doppler readouts stay useful during a pass. Set your callsign and Maidenhead grid under
+        <strong>Settings → Station</strong> before enabling transmit.
+      </p>
+
+      <h2>What you will see</h2>
+      <ul>
+        <li><strong>Waterfall</strong>: scrolling spectrogram of the USB audio passband (about 200–3000 Hz).
+          Click the waterfall to set your <strong>TX audio (Hz)</strong>; the red cursor shows the current TX tone.
+          Decodes appear in the list with their audio frequency so you can match RX and TX.</li>
+        <li><strong>Slot clock</strong>: UTC FT4 slot timing (7.5 s), including even/odd slot.</li>
+        <li><strong>Doppler</strong>: uplink and downlink radio frequencies from OscarWatch tracking for the focused satellite.</li>
+        <li><strong>Decodes</strong>: messages decoded in the current session.</li>
+        <li><strong>TX message</strong>: text you will transmit; use <strong>CQ</strong> to build a standard call from your station callsign and grid.</li>
+      </ul>
+
+      <h2>Transmit and auto-sequence</h2>
+      <ul>
+        <li><strong>Enable Tx</strong>: arms transmit for the current message on the next matching slot.</li>
+        <li><strong>Halt Tx</strong>: stops further transmits immediately.</li>
+        <li><strong>CQ</strong>: starts a CQ using your callsign and grid, then auto-sequences replies (report, RRR or skip to 73).</li>
+        <li><strong>Skip RRR</strong>: when checked (default), finished QSOs go straight to 73.</li>
+        <li><strong>Even TX slots</strong>: prefer even FT4 slots for your transmit side.</li>
+        <li><strong>Clear</strong> / <strong>Save activity</strong>: clear the decode list, or save band activity to a text file.</li>
+        <li><strong>Log QSO</strong>: manually save the current contact to the OscarWatch Logbook (needs their callsign from an answered decode or CQ reply). Auto-log still runs when a QSO finishes with both reports.</li>
+        <li><strong>Hold Tx Freq</strong>: keep your TX audio Hz when answering (default); clear it to jump to the decode frequency.</li>
+        <li><strong>TX audio (Hz)</strong>: audio tone within the USB passband (default 1500 Hz).</li>
+        <li><strong>Settings</strong>: soundcards, TX level, PTT method, PTT lead/tail, audio-domain Doppler on/off, and decode text size.</li>
+      </ul>
+      <p>
+        Click a decode addressed to you to answer and join the QSO. The sequencer drives the next messages
+        until the contact completes.
+      </p>
+
+      <h2>PTT methods</h2>
+      <p>Choose how OscarWatch keys the uplink (in FT4 Settings):</p>
+      <ul>
+        <li><strong>VOX / audio</strong>: play TX audio only; your radio or interface keys from audio.</li>
+        <li><strong>CAT</strong>: key via the connected radio’s transmit command.</li>
+        <li><strong>CAT port RTS/DTR</strong>: assert RTS or DTR on the open CAT serial port.</li>
+        <li><strong>Separate COM port</strong>: dedicated handshake port for PTT.</li>
+        <li><strong>Manual (prompt)</strong>: OscarWatch asks you to key and unkey for each slot.</li>
+      </ul>
+
+      <h2>Echo uplink calibration</h2>
+      <p>
+        When you decode your own uplink echo, OscarWatch can store a per-satellite uplink offset (kHz)
+        and apply it to Doppler CAT for FT4 modes so your signal sits where you hear it.
+      </p>
+
+      <h2>Slot-gated Doppler (OrbitDeck-compatible)</h2>
+      <p>
+        While the FT4 modem is running, CAT Doppler is held for each 7.5 s slot and only stepped at
+        the slot boundary. Within the slot, OscarWatch cancels residual drift in the audio domain:
+        TX pre-compensation (with LSB sign flip on inverting birds) and RX Hilbert de-Doppler before
+        decode. That matches OrbitDeck for iOS FT4 so your burst stays sharp in the passband.
+      </p>
+
+      <h2>Audio and PTT</h2>
+      <p>
+        Open <strong>Settings</strong> in the FT4 window to choose the <strong>input</strong> and
+        <strong>output</strong> soundcards (separate from pass-recording devices in the main Settings),
+        <strong>PTT method</strong>, lead/tail timing, whether audio-domain Doppler correction runs
+        on TX and RX, and the <strong>decode text size</strong>. For RTS/DTR methods, choose the handshake line
+        (and COM port when using a separate PTT port). TX level is also set there.
+      </p>
+
+      <h2>Logging</h2>
+      <p>
+        Completed FT4 contacts are saved to the built-in
+        <a href="qso-logbook.html">OscarWatch Logbook</a> when the QSO finishes (73 / RR73),
+        or sooner via <strong>Log QSO</strong> if you want to record a partial contact.
+        You can still log manually from <strong>Tools → OscarWatch Logbook</strong>.
+      </p>
+
+      <h2>Native library</h2>
+      <p>
+        Encode and decode use a bundled native library (<code>oscarwatch_ft8</code>) based on
+        <a href="https://github.com/kgoba/ft8_lib" target="_blank" rel="noopener">ft8_lib</a> (MIT).
+        If the status line reports that the native library is missing, rebuild or reinstall so
+        <code>oscarwatch_ft8.dll</code> (Windows) is next to the application or under
+        <code>runtimes/&lt;rid&gt;/native/</code>.
+      </p>
+    </main>
+
+    <footer>OscarWatch help for satellite operators</footer>
+  </div>
+</body>
+</html>

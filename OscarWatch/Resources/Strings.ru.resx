@@ -574,6 +574,9 @@ LOS: {2}
   <data name="Menu.Tools.QsoLogbook">
     <value>_Журнал OscarWatch</value>
   </data>
+  <data name="Menu.Tools.Ft4">
+    <value>_FT4</value>
+  </data>
   <data name="Menu.Satellites">
     <value>_Спутники</value>
   </data>
@@ -3931,4 +3934,233 @@ LOS: {2}
   <data name="Logbook.CallHint.HamQth">
     <value>Имя из HamQTH.</value>
   </data>
+  <data name="Window.Ft4.Title">
+    <value>FT4</value>
+  </data>
+  <data name="Window.Ft4Settings.Title">
+    <value>Настройки FT4</value>
+  </data>
+  <data name="Ft4.OpenSettings">
+    <value>Настройки</value>
+  </data>
+  <data name="Ft4.Settings.AudioSection">
+    <value>Звуковые карты</value>
+  </data>
+  <data name="Ft4.Settings.PttSection">
+    <value>PTT</value>
+  </data>
+  <data name="Ft4.Settings.ModemSection">
+    <value>Модем</value>
+  </data>
+  <data name="Ft4.Ptt.LeadMs">
+    <value>Опережение PTT (мс)</value>
+  </data>
+  <data name="Ft4.Ptt.TailMs">
+    <value>Хвост PTT (мс)</value>
+  </data>
+  <data name="Ft4.HoldTxFrequency">
+    <value>Держать частоту TX</value>
+  </data>
+  <data name="Ft4.HoldTxFrequency.Note">
+    <value>Сохраняет ваш TX-аудио Гц при ответе (как в WSJT-X). Снимите, чтобы перейти на частоту декода.</value>
+  </data>
+  <data name="Ft4.AudioDopplerTx">
+    <value>Аудио-Доплер на TX</value>
+  </data>
+  <data name="Ft4.AudioDopplerRx">
+    <value>Аудио-Доплер на RX</value>
+  </data>
+  <data name="Ft4.DecodeFontSize">
+    <value>Размер текста декодов</value>
+  </data>
+  <data name="Ft4.DecodeFontSize.Note">
+    <value>Размер шрифта списка декодов (10–28). Больший размер удобнее при слабом зрении.</value>
+  </data>
+  <data name="Ft4.TxLevel">
+    <value>Уровень TX</value>
+  </data>
+  <data name="Ft4.EnableTx">
+    <value>Включить Tx</value>
+  </data>
+  <data name="Ft4.HaltTx">
+    <value>Остановить Tx</value>
+  </data>
+  <data name="Ft4.CallCq">
+    <value>CQ</value>
+  </data>
+  <data name="Ft4.SkipRrr">
+    <value>Пропустить RRR</value>
+  </data>
+  <data name="Ft4.PreferEvenSlot">
+    <value>Чётные TX-слоты</value>
+  </data>
+  <data name="Ft4.PttMethod">
+    <value>Метод PTT</value>
+  </data>
+  <data name="Ft4.Ptt.Vox">
+    <value>VOX / звук</value>
+  </data>
+  <data name="Ft4.Ptt.Cat">
+    <value>CAT</value>
+  </data>
+  <data name="Ft4.Ptt.CatPortHandshake">
+    <value>CAT-порт RTS/DTR</value>
+  </data>
+  <data name="Ft4.Ptt.SeparateComPort">
+    <value>Отдельный COM-порт</value>
+  </data>
+  <data name="Ft4.Ptt.Manual">
+    <value>Вручную (подсказка)</value>
+  </data>
+  <data name="Ft4.Status">
+    <value>Состояние</value>
+  </data>
+  <data name="Ft4.Slot.Tx">
+    <value>TX</value>
+  </data>
+  <data name="Ft4.Slot.Rx">
+    <value>RX</value>
+  </data>
+  <data name="Ft4.Status.Idle">
+    <value>Ожидание</value>
+  </data>
+  <data name="Ft4.Status.Ready">
+    <value>Готово</value>
+  </data>
+  <data name="Ft4.Status.TxEnabled">
+    <value>Передача включена</value>
+  </data>
+  <data name="Ft4.Status.TxHalted">
+    <value>Передача остановлена</value>
+  </data>
+  <data name="Ft4.Status.CallingCq">
+    <value>Вызов CQ</value>
+  </data>
+  <data name="Ft4.Status.NoTxMessage">
+    <value>Сначала введите или создайте TX-сообщение</value>
+  </data>
+  <data name="Ft4.ManualKey">
+    <value>Включите передатчик сейчас</value>
+  </data>
+  <data name="Ft4.ManualUnkey">
+    <value>Выключите передатчик сейчас</value>
+  </data>
+  <data name="Ft4.Logged">
+    <value>QSO с {0} записано</value>
+  </data>
+  <data name="Ft4.ClearDecodes">
+    <value>Очистить</value>
+  </data>
+  <data name="Ft4.SaveActivity">
+    <value>Сохранить активность</value>
+  </data>
+  <data name="Ft4.SaveActivity.Title">
+    <value>Сохранить активность FT4</value>
+  </data>
+  <data name="Ft4.SaveActivity.FileType">
+    <value>Текстовые файлы</value>
+  </data>
+  <data name="Ft4.ManualLog">
+    <value>Записать QSO</value>
+  </data>
+  <data name="Ft4.Status.DecodesCleared">
+    <value>Список декодов очищен</value>
+  </data>
+  <data name="Ft4.Status.NoActivity">
+    <value>Нет активности для сохранения</value>
+  </data>
+  <data name="Ft4.Status.ActivitySaved">
+    <value>Активность сохранена в {0}</value>
+  </data>
+  <data name="Ft4.Status.SaveActivityFailed">
+    <value>Не удалось сохранить активность: {0}</value>
+  </data>
+  <data name="Ft4.NativeUnavailable">
+    <value>Нативная библиотека FT4 не найдена. Декодирование и генерация недоступны.</value>
+  </data>
+  <data name="Ft4.Status.NeedStation">
+    <value>Укажите позывной и грид в Настройки, Станция.</value>
+  </data>
+  <data name="Ft4.Status.Answering">
+    <value>Ответ {0}</value>
+  </data>
+  <data name="Ft4.Waterfall">
+    <value>Водопад</value>
+  </data>
+  <data name="Ft4.Waterfall.Unavailable">
+    <value>Водопад ждёт аудио</value>
+  </data>
+  <data name="Ft4.Waterfall.Listening">
+    <value>Приём</value>
+  </data>
+  <data name="Ft4.Waterfall.ListeningSat">
+    <value>Приём ({0})</value>
+  </data>
+  <data name="Ft4.SlotClock">
+    <value>Часы слота</value>
+  </data>
+  <data name="Ft4.Doppler">
+    <value>Доплер</value>
+  </data>
+  <data name="Ft4.DopplerUplink">
+    <value>Аплинк:</value>
+  </data>
+  <data name="Ft4.DopplerDownlink">
+    <value>Даунлинк:</value>
+  </data>
+  <data name="Ft4.Decodes">
+    <value>Декоды</value>
+  </data>
+  <data name="Ft4.Decodes.Time">
+    <value>UTC</value>
+  </data>
+  <data name="Ft4.Decodes.Kind">
+    <value></value>
+  </data>
+  <data name="Ft4.Decodes.Snr">
+    <value>SNR</value>
+  </data>
+  <data name="Ft4.Decodes.Hz">
+    <value>Гц</value>
+  </data>
+  <data name="Ft4.Decodes.Tx">
+    <value>TX</value>
+  </data>
+  <data name="Ft4.TxMessage">
+    <value>TX-сообщение</value>
+  </data>
+  <data name="Ft4.TxMessage.Watermark">
+    <value>Укажите позывной и грид в Настройки → Станция</value>
+  </data>
+  <data name="Ft4.Audio.Output">
+    <value>Выходная звуковая карта</value>
+  </data>
+  <data name="Ft4.Ptt.SeparatePort">
+    <value>COM-порт PTT</value>
+  </data>
+  <data name="Ft4.Waterfall.ClickHint">
+    <value>Щёлкните, чтобы задать частоту TX-аудио (Гц). Красная линия — текущий тон TX.</value>
+  </data>
+  <data name="Ft4.Audio.SystemDefault">
+    <value>Системная по умолчанию</value>
+  </data>
+  <data name="Ft4.Audio.Input">
+    <value>Входная звуковая карта</value>
+  </data>
+  <data name="Ft4.Ptt.Line">
+    <value>Линия PTT</value>
+  </data>
+  <data name="Ft4.Ptt.Invert">
+    <value>Инверсия</value>
+  </data>
+  <data name="Ft4.Ptt.Dtr">
+    <value>DTR</value>
+  </data>
+  <data name="Ft4.Ptt.Rts">
+    <value>RTS</value>
+  </data>
+  <data name="Ft4.TxAudioHz">
+    <value>TX-аудио (Гц)</value>
+  </data>
+
 </root>

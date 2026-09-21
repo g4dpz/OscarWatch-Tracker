@@ -574,6 +574,9 @@ Fortfahren?</value>
   <data name="Menu.Tools.QsoLogbook">
     <value>_OscarWatch-Logbuch</value>
   </data>
+  <data name="Menu.Tools.Ft4">
+    <value>_FT4</value>
+  </data>
   <data name="Menu.Satellites">
     <value>_Satelliten</value>
   </data>
@@ -3931,4 +3934,233 @@ Aktuell: {1} ({2})</value>
   <data name="Logbook.CallHint.HamQth">
     <value>Name von HamQTH.</value>
   </data>
+  <data name="Window.Ft4.Title">
+    <value>FT4</value>
+  </data>
+  <data name="Window.Ft4Settings.Title">
+    <value>FT4-Einstellungen</value>
+  </data>
+  <data name="Ft4.OpenSettings">
+    <value>Einstellungen</value>
+  </data>
+  <data name="Ft4.Settings.AudioSection">
+    <value>Soundkarten</value>
+  </data>
+  <data name="Ft4.Settings.PttSection">
+    <value>PTT</value>
+  </data>
+  <data name="Ft4.Settings.ModemSection">
+    <value>Modem</value>
+  </data>
+  <data name="Ft4.Ptt.LeadMs">
+    <value>PTT-Vorlauf (ms)</value>
+  </data>
+  <data name="Ft4.Ptt.TailMs">
+    <value>PTT-Nachlauf (ms)</value>
+  </data>
+  <data name="Ft4.HoldTxFrequency">
+    <value>TX-Freq halten</value>
+  </data>
+  <data name="Ft4.HoldTxFrequency.Note">
+    <value>Behält Ihre TX-Audio-Hz beim Antworten (WSJT-X-Stil). Abwählen springt zur Decode-Frequenz.</value>
+  </data>
+  <data name="Ft4.AudioDopplerTx">
+    <value>Audio-Doppler bei TX</value>
+  </data>
+  <data name="Ft4.AudioDopplerRx">
+    <value>Audio-Doppler bei RX</value>
+  </data>
+  <data name="Ft4.DecodeFontSize">
+    <value>Decode-Schriftgröße</value>
+  </data>
+  <data name="Ft4.DecodeFontSize.Note">
+    <value>Schriftgröße der Decode-Liste (10–28). Größere Werte helfen bei eingeschränkter Sehkraft.</value>
+  </data>
+  <data name="Ft4.TxLevel">
+    <value>TX-Pegel</value>
+  </data>
+  <data name="Ft4.EnableTx">
+    <value>Tx aktivieren</value>
+  </data>
+  <data name="Ft4.HaltTx">
+    <value>Tx stoppen</value>
+  </data>
+  <data name="Ft4.CallCq">
+    <value>CQ</value>
+  </data>
+  <data name="Ft4.SkipRrr">
+    <value>RRR überspringen</value>
+  </data>
+  <data name="Ft4.PreferEvenSlot">
+    <value>Gerade TX-Slots</value>
+  </data>
+  <data name="Ft4.PttMethod">
+    <value>PTT-Methode</value>
+  </data>
+  <data name="Ft4.Ptt.Vox">
+    <value>VOX / Audio</value>
+  </data>
+  <data name="Ft4.Ptt.Cat">
+    <value>CAT</value>
+  </data>
+  <data name="Ft4.Ptt.CatPortHandshake">
+    <value>CAT-Port RTS/DTR</value>
+  </data>
+  <data name="Ft4.Ptt.SeparateComPort">
+    <value>Separater COM-Port</value>
+  </data>
+  <data name="Ft4.Ptt.Manual">
+    <value>Manuell (Hinweis)</value>
+  </data>
+  <data name="Ft4.Status">
+    <value>Status</value>
+  </data>
+  <data name="Ft4.Slot.Tx">
+    <value>TX</value>
+  </data>
+  <data name="Ft4.Slot.Rx">
+    <value>RX</value>
+  </data>
+  <data name="Ft4.Status.Idle">
+    <value>Inaktiv</value>
+  </data>
+  <data name="Ft4.Status.Ready">
+    <value>Bereit</value>
+  </data>
+  <data name="Ft4.Status.TxEnabled">
+    <value>Senden aktiviert</value>
+  </data>
+  <data name="Ft4.Status.TxHalted">
+    <value>Senden gestoppt</value>
+  </data>
+  <data name="Ft4.Status.CallingCq">
+    <value>CQ rufen</value>
+  </data>
+  <data name="Ft4.Status.NoTxMessage">
+    <value>Zuerst eine TX-Nachricht eingeben oder erzeugen</value>
+  </data>
+  <data name="Ft4.ManualKey">
+    <value>Sender jetzt tasten</value>
+  </data>
+  <data name="Ft4.ManualUnkey">
+    <value>Sender jetzt lösen</value>
+  </data>
+  <data name="Ft4.Logged">
+    <value>QSO mit {0} protokolliert</value>
+  </data>
+  <data name="Ft4.ClearDecodes">
+    <value>Löschen</value>
+  </data>
+  <data name="Ft4.SaveActivity">
+    <value>Aktivität speichern</value>
+  </data>
+  <data name="Ft4.SaveActivity.Title">
+    <value>FT4-Aktivität speichern</value>
+  </data>
+  <data name="Ft4.SaveActivity.FileType">
+    <value>Textdateien</value>
+  </data>
+  <data name="Ft4.ManualLog">
+    <value>QSO speichern</value>
+  </data>
+  <data name="Ft4.Status.DecodesCleared">
+    <value>Decode-Liste gelöscht</value>
+  </data>
+  <data name="Ft4.Status.NoActivity">
+    <value>Keine Aktivität zum Speichern</value>
+  </data>
+  <data name="Ft4.Status.ActivitySaved">
+    <value>Aktivität gespeichert in {0}</value>
+  </data>
+  <data name="Ft4.Status.SaveActivityFailed">
+    <value>Aktivität konnte nicht gespeichert werden: {0}</value>
+  </data>
+  <data name="Ft4.NativeUnavailable">
+    <value>Native FT4-Bibliothek nicht gefunden. Dekodierung und Erzeugung nicht verfügbar.</value>
+  </data>
+  <data name="Ft4.Status.NeedStation">
+    <value>Rufzeichen und Grid unter Einstellungen, Station festlegen.</value>
+  </data>
+  <data name="Ft4.Status.Answering">
+    <value>Antworte auf {0}</value>
+  </data>
+  <data name="Ft4.Waterfall">
+    <value>Wasserfall</value>
+  </data>
+  <data name="Ft4.Waterfall.Unavailable">
+    <value>Wasserfall wartet auf Audio</value>
+  </data>
+  <data name="Ft4.Waterfall.Listening">
+    <value>Empfang</value>
+  </data>
+  <data name="Ft4.Waterfall.ListeningSat">
+    <value>Empfang ({0})</value>
+  </data>
+  <data name="Ft4.SlotClock">
+    <value>Slot-Uhr</value>
+  </data>
+  <data name="Ft4.Doppler">
+    <value>Doppler</value>
+  </data>
+  <data name="Ft4.DopplerUplink">
+    <value>Uplink:</value>
+  </data>
+  <data name="Ft4.DopplerDownlink">
+    <value>Downlink:</value>
+  </data>
+  <data name="Ft4.Decodes">
+    <value>Dekodierungen</value>
+  </data>
+  <data name="Ft4.Decodes.Time">
+    <value>UTC</value>
+  </data>
+  <data name="Ft4.Decodes.Kind">
+    <value></value>
+  </data>
+  <data name="Ft4.Decodes.Snr">
+    <value>SNR</value>
+  </data>
+  <data name="Ft4.Decodes.Hz">
+    <value>Hz</value>
+  </data>
+  <data name="Ft4.Decodes.Tx">
+    <value>TX</value>
+  </data>
+  <data name="Ft4.TxMessage">
+    <value>TX-Nachricht</value>
+  </data>
+  <data name="Ft4.TxMessage.Watermark">
+    <value>Rufzeichen und Grid unter Einstellungen → Station setzen</value>
+  </data>
+  <data name="Ft4.Audio.Output">
+    <value>Ausgangs-Soundkarte</value>
+  </data>
+  <data name="Ft4.Ptt.SeparatePort">
+    <value>PTT-COM-Port</value>
+  </data>
+  <data name="Ft4.Waterfall.ClickHint">
+    <value>Klicken, um die TX-Audiofrequenz (Hz) zu setzen. Die rote Linie ist der aktuelle TX-Ton.</value>
+  </data>
+  <data name="Ft4.Audio.SystemDefault">
+    <value>Systemstandard</value>
+  </data>
+  <data name="Ft4.Audio.Input">
+    <value>Eingangs-Soundkarte</value>
+  </data>
+  <data name="Ft4.Ptt.Line">
+    <value>PTT-Leitung</value>
+  </data>
+  <data name="Ft4.Ptt.Invert">
+    <value>Invertieren</value>
+  </data>
+  <data name="Ft4.Ptt.Dtr">
+    <value>DTR</value>
+  </data>
+  <data name="Ft4.Ptt.Rts">
+    <value>RTS</value>
+  </data>
+  <data name="Ft4.TxAudioHz">
+    <value>TX-Audio (Hz)</value>
+  </data>
+
 </root>

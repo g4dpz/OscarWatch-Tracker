@@ -9,8 +9,9 @@ The default `OscarWatch/Assets/Maps/world_map.jpg` is an equirectangular Blue Ma
 
 ## Audio
 
-- [PortAudio](https://www.portaudio.com/) via PortAudioSharp2 — cross-platform capture for pass recording
-- Optional [ffmpeg](https://ffmpeg.org/) on PATH — converts finished pass recordings to MP3 with libmp3lame when File format is MP3 (not bundled)
+- [PortAudio](https://www.portaudio.com/) via PortAudioSharp2: cross-platform capture for pass recording
+- Optional [ffmpeg](https://ffmpeg.org/) on PATH: converts finished pass recordings to MP3 with libmp3lame when File format is MP3 (not bundled)
+- [ft8_lib](https://github.com/kgoba/ft8_lib) by Kārlis Goba (MIT): FT4/FT8 encode and decode, vendored under `native/ft8_lib` and shipped as `oscarwatch_ft8`
 
 ## Orbit propagation
 

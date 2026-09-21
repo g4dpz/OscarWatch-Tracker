@@ -15,7 +15,7 @@ See [building radio drivers](documents/building-radio-drivers.md) for adding rig
 
 ## Larger projects (lower priority)
 
-- [ ] Reuse WSJT-X DSP/decoder code for a simple satellite-focused duplex UI (FT modes)
+- [x] In-app satellite FT4 modem (Tools → FT4): duplex decode/TX via ft8_lib, PTT methods, auto-sequence, logbook save
 - [ ] Native SSTV decoder for common sat modes with sync, etc.
 - [ ] Built-in packet interface
 

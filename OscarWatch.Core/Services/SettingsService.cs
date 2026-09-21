@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using OscarWatch.Core.Ft4;
 using OscarWatch.Core.Geo;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Radio;
@@ -331,6 +332,9 @@ public sealed class SettingsService : ISettingsService, IDisposable
             SatelliteLinkSettings.NormalizeUpdateIntervalMs(settings.SatelliteLink.UpdateIntervalMs);
         settings.PassRecording ??= new PassRecordingSettings();
         settings.PassRecording.MigrateLegacyNumericDeviceId();
+        settings.Ft4 ??= new Ft4Settings();
+        settings.Ft4.UplinkCalibrationKHzBySatellite ??=
+            new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
         settings.QsoLogbook ??= new QsoLogbookSettings();
         settings.QsoLogbook.HistoryColumnWidthsPx ??=
             new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);

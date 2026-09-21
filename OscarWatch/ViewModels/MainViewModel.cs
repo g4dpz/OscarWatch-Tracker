@@ -2422,6 +2422,7 @@ public partial class MainViewModel : ViewModelBase
     }
 
     private static QsoLogbookWindow? _openLogbookWindow;
+    private static Ft4Window? _openFt4Window;
 
     [RelayCommand]
     private void OpenQsoLogbook()
@@ -2437,6 +2438,26 @@ public partial class MainViewModel : ViewModelBase
         var window = new QsoLogbookWindow { DataContext = vm };
         window.Closed += (_, _) => _openLogbookWindow = null;
         _openLogbookWindow = window;
+        if (App.MainWindow is null)
+            return;
+
+        window.Show(App.MainWindow);
+    }
+
+    [RelayCommand]
+    private void OpenFt4()
+    {
+        _trackerSnapshot.FocusedNoradId = FocusedNoradId;
+        if (_openFt4Window is { IsVisible: true })
+        {
+            _openFt4Window.Activate();
+            return;
+        }
+
+        var vm = App.Services.GetRequiredService<Ft4ViewModel>();
+        var window = new Ft4Window { DataContext = vm };
+        window.Closed += (_, _) => _openFt4Window = null;
+        _openFt4Window = window;
         if (App.MainWindow is null)
             return;
 

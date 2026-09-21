@@ -574,6 +574,9 @@ LOS: {2}
   <data name="Menu.Tools.QsoLogbook">
     <value>ล็อกบุ๊ก OscarWatch(_O)</value>
   </data>
+  <data name="Menu.Tools.Ft4">
+    <value>_FT4</value>
+  </data>
   <data name="Menu.Satellites">
     <value>ดาวเทียม(_S)</value>
   </data>
@@ -3931,4 +3934,233 @@ LOS: {2}
   <data name="Logbook.CallHint.HamQth">
     <value>ชื่อจาก HamQTH</value>
   </data>
+  <data name="Window.Ft4.Title">
+    <value>FT4</value>
+  </data>
+  <data name="Window.Ft4Settings.Title">
+    <value>การตั้งค่า FT4</value>
+  </data>
+  <data name="Ft4.OpenSettings">
+    <value>การตั้งค่า</value>
+  </data>
+  <data name="Ft4.Settings.AudioSection">
+    <value>การ์ดเสียง</value>
+  </data>
+  <data name="Ft4.Settings.PttSection">
+    <value>PTT</value>
+  </data>
+  <data name="Ft4.Settings.ModemSection">
+    <value>โมเด็ม</value>
+  </data>
+  <data name="Ft4.Ptt.LeadMs">
+    <value>นำหน้า PTT (ms)</value>
+  </data>
+  <data name="Ft4.Ptt.TailMs">
+    <value>ท้าย PTT (ms)</value>
+  </data>
+  <data name="Ft4.HoldTxFrequency">
+    <value>คงความถี่ TX</value>
+  </data>
+  <data name="Ft4.HoldTxFrequency.Note">
+    <value>คง Hz เสียง TX ของคุณเมื่อตอบ (แบบ WSJT-X) ยกเลิกเพื่อกระโดดไปความถี่ที่ถอดรหัส</value>
+  </data>
+  <data name="Ft4.AudioDopplerTx">
+    <value>ดอปเปลอร์เสียงบน TX</value>
+  </data>
+  <data name="Ft4.AudioDopplerRx">
+    <value>ดอปเปลอร์เสียงบน RX</value>
+  </data>
+  <data name="Ft4.DecodeFontSize">
+    <value>ขนาดข้อความถอดรหัส</value>
+  </data>
+  <data name="Ft4.DecodeFontSize.Note">
+    <value>ขนาดแบบอักษรรายการถอดรหัส (10–28) ขนาดใหญ่ช่วยเมื่อสายตาไม่ดี</value>
+  </data>
+  <data name="Ft4.TxLevel">
+    <value>ระดับ TX</value>
+  </data>
+  <data name="Ft4.EnableTx">
+    <value>เปิด Tx</value>
+  </data>
+  <data name="Ft4.HaltTx">
+    <value>หยุด Tx</value>
+  </data>
+  <data name="Ft4.CallCq">
+    <value>CQ</value>
+  </data>
+  <data name="Ft4.SkipRrr">
+    <value>ข้าม RRR</value>
+  </data>
+  <data name="Ft4.PreferEvenSlot">
+    <value>สล็อต TX คู่</value>
+  </data>
+  <data name="Ft4.PttMethod">
+    <value>วิธี PTT</value>
+  </data>
+  <data name="Ft4.Ptt.Vox">
+    <value>VOX / เสียง</value>
+  </data>
+  <data name="Ft4.Ptt.Cat">
+    <value>CAT</value>
+  </data>
+  <data name="Ft4.Ptt.CatPortHandshake">
+    <value>พอร์ต CAT RTS/DTR</value>
+  </data>
+  <data name="Ft4.Ptt.SeparateComPort">
+    <value>พอร์ต COM แยก</value>
+  </data>
+  <data name="Ft4.Ptt.Manual">
+    <value>ด้วยมือ (แจ้งเตือน)</value>
+  </data>
+  <data name="Ft4.Status">
+    <value>สถานะ</value>
+  </data>
+  <data name="Ft4.Slot.Tx">
+    <value>TX</value>
+  </data>
+  <data name="Ft4.Slot.Rx">
+    <value>RX</value>
+  </data>
+  <data name="Ft4.Status.Idle">
+    <value>ว่าง</value>
+  </data>
+  <data name="Ft4.Status.Ready">
+    <value>พร้อม</value>
+  </data>
+  <data name="Ft4.Status.TxEnabled">
+    <value>เปิดการส่งแล้ว</value>
+  </data>
+  <data name="Ft4.Status.TxHalted">
+    <value>หยุดการส่งแล้ว</value>
+  </data>
+  <data name="Ft4.Status.CallingCq">
+    <value>กำลังเรียก CQ</value>
+  </data>
+  <data name="Ft4.Status.NoTxMessage">
+    <value>กรุณาใส่หรือสร้างข้อความ TX ก่อน</value>
+  </data>
+  <data name="Ft4.ManualKey">
+    <value>กดคีย์เครื่องส่งตอนนี้</value>
+  </data>
+  <data name="Ft4.ManualUnkey">
+    <value>ปล่อยคีย์เครื่องส่งตอนนี้</value>
+  </data>
+  <data name="Ft4.Logged">
+    <value>บันทึก QSO กับ {0} แล้ว</value>
+  </data>
+  <data name="Ft4.ClearDecodes">
+    <value>ล้าง</value>
+  </data>
+  <data name="Ft4.SaveActivity">
+    <value>บันทึกกิจกรรม</value>
+  </data>
+  <data name="Ft4.SaveActivity.Title">
+    <value>บันทึกกิจกรรม FT4</value>
+  </data>
+  <data name="Ft4.SaveActivity.FileType">
+    <value>ไฟล์ข้อความ</value>
+  </data>
+  <data name="Ft4.ManualLog">
+    <value>บันทึก QSO</value>
+  </data>
+  <data name="Ft4.Status.DecodesCleared">
+    <value>ล้างรายการถอดรหัสแล้ว</value>
+  </data>
+  <data name="Ft4.Status.NoActivity">
+    <value>ไม่มีกิจกรรมให้บันทึก</value>
+  </data>
+  <data name="Ft4.Status.ActivitySaved">
+    <value>บันทึกกิจกรรมไปที่ {0} แล้ว</value>
+  </data>
+  <data name="Ft4.Status.SaveActivityFailed">
+    <value>บันทึกกิจกรรมไม่สำเร็จ: {0}</value>
+  </data>
+  <data name="Ft4.NativeUnavailable">
+    <value>ไม่พบไลบรารี FT4 แบบเนทีฟ ไม่สามารถถอดรหัสและสร้างสัญญาณได้</value>
+  </data>
+  <data name="Ft4.Status.NeedStation">
+    <value>ตั้งค่าสัญญาณเรียกและกริดใน การตั้งค่า, สถานี</value>
+  </data>
+  <data name="Ft4.Status.Answering">
+    <value>กำลังตอบ {0}</value>
+  </data>
+  <data name="Ft4.Waterfall">
+    <value>วอเตอร์ฟอล</value>
+  </data>
+  <data name="Ft4.Waterfall.Unavailable">
+    <value>วอเตอร์ฟอลรอเสียง</value>
+  </data>
+  <data name="Ft4.Waterfall.Listening">
+    <value>กำลังฟัง</value>
+  </data>
+  <data name="Ft4.Waterfall.ListeningSat">
+    <value>กำลังฟัง ({0})</value>
+  </data>
+  <data name="Ft4.SlotClock">
+    <value>นาฬิกาสล็อต</value>
+  </data>
+  <data name="Ft4.Doppler">
+    <value>ดอปเพลอร์</value>
+  </data>
+  <data name="Ft4.DopplerUplink">
+    <value>อัปลิงก์:</value>
+  </data>
+  <data name="Ft4.DopplerDownlink">
+    <value>ดาวน์ลิงก์:</value>
+  </data>
+  <data name="Ft4.Decodes">
+    <value>ถอดรหัส</value>
+  </data>
+  <data name="Ft4.Decodes.Time">
+    <value>UTC</value>
+  </data>
+  <data name="Ft4.Decodes.Kind">
+    <value></value>
+  </data>
+  <data name="Ft4.Decodes.Snr">
+    <value>SNR</value>
+  </data>
+  <data name="Ft4.Decodes.Hz">
+    <value>Hz</value>
+  </data>
+  <data name="Ft4.Decodes.Tx">
+    <value>TX</value>
+  </data>
+  <data name="Ft4.TxMessage">
+    <value>ข้อความ TX</value>
+  </data>
+  <data name="Ft4.TxMessage.Watermark">
+    <value>ตั้งค่า callsign และ grid ที่ การตั้งค่า → สถานี</value>
+  </data>
+  <data name="Ft4.Audio.Output">
+    <value>ซาวด์การ์ดขาออก</value>
+  </data>
+  <data name="Ft4.Ptt.SeparatePort">
+    <value>พอร์ต COM PTT</value>
+  </data>
+  <data name="Ft4.Waterfall.ClickHint">
+    <value>คลิกเพื่อตั้งความถี่เสียง TX (Hz) เส้นแดงคือโทน TX ปัจจุบัน</value>
+  </data>
+  <data name="Ft4.Audio.SystemDefault">
+    <value>ค่าเริ่มต้นระบบ</value>
+  </data>
+  <data name="Ft4.Audio.Input">
+    <value>ซาวด์การ์ดขาเข้า</value>
+  </data>
+  <data name="Ft4.Ptt.Line">
+    <value>สาย PTT</value>
+  </data>
+  <data name="Ft4.Ptt.Invert">
+    <value>กลับเฟส</value>
+  </data>
+  <data name="Ft4.Ptt.Dtr">
+    <value>DTR</value>
+  </data>
+  <data name="Ft4.Ptt.Rts">
+    <value>RTS</value>
+  </data>
+  <data name="Ft4.TxAudioHz">
+    <value>เสียง TX (Hz)</value>
+  </data>
+
 </root>

@@ -295,6 +295,21 @@ public abstract class IcomCivDriverBase : IRigDriver
         SendWithAckRetry(IcomCivCodec.EncodeToneHz(hz, squelchTone), "set tone");
     }
 
+    public bool SupportsCatPtt => true;
+
+    public void SetPtt(bool transmit) =>
+        SendWithAckRetry(
+            transmit ? [0x1C, 0x00, 0x01] : [0x1C, 0x00, 0x00],
+            transmit ? "PTT on" : "PTT off");
+
+    public bool TrySetHandshakeLine(bool useRts, bool assert)
+    {
+        if (_transport is null || !IsConnected)
+            return false;
+        _transport.SetHandshakeLine(useRts, assert);
+        return true;
+    }
+
     protected void WriteWithRetry(ReadOnlySpan<byte> body) =>
         SendWithAckRetry(body, "CI-V command");
 

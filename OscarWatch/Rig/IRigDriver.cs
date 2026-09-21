@@ -26,4 +26,18 @@ public interface IRigDriver : IDisposable
     bool IsSatelliteModeActive => true;
     /// <summary>False when the radio cannot swap VFOs remotely (e.g. FT-847).</summary>
     bool SupportsVfoExchange => true;
+
+    /// <summary>True when <see cref="SetPtt"/> sends a CAT transmit command.</summary>
+    bool SupportsCatPtt => false;
+
+    /// <summary>Key or unkey via CAT when <see cref="SupportsCatPtt"/> is true.</summary>
+    void SetPtt(bool transmit)
+    {
+    }
+
+    /// <summary>
+    /// Toggle RTS or DTR on the CAT serial port. Returns false when the driver cannot
+    /// expose handshake lines (e.g. network Flex, or RTS already used for flow control).
+    /// </summary>
+    bool TrySetHandshakeLine(bool useRts, bool assert) => false;
 }

@@ -1,0 +1,67 @@
+using OscarWatch.Core.Ft4;
+
+namespace OscarWatch.Tests.Ft4;
+
+public sealed class Ft4AudioDopplerTests
+{
+    [Fact]
+    public void Tx_precomp_sign_flips_for_lsb_uplink()
+    {
+        Assert.Equal(-1.0, Ft4AudioDoppler.TxPrecompSign("USB"));
+        Assert.Equal(-1.0, Ft4AudioDoppler.TxPrecompSign("DATA-USB"));
+        Assert.Equal(1.0, Ft4AudioDoppler.TxPrecompSign("LSB"));
+        Assert.Equal(1.0, Ft4AudioDoppler.TxPrecompSign("DATA-LSB"));
+    }
+
+    [Fact]
+    public void RemoveLinearDrift_noop_for_zero_slope()
+    {
+        var pcm = new float[256];
+        for (var i = 0; i < pcm.Length; i++)
+            pcm[i] = (float)Math.Sin(2 * Math.PI * 1500 * i / 12000.0);
+
+        var outPcm = Ft4AudioDoppler.RemoveLinearDrift(pcm, 12000, 0);
+        Assert.Same(pcm, outPcm);
+    }
+
+    [Fact]
+    public void RemoveLinearDrift_preserves_length_and_energy_for_small_slope()
+    {
+        const int n = 2048;
+        var pcm = new float[n];
+        for (var i = 0; i < n; i++)
+            pcm[i] = (float)Math.Sin(2 * Math.PI * 1500 * i / 12000.0);
+
+        var outPcm = Ft4AudioDoppler.RemoveLinearDrift(pcm, 12000, slopeHzPerSec: 2.0);
+        Assert.Equal(n, outPcm.Length);
+
+        double eIn = 0, eOut = 0;
+        for (var i = 0; i < n; i++)
+        {
+            eIn += pcm[i] * pcm[i];
+            eOut += outPcm[i] * outPcm[i];
+        }
+
+        Assert.InRange(eOut / eIn, 0.5, 2.0);
+    }
+
+    [Fact]
+    public void Doppler_shift_slope_from_range_rate_change_is_nonzero()
+    {
+        var mode = new Core.Models.SatelliteTransponderMode
+        {
+            Type = "FT4",
+            DownlinkKHz = 435_500,
+            UplinkKHz = 145_900,
+            DownlinkMode = "USB",
+            UplinkMode = "LSB",
+            Doppler = "REV"
+        };
+
+        var s0 = Ft4DopplerShift.ComputeShiftsHz(mode, rangeRateKmPerSec: -2.0);
+        var s1 = Ft4DopplerShift.ComputeShiftsHz(mode, rangeRateKmPerSec: -1.0);
+        var slope = Ft4DopplerShift.SlopeHzPerSec(s0.DownlinkHz, s1.DownlinkHz, 1.0);
+        Assert.NotEqual(0, slope);
+        Assert.True(Math.Abs(s0.DownlinkHz) > Math.Abs(s1.DownlinkHz));
+    }
+}

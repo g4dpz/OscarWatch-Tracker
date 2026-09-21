@@ -2208,6 +2208,9 @@
   <data name="Menu.Tools.QsoLogbook">
     <value>_OscarWatchログブック</value>
   </data>
+  <data name="Menu.Tools.Ft4">
+    <value>_FT4</value>
+  </data>
   <data name="Window.Logbook.Title">
     <value>OscarWatchログブック</value>
   </data>
@@ -3927,4 +3930,233 @@
   <data name="Logbook.CallHint.HamQth">
     <value>HamQTHの名前。</value>
   </data>
+  <data name="Window.Ft4.Title">
+    <value>FT4</value>
+  </data>
+  <data name="Window.Ft4Settings.Title">
+    <value>FT4設定</value>
+  </data>
+  <data name="Ft4.OpenSettings">
+    <value>設定</value>
+  </data>
+  <data name="Ft4.Settings.AudioSection">
+    <value>サウンドカード</value>
+  </data>
+  <data name="Ft4.Settings.PttSection">
+    <value>PTT</value>
+  </data>
+  <data name="Ft4.Settings.ModemSection">
+    <value>モデム</value>
+  </data>
+  <data name="Ft4.Ptt.LeadMs">
+    <value>PTT先行 (ms)</value>
+  </data>
+  <data name="Ft4.Ptt.TailMs">
+    <value>PTT後尾 (ms)</value>
+  </data>
+  <data name="Ft4.HoldTxFrequency">
+    <value>TX周波数保持</value>
+  </data>
+  <data name="Ft4.HoldTxFrequency.Note">
+    <value>応答時に自分のTX音声Hzを維持します（WSJT-Xと同様）。オフにするとデコード周波数へ移動します。</value>
+  </data>
+  <data name="Ft4.AudioDopplerTx">
+    <value>TXオーディオドップラー</value>
+  </data>
+  <data name="Ft4.AudioDopplerRx">
+    <value>RXオーディオドップラー</value>
+  </data>
+  <data name="Ft4.DecodeFontSize">
+    <value>デコード文字サイズ</value>
+  </data>
+  <data name="Ft4.DecodeFontSize.Note">
+    <value>デコード一覧のフォントサイズ（10–28）。大きいほど見やすくなります。</value>
+  </data>
+  <data name="Ft4.TxLevel">
+    <value>TXレベル</value>
+  </data>
+  <data name="Ft4.EnableTx">
+    <value>送信有効</value>
+  </data>
+  <data name="Ft4.HaltTx">
+    <value>送信停止</value>
+  </data>
+  <data name="Ft4.CallCq">
+    <value>CQ</value>
+  </data>
+  <data name="Ft4.SkipRrr">
+    <value>RRRを省略</value>
+  </data>
+  <data name="Ft4.PreferEvenSlot">
+    <value>偶数TXスロット</value>
+  </data>
+  <data name="Ft4.PttMethod">
+    <value>PTT方式</value>
+  </data>
+  <data name="Ft4.Ptt.Vox">
+    <value>VOX / 音声</value>
+  </data>
+  <data name="Ft4.Ptt.Cat">
+    <value>CAT</value>
+  </data>
+  <data name="Ft4.Ptt.CatPortHandshake">
+    <value>CATポート RTS/DTR</value>
+  </data>
+  <data name="Ft4.Ptt.SeparateComPort">
+    <value>別COMポート</value>
+  </data>
+  <data name="Ft4.Ptt.Manual">
+    <value>手動（案内）</value>
+  </data>
+  <data name="Ft4.Status">
+    <value>状態</value>
+  </data>
+  <data name="Ft4.Slot.Tx">
+    <value>TX</value>
+  </data>
+  <data name="Ft4.Slot.Rx">
+    <value>RX</value>
+  </data>
+  <data name="Ft4.Status.Idle">
+    <value>待機</value>
+  </data>
+  <data name="Ft4.Status.Ready">
+    <value>準備完了</value>
+  </data>
+  <data name="Ft4.Status.TxEnabled">
+    <value>送信有効</value>
+  </data>
+  <data name="Ft4.Status.TxHalted">
+    <value>送信停止</value>
+  </data>
+  <data name="Ft4.Status.CallingCq">
+    <value>CQ呼び出し中</value>
+  </data>
+  <data name="Ft4.Status.NoTxMessage">
+    <value>先にTXメッセージを入力または生成してください</value>
+  </data>
+  <data name="Ft4.ManualKey">
+    <value>今すぐ送信機をキーインしてください</value>
+  </data>
+  <data name="Ft4.ManualUnkey">
+    <value>今すぐ送信機のキーを解除してください</value>
+  </data>
+  <data name="Ft4.Logged">
+    <value>{0} とのQSOを記録しました</value>
+  </data>
+  <data name="Ft4.ClearDecodes">
+    <value>クリア</value>
+  </data>
+  <data name="Ft4.SaveActivity">
+    <value>活動を保存</value>
+  </data>
+  <data name="Ft4.SaveActivity.Title">
+    <value>FT4活動を保存</value>
+  </data>
+  <data name="Ft4.SaveActivity.FileType">
+    <value>テキストファイル</value>
+  </data>
+  <data name="Ft4.ManualLog">
+    <value>QSOを記録</value>
+  </data>
+  <data name="Ft4.Status.DecodesCleared">
+    <value>デコード一覧をクリアしました</value>
+  </data>
+  <data name="Ft4.Status.NoActivity">
+    <value>保存する活動がありません</value>
+  </data>
+  <data name="Ft4.Status.ActivitySaved">
+    <value>活動を {0} に保存しました</value>
+  </data>
+  <data name="Ft4.Status.SaveActivityFailed">
+    <value>活動を保存できませんでした: {0}</value>
+  </data>
+  <data name="Ft4.NativeUnavailable">
+    <value>ネイティブFT4ライブラリが見つかりません。復号と生成は利用できません。</value>
+  </data>
+  <data name="Ft4.Status.NeedStation">
+    <value>設定の「局」でコールサインとグリッドを設定してください。</value>
+  </data>
+  <data name="Ft4.Status.Answering">
+    <value>{0} に応答中</value>
+  </data>
+  <data name="Ft4.Waterfall">
+    <value>ウォーターフォール</value>
+  </data>
+  <data name="Ft4.Waterfall.Unavailable">
+    <value>音声待ち</value>
+  </data>
+  <data name="Ft4.Waterfall.Listening">
+    <value>受信中</value>
+  </data>
+  <data name="Ft4.Waterfall.ListeningSat">
+    <value>受信中（{0}）</value>
+  </data>
+  <data name="Ft4.SlotClock">
+    <value>スロット時計</value>
+  </data>
+  <data name="Ft4.Doppler">
+    <value>ドップラー</value>
+  </data>
+  <data name="Ft4.DopplerUplink">
+    <value>アップリンク:</value>
+  </data>
+  <data name="Ft4.DopplerDownlink">
+    <value>ダウンリンク:</value>
+  </data>
+  <data name="Ft4.Decodes">
+    <value>デコード</value>
+  </data>
+  <data name="Ft4.Decodes.Time">
+    <value>UTC</value>
+  </data>
+  <data name="Ft4.Decodes.Kind">
+    <value></value>
+  </data>
+  <data name="Ft4.Decodes.Snr">
+    <value>SNR</value>
+  </data>
+  <data name="Ft4.Decodes.Hz">
+    <value>Hz</value>
+  </data>
+  <data name="Ft4.Decodes.Tx">
+    <value>TX</value>
+  </data>
+  <data name="Ft4.TxMessage">
+    <value>TXメッセージ</value>
+  </data>
+  <data name="Ft4.TxMessage.Watermark">
+    <value>設定 → 局でコールサインとグリッドを設定</value>
+  </data>
+  <data name="Ft4.Audio.Output">
+    <value>出力サウンドカード</value>
+  </data>
+  <data name="Ft4.Ptt.SeparatePort">
+    <value>PTT COMポート</value>
+  </data>
+  <data name="Ft4.Waterfall.ClickHint">
+    <value>クリックでTX音声周波数（Hz）を設定。赤線は現在のTXトーンです。</value>
+  </data>
+  <data name="Ft4.Audio.SystemDefault">
+    <value>システム既定</value>
+  </data>
+  <data name="Ft4.Audio.Input">
+    <value>入力サウンドカード</value>
+  </data>
+  <data name="Ft4.Ptt.Line">
+    <value>PTT線</value>
+  </data>
+  <data name="Ft4.Ptt.Invert">
+    <value>反転</value>
+  </data>
+  <data name="Ft4.Ptt.Dtr">
+    <value>DTR</value>
+  </data>
+  <data name="Ft4.Ptt.Rts">
+    <value>RTS</value>
+  </data>
+  <data name="Ft4.TxAudioHz">
+    <value>TX音声 (Hz)</value>
+  </data>
+
 </root>

@@ -1,0 +1,288 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:ft4="using:OscarWatch.Core.Ft4"
+        xmlns:controls="using:OscarWatch.Controls"
+        xmlns:loc="using:OscarWatch.Localization"
+        x:Class="OscarWatch.Views.Ft4Window"
+        x:DataType="vm:Ft4ViewModel"
+        Title="{loc:Localize Key=Window.Ft4.Title}"
+        Width="900" Height="700"
+        MinWidth="720" MinHeight="520"
+        WindowStartupLocation="CenterOwner">
+  <Window.Styles>
+    <Style Selector="Border.ft4-panel">
+      <Setter Property="Background" Value="{DynamicResource ThemeSubtlePanelBackgroundBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Padding" Value="10" />
+    </Style>
+    <Style Selector="TextBlock.ft4-meta">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Opacity" Value="0.85" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="TextBlock.ft4-mono">
+      <Setter Property="FontFamily" Value="Consolas,Courier New,monospace" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="ProgressBar.ft4-slot">
+      <Setter Property="Height" Value="10" />
+      <Setter Property="MinHeight" Value="10" />
+      <Setter Property="Foreground" Value="#3D9E6F" />
+    </Style>
+    <Style Selector="ProgressBar.ft4-slot.tx">
+      <Setter Property="Foreground" Value="#C44B4B" />
+    </Style>
+    <Style Selector="TextBlock.ft4-slot-rx">
+      <Setter Property="Foreground" Value="#3D9E6F" />
+    </Style>
+    <Style Selector="TextBlock.ft4-slot-tx">
+      <Setter Property="Foreground" Value="#C44B4B" />
+    </Style>
+  </Window.Styles>
+
+  <DockPanel Margin="10">
+    <Border DockPanel.Dock="Bottom"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="0,1,0,0"
+            Padding="0,8,0,0"
+            Margin="0,8,0,0">
+      <StackPanel Spacing="6">
+        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+          <TextBlock Grid.Column="0"
+                     Text="{Binding SlotPeriodLabel}"
+                     FontWeight="SemiBold"
+                     MinWidth="28"
+                     VerticalAlignment="Center"
+                     Classes.ft4-slot-tx="{Binding IsTxSlot}"
+                     Classes.ft4-slot-rx="{Binding !IsTxSlot}" />
+          <ProgressBar Grid.Column="1"
+                       Classes="ft4-slot"
+                       Classes.tx="{Binding IsTxSlot}"
+                       Minimum="0"
+                       Maximum="100"
+                       Value="{Binding SlotProgressPercent}" />
+          <TextBlock Grid.Column="2"
+                     Text="{Binding SlotProgressText}"
+                     Classes="ft4-mono"
+                     MinWidth="52"
+                     HorizontalAlignment="Right"
+                     VerticalAlignment="Center" />
+        </Grid>
+        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+          <TextBlock Grid.Column="0"
+                     Text="{loc:Localize Key=Ft4.Status}"
+                     FontWeight="SemiBold"
+                     VerticalAlignment="Center" />
+          <TextBlock Grid.Column="1"
+                     Text="{Binding StatusLine}"
+                     TextWrapping="Wrap"
+                     VerticalAlignment="Center" />
+          <TextBlock Grid.Column="2"
+                     Text="{Binding ManualPttPrompt}"
+                     FontWeight="SemiBold"
+                     Foreground="{DynamicResource PassInProgressBadgeForegroundBrush}"
+                     VerticalAlignment="Center" />
+        </Grid>
+      </StackPanel>
+    </Border>
+
+    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="8">
+      <!-- Waterfall + compact toolbar -->
+      <Border Grid.Row="0" Classes="ft4-panel" Padding="8">
+        <DockPanel>
+          <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8" LastChildFill="True">
+            <Button DockPanel.Dock="Right"
+                    Content="{loc:Localize Key=Ft4.OpenSettings}"
+                    Click="OnSettingsClick"
+                    MinWidth="96"
+                    Margin="12,0,0,0"
+                    VerticalAlignment="Center" />
+            <StackPanel Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <TextBlock Text="{loc:Localize Key=Ft4.SlotClock}"
+                           Classes="ft4-meta" />
+                <TextBlock Text="{Binding SlotClockText}"
+                           Classes="ft4-mono"
+                           FontWeight="SemiBold" />
+              </StackPanel>
+              <StackPanel Orientation="Horizontal"
+                          Spacing="10"
+                          IsVisible="{Binding HasDoppler}">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                  <TextBlock Text="{loc:Localize Key=Ft4.DopplerUplink}"
+                             Classes="ft4-meta" />
+                  <TextBlock Text="{Binding DopplerUplinkText}"
+                             Classes="ft4-mono" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                  <TextBlock Text="{loc:Localize Key=Ft4.DopplerDownlink}"
+                             Classes="ft4-meta" />
+                  <TextBlock Text="{Binding DopplerDownlinkText}"
+                             Classes="ft4-mono" />
+                </StackPanel>
+              </StackPanel>
+            </StackPanel>
+          </DockPanel>
+          <controls:Ft4WaterfallControl Height="180"
+                                        Spectrum="{Binding SpectrumBins}"
+                                        TxAudioHz="{Binding TxAudioHz, Mode=TwoWay}"
+                                        StatusText="{Binding WaterfallStatusText}" />
+        </DockPanel>
+      </Border>
+
+      <!-- Decodes -->
+      <Border Grid.Row="1" Classes="ft4-panel" Padding="8">
+        <DockPanel>
+          <DockPanel DockPanel.Dock="Top" Margin="4,0,4,6" LastChildFill="True">
+            <StackPanel DockPanel.Dock="Right"
+                        Orientation="Horizontal"
+                        Spacing="8">
+              <Button Content="{loc:Localize Key=Ft4.ClearDecodes}"
+                      Command="{Binding ClearDecodesCommand}"
+                      MinWidth="90" />
+              <Button Content="{loc:Localize Key=Ft4.SaveActivity}"
+                      Command="{Binding SaveActivityCommand}"
+                      MinWidth="110" />
+            </StackPanel>
+            <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto"
+                  ColumnSpacing="10"
+                  VerticalAlignment="Center">
+              <TextBlock Grid.Column="0"
+                         Text="{loc:Localize Key=Ft4.Decodes.Time}"
+                         Classes="ft4-meta"
+                         FontWeight="SemiBold"
+                         FontSize="{Binding DecodeFontSize}" />
+              <TextBlock Grid.Column="1"
+                         Text="{loc:Localize Key=Ft4.Decodes.Kind}"
+                         Classes="ft4-meta"
+                         FontWeight="SemiBold"
+                         FontSize="{Binding DecodeFontSize}" />
+              <TextBlock Grid.Column="2"
+                         Text="{loc:Localize Key=Ft4.Decodes.Snr}"
+                         Classes="ft4-meta"
+                         FontWeight="SemiBold"
+                         FontSize="{Binding DecodeFontSize}" />
+              <TextBlock Grid.Column="3"
+                         Text="{loc:Localize Key=Ft4.Decodes}"
+                         Classes="ft4-meta"
+                         FontWeight="SemiBold"
+                         FontSize="{Binding DecodeFontSize}" />
+              <TextBlock Grid.Column="4"
+                         Text="{loc:Localize Key=Ft4.Decodes.Hz}"
+                         Classes="ft4-meta"
+                         FontWeight="SemiBold"
+                         FontSize="{Binding DecodeFontSize}"
+                         HorizontalAlignment="Right" />
+            </Grid>
+          </DockPanel>
+          <ListBox ItemsSource="{Binding Decodes}"
+                   SelectedItem="{Binding SelectedDecode}"
+                   FontFamily="Consolas,Courier New,monospace"
+                   FontSize="{Binding DecodeFontSize}">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="ft4:Ft4DecodedMessage">
+                <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto" ColumnSpacing="10">
+                  <TextBlock Grid.Column="0"
+                             Text="{Binding SlotUtc, StringFormat={}{0:HH:mm:ss}}"
+                             MinWidth="72" />
+                  <TextBlock Grid.Column="1"
+                             Text="{loc:Localize Key=Ft4.Decodes.Tx}"
+                             FontWeight="SemiBold"
+                             Foreground="{DynamicResource PassInProgressBadgeForegroundBrush}"
+                             IsVisible="{Binding IsTransmitted}"
+                             MinWidth="40" />
+                  <TextBlock Grid.Column="2"
+                             Text="{Binding SnrDb, StringFormat={}{0:+0;-0} dB}"
+                             IsVisible="{Binding !IsTransmitted}"
+                             MinWidth="64" />
+                  <TextBlock Grid.Column="2"
+                             Text="-"
+                             Opacity="0.45"
+                             IsVisible="{Binding IsTransmitted}"
+                             MinWidth="64" />
+                  <TextBlock Grid.Column="3"
+                             Text="{Binding Text}"
+                             FontWeight="SemiBold"
+                             IsVisible="{Binding IsTransmitted}"
+                             Foreground="{DynamicResource PassInProgressBadgeForegroundBrush}" />
+                  <TextBlock Grid.Column="3"
+                             Text="{Binding Text}"
+                             IsVisible="{Binding !IsTransmitted}" />
+                  <TextBlock Grid.Column="4"
+                             Text="{Binding FreqHz, StringFormat={}{0:0}}"
+                             Opacity="0.9"
+                             HorizontalAlignment="Right"
+                             MinWidth="56" />
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </DockPanel>
+      </Border>
+
+      <!-- TX -->
+      <Border Grid.Row="2" Classes="ft4-panel" Padding="10">
+        <StackPanel Spacing="8">
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+            <TextBlock Grid.Column="0"
+                       Text="{loc:Localize Key=Ft4.TxMessage}"
+                       VerticalAlignment="Center"
+                       FontWeight="SemiBold" />
+            <TextBox Grid.Column="1"
+                     Text="{Binding CurrentTxMessage, Mode=TwoWay}"
+                     FontFamily="Consolas,Courier New,monospace"
+                     Watermark="{Binding TxMessageWatermark}" />
+          </Grid>
+
+          <DockPanel LastChildFill="False">
+            <StackPanel DockPanel.Dock="Left"
+                        Orientation="Horizontal"
+                        Spacing="8">
+              <Button Content="{loc:Localize Key=Ft4.EnableTx}"
+                      Command="{Binding EnableTxCommand}"
+                      MinWidth="100" />
+              <Button Content="{loc:Localize Key=Ft4.HaltTx}"
+                      Command="{Binding HaltTxCommand}"
+                      Classes.accent="{Binding TxEnabled}"
+                      MinWidth="100" />
+              <Button Content="{loc:Localize Key=Ft4.CallCq}"
+                      Command="{Binding StartCqCommand}"
+                      MinWidth="100" />
+              <Button Content="{loc:Localize Key=Ft4.ManualLog}"
+                      Command="{Binding ManualLogCommand}"
+                      MinWidth="100" />
+              <CheckBox Content="{loc:Localize Key=Ft4.SkipRrr}"
+                        IsChecked="{Binding SkipRrr}"
+                        VerticalAlignment="Center"
+                        Margin="8,0,0,0" />
+              <CheckBox Content="{loc:Localize Key=Ft4.PreferEvenSlot}"
+                        IsChecked="{Binding PreferEvenSlot}"
+                        VerticalAlignment="Center" />
+              <CheckBox Content="{loc:Localize Key=Ft4.HoldTxFrequency}"
+                        IsChecked="{Binding HoldTxFrequency}"
+                        VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Right"
+                        Orientation="Horizontal"
+                        Spacing="8"
+                        VerticalAlignment="Center">
+              <TextBlock Text="{loc:Localize Key=Ft4.TxAudioHz}"
+                         VerticalAlignment="Center" />
+              <NumericUpDown Value="{Binding TxAudioHz}"
+                             Minimum="200"
+                             Maximum="3000"
+                             Increment="10"
+                             FormatString="0"
+                             MinWidth="128"
+                             Width="128" />
+            </StackPanel>
+          </DockPanel>
+        </StackPanel>
+      </Border>
+    </Grid>
+  </DockPanel>
+</Window>
