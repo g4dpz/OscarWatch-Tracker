@@ -3972,6 +3972,33 @@ Mais recente: {1} ({2})</value>
   <data name="Ft4.DecodeFontSize.Note">
     <value>Tamanho da fonte da lista de decodes (10–28). Tamanhos maiores ajudam com visão reduzida.</value>
   </data>
+  <data name="Ft4.Settings.EchoSection">
+    <value>Calibração de eco</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Note">
+    <value>Quando o eco do seu uplink é decodificado, o OscarWatch ajusta este trim por satélite automaticamente. Você pode editar ou limpar aqui.</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Satellite">
+    <value>Satélite</value>
+  </data>
+  <data name="Ft4.EchoCalibration.TrimHz">
+    <value>Trim de uplink (Hz)</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Clear">
+    <value>Limpar</value>
+  </data>
+  <data name="Ft4.EchoCalibration.ClearAll">
+    <value>Limpar tudo</value>
+  </data>
+  <data name="Ft4.EchoCalibration.NoSatellite">
+    <value>Foque um satélite na janela principal para editar o trim de eco, ou decodifique um eco primeiro para aparecer na lista.</value>
+  </data>
+  <data name="Ft4.Status.EchoCleared">
+    <value>Calibração de eco limpa para {0}</value>
+  </data>
+  <data name="Ft4.Status.EchoClearedAll">
+    <value>Todas as calibrações de eco limpas</value>
+  </data>
   <data name="Ft4.TxLevel">
     <value>Nível de TX</value>
   </data>

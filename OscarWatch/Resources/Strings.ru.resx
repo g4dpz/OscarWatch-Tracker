@@ -3976,6 +3976,33 @@ LOS: {2}
   <data name="Ft4.DecodeFontSize.Note">
     <value>Размер шрифта списка декодов (10–28). Больший размер удобнее при слабом зрении.</value>
   </data>
+  <data name="Ft4.Settings.EchoSection">
+    <value>Калибровка эха</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Note">
+    <value>Когда декодируется ваше собственное эхо аплинка, OscarWatch автоматически подстраивает эту поправку для спутника. Здесь её можно изменить или сбросить.</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Satellite">
+    <value>Спутник</value>
+  </data>
+  <data name="Ft4.EchoCalibration.TrimHz">
+    <value>Поправка аплинка (Гц)</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Clear">
+    <value>Очистить</value>
+  </data>
+  <data name="Ft4.EchoCalibration.ClearAll">
+    <value>Очистить всё</value>
+  </data>
+  <data name="Ft4.EchoCalibration.NoSatellite">
+    <value>Сфокусируйте спутник в главном окне, чтобы править поправку эха, или сначала декодируйте эхо, чтобы спутник появился в списке.</value>
+  </data>
+  <data name="Ft4.Status.EchoCleared">
+    <value>Калибровка эха для {0} сброшена</value>
+  </data>
+  <data name="Ft4.Status.EchoClearedAll">
+    <value>Все калибровки эха сброшены</value>
+  </data>
   <data name="Ft4.TxLevel">
     <value>Уровень TX</value>
   </data>

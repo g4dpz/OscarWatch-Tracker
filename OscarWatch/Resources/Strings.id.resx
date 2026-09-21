@@ -3976,6 +3976,33 @@ Terbaru: {1} ({2})</value>
   <data name="Ft4.DecodeFontSize.Note">
     <value>Ukuran font daftar decode (10–28). Ukuran lebih besar membantu penglihatan lemah.</value>
   </data>
+  <data name="Ft4.Settings.EchoSection">
+    <value>Kalibrasi gema</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Note">
+    <value>Saat gema uplink Anda sendiri didekode, OscarWatch menyesuaikan trim per satelit ini secara otomatis. Anda dapat mengedit atau menghapusnya di sini.</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Satellite">
+    <value>Satelit</value>
+  </data>
+  <data name="Ft4.EchoCalibration.TrimHz">
+    <value>Trim uplink (Hz)</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Clear">
+    <value>Hapus</value>
+  </data>
+  <data name="Ft4.EchoCalibration.ClearAll">
+    <value>Hapus semua</value>
+  </data>
+  <data name="Ft4.EchoCalibration.NoSatellite">
+    <value>Fokuskan satelit di jendela utama untuk mengedit trim gema, atau dekode gema terlebih dahulu agar muncul di daftar.</value>
+  </data>
+  <data name="Ft4.Status.EchoCleared">
+    <value>Kalibrasi gema untuk {0} dihapus</value>
+  </data>
+  <data name="Ft4.Status.EchoClearedAll">
+    <value>Semua kalibrasi gema dihapus</value>
+  </data>
   <data name="Ft4.TxLevel">
     <value>Level TX</value>
   </data>

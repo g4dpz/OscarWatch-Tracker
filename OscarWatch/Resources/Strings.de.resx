@@ -3976,6 +3976,33 @@ Aktuell: {1} ({2})</value>
   <data name="Ft4.DecodeFontSize.Note">
     <value>Schriftgröße der Decode-Liste (10–28). Größere Werte helfen bei eingeschränkter Sehkraft.</value>
   </data>
+  <data name="Ft4.Settings.EchoSection">
+    <value>Echo-Kalibrierung</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Note">
+    <value>Wenn Ihr eigenes Uplink-Echo dekodiert wird, passt OscarWatch diesen satellitenbezogenen Trim automatisch an. Hier können Sie ihn bearbeiten oder löschen.</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Satellite">
+    <value>Satellit</value>
+  </data>
+  <data name="Ft4.EchoCalibration.TrimHz">
+    <value>Uplink-Trim (Hz)</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Clear">
+    <value>Löschen</value>
+  </data>
+  <data name="Ft4.EchoCalibration.ClearAll">
+    <value>Alle löschen</value>
+  </data>
+  <data name="Ft4.EchoCalibration.NoSatellite">
+    <value>Fokussieren Sie einen Satelliten im Hauptfenster, um den Echo-Trim zu bearbeiten, oder dekodieren Sie zuerst ein Echo, damit er in der Liste erscheint.</value>
+  </data>
+  <data name="Ft4.Status.EchoCleared">
+    <value>Echo-Kalibrierung für {0} gelöscht</value>
+  </data>
+  <data name="Ft4.Status.EchoClearedAll">
+    <value>Alle Echo-Kalibrierungen gelöscht</value>
+  </data>
   <data name="Ft4.TxLevel">
     <value>TX-Pegel</value>
   </data>

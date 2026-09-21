@@ -16,7 +16,10 @@ public partial class Ft4SettingsWindow : Window
     {
         Opened -= OnOpened;
         if (DataContext is Ft4ViewModel vm)
+        {
             vm.RefreshDevicesCommand.Execute(null);
+            vm.RefreshEchoCalibration();
+        }
     }
 
     private void OnCloseClick(object? sender, RoutedEventArgs e) => Close();

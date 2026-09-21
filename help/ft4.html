@@ -68,7 +68,7 @@
         <li><strong>Log QSO</strong>: manually save the current contact to the OscarWatch Logbook (needs their callsign from an answered decode or CQ reply). Auto-log still runs when a QSO finishes with both reports.</li>
         <li><strong>Hold Tx Freq</strong>: keep your TX audio Hz when answering (default); clear it to jump to the decode frequency.</li>
         <li><strong>TX audio (Hz)</strong>: audio tone within the USB passband (default 1500 Hz).</li>
-        <li><strong>Settings</strong>: soundcards, TX level, PTT method, PTT lead/tail, audio-domain Doppler on/off, and decode text size.</li>
+        <li><strong>Settings</strong>: soundcards, TX level, PTT method, PTT lead/tail, audio-domain Doppler on/off, decode text size, and echo uplink trim.</li>
       </ul>
       <p>
         Click a decode addressed to you to answer and join the QSO. The sequencer drives the next messages
@@ -87,8 +87,10 @@
 
       <h2>Echo uplink calibration</h2>
       <p>
-        When you decode your own uplink echo, OscarWatch can store a per-satellite uplink offset (kHz)
-        and apply it to Doppler CAT for FT4 modes so your signal sits where you hear it.
+        When you decode your own uplink echo, OscarWatch stores a per-satellite uplink offset
+        and applies it to Doppler CAT for FT4 so your signal sits where you hear it.
+        Open <strong>FT4 Settings</strong> to view, edit, or clear the uplink trim (Hz) for the
+        focused satellite, or clear all stored calibrations.
       </p>
 
       <h2>Slot-gated Doppler (OrbitDeck-compatible)</h2>
@@ -104,7 +106,8 @@
         Open <strong>Settings</strong> in the FT4 window to choose the <strong>input</strong> and
         <strong>output</strong> soundcards (separate from pass-recording devices in the main Settings),
         <strong>PTT method</strong>, lead/tail timing, whether audio-domain Doppler correction runs
-        on TX and RX, and the <strong>decode text size</strong>. For RTS/DTR methods, choose the handshake line
+        on TX and RX, the <strong>decode text size</strong>, and <strong>echo calibration</strong>
+        uplink trim. For RTS/DTR methods, choose the handshake line
         (and COM port when using a separate PTT port). TX level is also set there.
       </p>
 

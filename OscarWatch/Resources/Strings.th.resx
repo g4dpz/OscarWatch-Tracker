@@ -3976,6 +3976,33 @@ LOS: {2}
   <data name="Ft4.DecodeFontSize.Note">
     <value>ขนาดแบบอักษรรายการถอดรหัส (10–28) ขนาดใหญ่ช่วยเมื่อสายตาไม่ดี</value>
   </data>
+  <data name="Ft4.Settings.EchoSection">
+    <value>การปรับเทียบเสียงสะท้อน</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Note">
+    <value>เมื่อถอดรหัสเสียงสะท้อนอัปลิงก์ของคุณ OscarWatch จะปรับค่า trim ตามดาวเทียมโดยอัตโนมัติ คุณสามารถแก้ไขหรือล้างได้ที่นี่</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Satellite">
+    <value>ดาวเทียม</value>
+  </data>
+  <data name="Ft4.EchoCalibration.TrimHz">
+    <value>ค่า trim อัปลิงก์ (Hz)</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Clear">
+    <value>ล้าง</value>
+  </data>
+  <data name="Ft4.EchoCalibration.ClearAll">
+    <value>ล้างทั้งหมด</value>
+  </data>
+  <data name="Ft4.EchoCalibration.NoSatellite">
+    <value>โฟกัสดาวเทียมในหน้าต่างหลักเพื่อแก้ค่า trim หรือถอดรหัสเสียงสะท้อนก่อนเพื่อให้ปรากฏในรายการ</value>
+  </data>
+  <data name="Ft4.Status.EchoCleared">
+    <value>ล้างการปรับเทียบเสียงสะท้อนของ {0} แล้ว</value>
+  </data>
+  <data name="Ft4.Status.EchoClearedAll">
+    <value>ล้างการปรับเทียบเสียงสะท้อนทั้งหมดแล้ว</value>
+  </data>
   <data name="Ft4.TxLevel">
     <value>ระดับ TX</value>
   </data>
