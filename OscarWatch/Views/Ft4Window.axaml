@@ -154,9 +154,9 @@
             </StackPanel>
           </DockPanel>
 
-          <!-- Fixed column widths so RX rows (no TX badge) stay aligned with TX rows and the header. -->
+          <!-- Fixed column widths so RX / TX / Echo rows stay aligned with the header. -->
           <Grid DockPanel.Dock="Top"
-                ColumnDefinitions="76,40,72,*,52"
+                ColumnDefinitions="76,48,48,72,*,52"
                 ColumnSpacing="10"
                 Margin="4,0,4,6">
             <TextBlock Grid.Column="0"
@@ -170,22 +170,35 @@
                        FontWeight="SemiBold"
                        FontSize="{Binding DecodeFontSize}" />
             <TextBlock Grid.Column="2"
-                       Text="{loc:Localize Key=Ft4.Decodes.Snr}"
+                       Text="{loc:Localize Key=Ft4.Decodes.Dt}"
                        Classes="ft4-meta"
                        FontWeight="SemiBold"
                        FontSize="{Binding DecodeFontSize}" />
             <TextBlock Grid.Column="3"
-                       Text="{loc:Localize Key=Ft4.Decodes.Message}"
+                       Text="{loc:Localize Key=Ft4.Decodes.Snr}"
                        Classes="ft4-meta"
                        FontWeight="SemiBold"
                        FontSize="{Binding DecodeFontSize}" />
             <TextBlock Grid.Column="4"
+                       Text="{loc:Localize Key=Ft4.Decodes.Message}"
+                       Classes="ft4-meta"
+                       FontWeight="SemiBold"
+                       FontSize="{Binding DecodeFontSize}" />
+            <TextBlock Grid.Column="5"
                        Text="{loc:Localize Key=Ft4.Decodes.Hz}"
                        Classes="ft4-meta"
                        FontWeight="SemiBold"
                        FontSize="{Binding DecodeFontSize}"
                        HorizontalAlignment="Right" />
           </Grid>
+
+          <TextBlock DockPanel.Dock="Top"
+                     Text="{Binding ClockWarningText}"
+                     IsVisible="{Binding ShowClockWarning}"
+                     Foreground="{DynamicResource PassInProgressBadgeForegroundBrush}"
+                     FontWeight="SemiBold"
+                     TextWrapping="Wrap"
+                     Margin="4,0,4,6" />
 
           <ListBox ItemsSource="{Binding Decodes}"
                    SelectedItem="{Binding SelectedDecode}"
@@ -200,7 +213,7 @@
             </ListBox.Styles>
             <ListBox.ItemTemplate>
               <DataTemplate x:DataType="ft4:Ft4DecodedMessage">
-                <Grid ColumnDefinitions="76,40,72,*,52" ColumnSpacing="10">
+                <Grid ColumnDefinitions="76,48,48,72,*,52" ColumnSpacing="10">
                   <TextBlock Grid.Column="0"
                              Text="{Binding SlotUtc, StringFormat={}{0:HH:mm:ss}}" />
                   <TextBlock Grid.Column="1"
@@ -208,22 +221,47 @@
                              FontWeight="SemiBold"
                              Foreground="{DynamicResource PassInProgressBadgeForegroundBrush}"
                              IsVisible="{Binding IsTransmitted}" />
+                  <TextBlock Grid.Column="1"
+                             Text="{loc:Localize Key=Ft4.Decodes.Echo}"
+                             FontWeight="SemiBold"
+                             Foreground="#6DB3F2"
+                             IsVisible="{Binding IsOwnEcho}" />
                   <TextBlock Grid.Column="2"
-                             Text="{Binding SnrDb, StringFormat={}{0:+0;-0} dB}"
-                             IsVisible="{Binding !IsTransmitted}" />
+                             Text="{Binding TimeSec, StringFormat={}{0:+0.0;-0.0}}"
+                             IsVisible="{Binding IsReceiveActivity}" />
+                  <TextBlock Grid.Column="2"
+                             Text="{Binding TimeSec, StringFormat={}{0:+0.0;-0.0}}"
+                             Foreground="#6DB3F2"
+                             IsVisible="{Binding IsOwnEcho}" />
                   <TextBlock Grid.Column="2"
                              Text="-"
                              Opacity="0.45"
                              IsVisible="{Binding IsTransmitted}" />
                   <TextBlock Grid.Column="3"
+                             Text="{Binding SnrDb, StringFormat={}{0:+0;-0} dB}"
+                             IsVisible="{Binding IsReceiveActivity}" />
+                  <TextBlock Grid.Column="3"
+                             Text="{Binding SnrDb, StringFormat={}{0:+0;-0} dB}"
+                             Foreground="#6DB3F2"
+                             IsVisible="{Binding IsOwnEcho}" />
+                  <TextBlock Grid.Column="3"
+                             Text="-"
+                             Opacity="0.45"
+                             IsVisible="{Binding IsTransmitted}" />
+                  <TextBlock Grid.Column="4"
                              Text="{Binding Text}"
                              FontWeight="SemiBold"
                              IsVisible="{Binding IsTransmitted}"
                              Foreground="{DynamicResource PassInProgressBadgeForegroundBrush}" />
-                  <TextBlock Grid.Column="3"
-                             Text="{Binding Text}"
-                             IsVisible="{Binding !IsTransmitted}" />
                   <TextBlock Grid.Column="4"
+                             Text="{Binding Text}"
+                             FontWeight="SemiBold"
+                             IsVisible="{Binding IsOwnEcho}"
+                             Foreground="#6DB3F2" />
+                  <TextBlock Grid.Column="4"
+                             Text="{Binding Text}"
+                             IsVisible="{Binding IsReceiveActivity}" />
+                  <TextBlock Grid.Column="5"
                              Text="{Binding FreqHz, StringFormat={}{0:0}}"
                              Opacity="0.9"
                              HorizontalAlignment="Right" />

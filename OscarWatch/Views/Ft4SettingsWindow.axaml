@@ -35,7 +35,7 @@
       <TabItem Header="{loc:Localize Key=Ft4.Settings.AudioSection}">
         <ScrollViewer Margin="8,10,4,4" VerticalScrollBarVisibility="Auto">
           <StackPanel Spacing="8">
-            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto"
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto"
                   ColumnSpacing="10" RowSpacing="8">
               <TextBlock Grid.Row="0" Grid.Column="0"
                          Text="{loc:Localize Key=Ft4.Audio.Input}"
@@ -68,7 +68,16 @@
                         IsSnapToTickEnabled="True"
                         Value="{Binding TxLevel}" />
               </DockPanel>
-              <Button Grid.Row="3" Grid.Column="1"
+              <TextBlock Grid.Row="3" Grid.Column="0"
+                         Text="{loc:Localize Key=Ft4.TxLevelMeter}"
+                         VerticalAlignment="Center" />
+              <ProgressBar Grid.Row="3" Grid.Column="1"
+                           Minimum="0"
+                           Maximum="100"
+                           Value="{Binding TxPlaybackPeakPercent}"
+                           Height="12"
+                           VerticalAlignment="Center" />
+              <Button Grid.Row="4" Grid.Column="1"
                       Content="{loc:Localize Key=Common.Refresh}"
                       Command="{Binding RefreshDevicesCommand}"
                       HorizontalAlignment="Right"
@@ -140,6 +149,12 @@
                         MinWidth="120"
                         IsVisible="{Binding ShowSeparatePttPort}" />
             </Grid>
+
+            <TextBlock Text="{Binding SeparatePttConflictText}"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource PassInProgressBadgeForegroundBrush}"
+                       FontWeight="SemiBold"
+                       IsVisible="{Binding ShowSeparatePttConflict}" />
           </StackPanel>
         </ScrollViewer>
       </TabItem>

@@ -4,6 +4,7 @@ using OscarWatch.Core.Logbook;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Services;
+using OscarWatch.Localization;
 using OscarWatch.ViewModels;
 using Serilog;
 
@@ -20,6 +21,7 @@ public sealed class Ft4ModemService : IDisposable
     private readonly ILiveTrackerSnapshotProvider _snapshot;
     private readonly IOrbitPropagator _propagator;
     private readonly IRigController _rig;
+    private readonly ILocalizationService _l;
     private readonly Ft4AudioService _audio = new();
     private readonly Ft4PttKeyer _ptt;
     private readonly object _gate = new();
@@ -45,7 +47,8 @@ public sealed class Ft4ModemService : IDisposable
         IRigController rig,
         IQsoLogbookRepository logbook,
         ILiveTrackerSnapshotProvider snapshot,
-        IOrbitPropagator propagator)
+        IOrbitPropagator propagator,
+        ILocalizationService localization)
     {
         _settings = settings;
         _tracking = tracking;
@@ -54,6 +57,7 @@ public sealed class Ft4ModemService : IDisposable
         _snapshot = snapshot;
         _propagator = propagator;
         _rig = rig;
+        _l = localization;
         _ptt = new Ft4PttKeyer(rig, settings);
     }
 
@@ -63,6 +67,7 @@ public sealed class Ft4ModemService : IDisposable
     public bool IsRunning { get; private set; }
     public bool NativeAvailable => Ft8Native.IsAvailable;
     public Ft4QsoSequencer? Sequencer => _sequencer;
+    public double TxPlaybackPeak => _audio.PlaybackPeak;
     public event Action? Changed;
 
     private string? _lastLoggedKey;
@@ -82,7 +87,7 @@ public sealed class Ft4ModemService : IDisposable
                 _settings.Current.Ft4.InputDeviceId,
                 _settings.Current.Ft4.InputDeviceDisplayName);
             _deviceSampleRate = _audio.CaptureSampleRate;
-            Status = "Listening.";
+            Status = _l.Get("Ft4.Status.Listening");
             Changed?.Invoke();
         }
         catch (Exception ex)
@@ -125,7 +130,7 @@ public sealed class Ft4ModemService : IDisposable
 
         if (!Ft8Native.IsAvailable)
         {
-            Status = "Native FT4 library not found.";
+            Status = _l.Get("Ft4.NativeUnavailable");
             Changed?.Invoke();
             return;
         }
@@ -134,7 +139,7 @@ public sealed class Ft4ModemService : IDisposable
         var grid = _settings.Current.GroundStation.GridSquare?.Trim() ?? "";
         if (call.Length == 0 || grid.Length < 4)
         {
-            Status = "Set your callsign and grid under Settings → Station.";
+            Status = _l.Get("Ft4.Status.NeedStation");
             Changed?.Invoke();
             return;
         }
@@ -173,7 +178,7 @@ public sealed class Ft4ModemService : IDisposable
         _loopCts = new CancellationTokenSource();
         _loopTask = Task.Run(() => LoopAsync(_loopCts.Token));
         IsRunning = true;
-        Status = "Listening.";
+        Status = _l.Get("Ft4.Status.Listening");
         Changed?.Invoke();
     }
 
@@ -195,7 +200,7 @@ public sealed class Ft4ModemService : IDisposable
         _audio.StopCapture();
         _rig.SetFt4SlotGatedDoppler(false);
         IsRunning = false;
-        Status = "Stopped.";
+        Status = _l.Get("Ft4.Status.Stopped");
         Changed?.Invoke();
     }
 
@@ -203,14 +208,17 @@ public sealed class Ft4ModemService : IDisposable
     {
         _sequencer?.StartCq(evenSlot);
         _lastLoggedKey = null;
-        Status = "Calling CQ.";
+        _lastRelevantDecodeUtc = DateTime.UtcNow;
+        Status = _l.Get("Ft4.Status.CallingCq");
         Changed?.Invoke();
     }
 
     public void EnableTx()
     {
         _sequencer?.EnableTx();
-        Status = "Transmit enabled.";
+        // Reset idle timeout so re-arming after a watchdog halt does not trip again immediately.
+        _lastRelevantDecodeUtc = DateTime.UtcNow;
+        Status = _l.Get("Ft4.Status.TxEnabled");
         Changed?.Invoke();
     }
 
@@ -221,7 +229,7 @@ public sealed class Ft4ModemService : IDisposable
         _audio.StopPlayback();
         _ = _ptt.UnkeyAsync();
         _txThisSlot = false;
-        Status = "Transmit halted.";
+        Status = _l.Get("Ft4.Status.TxHalted");
         Changed?.Invoke();
     }
 
@@ -232,7 +240,8 @@ public sealed class Ft4ModemService : IDisposable
         var even = Ft4SlotClock.IsEvenSlot(decode.SlotUtc, Ft4SlotClock.Ft4SlotSeconds);
         _sequencer.StartAnswer(decode, oppositeEvenSlot: !even);
         _lastLoggedKey = null;
-        Status = $"Answering {decode.Text}.";
+        _lastRelevantDecodeUtc = DateTime.UtcNow;
+        Status = _l.Get("Ft4.Status.Answering", decode.Text);
         Changed?.Invoke();
     }
 
@@ -244,7 +253,7 @@ public sealed class Ft4ModemService : IDisposable
             Decodes.Clear();
             lock (_decodePostGate)
                 _postedDecodeKeys.Clear();
-            Status = "Decode list cleared.";
+            Status = _l.Get("Ft4.Status.DecodesCleared");
             Changed?.Invoke();
         }
 
@@ -311,7 +320,7 @@ public sealed class Ft4ModemService : IDisposable
                     && DateTime.UtcNow - _lastRelevantDecodeUtc > TimeSpan.FromMinutes(3))
                 {
                     HaltTx();
-                    Status = "Transmit stopped (watchdog).";
+                    Status = _l.Get("Ft4.Status.WatchdogStopped");
                     Changed?.Invoke();
                 }
 
@@ -340,7 +349,7 @@ public sealed class Ft4ModemService : IDisposable
             catch (Exception ex)
             {
                 Log.Warning(ex, "FT4 modem loop error");
-                Status = "Modem error: " + ex.Message;
+                Status = _l.Get("Ft4.Status.ModemError", ex.Message);
                 Changed?.Invoke();
                 await Task.Delay(500, ct).ConfigureAwait(false);
             }
@@ -378,7 +387,9 @@ public sealed class Ft4ModemService : IDisposable
             catch (Exception ex)
             {
                 Log.Warning(ex, "FT4 transmit task failed");
-                Status = "TX error: " + ex.Message;
+                Status = _l.Get(
+                    "Ft4.Status.TxError",
+                    ComPortConflictLocalizer.Localize(ex.Message, _l));
                 Changed?.Invoke();
             }
             finally
@@ -399,7 +410,9 @@ public sealed class Ft4ModemService : IDisposable
             || pcm is null)
         {
             _txThisSlot = false;
-            Status = string.IsNullOrWhiteSpace(encodeError) ? "Encode failed." : encodeError;
+            Status = string.IsNullOrWhiteSpace(encodeError)
+                ? _l.Get("Ft4.Status.EncodeFailed")
+                : encodeError;
             Log.Warning("FT4 encode failed for '{Message}': {Error}", seq.CurrentTxMessage, encodeError);
             Changed?.Invoke();
             return;
@@ -460,7 +473,7 @@ public sealed class Ft4ModemService : IDisposable
         if (seq.OnTxCompleted())
             await TryLogAsync(manual: false).ConfigureAwait(false);
 
-        Status = "TX done: " + seq.CurrentTxMessage;
+        Status = _l.Get("Ft4.Status.TxDone", seq.CurrentTxMessage);
         Changed?.Invoke();
     }
 
@@ -567,6 +580,21 @@ public sealed class Ft4ModemService : IDisposable
                     extra,
                     IsOwnEcho: true);
                 ApplyEchoCalibration(echo);
+
+                var echoKey = slotStart.Ticks + "|echo|" + d.text + "|" + ((int)Math.Round(d.freq_hz / 5.0) * 5);
+                lock (_decodePostGate)
+                {
+                    if (!_postedDecodeKeys.Add(echoKey))
+                        continue;
+                }
+
+                any = true;
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    Decodes.Insert(0, echo);
+                    while (Decodes.Count > 200)
+                        Decodes.RemoveAt(Decodes.Count - 1);
+                });
                 continue;
             }
 
@@ -629,7 +657,7 @@ public sealed class Ft4ModemService : IDisposable
         var current = _settings.Current.Ft4.GetUplinkCalibrationKHz(sat);
         _settings.Current.Ft4.SetUplinkCalibrationKHz(sat, current + deltaKHz);
         _settings.RequestSave();
-        Status = $"Echo calibration {deltaKHz * 1000:0} Hz on {sat}.";
+        Status = _l.Get("Ft4.Status.EchoCalibration", deltaKHz * 1000.0, sat);
         Changed?.Invoke();
     }
 
@@ -640,7 +668,7 @@ public sealed class Ft4ModemService : IDisposable
         {
             if (manual)
             {
-                Status = "Nothing to log. Answer a decode or start a QSO first.";
+                Status = _l.Get("Ft4.Status.NothingToLog");
                 Changed?.Invoke();
             }
             return;
@@ -659,7 +687,7 @@ public sealed class Ft4ModemService : IDisposable
             var book = books.FirstOrDefault();
             if (book is null)
             {
-                Status = "Create a logbook under Tools → OscarWatch Logbook first.";
+                Status = _l.Get("Ft4.Status.NeedLogbook");
                 Changed?.Invoke();
                 return;
             }
@@ -686,14 +714,14 @@ public sealed class Ft4ModemService : IDisposable
 
             _lastLoggedKey = key;
             Status = manual
-                ? $"Logged {record.Call} (manual)."
-                : $"Logged {record.Call}.";
+                ? _l.Get("Ft4.Status.LoggedManual", record.Call)
+                : _l.Get("Ft4.Logged", record.Call);
             Changed?.Invoke();
         }
         catch (Exception ex)
         {
             Log.Warning(ex, "FT4 logbook save failed");
-            Status = "Logbook save failed.";
+            Status = _l.Get("Ft4.Status.LogbookSaveFailed");
             Changed?.Invoke();
         }
     }

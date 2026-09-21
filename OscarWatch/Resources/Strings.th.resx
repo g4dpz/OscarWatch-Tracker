@@ -338,6 +338,21 @@ LOS: {2}
   <data name="ComPort.GpsAndUplink">
     <value>GPS และวิทยุอัปลิงก์ใช้ {0} ทั้งคู่ ใช้พอร์ต COM คนละพอร์ตหรือปิดอุปกรณ์หนึ่งชิ้น</value>
   </data>
+  <data name="ComPort.Ft4PttAndRadio">
+    <value>PTT แยกของ FT4 และวิทยุใช้ {0} ด้วยกัน ใช้พอร์ต COM คนละพอร์ต หรือปิดอุปกรณ์ใดอุปกรณ์หนึ่ง</value>
+  </data>
+  <data name="ComPort.Ft4PttAndDownlink">
+    <value>PTT แยกของ FT4 และวิทยุดาวน์ลิงก์ใช้ {0} ด้วยกัน ใช้พอร์ต COM คนละพอร์ต หรือปิดอุปกรณ์ใดอุปกรณ์หนึ่ง</value>
+  </data>
+  <data name="ComPort.Ft4PttAndUplink">
+    <value>PTT แยกของ FT4 และวิทยุอัปลิงก์ใช้ {0} ด้วยกัน ใช้พอร์ต COM คนละพอร์ต หรือปิดอุปกรณ์ใดอุปกรณ์หนึ่ง</value>
+  </data>
+  <data name="ComPort.Ft4PttAndRotator">
+    <value>PTT แยกของ FT4 และโรเตเตอร์ใช้ {0} ด้วยกัน ใช้พอร์ต COM คนละพอร์ต หรือปิดอุปกรณ์ใดอุปกรณ์หนึ่ง</value>
+  </data>
+  <data name="ComPort.Ft4PttAndGps">
+    <value>PTT แยกของ FT4 และ GPS ใช้ {0} ด้วยกัน ใช้พอร์ต COM คนละพอร์ต หรือปิดอุปกรณ์ใดอุปกรณ์หนึ่ง</value>
+  </data>
   <data name="A11y.SatelliteSunlight">
     <value>ดาวเทียมอยู่ในแสงอาทิตย์</value>
   </data>
@@ -4057,6 +4072,12 @@ LOS: {2}
   <data name="Ft4.Status.Ready">
     <value>พร้อม</value>
   </data>
+  <data name="Ft4.Status.Listening">
+    <value>กำลังฟัง</value>
+  </data>
+  <data name="Ft4.Status.Stopped">
+    <value>หยุดแล้ว</value>
+  </data>
   <data name="Ft4.Status.TxEnabled">
     <value>เปิดการส่งแล้ว</value>
   </data>
@@ -4068,6 +4089,42 @@ LOS: {2}
   </data>
   <data name="Ft4.Status.NoTxMessage">
     <value>กรุณาใส่หรือสร้างข้อความ TX ก่อน</value>
+  </data>
+  <data name="Ft4.Status.WatchdogStopped">
+    <value>หยุดส่งแล้ว (watchdog)</value>
+  </data>
+  <data name="Ft4.Status.ModemError">
+    <value>ข้อผิดพลาดโมเด็ม: {0}</value>
+  </data>
+  <data name="Ft4.Status.TxError">
+    <value>ข้อผิดพลาด TX: {0}</value>
+  </data>
+  <data name="Ft4.Status.EncodeFailed">
+    <value>เข้ารหัสล้มเหลว</value>
+  </data>
+  <data name="Ft4.Status.TxDone">
+    <value>TX เสร็จ: {0}</value>
+  </data>
+  <data name="Ft4.Status.EchoCalibration">
+    <value>ปรับเทียบเอคโค่ {0:0} Hz บน {1}</value>
+  </data>
+  <data name="Ft4.Status.NothingToLog">
+    <value>ไม่มีอะไรให้บันทึก ตอบการถอดรหัสหรือเริ่ม QSO ก่อน</value>
+  </data>
+  <data name="Ft4.Status.NeedLogbook">
+    <value>สร้างสมุดปูมใน เครื่องมือ → OscarWatch Logbook ก่อน</value>
+  </data>
+  <data name="Ft4.Status.LoggedManual">
+    <value>บันทึก QSO กับ {0} แล้ว (ด้วยตนเอง)</value>
+  </data>
+  <data name="Ft4.Status.LogbookSaveFailed">
+    <value>บันทึกสมุดปูมล้มเหลว</value>
+  </data>
+  <data name="Ft4.Status.ClockWarning">
+    <value>นาฬิกา PC อาจคลาดจาก UTC (DT ล่าสุดประมาณ {0:0.0} วินาที) ซิงก์เวลาแล้วลองใหม่</value>
+  </data>
+  <data name="Ft4.TxLevelMeter">
+    <value>มิเตอร์ระดับ TX</value>
   </data>
   <data name="Ft4.ManualKey">
     <value>กดคีย์เครื่องส่งตอนนี้</value>
@@ -4147,6 +4204,9 @@ LOS: {2}
   <data name="Ft4.Decodes.Kind">
     <value>TX</value>
   </data>
+  <data name="Ft4.Decodes.Dt">
+    <value>DT</value>
+  </data>
   <data name="Ft4.Decodes.Snr">
     <value>SNR</value>
   </data>
@@ -4158,6 +4218,9 @@ LOS: {2}
   </data>
   <data name="Ft4.Decodes.Tx">
     <value>TX</value>
+  </data>
+  <data name="Ft4.Decodes.Echo">
+    <value>เอคโค่</value>
   </data>
   <data name="Ft4.TxMessage">
     <value>ข้อความ TX</value>

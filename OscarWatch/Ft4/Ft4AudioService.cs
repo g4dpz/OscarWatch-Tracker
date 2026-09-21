@@ -21,6 +21,7 @@ public sealed class Ft4AudioService : IDisposable
     private PaStream? _output;
     private float[]? _playback;
     private int _playbackIndex;
+    private float _playbackPeak;
     private bool _portAudioReady;
     private int _captureSampleRate = 48000;
     private int _playbackSampleRate = 48000;
@@ -36,6 +37,21 @@ public sealed class Ft4AudioService : IDisposable
 
     public int CaptureSampleRate => _captureSampleRate;
     public int PlaybackSampleRate => _playbackSampleRate;
+
+    /// <summary>Recent TX playback peak (0–1), decays when idle.</summary>
+    public double PlaybackPeak
+    {
+        get
+        {
+            var peak = Volatile.Read(ref _playbackPeak);
+            // Soft decay so the meter falls after the burst ends.
+            var next = peak * 0.92f;
+            if (next < 0.01f)
+                next = 0f;
+            Volatile.Write(ref _playbackPeak, next);
+            return Math.Clamp(peak, 0, 1);
+        }
+    }
 
     public IReadOnlyList<AudioInputDevice> GetInputDevices()
     {
@@ -191,6 +207,7 @@ public sealed class Ft4AudioService : IDisposable
 
             _playback = scaled;
             _playbackIndex = 0;
+            Volatile.Write(ref _playbackPeak, 0f);
 
             var param = new StreamParameters
             {
@@ -290,10 +307,15 @@ public sealed class Ft4AudioService : IDisposable
 
             for (var i = 0; i < frameCount; i++)
             {
+                float sample;
                 if (_playbackIndex < src.Length)
-                    ptr[i] = src[_playbackIndex++];
+                    sample = src[_playbackIndex++];
                 else
-                    ptr[i] = 0;
+                    sample = 0;
+                ptr[i] = sample;
+                var abs = Math.Abs(sample);
+                if (abs > _playbackPeak)
+                    _playbackPeak = abs;
             }
 
             if (_playbackIndex >= src.Length)
@@ -320,6 +342,7 @@ public sealed class Ft4AudioService : IDisposable
         _output = null;
         _playback = null;
         _playbackIndex = 0;
+        Volatile.Write(ref _playbackPeak, 0f);
     }
 
     private void EnsurePortAudio()

@@ -338,6 +338,21 @@ Durasi: {4}</value>
   <data name="ComPort.GpsAndUplink">
     <value>GPS dan radio uplink sama-sama memakai {0}. Pakai port COM yang berbeda atau nonaktifkan salah satu perangkat.</value>
   </data>
+  <data name="ComPort.Ft4PttAndRadio">
+    <value>PTT terpisah FT4 dan radio sama-sama memakai {0}. Gunakan port COM berbeda atau nonaktifkan salah satu perangkat.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndDownlink">
+    <value>PTT terpisah FT4 dan radio downlink sama-sama memakai {0}. Gunakan port COM berbeda atau nonaktifkan salah satu perangkat.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndUplink">
+    <value>PTT terpisah FT4 dan radio uplink sama-sama memakai {0}. Gunakan port COM berbeda atau nonaktifkan salah satu perangkat.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndRotator">
+    <value>PTT terpisah FT4 dan rotator sama-sama memakai {0}. Gunakan port COM berbeda atau nonaktifkan salah satu perangkat.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndGps">
+    <value>PTT terpisah FT4 dan GPS sama-sama memakai {0}. Gunakan port COM berbeda atau nonaktifkan salah satu perangkat.</value>
+  </data>
   <data name="A11y.SatelliteSunlight">
     <value>Satelit di cahaya matahari</value>
   </data>
@@ -4057,6 +4072,12 @@ Terbaru: {1} ({2})</value>
   <data name="Ft4.Status.Ready">
     <value>Siap</value>
   </data>
+  <data name="Ft4.Status.Listening">
+    <value>Mendengarkan</value>
+  </data>
+  <data name="Ft4.Status.Stopped">
+    <value>Berhenti</value>
+  </data>
   <data name="Ft4.Status.TxEnabled">
     <value>Transmit diaktifkan</value>
   </data>
@@ -4068,6 +4089,42 @@ Terbaru: {1} ({2})</value>
   </data>
   <data name="Ft4.Status.NoTxMessage">
     <value>Masukkan atau buat pesan TX terlebih dahulu</value>
+  </data>
+  <data name="Ft4.Status.WatchdogStopped">
+    <value>Transmisi dihentikan (watchdog)</value>
+  </data>
+  <data name="Ft4.Status.ModemError">
+    <value>Kesalahan modem: {0}</value>
+  </data>
+  <data name="Ft4.Status.TxError">
+    <value>Kesalahan TX: {0}</value>
+  </data>
+  <data name="Ft4.Status.EncodeFailed">
+    <value>Encode gagal</value>
+  </data>
+  <data name="Ft4.Status.TxDone">
+    <value>TX selesai: {0}</value>
+  </data>
+  <data name="Ft4.Status.EchoCalibration">
+    <value>Kalibrasi echo {0:0} Hz pada {1}</value>
+  </data>
+  <data name="Ft4.Status.NothingToLog">
+    <value>Tidak ada yang dicatat. Jawab decode atau mulai QSO dulu.</value>
+  </data>
+  <data name="Ft4.Status.NeedLogbook">
+    <value>Buat logbook di Alat → OscarWatch Logbook terlebih dahulu.</value>
+  </data>
+  <data name="Ft4.Status.LoggedManual">
+    <value>QSO dengan {0} dicatat (manual)</value>
+  </data>
+  <data name="Ft4.Status.LogbookSaveFailed">
+    <value>Gagal menyimpan logbook</value>
+  </data>
+  <data name="Ft4.Status.ClockWarning">
+    <value>Jam PC mungkin tidak selaras UTC (DT terbaru sekitar {0:0.0} dtk). Sinkronkan waktu lalu coba lagi.</value>
+  </data>
+  <data name="Ft4.TxLevelMeter">
+    <value>Meter level TX</value>
   </data>
   <data name="Ft4.ManualKey">
     <value>Kunci pemancar sekarang</value>
@@ -4147,6 +4204,9 @@ Terbaru: {1} ({2})</value>
   <data name="Ft4.Decodes.Kind">
     <value>TX</value>
   </data>
+  <data name="Ft4.Decodes.Dt">
+    <value>DT</value>
+  </data>
   <data name="Ft4.Decodes.Snr">
     <value>SNR</value>
   </data>
@@ -4158,6 +4218,9 @@ Terbaru: {1} ({2})</value>
   </data>
   <data name="Ft4.Decodes.Tx">
     <value>TX</value>
+  </data>
+  <data name="Ft4.Decodes.Echo">
+    <value>Echo</value>
   </data>
   <data name="Ft4.TxMessage">
     <value>Pesan TX</value>

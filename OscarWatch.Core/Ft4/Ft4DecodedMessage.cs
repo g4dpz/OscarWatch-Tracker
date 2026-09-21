@@ -11,4 +11,8 @@ public sealed record Ft4DecodedMessage(
     string? CallDe,
     string? Extra,
     bool IsOwnEcho,
-    bool IsTransmitted = false);
+    bool IsTransmitted = false)
+{
+    /// <summary>True for ordinary RX lines (not our TX and not our own uplink echo).</summary>
+    public bool IsReceiveActivity => !IsTransmitted && !IsOwnEcho;
+}

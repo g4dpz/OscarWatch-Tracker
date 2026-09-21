@@ -5,7 +5,7 @@ namespace OscarWatch.Tests;
 public sealed class RecordingDeviceListBuilderTests
 {
     [Fact]
-    public void Build_PrefersLowerLatencyDuplicateForSameDeviceName()
+    public void Build_PrefersHigherLatencyDuplicateForSameDeviceName()
     {
         var devices = RecordingDeviceListBuilder.Build(
         [
@@ -44,7 +44,7 @@ public sealed class RecordingDeviceListBuilderTests
         ]);
 
         Assert.Single(devices);
-        Assert.Equal("radio input", devices[0].Id);
+        Assert.Equal("Radio Input", devices[0].Id);
     }
 
     [Fact]
@@ -76,7 +76,7 @@ public sealed class RecordingDeviceListBuilderTests
         ]);
 
         Assert.Single(devices);
-        Assert.Equal(rawB, devices[0].Id);
+        Assert.Equal(rawA, devices[0].Id);
         Assert.Equal("Radio Input", devices[0].DisplayName);
     }
 }

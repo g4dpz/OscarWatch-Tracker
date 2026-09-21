@@ -338,6 +338,21 @@ LOS: {2}
   <data name="ComPort.GpsAndUplink">
     <value>GPS и аплинк оба используют {0}. Назначьте разные COM-порты или отключите одно устройство.</value>
   </data>
+  <data name="ComPort.Ft4PttAndRadio">
+    <value>Отдельный PTT FT4 и радио оба используют {0}. Используйте разные COM-порты или отключите одно из устройств.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndDownlink">
+    <value>Отдельный PTT FT4 и радио приёма оба используют {0}. Используйте разные COM-порты или отключите одно из устройств.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndUplink">
+    <value>Отдельный PTT FT4 и радио передачи оба используют {0}. Используйте разные COM-порты или отключите одно из устройств.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndRotator">
+    <value>Отдельный PTT FT4 и ротатор оба используют {0}. Используйте разные COM-порты или отключите одно из устройств.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndGps">
+    <value>Отдельный PTT FT4 и GPS оба используют {0}. Используйте разные COM-порты или отключите одно из устройств.</value>
+  </data>
   <data name="A11y.SatelliteSunlight">
     <value>Спутник на солнце</value>
   </data>
@@ -4057,6 +4072,12 @@ LOS: {2}
   <data name="Ft4.Status.Ready">
     <value>Готово</value>
   </data>
+  <data name="Ft4.Status.Listening">
+    <value>Приём</value>
+  </data>
+  <data name="Ft4.Status.Stopped">
+    <value>Остановлено</value>
+  </data>
   <data name="Ft4.Status.TxEnabled">
     <value>Передача включена</value>
   </data>
@@ -4068,6 +4089,42 @@ LOS: {2}
   </data>
   <data name="Ft4.Status.NoTxMessage">
     <value>Сначала введите или создайте TX-сообщение</value>
+  </data>
+  <data name="Ft4.Status.WatchdogStopped">
+    <value>Передача остановлена (watchdog)</value>
+  </data>
+  <data name="Ft4.Status.ModemError">
+    <value>Ошибка модема: {0}</value>
+  </data>
+  <data name="Ft4.Status.TxError">
+    <value>Ошибка TX: {0}</value>
+  </data>
+  <data name="Ft4.Status.EncodeFailed">
+    <value>Ошибка кодирования</value>
+  </data>
+  <data name="Ft4.Status.TxDone">
+    <value>TX завершён: {0}</value>
+  </data>
+  <data name="Ft4.Status.EchoCalibration">
+    <value>Калибровка эха {0:0} Гц на {1}</value>
+  </data>
+  <data name="Ft4.Status.NothingToLog">
+    <value>Нечего записывать. Сначала ответьте на декод или начните QSO.</value>
+  </data>
+  <data name="Ft4.Status.NeedLogbook">
+    <value>Сначала создайте журнал в Инструменты → OscarWatch Logbook.</value>
+  </data>
+  <data name="Ft4.Status.LoggedManual">
+    <value>QSO с {0} записано (вручную)</value>
+  </data>
+  <data name="Ft4.Status.LogbookSaveFailed">
+    <value>Не удалось сохранить журнал</value>
+  </data>
+  <data name="Ft4.Status.ClockWarning">
+    <value>Часы ПК могут отличаться от UTC (недавний DT около {0:0.0} с). Синхронизируйте время и повторите.</value>
+  </data>
+  <data name="Ft4.TxLevelMeter">
+    <value>Индикатор уровня TX</value>
   </data>
   <data name="Ft4.ManualKey">
     <value>Включите передатчик сейчас</value>
@@ -4147,6 +4204,9 @@ LOS: {2}
   <data name="Ft4.Decodes.Kind">
     <value>TX</value>
   </data>
+  <data name="Ft4.Decodes.Dt">
+    <value>DT</value>
+  </data>
   <data name="Ft4.Decodes.Snr">
     <value>SNR</value>
   </data>
@@ -4158,6 +4218,9 @@ LOS: {2}
   </data>
   <data name="Ft4.Decodes.Tx">
     <value>TX</value>
+  </data>
+  <data name="Ft4.Decodes.Echo">
+    <value>Эхо</value>
   </data>
   <data name="Ft4.TxMessage">
     <value>TX-сообщение</value>

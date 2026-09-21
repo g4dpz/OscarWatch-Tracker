@@ -1,6 +1,6 @@
 using System.IO.Ports;
 using OscarWatch.Core.Ft4;
-using OscarWatch.Core.Models;
+using OscarWatch.Core.Hardware;
 using OscarWatch.Core.Services;
 using OscarWatch.Rig;
 using Serilog;
@@ -113,6 +113,16 @@ public sealed class Ft4PttKeyer : IDisposable
         var portName = ft4.SeparatePttPort?.Trim() ?? "";
         if (portName.Length == 0)
             throw new InvalidOperationException("Separate PTT COM port is not configured.");
+
+        if (SerialPortConflictHelper.TryDescribeFt4SeparatePttConflict(
+                portName,
+                _settings.Current.Rig,
+                _settings.Current.Rotator,
+                _settings.Current.Gps,
+                out var conflict))
+        {
+            throw new InvalidOperationException(conflict);
+        }
 
         if (_separatePort is { IsOpen: true }
             && string.Equals(_separatePort.PortName, portName, StringComparison.OrdinalIgnoreCase))

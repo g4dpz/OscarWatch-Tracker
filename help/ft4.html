@@ -25,6 +25,7 @@
           <li><a href="passes.html">Pass planning</a></li>
           <li><a href="radio-rotator.html">Radio &amp; rotator</a></li>
           <li><a href="settings.html">Settings</a></li>
+          <li><a href="ft4.html">OscarWatch FT4</a></li>
           <li><a href="keyboard-shortcuts.html">Shortcuts</a></li>
           <li><a href="troubleshooting.html">Problems?</a></li>
         </ul>
@@ -53,7 +54,8 @@
           Decodes appear in the list with their audio frequency so you can match RX and TX.</li>
         <li><strong>Slot clock</strong>: UTC FT4 slot timing (7.5 s), including even/odd slot.</li>
         <li><strong>Doppler</strong>: uplink and downlink radio frequencies from OscarWatch tracking for the focused satellite.</li>
-        <li><strong>Decodes</strong>: messages decoded in the current session.</li>
+        <li><strong>Decodes</strong>: messages decoded in the current session, including DT (time offset)
+          and your own uplink echo (labelled Echo) when heard on a TX slot.</li>
         <li><strong>TX message</strong>: text you will transmit; use <strong>CQ</strong> to build a standard call from your station callsign and grid.</li>
       </ul>
 
@@ -81,7 +83,8 @@
         <li><strong>VOX / audio</strong>: play TX audio only; your radio or interface keys from audio.</li>
         <li><strong>CAT</strong>: key via the connected radio’s transmit command.</li>
         <li><strong>CAT port RTS/DTR</strong>: assert RTS or DTR on the open CAT serial port.</li>
-        <li><strong>Separate COM port</strong>: dedicated handshake port for PTT.</li>
+        <li><strong>Separate COM port</strong>: dedicated handshake port for PTT (must not be the same
+          COM port as the radio, rotator, or GPS).</li>
         <li><strong>Manual (prompt)</strong>: OscarWatch asks you to key and unkey for each slot.</li>
       </ul>
 
@@ -109,6 +112,12 @@
         on TX and RX, the <strong>decode text size</strong>, and <strong>echo calibration</strong>
         uplink trim. For RTS/DTR methods, choose the handshake line
         (and COM port when using a separate PTT port). TX level is also set there.
+      </p>
+      <p>
+        With a Virtual Audio Cable (or similar), play FT4 TX into <strong>CABLE Input</strong> and
+        set WSJT-X (or the radio) to listen on <strong>CABLE Output</strong>. After changing soundcard
+        settings, use <strong>Refresh</strong> and re-select the cable if another app suddenly loses audio;
+        OscarWatch prefers the shared-friendly Windows audio backend so both apps can open the same cable.
       </p>
 
       <h2>Logging</h2>

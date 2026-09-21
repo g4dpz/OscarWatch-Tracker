@@ -31,7 +31,7 @@ public sealed class RecordingDeviceResolverTests
     }
 
     [Fact]
-    public void Resolve_PrefersLowestLatencyWhenRawNameDuplicated()
+    public void Resolve_PrefersHighestLatencyWhenRawNameDuplicated()
     {
         var inputs = new[]
         {
@@ -45,7 +45,7 @@ public sealed class RecordingDeviceResolverTests
             "Line In (USB Audio)",
             inputs);
 
-        Assert.Equal(4, index);
+        Assert.Equal(1, index);
     }
 
     [Fact]

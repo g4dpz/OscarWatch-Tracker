@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OscarWatch.Controls;
 using OscarWatch.Core.Ft4;
+using OscarWatch.Core.Hardware;
 using OscarWatch.Core.Services;
 using OscarWatch.Ft4;
 using OscarWatch.Localization;
@@ -132,12 +133,17 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     public bool ShowSeparatePttPort =>
         SelectedPttMethod?.Value == Ft4PttMethod.SeparateComPort;
 
+    public bool ShowSeparatePttConflict =>
+        ShowSeparatePttPort && !string.IsNullOrWhiteSpace(SeparatePttConflictText);
+
     public bool HasDoppler =>
         !string.IsNullOrWhiteSpace(DopplerUplinkText) && DopplerUplinkText != "-"
         || !string.IsNullOrWhiteSpace(DopplerDownlinkText) && DopplerDownlinkText != "-";
 
     public bool HasEchoCalibrationSatellite =>
         !string.IsNullOrWhiteSpace(SelectedEchoCalibrationSatellite);
+
+    public bool ShowClockWarning => !string.IsNullOrWhiteSpace(ClockWarningText);
 
     [ObservableProperty] private string _waterfallStatusText = "";
     [ObservableProperty] private string _slotClockText = "";
@@ -150,6 +156,9 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     [ObservableProperty] private string _currentTxMessage = "";
     [ObservableProperty] private string _manualPttPrompt = "";
     [ObservableProperty] private string _statusLine = "";
+    [ObservableProperty] private string _clockWarningText = "";
+    [ObservableProperty] private string _separatePttConflictText = "";
+    [ObservableProperty] private double _txPlaybackPeakPercent;
     [ObservableProperty] private bool _skipRrr;
     [ObservableProperty] private bool _preferEvenSlot;
     [ObservableProperty] private bool _holdTxFrequency = true;
@@ -308,6 +317,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         _settings.RequestSave();
         OnPropertyChanged(nameof(ShowHandshakePttOptions));
         OnPropertyChanged(nameof(ShowSeparatePttPort));
+        RefreshSeparatePttConflict();
     }
 
     partial void OnSelectedPttLineChanged(Ft4PttLineOption? value)
@@ -328,6 +338,35 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     {
         _settings.Current.Ft4.SeparatePttPort = value?.Trim() ?? "";
         _settings.RequestSave();
+        RefreshSeparatePttConflict();
+    }
+
+    partial void OnClockWarningTextChanged(string value) =>
+        OnPropertyChanged(nameof(ShowClockWarning));
+
+    partial void OnSeparatePttConflictTextChanged(string value) =>
+        OnPropertyChanged(nameof(ShowSeparatePttConflict));
+
+    private void RefreshSeparatePttConflict()
+    {
+        if (!ShowSeparatePttPort)
+        {
+            SeparatePttConflictText = "";
+            return;
+        }
+
+        if (SerialPortConflictHelper.TryDescribeFt4SeparatePttConflict(
+                SeparatePttPort,
+                _settings.Current.Rig,
+                _settings.Current.Rotator,
+                _settings.Current.Gps,
+                out var message))
+        {
+            SeparatePttConflictText = ComPortConflictLocalizer.Localize(message, _l);
+            return;
+        }
+
+        SeparatePttConflictText = "";
     }
 
     partial void OnSelectedInputDeviceChanged(Ft4AudioDeviceOption? value)
@@ -752,6 +791,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
             && !PttPortOptions.Contains(saved, StringComparer.OrdinalIgnoreCase))
             PttPortOptions.Insert(0, saved);
         SeparatePttPort = saved;
+        RefreshSeparatePttConflict();
     }
 
     private void OnModemChanged()
@@ -821,6 +861,35 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
             if (_modem.TryBuildSpectrum(bins))
                 SpectrumBins = bins;
         }
+
+        TxPlaybackPeakPercent = Math.Clamp(_modem.TxPlaybackPeak * 100.0, 0, 100);
+        RefreshClockWarning();
+    }
+
+    private void RefreshClockWarning()
+    {
+        // WSJT-X style: large DT across recent RX decodes usually means the PC clock is off UTC.
+        const float thresholdSec = 1.0f;
+        var recent = Decodes
+            .Where(d => d.IsReceiveActivity)
+            .Take(8)
+            .Select(d => Math.Abs(d.TimeSec))
+            .ToList();
+        if (recent.Count < 3)
+        {
+            ClockWarningText = "";
+            return;
+        }
+
+        var over = recent.Count(dt => dt >= thresholdSec);
+        if (over < 3)
+        {
+            ClockWarningText = "";
+            return;
+        }
+
+        var worst = recent.Max();
+        ClockWarningText = _l.Get("Ft4.Status.ClockWarning", worst);
     }
 
     public void Dispose()

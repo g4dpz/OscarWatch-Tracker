@@ -334,6 +334,21 @@
   <data name="ComPort.GpsAndUplink">
     <value>O GPS e o rádio de uplink usam a mesma porta {0}. Use portas COM diferentes ou desabilite um dispositivo.</value>
   </data>
+  <data name="ComPort.Ft4PttAndRadio">
+    <value>O PTT separado do FT4 e o rádio usam ambos {0}. Use portas COM diferentes ou desative um dos dispositivos.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndDownlink">
+    <value>O PTT separado do FT4 e o rádio de downlink usam ambos {0}. Use portas COM diferentes ou desative um dos dispositivos.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndUplink">
+    <value>O PTT separado do FT4 e o rádio de uplink usam ambos {0}. Use portas COM diferentes ou desative um dos dispositivos.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndRotator">
+    <value>O PTT separado do FT4 e o rotator usam ambos {0}. Use portas COM diferentes ou desative um dos dispositivos.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndGps">
+    <value>O PTT separado do FT4 e o GPS usam ambos {0}. Use portas COM diferentes ou desative um dos dispositivos.</value>
+  </data>
   <data name="A11y.SatelliteSunlight">
     <value>Satélite iluminado pelo sol</value>
   </data>
@@ -4053,6 +4068,12 @@ Mais recente: {1} ({2})</value>
   <data name="Ft4.Status.Ready">
     <value>Pronto</value>
   </data>
+  <data name="Ft4.Status.Listening">
+    <value>A ouvir</value>
+  </data>
+  <data name="Ft4.Status.Stopped">
+    <value>Parado</value>
+  </data>
   <data name="Ft4.Status.TxEnabled">
     <value>Transmissão ativada</value>
   </data>
@@ -4064,6 +4085,42 @@ Mais recente: {1} ({2})</value>
   </data>
   <data name="Ft4.Status.NoTxMessage">
     <value>Digite ou gere uma mensagem TX primeiro</value>
+  </data>
+  <data name="Ft4.Status.WatchdogStopped">
+    <value>Transmissão parada (watchdog)</value>
+  </data>
+  <data name="Ft4.Status.ModemError">
+    <value>Erro do modem: {0}</value>
+  </data>
+  <data name="Ft4.Status.TxError">
+    <value>Erro de TX: {0}</value>
+  </data>
+  <data name="Ft4.Status.EncodeFailed">
+    <value>Falha na codificação</value>
+  </data>
+  <data name="Ft4.Status.TxDone">
+    <value>TX concluído: {0}</value>
+  </data>
+  <data name="Ft4.Status.EchoCalibration">
+    <value>Calibração de eco {0:0} Hz em {1}</value>
+  </data>
+  <data name="Ft4.Status.NothingToLog">
+    <value>Nada para registar. Responda a uma descodificação ou inicie um QSO primeiro.</value>
+  </data>
+  <data name="Ft4.Status.NeedLogbook">
+    <value>Crie um logbook em Ferramentas → OscarWatch Logbook primeiro.</value>
+  </data>
+  <data name="Ft4.Status.LoggedManual">
+    <value>QSO com {0} registado (manual)</value>
+  </data>
+  <data name="Ft4.Status.LogbookSaveFailed">
+    <value>Falha ao guardar no logbook</value>
+  </data>
+  <data name="Ft4.Status.ClockWarning">
+    <value>O relógio do PC pode estar desalinhado com o UTC (DT recente ~{0:0.0} s). Sincronize a hora e tente novamente.</value>
+  </data>
+  <data name="Ft4.TxLevelMeter">
+    <value>Medidor de nível TX</value>
   </data>
   <data name="Ft4.ManualKey">
     <value>Chaveie o transmissor agora</value>
@@ -4143,6 +4200,9 @@ Mais recente: {1} ({2})</value>
   <data name="Ft4.Decodes.Kind">
     <value>TX</value>
   </data>
+  <data name="Ft4.Decodes.Dt">
+    <value>DT</value>
+  </data>
   <data name="Ft4.Decodes.Snr">
     <value>SNR</value>
   </data>
@@ -4154,6 +4214,9 @@ Mais recente: {1} ({2})</value>
   </data>
   <data name="Ft4.Decodes.Tx">
     <value>TX</value>
+  </data>
+  <data name="Ft4.Decodes.Echo">
+    <value>Eco</value>
   </data>
   <data name="Ft4.TxMessage">
     <value>Mensagem TX</value>
