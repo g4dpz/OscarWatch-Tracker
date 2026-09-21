@@ -155,7 +155,7 @@ public static class SerialPortCatalog
         }
     }
 
-    private static bool IsLikelyCustomUdevAliasName(string name)
+    internal static bool IsLikelyCustomUdevAliasName(string name)
     {
         if (name.Length is < 3 or > 24)
             return false;
@@ -163,7 +163,7 @@ public static class SerialPortCatalog
         if (!IsCandidateUdevAliasName(name))
             return false;
 
-        // Typical udev SYMLINK names (USB821H, ic910-civ) — skip standard device nodes like null, random, vcs0.
+        // Typical udev SYMLINK names (USB821H, ttyICR9K). Kernel ttyUSB0 / tty0 are rejected separately.
         if (!name.Any(char.IsLetter))
             return false;
 
@@ -172,7 +172,7 @@ public static class SerialPortCatalog
 
     private static bool IsCandidateUdevAliasName(string name)
     {
-        if (name.StartsWith("tty", StringComparison.Ordinal)
+        if (IsKernelTtyDeviceName(name)
             || name.StartsWith("serial", StringComparison.Ordinal)
             || name.StartsWith("bus", StringComparison.Ordinal)
             || name.StartsWith("char", StringComparison.Ordinal)
@@ -189,14 +189,47 @@ public static class SerialPortCatalog
         return true;
     }
 
+    /// <summary>
+    /// Kernel tty nodes (ttyUSB0, ttyS0, tty0) as opposed to ham udev aliases (ttyICR9K, ttyFT736).
+    /// </summary>
+    internal static bool IsKernelTtyDeviceName(string name)
+    {
+        if (!name.StartsWith("tty", StringComparison.Ordinal))
+            return false;
+
+        var rest = name[3..];
+        if (rest.Length == 0 || rest.All(char.IsDigit))
+            return true;
+
+        if (name.Equals("ttyprintk", StringComparison.Ordinal))
+            return true;
+
+        foreach (var prefix in KernelTtyDriverPrefixes)
+        {
+            if (!rest.StartsWith(prefix, StringComparison.Ordinal))
+                continue;
+
+            var suffix = rest[prefix.Length..];
+            if (suffix.Length > 0 && suffix.All(char.IsDigit))
+                return true;
+        }
+
+        return rest[0] == 'p' && rest.Length > 1 && rest[1..].All(char.IsDigit);
+    }
+
+    private static readonly string[] KernelTtyDriverPrefixes =
+    [
+        "XRUSB", "SAC", "THS", "MFD", "MSM", "USB", "ACM", "AMA", "MAX",
+        "GS", "HS", "AP", "PS", "S", "O"
+    ];
+
     private static bool IsLinuxUdevAlias(string path)
     {
         if (!path.StartsWith("/dev/", StringComparison.Ordinal)
             || path.StartsWith("/dev/serial/", StringComparison.Ordinal))
             return false;
 
-        var name = Path.GetFileName(path);
-        return !name.StartsWith("tty", StringComparison.Ordinal);
+        return IsLikelyCustomUdevAliasName(Path.GetFileName(path));
     }
 
     private static bool IsSerialDevicePath(string path)

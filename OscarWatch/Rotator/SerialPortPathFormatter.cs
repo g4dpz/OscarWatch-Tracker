@@ -16,7 +16,7 @@ public static class SerialPortPathFormatter
         if (path.StartsWith("/dev/", StringComparison.Ordinal))
         {
             var name = Path.GetFileName(path);
-            if (!name.StartsWith("tty", StringComparison.Ordinal))
+            if (!SerialPortCatalog.IsKernelTtyDeviceName(name))
                 return name;
         }
 
