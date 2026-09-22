@@ -344,7 +344,7 @@
   "Settings.Recording.Format.Mono44100": "Mono 44,1 kHz",
   "Settings.Recording.Format.Mono48000": "Mono 48 kHz",
   "Settings.Recording.Format.Stereo44100": "Estéreo 44,1 kHz",
-  "Settings.Recording.OutputWatermark": "Predeterminado: %AppData%/OscarWatch/recordings",
+  "Settings.Recording.OutputWatermark": "Predeterminado: {0}",
   "Settings.Recording.SelectDeviceFirst": "Selecciona primero un dispositivo de entrada.",
   "Settings.Recording.StartElevation": "Empezar a grabar a elevación (°)",
   "Settings.Recording.StopElevation": "Detener grabación por debajo de elevación (°)",

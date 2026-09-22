@@ -2663,7 +2663,7 @@ Lanjutkan?</value>
     <value>Folder keluaran</value>
   </data>
   <data name="Settings.Recording.OutputWatermark">
-    <value>Bawaan: %AppData%/OscarWatch/recordings</value>
+    <value>Bawaan: {0}</value>
   </data>
   <data name="Settings.Recording.FolderUsageOne">
     <value>1 berkas · {0}</value>

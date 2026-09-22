@@ -2663,7 +2663,7 @@ LOS: {2}
     <value>Папка вывода</value>
   </data>
   <data name="Settings.Recording.OutputWatermark">
-    <value>По умолчанию: %AppData%/OscarWatch/recordings</value>
+    <value>По умолчанию: {0}</value>
   </data>
   <data name="Settings.Recording.FolderUsageOne">
     <value>1 файл · {0}</value>

@@ -112,6 +112,37 @@ public sealed class RecordingFileNameFormatTests
     }
 
     [Fact]
+    public void GetDefaultOutputFolder_is_under_application_data()
+    {
+        var expected = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "OscarWatch",
+            "recordings");
+        Assert.Equal(expected, RecordingFileNameFormat.GetDefaultOutputFolder());
+    }
+
+    [Fact]
+    public void GetDefaultOutputFolderDisplay_uses_os_path_idiom()
+    {
+        var display = RecordingFileNameFormat.GetDefaultOutputFolderDisplay();
+        Assert.Contains("OscarWatch", display, StringComparison.Ordinal);
+        Assert.Contains("recordings", display, StringComparison.Ordinal);
+
+        if (OperatingSystem.IsWindows())
+        {
+            Assert.Equal(@"%APPDATA%\OscarWatch\recordings", display);
+            return;
+        }
+
+        var folder = RecordingFileNameFormat.GetDefaultOutputFolder();
+        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        if (!string.IsNullOrEmpty(home) && folder.StartsWith(home, StringComparison.Ordinal))
+            Assert.StartsWith("~/", display, StringComparison.Ordinal);
+        else
+            Assert.Equal(folder.Replace('\\', '/'), display);
+    }
+
+    [Fact]
     public void MeasureUsage_missing_folder_reports_not_exists()
     {
         var dir = Path.Combine(Path.GetTempPath(), "oscarwatch-missing-" + Guid.NewGuid().ToString("N"));

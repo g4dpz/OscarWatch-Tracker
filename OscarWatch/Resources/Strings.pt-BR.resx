@@ -2659,7 +2659,7 @@ Continuar?</value>
     <value>Pasta de saída</value>
   </data>
   <data name="Settings.Recording.OutputWatermark">
-    <value>Padrão: %AppData%/OscarWatch/recordings</value>
+    <value>Padrão: {0}</value>
   </data>
   <data name="Settings.Recording.FolderUsageOne">
     <value>1 arquivo · {0}</value>

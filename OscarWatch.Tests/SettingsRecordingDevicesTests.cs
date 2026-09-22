@@ -1,4 +1,5 @@
 using OscarWatch.Core.Cloudlog;
+using OscarWatch.Core.Display;
 using OscarWatch.Core.HamQth;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Qrz;
@@ -72,6 +73,17 @@ public sealed class SettingsRecordingDevicesTests
         Assert.Equal(0, recording.GetInputDevicesCount);
         Assert.Equal("DAX Audio RX 1", vm.SelectedRecordingDevice?.DisplayName);
         Assert.Single(vm.RecordingDeviceOptions);
+    }
+
+    [Fact]
+    public void Constructor_watermark_uses_os_default_folder()
+    {
+        using var _ = TestUiCulture.Apply(LocalizationCulture.DefaultLanguage);
+        using var vm = CreateViewModel(new CountingAudioRecordingService());
+
+        var display = RecordingFileNameFormat.GetDefaultOutputFolderDisplay();
+        Assert.Equal($"Default: {display}", vm.RecordingOutputFolderWatermark);
+        Assert.DoesNotContain("%AppData%", vm.RecordingOutputFolderWatermark, StringComparison.Ordinal);
     }
 
     private static SettingsViewModel CreateViewModel(
