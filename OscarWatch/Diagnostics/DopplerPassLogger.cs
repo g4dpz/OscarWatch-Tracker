@@ -194,9 +194,7 @@ public sealed class DopplerPassLogger : IDopplerPassLogger
             AppendField(_entryBuffer, entry.RigTracking ? "1" : "0");
             AppendField(_entryBuffer, entry.CatPaused ? "1" : "0");
             AppendField(_entryBuffer, Escape(entry.SkipReason));
-            
-            // Last field doesn't need comma
-            _entryBuffer.Append(Escape(entry.Notes));
+            AppendField(_entryBuffer, Escape(entry.Notes));
             
             return _entryBuffer.ToString();
         }
