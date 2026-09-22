@@ -7,4 +7,6 @@ internal interface IIcomCivTransport : IDisposable
     void Open();
 
     byte[] WriteCommand(ReadOnlySpan<byte> body, int postDelayMs = 50);
+
+    void SetHandshakeLine(bool useRts, bool assert);
 }

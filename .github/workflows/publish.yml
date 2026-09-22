@@ -92,6 +92,68 @@ jobs:
             echo "assembly_version=0.0.0.0" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Build oscarwatch_ft8 (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          rid="${{ matrix.rid }}"
+          build_dir="native/oscarwatch_ft8/build-${rid}"
+          out_dir="OscarWatch/runtimes/${rid}/native"
+          mkdir -p "$out_dir"
+          if [[ "$rid" == "win-arm64" ]]; then
+            cmake -S native/oscarwatch_ft8 -B "$build_dir" -A ARM64
+          else
+            cmake -S native/oscarwatch_ft8 -B "$build_dir" -A x64
+          fi
+          cmake --build "$build_dir" --config Release
+          dll="$(find "$build_dir" -name 'oscarwatch_ft8.dll' | head -n 1)"
+          test -n "$dll"
+          cp "$dll" "$out_dir/oscarwatch_ft8.dll"
+
+      - name: Build oscarwatch_ft8 (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -euo pipefail
+          rid="${{ matrix.rid }}"
+          build_dir="native/oscarwatch_ft8/build-${rid}"
+          out_dir="OscarWatch/runtimes/${rid}/native"
+          mkdir -p "$out_dir"
+          if [[ "$rid" == "osx-x64" ]]; then
+            cmake -S native/oscarwatch_ft8 -B "$build_dir" -DCMAKE_OSX_ARCHITECTURES=x86_64
+          else
+            cmake -S native/oscarwatch_ft8 -B "$build_dir" -DCMAKE_OSX_ARCHITECTURES=arm64
+          fi
+          cmake --build "$build_dir" --config Release
+          dylib="$(find "$build_dir" -name 'oscarwatch_ft8.dylib' | head -n 1)"
+          test -n "$dylib"
+          cp "$dylib" "$out_dir/oscarwatch_ft8.dylib"
+
+      - name: Build oscarwatch_ft8 (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          rid="${{ matrix.rid }}"
+          build_dir="native/oscarwatch_ft8/build-${rid}"
+          out_dir="OscarWatch/runtimes/${rid}/native"
+          mkdir -p "$out_dir"
+          if [[ "$rid" == "linux-arm64" ]]; then
+            sudo apt-get update
+            sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+            cmake -S native/oscarwatch_ft8 -B "$build_dir" \
+              -DCMAKE_SYSTEM_NAME=Linux \
+              -DCMAKE_SYSTEM_PROCESSOR=aarch64 \
+              -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc
+          else
+            cmake -S native/oscarwatch_ft8 -B "$build_dir"
+          fi
+          cmake --build "$build_dir" --config Release
+          so="$(find "$build_dir" -name 'oscarwatch_ft8.so' | head -n 1)"
+          test -n "$so"
+          cp "$so" "$out_dir/oscarwatch_ft8.so"
+
       - name: Publish (Windows)
         if: runner.os == 'Windows'
         shell: pwsh

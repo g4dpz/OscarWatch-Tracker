@@ -449,7 +449,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             SelectedMode!,
             rxRangeRateKmPerSec,
             ReceiveOffsetKHz,
-            TransmitOffsetKHz,
+            GetEffectiveTransmitOffsetKHz(),
             _rigPassbandDownlinkAdjustKHz,
             _rigPassbandUplinkAdjustKHz,
             DopplerStrategy,
@@ -527,13 +527,29 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
             TrackState = state,
             Mode = SelectedMode,
             Corrected = corrected,
-            TransmitOffsetKHz = TransmitOffsetKHz,
+            TransmitOffsetKHz = GetEffectiveTransmitOffsetKHz(),
             ReceiveOffsetKHz = ReceiveOffsetKHz,
             SelectedCtcssHz = GetActiveCtcssHz(),
             CwUplink = IsCwUplink,
             CwKeepSidebandDownlink = CwKeepSidebandDownlink,
             DopplerStrategy = DopplerStrategy
         };
+    }
+
+    /// <summary>
+    /// Operator TX offset plus any FT4 echo-calibration for the current satellite mode.
+    /// </summary>
+    private double GetEffectiveTransmitOffsetKHz()
+    {
+        var txOffset = TransmitOffsetKHz;
+        if (SelectedMode is not null
+            && SelectedMode.Type.Equals("FT4", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(_currentSatelliteName))
+        {
+            txOffset += _settings.Current.Ft4.GetUplinkCalibrationKHz(_currentSatelliteName);
+        }
+
+        return txOffset;
     }
 
     private bool CwKeepSidebandDownlink =>

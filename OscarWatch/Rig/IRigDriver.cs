@@ -26,4 +26,44 @@ public interface IRigDriver : IDisposable
     bool IsSatelliteModeActive => true;
     /// <summary>False when the radio cannot swap VFOs remotely (e.g. FT-847).</summary>
     bool SupportsVfoExchange => true;
+
+    /// <summary>True when <see cref="SetPtt"/> sends a CAT transmit command.</summary>
+    bool SupportsCatPtt => false;
+
+    /// <summary>Key or unkey via CAT when <see cref="SupportsCatPtt"/> is true.</summary>
+    void SetPtt(bool transmit)
+    {
+    }
+
+    /// <summary>
+    /// True when CAT can report set RF power via <see cref="TryReadRfPowerWatts"/> and/or
+    /// <see cref="TryReadRfPowerLevel"/>.
+    /// </summary>
+    bool SupportsRfPowerRead => false;
+
+    /// <summary>
+    /// Read the set RF power in watts when the radio reports watts directly (e.g. Yaesu <c>PC;</c>).
+    /// Returns false when unsupported or the radio did not answer.
+    /// </summary>
+    bool TryReadRfPowerWatts(out double watts)
+    {
+        watts = 0;
+        return false;
+    }
+
+    /// <summary>
+    /// Read the set RF power as a 0–255 relative level (ICOM CI-V 0x14 0x0A). Returns false when
+    /// unsupported or the radio did not answer. Prefer <see cref="TryReadRfPowerWatts"/> when available.
+    /// </summary>
+    bool TryReadRfPowerLevel(out int level0To255)
+    {
+        level0To255 = 0;
+        return false;
+    }
+
+    /// <summary>
+    /// Toggle RTS or DTR on the CAT serial port. Returns false when the driver cannot
+    /// expose handshake lines (e.g. network Flex, or RTS already used for flow control).
+    /// </summary>
+    bool TrySetHandshakeLine(bool useRts, bool assert) => false;
 }

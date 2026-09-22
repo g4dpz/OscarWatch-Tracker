@@ -334,6 +334,21 @@
   <data name="ComPort.GpsAndUplink">
     <value>El GPS y la radio de subida usan ambos {0}. Usa puertos COM distintos o deshabilita uno de los dispositivos.</value>
   </data>
+  <data name="ComPort.Ft4PttAndRadio">
+    <value>El PTT separado de FT4 y la radio usan ambos {0}. Usa puertos COM distintos o deshabilita uno de los dispositivos.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndDownlink">
+    <value>El PTT separado de FT4 y la radio de bajada usan ambos {0}. Usa puertos COM distintos o deshabilita uno de los dispositivos.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndUplink">
+    <value>El PTT separado de FT4 y la radio de subida usan ambos {0}. Usa puertos COM distintos o deshabilita uno de los dispositivos.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndRotator">
+    <value>El PTT separado de FT4 y el rotador usan ambos {0}. Usa puertos COM distintos o deshabilita uno de los dispositivos.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndGps">
+    <value>El PTT separado de FT4 y el GPS usan ambos {0}. Usa puertos COM distintos o deshabilita uno de los dispositivos.</value>
+  </data>
   <data name="A11y.SatelliteSunlight">
     <value>Satélite a la luz del sol</value>
   </data>
@@ -914,6 +929,9 @@
   </data>
   <data name="Menu.Tools.QsoLogbook">
     <value>_Libro OscarWatch</value>
+  </data>
+  <data name="Menu.Tools.Ft4">
+    <value>_OscarWatch FT4</value>
   </data>
   <data name="Window.Logbook.Title">
     <value>Libro OscarWatch</value>
@@ -3926,5 +3944,323 @@ Está utilizando la versión {0}.
   </data>
   <data name="Logbook.CallHint.HamQth">
     <value>Nombre de HamQTH.</value>
+  </data>
+  <data name="Window.Ft4.Title">
+    <value>OscarWatch FT4</value>
+  </data>
+  <data name="Window.Ft4Settings.Title">
+    <value>Ajustes de OscarWatch FT4</value>
+  </data>
+  <data name="Ft4.OpenSettings">
+    <value>Ajustes</value>
+  </data>
+  <data name="Ft4.Settings.AudioSection">
+    <value>Tarjetas de sonido</value>
+  </data>
+  <data name="Ft4.Settings.PttSection">
+    <value>PTT</value>
+  </data>
+  <data name="Ft4.Settings.ModemSection">
+    <value>Módem</value>
+  </data>
+  <data name="Ft4.Settings.AppearanceSection">
+    <value>Apariencia</value>
+  </data>
+  <data name="Ft4.Ptt.LeadMs">
+    <value>Adelanto PTT (ms)</value>
+  </data>
+  <data name="Ft4.Ptt.TailMs">
+    <value>Cola PTT (ms)</value>
+  </data>
+  <data name="Ft4.HoldTxFrequency">
+    <value>Mantener frec. TX</value>
+  </data>
+  <data name="Ft4.HoldTxFrequency.Note">
+    <value>Conserva su Hz de audio TX al responder (estilo WSJT-X). Desmarque para saltar a la frecuencia del decode.</value>
+  </data>
+  <data name="Ft4.AudioDopplerTx">
+    <value>Doppler de audio en TX</value>
+  </data>
+  <data name="Ft4.AudioDopplerRx">
+    <value>Doppler de audio en RX</value>
+  </data>
+  <data name="Ft4.DecodeFontSize">
+    <value>Tamaño del texto de decode</value>
+  </data>
+  <data name="Ft4.DecodeFontSize.Note">
+    <value>Tamaño de fuente de la lista de decodes (10–28). Los tamaños mayores ayudan con visión reducida.</value>
+  </data>
+  <data name="Ft4.Settings.EchoSection">
+    <value>Calibración de eco</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Note">
+    <value>Cuando se decodifica su propio eco de uplink, OscarWatch ajusta este trim por satélite automáticamente. Puede editarlo o borrarlo aquí.</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Satellite">
+    <value>Satélite</value>
+  </data>
+  <data name="Ft4.EchoCalibration.TrimHz">
+    <value>Trim de uplink (Hz)</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Clear">
+    <value>Borrar</value>
+  </data>
+  <data name="Ft4.EchoCalibration.ClearAll">
+    <value>Borrar todo</value>
+  </data>
+  <data name="Ft4.EchoCalibration.NoSatellite">
+    <value>Enfoque un satélite en la ventana principal para editar su trim de eco, o decodifique un eco primero para que aparezca en la lista.</value>
+  </data>
+  <data name="Ft4.Status.EchoCleared">
+    <value>Calibración de eco borrada para {0}</value>
+  </data>
+  <data name="Ft4.Status.EchoClearedAll">
+    <value>Todas las calibraciones de eco borradas</value>
+  </data>
+  <data name="Ft4.TxLevel">
+    <value>Nivel de TX</value>
+  </data>
+  <data name="Ft4.EnableTx">
+    <value>Activar Tx</value>
+  </data>
+  <data name="Ft4.HaltTx">
+    <value>Detener Tx</value>
+  </data>
+  <data name="Ft4.CallCq">
+    <value>CQ</value>
+  </data>
+  <data name="Ft4.SkipRrr">
+    <value>Omitir RRR</value>
+  </data>
+  <data name="Ft4.PreferEvenSlot">
+    <value>Slots TX pares</value>
+  </data>
+  <data name="Ft4.PttMethod">
+    <value>Método PTT</value>
+  </data>
+  <data name="Ft4.Ptt.Vox">
+    <value>VOX / audio</value>
+  </data>
+  <data name="Ft4.Ptt.Cat">
+    <value>CAT</value>
+  </data>
+  <data name="Ft4.Ptt.CatPortHandshake">
+    <value>Puerto CAT RTS/DTR</value>
+  </data>
+  <data name="Ft4.Ptt.SeparateComPort">
+    <value>Puerto COM aparte</value>
+  </data>
+  <data name="Ft4.Ptt.Manual">
+    <value>Manual (aviso)</value>
+  </data>
+  <data name="Ft4.Status">
+    <value>Estado</value>
+  </data>
+  <data name="Ft4.Slot.Tx">
+    <value>TX</value>
+  </data>
+  <data name="Ft4.Slot.Rx">
+    <value>RX</value>
+  </data>
+  <data name="Ft4.Status.Idle">
+    <value>Inactivo</value>
+  </data>
+  <data name="Ft4.Status.Ready">
+    <value>Listo</value>
+  </data>
+  <data name="Ft4.Status.Listening">
+    <value>Escuchando</value>
+  </data>
+  <data name="Ft4.Status.Stopped">
+    <value>Detenido</value>
+  </data>
+  <data name="Ft4.Status.TxEnabled">
+    <value>Transmisión activada</value>
+  </data>
+  <data name="Ft4.Status.TxHalted">
+    <value>Transmisión detenida</value>
+  </data>
+  <data name="Ft4.Blocked.FmSatellite">
+    <value>FT4 no está disponible en satélites FM</value>
+  </data>
+  <data name="Ft4.Blocked.Fo29">
+    <value>FT4 no está permitido en FO-29 (restricción de licencia)</value>
+  </data>
+  <data name="Ft4.Blocked.RfPowerTooHigh">
+    <value>Transmisión FT4 bloqueada: la potencia de RF supera {0} W. Reduzca la potencia en la radio.</value>
+  </data>
+  <data name="Ft4.Status.CallingCq">
+    <value>Llamando CQ</value>
+  </data>
+  <data name="Ft4.Status.NoTxMessage">
+    <value>Escriba o genere un mensaje TX primero</value>
+  </data>
+  <data name="Ft4.Status.WatchdogStopped">
+    <value>Transmisión detenida (watchdog)</value>
+  </data>
+  <data name="Ft4.Status.ModemError">
+    <value>Error del módem: {0}</value>
+  </data>
+  <data name="Ft4.Status.TxError">
+    <value>Error de TX: {0}</value>
+  </data>
+  <data name="Ft4.Status.EncodeFailed">
+    <value>Error al codificar</value>
+  </data>
+  <data name="Ft4.Status.TxDone">
+    <value>TX terminado: {0}</value>
+  </data>
+  <data name="Ft4.Status.EchoCalibration">
+    <value>Calibración de eco {0:0} Hz en {1}</value>
+  </data>
+  <data name="Ft4.Status.NothingToLog">
+    <value>Nada que registrar. Responde a una decodificación o inicia un QSO primero.</value>
+  </data>
+  <data name="Ft4.Status.NeedLogbook">
+    <value>Crea un logbook en Herramientas → OscarWatch Logbook primero.</value>
+  </data>
+  <data name="Ft4.Status.LoggedManual">
+    <value>QSO con {0} registrado (manual)</value>
+  </data>
+  <data name="Ft4.Status.LogbookSaveFailed">
+    <value>Error al guardar en el logbook</value>
+  </data>
+  <data name="Ft4.Status.ClockWarning">
+    <value>El reloj del PC puede estar desfasado respecto a UTC (DT reciente ~{0:0.0} s). Sincroniza la hora e inténtalo de nuevo.</value>
+  </data>
+  <data name="Ft4.TxLevelMeter">
+    <value>Medidor de nivel TX</value>
+  </data>
+  <data name="Ft4.ManualKey">
+    <value>Pulse el transmisor ahora</value>
+  </data>
+  <data name="Ft4.ManualUnkey">
+    <value>Suelte el transmisor ahora</value>
+  </data>
+  <data name="Ft4.Logged">
+    <value>QSO registrado con {0}</value>
+  </data>
+  <data name="Ft4.ClearDecodes">
+    <value>Borrar</value>
+  </data>
+  <data name="Ft4.SaveActivity">
+    <value>Guardar actividad</value>
+  </data>
+  <data name="Ft4.SaveActivity.Title">
+    <value>Guardar actividad FT4</value>
+  </data>
+  <data name="Ft4.SaveActivity.FileType">
+    <value>Archivos de texto</value>
+  </data>
+  <data name="Ft4.ManualLog">
+    <value>Registrar QSO</value>
+  </data>
+  <data name="Ft4.Status.DecodesCleared">
+    <value>Lista de decodes borrada</value>
+  </data>
+  <data name="Ft4.Status.NoActivity">
+    <value>No hay actividad para guardar</value>
+  </data>
+  <data name="Ft4.Status.ActivitySaved">
+    <value>Actividad guardada en {0}</value>
+  </data>
+  <data name="Ft4.Status.SaveActivityFailed">
+    <value>No se pudo guardar la actividad: {0}</value>
+  </data>
+  <data name="Ft4.NativeUnavailable">
+    <value>No se encontró la biblioteca nativa FT4. Decodificación y generación no disponibles.</value>
+  </data>
+  <data name="Ft4.Status.NeedStation">
+    <value>Configure su indicativo y cuadrícula en Ajustes, Estación.</value>
+  </data>
+  <data name="Ft4.Status.Answering">
+    <value>Respondiendo a {0}</value>
+  </data>
+  <data name="Ft4.Waterfall">
+    <value>Cascada</value>
+  </data>
+  <data name="Ft4.Waterfall.Unavailable">
+    <value>Cascada esperando audio</value>
+  </data>
+  <data name="Ft4.Waterfall.Listening">
+    <value>Escuchando</value>
+  </data>
+  <data name="Ft4.Waterfall.ListeningSat">
+    <value>Escuchando ({0})</value>
+  </data>
+  <data name="Ft4.SlotClock">
+    <value>Reloj de slot</value>
+  </data>
+  <data name="Ft4.Doppler">
+    <value>Doppler</value>
+  </data>
+  <data name="Ft4.DopplerUplink">
+    <value>Uplink:</value>
+  </data>
+  <data name="Ft4.DopplerDownlink">
+    <value>Downlink:</value>
+  </data>
+  <data name="Ft4.Decodes">
+    <value>Decodificaciones</value>
+  </data>
+  <data name="Ft4.Decodes.Time">
+    <value>UTC</value>
+  </data>
+  <data name="Ft4.Decodes.Kind">
+    <value>TX</value>
+  </data>
+  <data name="Ft4.Decodes.Dt">
+    <value>DT</value>
+  </data>
+  <data name="Ft4.Decodes.Snr">
+    <value>SNR</value>
+  </data>
+  <data name="Ft4.Decodes.Hz">
+    <value>Hz</value>
+  </data>
+  <data name="Ft4.Decodes.Message">
+    <value>Mensaje</value>
+  </data>
+  <data name="Ft4.Decodes.Tx">
+    <value>TX</value>
+  </data>
+  <data name="Ft4.Decodes.Echo">
+    <value>Eco</value>
+  </data>
+  <data name="Ft4.TxMessage">
+    <value>Mensaje TX</value>
+  </data>
+  <data name="Ft4.TxMessage.Watermark">
+    <value>Configure indicativo y grid en Ajustes → Estación</value>
+  </data>
+  <data name="Ft4.Audio.Output">
+    <value>Tarjeta de sonido de salida</value>
+  </data>
+  <data name="Ft4.Ptt.SeparatePort">
+    <value>Puerto COM PTT</value>
+  </data>
+  <data name="Ft4.Waterfall.ClickHint">
+    <value>Clic para fijar la frecuencia de audio TX (Hz). La línea roja es el tono TX actual.</value>
+  </data>
+  <data name="Ft4.Audio.SystemDefault">
+    <value>Predeterminada del sistema</value>
+  </data>
+  <data name="Ft4.Audio.Input">
+    <value>Tarjeta de sonido de entrada</value>
+  </data>
+  <data name="Ft4.Ptt.Line">
+    <value>Línea PTT</value>
+  </data>
+  <data name="Ft4.Ptt.Invert">
+    <value>Invertir</value>
+  </data>
+  <data name="Ft4.Ptt.Dtr">
+    <value>DTR</value>
+  </data>
+  <data name="Ft4.Ptt.Rts">
+    <value>RTS</value>
+  </data>
+  <data name="Ft4.TxAudioHz">
+    <value>Audio TX (Hz)</value>
   </data>
 </root>

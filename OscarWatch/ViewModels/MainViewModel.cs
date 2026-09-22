@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using OscarWatch.Core.Display;
+using OscarWatch.Core.Ft4;
 using OscarWatch.Core.Hardware;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Radio;
@@ -251,6 +252,7 @@ public partial class MainViewModel : ViewModelBase
     private bool _soloFocusedSatellite;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(OpenFt4Command))]
     private string? _focusedNoradId;
 
     private string? _ts2000SatlWarningPassKey;
@@ -440,6 +442,14 @@ public partial class MainViewModel : ViewModelBase
         _satelliteDatabase = satelliteDatabase;
         Frequencies = frequencies;
         DxStation = dxStation;
+        Frequencies.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(FrequencyOverlayViewModel.SelectedMode)
+                or nameof(FrequencyOverlayViewModel.SatelliteName))
+            {
+                OpenFt4Command.NotifyCanExecuteChanged();
+            }
+        };
         Frequencies.OffsetsChanged += (_, reinitializePass) =>
         {
             RefreshRigFromOverlay(reinitializePass);
@@ -2422,6 +2432,7 @@ public partial class MainViewModel : ViewModelBase
     }
 
     private static QsoLogbookWindow? _openLogbookWindow;
+    private static Ft4Window? _openFt4Window;
 
     [RelayCommand]
     private void OpenQsoLogbook()
@@ -2442,6 +2453,32 @@ public partial class MainViewModel : ViewModelBase
 
         window.Show(App.MainWindow);
     }
+
+    [RelayCommand(CanExecute = nameof(CanOpenFt4))]
+    private void OpenFt4()
+    {
+        _trackerSnapshot.FocusedNoradId = FocusedNoradId;
+        if (_openFt4Window is { IsVisible: true })
+        {
+            _openFt4Window.Activate();
+            return;
+        }
+
+        var vm = App.Services.GetRequiredService<Ft4ViewModel>();
+        var window = new Ft4Window { DataContext = vm };
+        window.Closed += (_, _) => _openFt4Window = null;
+        _openFt4Window = window;
+        if (App.MainWindow is null)
+            return;
+
+        window.Show(App.MainWindow);
+    }
+
+    private bool CanOpenFt4() =>
+        Ft4SatelliteEligibility.IsAllowed(
+            Frequencies.SatelliteName,
+            FocusedNoradId,
+            Frequencies.SelectedMode);
 
     [RelayCommand]
     private async Task OpenSettingsAsync()

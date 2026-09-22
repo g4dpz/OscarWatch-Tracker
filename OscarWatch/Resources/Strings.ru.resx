@@ -338,6 +338,21 @@ LOS: {2}
   <data name="ComPort.GpsAndUplink">
     <value>GPS и аплинк оба используют {0}. Назначьте разные COM-порты или отключите одно устройство.</value>
   </data>
+  <data name="ComPort.Ft4PttAndRadio">
+    <value>Отдельный PTT FT4 и радио оба используют {0}. Используйте разные COM-порты или отключите одно из устройств.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndDownlink">
+    <value>Отдельный PTT FT4 и радио приёма оба используют {0}. Используйте разные COM-порты или отключите одно из устройств.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndUplink">
+    <value>Отдельный PTT FT4 и радио передачи оба используют {0}. Используйте разные COM-порты или отключите одно из устройств.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndRotator">
+    <value>Отдельный PTT FT4 и ротатор оба используют {0}. Используйте разные COM-порты или отключите одно из устройств.</value>
+  </data>
+  <data name="ComPort.Ft4PttAndGps">
+    <value>Отдельный PTT FT4 и GPS оба используют {0}. Используйте разные COM-порты или отключите одно из устройств.</value>
+  </data>
   <data name="A11y.SatelliteSunlight">
     <value>Спутник на солнце</value>
   </data>
@@ -573,6 +588,9 @@ LOS: {2}
   </data>
   <data name="Menu.Tools.QsoLogbook">
     <value>_Журнал OscarWatch</value>
+  </data>
+  <data name="Menu.Tools.Ft4">
+    <value>_OscarWatch FT4</value>
   </data>
   <data name="Menu.Satellites">
     <value>_Спутники</value>
@@ -3931,4 +3949,323 @@ LOS: {2}
   <data name="Logbook.CallHint.HamQth">
     <value>Имя из HamQTH.</value>
   </data>
+  <data name="Window.Ft4.Title">
+    <value>OscarWatch FT4</value>
+  </data>
+  <data name="Window.Ft4Settings.Title">
+    <value>Настройки OscarWatch FT4</value>
+  </data>
+  <data name="Ft4.OpenSettings">
+    <value>Настройки</value>
+  </data>
+  <data name="Ft4.Settings.AudioSection">
+    <value>Звуковые карты</value>
+  </data>
+  <data name="Ft4.Settings.PttSection">
+    <value>PTT</value>
+  </data>
+  <data name="Ft4.Settings.ModemSection">
+    <value>Модем</value>
+  </data>
+  <data name="Ft4.Settings.AppearanceSection">
+    <value>Оформление</value>
+  </data>
+  <data name="Ft4.Ptt.LeadMs">
+    <value>Опережение PTT (мс)</value>
+  </data>
+  <data name="Ft4.Ptt.TailMs">
+    <value>Хвост PTT (мс)</value>
+  </data>
+  <data name="Ft4.HoldTxFrequency">
+    <value>Держать частоту TX</value>
+  </data>
+  <data name="Ft4.HoldTxFrequency.Note">
+    <value>Сохраняет ваш TX-аудио Гц при ответе (как в WSJT-X). Снимите, чтобы перейти на частоту декода.</value>
+  </data>
+  <data name="Ft4.AudioDopplerTx">
+    <value>Аудио-Доплер на TX</value>
+  </data>
+  <data name="Ft4.AudioDopplerRx">
+    <value>Аудио-Доплер на RX</value>
+  </data>
+  <data name="Ft4.DecodeFontSize">
+    <value>Размер текста декодов</value>
+  </data>
+  <data name="Ft4.DecodeFontSize.Note">
+    <value>Размер шрифта списка декодов (10–28). Больший размер удобнее при слабом зрении.</value>
+  </data>
+  <data name="Ft4.Settings.EchoSection">
+    <value>Калибровка эха</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Note">
+    <value>Когда декодируется ваше собственное эхо аплинка, OscarWatch автоматически подстраивает эту поправку для спутника. Здесь её можно изменить или сбросить.</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Satellite">
+    <value>Спутник</value>
+  </data>
+  <data name="Ft4.EchoCalibration.TrimHz">
+    <value>Поправка аплинка (Гц)</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Clear">
+    <value>Очистить</value>
+  </data>
+  <data name="Ft4.EchoCalibration.ClearAll">
+    <value>Очистить всё</value>
+  </data>
+  <data name="Ft4.EchoCalibration.NoSatellite">
+    <value>Сфокусируйте спутник в главном окне, чтобы править поправку эха, или сначала декодируйте эхо, чтобы спутник появился в списке.</value>
+  </data>
+  <data name="Ft4.Status.EchoCleared">
+    <value>Калибровка эха для {0} сброшена</value>
+  </data>
+  <data name="Ft4.Status.EchoClearedAll">
+    <value>Все калибровки эха сброшены</value>
+  </data>
+  <data name="Ft4.TxLevel">
+    <value>Уровень TX</value>
+  </data>
+  <data name="Ft4.EnableTx">
+    <value>Включить Tx</value>
+  </data>
+  <data name="Ft4.HaltTx">
+    <value>Остановить Tx</value>
+  </data>
+  <data name="Ft4.CallCq">
+    <value>CQ</value>
+  </data>
+  <data name="Ft4.SkipRrr">
+    <value>Пропустить RRR</value>
+  </data>
+  <data name="Ft4.PreferEvenSlot">
+    <value>Чётные TX-слоты</value>
+  </data>
+  <data name="Ft4.PttMethod">
+    <value>Метод PTT</value>
+  </data>
+  <data name="Ft4.Ptt.Vox">
+    <value>VOX / звук</value>
+  </data>
+  <data name="Ft4.Ptt.Cat">
+    <value>CAT</value>
+  </data>
+  <data name="Ft4.Ptt.CatPortHandshake">
+    <value>CAT-порт RTS/DTR</value>
+  </data>
+  <data name="Ft4.Ptt.SeparateComPort">
+    <value>Отдельный COM-порт</value>
+  </data>
+  <data name="Ft4.Ptt.Manual">
+    <value>Вручную (подсказка)</value>
+  </data>
+  <data name="Ft4.Status">
+    <value>Состояние</value>
+  </data>
+  <data name="Ft4.Slot.Tx">
+    <value>TX</value>
+  </data>
+  <data name="Ft4.Slot.Rx">
+    <value>RX</value>
+  </data>
+  <data name="Ft4.Status.Idle">
+    <value>Ожидание</value>
+  </data>
+  <data name="Ft4.Status.Ready">
+    <value>Готово</value>
+  </data>
+  <data name="Ft4.Status.Listening">
+    <value>Приём</value>
+  </data>
+  <data name="Ft4.Status.Stopped">
+    <value>Остановлено</value>
+  </data>
+  <data name="Ft4.Status.TxEnabled">
+    <value>Передача включена</value>
+  </data>
+  <data name="Ft4.Status.TxHalted">
+    <value>Передача остановлена</value>
+  </data>
+  <data name="Ft4.Blocked.FmSatellite">
+    <value>FT4 недоступен на ЧМ-спутниках</value>
+  </data>
+  <data name="Ft4.Blocked.Fo29">
+    <value>FT4 не разрешён на FO-29 (ограничение лицензии)</value>
+  </data>
+  <data name="Ft4.Blocked.RfPowerTooHigh">
+    <value>Передача FT4 заблокирована: мощность ВЧ выше {0} Вт. Уменьшите мощность на радиостанции.</value>
+  </data>
+  <data name="Ft4.Status.CallingCq">
+    <value>Вызов CQ</value>
+  </data>
+  <data name="Ft4.Status.NoTxMessage">
+    <value>Сначала введите или создайте TX-сообщение</value>
+  </data>
+  <data name="Ft4.Status.WatchdogStopped">
+    <value>Передача остановлена (watchdog)</value>
+  </data>
+  <data name="Ft4.Status.ModemError">
+    <value>Ошибка модема: {0}</value>
+  </data>
+  <data name="Ft4.Status.TxError">
+    <value>Ошибка TX: {0}</value>
+  </data>
+  <data name="Ft4.Status.EncodeFailed">
+    <value>Ошибка кодирования</value>
+  </data>
+  <data name="Ft4.Status.TxDone">
+    <value>TX завершён: {0}</value>
+  </data>
+  <data name="Ft4.Status.EchoCalibration">
+    <value>Калибровка эха {0:0} Гц на {1}</value>
+  </data>
+  <data name="Ft4.Status.NothingToLog">
+    <value>Нечего записывать. Сначала ответьте на декод или начните QSO.</value>
+  </data>
+  <data name="Ft4.Status.NeedLogbook">
+    <value>Сначала создайте журнал в Инструменты → OscarWatch Logbook.</value>
+  </data>
+  <data name="Ft4.Status.LoggedManual">
+    <value>QSO с {0} записано (вручную)</value>
+  </data>
+  <data name="Ft4.Status.LogbookSaveFailed">
+    <value>Не удалось сохранить журнал</value>
+  </data>
+  <data name="Ft4.Status.ClockWarning">
+    <value>Часы ПК могут отличаться от UTC (недавний DT около {0:0.0} с). Синхронизируйте время и повторите.</value>
+  </data>
+  <data name="Ft4.TxLevelMeter">
+    <value>Индикатор уровня TX</value>
+  </data>
+  <data name="Ft4.ManualKey">
+    <value>Включите передатчик сейчас</value>
+  </data>
+  <data name="Ft4.ManualUnkey">
+    <value>Выключите передатчик сейчас</value>
+  </data>
+  <data name="Ft4.Logged">
+    <value>QSO с {0} записано</value>
+  </data>
+  <data name="Ft4.ClearDecodes">
+    <value>Очистить</value>
+  </data>
+  <data name="Ft4.SaveActivity">
+    <value>Сохранить активность</value>
+  </data>
+  <data name="Ft4.SaveActivity.Title">
+    <value>Сохранить активность FT4</value>
+  </data>
+  <data name="Ft4.SaveActivity.FileType">
+    <value>Текстовые файлы</value>
+  </data>
+  <data name="Ft4.ManualLog">
+    <value>Записать QSO</value>
+  </data>
+  <data name="Ft4.Status.DecodesCleared">
+    <value>Список декодов очищен</value>
+  </data>
+  <data name="Ft4.Status.NoActivity">
+    <value>Нет активности для сохранения</value>
+  </data>
+  <data name="Ft4.Status.ActivitySaved">
+    <value>Активность сохранена в {0}</value>
+  </data>
+  <data name="Ft4.Status.SaveActivityFailed">
+    <value>Не удалось сохранить активность: {0}</value>
+  </data>
+  <data name="Ft4.NativeUnavailable">
+    <value>Нативная библиотека FT4 не найдена. Декодирование и генерация недоступны.</value>
+  </data>
+  <data name="Ft4.Status.NeedStation">
+    <value>Укажите позывной и грид в Настройки, Станция.</value>
+  </data>
+  <data name="Ft4.Status.Answering">
+    <value>Ответ {0}</value>
+  </data>
+  <data name="Ft4.Waterfall">
+    <value>Водопад</value>
+  </data>
+  <data name="Ft4.Waterfall.Unavailable">
+    <value>Водопад ждёт аудио</value>
+  </data>
+  <data name="Ft4.Waterfall.Listening">
+    <value>Приём</value>
+  </data>
+  <data name="Ft4.Waterfall.ListeningSat">
+    <value>Приём ({0})</value>
+  </data>
+  <data name="Ft4.SlotClock">
+    <value>Часы слота</value>
+  </data>
+  <data name="Ft4.Doppler">
+    <value>Доплер</value>
+  </data>
+  <data name="Ft4.DopplerUplink">
+    <value>Аплинк:</value>
+  </data>
+  <data name="Ft4.DopplerDownlink">
+    <value>Даунлинк:</value>
+  </data>
+  <data name="Ft4.Decodes">
+    <value>Декоды</value>
+  </data>
+  <data name="Ft4.Decodes.Time">
+    <value>UTC</value>
+  </data>
+  <data name="Ft4.Decodes.Kind">
+    <value>TX</value>
+  </data>
+  <data name="Ft4.Decodes.Dt">
+    <value>DT</value>
+  </data>
+  <data name="Ft4.Decodes.Snr">
+    <value>SNR</value>
+  </data>
+  <data name="Ft4.Decodes.Hz">
+    <value>Гц</value>
+  </data>
+  <data name="Ft4.Decodes.Message">
+    <value>Сообщение</value>
+  </data>
+  <data name="Ft4.Decodes.Tx">
+    <value>TX</value>
+  </data>
+  <data name="Ft4.Decodes.Echo">
+    <value>Эхо</value>
+  </data>
+  <data name="Ft4.TxMessage">
+    <value>TX-сообщение</value>
+  </data>
+  <data name="Ft4.TxMessage.Watermark">
+    <value>Укажите позывной и грид в Настройки → Станция</value>
+  </data>
+  <data name="Ft4.Audio.Output">
+    <value>Выходная звуковая карта</value>
+  </data>
+  <data name="Ft4.Ptt.SeparatePort">
+    <value>COM-порт PTT</value>
+  </data>
+  <data name="Ft4.Waterfall.ClickHint">
+    <value>Щёлкните, чтобы задать частоту TX-аудио (Гц). Красная линия — текущий тон TX.</value>
+  </data>
+  <data name="Ft4.Audio.SystemDefault">
+    <value>Системная по умолчанию</value>
+  </data>
+  <data name="Ft4.Audio.Input">
+    <value>Входная звуковая карта</value>
+  </data>
+  <data name="Ft4.Ptt.Line">
+    <value>Линия PTT</value>
+  </data>
+  <data name="Ft4.Ptt.Invert">
+    <value>Инверсия</value>
+  </data>
+  <data name="Ft4.Ptt.Dtr">
+    <value>DTR</value>
+  </data>
+  <data name="Ft4.Ptt.Rts">
+    <value>RTS</value>
+  </data>
+  <data name="Ft4.TxAudioHz">
+    <value>TX-аудио (Гц)</value>
+  </data>
+
 </root>

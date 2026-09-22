@@ -141,4 +141,29 @@ public sealed class YaesuFt991DriverTests
         Assert.Null(transport.Transact("MD0;")); // no canned read reply
         Assert.Equal(2, transport.SentCommands.Count);
     }
+
+    [Fact]
+    public void TryReadRfPowerWatts_reads_pc_command()
+    {
+        var transport = new RecordingYaesuNewCatTransport { RfPowerWatts = 45 };
+        var driver = new YaesuFt991Driver(RigType.YaesuFt991, transport);
+        driver.Open();
+        transport.SentCommands.Clear();
+
+        Assert.True(driver.SupportsRfPowerRead);
+        Assert.True(driver.TryReadRfPowerWatts(out var watts));
+        Assert.Equal(45.0, watts);
+        Assert.Contains("PC;", transport.SentCommands);
+    }
+
+    [Fact]
+    public void Ft991a_TryReadRfPowerWatts_reads_pc_command()
+    {
+        var transport = new RecordingYaesuNewCatTransport { RfPowerWatts = 20 };
+        var driver = new YaesuFt991aDriver(transport);
+        driver.Open();
+
+        Assert.True(driver.TryReadRfPowerWatts(out var watts));
+        Assert.Equal(20.0, watts);
+    }
 }

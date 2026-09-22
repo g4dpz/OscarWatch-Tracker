@@ -88,7 +88,7 @@ internal static class RecordingDeviceResolver
         var matches = inputs
             .Where(d => d.MaxInputChannels > 0
                         && d.RawName.Trim().Equals(rawName, StringComparison.OrdinalIgnoreCase))
-            .OrderBy(d => d.DefaultLowInputLatency)
+            .OrderByDescending(d => d.DefaultLowInputLatency)
             .ThenBy(d => d.Index)
             .ToList();
         return matches.Count > 0 ? matches[0].Index : -1;
@@ -100,6 +100,8 @@ internal static class RecordingDeviceResolver
         if (formattedStored.Length == 0)
             return -1;
 
+        // Prefer higher-latency host APIs (MME/shared) so Virtual Audio Cable can be
+        // shared with WSJT-X; WDM-KS exclusive often wins on lowest latency alone.
         var matches = inputs
             .Where(d =>
             {
@@ -108,7 +110,7 @@ internal static class RecordingDeviceResolver
                 var formatted = RecordingDeviceNameFormatter.Format(d.RawName);
                 return formatted.Equals(formattedStored, StringComparison.OrdinalIgnoreCase);
             })
-            .OrderBy(d => d.DefaultLowInputLatency)
+            .OrderByDescending(d => d.DefaultLowInputLatency)
             .ThenBy(d => d.Index)
             .ToList();
         return matches.Count > 0 ? matches[0].Index : -1;

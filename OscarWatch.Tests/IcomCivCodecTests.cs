@@ -152,6 +152,29 @@ public class IcomCivCodecTests
         Assert.Equal("05000000680301", Convert.ToHexString(body).ToLowerInvariant());
     }
 
+    [Theory]
+    [InlineData(0, 0x00, 0x00)]
+    [InlineData(128, 0x01, 0x28)]
+    [InlineData(255, 0x02, 0x55)]
+    public void EncodeLevel255_matches_packed_bcd(int level, byte high, byte low)
+    {
+        var (h, l) = IcomCivCodec.EncodeLevel255(level);
+        Assert.Equal(high, h);
+        Assert.Equal(low, l);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(64)]
+    [InlineData(128)]
+    [InlineData(255)]
+    public void DecodeLevel255FromResponse_round_trips(int level)
+    {
+        var (high, low) = IcomCivCodec.EncodeLevel255(level);
+        var response = new byte[] { 0xFE, 0xFE, 0xE0, 0xA2, 0x14, 0x0A, high, low, 0xFD };
+        Assert.Equal(level, IcomCivCodec.DecodeLevel255FromResponse(response));
+    }
+
     private static byte[] BuildReadResponseFromHz(long hz)
     {
         var body = IcomCivCodec.EncodeSetFrequencyHz(hz);

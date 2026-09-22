@@ -18,7 +18,7 @@ You do **not** need to be a programmer to use published builds.
 - **Pass list**: upcoming passes with max elevation and time-to-AOS; right-click a row for a polar **pass plot** at your QTH; sidebar scrolls on smaller windows
 - **Frequency panel**: transponder modes from a built-in database, live uplink/downlink with Doppler, RX offsets (separate for Voice and CW on linear SSB), and CTCSS (access/arm tones). Keyboard shortcuts: [help/keyboard-shortcuts.html](help/keyboard-shortcuts.html) (**Ctrl+W**, numpad **+** / **−** for RX offset, **S** for solo map view, map arrows, etc.)
 - **Optional automation**: serial **rotator** tracking and **radio CAT** (Doppler, satellite/split layout, tones) during a pass
-- **Optional extras**: voice “satellite rising” alerts, pass **WAV recording**, **Cloudlog** frequency sync, **GPS** (NMEA serial) for station position and optional UTC for tracking, local **OscarWatch Logbook** with ADIF export (**Tools → OscarWatch Logbook**)
+- **Optional extras**: voice “satellite rising” alerts, pass **WAV recording**, **Cloudlog** frequency sync, **GPS** (NMEA serial) for station position and optional UTC for tracking, local **OscarWatch Logbook** with ADIF export (**Tools → OscarWatch Logbook**), in-app **OscarWatch FT4** modem for duplex satellite digital (**Tools → OscarWatch FT4**; [help](help/ft4.html))
 
 OscarWatch does **not** decode telemetry; it is a pass-tracking and station-assist tool for the shack or field, with a built-in lightweight logbook for satellite QSOs during a pass (export ADIF for your main logger).
 
@@ -92,6 +92,7 @@ Plain-language help ships with the app: **Help → Operator guide** (also in the
 - **Rotator control**: serial pass tracking, manual park, and **manual rotator** (az/el dialog in Standby for quick contacts between passes); Settings → Rotator (see [Supported hardware](#supported-hardware))
 - **Cloudlog**: optional Radio API v2 uplink/downlink when tracking (Settings → Cloudlog)
 - **OscarWatch Logbook**: local satellite logging (**Tools → OscarWatch Logbook**): UTC timestamps, multiple logbooks, fast entry during a pass (satellite/mode/frequencies from tracking), grid-line multi-grid support, ADIF export ([help](help/qso-logbook.html))
+- **OscarWatch FT4**: in-app duplex FT4 (**Tools → OscarWatch FT4**) with waterfall, auto-sequence, PTT methods, slot-gated Doppler, echo calibration, and logbook save ([help](help/ft4.html))
 - **Appearance**: light, dark, or system theme (sky plot adapts; world map image stays light); 12- or 24-hour clock; optional greyline and footprint motion arrows on the map
 
 ## Supported hardware

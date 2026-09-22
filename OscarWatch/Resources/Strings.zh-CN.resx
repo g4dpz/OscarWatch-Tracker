@@ -334,6 +334,21 @@
   <data name="ComPort.GpsAndUplink">
     <value>GPS 和上行电台都使用 {0}。请使用不同的 COM 端口或禁用其中一个设备。</value>
   </data>
+  <data name="ComPort.Ft4PttAndRadio">
+    <value>FT4 独立 PTT 与电台都在使用 {0}。请使用不同的 COM 端口，或禁用其中一个设备。</value>
+  </data>
+  <data name="ComPort.Ft4PttAndDownlink">
+    <value>FT4 独立 PTT 与下行电台都在使用 {0}。请使用不同的 COM 端口，或禁用其中一个设备。</value>
+  </data>
+  <data name="ComPort.Ft4PttAndUplink">
+    <value>FT4 独立 PTT 与上行电台都在使用 {0}。请使用不同的 COM 端口，或禁用其中一个设备。</value>
+  </data>
+  <data name="ComPort.Ft4PttAndRotator">
+    <value>FT4 独立 PTT 与旋转器都在使用 {0}。请使用不同的 COM 端口，或禁用其中一个设备。</value>
+  </data>
+  <data name="ComPort.Ft4PttAndGps">
+    <value>FT4 独立 PTT 与 GPS 都在使用 {0}。请使用不同的 COM 端口，或禁用其中一个设备。</value>
+  </data>
   <data name="A11y.SatelliteSunlight">
     <value>卫星处于日照中</value>
   </data>
@@ -914,6 +929,9 @@
   </data>
   <data name="Menu.Tools.QsoLogbook">
     <value>_OscarWatch 日志</value>
+  </data>
+  <data name="Menu.Tools.Ft4">
+    <value>_OscarWatch FT4</value>
   </data>
   <data name="Window.Logbook.Title">
     <value>OscarWatch 日志</value>
@@ -3927,4 +3945,323 @@
   <data name="Logbook.CallHint.HamQth">
     <value>来自 HamQTH 的姓名。</value>
   </data>
+  <data name="Window.Ft4.Title">
+    <value>OscarWatch FT4</value>
+  </data>
+  <data name="Window.Ft4Settings.Title">
+    <value>OscarWatch FT4 设置</value>
+  </data>
+  <data name="Ft4.OpenSettings">
+    <value>设置</value>
+  </data>
+  <data name="Ft4.Settings.AudioSection">
+    <value>声卡</value>
+  </data>
+  <data name="Ft4.Settings.PttSection">
+    <value>PTT</value>
+  </data>
+  <data name="Ft4.Settings.ModemSection">
+    <value>调制解调器</value>
+  </data>
+  <data name="Ft4.Settings.AppearanceSection">
+    <value>外观</value>
+  </data>
+  <data name="Ft4.Ptt.LeadMs">
+    <value>PTT 提前 (ms)</value>
+  </data>
+  <data name="Ft4.Ptt.TailMs">
+    <value>PTT 延后 (ms)</value>
+  </data>
+  <data name="Ft4.HoldTxFrequency">
+    <value>保持 TX 频率</value>
+  </data>
+  <data name="Ft4.HoldTxFrequency.Note">
+    <value>应答时保持您的 TX 音频 Hz（WSJT-X 风格）。取消选中则跳到解码频率。</value>
+  </data>
+  <data name="Ft4.AudioDopplerTx">
+    <value>TX 音频多普勒</value>
+  </data>
+  <data name="Ft4.AudioDopplerRx">
+    <value>RX 音频多普勒</value>
+  </data>
+  <data name="Ft4.DecodeFontSize">
+    <value>解码文字大小</value>
+  </data>
+  <data name="Ft4.DecodeFontSize.Note">
+    <value>解码列表字体大小（10–28）。较大字号便于视力较弱时阅读。</value>
+  </data>
+  <data name="Ft4.Settings.EchoSection">
+    <value>回波校准</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Note">
+    <value>解码到您自己的上行回波时，OscarWatch 会自动调整此按卫星的微调。可在此编辑或清除。</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Satellite">
+    <value>卫星</value>
+  </data>
+  <data name="Ft4.EchoCalibration.TrimHz">
+    <value>上行微调 (Hz)</value>
+  </data>
+  <data name="Ft4.EchoCalibration.Clear">
+    <value>清除</value>
+  </data>
+  <data name="Ft4.EchoCalibration.ClearAll">
+    <value>全部清除</value>
+  </data>
+  <data name="Ft4.EchoCalibration.NoSatellite">
+    <value>在主窗口聚焦一颗卫星以编辑其回波微调，或先解码回波使其出现在列表中。</value>
+  </data>
+  <data name="Ft4.Status.EchoCleared">
+    <value>已清除 {0} 的回波校准</value>
+  </data>
+  <data name="Ft4.Status.EchoClearedAll">
+    <value>已清除全部回波校准</value>
+  </data>
+  <data name="Ft4.TxLevel">
+    <value>TX 电平</value>
+  </data>
+  <data name="Ft4.EnableTx">
+    <value>启用发射</value>
+  </data>
+  <data name="Ft4.HaltTx">
+    <value>停止发射</value>
+  </data>
+  <data name="Ft4.CallCq">
+    <value>CQ</value>
+  </data>
+  <data name="Ft4.SkipRrr">
+    <value>跳过 RRR</value>
+  </data>
+  <data name="Ft4.PreferEvenSlot">
+    <value>偶数发射时隙</value>
+  </data>
+  <data name="Ft4.PttMethod">
+    <value>PTT 方式</value>
+  </data>
+  <data name="Ft4.Ptt.Vox">
+    <value>VOX / 音频</value>
+  </data>
+  <data name="Ft4.Ptt.Cat">
+    <value>CAT</value>
+  </data>
+  <data name="Ft4.Ptt.CatPortHandshake">
+    <value>CAT 端口 RTS/DTR</value>
+  </data>
+  <data name="Ft4.Ptt.SeparateComPort">
+    <value>独立 COM 口</value>
+  </data>
+  <data name="Ft4.Ptt.Manual">
+    <value>手动（提示）</value>
+  </data>
+  <data name="Ft4.Status">
+    <value>状态</value>
+  </data>
+  <data name="Ft4.Slot.Tx">
+    <value>TX</value>
+  </data>
+  <data name="Ft4.Slot.Rx">
+    <value>RX</value>
+  </data>
+  <data name="Ft4.Status.Idle">
+    <value>空闲</value>
+  </data>
+  <data name="Ft4.Status.Ready">
+    <value>就绪</value>
+  </data>
+  <data name="Ft4.Status.Listening">
+    <value>正在监听</value>
+  </data>
+  <data name="Ft4.Status.Stopped">
+    <value>已停止</value>
+  </data>
+  <data name="Ft4.Status.TxEnabled">
+    <value>已启用发射</value>
+  </data>
+  <data name="Ft4.Status.TxHalted">
+    <value>已停止发射</value>
+  </data>
+  <data name="Ft4.Blocked.FmSatellite">
+    <value>FM 卫星上不可使用 FT4</value>
+  </data>
+  <data name="Ft4.Blocked.Fo29">
+    <value>FO-29 不允许使用 FT4（许可证限制）</value>
+  </data>
+  <data name="Ft4.Blocked.RfPowerTooHigh">
+    <value>已阻止 FT4 发射：射频功率高于 {0} W。请调低电台功率。</value>
+  </data>
+  <data name="Ft4.Status.CallingCq">
+    <value>正在呼叫 CQ</value>
+  </data>
+  <data name="Ft4.Status.NoTxMessage">
+    <value>请先输入或生成 TX 消息</value>
+  </data>
+  <data name="Ft4.Status.WatchdogStopped">
+    <value>发射已停止（看门狗）</value>
+  </data>
+  <data name="Ft4.Status.ModemError">
+    <value>调制解调器错误：{0}</value>
+  </data>
+  <data name="Ft4.Status.TxError">
+    <value>发射错误：{0}</value>
+  </data>
+  <data name="Ft4.Status.EncodeFailed">
+    <value>编码失败</value>
+  </data>
+  <data name="Ft4.Status.TxDone">
+    <value>发射完成：{0}</value>
+  </data>
+  <data name="Ft4.Status.EchoCalibration">
+    <value>回波校准 {0:0} Hz（{1}）</value>
+  </data>
+  <data name="Ft4.Status.NothingToLog">
+    <value>没有可记录的内容。请先应答一条解码或开始一次通联。</value>
+  </data>
+  <data name="Ft4.Status.NeedLogbook">
+    <value>请先在“工具 → OscarWatch Logbook”中创建日志本。</value>
+  </data>
+  <data name="Ft4.Status.LoggedManual">
+    <value>已记录与 {0} 的通联（手动）</value>
+  </data>
+  <data name="Ft4.Status.LogbookSaveFailed">
+    <value>日志本保存失败</value>
+  </data>
+  <data name="Ft4.Status.ClockWarning">
+    <value>电脑时钟可能偏离 UTC（近期 DT 约 {0:0.0} 秒）。请同步时间后重试。</value>
+  </data>
+  <data name="Ft4.TxLevelMeter">
+    <value>发射电平表</value>
+  </data>
+  <data name="Ft4.ManualKey">
+    <value>请立即键控发射机</value>
+  </data>
+  <data name="Ft4.ManualUnkey">
+    <value>请立即松开发射机</value>
+  </data>
+  <data name="Ft4.Logged">
+    <value>已记录与 {0} 的 QSO</value>
+  </data>
+  <data name="Ft4.ClearDecodes">
+    <value>清除</value>
+  </data>
+  <data name="Ft4.SaveActivity">
+    <value>保存活动</value>
+  </data>
+  <data name="Ft4.SaveActivity.Title">
+    <value>保存 FT4 活动</value>
+  </data>
+  <data name="Ft4.SaveActivity.FileType">
+    <value>文本文件</value>
+  </data>
+  <data name="Ft4.ManualLog">
+    <value>记录 QSO</value>
+  </data>
+  <data name="Ft4.Status.DecodesCleared">
+    <value>已清除解码列表</value>
+  </data>
+  <data name="Ft4.Status.NoActivity">
+    <value>没有可保存的活动</value>
+  </data>
+  <data name="Ft4.Status.ActivitySaved">
+    <value>活动已保存到 {0}</value>
+  </data>
+  <data name="Ft4.Status.SaveActivityFailed">
+    <value>无法保存活动：{0}</value>
+  </data>
+  <data name="Ft4.NativeUnavailable">
+    <value>未找到原生 FT4 库。解码与生成不可用。</value>
+  </data>
+  <data name="Ft4.Status.NeedStation">
+    <value>请在设置、电台中设置呼号和网格。</value>
+  </data>
+  <data name="Ft4.Status.Answering">
+    <value>正在应答 {0}</value>
+  </data>
+  <data name="Ft4.Waterfall">
+    <value>瀑布图</value>
+  </data>
+  <data name="Ft4.Waterfall.Unavailable">
+    <value>瀑布图等待音频</value>
+  </data>
+  <data name="Ft4.Waterfall.Listening">
+    <value>监听中</value>
+  </data>
+  <data name="Ft4.Waterfall.ListeningSat">
+    <value>监听中（{0}）</value>
+  </data>
+  <data name="Ft4.SlotClock">
+    <value>时隙时钟</value>
+  </data>
+  <data name="Ft4.Doppler">
+    <value>多普勒</value>
+  </data>
+  <data name="Ft4.DopplerUplink">
+    <value>上行:</value>
+  </data>
+  <data name="Ft4.DopplerDownlink">
+    <value>下行:</value>
+  </data>
+  <data name="Ft4.Decodes">
+    <value>解码</value>
+  </data>
+  <data name="Ft4.Decodes.Time">
+    <value>UTC</value>
+  </data>
+  <data name="Ft4.Decodes.Kind">
+    <value>TX</value>
+  </data>
+  <data name="Ft4.Decodes.Dt">
+    <value>DT</value>
+  </data>
+  <data name="Ft4.Decodes.Snr">
+    <value>SNR</value>
+  </data>
+  <data name="Ft4.Decodes.Hz">
+    <value>Hz</value>
+  </data>
+  <data name="Ft4.Decodes.Message">
+    <value>消息</value>
+  </data>
+  <data name="Ft4.Decodes.Tx">
+    <value>TX</value>
+  </data>
+  <data name="Ft4.Decodes.Echo">
+    <value>回波</value>
+  </data>
+  <data name="Ft4.TxMessage">
+    <value>TX 消息</value>
+  </data>
+  <data name="Ft4.TxMessage.Watermark">
+    <value>请在 设置 → 电台 中设置呼号和网格</value>
+  </data>
+  <data name="Ft4.Audio.Output">
+    <value>输出声卡</value>
+  </data>
+  <data name="Ft4.Ptt.SeparatePort">
+    <value>PTT COM 口</value>
+  </data>
+  <data name="Ft4.Waterfall.ClickHint">
+    <value>单击设置发射音频频率（Hz）。红线为当前发射音调。</value>
+  </data>
+  <data name="Ft4.Audio.SystemDefault">
+    <value>系统默认</value>
+  </data>
+  <data name="Ft4.Audio.Input">
+    <value>输入声卡</value>
+  </data>
+  <data name="Ft4.Ptt.Line">
+    <value>PTT 线</value>
+  </data>
+  <data name="Ft4.Ptt.Invert">
+    <value>反相</value>
+  </data>
+  <data name="Ft4.Ptt.Dtr">
+    <value>DTR</value>
+  </data>
+  <data name="Ft4.Ptt.Rts">
+    <value>RTS</value>
+  </data>
+  <data name="Ft4.TxAudioHz">
+    <value>TX 音频 (Hz)</value>
+  </data>
+
 </root>

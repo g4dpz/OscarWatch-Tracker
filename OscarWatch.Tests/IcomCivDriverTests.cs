@@ -145,6 +145,20 @@ public sealed class IcomCivDriverTests
     }
 
     [Fact]
+    public void Ic9700_TryReadRfPowerLevel_reads_civ_14_0a()
+    {
+        var transport = new RecordingIcomCivTransport { RfPowerLevel = 120 };
+        var driver = new IcomIc9700Driver(transport);
+        driver.Open();
+        transport.SentCommandBodies.Clear();
+
+        Assert.True(driver.SupportsRfPowerRead);
+        Assert.True(driver.TryReadRfPowerLevel(out var level));
+        Assert.Equal(120, level);
+        Assert.Contains("140a", transport.SentCommandBodies);
+    }
+
+    [Fact]
     public void Ic910_SetMode_DATA_USB_sends_voice_usb_only()
     {
         var transport = new RecordingIcomCivTransport();

@@ -202,4 +202,45 @@ public class SerialPortConflictHelperTests
         var rig = new RigSettings { Enabled = true, Type = RigType.IcomIc910, Port = "COM5" };
         Assert.False(SerialPortConflictHelper.HasConflict(rotator, rig));
     }
+
+    [Fact]
+    public void Ft4_separate_ptt_conflicts_with_radio()
+    {
+        var rig = new RigSettings { Enabled = true, Type = RigType.IcomIc910, Port = "COM3" };
+        var rotator = new RotatorSettings { Enabled = false };
+        Assert.True(SerialPortConflictHelper.TryDescribeFt4SeparatePttConflict(
+            "COM3", rig, rotator, gps: null, out var message));
+        Assert.Contains("FT4 separate PTT and radio", message, StringComparison.Ordinal);
+        Assert.Contains("COM3", message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Ft4_separate_ptt_conflicts_with_rotator_and_gps()
+    {
+        var rig = new RigSettings { Enabled = false };
+        var rotator = new RotatorSettings { Enabled = true, Port = "COM4" };
+        var gps = new GpsSettings
+        {
+            Enabled = true,
+            ConnectionKind = GpsConnectionKind.Serial,
+            Port = "COM5"
+        };
+
+        Assert.True(SerialPortConflictHelper.TryDescribeFt4SeparatePttConflict(
+            "COM4", rig, rotator, gps, out var rotatorMsg));
+        Assert.Contains("rotator", rotatorMsg, StringComparison.OrdinalIgnoreCase);
+
+        Assert.True(SerialPortConflictHelper.TryDescribeFt4SeparatePttConflict(
+            "COM5", rig, rotator, gps, out var gpsMsg));
+        Assert.Contains("GPS", gpsMsg, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Ft4_separate_ptt_allows_unused_port()
+    {
+        var rig = new RigSettings { Enabled = true, Type = RigType.IcomIc910, Port = "COM3" };
+        var rotator = new RotatorSettings { Enabled = true, Port = "COM4" };
+        Assert.False(SerialPortConflictHelper.TryDescribeFt4SeparatePttConflict(
+            "COM7", rig, rotator, gps: null, out _));
+    }
 }

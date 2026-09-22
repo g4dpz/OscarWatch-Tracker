@@ -25,6 +25,7 @@ using OscarWatch.Speech;
 using OscarWatch.Theme;
 using OscarWatch.Diagnostics;
 using OscarWatch.Localization;
+using OscarWatch.Ft4;
 using OscarWatch.Views;
 using Serilog;
 
@@ -113,6 +114,8 @@ public partial class App : Application
         services.AddTransient<QsoLogbookViewModel>();
         services.AddTransient<CreateLogbookViewModel>();
         services.AddTransient<LogbookSettingsViewModel>();
+        services.AddSingleton<Ft4ModemService>();
+        services.AddSingleton<Ft4ViewModel>();
 
         Services = services.BuildServiceProvider();
 

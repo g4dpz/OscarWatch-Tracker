@@ -102,6 +102,41 @@ public static class YaesuFt991CatCodec
         return upper is "FM" or "FMN" or "DATA-FM" or "FM-DATA" or "C4FM";
     }
 
+    /// <summary>Read set RF power (watts). Answer is <c>PCxxx;</c> with xxx = 005–100.</summary>
+    public static string BuildReadPowerCommand() => "PC;";
+
+    /// <summary>Parse <c>PCxxx;</c> (or bare digits) into watts.</summary>
+    public static bool TryParsePowerWatts(ReadOnlySpan<char> response, out int watts)
+    {
+        watts = 0;
+        if (response.IsEmpty)
+            return false;
+
+        var span = response.Trim();
+        if (span.EndsWith(";"))
+            span = span[..^1];
+
+        if (span.Length >= 2
+            && (span[0] is 'P' or 'p')
+            && (span[1] is 'C' or 'c'))
+            span = span[2..];
+
+        span = span.Trim();
+        if (span.IsEmpty)
+            return false;
+
+        if (!int.TryParse(span, System.Globalization.NumberStyles.Integer,
+                System.Globalization.CultureInfo.InvariantCulture, out var value))
+            return false;
+
+        // Manual: 005–100. Accept a slightly wider range for firmware quirks.
+        if (value is < 1 or > 100)
+            return false;
+
+        watts = value;
+        return true;
+    }
+
     public static bool TryGetCtcssIndex(double toneHz, out int zeroBasedIndex)
     {
         zeroBasedIndex = 0;

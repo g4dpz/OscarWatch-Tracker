@@ -1,0 +1,124 @@
+using OscarWatch.Core.Models;
+
+namespace OscarWatch.Core.Radio;
+
+/// <summary>
+/// Maps ICOM CI-V RF power level (0–255) to approximate watts using each radio’s
+/// band maximum. The CI-V value is relative, not a direct watt reading.
+/// </summary>
+public static class IcomRfPowerEstimator
+{
+    /// <summary>
+    /// Estimate set RF power in watts from a CI-V level and uplink frequency.
+    /// Returns false when the band maximum is unknown for this radio/frequency.
+    /// </summary>
+    public static bool TryEstimateWatts(RigType rigType, long frequencyHz, int level0To255, out double watts)
+    {
+        watts = 0;
+        if (level0To255 is < 0 or > 255)
+            return false;
+
+        var max = MaxPowerWatts(rigType, frequencyHz);
+        if (max is null or <= 0)
+            return false;
+
+        watts = level0To255 / 255.0 * max.Value;
+        return true;
+    }
+
+    /// <summary>Catalogue maximum RF power (W) for the given radio and frequency band.</summary>
+    public static int? MaxPowerWatts(RigType rigType, long frequencyHz)
+    {
+        var band = ClassifyBand(frequencyHz);
+        if (band == RfBand.Unknown)
+            return null;
+
+        return rigType switch
+        {
+            RigType.IcomIc9700 => band switch
+            {
+                RfBand.Vhf2m => 100,
+                RfBand.Uhf70cm => 75,
+                RfBand.Shf23cm => 10,
+                _ => null
+            },
+            RigType.IcomIc9100 => band switch
+            {
+                RfBand.Hf or RfBand.SixMetres => 100,
+                RfBand.Vhf2m => 100,
+                RfBand.Uhf70cm => 75,
+                RfBand.Shf23cm => 10,
+                _ => null
+            },
+            RigType.IcomIc910 => band switch
+            {
+                RfBand.Vhf2m => 100,
+                RfBand.Uhf70cm => 75,
+                _ => null
+            },
+            RigType.IcomIc705 => 10,
+            RigType.IcomIc905 => band switch
+            {
+                RfBand.Vhf2m or RfBand.Uhf70cm or RfBand.Shf23cm
+                    or RfBand.Shf13cm or RfBand.Shf6cm => 10,
+                RfBand.Shf3cm => 1,
+                _ => null
+            },
+            RigType.IcomIc7300 => band is RfBand.Hf or RfBand.SixMetres ? 100 : null,
+            RigType.IcomIc7100 => band switch
+            {
+                RfBand.Hf or RfBand.SixMetres => 100,
+                RfBand.Vhf2m => 50,
+                RfBand.Uhf70cm => 35,
+                _ => null
+            },
+            RigType.IcomIc706 or RigType.IcomIc706Mkii => band switch
+            {
+                RfBand.Hf or RfBand.SixMetres => 100,
+                RfBand.Vhf2m => 20,
+                _ => null
+            },
+            RigType.IcomIc706MkiiG => band switch
+            {
+                RfBand.Hf or RfBand.SixMetres => 100,
+                RfBand.Vhf2m => 50,
+                RfBand.Uhf70cm => 20,
+                _ => null
+            },
+            // Generic ICOM CI-V path: conservative satellite-band maxima.
+            RigType.IcomIc821h => band switch
+            {
+                RfBand.Vhf2m => 45,
+                RfBand.Uhf70cm => 40,
+                _ => null
+            },
+            _ => null
+        };
+    }
+
+    private static RfBand ClassifyBand(long frequencyHz) => frequencyHz switch
+    {
+        >= 1_800_000 and < 30_000_000 => RfBand.Hf,
+        >= 50_000_000 and < 54_000_000 => RfBand.SixMetres,
+        >= 144_000_000 and < 148_000_000 => RfBand.Vhf2m,
+        >= 430_000_000 and < 450_000_000 => RfBand.Uhf70cm,
+        >= 1_200_000_000 and < 1_300_000_000 => RfBand.Shf23cm,
+        >= 2_300_000_000 and < 2_450_000_000 => RfBand.Shf13cm,
+        >= 5_650_000_000 and < 5_850_000_000 => RfBand.Shf6cm,
+        >= 10_000_000_000 and < 10_500_000_000 => RfBand.Shf3cm,
+        _ => RfBand.Unknown
+    };
+
+    private enum RfBand
+    {
+        Unknown,
+        Hf,
+        SixMetres,
+        Vhf2m,
+        Uhf70cm,
+        Shf23cm,
+        Shf13cm,
+        Shf6cm,
+        Shf3cm
+    }
+}

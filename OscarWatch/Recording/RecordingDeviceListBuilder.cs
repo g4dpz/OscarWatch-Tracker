@@ -20,11 +20,13 @@ internal static class RecordingDeviceListBuilder
         if (candidates.Count == 0)
             return [];
 
-        // First pass: deduplicate by raw name, keep lowest latency
+        // Prefer the highest default latency among same-name host APIs (typically MME /
+        // DirectSound / WASAPI shared). Lowest latency is often WDM-KS exclusive, which
+        // blocks other apps (e.g. WSJT-X) from sharing a Virtual Audio Cable.
         var deduplicatedByRawName = candidates
             .GroupBy(candidate => candidate.Name.Trim(), StringComparer.OrdinalIgnoreCase)
             .Select(group => group
-                .OrderBy(candidate => candidate.DefaultLowInputLatency)
+                .OrderByDescending(candidate => candidate.DefaultLowInputLatency)
                 .ThenBy(candidate => candidate.Index)
                 .First())
             .ToList();
@@ -46,7 +48,7 @@ internal static class RecordingDeviceListBuilder
         var deduplicatedByFormattedName = withFormattedNames
             .GroupBy(c => c.FormattedName, StringComparer.OrdinalIgnoreCase)
             .Select(group => group
-                .OrderBy(c => c.DefaultLowInputLatency)
+                .OrderByDescending(c => c.DefaultLowInputLatency)
                 .ThenBy(c => c.Index)
                 .First())
             .OrderBy(c => c.FormattedName, StringComparer.OrdinalIgnoreCase)

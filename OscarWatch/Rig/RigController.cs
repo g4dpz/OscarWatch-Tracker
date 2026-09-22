@@ -97,6 +97,9 @@ public sealed class RigController : IRigController, IDisposable
     private DopplerStrategy _lastContextDopplerStrategy = DopplerStrategy.Full;
     private bool _forceFrequencyApply;
     private bool _blockKnobCapture;
+    /// <summary>FT4 modem holds CAT Doppler between explicit slot-boundary steps.</summary>
+    private bool _ft4SlotGatedDoppler;
+    private bool _ft4ForceDopplerStep;
     private DateTime _ignoreDialUntilUtc = DateTime.MinValue;
     private DateTime _lastDialChangeUtc = DateTime.MinValue;
     /// <summary>When the receive dial last became still (or first sampled). MinValue means not yet observed.</summary>
@@ -168,6 +171,42 @@ public sealed class RigController : IRigController, IDisposable
             return;
 
         Enqueue(new RigCommand(RigCommandKind.ApplySelectedCtcss, settings, context));
+    }
+
+    public void SetPtt(bool transmit) =>
+        Enqueue(new RigCommand(RigCommandKind.SetPtt, pttTransmit: transmit));
+
+    public void SetHandshakePtt(bool useRts, bool assert) =>
+        Enqueue(new RigCommand(
+            RigCommandKind.SetHandshakePtt,
+            handshakeUseRts: useRts,
+            handshakeAssert: assert));
+
+    public void SetFt4SlotGatedDoppler(bool hold) =>
+        Enqueue(new RigCommand(RigCommandKind.SetFt4SlotGatedDoppler, ft4HoldDoppler: hold));
+
+    public void ForceFt4DopplerStep() =>
+        Enqueue(new RigCommand(RigCommandKind.ForceFt4DopplerStep));
+
+    public bool TryGetUplinkRfPowerWatts(out double watts)
+    {
+        watts = 0;
+        var command = new RigCommand(RigCommandKind.ReadUplinkRfPower);
+        try
+        {
+            EnqueueAndWait(command, TimeSpan.FromSeconds(2));
+        }
+        catch (TimeoutException ex)
+        {
+            Log.Debug(ex, "RF power read timed out");
+            return false;
+        }
+
+        if (command.RfPowerWatts is not { } value)
+            return false;
+
+        watts = value;
+        return true;
     }
 
     public void Disconnect()
@@ -322,6 +361,34 @@ public sealed class RigController : IRigController, IDisposable
 
                 case RigCommandKind.ApplySelectedCtcss:
                     ApplySelectedCtcssOnWorker(command.Settings, command.Context!);
+                    break;
+
+                case RigCommandKind.SetPtt:
+                    ApplyPttOnWorker(command.PttTransmit);
+                    break;
+
+                case RigCommandKind.SetHandshakePtt:
+                    ApplyHandshakePttOnWorker(command.HandshakeUseRts, command.HandshakeAssert);
+                    break;
+
+                case RigCommandKind.SetFt4SlotGatedDoppler:
+                    _ft4SlotGatedDoppler = command.Ft4HoldDoppler;
+                    if (!_ft4SlotGatedDoppler)
+                        _ft4ForceDopplerStep = false;
+                    Log.Information("FT4 slot-gated Doppler hold={Hold}", _ft4SlotGatedDoppler);
+                    break;
+
+                case RigCommandKind.ForceFt4DopplerStep:
+                    if (_ft4SlotGatedDoppler)
+                    {
+                        _ft4ForceDopplerStep = true;
+                        _forceFrequencyApply = true;
+                        RunLoopIteration(ignoreDopplerSuspend: true);
+                    }
+                    break;
+
+                case RigCommandKind.ReadUplinkRfPower:
+                    command.RfPowerWatts = TryReadUplinkRfPowerWattsOnWorker();
                     break;
 
                 case RigCommandKind.Disconnect:
@@ -610,6 +677,8 @@ public sealed class RigController : IRigController, IDisposable
         _suspendDopplerUntilUtc = DateTime.MinValue;
         _kenwoodFaFbBackoffUntilUtc = DateTime.MinValue;
         _kenwoodFaFbFailCount = 0;
+        _ft4SlotGatedDoppler = false;
+        _ft4ForceDopplerStep = false;
     }
 
     private void RunLoopIteration(bool ignoreDopplerSuspend = false)
@@ -627,6 +696,11 @@ public sealed class RigController : IRigController, IDisposable
             TryLogDopplerSuspendSnapshot();
             return;
         }
+
+        // OrbitDeck-style FT4: hold the dial within a slot; only write on ForceFt4DopplerStep.
+        if (_ft4SlotGatedDoppler && !_ft4ForceDopplerStep)
+            return;
+        _ft4ForceDopplerStep = false;
 
         if (_cachedContext.TrackState.LookAngles is null)
             return;
@@ -2583,6 +2657,66 @@ public sealed class RigController : IRigController, IDisposable
     private IRigDriver? TxDriver() =>
         _cachedSettings.DualRadioEnabled ? _uplinkDriver : _driver;
 
+    private void ApplyPttOnWorker(bool transmit)
+    {
+        try
+        {
+            TxDriver()?.SetPtt(transmit);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Rig PTT {State} failed", transmit ? "on" : "off");
+        }
+    }
+
+    private void ApplyHandshakePttOnWorker(bool useRts, bool assert)
+    {
+        try
+        {
+            var driver = TxDriver();
+            if (driver is null)
+                return;
+            if (!driver.TrySetHandshakeLine(useRts, assert))
+                Log.Debug("Handshake PTT not available on {Rig}", driver.RigType);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Handshake PTT failed");
+        }
+    }
+
+    private double? TryReadUplinkRfPowerWattsOnWorker()
+    {
+        try
+        {
+            var driver = TxDriver();
+            if (driver is null || !driver.SupportsRfPowerRead)
+                return null;
+
+            // Yaesu FT-991 / FT-991A (and shared newcat): PC; returns watts directly.
+            if (driver.TryReadRfPowerWatts(out var wattsDirect))
+                return wattsDirect;
+
+            // ICOM CI-V: relative 0–255 mapped via band maximum.
+            if (!driver.TryReadRfPowerLevel(out var level))
+                return null;
+
+            var hz = _lastRigTxHz;
+            if (_cachedContext is { Corrected.RadioTransmitKHz: var txKHz } && txKHz > 0)
+                hz = (long)Math.Round(txKHz * 1000.0);
+
+            if (!IcomRfPowerEstimator.TryEstimateWatts(driver.RigType, hz, level, out var watts))
+                return null;
+
+            return watts;
+        }
+        catch (Exception ex)
+        {
+            Log.Debug(ex, "Uplink RF power read failed");
+            return null;
+        }
+    }
+
     private (RigStatusKind Kind, string? Port, string? Detail) DescribeConnectionFailure(RigSettings settings)
     {
         if (_lastConnectErrorKind == SerialPortConnectErrorKind.DualSamePort)
@@ -2619,6 +2753,11 @@ public sealed class RigController : IRigController, IDisposable
         UpdateSynchronously,
         RunTrackingLoopOnce,
         ApplySelectedCtcss,
+        SetPtt,
+        SetHandshakePtt,
+        SetFt4SlotGatedDoppler,
+        ForceFt4DopplerStep,
+        ReadUplinkRfPower,
         Disconnect,
         Drain,
         Shutdown
@@ -2631,13 +2770,21 @@ public sealed class RigController : IRigController, IDisposable
             RigSettings? settings = null,
             RigTrackingContext? context = null,
             bool reinitializePass = false,
-            bool? catPausedOverride = null)
+            bool? catPausedOverride = null,
+            bool pttTransmit = false,
+            bool handshakeUseRts = true,
+            bool handshakeAssert = false,
+            bool ft4HoldDoppler = false)
         {
             Kind = kind;
             Settings = settings ?? new RigSettings();
             Context = context;
             ReinitializePass = reinitializePass;
             CatPausedOverride = catPausedOverride;
+            PttTransmit = pttTransmit;
+            HandshakeUseRts = handshakeUseRts;
+            HandshakeAssert = handshakeAssert;
+            Ft4HoldDoppler = ft4HoldDoppler;
         }
 
         public RigCommandKind Kind { get; }
@@ -2645,6 +2792,11 @@ public sealed class RigController : IRigController, IDisposable
         public RigTrackingContext? Context { get; }
         public bool ReinitializePass { get; }
         public bool? CatPausedOverride { get; }
+        public bool PttTransmit { get; }
+        public bool HandshakeUseRts { get; }
+        public bool HandshakeAssert { get; }
+        public bool Ft4HoldDoppler { get; }
+        public double? RfPowerWatts { get; set; }
         public ManualResetEventSlim? Completed { get; set; }
     }
 }

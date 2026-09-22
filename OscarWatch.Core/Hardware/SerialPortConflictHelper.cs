@@ -119,6 +119,83 @@ public static class SerialPortConflictHelper
         return false;
     }
 
+    /// <summary>
+    /// True when an FT4 separate-PTT COM port would steal the radio, rotator, or GPS serial port.
+    /// </summary>
+    public static bool TryDescribeFt4SeparatePttConflict(
+        string? separatePttPort,
+        RigSettings rig,
+        RotatorSettings rotator,
+        GpsSettings? gps,
+        out string message)
+    {
+        message = "";
+        var ptt = separatePttPort?.Trim() ?? "";
+        if (ptt.Length == 0)
+            return false;
+
+        foreach (var (port, label) in EnumerateOccupiedPorts(rig, rotator, gps))
+        {
+            if (!string.Equals(ptt, port, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            message = label switch
+            {
+                "radio" =>
+                    $"FT4 separate PTT and radio both use {ptt}. Use different COM ports or disable one device.",
+                "downlink radio" =>
+                    $"FT4 separate PTT and downlink radio both use {ptt}. Use different COM ports or disable one device.",
+                "uplink radio" =>
+                    $"FT4 separate PTT and uplink radio both use {ptt}. Use different COM ports or disable one device.",
+                "rotator" =>
+                    $"FT4 separate PTT and rotator both use {ptt}. Use different COM ports or disable one device.",
+                "GPS" =>
+                    $"FT4 separate PTT and GPS both use {ptt}. Use different COM ports or disable one device.",
+                _ =>
+                    $"FT4 separate PTT and {label} both use {ptt}. Use different COM ports or disable one device."
+            };
+            return true;
+        }
+
+        return false;
+    }
+
+    private static IEnumerable<(string Port, string Label)> EnumerateOccupiedPorts(
+        RigSettings rig,
+        RotatorSettings rotator,
+        GpsSettings? gps)
+    {
+        if (rig.Enabled)
+        {
+            if (rig.DualRadioEnabled)
+            {
+                var down = rig.Downlink.Port?.Trim() ?? "";
+                if (down.Length > 0 && rig.Downlink.Type != RigType.Dummy)
+                    yield return (down, "downlink radio");
+
+                var up = rig.Uplink.Port?.Trim() ?? "";
+                if (up.Length > 0 && rig.Uplink.Type != RigType.Dummy)
+                    yield return (up, "uplink radio");
+            }
+            else if (rig.Type != RigType.Dummy)
+            {
+                var port = rig.Port?.Trim() ?? "";
+                if (port.Length > 0)
+                    yield return (port, "radio");
+            }
+        }
+
+        foreach (var rotatorPort in GetRotatorSerialPorts(rotator))
+            yield return (rotatorPort, "rotator");
+
+        if (gps is { Enabled: true, ConnectionKind: GpsConnectionKind.Serial })
+        {
+            var gpsPort = gps.Port?.Trim() ?? "";
+            if (gpsPort.Length > 0)
+                yield return (gpsPort, "GPS");
+        }
+    }
+
     /// <summary>COM ports when the rotator is enabled and using local serial transport.</summary>
     private static IReadOnlyList<string> GetRotatorSerialPorts(RotatorSettings rotator)
     {
