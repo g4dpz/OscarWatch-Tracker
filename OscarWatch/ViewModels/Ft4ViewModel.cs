@@ -193,6 +193,10 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     {
         _settings.Current.Ft4.HoldTxFrequency = value;
         _settings.RequestSave();
+
+        // WSJT-X: without Hold Tx, TX follows RX. Snap them together when Hold is cleared.
+        if (!value)
+            TxAudioHz = RxAudioHz;
     }
 
     partial void OnAudioDopplerTxChanged(bool value)
@@ -290,6 +294,10 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         if (_modem.Sequencer is not null)
             _modem.Sequencer.TxAudioHz = clamped;
         _settings.RequestSave();
+
+        // Without Hold Tx, keep RX locked to TX (WSJT-X behaviour).
+        if (!_settings.Current.Ft4.HoldTxFrequency)
+            RxAudioHz = clamped;
     }
 
     private void RefreshRxMarker()
@@ -302,7 +310,9 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
             return;
         }
 
-        RxAudioHz = TxAudioHz;
+        // Keep an operator-chosen RX offset when Hold Tx is on; otherwise lock RX to TX.
+        if (!_settings.Current.Ft4.HoldTxFrequency)
+            RxAudioHz = TxAudioHz;
     }
 
     partial void OnTxLevelChanged(double value)

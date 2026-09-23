@@ -32,6 +32,9 @@ public sealed class Ft4WaterfallControl : Control
     public static readonly StyledProperty<double> RxAudioHzProperty =
         AvaloniaProperty.Register<Ft4WaterfallControl, double>(nameof(RxAudioHz), 1500);
 
+    public static readonly StyledProperty<bool> HoldTxFrequencyProperty =
+        AvaloniaProperty.Register<Ft4WaterfallControl, bool>(nameof(HoldTxFrequency));
+
     public static readonly StyledProperty<double> MinHzProperty =
         AvaloniaProperty.Register<Ft4WaterfallControl, double>(nameof(MinHz), Ft4SpectrumAnalyzer.DefaultMinHz);
 
@@ -56,6 +59,7 @@ public sealed class Ft4WaterfallControl : Control
         AffectsRender<Ft4WaterfallControl>(
             TxAudioHzProperty,
             RxAudioHzProperty,
+            HoldTxFrequencyProperty,
             MinHzProperty,
             MaxHzProperty,
             StatusTextProperty);
@@ -80,6 +84,15 @@ public sealed class Ft4WaterfallControl : Control
     {
         get => GetValue(RxAudioHzProperty);
         set => SetValue(RxAudioHzProperty, value);
+    }
+
+    /// <summary>
+    /// When true, waterfall clicks move RX only (TX stays). When false, TX follows RX.
+    /// </summary>
+    public bool HoldTxFrequency
+    {
+        get => GetValue(HoldTxFrequencyProperty);
+        set => SetValue(HoldTxFrequencyProperty, value);
     }
 
     public double MinHz
@@ -217,8 +230,9 @@ public sealed class Ft4WaterfallControl : Control
         var hz = Ft4SpectrumAnalyzer.PixelToHz(p.X, Bounds.Width, MinHz, MaxHz);
         hz = Math.Round(hz / 10.0) * 10.0;
         hz = Math.Clamp(hz, MinHz, MaxHz);
-        TxAudioHz = hz;
         RxAudioHz = hz;
+        if (!HoldTxFrequency)
+            TxAudioHz = hz;
         FrequencySelected?.Invoke(this, hz);
         e.Handled = true;
         InvalidateVisual();
@@ -247,6 +261,7 @@ public sealed class Ft4WaterfallControl : Control
         }
 
         // WSJT-X-style FT4 filter brackets: green around RX, red around TX when they differ.
+        // Each pair is two vertical legs joined by a horizontal line at the top.
         var rxHz = RxAudioHz > 0 ? RxAudioHz : TxAudioHz;
         var txHz = TxAudioHz;
         var half = Ft4SpectrumAnalyzer.Ft4FilterHalfWidthHz;
@@ -261,26 +276,12 @@ public sealed class Ft4WaterfallControl : Control
             var right = Ft4SpectrumAnalyzer.HzToPixel(centreHz + half, bounds.Width, MinHz, MaxHz);
             context.DrawLine(pen, new Point(left, 0), new Point(left, bounds.Height));
             context.DrawLine(pen, new Point(right, 0), new Point(right, bounds.Height));
+            context.DrawLine(pen, new Point(left, 0), new Point(right, 0));
         }
 
         DrawBracket(greenPen, rxHz);
         if (Math.Abs(txHz - rxHz) >= 5)
             DrawBracket(redPen, txHz);
-
-        // Top TX (red) / RX (green) frequency bars, as on the WSJT-X wide graph scale.
-        // Offset slightly when they coincide so both colours stay visible.
-        var barHeight = 6.0;
-        var barHalfWidth = Math.Max(3.0, bounds.Width * 0.004);
-        var txX = Ft4SpectrumAnalyzer.HzToPixel(txHz, bounds.Width, MinHz, MaxHz);
-        var rxX = Ft4SpectrumAnalyzer.HzToPixel(rxHz, bounds.Width, MinHz, MaxHz);
-        if (Math.Abs(txX - rxX) < barHalfWidth * 2)
-        {
-            txX -= barHalfWidth;
-            rxX += barHalfWidth;
-        }
-
-        context.FillRectangle(red, new Rect(txX - barHalfWidth, 0, barHalfWidth * 2, barHeight));
-        context.FillRectangle(green, new Rect(rxX - barHalfWidth, 0, barHalfWidth * 2, barHeight));
 
         // Frequency ticks
         var labelBrush = new SolidColorBrush(Color.FromArgb(200, 220, 220, 220));
