@@ -15,18 +15,34 @@ public sealed class Ft4QsoSequencer
     private readonly Func<string> _myGrid;
     private readonly Func<bool> _skipRrr;
     private readonly Func<bool> _holdTxFrequency;
+    private readonly Func<bool> _autoReply;
+    private bool? _autoReplyOverride;
 
     public Ft4QsoSequencer(
         Func<string> myCall,
         Func<string> myGrid,
         Func<bool> skipRrr,
-        Func<bool>? holdTxFrequency = null)
+        Func<bool>? holdTxFrequency = null,
+        Func<bool>? autoReply = null)
     {
         _myCall = myCall;
         _myGrid = myGrid;
         _skipRrr = skipRrr;
         _holdTxFrequency = holdTxFrequency ?? (() => true);
+        _autoReply = autoReply ?? (() => true);
     }
+
+    /// <summary>
+    /// The Auto reply checkbox. Overrides the settings read so a tick takes effect
+    /// on the next decode, including one already on screen.
+    /// </summary>
+    public void SetAutoReply(bool enabled) => _autoReplyOverride = enabled;
+
+    private bool AutoReplyOn => _autoReplyOverride ?? _autoReply();
+
+    public bool IsCqMessage =>
+        Ft4MessageCodec.TryParse(CurrentTxMessage, out var callTo, out _, out _)
+        && Ft4MessageCodec.IsCq(callTo);
 
     public Ft4QsoPhase Phase { get; private set; } = Ft4QsoPhase.Idle;
     public string? TheirCall { get; private set; }
@@ -52,13 +68,8 @@ public sealed class Ft4QsoSequencer
     public void StartCq(bool evenSlot)
     {
         PreferEvenSlot = evenSlot;
-        Phase = Ft4QsoPhase.CallingCq;
-        TheirCall = null;
-        TheirGrid = null;
-        ReportSent = null;
-        ReportReceived = null;
         CurrentTxMessage = Ft4MessageCodec.BuildCq(_myCall(), _myGrid());
-        TransmitEnabled = true;
+        BeginFreshCq(keepMessage: true);
     }
 
     /// <summary>Operator clicked a decode to answer.</summary>
@@ -94,11 +105,14 @@ public sealed class Ft4QsoSequencer
         {
             if (Ft4MessageCodec.IsReport(extra))
             {
-                ReportReceived = extra;
-                ReportSent ??= Ft4MessageCodec.FormatSnrReport(decode.SnrDb);
-                CurrentTxMessage = _skipRrr()
-                    ? Ft4MessageCodec.BuildRr73(TheirCall, my)
-                    : Ft4MessageCodec.BuildRrr(TheirCall, my);
+                ReportReceived = Ft4MessageCodec.NormalizeSnrReport(extra);
+                ReportSent = Ft4MessageCodec.FormatSnrReport(decode.SnrDb);
+                // A plain report still needs ours back (R+NN); only an R+NN is ready for RR73.
+                CurrentTxMessage = !Ft4MessageCodec.IsRogerReport(extra)
+                    ? Ft4MessageCodec.BuildReport(TheirCall, my, Ft4MessageCodec.FormatRogerReport(decode.SnrDb))
+                    : _skipRrr()
+                        ? Ft4MessageCodec.BuildRr73(TheirCall, my)
+                        : Ft4MessageCodec.BuildRrr(TheirCall, my);
                 return;
             }
 
@@ -131,8 +145,43 @@ public sealed class Ft4QsoSequencer
     {
         if (string.IsNullOrWhiteSpace(CurrentTxMessage))
             CurrentTxMessage = Ft4MessageCodec.BuildCq(_myCall(), _myGrid());
+
+        // A CQ in the box is a new call. Leaving the previous contact in place
+        // meant auto reply ignored the station that answered this CQ.
+        if (IsCqMessage)
+        {
+            BeginFreshCq(keepMessage: true);
+            return;
+        }
+
         if (Phase == Ft4QsoPhase.Idle || Phase == Ft4QsoPhase.Finished)
             Phase = Ft4QsoPhase.CallingCq;
+        TransmitEnabled = true;
+    }
+
+    /// <summary>
+    /// Auto reply was turned on while a CQ is going out. Drop any previous contact
+    /// so the next caller is answered. Returns false when this is not a CQ.
+    /// </summary>
+    public bool PrepareAutoReply()
+    {
+        if (!TransmitEnabled || !AutoReplyOn || !IsCqMessage)
+            return false;
+
+        if (Phase != Ft4QsoPhase.CallingCq || TheirCall is not null || ReportSent is not null)
+            BeginFreshCq(keepMessage: true);
+        return true;
+    }
+
+    private void BeginFreshCq(bool keepMessage)
+    {
+        Phase = Ft4QsoPhase.CallingCq;
+        TheirCall = null;
+        TheirGrid = null;
+        ReportSent = null;
+        ReportReceived = null;
+        if (!keepMessage || string.IsNullOrWhiteSpace(CurrentTxMessage))
+            CurrentTxMessage = Ft4MessageCodec.BuildCq(_myCall(), _myGrid());
         TransmitEnabled = true;
     }
 
@@ -165,10 +214,13 @@ public sealed class Ft4QsoSequencer
             && Ft4MessageCodec.IsAddressedTo(callTo, my)
             && !callDe.Equals(my, StringComparison.OrdinalIgnoreCase))
         {
+            // Auto reply off: keep calling CQ until the operator clicks a station.
+            if (!AutoReplyOn)
+                return false;
+
             TheirCall = Ft4MessageCodec.NormalizeCall(callDe);
             TheirGrid = Ft4MessageCodec.IsGrid(extra) ? extra : TheirGrid;
-            if (!_holdTxFrequency())
-                TxAudioHz = decode.FreqHz;
+            // Stay on our CQ frequency (WSJT-X). Only answering a decode moves TX.
             // Keep our CQ slot parity. The caller answered on the opposite slot; flipping
             // would put both stations on the same TX slots (WSJT-X then cannot decode us).
             Phase = Ft4QsoPhase.InQso;
@@ -180,7 +232,7 @@ public sealed class Ft4QsoSequencer
             }
             else if (Ft4MessageCodec.IsReport(extra))
             {
-                ReportReceived = extra;
+                ReportReceived = Ft4MessageCodec.NormalizeSnrReport(extra);
                 ReportSent ??= Ft4MessageCodec.FormatSnrReport(decode.SnrDb);
                 CurrentTxMessage = _skipRrr()
                     ? Ft4MessageCodec.BuildRr73(TheirCall, my)
@@ -242,7 +294,7 @@ public sealed class Ft4QsoSequencer
 
         if (Ft4MessageCodec.IsReport(extra))
         {
-            ReportReceived = extra;
+            ReportReceived = Ft4MessageCodec.NormalizeSnrReport(extra);
 
             // After our grid reply to their CQ, a plain +NN means send R+NN next.
             // R+NN (or a second report after we already sent one) advances to RR73/RRR.
@@ -275,6 +327,43 @@ public sealed class Ft4QsoSequencer
         return CurrentTxMessage.Equals(
             Ft4MessageCodec.BuildGridReply(TheirCall, my, _myGrid()),
             StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Operator asked to send a signal report again. Reuses the report already sent,
+    /// or <paramref name="snrDb"/> when none has been sent yet.
+    /// </summary>
+    public bool ForceReport(float? snrDb)
+    {
+        if (string.IsNullOrWhiteSpace(TheirCall))
+            return false;
+
+        var my = _myCall();
+        if (string.IsNullOrWhiteSpace(my))
+            return false;
+
+        var report = ReportSent ?? Ft4MessageCodec.FormatSnrReport(snrDb ?? 0f);
+        ReportSent = report;
+        CurrentTxMessage = Ft4MessageCodec.BuildReport(TheirCall, my, report);
+        Phase = Ft4QsoPhase.InQso;
+        TransmitEnabled = true;
+        return true;
+    }
+
+    /// <summary>Operator asked to send 73 again to the station in the current QSO.</summary>
+    public bool Force73()
+    {
+        if (string.IsNullOrWhiteSpace(TheirCall))
+            return false;
+
+        var my = _myCall();
+        if (string.IsNullOrWhiteSpace(my))
+            return false;
+
+        CurrentTxMessage = Ft4MessageCodec.Build73(TheirCall, my);
+        Phase = Ft4QsoPhase.InQso;
+        TransmitEnabled = true;
+        return true;
     }
 
     /// <summary>Called after a TX message was fully sent.</summary>

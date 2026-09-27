@@ -24,23 +24,28 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     private readonly ILiveTrackerSnapshotProvider _tracker;
     private readonly ILocalizationService _l;
     private readonly Ft4ModemService _modem;
+    private readonly IQsoLogbookRepository _logbook;
     private readonly DispatcherTimer _uiTimer;
     private bool _disposed;
     private bool _loadingDevices;
     private bool _loadingEchoCalibration;
+    private IReadOnlySet<string> _workedCalls = new HashSet<string>(StringComparer.Ordinal);
+    private IReadOnlySet<string> _workedGridFields = new HashSet<string>(StringComparer.Ordinal);
 
     public Ft4ViewModel(
         ISettingsService settings,
         FrequencyOverlayViewModel frequencyOverlay,
         ILiveTrackerSnapshotProvider tracker,
         ILocalizationService localization,
-        Ft4ModemService modem)
+        Ft4ModemService modem,
+        IQsoLogbookRepository logbook)
     {
         _settings = settings;
         _frequencyOverlay = frequencyOverlay;
         _tracker = tracker;
         _l = localization;
         _modem = modem;
+        _logbook = logbook;
 
         PttMethodOptions =
         [
@@ -63,11 +68,23 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         _rxAudioHz = _txAudioHz;
         _txLevel = Math.Clamp(ft4.TxLevel, 0.05, 1.0);
         _holdTxFrequency = ft4.HoldTxFrequency;
+        _autoReply = ft4.AutoReply;
         _audioDopplerTx = ft4.AudioDopplerTx;
         _audioDopplerRx = ft4.AudioDopplerRx;
+        _parallelTxEchoDecode = ft4.ParallelTxEchoDecode;
+        _pskReporterEnabled = ft4.PskReporterEnabled;
+        _modem.RxAudioHz = _rxAudioHz;
         _pttLeadMs = Math.Clamp(ft4.PttLeadMs, 0, 2000);
         _pttTailMs = Math.Clamp(ft4.PttTailMs, 0, 2000);
         _decodeFontSize = Math.Clamp(ft4.DecodeFontSize, 10, 28);
+        _callingMeColour = Ft4DecodeHighlight.NormalizeColour(ft4.CallingMeColour)
+            ?? Ft4DecodeHighlight.DefaultCallingMeColour;
+        _replyingColour = Ft4DecodeHighlight.NormalizeColour(ft4.ReplyingColour)
+            ?? Ft4DecodeHighlight.DefaultReplyingColour;
+        _newCallColour = Ft4DecodeHighlight.NormalizeColour(ft4.NewCallColour)
+            ?? Ft4DecodeHighlight.DefaultNewCallColour;
+        _newGridColour = Ft4DecodeHighlight.NormalizeColour(ft4.NewGridColour)
+            ?? Ft4DecodeHighlight.DefaultNewGridColour;
         _preferEvenSlot = false;
         _pttInvert = ft4.PttInvert;
         _selectedPttMethod = PttMethodOptions.FirstOrDefault(o => o.Value == ft4.PttMethod)
@@ -88,6 +105,8 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         _modem.SetManualPromptHandler(SetManualPttPrompt);
         _modem.Changed += OnModemChanged;
         ((INotifyCollectionChanged)_modem.Decodes).CollectionChanged += OnDecodesChanged;
+        _logbook.QsosChanged += OnLogbookQsosChanged;
+        _ = RefreshWorkedSetsAsync();
 
         _uiTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
         _uiTimer.Tick += (_, _) => RefreshUiTick();
@@ -95,7 +114,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         SlotProgressText = "0%";
     }
 
-    public ObservableCollection<Ft4DecodedMessage> Decodes { get; } = [];
+    public ObservableCollection<Ft4DecodeRowViewModel> Decodes { get; } = [];
 
     public ObservableCollection<Ft4AudioDeviceOption> InputDeviceOptions { get; } = [];
 
@@ -144,10 +163,9 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     public bool HasEchoCalibrationSatellite =>
         !string.IsNullOrWhiteSpace(SelectedEchoCalibrationSatellite);
 
-    public bool ShowClockWarning => !string.IsNullOrWhiteSpace(ClockWarningText);
-
     [ObservableProperty] private string _waterfallStatusText = "";
     [ObservableProperty] private string _slotClockText = "";
+    [ObservableProperty] private string _clockSourceText = "";
     [ObservableProperty] private string _slotPeriodLabel = "";
     [ObservableProperty] private string _slotProgressText = "";
     [ObservableProperty] private double _slotProgressPercent;
@@ -157,36 +175,53 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     [ObservableProperty] private string _currentTxMessage = "";
     [ObservableProperty] private string _manualPttPrompt = "";
     [ObservableProperty] private string _statusLine = "";
-    [ObservableProperty] private string _clockWarningText = "";
     [ObservableProperty] private string _separatePttConflictText = "";
     [ObservableProperty] private double _txPlaybackPeakPercent;
     [ObservableProperty] private bool _skipRrr;
     [ObservableProperty] private bool _preferEvenSlot;
     [ObservableProperty] private bool _holdTxFrequency = true;
+    [ObservableProperty] private bool _autoReply = true;
     [ObservableProperty] private bool _audioDopplerTx = true;
     [ObservableProperty] private bool _audioDopplerRx = true;
+    [ObservableProperty] private bool _parallelTxEchoDecode = true;
+    [ObservableProperty] private bool _pskReporterEnabled;
     [ObservableProperty] private int _pttLeadMs = 200;
     [ObservableProperty] private int _pttTailMs = 100;
     [ObservableProperty] private double _decodeFontSize = 12;
+    [ObservableProperty] private string _callingMeColour = Ft4DecodeHighlight.DefaultCallingMeColour;
+    [ObservableProperty] private string _replyingColour = Ft4DecodeHighlight.DefaultReplyingColour;
+    [ObservableProperty] private string _newCallColour = Ft4DecodeHighlight.DefaultNewCallColour;
+    [ObservableProperty] private string _newGridColour = Ft4DecodeHighlight.DefaultNewGridColour;
+    [ObservableProperty] private string? _qsoPartnerCall;
     [ObservableProperty] private string? _selectedEchoCalibrationSatellite;
     [ObservableProperty] private double _echoCalibrationHz;
     [ObservableProperty] private double _txAudioHz = 1500;
     [ObservableProperty] private double _rxAudioHz = 1500;
     [ObservableProperty] private double _txLevel = 0.35;
     [ObservableProperty] private bool _txEnabled;
+    [ObservableProperty] private bool _isTuning;
     [ObservableProperty] private bool _pttInvert;
     [ObservableProperty] private string _separatePttPort = "";
     [ObservableProperty] private Ft4PttMethodOption? _selectedPttMethod;
     [ObservableProperty] private Ft4PttLineOption? _selectedPttLine;
     [ObservableProperty] private Ft4AudioDeviceOption? _selectedInputDevice;
     [ObservableProperty] private Ft4AudioDeviceOption? _selectedOutputDevice;
-    [ObservableProperty] private Ft4DecodedMessage? _selectedDecode;
+    [ObservableProperty] private Ft4DecodeRowViewModel? _selectedDecode;
     [ObservableProperty] private float[]? _spectrumBins;
 
     partial void OnSkipRrrChanged(bool value)
     {
         _settings.Current.Ft4.SkipRrr = value;
         _settings.RequestSave();
+    }
+
+    partial void OnAutoReplyChanged(bool value)
+    {
+        _settings.Current.Ft4.AutoReply = value;
+        _settings.RequestSave();
+        // The sequencer must see this tick immediately. A settings read alone
+        // left CQ running after the box was cleared and ticked again.
+        _modem.SetAutoReply(value);
     }
 
     partial void OnHoldTxFrequencyChanged(bool value)
@@ -209,6 +244,19 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     {
         _settings.Current.Ft4.AudioDopplerRx = value;
         _settings.RequestSave();
+    }
+
+    partial void OnParallelTxEchoDecodeChanged(bool value)
+    {
+        _settings.Current.Ft4.ParallelTxEchoDecode = value;
+        _settings.RequestSave();
+    }
+
+    partial void OnPskReporterEnabledChanged(bool value)
+    {
+        _settings.Current.Ft4.PskReporterEnabled = value;
+        _settings.RequestSave();
+        _modem.ApplyPskReporterSettings();
     }
 
     partial void OnPttLeadMsChanged(int value)
@@ -250,6 +298,68 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         _settings.RequestSave();
     }
 
+    partial void OnCallingMeColourChanged(string value) =>
+        CommitDecodeColour(
+            value,
+            Ft4DecodeHighlight.DefaultCallingMeColour,
+            () => CallingMeColour,
+            hex => CallingMeColour = hex,
+            hex => _settings.Current.Ft4.CallingMeColour = hex);
+
+    partial void OnReplyingColourChanged(string value) =>
+        CommitDecodeColour(
+            value,
+            Ft4DecodeHighlight.DefaultReplyingColour,
+            () => ReplyingColour,
+            hex => ReplyingColour = hex,
+            hex => _settings.Current.Ft4.ReplyingColour = hex);
+
+    partial void OnNewCallColourChanged(string value) =>
+        CommitDecodeColour(
+            value,
+            Ft4DecodeHighlight.DefaultNewCallColour,
+            () => NewCallColour,
+            hex => NewCallColour = hex,
+            hex => _settings.Current.Ft4.NewCallColour = hex);
+
+    partial void OnNewGridColourChanged(string value) =>
+        CommitDecodeColour(
+            value,
+            Ft4DecodeHighlight.DefaultNewGridColour,
+            () => NewGridColour,
+            hex => NewGridColour = hex,
+            hex => _settings.Current.Ft4.NewGridColour = hex);
+
+    partial void OnQsoPartnerCallChanged(string? value) => RefreshDecodeHighlights();
+
+    private int _colourCommitDepth;
+
+    private void CommitDecodeColour(
+        string value,
+        string fallback,
+        Func<string> current,
+        Action<string> setCurrent,
+        Action<string> store)
+    {
+        if (_colourCommitDepth > 0)
+            return;
+
+        var normalized = Ft4DecodeHighlight.NormalizeColour(value) ?? fallback;
+        _colourCommitDepth++;
+        try
+        {
+            if (!string.Equals(current(), normalized, StringComparison.OrdinalIgnoreCase))
+                setCurrent(normalized);
+            store(normalized);
+            _settings.RequestSave();
+            RefreshDecodeHighlights();
+        }
+        finally
+        {
+            _colourCommitDepth--;
+        }
+    }
+
     partial void OnSelectedEchoCalibrationSatelliteChanged(string? value)
     {
         if (_loadingEchoCalibration)
@@ -283,6 +393,12 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
 
     partial void OnTxAudioHzChanged(double value)
     {
+        if (!double.IsFinite(value))
+        {
+            TxAudioHz = 1500;
+            return;
+        }
+
         var clamped = Math.Clamp(value, 200, 3000);
         if (Math.Abs(clamped - value) > 0.01)
         {
@@ -295,24 +411,73 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
             _modem.Sequencer.TxAudioHz = clamped;
         _settings.RequestSave();
 
+        if (IsTuning)
+            _modem.UpdateTuneFrequency();
+
         // Without Hold Tx, keep RX locked to TX (WSJT-X behaviour).
         if (!_settings.Current.Ft4.HoldTxFrequency)
             RxAudioHz = clamped;
     }
 
-    private void RefreshRxMarker()
+    partial void OnRxAudioHzChanged(double value)
     {
-        foreach (var d in Decodes)
+        if (!double.IsFinite(value))
         {
-            if (!d.IsReceiveActivity)
-                continue;
-            RxAudioHz = Math.Clamp(d.FreqHz, 200, 3000);
+            RxAudioHz = TxAudioHz;
             return;
         }
 
-        // Keep an operator-chosen RX offset when Hold Tx is on; otherwise lock RX to TX.
+        var clamped = Math.Clamp(value, 200, 3000);
+        if (Math.Abs(clamped - value) > 0.01)
+        {
+            RxAudioHz = clamped;
+            return;
+        }
+
+        _modem.RxAudioHz = clamped;
+    }
+
+    private void RefreshRxMarker()
+    {
+        // Follow the station we are in QSO with. The newest line on the band is often
+        // someone else's contact, and chasing it walks the green bracket.
+        var partner = _modem.Sequencer?.TheirCall;
+        if (!string.IsNullOrWhiteSpace(partner)
+            && TryPartnerRxHz(Decodes.Select(r => r.Message), partner, out var partnerHz))
+        {
+            RxAudioHz = partnerHz;
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(partner))
+            return;
+
+        // No QSO yet. Without Hold Tx, RX stays on TX. With Hold Tx, keep the click.
         if (!_settings.Current.Ft4.HoldTxFrequency)
             RxAudioHz = TxAudioHz;
+    }
+
+    /// <summary>Newest receive decode from <paramref name="partner"/>, if the list has one.</summary>
+    internal static bool TryPartnerRxHz(
+        IEnumerable<Ft4DecodedMessage> decodes,
+        string partner,
+        out double hz)
+    {
+        foreach (var d in decodes)
+        {
+            if (!d.IsReceiveActivity || string.IsNullOrWhiteSpace(d.CallDe))
+                continue;
+            if (!d.CallDe.Equals(partner, StringComparison.OrdinalIgnoreCase))
+                continue;
+            if (!double.IsFinite(d.FreqHz))
+                continue;
+
+            hz = Math.Clamp(d.FreqHz, 200, 3000);
+            return true;
+        }
+
+        hz = 0;
+        return false;
     }
 
     partial void OnTxLevelChanged(double value)
@@ -366,9 +531,6 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         RefreshSeparatePttConflict();
     }
 
-    partial void OnClockWarningTextChanged(string value) =>
-        OnPropertyChanged(nameof(ShowClockWarning));
-
     partial void OnSeparatePttConflictTextChanged(string value) =>
         OnPropertyChanged(nameof(ShowSeparatePttConflict));
 
@@ -411,13 +573,14 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         _settings.Current.Ft4.OutputDeviceId = value.Id;
         _settings.Current.Ft4.OutputDeviceDisplayName = value.DisplayName;
         _settings.RequestSave();
+        _modem.RestartOutputFromSettings();
     }
 
-    partial void OnSelectedDecodeChanged(Ft4DecodedMessage? value)
+    partial void OnSelectedDecodeChanged(Ft4DecodeRowViewModel? value)
     {
         if (value is null)
             return;
-        AnswerDecode(value);
+        AnswerDecode(value.Message);
     }
 
     public Task OnWindowOpenedAsync()
@@ -458,53 +621,161 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
             ? _l.Get("Ft4.Status.Ready")
             : _modem.Status;
         WaterfallStatusText = _l.Get("Ft4.Waterfall.Listening");
+        TuneCommand.NotifyCanExecuteChanged();
     }
 
     public async Task StopSessionAsync()
     {
         await _modem.StopAsync().ConfigureAwait(true);
         TxEnabled = false;
+        IsTuning = false;
         StatusLine = _l.Get("Ft4.Status.Idle");
         WaterfallStatusText = _l.Get("Ft4.Waterfall.Unavailable");
+        TuneCommand.NotifyCanExecuteChanged();
+        HaltTxCommand.NotifyCanExecuteChanged();
     }
 
     [RelayCommand(CanExecute = nameof(CanEnableTx))]
     private void EnableTx()
     {
         PushTxMessageToModem();
+        _modem.SetAutoReply(AutoReply);
         _modem.EnableTx();
         TxEnabled = _modem.Sequencer?.TransmitEnabled == true;
         CurrentTxMessage = _modem.Sequencer?.CurrentTxMessage ?? CurrentTxMessage;
-        StatusLine = _l.Get("Ft4.Status.TxEnabled");
+        StatusLine = string.IsNullOrWhiteSpace(_modem.Status)
+            ? _l.Get("Ft4.Status.TxEnabled")
+            : _modem.Status;
     }
 
-    private bool CanEnableTx() => !TxEnabled;
+    private bool CanEnableTx() => !TxEnabled && !IsTuning;
+
+    [RelayCommand(CanExecute = nameof(CanSendStandardMessage))]
+    private void SendReport()
+    {
+        if (!_modem.QueueReport(LatestPartnerSnr()))
+            return;
+
+        TxEnabled = _modem.Sequencer?.TransmitEnabled == true;
+        CurrentTxMessage = _modem.Sequencer?.CurrentTxMessage ?? CurrentTxMessage;
+        StatusLine = _modem.Status;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanSendStandardMessage))]
+    private void Send73()
+    {
+        if (!_modem.Queue73())
+            return;
+
+        TxEnabled = _modem.Sequencer?.TransmitEnabled == true;
+        CurrentTxMessage = _modem.Sequencer?.CurrentTxMessage ?? CurrentTxMessage;
+        StatusLine = _modem.Status;
+    }
+
+    private bool CanSendStandardMessage() =>
+        !string.IsNullOrWhiteSpace(_modem.Sequencer?.TheirCall);
+
+    private float? LatestPartnerSnr()
+    {
+        var partner = _modem.Sequencer?.TheirCall;
+        if (string.IsNullOrWhiteSpace(partner))
+            return null;
+
+        foreach (var decode in Decodes)
+        {
+            if (!decode.Message.IsReceiveActivity || string.IsNullOrWhiteSpace(decode.Message.CallDe))
+                continue;
+            if (!decode.Message.CallDe.Equals(partner, StringComparison.OrdinalIgnoreCase))
+                continue;
+            return decode.Message.SnrDb;
+        }
+
+        return null;
+    }
 
     [RelayCommand(CanExecute = nameof(CanHaltTx))]
     private void HaltTx()
     {
         _modem.HaltTx();
         TxEnabled = false;
+        IsTuning = false;
         ManualPttPrompt = "";
-        StatusLine = _l.Get("Ft4.Status.TxHalted");
+        StatusLine = _modem.Status;
+        TuneCommand.NotifyCanExecuteChanged();
     }
 
-    private bool CanHaltTx() => TxEnabled;
+    /// <summary>CQ, a contact, or Tune is using the transmitter.</summary>
+    public bool IsTransmissionActive => TxEnabled || IsTuning || _modem.IsTransmissionActive;
+
+    /// <summary>Unkey and stop the audio immediately. Used when the operator closes the window.</summary>
+    public void StopTransmissionNow()
+    {
+        _modem.StopTransmissionNow();
+        TxEnabled = false;
+        IsTuning = false;
+        ManualPttPrompt = "";
+        StatusLine = _modem.Status;
+        TuneCommand.NotifyCanExecuteChanged();
+        HaltTxCommand.NotifyCanExecuteChanged();
+        EnableTxCommand.NotifyCanExecuteChanged();
+    }
+
+    private bool CanHaltTx() => TxEnabled || IsTuning;
+
+    [RelayCommand(CanExecute = nameof(CanTune))]
+    private void Tune()
+    {
+        if (IsTuning)
+        {
+            _modem.StopTune();
+            IsTuning = false;
+            StatusLine = _modem.Status;
+            HaltTxCommand.NotifyCanExecuteChanged();
+            TuneCommand.NotifyCanExecuteChanged();
+            return;
+        }
+
+        if (!_modem.StartTune())
+        {
+            StatusLine = _modem.Status;
+            return;
+        }
+
+        TxEnabled = false;
+        IsTuning = true;
+        StatusLine = _modem.Status;
+        HaltTxCommand.NotifyCanExecuteChanged();
+        TuneCommand.NotifyCanExecuteChanged();
+        EnableTxCommand.NotifyCanExecuteChanged();
+    }
+
+    private bool CanTune() => _modem.IsRunning;
 
     partial void OnTxEnabledChanged(bool value)
     {
         EnableTxCommand.NotifyCanExecuteChanged();
         HaltTxCommand.NotifyCanExecuteChanged();
+        TuneCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnIsTuningChanged(bool value)
+    {
+        HaltTxCommand.NotifyCanExecuteChanged();
+        TuneCommand.NotifyCanExecuteChanged();
+        EnableTxCommand.NotifyCanExecuteChanged();
     }
 
     [RelayCommand]
     private void StartCq()
     {
         // Rebuild from Settings → Station so portable callsigns (e.g. MM9SQL/M) pack correctly.
+        _modem.SetAutoReply(AutoReply);
         _modem.StartCq(PreferEvenSlot);
         CurrentTxMessage = _modem.Sequencer?.CurrentTxMessage ?? "";
         TxEnabled = _modem.Sequencer?.TransmitEnabled == true;
-        StatusLine = _l.Get("Ft4.Status.CallingCq");
+        StatusLine = string.IsNullOrWhiteSpace(_modem.Status)
+            ? _l.Get("Ft4.Status.CallingCq")
+            : _modem.Status;
         OnPropertyChanged(nameof(CanManualLog));
         ManualLogCommand.NotifyCanExecuteChanged();
     }
@@ -533,8 +804,6 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         PreferEvenSlot = _modem.Sequencer?.PreferEvenSlot ?? PreferEvenSlot;
         if (!_settings.Current.Ft4.HoldTxFrequency)
             TxAudioHz = decode.FreqHz;
-        else if (_modem.Sequencer is not null)
-            TxAudioHz = _modem.Sequencer.TxAudioHz;
         RxAudioHz = Math.Clamp(decode.FreqHz, 200, 3000);
         StatusLine = _l.Get("Ft4.Status.Answering", decode.Text);
         OnPropertyChanged(nameof(CanManualLog));
@@ -829,10 +1098,15 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
                 StatusLine = _modem.Status;
             CurrentTxMessage = _modem.Sequencer?.CurrentTxMessage ?? CurrentTxMessage;
             TxEnabled = _modem.Sequencer?.TransmitEnabled == true;
+            IsTuning = _modem.IsTuning;
+            // Recolour rows already on screen when the QSO partner changes.
+            QsoPartnerCall = _modem.Sequencer?.TheirCall;
             if (!string.IsNullOrEmpty(_modem.ManualPrompt))
                 SetManualPttPrompt(_modem.ManualPrompt);
             OnPropertyChanged(nameof(CanManualLog));
             ManualLogCommand.NotifyCanExecuteChanged();
+            SendReportCommand.NotifyCanExecuteChanged();
+            Send73Command.NotifyCanExecuteChanged();
             // Auto echo calibration may have updated the stored trim.
             if (SelectedEchoCalibrationSatellite is not null)
                 LoadEchoCalibrationHzForSelected();
@@ -843,22 +1117,105 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
 
     private void OnDecodesChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        Dispatcher.UIThread.Post(() =>
+        // Inserts are already posted to the UI thread. Syncing here paints the new
+        // line in that same turn. A second post, or clearing and recreating every row,
+        // left the background for the next decode to apply.
+        if (Dispatcher.UIThread.CheckAccess())
+            ShowDecodeListChange();
+        else
+            Dispatcher.UIThread.Post(ShowDecodeListChange);
+    }
+
+    private void ShowDecodeListChange()
+    {
+        QsoPartnerCall = _modem.Sequencer?.TheirCall;
+        SyncDecodeRows();
+        RefreshRxMarker();
+    }
+
+    /// <summary>
+    /// Keep one row per modem message. New lines are inserted in place with their
+    /// background already set, so existing rows are not thrown away and repainted later.
+    /// </summary>
+    private void SyncDecodeRows()
+    {
+        var messages = _modem.Decodes;
+        var live = new HashSet<Ft4DecodedMessage>(messages, ReferenceEqualityComparer.Instance);
+        for (var i = Decodes.Count - 1; i >= 0; i--)
         {
-            Decodes.Clear();
-            foreach (var d in _modem.Decodes)
-                Decodes.Add(d);
-            RefreshRxMarker();
-        });
+            if (!live.Contains(Decodes[i].Message))
+                Decodes.RemoveAt(i);
+        }
+
+        var rowIndex = 0;
+        for (var messageIndex = 0; messageIndex < messages.Count; messageIndex++)
+        {
+            var message = messages[messageIndex];
+            if (rowIndex < Decodes.Count && ReferenceEquals(Decodes[rowIndex].Message, message))
+            {
+                rowIndex++;
+                continue;
+            }
+
+            var row = new Ft4DecodeRowViewModel(message);
+            ApplyHighlight(row);
+            Decodes.Insert(rowIndex, row);
+            rowIndex++;
+        }
+
+        while (Decodes.Count > messages.Count)
+            Decodes.RemoveAt(Decodes.Count - 1);
+    }
+
+    private void RefreshDecodeHighlights()
+    {
+        foreach (var row in Decodes)
+            ApplyHighlight(row);
+    }
+
+    private void ApplyHighlight(Ft4DecodeRowViewModel row) =>
+        row.RefreshHighlight(
+            StationCallsign,
+            QsoPartnerCall,
+            CallingMeColour,
+            ReplyingColour,
+            NewCallColour,
+            NewGridColour,
+            _workedCalls,
+            _workedGridFields);
+
+    private void OnLogbookQsosChanged(long logbookId) => _ = RefreshWorkedSetsAsync();
+
+    private async Task RefreshWorkedSetsAsync()
+    {
+        try
+        {
+            var (calls, grids) = await _logbook.LoadWorkedCallAndGridFieldsAsync().ConfigureAwait(false);
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                _workedCalls = calls;
+                _workedGridFields = grids;
+                RefreshDecodeHighlights();
+            });
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "FT4 worked-call / grid refresh failed");
+        }
     }
 
     private void RefreshUiTick()
     {
-        var utc = DateTime.UtcNow;
+        var utc = Ft4Clock.UtcNow;
         var slotStart = Ft4SlotClock.SlotStartUtc(utc, Ft4SlotClock.Ft4SlotSeconds);
         var into = Ft4SlotClock.SecondsIntoSlot(utc, Ft4SlotClock.Ft4SlotSeconds);
         var even = Ft4SlotClock.IsEvenSlot(slotStart, Ft4SlotClock.Ft4SlotSeconds);
         SlotClockText = $"{slotStart:HH:mm:ss.f} UTC  +{into:0.0}s  {(even ? "even" : "odd")}";
+        ClockSourceText = Ft4Clock.MeasuredOffset is not { } measured
+            ? _l.Get("Ft4.ClockSource.Pc")
+            : Ft4Clock.UsingGps
+                ? _l.Get("Ft4.ClockSource.Gps", -measured.TotalSeconds)
+                : _l.Get("Ft4.ClockSource.PcGpsAgrees");
 
         var progress = Math.Clamp(100.0 * into / Ft4SlotClock.Ft4SlotSeconds, 0, 100);
         SlotProgressPercent = progress;
@@ -893,33 +1250,6 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         }
 
         TxPlaybackPeakPercent = Math.Clamp(_modem.TxPlaybackPeak * 100.0, 0, 100);
-        RefreshClockWarning();
-    }
-
-    private void RefreshClockWarning()
-    {
-        // WSJT-X style: large DT across recent RX decodes usually means the PC clock is off UTC.
-        const float thresholdSec = 1.0f;
-        var recent = Decodes
-            .Where(d => d.IsReceiveActivity)
-            .Take(8)
-            .Select(d => Math.Abs(d.TimeSec))
-            .ToList();
-        if (recent.Count < 3)
-        {
-            ClockWarningText = "";
-            return;
-        }
-
-        var over = recent.Count(dt => dt >= thresholdSec);
-        if (over < 3)
-        {
-            ClockWarningText = "";
-            return;
-        }
-
-        var worst = recent.Max();
-        ClockWarningText = _l.Get("Ft4.Status.ClockWarning", worst);
     }
 
     public void Dispose()
@@ -930,6 +1260,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         _uiTimer.Stop();
         _modem.Changed -= OnModemChanged;
         ((INotifyCollectionChanged)_modem.Decodes).CollectionChanged -= OnDecodesChanged;
+        _logbook.QsosChanged -= OnLogbookQsosChanged;
         _ = StopSessionAsync();
     }
 }

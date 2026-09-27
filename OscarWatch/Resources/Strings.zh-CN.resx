@@ -188,16 +188,16 @@
     <value>{0} 小时</value>
   </data>
   <data name="Main.HamsAtRoves">
-    <value>即将进行的 rove</value>
+    <value>未来漫游电台</value>
   </data>
   <data name="Main.HamsAtRoves.Empty">
-    <value>没有适用于您 hams.at 位置的可用 rove。</value>
+    <value>没有与您在 hams.at 上的位置有重叠部分的漫游电台。</value>
   </data>
   <data name="Main.HamsAtRoves.LoadFailed">
-    <value>无法从 hams.at 加载 rove。</value>
+    <value>无法从 hams.at 加载漫游电台。</value>
   </data>
   <data name="Main.HamsAtRoves.Unavailable">
-    <value>hams.at 暂时不可用。rove 列表将自动刷新。</value>
+    <value>hams.at 暂时不可用。漫游电台列表将自动刷新。</value>
   </data>
   <data name="Main.HamsAtRoves.InvalidApiKey">
     <value>hams.at API 密钥无效。请在设置中检查。</value>
@@ -215,7 +215,7 @@
     <value>hams.at 返回了意外响应。请稍后再试。</value>
   </data>
   <data name="Main.HamsAtRoves.ResizeGrip">
-    <value>拖动以调整 rove 列表大小</value>
+    <value>拖动以调整漫游电台列表大小</value>
   </data>
   <data name="Pass.Rec">
     <value>录音</value>
@@ -715,13 +715,13 @@
     <value>更新</value>
   </data>
   <data name="Settings.Tab.Appearance">
-    <value>外观</value>
+    <value>界面</value>
   </data>
   <data name="Settings.Tab.Cloudlog">
     <value>Cloudlog</value>
   </data>
   <data name="Settings.Tab.Integrations">
-    <value>集成</value>
+    <value>更多API设置</value>
   </data>
   <data name="Settings.Tab.Radio">
     <value>电台</value>
@@ -991,16 +991,16 @@
     <value>日志设置已保存。</value>
   </data>
   <data name="Logbook.Settings.Cloudlog.Intro">
-    <value>记录 QSO 时自动上传到 Cloudlog。Cloudlog URL 和 API 密钥来自设置 → 集成。</value>
+    <value>记录 QSO 时自动上传到 Cloudlog。Cloudlog URL 和 API 密钥来自设置 → 更多API设置。</value>
   </data>
   <data name="Logbook.Settings.Cloudlog.UrlLabel">
     <value>Cloudlog URL</value>
   </data>
   <data name="Logbook.Settings.Cloudlog.UrlNote">
-    <value>在主应用程序的设置 → 集成中配置 URL 和 API 密钥。</value>
+    <value>在主应用程序的设置 → 更多API设置中配置 URL 和 API 密钥。</value>
   </data>
   <data name="Logbook.Settings.Cloudlog.NotConfigured">
-    <value>未配置 — 请打开设置 → 集成</value>
+    <value>未配置，请打开设置 → 更多API设置</value>
   </data>
   <data name="Logbook.Settings.Cloudlog.AutoUpload">
     <value>启用自动 QSO 上传</value>
@@ -1030,7 +1030,7 @@
     <value>无法从 Cloudlog 加载台站位置。</value>
   </data>
   <data name="Logbook.Settings.Cloudlog.ConfigureIntegrationsFirst">
-    <value>启用上传前，请先在设置 → 集成中配置 Cloudlog。</value>
+    <value>启用上传前，请先在设置 → 更多API设置中配置 Cloudlog。</value>
   </data>
   <data name="Logbook.Settings.Cloudlog.StationRequired">
     <value>请选择 Cloudlog 上传的台站位置。</value>
@@ -2076,6 +2076,12 @@
   <data name="Settings.Gps.UseTimeNote">
     <value>仅将 GPS 时间用于轨道推算，不会更改 Windows 系统时钟。</value>
   </data>
+  <data name="Settings.Gps.UseTimeForFt4">
+    <value>FT4 时隙计时使用 GPS 时间</value>
+  </data>
+  <data name="Settings.Gps.UseTimeForFt4Note">
+    <value>当已设置 GPS 且已定位时，FT4 会将电脑时钟与 GPS 比较。如果电脑时钟偏差超过 0.25 秒，FT4 将按 GPS 时间计算时隙。不会更改 Windows 时钟。</value>
+  </data>
   <data name="Settings.Gps.MinSatellites">
     <value>定位所需最少卫星数</value>
   </data>
@@ -2734,10 +2740,10 @@
     <value>hams.at</value>
   </data>
   <data name="Settings.HamsAt.Intro">
-    <value>在侧边栏显示 hams.at 的即将进行的卫星 rove。仅列出对您 hams.at 位置可用的警报 — 若列表为空，请在 hams.at 上设置观测位置。API 密钥存储在本地 settings.json 中。</value>
+    <value>在侧边栏中显示 hams.at 的未来漫游电台的时刻表，仅列出对您在 hams.at 上的位置有重叠部分的过境。若该列表为空，请先在 hams.at 上设置电台位置。API 密钥只存储在 settings.json 中。</value>
   </data>
   <data name="Settings.HamsAt.Enable">
-    <value>启用 hams.at 即将进行的 rove</value>
+    <value>启用 hams.at 未来漫游电台</value>
   </data>
   <data name="Settings.HamsAt.ApiKey">
     <value>hams.at API 密钥</value>
@@ -3052,7 +3058,7 @@
     <value>日志本</value>
   </data>
   <data name="Settings.Cloudlog.CheckRoveGrids">
-    <value>在 hams.at rove 上高亮我仍需要的网格</value>
+    <value>在 hams.at 漫游电台上高亮我仍需要的网格</value>
   </data>
   <data name="Settings.Cloudlog.LogbooksLoaded">
     <value>找到 {0} 个日志本</value>
@@ -3964,13 +3970,25 @@
     <value>调制解调器</value>
   </data>
   <data name="Ft4.Settings.AppearanceSection">
-    <value>外观</value>
+    <value>界面</value>
   </data>
   <data name="Ft4.Ptt.LeadMs">
     <value>PTT 提前 (ms)</value>
   </data>
   <data name="Ft4.Ptt.TailMs">
     <value>PTT 延后 (ms)</value>
+  </data>
+  <data name="Ft4.AutoReply">
+    <value>自动应答</value>
+  </data>
+  <data name="Ft4.AutoReply.Note">
+    <value>呼叫 CQ 时，应答第一个呼叫您的电台。取消后会继续呼叫 CQ，直到您点击某个电台。再次勾选后，将应答下一个呼叫，包括几秒前的呼叫。</value>
+  </data>
+  <data name="Ft4.CloseWhileTx.Title">
+    <value>正在发射时关闭 FT4</value>
+  </data>
+  <data name="Ft4.CloseWhileTx.Message">
+    <value>FT4 正在发射。关闭窗口并立即停止发射？</value>
   </data>
   <data name="Ft4.HoldTxFrequency">
     <value>保持 TX 频率</value>
@@ -3984,11 +4002,38 @@
   <data name="Ft4.AudioDopplerRx">
     <value>RX 音频多普勒</value>
   </data>
+  <data name="Ft4.ParallelTxEchoDecode">
+    <value>并行 TX 回波解码</value>
+  </data>
+  <data name="Ft4.ParallelTxEchoDecode.Note">
+    <value>在发射时隙同时运行正常解码与迟到回波处理，以便更快显示本台回波。该时隙会占用更多 CPU。除非电脑吃力，否则请保持开启。</value>
+  </data>
+  <data name="Ft4.PskReporter">
+    <value>向 PSK Reporter 报告解码</value>
+  </data>
+  <data name="Ft4.PskReporter.Note">
+    <value>大约每五分钟使用本台呼号和网格，将解码到的电台发送到 pskreporter.info。报告使用上行频率，卫星名称作为天线信息发送。</value>
+  </data>
   <data name="Ft4.DecodeFontSize">
     <value>解码文字大小</value>
   </data>
   <data name="Ft4.DecodeFontSize.Note">
     <value>解码列表字体大小（10–28）。较大字号便于视力较弱时阅读。</value>
+  </data>
+  <data name="Ft4.Decode.CallingMe">
+    <value>呼叫我</value>
+  </data>
+  <data name="Ft4.Decode.Replying">
+    <value>正在回复</value>
+  </data>
+  <data name="Ft4.Decode.ColourNote">
+    <value>解码行背景色：发给你的、当前QSO对方、日志中尚无的呼号、尚未记录的4字符网格。用颜色选择器设置；透明度越低颜色越深。</value>
+  </data>
+  <data name="Ft4.Decode.NewCall">
+    <value>新呼号</value>
+  </data>
+  <data name="Ft4.Decode.NewGrid">
+    <value>新网格</value>
   </data>
   <data name="Ft4.Settings.EchoSection">
     <value>回波校准</value>
@@ -4026,8 +4071,17 @@
   <data name="Ft4.HaltTx">
     <value>停止发射</value>
   </data>
+  <data name="Ft4.Tune">
+    <value>调谐</value>
+  </data>
   <data name="Ft4.CallCq">
     <value>CQ</value>
+  </data>
+  <data name="Ft4.SendReport">
+    <value>报告</value>
+  </data>
+  <data name="Ft4.Send73">
+    <value>73</value>
   </data>
   <data name="Ft4.SkipRrr">
     <value>跳过 RRR</value>
@@ -4080,17 +4134,35 @@
   <data name="Ft4.Status.TxHalted">
     <value>已停止发射</value>
   </data>
+  <data name="Ft4.Status.Tuning">
+    <value>调谐中 {0} Hz</value>
+  </data>
+  <data name="Ft4.Status.TuneCalibrationFailed">
+    <value>调谐未能在下行中找到自己的音调，已恢复上行微调。请改为呼叫 CQ，用回波进行校准。</value>
+  </data>
+  <data name="Ft4.Status.TuneStopped">
+    <value>调谐已停止</value>
+  </data>
   <data name="Ft4.Blocked.FmSatellite">
     <value>FM 卫星上不可使用 FT4</value>
   </data>
   <data name="Ft4.Blocked.Fo29">
     <value>FO-29 不允许使用 FT4（许可证限制）</value>
   </data>
+  <data name="Ft4.Blocked.Ao7">
+    <value>AO-7 不允许使用 FT4（AMSAT 要求）</value>
+  </data>
   <data name="Ft4.Blocked.RfPowerTooHigh">
     <value>已阻止 FT4 发射：射频功率高于 {0} W。请调低电台功率。</value>
   </data>
   <data name="Ft4.Status.CallingCq">
     <value>正在呼叫 CQ</value>
+  </data>
+  <data name="Ft4.Status.SendingReport">
+    <value>正在向 {0} 发送报告</value>
+  </data>
+  <data name="Ft4.Status.Sending73">
+    <value>正在向 {0} 发送 73</value>
   </data>
   <data name="Ft4.Status.NoTxMessage">
     <value>请先输入或生成 TX 消息</value>
@@ -4125,8 +4197,14 @@
   <data name="Ft4.Status.LogbookSaveFailed">
     <value>日志本保存失败</value>
   </data>
-  <data name="Ft4.Status.ClockWarning">
-    <value>电脑时钟可能偏离 UTC（近期 DT 约 {0:0.0} 秒）。请同步时间后重试。</value>
+  <data name="Ft4.ClockSource.Pc">
+    <value>(电脑时钟)</value>
+  </data>
+  <data name="Ft4.ClockSource.PcGpsAgrees">
+    <value>(电脑时钟，与 GPS 一致)</value>
+  </data>
+  <data name="Ft4.ClockSource.Gps">
+    <value>(GPS 时间，电脑时钟偏差 {0:+0.00;-0.00} 秒)</value>
   </data>
   <data name="Ft4.TxLevelMeter">
     <value>发射电平表</value>

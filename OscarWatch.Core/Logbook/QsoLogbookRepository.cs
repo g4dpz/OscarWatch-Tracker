@@ -7,6 +7,8 @@ namespace OscarWatch.Core.Logbook;
 
 public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
 {
+    public event Action<long>? QsosChanged;
+
     private const string LogbookSelectColumns = """
         id, name, created_utc, started_utc, ended_utc, my_callsign, my_grid_square, notes,
         cloudlog_auto_upload, cloudlog_station_profile_id
@@ -375,7 +377,7 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         command.Parameters.AddWithValue("$country", request.Country.Trim());
 
         var id = (long)(await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false) ?? 0L);
-        return new QsoRecord
+        var record = new QsoRecord
         {
             Id = id,
             LogbookId = request.LogbookId,
@@ -399,6 +401,9 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
             CreatedUtc = createdUtc,
             CloudlogUploadStatus = request.CloudlogUploadStatus
         };
+
+        QsosChanged?.Invoke(request.LogbookId);
+        return record;
     }
 
     public async Task<QsoRecord> UpdateQsoAsync(
@@ -594,6 +599,40 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
             """;
         command.Parameters.AddWithValue("$logbookId", logbookId);
         await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<(IReadOnlySet<string> Calls, IReadOnlySet<string> GridFields)> LoadWorkedCallAndGridFieldsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        await EnsureInitializedAsync(cancellationToken).ConfigureAwait(false);
+        var calls = new HashSet<string>(StringComparer.Ordinal);
+        var grids = new HashSet<string>(StringComparer.Ordinal);
+
+        await using var connection = OpenConnection();
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT call, grid_square
+            FROM qsos
+            WHERE length(trim(call)) > 0
+            """;
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+        {
+            var call = MaidenheadLocator.NormalizeCallsign(reader.GetString(0));
+            if (call.Length > 0)
+                calls.Add(call);
+
+            if (reader.IsDBNull(1))
+                continue;
+
+            foreach (var segment in MaidenheadLocator.NormalizeGrids(reader.GetString(1)).Split(',', StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (segment.Length >= 4)
+                    grids.Add(segment[..4]);
+            }
+        }
+
+        return (calls, grids);
     }
 
     public void Dispose() => _gate.Dispose();

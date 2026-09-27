@@ -31,7 +31,20 @@ target_include_directories(oscarwatch_ft8 PRIVATE
 )
 target_compile_definitions(oscarwatch_ft8 PRIVATE OSCARWATCH_FT8_EXPORTS)
 if(UNIX)
-  target_link_libraries(oscarwatch_ft8 PRIVATE m)
+  target_link_libraries(oscarwatch_ft8 PRIVATE m pthread)
+endif()
+
+if(MSVC)
+  target_compile_options(oscarwatch_ft8 PRIVATE /O2)
+  target_link_options(oscarwatch_ft8 PRIVATE /LTCG)
+else()
+  # Always optimise the shipped native decode library (WSL MinGW and CI Release builds).
+  target_compile_options(oscarwatch_ft8 PRIVATE -O3 -flto)
+  target_link_options(oscarwatch_ft8 PRIVATE -flto)
+  # __thread (monitor cache) needs libgcc emutls; static-link so operators need no extra DLL.
+  if(CMAKE_C_COMPILER MATCHES "mingw" OR WIN32)
+    target_link_options(oscarwatch_ft8 PRIVATE -static-libgcc)
+  endif()
 endif()
 
 # Output name without lib prefix quirks for P/Invoke discovery

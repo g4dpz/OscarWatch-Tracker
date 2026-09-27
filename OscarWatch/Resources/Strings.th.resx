@@ -2080,6 +2080,12 @@ LOS: {2}
   <data name="Settings.Gps.UseTimeNote">
     <value>ใช้เวลา GPS สำหรับการคำนวณวงโคจรเท่านั้น ไม่ได้เปลี่ยนนาฬิการะบบ Windows</value>
   </data>
+  <data name="Settings.Gps.UseTimeForFt4">
+    <value>ใช้เวลา GPS สำหรับช่วงเวลา FT4</value>
+  </data>
+  <data name="Settings.Gps.UseTimeForFt4Note">
+    <value>เมื่อตั้งค่า GPS และจับตำแหน่งได้แล้ว FT4 จะเทียบนาฬิกา PC กับ GPS หากนาฬิกา PC คลาดเคลื่อนเกิน 0.25 วินาที FT4 จะใช้เวลา GPS กำหนดช่วงเวลา ไม่เปลี่ยนนาฬิกา Windows</value>
+  </data>
   <data name="Settings.Gps.MinSatellites">
     <value>จำนวนดาวเทียมต่ำสุดสำหรับการล็อก</value>
   </data>
@@ -3976,6 +3982,18 @@ LOS: {2}
   <data name="Ft4.Ptt.TailMs">
     <value>ท้าย PTT (ms)</value>
   </data>
+  <data name="Ft4.AutoReply">
+    <value>ตอบอัตโนมัติ</value>
+  </data>
+  <data name="Ft4.AutoReply.Note">
+    <value>ขณะเรียก CQ จะตอบสถานีแรกที่เรียกคุณ ยกเลิกเพื่อเรียก CQ ต่อไปจนกว่าจะคลิกสถานี เลือกอีกครั้งเพื่อตอบสถานีถัดไป รวมถึงสถานีที่เรียกเมื่อไม่กี่วินาทีก่อน</value>
+  </data>
+  <data name="Ft4.CloseWhileTx.Title">
+    <value>ปิด FT4 ขณะส่ง</value>
+  </data>
+  <data name="Ft4.CloseWhileTx.Message">
+    <value>FT4 กำลังส่งอยู่ ปิดหน้าต่างและหยุดส่งทันทีหรือไม่?</value>
+  </data>
   <data name="Ft4.HoldTxFrequency">
     <value>คงความถี่ TX</value>
   </data>
@@ -3988,11 +4006,38 @@ LOS: {2}
   <data name="Ft4.AudioDopplerRx">
     <value>ดอปเปลอร์เสียงบน RX</value>
   </data>
+  <data name="Ft4.ParallelTxEchoDecode">
+    <value>ถอดรหัสเอคโค่ TX แบบขนาน</value>
+  </data>
+  <data name="Ft4.ParallelTxEchoDecode.Note">
+    <value>ในช่วงส่ง จะถอดรหัสปกติและรอบเอคโค่ที่มาช้าพร้อมกัน เพื่อให้เห็นสำเนาของตัวเองเร็วขึ้น ใช้ CPU มากขึ้นในช่วงนั้น เปิดไว้ได้ เว้นแต่เครื่องช้า</value>
+  </data>
+  <data name="Ft4.PskReporter">
+    <value>รายงานการถอดรหัสไปยัง PSK Reporter</value>
+  </data>
+  <data name="Ft4.PskReporter.Note">
+    <value>ส่งสถานีที่ถอดรหัสได้ไปยัง pskreporter.info ประมาณทุกห้านาที โดยใช้คอลซายน์และกริดของสถานีคุณ สปอตใช้ความถี่อัปลิงก์ และส่งชื่อดาวเทียมเป็นข้อมูลสายอากาศ</value>
+  </data>
   <data name="Ft4.DecodeFontSize">
     <value>ขนาดข้อความถอดรหัส</value>
   </data>
   <data name="Ft4.DecodeFontSize.Note">
     <value>ขนาดแบบอักษรรายการถอดรหัส (10–28) ขนาดใหญ่ช่วยเมื่อสายตาไม่ดี</value>
+  </data>
+  <data name="Ft4.Decode.CallingMe">
+    <value>เรียกฉัน</value>
+  </data>
+  <data name="Ft4.Decode.Replying">
+    <value>ตอบกลับ</value>
+  </data>
+  <data name="Ft4.Decode.ColourNote">
+    <value>สีพื้นหลังบรรทัดถอดรหัส: ที่เรียกหาคุณ สถานีใน QSO ปัจจุบัน สัญญาณเรียกที่ยังไม่มีในสมุดบันทึก หรือกริด 4 ตัวอักษที่ยังไม่ได้บันทึก ใช้ตัวเลือกสี ความโปร่งใสต่ำจะเข้มขึ้น</value>
+  </data>
+  <data name="Ft4.Decode.NewCall">
+    <value>สัญญาณเรียกใหม่</value>
+  </data>
+  <data name="Ft4.Decode.NewGrid">
+    <value>กริดใหม่</value>
   </data>
   <data name="Ft4.Settings.EchoSection">
     <value>การปรับเทียบเสียงสะท้อน</value>
@@ -4030,8 +4075,17 @@ LOS: {2}
   <data name="Ft4.HaltTx">
     <value>หยุด Tx</value>
   </data>
+  <data name="Ft4.Tune">
+    <value>จูน</value>
+  </data>
   <data name="Ft4.CallCq">
     <value>CQ</value>
+  </data>
+  <data name="Ft4.SendReport">
+    <value>รายงาน</value>
+  </data>
+  <data name="Ft4.Send73">
+    <value>73</value>
   </data>
   <data name="Ft4.SkipRrr">
     <value>ข้าม RRR</value>
@@ -4084,17 +4138,35 @@ LOS: {2}
   <data name="Ft4.Status.TxHalted">
     <value>หยุดการส่งแล้ว</value>
   </data>
+  <data name="Ft4.Status.Tuning">
+    <value>กำลังจูนที่ {0} Hz</value>
+  </data>
+  <data name="Ft4.Status.TuneCalibrationFailed">
+    <value>Tune หาโทนของตัวเองในดาวน์ลิงก์ไม่พบ จึงคืนค่าการปรับอัปลิงก์ ให้เรียก CQ เพื่อปรับเทียบจากเสียงสะท้อนแทน</value>
+  </data>
+  <data name="Ft4.Status.TuneStopped">
+    <value>หยุดจูนแล้ว</value>
+  </data>
   <data name="Ft4.Blocked.FmSatellite">
     <value>ไม่สามารถใช้ FT4 บนดาวเทียม FM ได้</value>
   </data>
   <data name="Ft4.Blocked.Fo29">
     <value>ไม่อนุญาตให้ใช้ FT4 บน FO-29 (ข้อจำกัดใบอนุญาต)</value>
   </data>
+  <data name="Ft4.Blocked.Ao7">
+    <value>ไม่อนุญาตให้ใช้ FT4 บน AO-7 (ตามคำขอของ AMSAT)</value>
+  </data>
   <data name="Ft4.Blocked.RfPowerTooHigh">
     <value>บล็อกการส่ง FT4: กำลัง RF สูงกว่า {0} W โปรดลดกำลังบนวิทยุ</value>
   </data>
   <data name="Ft4.Status.CallingCq">
     <value>กำลังเรียก CQ</value>
+  </data>
+  <data name="Ft4.Status.SendingReport">
+    <value>กำลังส่งรายงานถึง {0}</value>
+  </data>
+  <data name="Ft4.Status.Sending73">
+    <value>กำลังส่ง 73 ถึง {0}</value>
   </data>
   <data name="Ft4.Status.NoTxMessage">
     <value>กรุณาใส่หรือสร้างข้อความ TX ก่อน</value>
@@ -4129,8 +4201,14 @@ LOS: {2}
   <data name="Ft4.Status.LogbookSaveFailed">
     <value>บันทึกสมุดปูมล้มเหลว</value>
   </data>
-  <data name="Ft4.Status.ClockWarning">
-    <value>นาฬิกา PC อาจคลาดจาก UTC (DT ล่าสุดประมาณ {0:0.0} วินาที) ซิงก์เวลาแล้วลองใหม่</value>
+  <data name="Ft4.ClockSource.Pc">
+    <value>(นาฬิกา PC)</value>
+  </data>
+  <data name="Ft4.ClockSource.PcGpsAgrees">
+    <value>(นาฬิกา PC ตรงกับ GPS)</value>
+  </data>
+  <data name="Ft4.ClockSource.Gps">
+    <value>(เวลา GPS นาฬิกา PC คลาด {0:+0.00;-0.00} วินาที)</value>
   </data>
   <data name="Ft4.TxLevelMeter">
     <value>มิเตอร์ระดับ TX</value>

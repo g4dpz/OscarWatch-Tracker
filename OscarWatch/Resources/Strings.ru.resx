@@ -2080,6 +2080,12 @@ LOS: {2}
   <data name="Settings.Gps.UseTimeNote">
     <value>Время GPS идёт только на расчёт орбиты и не меняет системные часы Windows.</value>
   </data>
+  <data name="Settings.Gps.UseTimeForFt4">
+    <value>Использовать время GPS для слотов FT4</value>
+  </data>
+  <data name="Settings.Gps.UseTimeForFt4Note">
+    <value>Если GPS настроен и определил местоположение, FT4 сверяет с ним часы ПК. Если часы ПК расходятся более чем на четверть секунды, FT4 отсчитывает слоты по времени GPS. Часы Windows не изменяются.</value>
+  </data>
   <data name="Settings.Gps.MinSatellites">
     <value>Минимум спутников для фикса</value>
   </data>
@@ -3976,6 +3982,18 @@ LOS: {2}
   <data name="Ft4.Ptt.TailMs">
     <value>Хвост PTT (мс)</value>
   </data>
+  <data name="Ft4.AutoReply">
+    <value>Автоответ</value>
+  </data>
+  <data name="Ft4.AutoReply.Note">
+    <value>При вызове CQ отвечает первой станции, которая вас вызвала. Снимите флажок, чтобы продолжать CQ, пока вы не выберете станцию. Снова установите флажок, чтобы ответить следующей станции, в том числе вызвавшей несколько секунд назад.</value>
+  </data>
+  <data name="Ft4.CloseWhileTx.Title">
+    <value>Закрыть FT4 во время передачи</value>
+  </data>
+  <data name="Ft4.CloseWhileTx.Message">
+    <value>FT4 передает. Закрыть окно и сразу остановить передачу?</value>
+  </data>
   <data name="Ft4.HoldTxFrequency">
     <value>Держать частоту TX</value>
   </data>
@@ -3988,11 +4006,38 @@ LOS: {2}
   <data name="Ft4.AudioDopplerRx">
     <value>Аудио-Доплер на RX</value>
   </data>
+  <data name="Ft4.ParallelTxEchoDecode">
+    <value>Параллельная декодировка TX-эха</value>
+  </data>
+  <data name="Ft4.ParallelTxEchoDecode.Note">
+    <value>В TX-слотах обычная декодировка и поздний проход эха идут вместе, чтобы своя копия появлялась быстрее. Больше нагрузка на CPU в этом слоте. Оставляйте включённым, если ПК не слабый.</value>
+  </data>
+  <data name="Ft4.PskReporter">
+    <value>Отправлять декодирования в PSK Reporter</value>
+  </data>
+  <data name="Ft4.PskReporter.Note">
+    <value>Примерно раз в пять минут отправляет принятые станции на pskreporter.info с позывным и локатором вашей станции. Споты используют частоту аплинка, а название спутника передаётся как антенна.</value>
+  </data>
   <data name="Ft4.DecodeFontSize">
     <value>Размер текста декодов</value>
   </data>
   <data name="Ft4.DecodeFontSize.Note">
     <value>Размер шрифта списка декодов (10–28). Больший размер удобнее при слабом зрении.</value>
+  </data>
+  <data name="Ft4.Decode.CallingMe">
+    <value>Вызывает меня</value>
+  </data>
+  <data name="Ft4.Decode.Replying">
+    <value>Отвечает</value>
+  </data>
+  <data name="Ft4.Decode.ColourNote">
+    <value>Фон строк декодирования: адресованные вам, станция текущего QSO, позывной ещё не в журнале, или 4-символьный квадрат, который вы ещё не записывали. Выберите цвет; меньше прозрачности, сильнее оттенок.</value>
+  </data>
+  <data name="Ft4.Decode.NewCall">
+    <value>Новый позывной</value>
+  </data>
+  <data name="Ft4.Decode.NewGrid">
+    <value>Новый квадрат</value>
   </data>
   <data name="Ft4.Settings.EchoSection">
     <value>Калибровка эха</value>
@@ -4030,8 +4075,17 @@ LOS: {2}
   <data name="Ft4.HaltTx">
     <value>Остановить Tx</value>
   </data>
+  <data name="Ft4.Tune">
+    <value>Tune</value>
+  </data>
   <data name="Ft4.CallCq">
     <value>CQ</value>
+  </data>
+  <data name="Ft4.SendReport">
+    <value>Рапорт</value>
+  </data>
+  <data name="Ft4.Send73">
+    <value>73</value>
   </data>
   <data name="Ft4.SkipRrr">
     <value>Пропустить RRR</value>
@@ -4084,17 +4138,35 @@ LOS: {2}
   <data name="Ft4.Status.TxHalted">
     <value>Передача остановлена</value>
   </data>
+  <data name="Ft4.Status.Tuning">
+    <value>Tune на {0} Гц</value>
+  </data>
+  <data name="Ft4.Status.TuneCalibrationFailed">
+    <value>Tune не нашёл свой тон в нисходящем канале, поэтому поправка восходящего канала отменена. Дайте CQ, чтобы откалибровать по своему эху.</value>
+  </data>
+  <data name="Ft4.Status.TuneStopped">
+    <value>Tune остановлен</value>
+  </data>
   <data name="Ft4.Blocked.FmSatellite">
     <value>FT4 недоступен на ЧМ-спутниках</value>
   </data>
   <data name="Ft4.Blocked.Fo29">
     <value>FT4 не разрешён на FO-29 (ограничение лицензии)</value>
   </data>
+  <data name="Ft4.Blocked.Ao7">
+    <value>FT4 не разрешён на AO-7 (просьба AMSAT)</value>
+  </data>
   <data name="Ft4.Blocked.RfPowerTooHigh">
     <value>Передача FT4 заблокирована: мощность ВЧ выше {0} Вт. Уменьшите мощность на радиостанции.</value>
   </data>
   <data name="Ft4.Status.CallingCq">
     <value>Вызов CQ</value>
+  </data>
+  <data name="Ft4.Status.SendingReport">
+    <value>Передача рапорта для {0}</value>
+  </data>
+  <data name="Ft4.Status.Sending73">
+    <value>Передача 73 для {0}</value>
   </data>
   <data name="Ft4.Status.NoTxMessage">
     <value>Сначала введите или создайте TX-сообщение</value>
@@ -4129,8 +4201,14 @@ LOS: {2}
   <data name="Ft4.Status.LogbookSaveFailed">
     <value>Не удалось сохранить журнал</value>
   </data>
-  <data name="Ft4.Status.ClockWarning">
-    <value>Часы ПК могут отличаться от UTC (недавний DT около {0:0.0} с). Синхронизируйте время и повторите.</value>
+  <data name="Ft4.ClockSource.Pc">
+    <value>(часы ПК)</value>
+  </data>
+  <data name="Ft4.ClockSource.PcGpsAgrees">
+    <value>(часы ПК, совпадают с GPS)</value>
+  </data>
+  <data name="Ft4.ClockSource.Gps">
+    <value>(время GPS, часы ПК расходятся на {0:+0.00;-0.00} с)</value>
   </data>
   <data name="Ft4.TxLevelMeter">
     <value>Индикатор уровня TX</value>

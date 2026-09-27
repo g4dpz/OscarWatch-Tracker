@@ -61,7 +61,8 @@ internal static class Ft8Native
         {
             try
             {
-                ow_ft8_clear_callsigns();
+                // Touch an export without clearing the callsign hashtable.
+                ow_ft8_remember_callsign("");
                 return true;
             }
             catch (DllNotFoundException)
@@ -101,15 +102,23 @@ internal static class Ft8Native
         int numSamples,
         int sampleRate,
         int isFt4,
+        float fMinHz,
+        float fMaxHz,
         [Out] Decode[] outDecodes,
         int outCapacity);
 
     [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ow_ft8_remember_callsign(
+    private static extern void ow_ft8_remember_callsign(
         [MarshalAs(UnmanagedType.LPUTF8Str)] string callsign);
 
     [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ow_ft8_clear_callsigns();
+    private static extern void ow_ft8_clear_callsigns();
+
+    public static void RememberCallsign(string callsign) =>
+        ow_ft8_remember_callsign(callsign);
+
+    public static void ClearCallsigns() =>
+        ow_ft8_clear_callsigns();
 
     public static float[]? EncodeFt4(string message, float freqHz, int sampleRate = 12000)
     {
@@ -144,6 +153,7 @@ internal static class Ft8Native
         try
         {
             // Hashed / portable callsigns (e.g. MM9SQL/M) need to be in the table first.
+            // Native hashtable locking allows encode/decode to run on parallel TX slots.
             RememberHashedTokens(text);
             rc = ow_ft8_encode_pcm(text, freqHz, isFt4: 1, buffer, capacity, sampleRate, out count);
         }
@@ -163,6 +173,7 @@ internal static class Ft8Native
             error = rc switch
             {
                 -2 => $"Could not pack \"{text}\" as FT4 (check callsign/grid format).",
+                -3 => "Encode ran out of memory.",
                 -4 => "Encode buffer too small.",
                 _ => $"Encode failed (code {rc}) for \"{text}\"."
             };
@@ -187,10 +198,13 @@ internal static class Ft8Native
         if (string.IsNullOrWhiteSpace(message))
             return "";
 
+        // ft8_lib cannot pack the <CALL> display form; the bare call is hashed the same way.
         return message.Trim()
             .Replace('\u2215', '/')
             .Replace('\u2044', '/')
             .Replace('\\', '/')
+            .Replace("<", "", StringComparison.Ordinal)
+            .Replace(">", "", StringComparison.Ordinal)
             .ToUpperInvariant();
     }
 
@@ -204,10 +218,45 @@ internal static class Ft8Native
         }
     }
 
-    public static Decode[] DecodeFt4(float[] samples, int sampleRate = 12000)
+    /// <summary>Half-width pad around RX/TX audio when building the Costas search band (Hz).</summary>
+    public const double DefaultSearchHalfWidthHz = 700;
+
+    /// <summary>
+    /// Search band covering both RX and TX tones (plus pad), clamped to the USB passband.
+    /// </summary>
+    public static void ResolveSearchBand(double rxHz, double txHz, out float fMinHz, out float fMaxHz)
+    {
+        var a = Math.Clamp(rxHz, 200, 3000);
+        var b = Math.Clamp(txHz, 200, 3000);
+        var lo = Math.Min(a, b);
+        var hi = Math.Max(a, b);
+        fMinHz = (float)Math.Clamp(lo - DefaultSearchHalfWidthHz, 100, 2900);
+        fMaxHz = (float)Math.Clamp(hi + DefaultSearchHalfWidthHz, fMinHz + 100, 3000);
+    }
+
+    public static Decode[] DecodeFt4(
+        float[] samples,
+        int sampleRate = 12000,
+        double centreHz = 1500,
+        double halfWidthHz = DefaultSearchHalfWidthHz)
+    {
+        var fMin = (float)Math.Clamp(centreHz - halfWidthHz, 100, 2900);
+        var fMax = (float)Math.Clamp(centreHz + halfWidthHz, fMin + 100, 3000);
+        return DecodeFt4(samples, sampleRate, fMin, fMax);
+    }
+
+    public static Decode[] DecodeFt4(float[] samples, int sampleRate, float fMinHz, float fMaxHz)
     {
         var output = new Decode[50];
-        var n = ow_ft8_decode_pcm(samples, samples.Length, sampleRate, isFt4: 1, output, output.Length);
+        var n = ow_ft8_decode_pcm(
+            samples,
+            samples.Length,
+            sampleRate,
+            isFt4: 1,
+            fMinHz,
+            fMaxHz,
+            output,
+            output.Length);
         if (n <= 0)
             return [];
         var result = new Decode[n];

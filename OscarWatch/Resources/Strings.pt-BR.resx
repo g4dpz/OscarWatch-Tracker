@@ -2076,6 +2076,12 @@ Continuar?</value>
   <data name="Settings.Gps.UseTimeNote">
     <value>Usa o horário do GPS apenas para propagação orbital — não altera o relógio do Windows.</value>
   </data>
+  <data name="Settings.Gps.UseTimeForFt4">
+    <value>Usar a hora do GPS para os intervalos do FT4</value>
+  </data>
+  <data name="Settings.Gps.UseTimeForFt4Note">
+    <value>Quando há um GPS configurado e com posição, o FT4 compara o relógio do PC com ele. Se o PC estiver mais de um quarto de segundo fora, o FT4 usa a hora do GPS para os intervalos. Não altera o relógio do Windows.</value>
+  </data>
   <data name="Settings.Gps.MinSatellites">
     <value>Satélites mínimos para fix</value>
   </data>
@@ -3972,6 +3978,18 @@ Mais recente: {1} ({2})</value>
   <data name="Ft4.Ptt.TailMs">
     <value>Cauda PTT (ms)</value>
   </data>
+  <data name="Ft4.AutoReply">
+    <value>Resposta automática</value>
+  </data>
+  <data name="Ft4.AutoReply.Note">
+    <value>Ao chamar CQ, responde à primeira estação que o chamar. Desmarque para continuar chamando CQ até clicar numa estação. Marque de novo para responder à próxima, inclusive uma dos últimos segundos.</value>
+  </data>
+  <data name="Ft4.CloseWhileTx.Title">
+    <value>Fechar o FT4 durante a transmissão</value>
+  </data>
+  <data name="Ft4.CloseWhileTx.Message">
+    <value>O FT4 está transmitindo. Fechar a janela e parar a transmissão agora?</value>
+  </data>
   <data name="Ft4.HoldTxFrequency">
     <value>Manter freq. TX</value>
   </data>
@@ -3984,11 +4002,38 @@ Mais recente: {1} ({2})</value>
   <data name="Ft4.AudioDopplerRx">
     <value>Doppler de áudio no RX</value>
   </data>
+  <data name="Ft4.ParallelTxEchoDecode">
+    <value>Decode paralelo de eco TX</value>
+  </data>
+  <data name="Ft4.ParallelTxEchoDecode.Note">
+    <value>Nas janelas de transmissão, executa o decode normal e um passe de eco tardio juntos para a sua cópia aparecer mais cedo. Usa mais CPU nessa janela. Deixe ligado, a menos que o PC fique sobrecarregado.</value>
+  </data>
+  <data name="Ft4.PskReporter">
+    <value>Reportar decodificações ao PSK Reporter</value>
+  </data>
+  <data name="Ft4.PskReporter.Note">
+    <value>Envia as estações que você decodifica ao pskreporter.info a cada cinco minutos, aproximadamente, usando o indicativo e o locator da estação. Os spots usam a frequência de subida, e o nome do satélite é enviado como sua antena.</value>
+  </data>
   <data name="Ft4.DecodeFontSize">
     <value>Tamanho do texto de decode</value>
   </data>
   <data name="Ft4.DecodeFontSize.Note">
     <value>Tamanho da fonte da lista de decodes (10–28). Tamanhos maiores ajudam com visão reduzida.</value>
+  </data>
+  <data name="Ft4.Decode.CallingMe">
+    <value>Me chamando</value>
+  </data>
+  <data name="Ft4.Decode.Replying">
+    <value>Respondendo</value>
+  </data>
+  <data name="Ft4.Decode.ColourNote">
+    <value>Fundos das linhas de decodificação: dirigidas a você, a estação do QSO atual, um indicativo ainda não no logbook, ou um grid de 4 caracteres que você ainda não registrou. Use o seletor de cor; menos transparência deixa o tom mais forte.</value>
+  </data>
+  <data name="Ft4.Decode.NewCall">
+    <value>Indicativo novo</value>
+  </data>
+  <data name="Ft4.Decode.NewGrid">
+    <value>Grid novo</value>
   </data>
   <data name="Ft4.Settings.EchoSection">
     <value>Calibração de eco</value>
@@ -4026,8 +4071,17 @@ Mais recente: {1} ({2})</value>
   <data name="Ft4.HaltTx">
     <value>Parar Tx</value>
   </data>
+  <data name="Ft4.Tune">
+    <value>Sintonizar</value>
+  </data>
   <data name="Ft4.CallCq">
     <value>CQ</value>
+  </data>
+  <data name="Ft4.SendReport">
+    <value>Reporte</value>
+  </data>
+  <data name="Ft4.Send73">
+    <value>73</value>
   </data>
   <data name="Ft4.SkipRrr">
     <value>Pular RRR</value>
@@ -4080,17 +4134,35 @@ Mais recente: {1} ({2})</value>
   <data name="Ft4.Status.TxHalted">
     <value>Transmissão parada</value>
   </data>
+  <data name="Ft4.Status.Tuning">
+    <value>Sintonizando em {0} Hz</value>
+  </data>
+  <data name="Ft4.Status.TuneCalibrationFailed">
+    <value>O Tune não encontrou o próprio tom no downlink, então o ajuste de uplink foi restaurado. Chame CQ para calibrar pelo seu eco.</value>
+  </data>
+  <data name="Ft4.Status.TuneStopped">
+    <value>Sintonização parada</value>
+  </data>
   <data name="Ft4.Blocked.FmSatellite">
     <value>FT4 não está disponível em satélites FM</value>
   </data>
   <data name="Ft4.Blocked.Fo29">
     <value>FT4 não é permitido em FO-29 (restrição de licença)</value>
   </data>
+  <data name="Ft4.Blocked.Ao7">
+    <value>FT4 não é permitido em AO-7 (pedido da AMSAT)</value>
+  </data>
   <data name="Ft4.Blocked.RfPowerTooHigh">
     <value>Transmissão FT4 bloqueada: a potência de RF está acima de {0} W. Reduza a potência no rádio.</value>
   </data>
   <data name="Ft4.Status.CallingCq">
     <value>Chamando CQ</value>
+  </data>
+  <data name="Ft4.Status.SendingReport">
+    <value>Enviando reporte para {0}</value>
+  </data>
+  <data name="Ft4.Status.Sending73">
+    <value>Enviando 73 para {0}</value>
   </data>
   <data name="Ft4.Status.NoTxMessage">
     <value>Digite ou gere uma mensagem TX primeiro</value>
@@ -4125,8 +4197,14 @@ Mais recente: {1} ({2})</value>
   <data name="Ft4.Status.LogbookSaveFailed">
     <value>Falha ao guardar no logbook</value>
   </data>
-  <data name="Ft4.Status.ClockWarning">
-    <value>O relógio do PC pode estar desalinhado com o UTC (DT recente ~{0:0.0} s). Sincronize a hora e tente novamente.</value>
+  <data name="Ft4.ClockSource.Pc">
+    <value>(relógio do PC)</value>
+  </data>
+  <data name="Ft4.ClockSource.PcGpsAgrees">
+    <value>(relógio do PC, confere com o GPS)</value>
+  </data>
+  <data name="Ft4.ClockSource.Gps">
+    <value>(hora do GPS, relógio do PC fora {0:+0.00;-0.00} s)</value>
   </data>
   <data name="Ft4.TxLevelMeter">
     <value>Medidor de nível TX</value>

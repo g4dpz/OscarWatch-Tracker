@@ -5,6 +5,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <pthread.h>
+#endif
+
 #include <common/common.h>
 #include <common/monitor.h>
 #include <ft8/constants.h>
@@ -18,7 +24,8 @@
 
 #define CALLSIGN_HASHTABLE_SIZE 256
 #define kMin_score 10
-#define kMax_candidates 140
+#define kMax_candidates 60
+#define kLDPC_iterations_fast 10
 #define kLDPC_iterations 25
 #define kFreq_osr 2
 #define kTime_osr 2
@@ -31,6 +38,40 @@ static struct
 
 static int callsign_hashtable_size;
 
+#ifdef _WIN32
+static CRITICAL_SECTION g_hash_lock;
+static INIT_ONCE g_hash_once = INIT_ONCE_STATIC_INIT;
+
+static BOOL CALLBACK hash_lock_init_once(PINIT_ONCE once, PVOID param, PVOID* context)
+{
+    (void)once;
+    (void)param;
+    (void)context;
+    InitializeCriticalSection(&g_hash_lock);
+    return TRUE;
+}
+
+static void hash_lock(void)
+{
+    InitOnceExecuteOnce(&g_hash_once, hash_lock_init_once, NULL, NULL);
+    EnterCriticalSection(&g_hash_lock);
+}
+static void hash_unlock(void)
+{
+    LeaveCriticalSection(&g_hash_lock);
+}
+#else
+static pthread_mutex_t g_hash_lock = PTHREAD_MUTEX_INITIALIZER;
+static void hash_lock(void)
+{
+    pthread_mutex_lock(&g_hash_lock);
+}
+static void hash_unlock(void)
+{
+    pthread_mutex_unlock(&g_hash_lock);
+}
+#endif
+
 static void hashtable_init(void)
 {
     callsign_hashtable_size = 0;
@@ -39,40 +80,60 @@ static void hashtable_init(void)
 
 static void hashtable_add(const char* callsign, uint32_t hash)
 {
+    hash_lock();
+    if (callsign_hashtable_size >= CALLSIGN_HASHTABLE_SIZE - 1)
+    {
+        hash_unlock();
+        return;
+    }
     uint16_t hash10 = (hash >> 12) & 0x3FFu;
     int idx_hash = (hash10 * 23) % CALLSIGN_HASHTABLE_SIZE;
+    int probes = 0;
     while (callsign_hashtable[idx_hash].callsign[0] != '\0')
     {
         if (((callsign_hashtable[idx_hash].hash & 0x3FFFFFu) == hash)
             && (0 == strcmp(callsign_hashtable[idx_hash].callsign, callsign)))
         {
             callsign_hashtable[idx_hash].hash &= 0x3FFFFFu;
+            hash_unlock();
             return;
         }
         idx_hash = (idx_hash + 1) % CALLSIGN_HASHTABLE_SIZE;
+        if (++probes >= CALLSIGN_HASHTABLE_SIZE)
+        {
+            hash_unlock();
+            return;
+        }
     }
     callsign_hashtable_size++;
     strncpy(callsign_hashtable[idx_hash].callsign, callsign, 11);
     callsign_hashtable[idx_hash].callsign[11] = '\0';
     callsign_hashtable[idx_hash].hash = hash;
+    hash_unlock();
 }
 
 static bool hashtable_lookup(ftx_callsign_hash_type_t hash_type, uint32_t hash, char* callsign)
 {
+    hash_lock();
     uint8_t hash_shift = (hash_type == FTX_CALLSIGN_HASH_10_BITS) ? 12
         : (hash_type == FTX_CALLSIGN_HASH_12_BITS ? 10 : 0);
     uint16_t hash10 = (hash >> (12 - hash_shift)) & 0x3FFu;
     int idx_hash = (hash10 * 23) % CALLSIGN_HASHTABLE_SIZE;
+    int probes = 0;
     while (callsign_hashtable[idx_hash].callsign[0] != '\0')
     {
         if (((callsign_hashtable[idx_hash].hash & 0x3FFFFFu) >> hash_shift) == hash)
         {
             strcpy(callsign, callsign_hashtable[idx_hash].callsign);
+            hash_unlock();
             return true;
         }
         idx_hash = (idx_hash + 1) % CALLSIGN_HASHTABLE_SIZE;
+        if (++probes >= CALLSIGN_HASHTABLE_SIZE)
+            break;
     }
     callsign[0] = '\0';
+    hash_unlock();
     return false;
 }
 
@@ -85,11 +146,67 @@ static int hashtable_ready;
 
 static void ensure_hashtable(void)
 {
+    hash_lock();
     if (!hashtable_ready)
     {
         hashtable_init();
         hashtable_ready = 1;
     }
+    hash_unlock();
+}
+
+typedef struct
+{
+    int ready;
+    int sample_rate;
+    int is_ft4;
+    float f_min;
+    float f_max;
+    monitor_t mon;
+} ow_monitor_cache_t;
+
+#if defined(_MSC_VER)
+static __declspec(thread) ow_monitor_cache_t g_mon_cache;
+#else
+static __thread ow_monitor_cache_t g_mon_cache;
+#endif
+
+static monitor_t* acquire_monitor(int sample_rate, int is_ft4, float f_min_hz, float f_max_hz)
+{
+    ftx_protocol_t protocol = is_ft4 ? FTX_PROTOCOL_FT4 : FTX_PROTOCOL_FT8;
+    if (g_mon_cache.ready
+        && g_mon_cache.sample_rate == sample_rate
+        && g_mon_cache.is_ft4 == is_ft4
+        && g_mon_cache.f_min == f_min_hz
+        && g_mon_cache.f_max == f_max_hz)
+    {
+        monitor_reset(&g_mon_cache.mon);
+        if (g_mon_cache.mon.last_frame && g_mon_cache.mon.nfft > 0)
+            memset(g_mon_cache.mon.last_frame, 0, (size_t)g_mon_cache.mon.nfft * sizeof(float));
+        return &g_mon_cache.mon;
+    }
+
+    if (g_mon_cache.ready)
+    {
+        monitor_free(&g_mon_cache.mon);
+        g_mon_cache.ready = 0;
+    }
+
+    monitor_config_t mon_cfg = {
+        .f_min = f_min_hz,
+        .f_max = f_max_hz,
+        .sample_rate = sample_rate,
+        .time_osr = kTime_osr,
+        .freq_osr = kFreq_osr,
+        .protocol = protocol
+    };
+    monitor_init(&g_mon_cache.mon, &mon_cfg);
+    g_mon_cache.sample_rate = sample_rate;
+    g_mon_cache.is_ft4 = is_ft4;
+    g_mon_cache.f_min = f_min_hz;
+    g_mon_cache.f_max = f_max_hz;
+    g_mon_cache.ready = 1;
+    return &g_mon_cache.mon;
 }
 
 static void gfsk_pulse(int n_spsym, float symbol_bt, float* pulse)
@@ -103,7 +220,22 @@ static void gfsk_pulse(int n_spsym, float symbol_bt, float* pulse)
     }
 }
 
-static void synth_gfsk(
+/* FT4 @ 12 kHz: n_spsym = round(12000 * 0.048) = 576; pulse length 3*576. */
+static float g_ft4_12k_pulse[3 * 576];
+static int g_ft4_12k_pulse_ready;
+
+static const float* ft4_pulse_12k(void)
+{
+    if (!g_ft4_12k_pulse_ready)
+    {
+        gfsk_pulse(576, FT4_SYMBOL_BT, g_ft4_12k_pulse);
+        g_ft4_12k_pulse_ready = 1;
+    }
+    return g_ft4_12k_pulse;
+}
+
+/// @return 0 on success, -1 on allocation failure (signal left untouched).
+static int synth_gfsk(
     const uint8_t* symbols,
     int n_sym,
     float f0,
@@ -118,18 +250,31 @@ static void synth_gfsk(
     float dphi_peak = 2 * (float)M_PI * hmod / n_spsym;
 
     float* dphi = (float*)calloc((size_t)(n_wave + 2 * n_spsym), sizeof(float));
-    float* pulse = (float*)malloc((size_t)(3 * n_spsym) * sizeof(float));
+    float* pulse_storage = NULL;
+    const float* pulse;
+    if (n_spsym == 576 && signal_rate == 12000
+        && symbol_bt == FT4_SYMBOL_BT
+        && fabsf(symbol_period - FT4_SYMBOL_PERIOD) < 1e-6f)
+    {
+        pulse = ft4_pulse_12k();
+    }
+    else
+    {
+        pulse_storage = (float*)malloc((size_t)(3 * n_spsym) * sizeof(float));
+        if (pulse_storage)
+            gfsk_pulse(n_spsym, symbol_bt, pulse_storage);
+        pulse = pulse_storage;
+    }
+
     if (!dphi || !pulse)
     {
         free(dphi);
-        free(pulse);
-        return;
+        free(pulse_storage);
+        return -1;
     }
 
     for (int i = 0; i < n_wave + 2 * n_spsym; ++i)
         dphi[i] = 2 * (float)M_PI * f0 / signal_rate;
-
-    gfsk_pulse(n_spsym, symbol_bt, pulse);
 
     for (int i = 0; i < n_sym; ++i)
     {
@@ -160,7 +305,8 @@ static void synth_gfsk(
     }
 
     free(dphi);
-    free(pulse);
+    free(pulse_storage);
+    return 0;
 }
 
 OW_FT8_API void ow_ft8_remember_callsign(const char* callsign)
@@ -177,8 +323,10 @@ OW_FT8_API void ow_ft8_remember_callsign(const char* callsign)
 
 OW_FT8_API void ow_ft8_clear_callsigns(void)
 {
+    hash_lock();
     hashtable_init();
     hashtable_ready = 1;
+    hash_unlock();
 }
 
 OW_FT8_API int ow_ft8_encode_pcm(
@@ -215,9 +363,8 @@ OW_FT8_API int ow_ft8_encode_pcm(
 
     int num_samples = (int)(0.5f + num_tones * symbol_period * sample_rate);
     int slot_samples = (int)(0.5f + slot_time * sample_rate);
-    /* FT4's candidate search only covers early time offsets. A long centred
-     * silence pad pushes the Costas symbols outside that window, so keep a
-     * short lead-in and put the remaining silence after the waveform. */
+    /* FT4: keep a short lead-in so the burst stays early in the slot for
+     * receive-side copies; remaining silence follows the waveform. */
     int num_silence_head = (int)(0.5f + 0.5f * sample_rate); /* 0.5 s */
     if (num_silence_head + num_samples > slot_samples)
         num_silence_head = 0;
@@ -232,7 +379,11 @@ OW_FT8_API int ow_ft8_encode_pcm(
     }
 
     memset(out_samples, 0, (size_t)num_total * sizeof(float));
-    synth_gfsk(tones, num_tones, freq_hz, symbol_bt, symbol_period, sample_rate, out_samples + num_silence_head);
+    if (synth_gfsk(tones, num_tones, freq_hz, symbol_bt, symbol_period, sample_rate, out_samples + num_silence_head) != 0)
+    {
+        free(tones);
+        return -3;
+    }
     free(tones);
 
     *out_count = num_total;
@@ -244,6 +395,8 @@ OW_FT8_API int ow_ft8_decode_pcm(
     int num_samples,
     int sample_rate,
     int is_ft4,
+    float f_min_hz,
+    float f_max_hz,
     ow_ft8_decode_t* out_decodes,
     int out_capacity)
 {
@@ -251,28 +404,29 @@ OW_FT8_API int ow_ft8_decode_pcm(
     if (!samples || num_samples <= 0 || sample_rate <= 0 || !out_decodes || out_capacity <= 0)
         return -1;
 
-    ftx_protocol_t protocol = is_ft4 ? FTX_PROTOCOL_FT4 : FTX_PROTOCOL_FT8;
-    monitor_t mon;
-    monitor_config_t mon_cfg = {
-        .f_min = 100,
-        .f_max = 3000,
-        .sample_rate = sample_rate,
-        .time_osr = kTime_osr,
-        .freq_osr = kFreq_osr,
-        .protocol = protocol
-    };
-    monitor_init(&mon, &mon_cfg);
+    if (!(f_max_hz > f_min_hz + 99.0f) || f_min_hz < 50.0f || f_max_hz > 3500.0f)
+    {
+        f_min_hz = 200.0f;
+        f_max_hz = 2800.0f;
+    }
 
-    const int block_size = mon.block_size;
+    if (out_capacity > OW_FT8_MAX_DECODES)
+        out_capacity = OW_FT8_MAX_DECODES;
+
+    ftx_protocol_t protocol = is_ft4 ? FTX_PROTOCOL_FT4 : FTX_PROTOCOL_FT8;
+    (void)protocol;
+    monitor_t* mon = acquire_monitor(sample_rate, is_ft4, f_min_hz, f_max_hz);
+
+    const int block_size = mon->block_size;
     int pos = 0;
     while (pos + block_size <= num_samples)
     {
-        monitor_process(&mon, samples + pos);
+        monitor_process(mon, samples + pos);
         pos += block_size;
     }
 
     ftx_candidate_t candidate_list[kMax_candidates];
-    int num_candidates = ftx_find_candidates(&mon.wf, kMax_candidates, candidate_list, kMin_score);
+    int num_candidates = ftx_find_candidates(&mon->wf, kMax_candidates, candidate_list, kMin_score);
 
     int num_decoded = 0;
     ftx_message_t decoded[OW_FT8_MAX_DECODES];
@@ -283,13 +437,17 @@ OW_FT8_API int ow_ft8_decode_pcm(
     for (int idx = 0; idx < num_candidates && num_decoded < out_capacity; ++idx)
     {
         const ftx_candidate_t* cand = &candidate_list[idx];
-        float freq_hz = (mon.min_bin + cand->freq_offset + (float)cand->freq_sub / mon.wf.freq_osr) / mon.symbol_period;
-        float time_sec = (cand->time_offset + (float)cand->time_sub / mon.wf.time_osr) * mon.symbol_period;
+        float freq_hz = (mon->min_bin + cand->freq_offset + (float)cand->freq_sub / mon->wf.freq_osr) / mon->symbol_period;
+        float time_sec = (cand->time_offset + (float)cand->time_sub / mon->wf.time_osr) * mon->symbol_period;
 
         ftx_message_t message;
         ftx_decode_status_t status;
-        if (!ftx_decode_candidate(&mon.wf, cand, kLDPC_iterations, &message, &status))
+        /* Sparse satellite slots rarely need full LDPC; try a short pass first. */
+        if (!ftx_decode_candidate(&mon->wf, cand, kLDPC_iterations_fast, &message, &status)
+            && !ftx_decode_candidate(&mon->wf, cand, kLDPC_iterations, &message, &status))
+        {
             continue;
+        }
 
         int idx_hash = message.hash % OW_FT8_MAX_DECODES;
         bool found_empty_slot = false;
@@ -325,6 +483,5 @@ OW_FT8_API int ow_ft8_decode_pcm(
         out->text[OW_FT8_MAX_MESSAGE_LEN - 1] = '\0';
     }
 
-    monitor_free(&mon);
     return num_decoded;
 }

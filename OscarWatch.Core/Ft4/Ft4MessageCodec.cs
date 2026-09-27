@@ -68,6 +68,21 @@ public static partial class Ft4MessageCodec
     public static bool IsRogerReport(string? extra) =>
         IsReport(extra) && extra!.StartsWith('R');
 
+    /// <summary>
+    /// SNR for the logbook. Air text may be R+NN; ADIF / Cloudlog want +NN or -NN.
+    /// </summary>
+    public static string NormalizeSnrReport(string? report)
+    {
+        if (string.IsNullOrWhiteSpace(report))
+            return "";
+
+        var text = report.Trim().ToUpperInvariant();
+        if (text.StartsWith('R') && text.Length > 1 && IsReport(text))
+            text = text[1..];
+
+        return IsReport(text) ? text : report.Trim();
+    }
+
     public static string FormatRogerReport(float snrDb) =>
         "R" + FormatSnrReport(snrDb);
 
@@ -115,11 +130,14 @@ public static partial class Ft4MessageCodec
             return "";
 
         // Operators sometimes paste a Unicode slash; ft8_lib only accepts ASCII '/'.
+        // <CALL> is only how a hashed call is shown; it is sent (and matched) as the bare call,
+        // and <...> is a hash nobody has resolved yet.
         var normalized = call.Trim()
             .Replace('\u2215', '/') // division slash
             .Replace('\u2044', '/') // fraction slash
-            .Replace('\\', '/');
-        return normalized.ToUpperInvariant();
+            .Replace('\\', '/')
+            .Trim('<', '>');
+        return normalized == "..." ? "" : normalized.ToUpperInvariant();
     }
 
     public static string NormalizeGrid(string grid)

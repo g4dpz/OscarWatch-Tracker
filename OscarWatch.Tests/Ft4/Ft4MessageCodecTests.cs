@@ -43,6 +43,16 @@ public sealed class Ft4MessageCodecTests
     }
 
     [Fact]
+    public void NormalizeSnrReport_strips_roger_prefix_for_the_log()
+    {
+        Assert.Equal("+14", Ft4MessageCodec.NormalizeSnrReport("R+14"));
+        Assert.Equal("-08", Ft4MessageCodec.NormalizeSnrReport("R-08"));
+        Assert.Equal("+05", Ft4MessageCodec.NormalizeSnrReport("+05"));
+        Assert.Equal("-12", Ft4MessageCodec.NormalizeSnrReport("-12"));
+        Assert.Equal("", Ft4MessageCodec.NormalizeSnrReport(null));
+    }
+
+    [Fact]
     public void Builders_use_upper_case()
     {
         Assert.Equal("CQ MM9SQL IO85", Ft4MessageCodec.BuildCq("mm9sql", "io85"));
@@ -51,6 +61,17 @@ public sealed class Ft4MessageCodecTests
         Assert.Equal("G4ABC MM9SQL RR73", Ft4MessageCodec.BuildRr73("g4abc", "mm9sql"));
         Assert.Equal("G4ABC MM9SQL RRR", Ft4MessageCodec.BuildRrr("g4abc", "mm9sql"));
         Assert.Equal("G4ABC MM9SQL 73", Ft4MessageCodec.Build73("g4abc", "mm9sql"));
+    }
+
+    [Fact]
+    public void Hashed_display_form_is_read_as_the_bare_call()
+    {
+        Assert.Equal("R0CM/4", Ft4MessageCodec.NormalizeCall("<R0CM/4>"));
+        Assert.Equal("", Ft4MessageCodec.NormalizeCall("<...>"));
+        Assert.True(Ft4MessageCodec.TryParse("MM9SQL <R0CM/4> -14", out var to, out var de, out var extra));
+        Assert.Equal("MM9SQL", to);
+        Assert.Equal("R0CM/4", de);
+        Assert.Equal("-14", extra);
     }
 
     [Fact]

@@ -1,3 +1,5 @@
+using OscarWatch.Core.PskReporter;
+
 namespace OscarWatch.Core.Ft4;
 
 /// <summary>Persisted FT4 modem preferences.</summary>
@@ -70,6 +72,12 @@ public sealed class Ft4Settings
     public bool HoldTxFrequency { get; set; } = true;
 
     /// <summary>
+    /// When true (default), the first station that calls while CQ is running is answered
+    /// automatically. When false, CQ continues until the operator clicks a station.
+    /// </summary>
+    public bool AutoReply { get; set; } = true;
+
+    /// <summary>
     /// When true (default), hold CAT Doppler for each FT4 slot and cancel within-slot
     /// uplink drift in the TX audio (OrbitDeck audioDopplerTX).
     /// </summary>
@@ -81,8 +89,35 @@ public sealed class Ft4Settings
     /// </summary>
     public bool AudioDopplerRx { get; set; } = true;
 
+    /// <summary>
+    /// When true (default), on TX slots run the normal decode and a late-echo pass
+    /// together so a full-duplex own copy appears sooner (uses more CPU for that slot).
+    /// </summary>
+    public bool ParallelTxEchoDecode { get; set; } = true;
+
+    /// <summary>When true, receive decodes are reported to PSK Reporter. Off by default.</summary>
+    public bool PskReporterEnabled { get; set; }
+
+    /// <summary>PSK Reporter UDP host. Not shown in the UI.</summary>
+    public string PskReporterHost { get; set; } = PskReporterClient.DefaultHost;
+
+    /// <summary>PSK Reporter UDP port. 14739 is the analyse-only test listener.</summary>
+    public int PskReporterPort { get; set; } = PskReporterClient.DefaultPort;
+
     /// <summary>Font size for the decode / activity list (points). Default 12.</summary>
     public double DecodeFontSize { get; set; } = 12;
+
+    /// <summary>Row background for a decode addressed to this station. #RRGGBB or #AARRGGBB.</summary>
+    public string CallingMeColour { get; set; } = Ft4DecodeHighlight.DefaultCallingMeColour;
+
+    /// <summary>Row background for the station in the current QSO. #RRGGBB or #AARRGGBB.</summary>
+    public string ReplyingColour { get; set; } = Ft4DecodeHighlight.DefaultReplyingColour;
+
+    /// <summary>Row background for a receive decode whose callsign is not in the logbook.</summary>
+    public string NewCallColour { get; set; } = Ft4DecodeHighlight.DefaultNewCallColour;
+
+    /// <summary>Row background when the callsign was worked but the 4-character grid is new.</summary>
+    public string NewGridColour { get; set; } = Ft4DecodeHighlight.DefaultNewGridColour;
 
     /// <summary>Window size/position.</summary>
     public int? WindowWidth { get; set; }

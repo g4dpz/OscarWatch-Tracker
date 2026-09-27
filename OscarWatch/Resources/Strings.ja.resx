@@ -1212,6 +1212,12 @@
   <data name="Settings.Gps.UseTimeNote">
     <value>軌道計算にのみGPS時刻を使用します — Windowsのシステム時計は変更しません。</value>
   </data>
+  <data name="Settings.Gps.UseTimeForFt4">
+    <value>FT4 のスロットタイミングに GPS 時刻を使用</value>
+  </data>
+  <data name="Settings.Gps.UseTimeForFt4Note">
+    <value>GPS が設定され測位している場合、FT4 は PC の時計を GPS と比較します。PC が 0.25 秒以上ずれていると、FT4 は GPS 時刻でスロットを計ります。Windows の時計は変更しません。</value>
+  </data>
   <data name="Settings.Gps.MinSatellites">
     <value>測位に必要な最小衛星数</value>
   </data>
@@ -3972,6 +3978,18 @@
   <data name="Ft4.Ptt.TailMs">
     <value>PTT後尾 (ms)</value>
   </data>
+  <data name="Ft4.AutoReply">
+    <value>自動応答</value>
+  </data>
+  <data name="Ft4.AutoReply.Note">
+    <value>CQ中は、最初に呼んできた局に応答します。オフにすると、局をクリックするまでCQを続けます。再度オンにすると、直前数秒の呼び出しを含め、次の局に応答します。</value>
+  </data>
+  <data name="Ft4.CloseWhileTx.Title">
+    <value>送信中に FT4 を閉じる</value>
+  </data>
+  <data name="Ft4.CloseWhileTx.Message">
+    <value>FT4 は送信中です。ウィンドウを閉じて、今すぐ送信を停止しますか?</value>
+  </data>
   <data name="Ft4.HoldTxFrequency">
     <value>TX周波数保持</value>
   </data>
@@ -3984,11 +4002,38 @@
   <data name="Ft4.AudioDopplerRx">
     <value>RXオーディオドップラー</value>
   </data>
+  <data name="Ft4.ParallelTxEchoDecode">
+    <value>TXエコー並列デコード</value>
+  </data>
+  <data name="Ft4.ParallelTxEchoDecode.Note">
+    <value>送信スロットでは通常デコードと遅延エコー処理を同時に行い、自分のコピーを早く表示します。そのスロットのCPU使用量が増えます。PCが厳しいとき以外はオンのままにしてください。</value>
+  </data>
+  <data name="Ft4.PskReporter">
+    <value>デコードをPSK Reporterに報告</value>
+  </data>
+  <data name="Ft4.PskReporter.Note">
+    <value>デコードした局を、局のコールサインとグリッドを使って約5分ごとにpskreporter.infoへ送信します。スポットにはアップリンク周波数を使い、衛星名はアンテナとして送信されます。</value>
+  </data>
   <data name="Ft4.DecodeFontSize">
     <value>デコード文字サイズ</value>
   </data>
   <data name="Ft4.DecodeFontSize.Note">
     <value>デコード一覧のフォントサイズ（10–28）。大きいほど見やすくなります。</value>
+  </data>
+  <data name="Ft4.Decode.CallingMe">
+    <value>自分宛て</value>
+  </data>
+  <data name="Ft4.Decode.Replying">
+    <value>応答中</value>
+  </data>
+  <data name="Ft4.Decode.ColourNote">
+    <value>デコード行の背景色: 自局宛て、現在のQSO相手、ログにないコールサイン、未ログの4文字グリッド。色選択で設定。透明度を下げると濃くなります。</value>
+  </data>
+  <data name="Ft4.Decode.NewCall">
+    <value>新規コール</value>
+  </data>
+  <data name="Ft4.Decode.NewGrid">
+    <value>新規グリッド</value>
   </data>
   <data name="Ft4.Settings.EchoSection">
     <value>エコー校正</value>
@@ -4026,8 +4071,17 @@
   <data name="Ft4.HaltTx">
     <value>送信停止</value>
   </data>
+  <data name="Ft4.Tune">
+    <value>チューン</value>
+  </data>
   <data name="Ft4.CallCq">
     <value>CQ</value>
+  </data>
+  <data name="Ft4.SendReport">
+    <value>レポート</value>
+  </data>
+  <data name="Ft4.Send73">
+    <value>73</value>
   </data>
   <data name="Ft4.SkipRrr">
     <value>RRRを省略</value>
@@ -4080,17 +4134,35 @@
   <data name="Ft4.Status.TxHalted">
     <value>送信停止</value>
   </data>
+  <data name="Ft4.Status.Tuning">
+    <value>チューン中 {0} Hz</value>
+  </data>
+  <data name="Ft4.Status.TuneCalibrationFailed">
+    <value>チューンでダウンリンク上の自局トーンを見つけられなかったため、アップリンク補正を元に戻しました。代わりに CQ を出してエコーで校正してください。</value>
+  </data>
+  <data name="Ft4.Status.TuneStopped">
+    <value>チューン停止</value>
+  </data>
   <data name="Ft4.Blocked.FmSatellite">
     <value>FM衛星ではFT4を利用できません</value>
   </data>
   <data name="Ft4.Blocked.Fo29">
     <value>FO-29ではFT4は許可されていません（ライセンス制限）</value>
   </data>
+  <data name="Ft4.Blocked.Ao7">
+    <value>AO-7ではFT4は許可されていません（AMSATの要請）</value>
+  </data>
   <data name="Ft4.Blocked.RfPowerTooHigh">
     <value>FT4送信をブロックしました: RF出力が{0} Wを超えています。ラジオの出力を下げてください。</value>
   </data>
   <data name="Ft4.Status.CallingCq">
     <value>CQ呼び出し中</value>
+  </data>
+  <data name="Ft4.Status.SendingReport">
+    <value>{0} へレポートを送信</value>
+  </data>
+  <data name="Ft4.Status.Sending73">
+    <value>{0} へ 73 を送信</value>
   </data>
   <data name="Ft4.Status.NoTxMessage">
     <value>先にTXメッセージを入力または生成してください</value>
@@ -4125,8 +4197,14 @@
   <data name="Ft4.Status.LogbookSaveFailed">
     <value>ログブックの保存に失敗しました</value>
   </data>
-  <data name="Ft4.Status.ClockWarning">
-    <value>PCの時計がUTCからずれている可能性があります（最近のDT約{0:0.0}秒）。時刻を同期して再試行してください。</value>
+  <data name="Ft4.ClockSource.Pc">
+    <value>(PC の時計)</value>
+  </data>
+  <data name="Ft4.ClockSource.PcGpsAgrees">
+    <value>(PC の時計、GPS と一致)</value>
+  </data>
+  <data name="Ft4.ClockSource.Gps">
+    <value>(GPS 時刻、PC の時計のずれ {0:+0.00;-0.00} 秒)</value>
   </data>
   <data name="Ft4.TxLevelMeter">
     <value>TXレベルメーター</value>
