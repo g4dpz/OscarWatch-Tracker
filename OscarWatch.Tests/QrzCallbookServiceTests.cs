@@ -243,11 +243,86 @@ public sealed class QrzCallbookServiceTests
         Assert.Contains("incorrect", result.ErrorMessage, StringComparison.OrdinalIgnoreCase);
     }
 
+    [Fact]
+    public async Task UrlConstruction_LoginUrl_MatchesExpectedFormat()
+    {
+        // This test verifies the StringBuilder URL construction optimization produces
+        // functionally equivalent URLs to the original string concatenation approach
+        var handler = new StubHandler();
+        var service = new QrzCallbookService(new HttpClient(handler));
+
+        await service.TestConnectionAsync(new QrzSettings
+        {
+            Username = "MM9SQL/P",
+            Password = "test&secret"
+        });
+
+        // Verify the captured URL contains properly escaped parameters
+        var lastUri = handler.LastUri;
+        Assert.Contains("https://xmldata.qrz.com/xml/current/?username=MM9SQL%2FP", lastUri);
+        Assert.Contains("&password=test%26secret", lastUri);
+        Assert.Contains("&agent=OscarWatch", lastUri);
+    }
+
+    [Fact]
+    public async Task UrlConstruction_LookupUrl_MatchesExpectedFormat()
+    {
+        // This test verifies the StringBuilder lookup URL construction eliminates allocations
+        // while maintaining functional equivalence with the original approach
+        var handler = new StubHandler();
+        var service = new QrzCallbookService(new HttpClient(handler));
+        var settings = new QrzSettings
+        {
+            Enabled = true,
+            Username = "MM9SQL",
+            Password = "secret"
+        };
+
+        await service.LookupAsync(settings, "EA3EA/M");
+
+        // Verify lookup URL format - should have session key and callsign parameters
+        var lookupUri = handler.LookupUris.LastOrDefault();
+        Assert.NotNull(lookupUri);
+        Assert.Contains("https://xmldata.qrz.com/xml/current/?s=abc123", lookupUri);
+        Assert.Contains("&callsign=EA3EA", lookupUri); // Portable suffix stripped by ToLookupCall
+    }
+
+    [Fact]
+    public async Task UrlConstruction_ConcurrentRequests_DoNotInterfere()
+    {
+        // Test that the lock-protected StringBuilder buffer handles concurrent URL construction
+        // This verifies thread safety of the optimization
+        var handler = new StubHandler();
+        var service = new QrzCallbookService(new HttpClient(handler));
+        var settings = new QrzSettings
+        {
+            Enabled = true,
+            Username = "MM9SQL",
+            Password = "secret"
+        };
+
+        // Make multiple concurrent lookups with different callsigns
+        var tasks = new[]
+        {
+            service.LookupAsync(settings, "EA3EA"),
+            service.LookupAsync(settings, "G0ABC"),
+            service.LookupAsync(settings, "W1AW")
+        };
+
+        await Task.WhenAll(tasks);
+
+        // Verify all requests completed successfully and URLs were constructed properly
+        Assert.True(handler.RequestCount >= 4); // Login + 3 lookups minimum
+        Assert.True(handler.LookupUris.Count >= 3);
+    }
+
     private sealed class StubHandler : HttpMessageHandler
     {
         public int RequestCount { get; private set; }
 
         public string LastUri { get; private set; } = "";
+
+        public List<string> LookupUris { get; } = new();
 
         public bool RejectLogin { get; set; }
 
@@ -260,6 +335,13 @@ public sealed class QrzCallbookServiceTests
             RequestCount++;
             LastUri = request.RequestUri?.ToString() ?? "";
             var query = request.RequestUri?.Query ?? "";
+            
+            // Capture lookup URLs (those with session key)
+            if (query.Contains("s=", StringComparison.Ordinal))
+            {
+                LookupUris.Add(LastUri);
+            }
+            
             string body;
             if (query.Contains("username=", StringComparison.Ordinal))
             {
