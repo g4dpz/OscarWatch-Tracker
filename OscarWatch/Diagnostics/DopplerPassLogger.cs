@@ -11,6 +11,9 @@ public sealed class DopplerPassLogger : IDopplerPassLogger
 {
     private static readonly ILogger Log = Serilog.Log.ForContext<DopplerPassLogger>();
 
+    // Reusable StringBuilder buffer for CSV entry formatting to avoid string array and Join allocations
+    private static readonly StringBuilder _entryBuffer = new(1024);
+
     private static readonly string[] HeaderColumns =
     [
         "Utc",
@@ -143,52 +146,59 @@ public sealed class DopplerPassLogger : IDopplerPassLogger
         _activePath = null;
     }
 
-    internal static string FormatEntry(DopplerPassLogEntry entry) =>
-        string.Join(',',
-        [
-            Format(entry.Utc),
-            Escape(entry.Event),
-            Escape(entry.NoradId),
-            Escape(entry.SatelliteName),
-            Format(entry.ElevationDeg),
-            Format(entry.AzimuthDeg),
-            Format(entry.RangeRateKmPerSec),
-            Format(entry.SlopeKmPerSec2),
-            Format(entry.SlewHzPerSec),
-            entry.BaseThresholdHz.ToString(CultureInfo.InvariantCulture),
-            entry.EffectiveThresholdHz.ToString(CultureInfo.InvariantCulture),
-            entry.LeadEnabled ? "1" : "0",
-            Format(entry.LeadBlend),
-            entry.LeadGainPercent.ToString(CultureInfo.InvariantCulture),
-            Format(entry.LeadMsRx),
-            Format(entry.LeadMsTx),
-            Format(entry.LeadRxRangeRate),
-            Format(entry.LeadTxRangeRate),
-            Format(entry.SatRxKHz),
-            Format(entry.SatTxKHz),
-            Format(entry.RadioRxKHz),
-            Format(entry.RadioTxKHz),
-            entry.LastRigRxHz.ToString(CultureInfo.InvariantCulture),
-            entry.LastRigTxHz.ToString(CultureInfo.InvariantCulture),
-            entry.RxDeltaHz.ToString(CultureInfo.InvariantCulture),
-            entry.TxDeltaHz.ToString(CultureInfo.InvariantCulture),
-            Format(entry.RxOffsetKHz),
-            Format(entry.TxOffsetKHz),
-            Format(entry.PassbandDlKHz),
-            Format(entry.PassbandUlKHz),
-            entry.WroteRx ? "1" : "0",
-            entry.WroteTx ? "1" : "0",
-            entry.BelowThreshold ? "1" : "0",
-            entry.Interactive ? "1" : "0",
-            Escape(entry.DialTracking),
-            entry.MainDialHz.ToString(CultureInfo.InvariantCulture),
-            entry.DialVsCatHz.ToString(CultureInfo.InvariantCulture),
-            entry.VfoStable ? "1" : "0",
-            entry.RigTracking ? "1" : "0",
-            entry.CatPaused ? "1" : "0",
-            Escape(entry.SkipReason),
-            Escape(entry.Notes)
-        ]);
+    internal static string FormatEntry(DopplerPassLogEntry entry)
+    {
+        lock (_entryBuffer)
+        {
+            _entryBuffer.Clear();
+            
+            // Build CSV line using StringBuilder buffer with direct value appending for maximum efficiency
+            AppendDateTimeField(_entryBuffer, entry.Utc);
+            AppendEscapedField(_entryBuffer, entry.Event);
+            AppendEscapedField(_entryBuffer, entry.NoradId);
+            AppendEscapedField(_entryBuffer, entry.SatelliteName);
+            AppendDoubleField(_entryBuffer, entry.ElevationDeg);
+            AppendDoubleField(_entryBuffer, entry.AzimuthDeg);
+            AppendDoubleField(_entryBuffer, entry.RangeRateKmPerSec);
+            AppendDoubleField(_entryBuffer, entry.SlopeKmPerSec2);
+            AppendDoubleField(_entryBuffer, entry.SlewHzPerSec);
+            AppendIntField(_entryBuffer, entry.BaseThresholdHz);
+            AppendIntField(_entryBuffer, entry.EffectiveThresholdHz);
+            AppendBoolField(_entryBuffer, entry.LeadEnabled);
+            AppendDoubleField(_entryBuffer, entry.LeadBlend);
+            AppendIntField(_entryBuffer, entry.LeadGainPercent);
+            AppendDoubleField(_entryBuffer, entry.LeadMsRx);
+            AppendDoubleField(_entryBuffer, entry.LeadMsTx);
+            AppendDoubleField(_entryBuffer, entry.LeadRxRangeRate);
+            AppendDoubleField(_entryBuffer, entry.LeadTxRangeRate);
+            AppendDoubleField(_entryBuffer, entry.SatRxKHz);
+            AppendDoubleField(_entryBuffer, entry.SatTxKHz);
+            AppendDoubleField(_entryBuffer, entry.RadioRxKHz);
+            AppendDoubleField(_entryBuffer, entry.RadioTxKHz);
+            AppendLongField(_entryBuffer, entry.LastRigRxHz);
+            AppendLongField(_entryBuffer, entry.LastRigTxHz);
+            AppendLongField(_entryBuffer, entry.RxDeltaHz);
+            AppendLongField(_entryBuffer, entry.TxDeltaHz);
+            AppendDoubleField(_entryBuffer, entry.RxOffsetKHz);
+            AppendDoubleField(_entryBuffer, entry.TxOffsetKHz);
+            AppendDoubleField(_entryBuffer, entry.PassbandDlKHz);
+            AppendDoubleField(_entryBuffer, entry.PassbandUlKHz);
+            AppendBoolField(_entryBuffer, entry.WroteRx);
+            AppendBoolField(_entryBuffer, entry.WroteTx);
+            AppendBoolField(_entryBuffer, entry.BelowThreshold);
+            AppendBoolField(_entryBuffer, entry.Interactive);
+            AppendEscapedField(_entryBuffer, entry.DialTracking);
+            AppendLongField(_entryBuffer, entry.MainDialHz);
+            AppendLongField(_entryBuffer, entry.DialVsCatHz);
+            AppendBoolField(_entryBuffer, entry.VfoStable);
+            AppendBoolField(_entryBuffer, entry.RigTracking);
+            AppendBoolField(_entryBuffer, entry.CatPaused);
+            AppendEscapedField(_entryBuffer, entry.SkipReason);
+            AppendEscapedField(_entryBuffer, entry.Notes);
+            
+            return _entryBuffer.ToString();
+        }
+    }
 
     private static string Format(DateTime utc) =>
         utc.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
@@ -197,6 +207,122 @@ public sealed class DopplerPassLogger : IDopplerPassLogger
         double.IsNaN(value) || double.IsInfinity(value)
             ? ""
             : value.ToString("0.######", CultureInfo.InvariantCulture);
+
+    /// <summary>
+    /// Appends a CSV field to the StringBuilder buffer with comma separator.
+    /// Used by FormatEntry optimization to eliminate string array allocation.
+    /// </summary>
+    private static void AppendField(StringBuilder buffer, string value)
+    {
+        if (buffer.Length > 0)
+            buffer.Append(',');
+        buffer.Append(value);
+    }
+
+    /// <summary>
+    /// Appends a DateTime field directly to StringBuilder to eliminate string allocation.
+    /// </summary>
+    private static void AppendDateTimeField(StringBuilder buffer, DateTime utc)
+    {
+        if (buffer.Length > 0)
+            buffer.Append(',');
+        
+        // Manually format to avoid string allocation: yyyy-MM-dd HH:mm:ss.fff
+        buffer.Append(utc.Year.ToString("D4", CultureInfo.InvariantCulture));
+        buffer.Append('-');
+        buffer.Append(utc.Month.ToString("D2", CultureInfo.InvariantCulture));
+        buffer.Append('-');
+        buffer.Append(utc.Day.ToString("D2", CultureInfo.InvariantCulture));
+        buffer.Append(' ');
+        buffer.Append(utc.Hour.ToString("D2", CultureInfo.InvariantCulture));
+        buffer.Append(':');
+        buffer.Append(utc.Minute.ToString("D2", CultureInfo.InvariantCulture));
+        buffer.Append(':');
+        buffer.Append(utc.Second.ToString("D2", CultureInfo.InvariantCulture));
+        buffer.Append('.');
+        buffer.Append(utc.Millisecond.ToString("D3", CultureInfo.InvariantCulture));
+    }
+
+    /// <summary>
+    /// Appends a double field directly to StringBuilder to eliminate string allocation.
+    /// </summary>
+    private static void AppendDoubleField(StringBuilder buffer, double value)
+    {
+        if (buffer.Length > 0)
+            buffer.Append(',');
+
+        if (double.IsNaN(value) || double.IsInfinity(value))
+            return; // Empty field for invalid values
+
+        // Use StringBuilder's AppendFormat for efficient numeric formatting
+        buffer.AppendFormat(CultureInfo.InvariantCulture, "{0:0.######}", value);
+    }
+
+    /// <summary>
+    /// Appends an integer field directly to StringBuilder to eliminate string allocation.
+    /// </summary>
+    private static void AppendIntField(StringBuilder buffer, int value)
+    {
+        if (buffer.Length > 0)
+            buffer.Append(',');
+        
+        buffer.AppendFormat(CultureInfo.InvariantCulture, "{0}", value);
+    }
+
+    /// <summary>
+    /// Appends a long field directly to StringBuilder to eliminate string allocation.
+    /// </summary>
+    private static void AppendLongField(StringBuilder buffer, long value)
+    {
+        if (buffer.Length > 0)
+            buffer.Append(',');
+        
+        buffer.AppendFormat(CultureInfo.InvariantCulture, "{0}", value);
+    }
+
+    /// <summary>
+    /// Appends a boolean field as "1" or "0" directly to StringBuilder.
+    /// </summary>
+    private static void AppendBoolField(StringBuilder buffer, bool value)
+    {
+        if (buffer.Length > 0)
+            buffer.Append(',');
+        
+        buffer.Append(value ? '1' : '0');
+    }
+
+    /// <summary>
+    /// Appends an escaped string field directly to StringBuilder to eliminate temporary string allocation.
+    /// </summary>
+    private static void AppendEscapedField(StringBuilder buffer, string? value)
+    {
+        if (buffer.Length > 0)
+            buffer.Append(',');
+
+        if (string.IsNullOrEmpty(value))
+            return; // Empty field
+
+        // Check if escaping is needed
+        bool needsEscaping = value.Contains(',') || value.Contains('"') || value.Contains('\n') || value.Contains('\r');
+        
+        if (needsEscaping)
+        {
+            buffer.Append('"');
+            // Escape quotes by doubling them
+            foreach (char c in value)
+            {
+                if (c == '"')
+                    buffer.Append("\"\"");
+                else
+                    buffer.Append(c);
+            }
+            buffer.Append('"');
+        }
+        else
+        {
+            buffer.Append(value);
+        }
+    }
 
     private static string Escape(string? value)
     {
