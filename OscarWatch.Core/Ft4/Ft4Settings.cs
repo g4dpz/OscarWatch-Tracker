@@ -7,6 +7,12 @@ public sealed class Ft4Settings
 {
     public bool SkipRrr { get; set; } = true;
 
+    /// <summary>
+    /// When true (default), a report, RR73, or 73 that the first decode missed is tried again
+    /// once both calls are known. Those lines are marked AP.
+    /// </summary>
+    public bool ApEnabled { get; set; } = true;
+
     public Ft4PttMethod PttMethod { get; set; } = Ft4PttMethod.Vox;
 
     public Ft4PttLine PttLine { get; set; } = Ft4PttLine.Rts;
@@ -78,6 +84,13 @@ public sealed class Ft4Settings
     public bool AutoReply { get; set; } = true;
 
     /// <summary>
+    /// When true, FT4 sets the radio's RF power to <see cref="Ft4RfPowerLimit.MaxWatts"/>
+    /// before transmitting if the radio reports a higher setting. ICOM uses CI-V.
+    /// Yaesu FT-991/FT-991A and Kenwood TS-2000 use the <c>PC</c> command. The radio stays at that level.
+    /// </summary>
+    public bool AutoLowerRfPower { get; set; }
+
+    /// <summary>
     /// When true (default), hold CAT Doppler for each FT4 slot and cancel within-slot
     /// uplink drift in the TX audio (OrbitDeck audioDopplerTX).
     /// </summary>
@@ -95,8 +108,19 @@ public sealed class Ft4Settings
     /// </summary>
     public bool ParallelTxEchoDecode { get; set; } = true;
 
+    /// <summary>
+    /// Minutes of transmit with no reply before TX is halted. 0 disables the watchdog.
+    /// </summary>
+    public int TxWatchdogMinutes { get; set; } = Ft4TxWatchdog.DefaultMinutes;
+
     /// <summary>When true, receive decodes are reported to PSK Reporter. Off by default.</summary>
     public bool PskReporterEnabled { get; set; }
+
+    /// <summary>
+    /// When true, receive decodes are posted to OscarWatch.org satellite spots.
+    /// Off by default. Unused unless Settings, OscarWatch has an API token.
+    /// </summary>
+    public bool OscarWatchSpotsEnabled { get; set; }
 
     /// <summary>PSK Reporter UDP host. Not shown in the UI.</summary>
     public string PskReporterHost { get; set; } = PskReporterClient.DefaultHost;
@@ -106,6 +130,22 @@ public sealed class Ft4Settings
 
     /// <summary>Font size for the decode / activity list (points). Default 12.</summary>
     public double DecodeFontSize { get; set; } = 12;
+
+    /// <summary>dB span above the automatic waterfall noise floor. Default 40.</summary>
+    public const double DefaultWaterfallRangeDb = 40;
+
+    public const double MinWaterfallRangeDb = 15;
+
+    public const double MaxWaterfallRangeDb = 80;
+
+    /// <summary>
+    /// How many decibels above the automatic noise floor the waterfall paints.
+    /// A smaller span makes signals stand out more. The floor itself still tracks.
+    /// </summary>
+    public double WaterfallRangeDb { get; set; } = DefaultWaterfallRangeDb;
+
+    public static double ClampWaterfallRangeDb(double value) =>
+        Math.Clamp(value, MinWaterfallRangeDb, MaxWaterfallRangeDb);
 
     /// <summary>Row background for a decode addressed to this station. #RRGGBB or #AARRGGBB.</summary>
     public string CallingMeColour { get; set; } = Ft4DecodeHighlight.DefaultCallingMeColour;
@@ -118,6 +158,27 @@ public sealed class Ft4Settings
 
     /// <summary>Row background when the callsign was worked but the 4-character grid is new.</summary>
     public string NewGridColour { get; set; } = Ft4DecodeHighlight.DefaultNewGridColour;
+
+    /// <summary>Row background for a received CQ. #RRGGBB or #AARRGGBB.</summary>
+    public string CqColour { get; set; } = Ft4DecodeHighlight.DefaultCqColour;
+
+    /// <summary>Text colour for a decode addressed to this station. Empty follows the theme.</summary>
+    public string CallingMeTextColour { get; set; } = "";
+
+    /// <summary>Text colour for the station in the current QSO. Empty follows the theme.</summary>
+    public string ReplyingTextColour { get; set; } = "";
+
+    /// <summary>Text colour for a receive decode whose callsign is not in the logbook. Empty follows the theme.</summary>
+    public string NewCallTextColour { get; set; } = "";
+
+    /// <summary>Text colour when the callsign was worked but the 4-character grid is new. Empty follows the theme.</summary>
+    public string NewGridTextColour { get; set; } = "";
+
+    /// <summary>Text colour for a received CQ. Empty follows the theme.</summary>
+    public string CqTextColour { get; set; } = "";
+
+    /// <summary>Text colour for a message this station transmitted.</summary>
+    public string TxTextColour { get; set; } = Ft4DecodeHighlight.DefaultTxTextColour;
 
     /// <summary>Window size/position.</summary>
     public int? WindowWidth { get; set; }

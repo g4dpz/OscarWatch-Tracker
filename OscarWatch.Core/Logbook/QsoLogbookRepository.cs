@@ -29,6 +29,7 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         """;
 
     private readonly SemaphoreSlim _gate = new(1, 1);
+    private readonly SemaphoreSlim _getOrCreateGate = new(1, 1);
     private bool _initialized;
 
     public QsoLogbookRepository(string? databasePath = null)
@@ -110,6 +111,25 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
             ORDER BY datetime(created_utc) DESC, id DESC
             """;
         return await ReadLogbooksAsync(command, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<QsoLogbook> GetOrCreateLogbookAsync(
+        QsoLogbookCreateRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        await _getOrCreateGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var existing = (await ListLogbooksAsync(cancellationToken).ConfigureAwait(false)).FirstOrDefault();
+            if (existing is not null)
+                return existing;
+
+            return await CreateLogbookAsync(request, cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            _getOrCreateGate.Release();
+        }
     }
 
     public async Task<QsoLogbook> CreateLogbookAsync(
@@ -333,6 +353,39 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         return await ReadQsosAsync(command, cancellationToken).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Most recent non-empty locator logged for this call in this logbook.
+    /// Used when a new contact arrives without a grid.
+    /// </summary>
+    private static async Task<string> FindLatestGridForCallAsync(
+        SqliteConnection connection,
+        long logbookId,
+        string call,
+        CancellationToken cancellationToken)
+    {
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT grid_square
+            FROM qsos
+            WHERE logbook_id = $logbookId
+              AND call = $call
+              AND TRIM(grid_square) <> ''
+            ORDER BY datetime(qso_utc) DESC, id DESC
+            LIMIT 1
+            """;
+        command.Parameters.AddWithValue("$logbookId", logbookId);
+        command.Parameters.AddWithValue("$call", call);
+        var result = await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+        return result is string grid ? MaidenheadLocator.NormalizeGrids(grid) : "";
+    }
+
+    private static string Clean(string? value) => value?.Trim() ?? "";
+
+    private static string CleanMode(string? value) => Clean(value).ToUpperInvariant();
+
+    private static string CleanPropMode(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "SAT" : value.Trim();
+
     public async Task<QsoRecord> AddQsoAsync(
         QsoRecordCreateRequest request,
         CancellationToken cancellationToken = default)
@@ -342,7 +395,13 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
 
         var createdUtc = DateTime.UtcNow;
         var qsoUtc = QsoLogbookTime.NormalizeToUtc(request.QsoUtc);
+        var call = MaidenheadLocator.NormalizeCallsign(request.Call);
+        var grid = MaidenheadLocator.NormalizeGrids(request.GridSquare);
         await using var connection = OpenConnection();
+        if (grid.Length == 0)
+            grid = await FindLatestGridForCallAsync(connection, request.LogbookId, call, cancellationToken)
+                .ConfigureAwait(false);
+
         await using var command = connection.CreateCommand();
         command.CommandText = """
             INSERT INTO qsos (
@@ -357,24 +416,24 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
             """;
         command.Parameters.AddWithValue("$logbookId", request.LogbookId);
         command.Parameters.AddWithValue("$qsoUtc", FormatUtc(qsoUtc));
-        command.Parameters.AddWithValue("$call", MaidenheadLocator.NormalizeCallsign(request.Call));
-        command.Parameters.AddWithValue("$rstSent", request.RstSent.Trim());
-        command.Parameters.AddWithValue("$rstRcvd", request.RstRcvd.Trim());
-        command.Parameters.AddWithValue("$gridSquare", MaidenheadLocator.NormalizeGrids(request.GridSquare));
-        command.Parameters.AddWithValue("$name", request.Name.Trim());
-        command.Parameters.AddWithValue("$comment", request.Comment.Trim());
-        command.Parameters.AddWithValue("$satName", request.SatName.Trim());
-        command.Parameters.AddWithValue("$mode", request.Mode.Trim().ToUpperInvariant());
-        command.Parameters.AddWithValue("$modeRx", request.ModeRx.Trim().ToUpperInvariant());
+        command.Parameters.AddWithValue("$call", call);
+        command.Parameters.AddWithValue("$rstSent", Clean(request.RstSent));
+        command.Parameters.AddWithValue("$rstRcvd", Clean(request.RstRcvd));
+        command.Parameters.AddWithValue("$gridSquare", grid);
+        command.Parameters.AddWithValue("$name", Clean(request.Name));
+        command.Parameters.AddWithValue("$comment", Clean(request.Comment));
+        command.Parameters.AddWithValue("$satName", Clean(request.SatName));
+        command.Parameters.AddWithValue("$mode", CleanMode(request.Mode));
+        command.Parameters.AddWithValue("$modeRx", CleanMode(request.ModeRx));
         command.Parameters.AddWithValue("$freqHz", request.FreqHz);
         command.Parameters.AddWithValue("$freqRxHz", request.FreqRxHz);
-        command.Parameters.AddWithValue("$band", request.Band.Trim());
-        command.Parameters.AddWithValue("$bandRx", request.BandRx.Trim());
-        command.Parameters.AddWithValue("$propMode", string.IsNullOrWhiteSpace(request.PropMode) ? "SAT" : request.PropMode.Trim());
+        command.Parameters.AddWithValue("$band", Clean(request.Band));
+        command.Parameters.AddWithValue("$bandRx", Clean(request.BandRx));
+        command.Parameters.AddWithValue("$propMode", CleanPropMode(request.PropMode));
         command.Parameters.AddWithValue("$createdUtc", FormatUtc(createdUtc));
         command.Parameters.AddWithValue("$cloudlogUploadStatus", CloudlogUploadStatusCodec.ToStorage(request.CloudlogUploadStatus));
         AddNullableIntParameter(command, "$dxcc", request.Dxcc);
-        command.Parameters.AddWithValue("$country", request.Country.Trim());
+        command.Parameters.AddWithValue("$country", Clean(request.Country));
 
         var id = (long)(await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false) ?? 0L);
         var record = new QsoRecord
@@ -382,22 +441,22 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
             Id = id,
             LogbookId = request.LogbookId,
             QsoUtc = qsoUtc,
-            Call = MaidenheadLocator.NormalizeCallsign(request.Call),
-            RstSent = request.RstSent.Trim(),
-            RstRcvd = request.RstRcvd.Trim(),
-            GridSquare = MaidenheadLocator.NormalizeGrids(request.GridSquare),
-            Name = request.Name.Trim(),
-            Comment = request.Comment.Trim(),
-            SatName = request.SatName.Trim(),
-            Mode = request.Mode.Trim().ToUpperInvariant(),
-            ModeRx = request.ModeRx.Trim().ToUpperInvariant(),
+            Call = call,
+            RstSent = Clean(request.RstSent),
+            RstRcvd = Clean(request.RstRcvd),
+            GridSquare = grid,
+            Name = Clean(request.Name),
+            Comment = Clean(request.Comment),
+            SatName = Clean(request.SatName),
+            Mode = CleanMode(request.Mode),
+            ModeRx = CleanMode(request.ModeRx),
             FreqHz = request.FreqHz,
             FreqRxHz = request.FreqRxHz,
-            Band = request.Band.Trim(),
-            BandRx = request.BandRx.Trim(),
-            PropMode = string.IsNullOrWhiteSpace(request.PropMode) ? "SAT" : request.PropMode.Trim(),
+            Band = Clean(request.Band),
+            BandRx = Clean(request.BandRx),
+            PropMode = CleanPropMode(request.PropMode),
             Dxcc = request.Dxcc,
-            Country = request.Country.Trim(),
+            Country = Clean(request.Country),
             CreatedUtc = createdUtc,
             CloudlogUploadStatus = request.CloudlogUploadStatus
         };
@@ -440,21 +499,21 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         command.Parameters.AddWithValue("$id", request.Id);
         command.Parameters.AddWithValue("$qsoUtc", FormatUtc(qsoUtc));
         command.Parameters.AddWithValue("$call", MaidenheadLocator.NormalizeCallsign(request.Call));
-        command.Parameters.AddWithValue("$rstSent", request.RstSent.Trim());
-        command.Parameters.AddWithValue("$rstRcvd", request.RstRcvd.Trim());
+        command.Parameters.AddWithValue("$rstSent", Clean(request.RstSent));
+        command.Parameters.AddWithValue("$rstRcvd", Clean(request.RstRcvd));
         command.Parameters.AddWithValue("$gridSquare", MaidenheadLocator.NormalizeGrids(request.GridSquare));
-        command.Parameters.AddWithValue("$name", request.Name.Trim());
-        command.Parameters.AddWithValue("$comment", request.Comment.Trim());
-        command.Parameters.AddWithValue("$satName", request.SatName.Trim());
-        command.Parameters.AddWithValue("$mode", request.Mode.Trim().ToUpperInvariant());
-        command.Parameters.AddWithValue("$modeRx", request.ModeRx.Trim().ToUpperInvariant());
+        command.Parameters.AddWithValue("$name", Clean(request.Name));
+        command.Parameters.AddWithValue("$comment", Clean(request.Comment));
+        command.Parameters.AddWithValue("$satName", Clean(request.SatName));
+        command.Parameters.AddWithValue("$mode", CleanMode(request.Mode));
+        command.Parameters.AddWithValue("$modeRx", CleanMode(request.ModeRx));
         command.Parameters.AddWithValue("$freqHz", request.FreqHz);
         command.Parameters.AddWithValue("$freqRxHz", request.FreqRxHz);
-        command.Parameters.AddWithValue("$band", request.Band.Trim());
-        command.Parameters.AddWithValue("$bandRx", request.BandRx.Trim());
-        command.Parameters.AddWithValue("$propMode", string.IsNullOrWhiteSpace(request.PropMode) ? "SAT" : request.PropMode.Trim());
+        command.Parameters.AddWithValue("$band", Clean(request.Band));
+        command.Parameters.AddWithValue("$bandRx", Clean(request.BandRx));
+        command.Parameters.AddWithValue("$propMode", CleanPropMode(request.PropMode));
         AddNullableIntParameter(command, "$dxcc", request.Dxcc);
-        command.Parameters.AddWithValue("$country", request.Country.Trim());
+        command.Parameters.AddWithValue("$country", Clean(request.Country));
 
         var updated = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         if (updated == 0)
@@ -635,7 +694,11 @@ public sealed class QsoLogbookRepository : IQsoLogbookRepository, IDisposable
         return (calls, grids);
     }
 
-    public void Dispose() => _gate.Dispose();
+    public void Dispose()
+    {
+        _getOrCreateGate.Dispose();
+        _gate.Dispose();
+    }
 
     private async Task EnsureInitializedAsync(CancellationToken cancellationToken)
     {

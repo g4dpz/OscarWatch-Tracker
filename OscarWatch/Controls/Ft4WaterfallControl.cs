@@ -9,8 +9,9 @@ using OscarWatch.Core.Ft4;
 namespace OscarWatch.Controls;
 
 /// <summary>
-/// Scrolling spectrogram for FT4. Frequency left→right (passband), time scrolls down.
-/// Click sets RX, and TX as well unless Hold Tx Freq is on.
+/// Scrolling spectrogram for FT4. Frequency left to right (passband), time scrolls down.
+/// A left click sets RX, and TX as well unless Hold Tx Freq is on.
+/// With Hold Tx Freq, a left click sets RX and a right click sets TX.
 /// </summary>
 public sealed class Ft4WaterfallControl : Control
 {
@@ -19,12 +20,17 @@ public sealed class Ft4WaterfallControl : Control
 
     private WriteableBitmap? _bitmap;
     private readonly float[] _latest = new float[SpectrumColumns];
+    private readonly float[] _rows = new float[HistoryRows * SpectrumColumns];
+    private int _filledRows;
     private bool _hasSpectrum;
     private bool _levelsPrimed;
     private double _noiseFloor = -80;
 
-    /// <summary>Fixed dB span above the noise floor (WSJT-X-style). Avoids peak-auto gain blow-out.</summary>
-    public const double DisplayRangeDb = 40.0;
+    /// <summary>dB span above the noise floor. Avoids peak-auto gain blow-out.</summary>
+    public static readonly StyledProperty<double> DisplayRangeDbProperty =
+        AvaloniaProperty.Register<Ft4WaterfallControl, double>(
+            nameof(DisplayRangeDb),
+            Ft4Settings.DefaultWaterfallRangeDb);
 
     public static readonly StyledProperty<double> TxAudioHzProperty =
         AvaloniaProperty.Register<Ft4WaterfallControl, double>(nameof(TxAudioHz), 1500);
@@ -63,6 +69,8 @@ public sealed class Ft4WaterfallControl : Control
             MinHzProperty,
             MaxHzProperty,
             StatusTextProperty);
+        DisplayRangeDbProperty.Changed.AddClassHandler<Ft4WaterfallControl>((control, _) =>
+            control.RepaintSpectrum());
         FocusableProperty.OverrideDefaultValue<Ft4WaterfallControl>(true);
     }
 
@@ -71,6 +79,7 @@ public sealed class Ft4WaterfallControl : Control
         MinHeight = 140;
         Cursor = new Cursor(StandardCursorType.Cross);
         PointerPressed += OnPointerPressed;
+        ContextRequested += (_, e) => e.Handled = true;
     }
 
     public double TxAudioHz
@@ -113,6 +122,13 @@ public sealed class Ft4WaterfallControl : Control
         set => SetValue(StatusTextProperty, value);
     }
 
+    /// <summary>Decibels above the automatic noise floor painted on the waterfall.</summary>
+    public double DisplayRangeDb
+    {
+        get => GetValue(DisplayRangeDbProperty);
+        set => SetValue(DisplayRangeDbProperty, value);
+    }
+
     private void SetSpectrum(float[]? value)
     {
         SetAndRaise(SpectrumProperty, ref _spectrum, value);
@@ -146,8 +162,12 @@ public sealed class Ft4WaterfallControl : Control
             return;
         }
 
-        // Slow EMA so a quiet moment does not slam the scale, and a loud tone does not raise the floor.
-        _noiseFloor = _noiseFloor * 0.95 + floor * 0.05;
+        // The range slider sets contrast. This tracker only follows the band, and a quiet
+        // gap must not lift the whole scale. New rows are coloured once; history is not
+        // restretched on every update (that made the picture pump).
+        var delta = floor - _noiseFloor;
+        var step = delta > 0 ? 0.02 : 0.008;
+        _noiseFloor += delta * step;
     }
 
     private void EnsureBitmap()
@@ -170,31 +190,82 @@ public sealed class Ft4WaterfallControl : Control
 
     private void PushRow(ReadOnlySpan<float> bins)
     {
+        var occupied = Math.Min(_filledRows, HistoryRows - 1);
+        if (occupied > 0)
+            Array.Copy(_rows, 0, _rows, SpectrumColumns, occupied * SpectrumColumns);
+
+        for (var x = 0; x < SpectrumColumns; x++)
+            _rows[x] = bins[x];
+
+        if (_filledRows < HistoryRows)
+            _filledRows++;
+
+        ScrollAndPaintNewest(bins);
+    }
+
+    private void ScrollAndPaintNewest(ReadOnlySpan<float> bins)
+    {
         EnsureBitmap();
+        var range = Ft4Settings.ClampWaterfallRangeDb(DisplayRangeDb);
         using var fb = _bitmap!.Lock();
         unsafe
         {
             var ptr = (byte*)fb.Address.ToPointer();
             var stride = fb.RowBytes;
-            // Scroll down one row.
             Buffer.MemoryCopy(ptr, ptr + stride, stride * (HistoryRows - 1), stride * (HistoryRows - 1));
-            var row = ptr;
-            for (var x = 0; x < SpectrumColumns; x++)
+            PaintSamples(ptr, bins, range);
+        }
+
+        InvalidateVisual();
+    }
+
+    /// <summary>Recolour stored rows when the operator changes the range. Not used for live updates.</summary>
+    private void RepaintSpectrum()
+    {
+        if (_filledRows == 0)
+            return;
+
+        EnsureBitmap();
+        var range = Ft4Settings.ClampWaterfallRangeDb(DisplayRangeDb);
+        using var fb = _bitmap!.Lock();
+        unsafe
+        {
+            var ptr = (byte*)fb.Address.ToPointer();
+            var stride = fb.RowBytes;
+            for (var y = 0; y < HistoryRows; y++)
             {
-                var color = MapColor(bins[x]);
-                row[x * 4 + 0] = color.B;
-                row[x * 4 + 1] = color.G;
-                row[x * 4 + 2] = color.R;
-                row[x * 4 + 3] = 255;
+                var row = ptr + (y * stride);
+                if (y >= _filledRows)
+                {
+                    new Span<byte>(row, SpectrumColumns * 4).Clear();
+                    continue;
+                }
+
+                PaintSamples(row, _rows.AsSpan(y * SpectrumColumns, SpectrumColumns), range);
             }
+        }
+
+        InvalidateVisual();
+    }
+
+    private unsafe void PaintSamples(byte* row, ReadOnlySpan<float> bins, double range)
+    {
+        for (var x = 0; x < SpectrumColumns; x++)
+        {
+            var color = MapColor(bins[x], range);
+            var pixel = row + (x * 4);
+            pixel[0] = color.B;
+            pixel[1] = color.G;
+            pixel[2] = color.R;
+            pixel[3] = 255;
         }
     }
 
-    private Color MapColor(float db)
+    private Color MapColor(float db, double rangeDb)
     {
-        // Map noise floor → +DisplayRangeDb into 0…1. Strong tones clip at white without
+        // Map noise floor → +range into 0…1. Strong tones clip at white without
         // dragging the whole passband up (the previous peak-tracker caused that).
-        var t = (db - _noiseFloor) / DisplayRangeDb;
+        var t = (db - _noiseFloor) / rangeDb;
         t = Math.Clamp(t, 0, 1);
         // Mild gamma so mid-level noise stays blue/cyan rather than yellow.
         t = Math.Pow(t, 1.15);
@@ -226,13 +297,25 @@ public sealed class Ft4WaterfallControl : Control
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
+        var props = e.GetCurrentPoint(this).Properties;
+        var right = props.IsRightButtonPressed;
+        var left = props.IsLeftButtonPressed;
+        if (!left && !(right && HoldTxFrequency))
+            return;
+
         var p = e.GetPosition(this);
         var hz = Ft4SpectrumAnalyzer.PixelToHz(p.X, Bounds.Width, MinHz, MaxHz);
         hz = Math.Round(hz / 10.0) * 10.0;
         hz = Math.Clamp(hz, MinHz, MaxHz);
-        RxAudioHz = hz;
-        if (!HoldTxFrequency)
+        if (right && !left && HoldTxFrequency)
             TxAudioHz = hz;
+        else
+        {
+            RxAudioHz = hz;
+            if (!HoldTxFrequency)
+                TxAudioHz = hz;
+        }
+
         FrequencySelected?.Invoke(this, hz);
         e.Handled = true;
         InvalidateVisual();

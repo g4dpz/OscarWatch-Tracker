@@ -5,15 +5,19 @@ public enum Ft4DecodeHighlightKind
     None = 0,
     CallingMe,
     Replying,
+    Cq,
     NewCall,
     NewGrid
 }
 
 /// <summary>
 /// Which decode rows are painted. A station addressing us is "calling me".
-/// Once that station is the QSO partner, their lines are "replying" instead.
-/// Otherwise, receive lines for a callsign or grid not yet in the logbook use
-/// "new call" / "new grid".
+/// Once that station is the QSO partner, their lines are "replying" instead,
+/// and they stay that way after the contact. They are not painted as "calling me"
+/// when the partner is cleared.
+/// A callsign not yet in the logbook is "new call", including when they are calling CQ,
+/// so a first CQ is not lost among the others. A CQ from a logged station uses the CQ shade.
+/// A grid not yet in the logbook is "new grid".
 /// </summary>
 public static class Ft4DecodeHighlight
 {
@@ -21,13 +25,18 @@ public static class Ft4DecodeHighlight
     public const string DefaultReplyingColour = "#665CB88A";
     public const string DefaultNewCallColour = "#664D9DE8";
     public const string DefaultNewGridColour = "#66C07AD0";
+    public const string DefaultCqColour = "#6678C8E0";
+
+    /// <summary>Text on a line this station transmitted. White, matching the previous fixed colour.</summary>
+    public const string DefaultTxTextColour = "#FFFFFFFF";
 
     public static Ft4DecodeHighlightKind Classify(
         Ft4DecodedMessage message,
         string? myCall,
         string? partnerCall,
         IReadOnlySet<string>? workedCalls = null,
-        IReadOnlySet<string>? workedGridFields = null)
+        IReadOnlySet<string>? workedGridFields = null,
+        IReadOnlySet<string>? finishedPartners = null)
     {
         if (!message.IsReceiveActivity)
             return Ft4DecodeHighlightKind.None;
@@ -38,9 +47,17 @@ public static class Ft4DecodeHighlight
             && message.CallTo.Equals(mine, StringComparison.OrdinalIgnoreCase))
         {
             var partner = Ft4MessageCodec.NormalizeCall(partnerCall ?? "");
+            var from = Ft4MessageCodec.NormalizeCall(message.CallDe ?? "");
             if (partner.Length > 0
-                && !string.IsNullOrWhiteSpace(message.CallDe)
-                && message.CallDe.Equals(partner, StringComparison.OrdinalIgnoreCase))
+                && from.Length > 0
+                && from.Equals(partner, StringComparison.OrdinalIgnoreCase))
+            {
+                return Ft4DecodeHighlightKind.Replying;
+            }
+
+            if (from.Length > 0
+                && finishedPartners is not null
+                && finishedPartners.Contains(from))
             {
                 return Ft4DecodeHighlightKind.Replying;
             }
@@ -54,6 +71,9 @@ public static class Ft4DecodeHighlight
 
         if (workedCalls is not null && !workedCalls.Contains(de))
             return Ft4DecodeHighlightKind.NewCall;
+
+        if (Ft4MessageCodec.IsCq(message.CallTo))
+            return Ft4DecodeHighlightKind.Cq;
 
         var field = GridField(message.Extra);
         if (field is not null

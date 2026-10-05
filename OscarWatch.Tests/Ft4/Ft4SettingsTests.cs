@@ -24,20 +24,33 @@ public sealed class Ft4SettingsTests
     {
         var settings = new Ft4Settings();
         Assert.True(settings.SkipRrr);
+        Assert.True(settings.ApEnabled);
         Assert.Equal(Ft4PttMethod.Vox, settings.PttMethod);
         Assert.Equal(Ft4PttLine.Rts, settings.PttLine);
         Assert.Equal(200, settings.PttLeadMs);
         Assert.Equal(100, settings.PttTailMs);
         Assert.True(settings.HoldTxFrequency);
         Assert.True(settings.AutoReply);
+        Assert.False(settings.AutoLowerRfPower);
         Assert.True(settings.AudioDopplerTx);
         Assert.True(settings.AudioDopplerRx);
         Assert.True(settings.ParallelTxEchoDecode);
+        Assert.Equal(Ft4TxWatchdog.DefaultMinutes, settings.TxWatchdogMinutes);
+        Assert.False(settings.PskReporterEnabled);
+        Assert.False(settings.OscarWatchSpotsEnabled);
         Assert.Equal(12, settings.DecodeFontSize);
+        Assert.Equal(Ft4Settings.DefaultWaterfallRangeDb, settings.WaterfallRangeDb);
         Assert.Equal(Ft4DecodeHighlight.DefaultCallingMeColour, settings.CallingMeColour);
         Assert.Equal(Ft4DecodeHighlight.DefaultReplyingColour, settings.ReplyingColour);
         Assert.Equal(Ft4DecodeHighlight.DefaultNewCallColour, settings.NewCallColour);
         Assert.Equal(Ft4DecodeHighlight.DefaultNewGridColour, settings.NewGridColour);
+        Assert.Equal(Ft4DecodeHighlight.DefaultCqColour, settings.CqColour);
+        Assert.Equal("", settings.CallingMeTextColour);
+        Assert.Equal("", settings.ReplyingTextColour);
+        Assert.Equal("", settings.NewCallTextColour);
+        Assert.Equal("", settings.NewGridTextColour);
+        Assert.Equal("", settings.CqTextColour);
+        Assert.Equal(Ft4DecodeHighlight.DefaultTxTextColour, settings.TxTextColour);
     }
 
     [Fact]
@@ -72,5 +85,13 @@ public sealed class Ft4SettingsTests
 
         Assert.Equal("CABLE Output (VB-Audio Virtual Cable)", settings.InputDeviceId);
         Assert.Equal("Speakers (Realtek)", settings.OutputDeviceId);
+    }
+
+    [Fact]
+    public void Waterfall_range_clamps_to_the_operator_span()
+    {
+        Assert.Equal(40, Ft4Settings.ClampWaterfallRangeDb(40));
+        Assert.Equal(Ft4Settings.MinWaterfallRangeDb, Ft4Settings.ClampWaterfallRangeDb(0));
+        Assert.Equal(Ft4Settings.MaxWaterfallRangeDb, Ft4Settings.ClampWaterfallRangeDb(200));
     }
 }

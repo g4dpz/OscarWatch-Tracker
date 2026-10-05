@@ -835,6 +835,9 @@ LOS: {2}
   <data name="Status.TleReloadFailed">
     <value>โหลด TLE ใหม่ล้มเหลว: {0}</value>
   </data>
+  <data name="Status.TleDownloadBlocked">
+    <value>{0} ปฏิเสธการดาวน์โหลด (คำขอมากเกินไป) ยังคงใช้ข้อมูลดาวเทียมที่บันทึกไว้ล่าสุด ลองใหม่ภายหลัง หรือเลือกแหล่ง OscarWatch ใน การตั้งค่า → TLE</value>
+  </data>
   <data name="Status.TransponderChecking">
     <value>กำลังตรวจฐานข้อมูลทรานสปอนเดอร์…</value>
   </data>
@@ -2234,7 +2237,7 @@ LOS: {2}
     <value>เปิดการควบคุมวิทยุ</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>วิทยุคู่ (ดาวน์ลิงก์และอัปลิงก์แยก: FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, IC-7100, ชุด IC-706, TH-D74/D75 หรือผสม)</value>
+    <value>วิทยุคู่ (ดาวน์ลิงก์และอัปลิงก์แยก: FT-817/818, FT-857, FT-991(A), IC-705, IC-7300, IC-905, IC-7100, ชุด IC-706, TH-D74/D75 หรือผสม)</value>
   </data>
   <data name="Settings.Radio.DualIncompleteBoth">
     <value>เลือกพอร์ต COM สำหรับทั้งวิทยุดาวน์ลิงก์และอัปลิงก์</value>
@@ -2428,6 +2431,9 @@ LOS: {2}
   <data name="Settings.Radio.RefreshComPorts">
     <value>รีเฟรชพอร์ต COM</value>
   </data>
+  <data name="Settings.Radio.Ft857Hint">
+    <value>FT-857 / FT-857D: ใช้แจ็ค CAT/LINEAR ด้านหลัง (CT-62 หรือเทียบเท่า) ตั้งเมนู 019 เป็น CAT (ไม่ใช่ LIN หรือ TUN) และเมนู 020 CAT RATE เป็น 4800 บอด (9600 และ 38400 ก็ใช้ได้) CAT 8N2: หนึ่ง COM ต่อขา ครอบคลุม HF/6 ม., 2 ม. และ 70 ซม. (ดาวน์ลิงก์ AO-07 Mode A บน 10 ม.) ไม่รองรับ 23 ซม. เชิงเส้น: หมุนดาวน์ลิงก์สำหรับพาสแบนด์; FM ล็อกลูกบิดขณะติดตาม ตั้งกำลังส่งที่ตัววิทยุ (CAT เปลี่ยนไม่ได้)</value>
+  </data>
   <data name="Settings.Radio.Ft817Hint">
     <value>FT-817 / FT-818: ตั้งเมนู #14 เป็น 4800 บอดบนแต่ละเครื่อง (38400 ก็ใช้ได้) CAT 8N2: หนึ่ง COM ต่อขา ครอบคลุม HF/6 ม., 2ม. และ 70ซม. (ดาวน์ลิงก์ AO-07 Mode A บน 10 ม.) เชิงเส้น: หมุนดาวน์ลิงก์สำหรับพาสแบนด์; FM ล็อกลูกบิดขณะติดตาม</value>
   </data>
@@ -2507,7 +2513,7 @@ LOS: {2}
     <value>ลีดดอปเพลอร์สำหรับความหน่วง CAT</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadNote">
-    <value>เมื่อเปิด CAT และแถววิทยุจะทำนายดอปเพลอร์ล่วงหน้าในช่วงขาชันและหลัง TCA (เมื่ออัตราระยะเปลี่ยนเร็ว) ใกล้ TCA ลีดจะค่อย ๆ ลดลงเมื่ออัตราระยะเข้าใกล้ศูนย์ AOS ที่นุ่มนวลใช้ค่าปัจจุบัน แถว Sat ยังแสดงความถี่ยานอวกาศปัจจุบัน ปรับละเอียดด้วยเวลาลีดและความแรงด้านล่าง</value>
+    <value>เมื่อเปิด CAT และแถววิทยุจะทำนายดอปเพลอร์ล่วงหน้าในช่วงขาชันและหลัง TCA (เมื่ออัตราระยะเปลี่ยนเร็ว) ใกล้ TCA ลีดจะค่อย ๆ ลดลงเมื่ออัตราระยะเข้าใกล้ศูนย์ AOS ที่นุ่มนวลใช้ค่าปัจจุบัน แถว Sat ยังแสดงความถี่ยานอวกาศปัจจุบัน ปรับละเอียดด้วยเวลาลีดและความแรงด้านล่าง DATA-USB, DATA-LSB และ DATA-FM ใช้อัตราปัจจุบันโดยไม่ใช้ลีด SSB, CW และ FM ยังคงตามช่องนี้</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadMs">
     <value>เวลาลีด (ms)</value>
@@ -3988,6 +3994,12 @@ LOS: {2}
   <data name="Ft4.AutoReply.Note">
     <value>ขณะเรียก CQ จะตอบสถานีแรกที่เรียกคุณ ยกเลิกเพื่อเรียก CQ ต่อไปจนกว่าจะคลิกสถานี เลือกอีกครั้งเพื่อตอบสถานีถัดไป รวมถึงสถานีที่เรียกเมื่อไม่กี่วินาทีก่อน</value>
   </data>
+  <data name="Ft4.AutoLowerRfPower">
+    <value>ลดกำลังส่ง RF เหลือ 30 W</value>
+  </data>
+  <data name="Ft4.AutoLowerRfPower.Note">
+    <value>เมื่อวิทยุรายงานกำลังเกิน 30 W OscarWatch จะตั้งเป็น 30 W ก่อนส่ง ใช้ได้กับ ICOM, Yaesu FT-991 และ FT-991A และ Kenwood TS-2000 วิทยุจะคงค่านี้ไว้ หากเปลี่ยนไม่ได้ การส่งจะยังถูกบล็อก</value>
+  </data>
   <data name="Ft4.CloseWhileTx.Title">
     <value>ปิด FT4 ขณะส่ง</value>
   </data>
@@ -3998,7 +4010,7 @@ LOS: {2}
     <value>คงความถี่ TX</value>
   </data>
   <data name="Ft4.HoldTxFrequency.Note">
-    <value>คง Hz เสียง TX ของคุณเมื่อตอบ (แบบ WSJT-X) ยกเลิกเพื่อกระโดดไปความถี่ที่ถอดรหัส</value>
+    <value>คง Hz เสียง TX ของคุณเมื่อตอบ (แบบ WSJT-X) ยกเลิกเพื่อกระโดดไปความถี่ที่ถอดรหัส เมื่อเปิดไว้ คลิกซ้ายบนวอเตอร์ฟอลย้าย RX และคลิกขวาย้าย TX</value>
   </data>
   <data name="Ft4.AudioDopplerTx">
     <value>ดอปเปลอร์เสียงบน TX</value>
@@ -4012,11 +4024,29 @@ LOS: {2}
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>ในช่วงส่ง จะถอดรหัสปกติและรอบเอคโค่ที่มาช้าพร้อมกัน เพื่อให้เห็นสำเนาของตัวเองเร็วขึ้น ใช้ CPU มากขึ้นในช่วงนั้น เปิดไว้ได้ เว้นแต่เครื่องช้า</value>
   </data>
+  <data name="Ft4.ApEnabled">
+    <value>เดาข้อความตอบที่อ่อน (AP)</value>
+  </data>
+  <data name="Ft4.ApEnabled.Note">
+    <value>ขณะติดต่ออยู่ รายงาน RR73 หรือ 73 ที่ถอดรหัสครั้งแรกพลาดจะถูกลองอีกครั้ง แถวนั้นจะมีเครื่องหมาย AP เอาเครื่องหมายออกเพื่อแสดงเฉพาะที่อ่านได้โดยตรง</value>
+  </data>
+  <data name="Ft4.TxWatchdogMinutes">
+    <value>ตัวเฝ้า TX (นาที)</value>
+  </data>
+  <data name="Ft4.TxWatchdogMinutes.Note">
+    <value>หยุดส่งหากไม่มีใครตอบคุณเป็นเวลานี้ สถานีอื่นและเสียงสะท้อนของคุณไม่นับ 0 ปิดตัวเฝ้า</value>
+  </data>
   <data name="Ft4.PskReporter">
     <value>รายงานการถอดรหัสไปยัง PSK Reporter</value>
   </data>
   <data name="Ft4.PskReporter.Note">
     <value>ส่งสถานีที่ถอดรหัสได้ไปยัง pskreporter.info ประมาณทุกห้านาที โดยใช้คอลซายน์และกริดของสถานีคุณ สปอตใช้ความถี่อัปลิงก์ และส่งชื่อดาวเทียมเป็นข้อมูลสายอากาศ</value>
+  </data>
+  <data name="Ft4.OscarWatchSpots">
+    <value>ส่งสปอต FT4 ไปยัง OscarWatch.org</value>
+  </data>
+  <data name="Ft4.OscarWatchSpots.Note">
+    <value>ส่งสถานีที่ถอดรหัสได้ไปยัง oscarwatch.org โดยใช้โทเค็น API จาก การตั้งค่า → OscarWatch ใช้ไม่ได้จนกว่าจะบันทึกโทเค็นนั้น โปรไฟล์บนเว็บไซต์ต้องมีคอลซายน์และกริดสแควร์</value>
   </data>
   <data name="Ft4.DecodeFontSize">
     <value>ขนาดข้อความถอดรหัส</value>
@@ -4024,14 +4054,29 @@ LOS: {2}
   <data name="Ft4.DecodeFontSize.Note">
     <value>ขนาดแบบอักษรรายการถอดรหัส (10–28) ขนาดใหญ่ช่วยเมื่อสายตาไม่ดี</value>
   </data>
+  <data name="Ft4.WaterfallRange">
+    <value>ช่วงวอเตอร์ฟอล</value>
+  </data>
+  <data name="Ft4.WaterfallRange.Note">
+    <value>จำนวนเดซิเบลเหนือพื้นสัญญาณรบกวนที่ติดตามอัตโนมัติ ช่วงที่แคบลงทำให้สัญญาณเด่นขึ้น ค่าเริ่มต้นคือ 40 dB</value>
+  </data>
   <data name="Ft4.Decode.CallingMe">
     <value>เรียกฉัน</value>
   </data>
   <data name="Ft4.Decode.Replying">
     <value>ตอบกลับ</value>
   </data>
+  <data name="Ft4.Decode.Cq">
+    <value>CQ</value>
+  </data>
+  <data name="Ft4.Decode.Background">
+    <value>พื้นหลัง</value>
+  </data>
+  <data name="Ft4.Decode.Text">
+    <value>ข้อความ</value>
+  </data>
   <data name="Ft4.Decode.ColourNote">
-    <value>สีพื้นหลังบรรทัดถอดรหัส: ที่เรียกหาคุณ สถานีใน QSO ปัจจุบัน สัญญาณเรียกที่ยังไม่มีในสมุดบันทึก หรือกริด 4 ตัวอักษที่ยังไม่ได้บันทึก ใช้ตัวเลือกสี ความโปร่งใสต่ำจะเข้มขึ้น</value>
+    <value>สีพื้นหลังบรรทัดถอดรหัส: ที่เรียกหาคุณ สถานีใน QSO ปัจจุบัน CQ สัญญาณเรียกที่ยังไม่มีในสมุดบันทึก หรือกริด 4 ตัวอักษที่ยังไม่ได้บันทึก ใช้ตัวเลือกสี ความโปร่งใสต่ำจะเข้มขึ้น สีข้อความจะตามธีมจนกว่าคุณจะเลือก บรรทัดเสียงสะท้อนคงสีเดิม คุณตั้งสีข้อความที่ส่งได้</value>
   </data>
   <data name="Ft4.Decode.NewCall">
     <value>สัญญาณเรียกใหม่</value>
@@ -4041,6 +4086,27 @@ LOS: {2}
   </data>
   <data name="Ft4.Settings.EchoSection">
     <value>การปรับเทียบเสียงสะท้อน</value>
+  </data>
+  <data name="Ft4.Settings.Group.Contacts">
+    <value>การติดต่อ</value>
+  </data>
+  <data name="Ft4.Settings.Group.Doppler">
+    <value>ดอปเพลอร์</value>
+  </data>
+  <data name="Ft4.Settings.Group.DopplerNote">
+    <value>เปิดไว้ พวกนี้ชดเชยการเลื่อนในแต่ละช่วง FT4 และหาเสียงสะท้อนของคุณเร็วขึ้น</value>
+  </data>
+  <data name="Ft4.Settings.Group.Reporting">
+    <value>การรายงาน</value>
+  </data>
+  <data name="Ft4.Settings.Group.Waterfall">
+    <value>วอเตอร์ฟอล</value>
+  </data>
+  <data name="Ft4.Settings.Group.DecodeList">
+    <value>รายการถอดรหัส</value>
+  </data>
+  <data name="Ft4.Settings.Group.ControlLine">
+    <value>สายควบคุม</value>
   </data>
   <data name="Ft4.EchoCalibration.Note">
     <value>เมื่อถอดรหัสเสียงสะท้อนอัปลิงก์ของคุณ OscarWatch จะปรับค่า trim ตามดาวเทียมโดยอัตโนมัติ คุณสามารถแก้ไขหรือล้างได้ที่นี่</value>
@@ -4141,9 +4207,6 @@ LOS: {2}
   <data name="Ft4.Status.Tuning">
     <value>กำลังจูนที่ {0} Hz</value>
   </data>
-  <data name="Ft4.Status.TuneCalibrationFailed">
-    <value>Tune หาโทนของตัวเองในดาวน์ลิงก์ไม่พบ จึงคืนค่าการปรับอัปลิงก์ ให้เรียก CQ เพื่อปรับเทียบจากเสียงสะท้อนแทน</value>
-  </data>
   <data name="Ft4.Status.TuneStopped">
     <value>หยุดจูนแล้ว</value>
   </data>
@@ -4172,7 +4235,7 @@ LOS: {2}
     <value>กรุณาใส่หรือสร้างข้อความ TX ก่อน</value>
   </data>
   <data name="Ft4.Status.WatchdogStopped">
-    <value>หยุดส่งแล้ว (watchdog)</value>
+    <value>หยุดส่งแล้ว: ไม่มีผู้ตอบเป็นเวลา {0} นาที</value>
   </data>
   <data name="Ft4.Status.ModemError">
     <value>ข้อผิดพลาดโมเด็ม: {0}</value>
@@ -4191,9 +4254,6 @@ LOS: {2}
   </data>
   <data name="Ft4.Status.NothingToLog">
     <value>ไม่มีอะไรให้บันทึก ตอบการถอดรหัสหรือเริ่ม QSO ก่อน</value>
-  </data>
-  <data name="Ft4.Status.NeedLogbook">
-    <value>สร้างสมุดปูมใน เครื่องมือ → OscarWatch Logbook ก่อน</value>
   </data>
   <data name="Ft4.Status.LoggedManual">
     <value>บันทึก QSO กับ {0} แล้ว (ด้วยตนเอง)</value>
@@ -4308,6 +4368,9 @@ LOS: {2}
   </data>
   <data name="Ft4.Decodes.Echo">
     <value>เอคโค่</value>
+  </data>
+  <data name="Ft4.Decodes.Ap">
+    <value>AP</value>
   </data>
   <data name="Ft4.TxMessage">
     <value>ข้อความ TX</value>

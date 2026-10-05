@@ -835,6 +835,9 @@ LOS: {2}
   <data name="Status.TleReloadFailed">
     <value>Сбой перезагрузки TLE: {0}</value>
   </data>
+  <data name="Status.TleDownloadBlocked">
+    <value>{0} отклоняет загрузки (слишком много запросов). Сохранены последние сохранённые данные спутников. Повторите попытку позже или выберите источник OscarWatch в разделе Настройки → TLE.</value>
+  </data>
   <data name="Status.TransponderChecking">
     <value>Проверка базы транспондеров…</value>
   </data>
@@ -2234,7 +2237,7 @@ LOS: {2}
     <value>Включить управление рацией</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>Двойная рация (отдельные даунлинк и аплинк: FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, IC-7100, серия IC-706, TH-D74/D75 или смешанные)</value>
+    <value>Двойная рация (отдельные даунлинк и аплинк: FT-817/818, FT-857, FT-991(A), IC-705, IC-7300, IC-905, IC-7100, серия IC-706, TH-D74/D75 или смешанные)</value>
   </data>
   <data name="Settings.Radio.DualIncompleteBoth">
     <value>Выберите COM-порты и для даунлинка, и для аплинка.</value>
@@ -2428,6 +2431,9 @@ LOS: {2}
   <data name="Settings.Radio.RefreshComPorts">
     <value>Обновить COM-порты</value>
   </data>
+  <data name="Settings.Radio.Ft857Hint">
+    <value>FT-857 / FT-857D: используйте задний разъём CAT/LINEAR (CT-62 или аналог). Меню 019 в CAT (не LIN и не TUN), меню 020 CAT RATE на 4800 бод (9600 и 38400 тоже работают). CAT 8N2, один COM на ветвь. Перекрывает КВ/6 м, 2 м и 70 см (даунлинк AO-07 Mode A на 10 м); 23 см нет. Линейный: крутите даунлинк по полосе; FM фиксирует диск во время сопровождения. Мощность задавайте на трансивере (через CAT её не изменить).</value>
+  </data>
   <data name="Settings.Radio.Ft817Hint">
     <value>FT-817 / FT-818: меню №14 на 4800 бод на каждой рации (38400 тоже работает). CAT 8N2, один COM на ветвь. Перекрывает КВ/6 м, 2 м и 70 см (даунлинк AO-07 Mode A на 10 м). Линейный: крутите даунлинк по полосе; FM фиксирует диск во время сопровождения.</value>
   </data>
@@ -2507,7 +2513,7 @@ LOS: {2}
     <value>Упреждающий Доплер под задержку CAT</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadNote">
-    <value>Если включено, CAT и строка «Рация» прогнозируют Доплер вперёд на крутых участках и после TCA (когда скорость изменения дальности велика). Около TCA упреждение сходит на нет, когда скорость изменения дальности стремится к нулю. На спокойном AOS берётся текущая скорость. Строка «Спутн.» по-прежнему показывает текущую частоту борта. Точная подстройка: время и сила упреждения ниже.</value>
+    <value>Если включено, CAT и строка «Рация» прогнозируют Доплер вперёд на крутых участках и после TCA (когда скорость изменения дальности велика). Около TCA упреждение сходит на нет, когда скорость изменения дальности стремится к нулю. На спокойном AOS берётся текущая скорость. Строка «Спутн.» по-прежнему показывает текущую частоту борта. Точная подстройка: время и сила упреждения ниже. DATA-USB, DATA-LSB и DATA-FM используют текущую скорость без упреждения. SSB, CW и FM по-прежнему следуют этому флажку.</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadMs">
     <value>Время упреждения (мс)</value>
@@ -3988,6 +3994,12 @@ LOS: {2}
   <data name="Ft4.AutoReply.Note">
     <value>При вызове CQ отвечает первой станции, которая вас вызвала. Снимите флажок, чтобы продолжать CQ, пока вы не выберете станцию. Снова установите флажок, чтобы ответить следующей станции, в том числе вызвавшей несколько секунд назад.</value>
   </data>
+  <data name="Ft4.AutoLowerRfPower">
+    <value>Снизить мощность до 30 Вт</value>
+  </data>
+  <data name="Ft4.AutoLowerRfPower.Note">
+    <value>Если трансивер сообщает больше 30 Вт, OscarWatch перед передачей ставит 30 Вт. Это работает на ICOM, Yaesu FT-991 и FT-991A, а также Kenwood TS-2000. Трансивер остаётся на этом уровне. Если изменить мощность нельзя, передача по-прежнему блокируется.</value>
+  </data>
   <data name="Ft4.CloseWhileTx.Title">
     <value>Закрыть FT4 во время передачи</value>
   </data>
@@ -3998,7 +4010,7 @@ LOS: {2}
     <value>Держать частоту TX</value>
   </data>
   <data name="Ft4.HoldTxFrequency.Note">
-    <value>Сохраняет ваш TX-аудио Гц при ответе (как в WSJT-X). Снимите, чтобы перейти на частоту декода.</value>
+    <value>Сохраняет ваш TX-аудио Гц при ответе (как в WSJT-X). Снимите, чтобы перейти на частоту декода. Когда включено, левый щелчок по водопаду перемещает RX, а правый перемещает TX.</value>
   </data>
   <data name="Ft4.AudioDopplerTx">
     <value>Аудио-Доплер на TX</value>
@@ -4012,11 +4024,29 @@ LOS: {2}
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>В TX-слотах обычная декодировка и поздний проход эха идут вместе, чтобы своя копия появлялась быстрее. Больше нагрузка на CPU в этом слоте. Оставляйте включённым, если ПК не слабый.</value>
   </data>
+  <data name="Ft4.ApEnabled">
+    <value>Подсказывать слабые ответы (AP)</value>
+  </data>
+  <data name="Ft4.ApEnabled.Note">
+    <value>Пока идёт связь, отчёт, RR73 или 73, пропущенные первым декодированием, пробуются снова. Такие строки помечаются AP. Снимите флажок, чтобы показывать только прочитанное напрямую.</value>
+  </data>
+  <data name="Ft4.TxWatchdogMinutes">
+    <value>Сторож TX (минуты)</value>
+  </data>
+  <data name="Ft4.TxWatchdogMinutes.Note">
+    <value>Останавливает передачу, если вам столько минут никто не отвечает. Чужие станции и собственное эхо не считаются. 0 выключает сторож.</value>
+  </data>
   <data name="Ft4.PskReporter">
     <value>Отправлять декодирования в PSK Reporter</value>
   </data>
   <data name="Ft4.PskReporter.Note">
     <value>Примерно раз в пять минут отправляет принятые станции на pskreporter.info с позывным и локатором вашей станции. Споты используют частоту аплинка, а название спутника передаётся как антенна.</value>
+  </data>
+  <data name="Ft4.OscarWatchSpots">
+    <value>Отправлять споты FT4 на OscarWatch.org</value>
+  </data>
+  <data name="Ft4.OscarWatchSpots.Note">
+    <value>Отправляет принятые станции на oscarwatch.org, используя токен API из Настройки → OscarWatch. Недоступно, пока этот токен не сохранён. В профиле на сайте нужны позывной и квадрат.</value>
   </data>
   <data name="Ft4.DecodeFontSize">
     <value>Размер текста декодов</value>
@@ -4024,14 +4054,29 @@ LOS: {2}
   <data name="Ft4.DecodeFontSize.Note">
     <value>Размер шрифта списка декодов (10–28). Больший размер удобнее при слабом зрении.</value>
   </data>
+  <data name="Ft4.WaterfallRange">
+    <value>Диапазон водопада</value>
+  </data>
+  <data name="Ft4.WaterfallRange.Note">
+    <value>Децибелы над автоматически определяемым уровнем шума. Меньший диапазон делает сигналы заметнее. По умолчанию 40 дБ.</value>
+  </data>
   <data name="Ft4.Decode.CallingMe">
     <value>Вызывает меня</value>
   </data>
   <data name="Ft4.Decode.Replying">
     <value>Отвечает</value>
   </data>
+  <data name="Ft4.Decode.Cq">
+    <value>CQ</value>
+  </data>
+  <data name="Ft4.Decode.Background">
+    <value>Фон</value>
+  </data>
+  <data name="Ft4.Decode.Text">
+    <value>Текст</value>
+  </data>
   <data name="Ft4.Decode.ColourNote">
-    <value>Фон строк декодирования: адресованные вам, станция текущего QSO, позывной ещё не в журнале, или 4-символьный квадрат, который вы ещё не записывали. Выберите цвет; меньше прозрачности, сильнее оттенок.</value>
+    <value>Фон строк декодирования: адресованные вам, станция текущего QSO, вызовы CQ, позывной ещё не в журнале, или 4-символьный квадрат, который вы ещё не записывали. Выберите цвет; меньше прозрачности, сильнее оттенок. Цвет текста следует теме, пока вы его не выберете. Строки эха сохраняют свой цвет. Цвет переданного текста можно выбрать.</value>
   </data>
   <data name="Ft4.Decode.NewCall">
     <value>Новый позывной</value>
@@ -4041,6 +4086,27 @@ LOS: {2}
   </data>
   <data name="Ft4.Settings.EchoSection">
     <value>Калибровка эха</value>
+  </data>
+  <data name="Ft4.Settings.Group.Contacts">
+    <value>Связи</value>
+  </data>
+  <data name="Ft4.Settings.Group.Doppler">
+    <value>Доплер</value>
+  </data>
+  <data name="Ft4.Settings.Group.DopplerNote">
+    <value>Оставьте включёнными. Они убирают уход частоты внутри слота FT4 и раньше ищут своё эхо.</value>
+  </data>
+  <data name="Ft4.Settings.Group.Reporting">
+    <value>Отчёты</value>
+  </data>
+  <data name="Ft4.Settings.Group.Waterfall">
+    <value>Водопад</value>
+  </data>
+  <data name="Ft4.Settings.Group.DecodeList">
+    <value>Список декодов</value>
+  </data>
+  <data name="Ft4.Settings.Group.ControlLine">
+    <value>Линия управления</value>
   </data>
   <data name="Ft4.EchoCalibration.Note">
     <value>Когда декодируется ваше собственное эхо аплинка, OscarWatch автоматически подстраивает эту поправку для спутника. Здесь её можно изменить или сбросить.</value>
@@ -4141,9 +4207,6 @@ LOS: {2}
   <data name="Ft4.Status.Tuning">
     <value>Tune на {0} Гц</value>
   </data>
-  <data name="Ft4.Status.TuneCalibrationFailed">
-    <value>Tune не нашёл свой тон в нисходящем канале, поэтому поправка восходящего канала отменена. Дайте CQ, чтобы откалибровать по своему эху.</value>
-  </data>
   <data name="Ft4.Status.TuneStopped">
     <value>Tune остановлен</value>
   </data>
@@ -4172,7 +4235,7 @@ LOS: {2}
     <value>Сначала введите или создайте TX-сообщение</value>
   </data>
   <data name="Ft4.Status.WatchdogStopped">
-    <value>Передача остановлена (watchdog)</value>
+    <value>Передача остановлена: нет ответа {0} мин.</value>
   </data>
   <data name="Ft4.Status.ModemError">
     <value>Ошибка модема: {0}</value>
@@ -4191,9 +4254,6 @@ LOS: {2}
   </data>
   <data name="Ft4.Status.NothingToLog">
     <value>Нечего записывать. Сначала ответьте на декод или начните QSO.</value>
-  </data>
-  <data name="Ft4.Status.NeedLogbook">
-    <value>Сначала создайте журнал в Инструменты → OscarWatch Logbook.</value>
   </data>
   <data name="Ft4.Status.LoggedManual">
     <value>QSO с {0} записано (вручную)</value>
@@ -4308,6 +4368,9 @@ LOS: {2}
   </data>
   <data name="Ft4.Decodes.Echo">
     <value>Эхо</value>
+  </data>
+  <data name="Ft4.Decodes.Ap">
+    <value>AP</value>
   </data>
   <data name="Ft4.TxMessage">
     <value>TX-сообщение</value>

@@ -1,0 +1,60 @@
+namespace OscarWatch.Core.Ft4;
+
+/// <summary>
+/// Deep FT4 decode near the horizon, where the downlink is weakest.
+/// Mid-pass stays on the fast budget so a reply still makes the next slot.
+/// </summary>
+public static class Ft4DecodeDepth
+{
+    /// <summary>Deep decode while the satellite is up and below this elevation.</summary>
+    public const double HorizonElevationDeg = 20;
+
+    public static bool UseDeep(double? elevationDeg) =>
+        elevationDeg is >= 0 and < HorizonElevationDeg;
+
+    /// <summary>Also decode the full receive slot while the satellite is up and below this elevation.</summary>
+    public const double FullSlotElevationDeg = 5;
+
+    /// <summary>
+    /// The first few degrees: a weak or slightly late burst can miss the 6 s early decode,
+    /// so receive slots get a second pass over the whole 7.5 s capture.
+    /// </summary>
+    public static bool UseFullSlotDecode(double? elevationDeg) =>
+        elevationDeg is >= 0 and < FullSlotElevationDeg;
+
+    /// <summary>
+    /// Hinted replies are only tried while the satellite is still up.
+    /// Below the horizon those same hints turn noise into a plausible report.
+    /// </summary>
+    public static bool UseApriori(double? elevationDeg) =>
+        elevationDeg is >= 0;
+
+    /// <summary>
+    /// Earliest DT still treated as a satellite copy. FT4 starts 0.5 s into the
+    /// slot, so a burst at DT 0 is already half a second early. The R+35 guess
+    /// sat at −0.5 s, a full second before the real copies.
+    /// </summary>
+    public const double MinSatelliteDtSec = 0;
+
+    /// <summary>
+    /// SNR estimator floor. A hinted reply parked on this value has no measurable signal.
+    /// </summary>
+    public const float ApSnrFloorDb = -21f;
+
+    /// <summary>Highest report a hint may invent. A louder one still decodes on its own.</summary>
+    public const int MaxHintedReportDb = 20;
+
+    /// <summary>A hinted reply needs a satellite DT and a signal above the SNR floor.</summary>
+    public static bool IsPublishableHint(double timeSec, float snrDb) =>
+        IsPlausibleSatelliteDt(timeSec) && snrDb > ApSnrFloorDb;
+
+    /// <summary>
+    /// Latest DT still treated as a satellite copy. FT4 starts 0.5 s into the
+    /// slot and a satellite adds only milliseconds, so a real line stays near
+    /// that. A moonbounce echo is about +2.5 s.
+    /// </summary>
+    public const double MaxSatelliteDtSec = 1.5;
+
+    public static bool IsPlausibleSatelliteDt(double timeSec) =>
+        timeSec is >= MinSatelliteDtSec and <= MaxSatelliteDtSec;
+}

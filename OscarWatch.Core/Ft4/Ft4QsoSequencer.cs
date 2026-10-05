@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace OscarWatch.Core.Ft4;
 
 public enum Ft4QsoPhase
@@ -16,7 +18,11 @@ public sealed class Ft4QsoSequencer
     private readonly Func<bool> _skipRrr;
     private readonly Func<bool> _holdTxFrequency;
     private readonly Func<bool> _autoReply;
+    private readonly object _gate = new();
+    private readonly Dictionary<string, string> _heardLocators = new(StringComparer.OrdinalIgnoreCase);
     private bool? _autoReplyOverride;
+    private bool _weSent73;
+    private bool _theySent73;
 
     public Ft4QsoSequencer(
         Func<string> myCall,
@@ -36,7 +42,11 @@ public sealed class Ft4QsoSequencer
     /// The Auto reply checkbox. Overrides the settings read so a tick takes effect
     /// on the next decode, including one already on screen.
     /// </summary>
-    public void SetAutoReply(bool enabled) => _autoReplyOverride = enabled;
+    public void SetAutoReply(bool enabled)
+    {
+        lock (_gate)
+            _autoReplyOverride = enabled;
+    }
 
     private bool AutoReplyOn => _autoReplyOverride ?? _autoReply();
 
@@ -51,10 +61,25 @@ public sealed class Ft4QsoSequencer
     public string? ReportReceived { get; private set; }
     public string CurrentTxMessage { get; private set; } = "";
     public bool TransmitEnabled { get; private set; }
+
+    /// <summary>Audio frequency, in Hz, of the station we are working.</summary>
+    public double TheirAudioHz { get; private set; }
+
+    /// <summary>
+    /// UTC when the last contact reached 73. Decodes at or before this belong to that
+    /// contact, so a new CQ must not answer them again.
+    /// </summary>
+    public DateTime? QsoCompletedUtc { get; private set; }
     public bool PreferEvenSlot { get; set; }
     public double TxAudioHz { get; set; } = 1500;
 
     public void Reset()
+    {
+        lock (_gate)
+            ResetCore();
+    }
+
+    private void ResetCore()
     {
         Phase = Ft4QsoPhase.Idle;
         TheirCall = null;
@@ -63,17 +88,37 @@ public sealed class Ft4QsoSequencer
         ReportReceived = null;
         CurrentTxMessage = "";
         TransmitEnabled = false;
+        QsoCompletedUtc = null;
+        _weSent73 = false;
+        _theySent73 = false;
+        TheirAudioHz = 0;
+        _heardLocators.Clear();
     }
+
+    /// <summary>True when <paramref name="slotUtc"/> is part of the contact that just finished.</summary>
+    public bool IsHistoricDecode(DateTime slotUtc) =>
+        QsoCompletedUtc is not null && slotUtc <= QsoCompletedUtc.Value;
 
     public void StartCq(bool evenSlot)
     {
-        PreferEvenSlot = evenSlot;
-        CurrentTxMessage = Ft4MessageCodec.BuildCq(_myCall(), _myGrid());
-        BeginFreshCq(keepMessage: true);
+        // Decode and TX-complete run off the UI thread. Without the lock a 73 that
+        // already passed its phase check can write the old contact back over this CQ.
+        lock (_gate)
+        {
+            PreferEvenSlot = evenSlot;
+            CurrentTxMessage = Ft4MessageCodec.BuildCq(_myCall(), _myGrid());
+            BeginFreshCq(keepMessage: true);
+        }
     }
 
     /// <summary>Operator clicked a decode to answer.</summary>
     public void StartAnswer(Ft4DecodedMessage decode, bool oppositeEvenSlot)
+    {
+        lock (_gate)
+            StartAnswerCore(decode, oppositeEvenSlot);
+    }
+
+    private void StartAnswerCore(Ft4DecodedMessage decode, bool oppositeEvenSlot)
     {
         if (!Ft4MessageCodec.TryParse(decode.Text, out var callTo, out var callDe, out var extra)
             || string.IsNullOrWhiteSpace(callDe))
@@ -87,8 +132,10 @@ public sealed class Ft4QsoSequencer
         PreferEvenSlot = oppositeEvenSlot;
         if (!_holdTxFrequency())
             TxAudioHz = decode.FreqHz;
-        TheirCall = Ft4MessageCodec.NormalizeCall(callDe);
-        TheirGrid = Ft4MessageCodec.IsGrid(extra) ? extra : TheirGrid;
+        _weSent73 = false;
+        _theySent73 = false;
+        AssignTheirStation(callDe, extra);
+        NoteTheirAudio(decode.FreqHz);
         Phase = Ft4QsoPhase.InQso;
         TransmitEnabled = true;
         ReportSent = null;
@@ -126,6 +173,8 @@ public sealed class Ft4QsoSequencer
 
             if (Ft4MessageCodec.IsClosing(extra))
             {
+                if (Ft4MessageCodec.Is73(extra) || Ft4MessageCodec.IsRr73(extra))
+                    _theySent73 = true;
                 CurrentTxMessage = Ft4MessageCodec.Build73(TheirCall, my);
                 return;
             }
@@ -136,12 +185,21 @@ public sealed class Ft4QsoSequencer
 
     public void HaltTx()
     {
-        TransmitEnabled = false;
-        if (Phase == Ft4QsoPhase.CallingCq)
-            Phase = Ft4QsoPhase.Idle;
+        lock (_gate)
+        {
+            TransmitEnabled = false;
+            if (Phase == Ft4QsoPhase.CallingCq)
+                Phase = Ft4QsoPhase.Idle;
+        }
     }
 
     public void EnableTx()
+    {
+        lock (_gate)
+            EnableTxCore();
+    }
+
+    private void EnableTxCore()
     {
         if (string.IsNullOrWhiteSpace(CurrentTxMessage))
             CurrentTxMessage = Ft4MessageCodec.BuildCq(_myCall(), _myGrid());
@@ -165,6 +223,12 @@ public sealed class Ft4QsoSequencer
     /// </summary>
     public bool PrepareAutoReply()
     {
+        lock (_gate)
+            return PrepareAutoReplyCore();
+    }
+
+    private bool PrepareAutoReplyCore()
+    {
         if (!TransmitEnabled || !AutoReplyOn || !IsCqMessage)
             return false;
 
@@ -178,15 +242,87 @@ public sealed class Ft4QsoSequencer
         Phase = Ft4QsoPhase.CallingCq;
         TheirCall = null;
         TheirGrid = null;
+        TheirAudioHz = 0;
         ReportSent = null;
         ReportReceived = null;
+        _weSent73 = false;
+        _theySent73 = false;
         if (!keepMessage || string.IsNullOrWhiteSpace(CurrentTxMessage))
             CurrentTxMessage = Ft4MessageCodec.BuildCq(_myCall(), _myGrid());
         TransmitEnabled = true;
     }
 
+    /// <summary>
+    /// Newline-separated messages to try when the first decode misses a weak copy.
+    /// Only while a contact is open and both calls are known: their grid, a report, and,
+    /// once a report has been exchanged, RR73 or 73.
+    /// RRR is not guessed. A decoded RRR queues our 73, and satellite contacts usually skip that step.
+    /// 73 and RR73 are not guessed while we are still sending the opening grid. That guess
+    /// can win on the other station's CQ (the two messages share his callsign) and the
+    /// sequencer would then send 73 before any report existed.
+    /// Once our TX is already 73 or RR73, only those two are tried. A fresh report guess
+    /// at that point would look like another huge report after the contact had moved on.
+    /// </summary>
+    public bool TryGetApHints(out string hints, out double audioHz)
+    {
+        lock (_gate)
+            return TryGetApHintsCore(out hints, out audioHz);
+    }
+
+    private bool TryGetApHintsCore(out string hints, out double audioHz)
+    {
+        hints = "";
+        audioHz = TheirAudioHz;
+        if (Phase != Ft4QsoPhase.InQso)
+            return false;
+        if (string.IsNullOrWhiteSpace(TheirCall))
+            return false;
+        if (TheirAudioHz is < 200 or > 3000)
+            return false;
+
+        var my = Ft4MessageCodec.NormalizeCall(_myCall());
+        var them = TheirCall;
+        if (string.IsNullOrWhiteSpace(my))
+            return false;
+
+        var lines = new List<string>(160);
+        if (!IsOutgoingClosing(CurrentTxMessage))
+        {
+            if (!string.IsNullOrWhiteSpace(TheirGrid))
+                lines.Add(Ft4MessageCodec.BuildGridReply(my, them, TheirGrid));
+
+            for (var snr = -30; snr <= Ft4DecodeDepth.MaxHintedReportDb; snr++)
+            {
+                var report = Ft4MessageCodec.FormatSnrReport(snr);
+                lines.Add(Ft4MessageCodec.BuildReport(my, them, report));
+                lines.Add(Ft4MessageCodec.BuildReport(my, them, Ft4MessageCodec.FormatRogerReport(snr)));
+            }
+        }
+
+        if (IsOutgoingClosing(CurrentTxMessage) || ReportSent is not null || ReportReceived is not null)
+        {
+            lines.Add(Ft4MessageCodec.BuildRr73(my, them));
+            lines.Add(Ft4MessageCodec.Build73(my, them));
+        }
+
+        hints = string.Join('\n', lines);
+        return true;
+    }
+
+    private void NoteTheirAudio(double hz)
+    {
+        if (hz is >= 200 and <= 3000)
+            TheirAudioHz = hz;
+    }
+
     /// <summary>Operator-edited TX text from the FT4 window.</summary>
     public void SetTxMessage(string? message)
+    {
+        lock (_gate)
+            SetTxMessageCore(message);
+    }
+
+    private void SetTxMessageCore(string? message)
     {
         var text = (message ?? "").Trim()
             .Replace('\u2215', '/')
@@ -201,14 +337,32 @@ public sealed class Ft4QsoSequencer
     /// </summary>
     public bool OnDecoded(Ft4DecodedMessage decode)
     {
-        if (!TransmitEnabled && Phase is not Ft4QsoPhase.InQso and not Ft4QsoPhase.CallingCq)
-            return false;
+        lock (_gate)
+            return OnDecodedCore(decode);
+    }
 
+    private bool OnDecodedCore(Ft4DecodedMessage decode)
+    {
         if (!Ft4MessageCodec.TryParse(decode.Text, out var callTo, out var callDe, out var extra)
             || string.IsNullOrWhiteSpace(callDe))
             return false;
 
+        // Remember locators even while idle, so a later contact can use this station's
+        // grid instead of one left over from a call that was not finished.
+        RememberLocator(callDe, extra);
+
+        if (!TransmitEnabled
+            && Phase is not Ft4QsoPhase.InQso and not Ft4QsoPhase.CallingCq and not Ft4QsoPhase.Finished)
+            return false;
+
         var my = _myCall();
+
+        if (Phase == Ft4QsoPhase.Finished)
+        {
+            // They missed RR73 and are still sending a report. Send it again.
+            ResumeClosingIfTheyRepeatReport(callTo, callDe, extra, my);
+            return false;
+        }
 
         if (Phase == Ft4QsoPhase.CallingCq
             && Ft4MessageCodec.IsAddressedTo(callTo, my)
@@ -218,8 +372,12 @@ public sealed class Ft4QsoSequencer
             if (!AutoReplyOn)
                 return false;
 
-            TheirCall = Ft4MessageCodec.NormalizeCall(callDe);
-            TheirGrid = Ft4MessageCodec.IsGrid(extra) ? extra : TheirGrid;
+            // A 73 or RR73 is the end of a contact, not a station calling this CQ.
+            if (Ft4MessageCodec.IsClosing(extra))
+                return false;
+
+            AssignTheirStation(callDe, extra);
+            NoteTheirAudio(decode.FreqHz);
             // Stay on our CQ frequency (WSJT-X). Only answering a decode moves TX.
             // Keep our CQ slot parity. The caller answered on the opposite slot; flipping
             // would put both stations on the same TX slots (WSJT-X then cannot decode us).
@@ -232,11 +390,10 @@ public sealed class Ft4QsoSequencer
             }
             else if (Ft4MessageCodec.IsReport(extra))
             {
-                ReportReceived = Ft4MessageCodec.NormalizeSnrReport(extra);
-                ReportSent ??= Ft4MessageCodec.FormatSnrReport(decode.SnrDb);
-                CurrentTxMessage = _skipRrr()
-                    ? Ft4MessageCodec.BuildRr73(TheirCall, my)
-                    : Ft4MessageCodec.BuildRrr(TheirCall, my);
+                // A plain +NN while we are calling CQ is their first report to us, often
+                // because they are answering a call we did not take. Reply R+NN. Only an
+                // R+NN from them is ready for RR73.
+                ReplyToReport(TheirCall, my, extra, decode.SnrDb);
             }
             return false;
         }
@@ -246,6 +403,7 @@ public sealed class Ft4QsoSequencer
 
         if (!callDe.Equals(TheirCall, StringComparison.OrdinalIgnoreCase))
             return false;
+        NoteTheirAudio(decode.FreqHz);
         if (!Ft4MessageCodec.IsAddressedTo(callTo, my) && !Ft4MessageCodec.IsCq(callTo))
             return false;
 
@@ -257,26 +415,25 @@ public sealed class Ft4QsoSequencer
             return false;
         }
 
-        if (_skipRrr() && Ft4MessageCodec.Is73(extra))
+        if (Ft4MessageCodec.Is73(extra) || Ft4MessageCodec.IsRr73(extra))
         {
-            // Their 73 after our RR73: contact done, no further TX.
-            TransmitEnabled = false;
-            Phase = Ft4QsoPhase.Finished;
-            return CanLog();
+            // A hinted 73 before any report is the opening-grid false decode: his CQ
+            // shares the callsign, and 73 can be the best of a long hint list.
+            if (decode.IsApriori && ReportSent is null && ReportReceived is null)
+                return false;
+
+            // RR73 is that station's 73. The contact ends only after we have sent one too.
+            _theySent73 = true;
+            if (!IsOutgoingClosing(CurrentTxMessage))
+                CurrentTxMessage = Ft4MessageCodec.Build73(TheirCall, my);
+            return TryCompleteContact();
         }
 
-        if (Ft4MessageCodec.IsRrr(extra) || Ft4MessageCodec.IsRr73(extra) || Ft4MessageCodec.Is73(extra))
+        if (Ft4MessageCodec.IsRrr(extra))
         {
-            if (CurrentTxMessage.EndsWith(" RR73", StringComparison.Ordinal)
-                || CurrentTxMessage.EndsWith(" 73", StringComparison.Ordinal))
-            {
-                // We already sent closing; their ack finishes the QSO.
-                TransmitEnabled = false;
-                Phase = Ft4QsoPhase.Finished;
-                return CanLog();
-            }
-
-            CurrentTxMessage = Ft4MessageCodec.Build73(TheirCall, my);
+            // RRR is not a sign-off. Send 73 unless one is already queued.
+            if (!IsOutgoingClosing(CurrentTxMessage))
+                CurrentTxMessage = Ft4MessageCodec.Build73(TheirCall, my);
             return false;
         }
 
@@ -294,29 +451,107 @@ public sealed class Ft4QsoSequencer
 
         if (Ft4MessageCodec.IsReport(extra))
         {
-            ReportReceived = Ft4MessageCodec.NormalizeSnrReport(extra);
-
-            // After our grid reply to their CQ, a plain +NN means send R+NN next.
-            // R+NN (or a second report after we already sent one) advances to RR73/RRR.
-            if (ReportSent is null && !Ft4MessageCodec.IsRogerReport(extra))
-            {
-                ReportSent = Ft4MessageCodec.FormatSnrReport(decode.SnrDb);
-                CurrentTxMessage = Ft4MessageCodec.BuildReport(
-                    TheirCall,
-                    my,
-                    Ft4MessageCodec.FormatRogerReport(decode.SnrDb));
-                return false;
-            }
-
-            ReportSent ??= Ft4MessageCodec.FormatSnrReport(decode.SnrDb);
-            CurrentTxMessage = _skipRrr()
-                ? Ft4MessageCodec.BuildRr73(TheirCall, my)
-                : Ft4MessageCodec.BuildRrr(TheirCall, my);
+            ReplyToReport(TheirCall, my, extra, decode.SnrDb);
             return false;
         }
 
         return false;
     }
+
+    /// <summary>
+    /// Plain +NN gets R+NN back. An R+NN, or a plain report after we already sent our own
+    /// plain report, advances to RR73 or RRR. A repeated +NN while R+NN is already queued
+    /// stays on R+NN.
+    /// </summary>
+    private void ReplyToReport(string? theirCall, string my, string? extra, float snrDb)
+    {
+        if (string.IsNullOrWhiteSpace(theirCall))
+            return;
+
+        ReportReceived = Ft4MessageCodec.NormalizeSnrReport(extra);
+        var plain = !Ft4MessageCodec.IsRogerReport(extra);
+        if (plain && (ReportSent is null || IsOutgoingRogerReport(CurrentTxMessage)))
+        {
+            ReportSent = Ft4MessageCodec.FormatSnrReport(snrDb);
+            CurrentTxMessage = Ft4MessageCodec.BuildReport(
+                theirCall,
+                my,
+                Ft4MessageCodec.FormatRogerReport(snrDb));
+            return;
+        }
+
+        ReportSent ??= Ft4MessageCodec.FormatSnrReport(snrDb);
+        CurrentTxMessage = _skipRrr()
+            ? Ft4MessageCodec.BuildRr73(theirCall, my)
+            : Ft4MessageCodec.BuildRrr(theirCall, my);
+    }
+
+    private static bool IsOutgoingRogerReport(string message) =>
+        Ft4MessageCodec.TryParse(message, out _, out _, out var extra)
+        && Ft4MessageCodec.IsRogerReport(extra);
+
+    /// <summary>
+    /// The contact is already finished. A repeated report means they did not copy the
+    /// closing message, so send RR73 (or RRR) again. Their 73 leaves the contact finished.
+    /// </summary>
+    private void ResumeClosingIfTheyRepeatReport(string? callTo, string callDe, string? extra, string my)
+    {
+        if (TheirCall is null || string.IsNullOrWhiteSpace(my))
+            return;
+        if (!callDe.Equals(TheirCall, StringComparison.OrdinalIgnoreCase))
+            return;
+        if (!Ft4MessageCodec.IsAddressedTo(callTo, my))
+            return;
+        if (!Ft4MessageCodec.IsReport(extra))
+            return;
+
+        ReportReceived ??= Ft4MessageCodec.NormalizeSnrReport(extra);
+        CurrentTxMessage = _skipRrr()
+            ? Ft4MessageCodec.BuildRr73(TheirCall, my)
+            : Ft4MessageCodec.BuildRrr(TheirCall, my);
+        Phase = Ft4QsoPhase.InQso;
+        TransmitEnabled = true;
+        QsoCompletedUtc = null;
+        _weSent73 = false;
+        _theySent73 = false;
+    }
+
+    /// <summary>
+    /// Bind the contact to <paramref name="callDe"/>. A locator in this message wins.
+    /// Otherwise keep this station's locator, or the last one heard from them.
+    /// A different station never inherits the previous contact's grid.
+    /// </summary>
+    [MemberNotNull(nameof(TheirCall))]
+    private void AssignTheirStation(string callDe, string? extra)
+    {
+        var call = Ft4MessageCodec.NormalizeCall(callDe);
+        RememberLocator(call, extra);
+        var sameStation = call.Equals(TheirCall, StringComparison.OrdinalIgnoreCase);
+        TheirCall = call;
+
+        if (IsLocator(extra))
+        {
+            TheirGrid = extra;
+            return;
+        }
+
+        if (sameStation && !string.IsNullOrEmpty(TheirGrid))
+            return;
+
+        TheirGrid = _heardLocators.TryGetValue(call, out var heard) ? heard : null;
+    }
+
+    private void RememberLocator(string call, string? extra)
+    {
+        if (string.IsNullOrEmpty(call) || !IsLocator(extra))
+            return;
+
+        _heardLocators[call] = extra!;
+    }
+
+    /// <summary>RR73 matches the grid shape, but it is a sign-off, not a locator.</summary>
+    private static bool IsLocator(string? extra) =>
+        Ft4MessageCodec.IsGrid(extra) && !Ft4MessageCodec.IsRr73(extra);
 
     /// <summary>True while our next TX is still the first grid reply to their CQ.</summary>
     private bool IsPendingGridReply(string my)
@@ -334,6 +569,12 @@ public sealed class Ft4QsoSequencer
     /// or <paramref name="snrDb"/> when none has been sent yet.
     /// </summary>
     public bool ForceReport(float? snrDb)
+    {
+        lock (_gate)
+            return ForceReportCore(snrDb);
+    }
+
+    private bool ForceReportCore(float? snrDb)
     {
         if (string.IsNullOrWhiteSpace(TheirCall))
             return false;
@@ -353,6 +594,12 @@ public sealed class Ft4QsoSequencer
     /// <summary>Operator asked to send 73 again to the station in the current QSO.</summary>
     public bool Force73()
     {
+        lock (_gate)
+            return Force73Core();
+    }
+
+    private bool Force73Core()
+    {
         if (string.IsNullOrWhiteSpace(TheirCall))
             return false;
 
@@ -366,29 +613,48 @@ public sealed class Ft4QsoSequencer
         return true;
     }
 
-    /// <summary>Called after a TX message was fully sent.</summary>
+    /// <summary>
+    /// Called after a TX message was fully sent. Our 73 or RR73 counts as sent.
+    /// The contact finishes only when the other station has sent 73 or RR73 as well.
+    /// </summary>
     public bool OnTxCompleted()
     {
-        if (Phase != Ft4QsoPhase.InQso)
+        lock (_gate)
+        {
+            if (Phase != Ft4QsoPhase.InQso)
+                return false;
+
+            if (!IsOutgoingClosing(CurrentTxMessage))
+                return false;
+
+            _weSent73 = true;
+            return TryCompleteContact();
+        }
+    }
+
+    /// <summary>Stop and log only after both stations have sent 73 (RR73 counts).</summary>
+    private bool TryCompleteContact()
+    {
+        if (!_weSent73 || !_theySent73)
             return false;
 
-        var msg = CurrentTxMessage;
-        if (_skipRrr() && msg.EndsWith(" RR73", StringComparison.Ordinal))
-        {
-            TransmitEnabled = false;
-            Phase = Ft4QsoPhase.Finished;
-            return CanLog();
-        }
+        FinishContact();
+        return CanLog();
+    }
 
-        if (msg.EndsWith(" 73", StringComparison.Ordinal)
-            && !msg.EndsWith(" RR73", StringComparison.Ordinal))
-        {
-            TransmitEnabled = false;
-            Phase = Ft4QsoPhase.Finished;
-            return CanLog();
-        }
+    /// <summary>True for our 73 and RR73. RRR is not a sign-off.</summary>
+    private static bool IsOutgoingClosing(string msg) =>
+        msg.EndsWith(" RR73", StringComparison.Ordinal)
+        || (msg.EndsWith(" 73", StringComparison.Ordinal)
+            && !msg.EndsWith(" RR73", StringComparison.Ordinal));
 
-        return false;
+    private void FinishContact()
+    {
+        TransmitEnabled = false;
+        Phase = Ft4QsoPhase.Finished;
+        QsoCompletedUtc = DateTime.UtcNow;
+        // Leave the box on CQ so the next enable does not send the old 73.
+        CurrentTxMessage = Ft4MessageCodec.BuildCq(_myCall(), _myGrid());
     }
 
     public bool CanLog() =>

@@ -30,6 +30,8 @@ public sealed class Ft4ModemService : IDisposable
     private readonly Ft4AudioService _audio = new();
     private readonly Ft4PttKeyer _ptt;
     private readonly PskReporterClient _pskReporter = new();
+    private readonly OscarWatchSpotReporter _spotReporter;
+    private readonly string _spotClientId;
     private readonly object _gate = new();
 
     private CancellationTokenSource? _loopCts;
@@ -49,16 +51,16 @@ public sealed class Ft4ModemService : IDisposable
     private int _deviceSampleRate = 48000;
     private DateTime _currentSlotStart = DateTime.MinValue;
     private bool _txThisSlot;
-    private const double MaxWaterfallEchoCorrectionHz = 50;
     private long _txKickedSlotTicks; // slot start of the last KickTransmit, set from the TX timer thread
+    private double _txKickedAudioHz; // TX audio Hz sent in that slot; set before _txKickedSlotTicks
     private DateTime _lastEchoCalibrationSlot = DateTime.MinValue;
     private bool _decodeQueuedThisSlot;
+    private bool? _deepDecodeActive;
     private readonly HashSet<string> _postedDecodeKeys = new(StringComparer.Ordinal);
+    private readonly Ft4CallDt _callDt = new();
     private readonly Dictionary<string, Ft4DecodedMessage> _postedEchoes = new(StringComparer.Ordinal);
     private readonly object _decodePostGate = new();
-    private DateTime _lastRelevantDecodeUtc = DateTime.UtcNow;
-    private DateTime _lastTuneCalUtc = DateTime.MinValue;
-    private readonly Ft4TuneCalibrator _tuneCalibrator = new();
+    private DateTime _txWatchdogResetUtc = DateTime.UtcNow;
     private int _tuning; // 0 off, 1 on
     private Ft4QsoSequencer? _sequencer;
 
@@ -73,7 +75,8 @@ public sealed class Ft4ModemService : IDisposable
         IOrbitPropagator propagator,
         ILocalizationService localization,
         IAudioRecordingService recording,
-        IGpsService gps)
+        IGpsService gps,
+        ISatelliteSpotService spots)
     {
         _settings = settings;
         _tracking = tracking;
@@ -95,7 +98,20 @@ public sealed class Ft4ModemService : IDisposable
                 Log.Warning(ex, "{Message}", message);
         };
         ApplyPskReporterSettings();
+        _spotClientId = $"OscarWatch-Tracker/{OscarWatchHttpClients.GetProductVersion()}";
+        _spotReporter = new OscarWatchSpotReporter(spots, OscarWatchSpotsActive, () => _settings.Current.SatelliteStatus);
+        _spotReporter.Diagnostic += (message, ex) =>
+        {
+            if (ex is null)
+                Log.Information("{Message}", message);
+            else
+                Log.Warning(ex, "{Message}", message);
+        };
     }
+
+    private bool OscarWatchSpotsActive() =>
+        _settings.Current.Ft4.OscarWatchSpotsEnabled
+        && Ft4OscarWatchSpots.HasApiToken(_settings.Current.SatelliteStatus.ApiToken);
 
     /// <summary>Open or close the PSK Reporter socket to match FT4 settings.</summary>
     public void ApplyPskReporterSettings()
@@ -132,6 +148,26 @@ public sealed class Ft4ModemService : IDisposable
         }
     }
 
+    private void ReportToOscarWatch(Ft4DecodedMessage msg)
+    {
+        if (!OscarWatchSpotsActive())
+            return;
+
+        try
+        {
+            var snap = _snapshot.GetCurrent();
+            var station = _settings.Current.GroundStation;
+            if (!Ft4OscarWatchSpots.TryCreate(msg, snap, station.Callsign, _spotClientId, out var spot))
+                return;
+
+            _spotReporter.TryEnqueue(spot);
+        }
+        catch (Exception ex)
+        {
+            Log.Debug(ex, "OscarWatch spot skipped");
+        }
+    }
+
     public ObservableCollection<Ft4DecodedMessage> Decodes { get; } = new();
     public string Status { get; private set; } = "";
     public string ManualPrompt { get; private set; } = "";
@@ -140,12 +176,13 @@ public sealed class Ft4ModemService : IDisposable
     public bool NativeAvailable => Ft8Native.IsAvailable;
     public Ft4QsoSequencer? Sequencer => _sequencer;
 
-    /// <summary>Green-bracket RX audio Hz used for decode search (Hold Tx can differ from TX).</summary>
+    /// <summary>Green-bracket RX audio Hz. Hold Tx can keep this different from the TX bracket.</summary>
     public double RxAudioHz { get; set; } = 1500;
     public double TxPlaybackPeak => _audio.PlaybackPeak;
     public event Action? Changed;
 
     private string? _lastLoggedKey;
+    private string? _eligibilityBlockStatus;
 
     public IReadOnlyList<AudioInputDevice> GetInputDevices() => _audio.GetInputDevices();
 
@@ -267,9 +304,10 @@ public sealed class Ft4ModemService : IDisposable
         {
             _postedDecodeKeys.Clear();
             _postedEchoes.Clear();
+            _callDt.Clear();
             _lastEchoCalibrationSlot = DateTime.MinValue;
         }
-        _lastRelevantDecodeUtc = DateTime.UtcNow;
+        _txWatchdogResetUtc = DateTime.UtcNow;
         RefreshClockFromGps();
 
         // OrbitDeck: hold CAT dial within each slot; audio-domain corrects within-slot drift.
@@ -320,7 +358,7 @@ public sealed class Ft4ModemService : IDisposable
 
         _sequencer?.StartCq(evenSlot);
         _lastLoggedKey = null;
-        _lastRelevantDecodeUtc = DateTime.UtcNow;
+        _txWatchdogResetUtc = DateTime.UtcNow;
         if (!TryAcceptRecentCaller(out var answered))
             Status = _l.Get("Ft4.Status.CallingCq");
         else
@@ -342,7 +380,7 @@ public sealed class Ft4ModemService : IDisposable
         if (!enabled || !TryAcceptRecentCaller(out var answered))
             return;
 
-        _lastRelevantDecodeUtc = DateTime.UtcNow;
+        _txWatchdogResetUtc = DateTime.UtcNow;
         Status = _l.Get("Ft4.Status.Answering", answered);
         Changed?.Invoke();
     }
@@ -362,6 +400,10 @@ public sealed class Ft4ModemService : IDisposable
         foreach (var msg in Decodes)
         {
             if (msg.SlotUtc < cutoff)
+                break;
+            // Newest first: once we reach the contact that just finished, everything
+            // older is that same contact. A station who calls after 73 is still answered.
+            if (seq.IsHistoricDecode(msg.SlotUtc))
                 break;
             if (!msg.IsReceiveActivity)
                 continue;
@@ -391,7 +433,7 @@ public sealed class Ft4ModemService : IDisposable
         if (!_sequencer.ForceReport(snrDb))
             return false;
 
-        _lastRelevantDecodeUtc = DateTime.UtcNow;
+        _txWatchdogResetUtc = DateTime.UtcNow;
         Status = _l.Get("Ft4.Status.SendingReport", _sequencer.TheirCall);
         Changed?.Invoke();
         return true;
@@ -407,7 +449,7 @@ public sealed class Ft4ModemService : IDisposable
         if (!_sequencer.Force73())
             return false;
 
-        _lastRelevantDecodeUtc = DateTime.UtcNow;
+        _txWatchdogResetUtc = DateTime.UtcNow;
         Status = _l.Get("Ft4.Status.Sending73", _sequencer.TheirCall);
         Changed?.Invoke();
         return true;
@@ -421,7 +463,7 @@ public sealed class Ft4ModemService : IDisposable
 
         _sequencer?.EnableTx();
         // Reset idle timeout so re-arming after a watchdog halt does not trip again immediately.
-        _lastRelevantDecodeUtc = DateTime.UtcNow;
+        _txWatchdogResetUtc = DateTime.UtcNow;
         if (TryAcceptRecentCaller(out var answered))
             Status = _l.Get("Ft4.Status.Answering", answered);
         else
@@ -459,7 +501,7 @@ public sealed class Ft4ModemService : IDisposable
 
     /// <summary>
     /// WSJT-X-style Tune: continuous tone on the TX audio frequency with PTT.
-    /// Call again (or Halt Tx) to stop. While on, the downlink tone can trim the uplink.
+    /// Call again (or Halt Tx) to stop. Tune does not change the stored uplink trim.
     /// </summary>
     public bool StartTune()
     {
@@ -480,8 +522,6 @@ public sealed class Ft4ModemService : IDisposable
         _audio.StopPlayback();
 
         Volatile.Write(ref _tuning, 1);
-        _lastTuneCalUtc = DateTime.UtcNow;
-        _tuneCalibrator.Reset();
         Status = _l.Get("Ft4.Status.Tuning", FormatTuneHz());
         Changed?.Invoke();
 
@@ -564,25 +604,39 @@ public sealed class Ft4ModemService : IDisposable
         var even = Ft4SlotClock.IsEvenSlot(decode.SlotUtc, Ft4SlotClock.Ft4SlotSeconds);
         _sequencer.StartAnswer(decode, oppositeEvenSlot: !even);
         _lastLoggedKey = null;
-        _lastRelevantDecodeUtc = DateTime.UtcNow;
+        _txWatchdogResetUtc = DateTime.UtcNow;
         Status = _l.Get("Ft4.Status.Answering", decode.Text);
         Changed?.Invoke();
     }
 
     /// <summary>
     /// Re-check satellite eligibility while listening (e.g. operator switched to FM, FO-29, or AO-7).
-    /// Halts TX when the focused satellite is not allowed for FT4.
+    /// Halts TX when the focused satellite is not allowed for FT4, and clears the block
+    /// message once the operator moves to an allowed satellite.
     /// </summary>
     public void RefreshSatelliteEligibility()
     {
         var reason = EvaluateTransmitBlock();
         if (reason == Ft4SatelliteEligibility.BlockReason.None)
+        {
+            if (_eligibilityBlockStatus is null)
+                return;
+
+            var showingBlock = string.Equals(Status, _eligibilityBlockStatus, StringComparison.Ordinal);
+            _eligibilityBlockStatus = null;
+            if (!showingBlock)
+                return;
+
+            Status = _l.Get("Ft4.Status.Listening");
+            Changed?.Invoke();
             return;
+        }
 
         if (_sequencer?.TransmitEnabled == true)
             HaltTx();
 
         var msg = _l.Get(Ft4SatelliteEligibility.StatusKey(reason));
+        _eligibilityBlockStatus = msg;
         if (string.Equals(Status, msg, StringComparison.Ordinal))
             return;
 
@@ -599,18 +653,28 @@ public sealed class Ft4ModemService : IDisposable
                 HaltTx();
 
             Status = _l.Get(Ft4SatelliteEligibility.StatusKey(reason));
+            _eligibilityBlockStatus = Status;
             Changed?.Invoke();
             return false;
         }
 
         if (_rig.TryGetUplinkRfPowerWatts(out var watts) && Ft4RfPowerLimit.ExceedsLimit(watts))
         {
-            if (_sequencer?.TransmitEnabled == true)
-                HaltTx();
+            var lowered = _settings.Current.Ft4.AutoLowerRfPower
+                && _rig.TrySetUplinkRfPowerWatts(Ft4RfPowerLimit.MaxWatts)
+                && _rig.TryGetUplinkRfPowerWatts(out watts)
+                && !Ft4RfPowerLimit.ExceedsLimit(watts);
+            if (!lowered)
+            {
+                if (_sequencer?.TransmitEnabled == true)
+                    HaltTx();
 
-            Status = _l.Get(Ft4RfPowerLimit.StatusKey, (int)Ft4RfPowerLimit.MaxWatts);
-            Changed?.Invoke();
-            return false;
+                Status = _l.Get(Ft4RfPowerLimit.StatusKey, (int)Ft4RfPowerLimit.MaxWatts);
+                Changed?.Invoke();
+                return false;
+            }
+
+            Log.Information("FT4 lowered uplink RF power to {Watts:0} W", watts);
         }
 
         return true;
@@ -638,6 +702,7 @@ public sealed class Ft4ModemService : IDisposable
             {
                 _postedDecodeKeys.Clear();
                 _postedEchoes.Clear();
+                _callDt.Clear();
             }
             Status = _l.Get("Ft4.Status.DecodesCleared");
             Changed?.Invoke();
@@ -657,6 +722,23 @@ public sealed class Ft4ModemService : IDisposable
     /// Manual log needs their callsign; auto-complete still requires both reports.
     /// </summary>
     public Task LogQsoAsync(bool manual = false) => TryLogAsync(manual);
+
+    /// <summary>True when the current period is being transmitted, or will still be used.</summary>
+    public bool IsLiveTransmitSlot(DateTime utc)
+    {
+        var seq = _sequencer;
+        if (seq is not { TransmitEnabled: true })
+            return false;
+
+        var ticks = Volatile.Read(ref _txKickedSlotTicks);
+        DateTime? kicked = ticks == 0 ? null : new DateTime(ticks, DateTimeKind.Utc);
+        return Ft4SlotClock.IsLiveTransmitSlot(
+            utc,
+            Ft4SlotClock.Ft4SlotSeconds,
+            transmitEnabled: true,
+            seq.PreferEvenSlot,
+            kicked);
+    }
 
     private async Task LoopAsync(CancellationToken ct)
     {
@@ -679,8 +761,12 @@ public sealed class Ft4ModemService : IDisposable
                     var kickedTicks = Interlocked.Read(ref _txKickedSlotTicks);
                     var alreadyTx = kickedTicks == slotStart.Ticks;
                     var previousWasTx = previousSlot != DateTime.MinValue && kickedTicks == previousSlot.Ticks;
+                    var fullSlotPass = previousSlot != DateTime.MinValue
+                        && !previousWasTx
+                        && _decodeQueuedThisSlot
+                        && Ft4DecodeDepth.UseFullSlotDecode(_snapshot.GetCurrent().ElevationDeg);
                     var needEndDecode = previousSlot != DateTime.MinValue
-                        && (!_decodeQueuedThisSlot || previousWasTx);
+                        && (!_decodeQueuedThisSlot || previousWasTx || fullSlotPass);
                     lock (_gate)
                     {
                         if (needEndDecode && _slotBuffer.Count >= (int)(12000 * Ft4SlotClock.Ft4SlotSeconds / 2))
@@ -721,7 +807,7 @@ public sealed class Ft4ModemService : IDisposable
                     RefreshClockFromGps();
 
                     if (previousSamples is not null)
-                        QueueDecode(previousSlot, previousSamples, previousWasTx);
+                        QueueDecode(previousSlot, previousSamples, previousWasTx, fullSlotPass);
                 }
 
                 // Build the next TX burst before its slot, so the boundary only starts playback.
@@ -735,16 +821,17 @@ public sealed class Ft4ModemService : IDisposable
                 // Early RX decode once the FT4 burst should be in the buffer (~6 s).
                 MaybeQueueEarlyDecode(now);
 
-                if (IsTuning)
-                    MaybeCalibrateTune(now);
-
-                // Watchdog: stop TX if nothing relevant for 3 minutes.
-                if (!IsTuning
-                    && _sequencer is { TransmitEnabled: true }
-                    && DateTime.UtcNow - _lastRelevantDecodeUtc > TimeSpan.FromMinutes(3))
+                // Watchdog: stop TX if nobody has replied to this station.
+                var watchdogMinutes = Ft4TxWatchdog.ClampMinutes(_settings.Current.Ft4.TxWatchdogMinutes);
+                if (Ft4TxWatchdog.ShouldHalt(
+                        _sequencer is { TransmitEnabled: true },
+                        IsTuning,
+                        watchdogMinutes,
+                        DateTime.UtcNow,
+                        _txWatchdogResetUtc))
                 {
                     HaltTx();
-                    Status = _l.Get("Ft4.Status.WatchdogStopped");
+                    Status = _l.Get("Ft4.Status.WatchdogStopped", watchdogMinutes);
                     Changed?.Invoke();
                 }
 
@@ -812,6 +899,7 @@ public sealed class Ft4ModemService : IDisposable
         if (Interlocked.CompareExchange(ref _txRunning, 1, 0) != 0)
             return;
 
+        Interlocked.Exchange(ref _txKickedAudioHz, Math.Clamp(seq.TxAudioHz, 200, 3000));
         Interlocked.Exchange(ref _txKickedSlotTicks, slotStart.Ticks);
         _txThisSlot = true;
         _txCts?.Cancel();
@@ -930,12 +1018,13 @@ public sealed class Ft4ModemService : IDisposable
         if (ct.IsCancellationRequested)
             return;
 
-        AppendTransmittedMessage(slotStart, seq.CurrentTxMessage, audioHz);
+        var sent = seq.CurrentTxMessage;
+        AppendTransmittedMessage(slotStart, sent, audioHz);
 
         if (seq.OnTxCompleted())
             await TryLogAsync(manual: false).ConfigureAwait(false);
 
-        Status = _l.Get("Ft4.Status.TxDone", seq.CurrentTxMessage);
+        Status = _l.Get("Ft4.Status.TxDone", sent);
         Changed?.Invoke();
     }
 
@@ -1200,73 +1289,6 @@ public sealed class Ft4ModemService : IDisposable
         Changed?.Invoke();
     }
 
-    /// <summary>
-    /// While Tune is on, measure the downlink tone and nudge uplink trim toward the red bracket.
-    /// A correction is only applied when two slots agree, and it is undone if the next slot
-    /// does not show the tone on the marker (the peak was not our tone, or the trim did not land).
-    /// </summary>
-    private void MaybeCalibrateTune(DateTime utcNow)
-    {
-        if (_tuneCalibrator.GaveUp || utcNow - _lastTuneCalUtc < TimeSpan.FromSeconds(1.5))
-            return;
-
-        // The uplink trim only reaches the rig at the next slot-boundary CAT step, so measure
-        // once per slot, after this slot's step has landed.
-        var slot = _currentSlotStart;
-        var intoSlot = (utcNow - slot).TotalSeconds;
-        if (slot == DateTime.MinValue || intoSlot < 2.0 || !TryClaimEchoCalibration(slot))
-            return;
-
-        _lastTuneCalUtc = utcNow;
-        var txHz = _sequencer?.TxAudioHz ?? _settings.Current.Ft4.TxAudioHz;
-        Span<float> scratch = stackalloc float[8192];
-        var n = _audio.CopyMonitorSamples(scratch);
-        var rate = _audio.CaptureSampleRate;
-        if (rate < 8000)
-            return;
-
-        double? errorHz = Ft4EchoAligner.TryMeasureTonePeakHz(scratch[..n], rate, txHz, out var peakHz)
-            ? peakHz - txHz
-            : null;
-        Log.Debug(
-            "FT4 Tune measurement {IntoSlot:0.0} s into the slot: peak {Peak} Hz, TX marker {Tx:0} Hz, candidate {Candidate}, awaiting confirm {Applied}",
-            intoSlot,
-            errorHz is null ? "none" : peakHz.ToString("0", System.Globalization.CultureInfo.InvariantCulture),
-            txHz,
-            _tuneCalibrator.CandidateErrorHz,
-            _tuneCalibrator.AwaitingConfirmHz);
-
-        var decision = _tuneCalibrator.Next(errorHz);
-        switch (decision.Kind)
-        {
-            case Ft4TuneCalibrator.ActionKind.Confirmed:
-                Log.Information("FT4 Tune calibration confirmed: tone now {Error:0} Hz from the TX marker", decision.CorrectionHz);
-                break;
-
-            case Ft4TuneCalibrator.ActionKind.Undo:
-                Log.Information(
-                    "FT4 Tune calibration undone: after a {Applied:0} Hz correction the tone was {After} Hz from the marker",
-                    -decision.CorrectionHz,
-                    errorHz is null ? "not found" : errorHz.Value.ToString("0", System.Globalization.CultureInfo.InvariantCulture));
-                ApplyEchoCalibrationHz(decision.CorrectionHz);
-                Status = _l.Get("Ft4.Status.TuneCalibrationFailed");
-                Changed?.Invoke();
-                break;
-
-            case Ft4TuneCalibrator.ActionKind.Apply:
-                Log.Information(
-                    "FT4 Tune tone on the waterfall is {Peak:0} Hz, TX marker {Tx:0} Hz, error {Error:0} Hz (two slots agree)",
-                    peakHz,
-                    txHz,
-                    decision.CorrectionHz);
-                ApplyEchoCalibrationHz(decision.CorrectionHz);
-                // Keep the Tune status visible after a calibration note.
-                Status = _l.Get("Ft4.Status.Tuning", FormatTuneHz());
-                Changed?.Invoke();
-                break;
-        }
-    }
-
     private void MaybeQueueEarlyDecode(DateTime utcNow)
     {
         if (_decodeQueuedThisSlot || _currentSlotStart == DateTime.MinValue)
@@ -1290,7 +1312,7 @@ public sealed class Ft4ModemService : IDisposable
         QueueDecode(_currentSlotStart, snapshot, txSlot: _txThisSlot);
     }
 
-    private void QueueDecode(DateTime slotStart, float[] samples, bool txSlot)
+    private void QueueDecode(DateTime slotStart, float[] samples, bool txSlot, bool fullSlotPass = false)
     {
         // Long-running: native decode must not occupy a thread-pool worker the modem loop needs.
         _ = Task.Factory.StartNew(
@@ -1298,7 +1320,7 @@ public sealed class Ft4ModemService : IDisposable
             {
                 try
                 {
-                    DecodeSamples(slotStart, samples, txSlot);
+                    DecodeSamples(slotStart, samples, txSlot, fullSlotPass);
                 }
                 catch (Exception ex)
                 {
@@ -1310,33 +1332,71 @@ public sealed class Ft4ModemService : IDisposable
             TaskScheduler.Default);
     }
 
-    private void DecodeSamples(DateTime slotStart, float[] samples, bool txSlot)
+    /// <summary>
+    /// Deep budget only while the focused satellite is above the horizon and still low.
+    /// Below the horizon, and through the middle of the pass, stay on the fast decode.
+    /// </summary>
+    private bool UseDeepDecode()
+    {
+        var elevation = _snapshot.GetCurrent().ElevationDeg;
+        var deep = Ft4DecodeDepth.UseDeep(elevation);
+        if (_deepDecodeActive != deep)
+        {
+            _deepDecodeActive = deep;
+            if (deep)
+            {
+                Log.Information(
+                    "FT4 deep decode on (elevation {Elevation:0}°, below {Limit:0}°)",
+                    elevation,
+                    Ft4DecodeDepth.HorizonElevationDeg);
+            }
+            else if (elevation is null)
+            {
+                Log.Information("FT4 deep decode off (elevation unknown)");
+            }
+            else
+            {
+                Log.Information("FT4 deep decode off (elevation {Elevation:0}°)", elevation);
+            }
+        }
+
+        return deep;
+    }
+
+    /// <param name="fullSlotPass">
+    /// Second receive decode of the whole slot near the horizon. Also tries the raw capture,
+    /// because a slightly wrong Doppler slope can smear a weak sync in the corrected copy.
+    /// </param>
+    private void DecodeSamples(DateTime slotStart, float[] samples, bool txSlot, bool fullSlotPass = false)
     {
         if (samples.Length < (int)(12000 * Ft4SlotClock.Ft4SlotSeconds / 2))
             return;
 
         var raw = samples;
         var corrected = raw;
+        // Slope over the on-air burst: the symbols the decoder uses, not the quiet end of the slot.
         if (_settings.Current.Ft4.AudioDopplerRx
-            && TryGetDopplerSlopeHzPerSec(slotStart, Ft4SlotClock.Ft4SlotSeconds, out var dlSlope, out _)
+            && TryGetDopplerSlopeHzPerSec(slotStart, Ft4SlotClock.Ft4SymbolBurstSeconds, out var dlSlope, out _)
             && Math.Abs(dlSlope) >= 0.05)
         {
             corrected = Ft4AudioDoppler.RemoveLinearDrift(raw, 12000, dlSlope);
         }
 
         var txHz = _sequencer?.TxAudioHz ?? _settings.Current.Ft4.TxAudioHz;
-        var rxHz = RxAudioHz > 0 ? RxAudioHz : txHz;
+        var deep = UseDeepDecode();
         if (txSlot && _settings.Current.Ft4.ParallelTxEchoDecode)
         {
-            DecodeTxSlotParallel(slotStart, raw, corrected, rxHz, txHz);
+            DecodeTxSlotParallel(slotStart, raw, corrected, txHz, deep);
             return;
         }
 
-        var foundOwn = PublishDecoded(slotStart, corrected, txSlot, timeShiftSec: 0, ownOnly: false, rxHz, txHz);
+        var foundOwn = PublishDecoded(slotStart, corrected, txSlot, timeShiftSec: 0, ownOnly: false, txHz, deep);
+        if (fullSlotPass && !txSlot && !ReferenceEquals(corrected, raw))
+            PublishDecoded(slotStart, raw, txSlot: false, timeShiftSec: 0, ownOnly: false, txHz, deep);
         if (!txSlot || foundOwn)
             return;
 
-        RecoverOwnEchoSequential(slotStart, raw, corrected, rxHz, txHz);
+        RecoverOwnEchoSequential(slotStart, raw, corrected, txHz, deep);
     }
 
     /// <summary>
@@ -1346,15 +1406,15 @@ public sealed class Ft4ModemService : IDisposable
         DateTime slotStart,
         float[] raw,
         float[] corrected,
-        double rxHz,
-        double txHz)
+        double txHz,
+        bool deep)
     {
         var primary = Task.Factory.StartNew(
             () =>
             {
-                var own = PublishDecoded(slotStart, corrected, txSlot: true, timeShiftSec: 0, ownOnly: false, rxHz, txHz);
+                var own = PublishDecoded(slotStart, corrected, txSlot: true, timeShiftSec: 0, ownOnly: false, txHz, deep);
                 if (!own && !ReferenceEquals(corrected, raw))
-                    own = PublishDecoded(slotStart, raw, txSlot: true, timeShiftSec: 0, ownOnly: true, rxHz, txHz);
+                    own = PublishDecoded(slotStart, raw, txSlot: true, timeShiftSec: 0, ownOnly: true, txHz, deep);
                 return own;
             },
             CancellationToken.None,
@@ -1366,7 +1426,7 @@ public sealed class Ft4ModemService : IDisposable
             {
                 foreach (var (aligned, shiftSec) in Ft4EchoAligner.EnumerateEchoAlignments(raw, 12000, txHz))
                 {
-                    if (!PublishDecoded(slotStart, aligned, txSlot: true, shiftSec, ownOnly: true, rxHz, txHz))
+                    if (!PublishDecoded(slotStart, aligned, txSlot: true, shiftSec, ownOnly: true, txHz, deep))
                         continue;
 
                     Log.Information(
@@ -1382,30 +1442,26 @@ public sealed class Ft4ModemService : IDisposable
             TaskScheduler.Default);
 
         Task.WaitAll(primary, late);
-        if (primary.Result || late.Result)
-            return;
-
-        TryCalibrateEchoFromSpectrum(slotStart, raw, txHz);
     }
 
     private void RecoverOwnEchoSequential(
         DateTime slotStart,
         float[] raw,
         float[] corrected,
-        double rxHz,
-        double txHz)
+        double txHz,
+        bool deep)
     {
         // The waterfall is the raw capture. Doppler removal and the decoder's early
         // time window both hide a full-duplex copy that is obvious on screen.
         var foundOwn = false;
         if (!ReferenceEquals(corrected, raw))
-            foundOwn = PublishDecoded(slotStart, raw, txSlot: true, timeShiftSec: 0, ownOnly: true, rxHz, txHz);
+            foundOwn = PublishDecoded(slotStart, raw, txSlot: true, timeShiftSec: 0, ownOnly: true, txHz, deep);
         if (foundOwn)
             return;
 
         foreach (var (aligned, shiftSec) in Ft4EchoAligner.EnumerateEchoAlignments(raw, 12000, txHz))
         {
-            foundOwn = PublishDecoded(slotStart, aligned, txSlot: true, shiftSec, ownOnly: true, rxHz, txHz);
+            foundOwn = PublishDecoded(slotStart, aligned, txSlot: true, shiftSec, ownOnly: true, txHz, deep);
             if (foundOwn)
             {
                 Log.Information(
@@ -1414,8 +1470,6 @@ public sealed class Ft4ModemService : IDisposable
                 return;
             }
         }
-
-        TryCalibrateEchoFromSpectrum(slotStart, raw, txHz);
     }
 
     /// <summary>Post decoder output. Returns true when our own callsign was published.</summary>
@@ -1425,11 +1479,30 @@ public sealed class Ft4ModemService : IDisposable
         bool txSlot,
         double timeShiftSec,
         bool ownOnly,
-        double rxHz,
-        double txHz)
+        double txHz,
+        bool deep)
     {
-        Ft8Native.ResolveSearchBand(ownOnly ? txHz : rxHz, txHz, out var fMin, out var fMax);
-        var decoded = Ft8Native.DecodeFt4(samples, 12000, fMin, fMax);
+        float fMin, fMax;
+        if (ownOnly)
+            Ft8Native.ResolveSearchBand(txHz, txHz, out fMin, out fMax);
+        else
+            Ft8Native.ResolveWaterfallSearchBand(out fMin, out fMax);
+        string? apHints = null;
+        var apHz = 0f;
+        // A transmit slot is our own signal. Guessing the other station's reply
+        // there is how a report appears in the same period as our 73.
+        if (!ownOnly
+            && !txSlot
+            && _settings.Current.Ft4.ApEnabled
+            && Ft4DecodeDepth.UseApriori(_snapshot.GetCurrent().ElevationDeg)
+            && _sequencer is not null
+            && _sequencer.TryGetApHints(out var hintText, out var hintHz))
+        {
+            apHints = hintText;
+            apHz = (float)hintHz;
+        }
+
+        var decoded = Ft8Native.DecodeFt4(samples, 12000, fMin, fMax, deep, apHints, apHz);
         var my = Ft4MessageCodec.NormalizeCall(_settings.Current.GroundStation.Callsign ?? "");
         var any = false;
         var foundOwn = false;
@@ -1443,9 +1516,6 @@ public sealed class Ft4ModemService : IDisposable
 
             if (ownOnly && !isOwn)
                 continue;
-
-            if (isOwn)
-                _lastRelevantDecodeUtc = DateTime.UtcNow;
 
             if (!string.IsNullOrWhiteSpace(callDe))
                 Ft8Native.RememberCallsign(callDe);
@@ -1527,11 +1597,49 @@ public sealed class Ft4ModemService : IDisposable
                 continue;
             }
 
-            var dedupeKey = slotStart.Ticks + "|" + d.text + "|" + ((int)Math.Round(d.freq_hz / 5.0) * 5);
+            // Own echoes can sit 1–2 s into the slot (full duplex). Another station
+            // on a satellite cannot: +2 s is a moonbounce delay.
+            if (!Ft4DecodeDepth.IsPlausibleSatelliteDt(timeSec))
+            {
+                Log.Debug(
+                    "FT4 decode ignored, DT {Dt:0.00} s is outside a satellite path: {Text}",
+                    timeSec,
+                    d.text);
+                continue;
+            }
+
+            // A hinted reply on the SNR floor has no measurable signal. R+35 was −21 dB.
+            var hinted = d.ap != 0;
+            if (hinted && !Ft4DecodeDepth.IsPublishableHint(timeSec, d.snr))
+            {
+                Log.Debug(
+                    "FT4 hinted reply ignored, SNR {Snr:0} dB at DT {Dt:0.00} s: {Text}",
+                    d.snr,
+                    timeSec,
+                    d.text);
+                continue;
+            }
+
+            // Same text in one slot is the same transmission. A later pass often
+            // reports it a few hertz away, which a 5 Hz bucket let through as a second line.
+            var dedupeKey = slotStart.Ticks + "|" + d.text;
             lock (_decodePostGate)
             {
+                if (hinted && !_callDt.AllowsHint(callDe, timeSec))
+                {
+                    Log.Debug(
+                        "FT4 hinted reply ignored, DT {Dt:0.00} s does not match {Call}: {Text}",
+                        timeSec,
+                        callDe,
+                        d.text);
+                    continue;
+                }
+
                 if (!_postedDecodeKeys.Add(dedupeKey))
                     continue;
+
+                if (!hinted)
+                    _callDt.NoteReliable(callDe, timeSec, d.snr);
             }
 
             var msg = new Ft4DecodedMessage(
@@ -1543,12 +1651,14 @@ public sealed class Ft4ModemService : IDisposable
                 callTo,
                 callDe,
                 extra,
-                isOwn);
+                isOwn,
+                IsApriori: d.ap != 0);
 
             any = true;
             if (isOwn)
                 foundOwn = true;
             ReportToPskReporter(msg);
+            ReportToOscarWatch(msg);
             Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
                 Decodes.Insert(0, msg);
@@ -1560,7 +1670,8 @@ public sealed class Ft4ModemService : IDisposable
             {
                 var wasCallingCq = _sequencer.Phase == Ft4QsoPhase.CallingCq;
                 var finished = _sequencer.OnDecoded(msg);
-                _lastRelevantDecodeUtc = DateTime.UtcNow;
+                if (Ft4TxWatchdog.IsReply(callTo, callDe, my))
+                    _txWatchdogResetUtc = DateTime.UtcNow;
                 if (wasCallingCq && _sequencer.Phase == Ft4QsoPhase.InQso)
                 {
                     Log.Information(
@@ -1609,49 +1720,19 @@ public sealed class Ft4ModemService : IDisposable
             Decodes.RemoveAt(Decodes.Count - 1);
     }
 
+    /// <summary>
+    /// Any decoded own echo is our signal, so it can set the uplink trim. Measure against the
+    /// TX audio actually sent in that slot: answering a station can move TX audio before the
+    /// decode finishes.
+    /// </summary>
     private void ApplyEchoCalibration(DateTime slotStart, Ft4DecodedMessage own)
     {
-        var seq = _sequencer;
-        if (seq is null)
+        if (Interlocked.Read(ref _txKickedSlotTicks) != slotStart.Ticks)
             return;
 
+        var sentHz = Interlocked.CompareExchange(ref _txKickedAudioHz, 0, 0);
         if (TryClaimEchoCalibration(slotStart))
-            ApplyEchoCalibrationHz(own.FreqHz - seq.TxAudioHz);
-    }
-
-    /// <summary>
-    /// The trace is on the waterfall but the decoder missed the message.
-    /// Measure that tone and nudge the uplink so the next slot sits on the red bracket.
-    /// </summary>
-    private void TryCalibrateEchoFromSpectrum(DateTime slotStart, float[] raw, double txHz)
-    {
-        if (!Ft4EchoAligner.TryMeasurePeakHz(raw, 12000, txHz, out var peakHz))
-            return;
-
-        var errorHz = peakHz - txHz;
-        if (Math.Abs(errorHz) < 15)
-            return;
-
-        // Undecoded peaks can be another station near the bracket. Only trim small drift here;
-        // large corrections come from a decoded echo (or Tune).
-        if (Math.Abs(errorHz) > MaxWaterfallEchoCorrectionHz)
-        {
-            Log.Debug(
-                "FT4 waterfall peak {Peak:0} Hz is {Error:0} Hz from the TX marker; left for a decoded echo",
-                peakHz,
-                errorHz);
-            return;
-        }
-
-        if (!TryClaimEchoCalibration(slotStart))
-            return;
-
-        Log.Information(
-            "FT4 echo on the waterfall is {Peak:0} Hz, TX marker {Tx:0} Hz, error {Error:0} Hz",
-            peakHz,
-            txHz,
-            errorHz);
-        ApplyEchoCalibrationHz(errorHz);
+            ApplyEchoCalibrationHz(own.FreqHz - sentHz);
     }
 
     /// <summary>
@@ -1729,14 +1810,12 @@ public sealed class Ft4ModemService : IDisposable
 
         try
         {
-            var books = await _logbook.ListLogbooksAsync().ConfigureAwait(false);
-            var book = books.FirstOrDefault();
-            if (book is null)
+            var station = _settings.Current.GroundStation;
+            var book = await _logbook.GetOrCreateLogbookAsync(new QsoLogbookCreateRequest
             {
-                Status = _l.Get("Ft4.Status.NeedLogbook");
-                Changed?.Invoke();
-                return;
-            }
+                Name = _l.Get("Logbook.DefaultName"),
+                MyGridSquare = station.GridSquare
+            }).ConfigureAwait(false);
 
             var snap = _snapshot.GetCurrent();
             var cloudlogUpload = book.CloudlogAutoUpload && book.CloudlogStationProfileId.HasValue
@@ -1847,6 +1926,7 @@ public sealed class Ft4ModemService : IDisposable
     {
         StopAsync().GetAwaiter().GetResult();
         _pskReporter.Dispose();
+        _spotReporter.Dispose();
         _ptt.Dispose();
         _audio.Dispose();
     }

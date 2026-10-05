@@ -31,6 +31,8 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     private bool _loadingEchoCalibration;
     private IReadOnlySet<string> _workedCalls = new HashSet<string>(StringComparer.Ordinal);
     private IReadOnlySet<string> _workedGridFields = new HashSet<string>(StringComparer.Ordinal);
+    private readonly HashSet<string> _finishedPartners = new(StringComparer.Ordinal);
+    private string? _highlightPartner;
 
     public Ft4ViewModel(
         ISettingsService settings,
@@ -64,19 +66,30 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
 
         var ft4 = _settings.Current.Ft4;
         _skipRrr = ft4.SkipRrr;
+        _apEnabled = ft4.ApEnabled;
         _txAudioHz = Math.Clamp(ft4.TxAudioHz, 200, 3000);
         _rxAudioHz = _txAudioHz;
         _txLevel = Math.Clamp(ft4.TxLevel, 0.05, 1.0);
         _holdTxFrequency = ft4.HoldTxFrequency;
         _autoReply = ft4.AutoReply;
+        _autoLowerRfPower = ft4.AutoLowerRfPower;
         _audioDopplerTx = ft4.AudioDopplerTx;
         _audioDopplerRx = ft4.AudioDopplerRx;
         _parallelTxEchoDecode = ft4.ParallelTxEchoDecode;
+        _txWatchdogMinutes = Ft4TxWatchdog.ClampMinutes(ft4.TxWatchdogMinutes);
         _pskReporterEnabled = ft4.PskReporterEnabled;
+        _oscarWatchSpotsTokenAvailable = Ft4OscarWatchSpots.HasApiToken(_settings.Current.SatelliteStatus.ApiToken);
+        _oscarWatchSpotsEnabled = ft4.OscarWatchSpotsEnabled && _oscarWatchSpotsTokenAvailable;
+        if (ft4.OscarWatchSpotsEnabled && !_oscarWatchSpotsTokenAvailable)
+        {
+            ft4.OscarWatchSpotsEnabled = false;
+            _settings.RequestSave();
+        }
         _modem.RxAudioHz = _rxAudioHz;
         _pttLeadMs = Math.Clamp(ft4.PttLeadMs, 0, 2000);
         _pttTailMs = Math.Clamp(ft4.PttTailMs, 0, 2000);
         _decodeFontSize = Math.Clamp(ft4.DecodeFontSize, 10, 28);
+        _waterfallRangeDb = Ft4Settings.ClampWaterfallRangeDb(ft4.WaterfallRangeDb);
         _callingMeColour = Ft4DecodeHighlight.NormalizeColour(ft4.CallingMeColour)
             ?? Ft4DecodeHighlight.DefaultCallingMeColour;
         _replyingColour = Ft4DecodeHighlight.NormalizeColour(ft4.ReplyingColour)
@@ -85,6 +98,15 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
             ?? Ft4DecodeHighlight.DefaultNewCallColour;
         _newGridColour = Ft4DecodeHighlight.NormalizeColour(ft4.NewGridColour)
             ?? Ft4DecodeHighlight.DefaultNewGridColour;
+        _cqColour = Ft4DecodeHighlight.NormalizeColour(ft4.CqColour)
+            ?? Ft4DecodeHighlight.DefaultCqColour;
+        _callingMeTextColour = Ft4DecodeHighlight.NormalizeColour(ft4.CallingMeTextColour) ?? "";
+        _replyingTextColour = Ft4DecodeHighlight.NormalizeColour(ft4.ReplyingTextColour) ?? "";
+        _newCallTextColour = Ft4DecodeHighlight.NormalizeColour(ft4.NewCallTextColour) ?? "";
+        _newGridTextColour = Ft4DecodeHighlight.NormalizeColour(ft4.NewGridTextColour) ?? "";
+        _cqTextColour = Ft4DecodeHighlight.NormalizeColour(ft4.CqTextColour) ?? "";
+        _txTextColour = Ft4DecodeHighlight.NormalizeColour(ft4.TxTextColour)
+            ?? Ft4DecodeHighlight.DefaultTxTextColour;
         _preferEvenSlot = false;
         _pttInvert = ft4.PttInvert;
         _selectedPttMethod = PttMethodOptions.FirstOrDefault(o => o.Value == ft4.PttMethod)
@@ -178,20 +200,38 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     [ObservableProperty] private string _separatePttConflictText = "";
     [ObservableProperty] private double _txPlaybackPeakPercent;
     [ObservableProperty] private bool _skipRrr;
+    [ObservableProperty] private bool _apEnabled = true;
     [ObservableProperty] private bool _preferEvenSlot;
     [ObservableProperty] private bool _holdTxFrequency = true;
     [ObservableProperty] private bool _autoReply = true;
+    [ObservableProperty] private bool _autoLowerRfPower;
     [ObservableProperty] private bool _audioDopplerTx = true;
     [ObservableProperty] private bool _audioDopplerRx = true;
     [ObservableProperty] private bool _parallelTxEchoDecode = true;
+
+    [ObservableProperty] private int _txWatchdogMinutes = Ft4TxWatchdog.DefaultMinutes;
     [ObservableProperty] private bool _pskReporterEnabled;
+
+    /// <summary>True when Settings, OscarWatch has an API token, so spot reporting can be turned on.</summary>
+    [ObservableProperty] private bool _oscarWatchSpotsTokenAvailable;
+
+    [ObservableProperty] private bool _oscarWatchSpotsEnabled;
     [ObservableProperty] private int _pttLeadMs = 200;
     [ObservableProperty] private int _pttTailMs = 100;
     [ObservableProperty] private double _decodeFontSize = 12;
+
+    [ObservableProperty] private double _waterfallRangeDb = Ft4Settings.DefaultWaterfallRangeDb;
     [ObservableProperty] private string _callingMeColour = Ft4DecodeHighlight.DefaultCallingMeColour;
     [ObservableProperty] private string _replyingColour = Ft4DecodeHighlight.DefaultReplyingColour;
     [ObservableProperty] private string _newCallColour = Ft4DecodeHighlight.DefaultNewCallColour;
     [ObservableProperty] private string _newGridColour = Ft4DecodeHighlight.DefaultNewGridColour;
+    [ObservableProperty] private string _cqColour = Ft4DecodeHighlight.DefaultCqColour;
+    [ObservableProperty] private string _callingMeTextColour = "";
+    [ObservableProperty] private string _replyingTextColour = "";
+    [ObservableProperty] private string _newCallTextColour = "";
+    [ObservableProperty] private string _newGridTextColour = "";
+    [ObservableProperty] private string _cqTextColour = "";
+    [ObservableProperty] private string _txTextColour = Ft4DecodeHighlight.DefaultTxTextColour;
     [ObservableProperty] private string? _qsoPartnerCall;
     [ObservableProperty] private string? _selectedEchoCalibrationSatellite;
     [ObservableProperty] private double _echoCalibrationHz;
@@ -215,6 +255,12 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         _settings.RequestSave();
     }
 
+    partial void OnApEnabledChanged(bool value)
+    {
+        _settings.Current.Ft4.ApEnabled = value;
+        _settings.RequestSave();
+    }
+
     partial void OnAutoReplyChanged(bool value)
     {
         _settings.Current.Ft4.AutoReply = value;
@@ -222,6 +268,12 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         // The sequencer must see this tick immediately. A settings read alone
         // left CQ running after the box was cleared and ticked again.
         _modem.SetAutoReply(value);
+    }
+
+    partial void OnAutoLowerRfPowerChanged(bool value)
+    {
+        _settings.Current.Ft4.AutoLowerRfPower = value;
+        _settings.RequestSave();
     }
 
     partial void OnHoldTxFrequencyChanged(bool value)
@@ -252,11 +304,36 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         _settings.RequestSave();
     }
 
+    partial void OnTxWatchdogMinutesChanged(int value)
+    {
+        var clamped = Ft4TxWatchdog.ClampMinutes(value);
+        if (clamped != value)
+        {
+            TxWatchdogMinutes = clamped;
+            return;
+        }
+
+        _settings.Current.Ft4.TxWatchdogMinutes = clamped;
+        _settings.RequestSave();
+    }
+
     partial void OnPskReporterEnabledChanged(bool value)
     {
         _settings.Current.Ft4.PskReporterEnabled = value;
         _settings.RequestSave();
         _modem.ApplyPskReporterSettings();
+    }
+
+    partial void OnOscarWatchSpotsEnabledChanged(bool value)
+    {
+        if (value && !Ft4OscarWatchSpots.HasApiToken(_settings.Current.SatelliteStatus.ApiToken))
+        {
+            OscarWatchSpotsEnabled = false;
+            return;
+        }
+
+        _settings.Current.Ft4.OscarWatchSpotsEnabled = value;
+        _settings.RequestSave();
     }
 
     partial void OnPttLeadMsChanged(int value)
@@ -298,6 +375,19 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         _settings.RequestSave();
     }
 
+    partial void OnWaterfallRangeDbChanged(double value)
+    {
+        var clamped = Ft4Settings.ClampWaterfallRangeDb(value);
+        if (Math.Abs(clamped - value) > 0.01)
+        {
+            WaterfallRangeDb = clamped;
+            return;
+        }
+
+        _settings.Current.Ft4.WaterfallRangeDb = clamped;
+        _settings.RequestSave();
+    }
+
     partial void OnCallingMeColourChanged(string value) =>
         CommitDecodeColour(
             value,
@@ -330,7 +420,78 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
             hex => NewGridColour = hex,
             hex => _settings.Current.Ft4.NewGridColour = hex);
 
-    partial void OnQsoPartnerCallChanged(string? value) => RefreshDecodeHighlights();
+    partial void OnCqColourChanged(string value) =>
+        CommitDecodeColour(
+            value,
+            Ft4DecodeHighlight.DefaultCqColour,
+            () => CqColour,
+            hex => CqColour = hex,
+            hex => _settings.Current.Ft4.CqColour = hex);
+
+    partial void OnCallingMeTextColourChanged(string value) =>
+        CommitDecodeColour(
+            value,
+            "",
+            () => CallingMeTextColour,
+            hex => CallingMeTextColour = hex,
+            hex => _settings.Current.Ft4.CallingMeTextColour = hex,
+            followTheme: true);
+
+    partial void OnReplyingTextColourChanged(string value) =>
+        CommitDecodeColour(
+            value,
+            "",
+            () => ReplyingTextColour,
+            hex => ReplyingTextColour = hex,
+            hex => _settings.Current.Ft4.ReplyingTextColour = hex,
+            followTheme: true);
+
+    partial void OnNewCallTextColourChanged(string value) =>
+        CommitDecodeColour(
+            value,
+            "",
+            () => NewCallTextColour,
+            hex => NewCallTextColour = hex,
+            hex => _settings.Current.Ft4.NewCallTextColour = hex,
+            followTheme: true);
+
+    partial void OnNewGridTextColourChanged(string value) =>
+        CommitDecodeColour(
+            value,
+            "",
+            () => NewGridTextColour,
+            hex => NewGridTextColour = hex,
+            hex => _settings.Current.Ft4.NewGridTextColour = hex,
+            followTheme: true);
+
+    partial void OnCqTextColourChanged(string value) =>
+        CommitDecodeColour(
+            value,
+            "",
+            () => CqTextColour,
+            hex => CqTextColour = hex,
+            hex => _settings.Current.Ft4.CqTextColour = hex,
+            followTheme: true);
+
+    partial void OnTxTextColourChanged(string value) =>
+        CommitDecodeColour(
+            value,
+            Ft4DecodeHighlight.DefaultTxTextColour,
+            () => TxTextColour,
+            hex => TxTextColour = hex,
+            hex => _settings.Current.Ft4.TxTextColour = hex);
+
+    partial void OnQsoPartnerCallChanged(string? value)
+    {
+        // Their lines were "replying" during the contact. Clearing the partner must
+        // not repaint them as "calling me" after the QSO.
+        var previous = Ft4MessageCodec.NormalizeCall(_highlightPartner ?? "");
+        var next = Ft4MessageCodec.NormalizeCall(value ?? "");
+        if (previous.Length > 0 && !previous.Equals(next, StringComparison.Ordinal))
+            _finishedPartners.Add(previous);
+        _highlightPartner = value;
+        RefreshDecodeHighlights();
+    }
 
     private int _colourCommitDepth;
 
@@ -339,12 +500,15 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         string fallback,
         Func<string> current,
         Action<string> setCurrent,
-        Action<string> store)
+        Action<string> store,
+        bool followTheme = false)
     {
         if (_colourCommitDepth > 0)
             return;
 
         var normalized = Ft4DecodeHighlight.NormalizeColour(value) ?? fallback;
+        if (followTheme && Ft4HexColorConverter.IsThemeForeground(normalized))
+            normalized = "";
         _colourCommitDepth++;
         try
         {
@@ -771,13 +935,33 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         // Rebuild from Settings → Station so portable callsigns (e.g. MM9SQL/M) pack correctly.
         _modem.SetAutoReply(AutoReply);
         _modem.StartCq(PreferEvenSlot);
-        CurrentTxMessage = _modem.Sequencer?.CurrentTxMessage ?? "";
+        // The text box is two-way. Losing focus to this button can push the previous
+        // QSO text back after the CQ has been stored. Put the CQ on screen again
+        // once that write has landed.
+        ShowSequencerTxMessage();
         TxEnabled = _modem.Sequencer?.TransmitEnabled == true;
         StatusLine = string.IsNullOrWhiteSpace(_modem.Status)
             ? _l.Get("Ft4.Status.CallingCq")
             : _modem.Status;
         OnPropertyChanged(nameof(CanManualLog));
         ManualLogCommand.NotifyCanExecuteChanged();
+    }
+
+    private int _txMessagePublish;
+
+    private void ShowSequencerTxMessage()
+    {
+        var publish = ++_txMessagePublish;
+        CurrentTxMessage = _modem.Sequencer?.CurrentTxMessage ?? "";
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (publish != _txMessagePublish)
+                return;
+
+            var live = _modem.Sequencer?.CurrentTxMessage ?? "";
+            if (!string.Equals(CurrentTxMessage, live, StringComparison.Ordinal))
+                CurrentTxMessage = live;
+        }, DispatcherPriority.Background);
     }
 
     private void PushTxMessageToModem()
@@ -1181,8 +1365,16 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
             ReplyingColour,
             NewCallColour,
             NewGridColour,
+            CqColour,
             _workedCalls,
-            _workedGridFields);
+            _workedGridFields,
+            _finishedPartners,
+            CallingMeTextColour,
+            ReplyingTextColour,
+            NewCallTextColour,
+            NewGridTextColour,
+            CqTextColour,
+            TxTextColour);
 
     private void OnLogbookQsosChanged(long logbookId) => _ = RefreshWorkedSetsAsync();
 
@@ -1204,8 +1396,18 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         }
     }
 
+    private void SyncOscarWatchSpotAvailability()
+    {
+        var available = Ft4OscarWatchSpots.HasApiToken(_settings.Current.SatelliteStatus.ApiToken);
+        if (available != OscarWatchSpotsTokenAvailable)
+            OscarWatchSpotsTokenAvailable = available;
+        if (!available && OscarWatchSpotsEnabled)
+            OscarWatchSpotsEnabled = false;
+    }
+
     private void RefreshUiTick()
     {
+        SyncOscarWatchSpotAvailability();
         var utc = Ft4Clock.UtcNow;
         var slotStart = Ft4SlotClock.SlotStartUtc(utc, Ft4SlotClock.Ft4SlotSeconds);
         var into = Ft4SlotClock.SecondsIntoSlot(utc, Ft4SlotClock.Ft4SlotSeconds);
@@ -1220,8 +1422,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         var progress = Math.Clamp(100.0 * into / Ft4SlotClock.Ft4SlotSeconds, 0, 100);
         SlotProgressPercent = progress;
         SlotProgressText = $"{progress:0}%";
-        var preferEven = _modem.Sequencer?.PreferEvenSlot ?? PreferEvenSlot;
-        IsTxSlot = TxEnabled && even == preferEven;
+        IsTxSlot = _modem.IsLiveTransmitSlot(utc);
         SlotPeriodLabel = IsTxSlot ? _l.Get("Ft4.Slot.Tx") : _l.Get("Ft4.Slot.Rx");
 
         OnPropertyChanged(nameof(TxMessageWatermark));

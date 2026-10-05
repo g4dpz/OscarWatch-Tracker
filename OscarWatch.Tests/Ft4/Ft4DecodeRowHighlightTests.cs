@@ -1,3 +1,4 @@
+using Avalonia.Media;
 using OscarWatch.Core.Ft4;
 using OscarWatch.ViewModels;
 
@@ -15,9 +16,9 @@ public sealed class Ft4DecodeRowHighlightTests
         var worked = new HashSet<string>(StringComparer.Ordinal);
         var grids = new HashSet<string>(StringComparer.Ordinal);
 
-        row.RefreshHighlight("MM9SQL", null, "#66E6B15A", "#665CB88A", "#664D9DE8", "#66C07AD0", worked, grids);
+        row.RefreshHighlight("MM9SQL", null, "#66E6B15A", "#665CB88A", "#664D9DE8", "#66C07AD0", "#6678C8E0", worked, grids);
         var first = row.RowBackground;
-        row.RefreshHighlight("MM9SQL", null, "#66E6B15A", "#665CB88A", "#664D9DE8", "#66C07AD0", worked, grids);
+        row.RefreshHighlight("MM9SQL", null, "#66E6B15A", "#665CB88A", "#664D9DE8", "#66C07AD0", "#6678C8E0", worked, grids);
 
         Assert.Same(first, row.RowBackground);
     }
@@ -27,10 +28,91 @@ public sealed class Ft4DecodeRowHighlightTests
     {
         var row = new Ft4DecodeRowViewModel(Line("MM9SQL G4ABC IO91", "MM9SQL", "G4ABC", "IO91"));
 
-        row.RefreshHighlight("MM9SQL", null, "#66E6B15A", "#665CB88A", "#664D9DE8", "#66C07AD0", null, null);
+        row.RefreshHighlight("MM9SQL", null, "#66E6B15A", "#665CB88A", "#664D9DE8", "#66C07AD0", "#6678C8E0", null, null);
         var calling = row.RowBackground;
-        row.RefreshHighlight("MM9SQL", "G4ABC", "#66E6B15A", "#665CB88A", "#664D9DE8", "#66C07AD0", null, null);
+        row.RefreshHighlight("MM9SQL", "G4ABC", "#66E6B15A", "#665CB88A", "#664D9DE8", "#66C07AD0", "#6678C8E0", null, null);
 
         Assert.NotSame(calling, row.RowBackground);
+    }
+
+    [Fact]
+    public void Finished_partner_keeps_the_replying_brush()
+    {
+        var row = new Ft4DecodeRowViewModel(Line("MM9SQL G4ABC IO91", "MM9SQL", "G4ABC", "IO91"));
+        var finished = new HashSet<string>(StringComparer.Ordinal) { "G4ABC" };
+
+        row.RefreshHighlight("MM9SQL", "G4ABC", "#66E6B15A", "#665CB88A", "#664D9DE8", "#66C07AD0", "#6678C8E0", null, null);
+        var replying = row.RowBackground;
+        row.RefreshHighlight("MM9SQL", null, "#66E6B15A", "#665CB88A", "#664D9DE8", "#66C07AD0", "#6678C8E0", null, null, finished);
+
+        Assert.Same(replying, row.RowBackground);
+    }
+
+    [Fact]
+    public void Chosen_text_colour_is_applied_and_kept()
+    {
+        var row = new Ft4DecodeRowViewModel(Line("CQ G4ABC IO91", "CQ", "G4ABC", "IO91"));
+
+        row.RefreshHighlight(
+            "MM9SQL", null,
+            "#66E6B15A", "#665CB88A", "#664D9DE8", "#66C07AD0", "#6678C8E0",
+            null, null,
+            cqText: "#FFCC3333");
+        var ink = row.RowForeground;
+        Assert.NotNull(ink);
+        Assert.True(row.HasRowForeground);
+
+        row.RefreshHighlight(
+            "MM9SQL", null,
+            "#66E6B15A", "#665CB88A", "#664D9DE8", "#66C07AD0", "#6678C8E0",
+            null, null,
+            cqText: "#FFCC3333");
+        Assert.Same(ink, row.RowForeground);
+
+        row.RefreshHighlight(
+            "MM9SQL", null,
+            "#66E6B15A", "#665CB88A", "#664D9DE8", "#66C07AD0", "#6678C8E0",
+            null, null,
+            cqText: "#FF2244AA");
+        Assert.NotSame(ink, row.RowForeground);
+    }
+
+    [Fact]
+    public void Empty_text_colour_keeps_the_theme()
+    {
+        var row = new Ft4DecodeRowViewModel(Line("CQ G4ABC IO91", "CQ", "G4ABC", "IO91"));
+
+        row.RefreshHighlight(
+            "MM9SQL", null,
+            "#66E6B15A", "#665CB88A", "#664D9DE8", "#66C07AD0", "#6678C8E0",
+            null, null);
+
+        Assert.Null(row.RowForeground);
+        Assert.False(row.HasRowForeground);
+    }
+
+    [Fact]
+    public void Tx_text_colour_is_applied()
+    {
+        var row = new Ft4DecodeRowViewModel(new Ft4DecodedMessage(
+            DateTime.UtcNow,
+            "CQ MM9SQL IO91",
+            1500,
+            0,
+            0,
+            "CQ",
+            "MM9SQL",
+            "IO91",
+            false,
+            true));
+
+        row.RefreshHighlight(
+            "MM9SQL", null,
+            "#66E6B15A", "#665CB88A", "#664D9DE8", "#66C07AD0", "#6678C8E0",
+            null, null,
+            txText: "#FFCC3333");
+
+        var brush = Assert.IsType<SolidColorBrush>(row.TxForeground);
+        Assert.Equal(Color.Parse("#FFCC3333"), brush.Color);
     }
 }

@@ -58,6 +58,7 @@
                                   TxAudioHz="{Binding TxAudioHz, Mode=TwoWay}"
                                   RxAudioHz="{Binding RxAudioHz, Mode=TwoWay}"
                                   HoldTxFrequency="{Binding HoldTxFrequency}"
+                                  DisplayRangeDb="{Binding WaterfallRangeDb}"
                                   StatusText="{Binding WaterfallStatusText}" />
 
     <DockPanel Margin="10">
@@ -205,6 +206,13 @@
                    FontFamily="Consolas,Courier New,monospace"
                    FontSize="{Binding DecodeFontSize}"
                    Padding="0">
+            <!-- A virtualizing panel painted the newest rows twice while the list
+                 was pulled back to the top. Scrolling rebuilt it and the copies vanished. -->
+            <ListBox.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel />
+              </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
             <ListBox.Styles>
               <Style Selector="ListBoxItem">
                 <Setter Property="Padding" Value="0" />
@@ -215,23 +223,35 @@
               <DataTemplate x:DataType="vm:Ft4DecodeRowViewModel">
                 <Grid ColumnDefinitions="76,48,48,72,*,52" ColumnSpacing="10" Margin="4,2"
                       Background="{Binding RowBackground}">
+                  <Grid.Styles>
+                    <Style Selector="TextBlock.ft4-ink">
+                      <Setter Property="Foreground" Value="{Binding RowForeground}" />
+                    </Style>
+                  </Grid.Styles>
                   <TextBlock Grid.Column="0"
+                             Classes.ft4-ink="{Binding HasRowForeground}"
                              Text="{Binding Message.SlotUtc, StringFormat={}{0:HH:mm:ss}}" />
                   <TextBlock Grid.Column="1"
                              Text="{loc:Localize Key=Ft4.Decodes.Tx}"
                              FontWeight="SemiBold"
-                             Foreground="{DynamicResource PassInProgressBadgeForegroundBrush}"
+                             Foreground="{Binding TxForeground}"
                              IsVisible="{Binding Message.IsTransmitted}" />
                   <TextBlock Grid.Column="1"
                              Text="{loc:Localize Key=Ft4.Decodes.Echo}"
                              FontWeight="SemiBold"
                              Foreground="#6DB3F2"
                              IsVisible="{Binding Message.IsOwnEcho}" />
+                  <TextBlock Grid.Column="1"
+                             Text="{loc:Localize Key=Ft4.Decodes.Ap}"
+                             FontWeight="SemiBold"
+                             Foreground="#E0A84A"
+                             IsVisible="{Binding Message.IsApriori}" />
                   <TextBlock Grid.Column="2"
-                             Text="{Binding Message.TimeSec, StringFormat={}{0:+0.0;-0.0}}"
+                             Classes.ft4-ink="{Binding HasRowForeground}"
+                             Text="{Binding Message.TimeSec, StringFormat={}{0:+0.0;-0.0;0.0}}"
                              IsVisible="{Binding Message.IsReceiveActivity}" />
                   <TextBlock Grid.Column="2"
-                             Text="{Binding Message.TimeSec, StringFormat={}{0:+0.0;-0.0}}"
+                             Text="{Binding Message.TimeSec, StringFormat={}{0:+0.0;-0.0;0.0}}"
                              Foreground="#6DB3F2"
                              IsVisible="{Binding Message.IsOwnEcho}" />
                   <TextBlock Grid.Column="2"
@@ -239,10 +259,11 @@
                              Opacity="0.45"
                              IsVisible="{Binding Message.IsTransmitted}" />
                   <TextBlock Grid.Column="3"
-                             Text="{Binding Message.SnrDb, StringFormat={}{0:+0;-0} dB}"
+                             Classes.ft4-ink="{Binding HasRowForeground}"
+                             Text="{Binding Message.SnrDb, StringFormat={}{0:+0;-0;0} dB}"
                              IsVisible="{Binding Message.IsReceiveActivity}" />
                   <TextBlock Grid.Column="3"
-                             Text="{Binding Message.SnrDb, StringFormat={}{0:+0;-0} dB}"
+                             Text="{Binding Message.SnrDb, StringFormat={}{0:+0;-0;0} dB}"
                              Foreground="#6DB3F2"
                              IsVisible="{Binding Message.IsOwnEcho}" />
                   <TextBlock Grid.Column="3"
@@ -253,16 +274,18 @@
                              Text="{Binding Message.Text}"
                              FontWeight="SemiBold"
                              IsVisible="{Binding Message.IsTransmitted}"
-                             Foreground="{DynamicResource PassInProgressBadgeForegroundBrush}" />
+                             Foreground="{Binding TxForeground}" />
                   <TextBlock Grid.Column="4"
                              Text="{Binding Message.Text}"
                              FontWeight="SemiBold"
                              IsVisible="{Binding Message.IsOwnEcho}"
                              Foreground="#6DB3F2" />
                   <TextBlock Grid.Column="4"
+                             Classes.ft4-ink="{Binding HasRowForeground}"
                              Text="{Binding Message.Text}"
                              IsVisible="{Binding Message.IsReceiveActivity}" />
                   <TextBlock Grid.Column="5"
+                             Classes.ft4-ink="{Binding HasRowForeground}"
                              Text="{Binding Message.FreqHz, StringFormat={}{0:0}}"
                              Opacity="0.9"
                              HorizontalAlignment="Right" />
@@ -327,6 +350,7 @@
                         VerticalAlignment="Center" />
               <CheckBox Content="{loc:Localize Key=Ft4.HoldTxFrequency}"
                         IsChecked="{Binding HoldTxFrequency}"
+                        ToolTip.Tip="{loc:Localize Key=Ft4.HoldTxFrequency.Note}"
                         VerticalAlignment="Center" />
               <CheckBox Content="{loc:Localize Key=Ft4.AutoReply}"
                         IsChecked="{Binding AutoReply, Mode=TwoWay}"

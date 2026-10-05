@@ -24,9 +24,13 @@
 
 #define CALLSIGN_HASHTABLE_SIZE 256
 #define kMin_score 10
+#define kMin_score_deep 6
 #define kMax_candidates 60
+#define kMax_candidates_deep 120
 #define kLDPC_iterations_fast 10
 #define kLDPC_iterations 25
+#define kLDPC_iterations_deep_fast 20
+#define kLDPC_iterations_deep 40
 #define kFreq_osr 2
 #define kTime_osr 2
 
@@ -390,7 +394,472 @@ OW_FT8_API int ow_ft8_encode_pcm(
     return 0;
 }
 
-OW_FT8_API int ow_ft8_decode_pcm(
+/* WSJT-X SNR is the signal power against the noise in 2500 Hz.
+   The bandwidth term uses the Hann window's noise bandwidth. kSnrFitDb
+   recentres that model: on white noise it read about half a decibel high
+   from -15 dB to +10 dB. */
+#define kSnrFitDb (-0.6f)
+#define kSnrFloorDb (-21.0f)
+#define kSnrCeilDb 49.0f
+
+static int cmp_float_asc(const void* a, const void* b)
+{
+    float fa = *(const float*)a;
+    float fb = *(const float*)b;
+    if (fa < fb)
+        return -1;
+    if (fa > fb)
+        return 1;
+    return 0;
+}
+
+/* Linear power of one waterfall bin, or -1 if the symbol or bin is outside the capture. */
+static float waterfall_bin_power(const ftx_waterfall_t* wf, const ftx_candidate_t* cand, int block_abs, int bin)
+{
+    if (block_abs < 0 || block_abs >= wf->num_blocks || bin < 0 || bin >= wf->num_bins)
+        return -1.0f;
+
+    int offset = block_abs;
+    offset = offset * wf->time_osr + cand->time_sub;
+    offset = offset * wf->freq_osr + cand->freq_sub;
+    offset = offset * wf->num_bins + bin;
+    return powf(10.0f, 0.1f * WF_ELEM_MAG(wf->mag[offset]));
+}
+
+static float estimate_snr_db(
+    const monitor_t* mon,
+    const ftx_candidate_t* cand,
+    const uint8_t* tones,
+    int num_symbols,
+    int num_fsk,
+    int skip_ends)
+{
+    const ftx_waterfall_t* wf = &mon->wf;
+    enum { kNoiseCap = 2048 };
+    float* noise = (float*)malloc((size_t)kNoiseCap * sizeof(float));
+    if (!noise)
+        return kSnrFloorDb;
+
+    double sig_sum = 0.0;
+    int sig_n = 0;
+    int noise_n = 0;
+    int first = skip_ends ? 1 : 0;
+    int last = num_symbols - (skip_ends ? 1 : 0);
+
+    for (int sym = first; sym < last; ++sym)
+    {
+        int tone = tones[sym];
+        if (tone < 0 || tone >= num_fsk)
+            continue;
+
+        int block_abs = cand->time_offset + sym;
+        float sig = waterfall_bin_power(wf, cand, block_abs, cand->freq_offset + tone);
+        if (sig < 0.0f)
+            continue;
+        sig_sum += sig;
+        ++sig_n;
+
+        /* Bins just outside the tone group, same symbol, so a sloping passband
+           does not set the noise from the far end of the waterfall. */
+        for (int rel = -12; rel <= num_fsk + 11 && noise_n < kNoiseCap; ++rel)
+        {
+            if (rel >= -1 && rel <= num_fsk)
+                continue;
+            float np = waterfall_bin_power(wf, cand, block_abs, cand->freq_offset + rel);
+            if (np < 0.0f)
+                continue;
+            noise[noise_n++] = np;
+        }
+    }
+
+    float snr = kSnrFloorDb;
+    if (sig_n > 0 && noise_n >= 8)
+    {
+        qsort(noise, (size_t)noise_n, sizeof(float), cmp_float_asc);
+        float noi = noise[noise_n / 2];
+        float sig = (float)(sig_sum / (double)sig_n);
+        if (noi > 0.0f && sig > noi)
+        {
+            int freq_osr = wf->freq_osr > 0 ? wf->freq_osr : 1;
+            float tone_hz = 1.0f / mon->symbol_period;
+            /* Hann equivalent noise bandwidth is 1.5 FFT bins. */
+            float noise_bw = 1.5f * tone_hz / (float)freq_osr;
+            float excess = (sig / noi) - 1.0f;
+            snr = 10.0f * log10f(excess) + 10.0f * log10f(noise_bw / 2500.0f) + kSnrFitDb;
+        }
+    }
+
+    free(noise);
+    if (snr < kSnrFloorDb)
+        snr = kSnrFloorDb;
+    if (snr > kSnrCeilDb)
+        snr = kSnrCeilDb;
+    return snr;
+}
+
+#define kApMaxHints 160
+/* Soft agreement (matched LLR energy over total LLR energy). Set above the
+   best score noise produced with this hint list, and below a real message
+   at about -18 dB. Tuned in the native round-trip tests. */
+#define kApQualityMin 0.40f
+#define kApMinBits 150
+
+typedef struct
+{
+    char text[OW_FT8_MAX_MESSAGE_LEN];
+    uint8_t bits[FTX_LDPC_N];
+    uint8_t payload[FTX_PAYLOAD_LENGTH_BYTES];
+} ap_hint_t;
+
+static int build_ap_hints(const char* hints_nl, int is_ft4, ap_hint_t* hints, int cap)
+{
+    int count = 0;
+    const char* p = hints_nl;
+    while (p && *p && count < cap)
+    {
+        while (*p == '\n' || *p == '\r')
+            ++p;
+        if (*p == '\0')
+            break;
+
+        const char* eol = p;
+        while (*eol && *eol != '\n' && *eol != '\r')
+            ++eol;
+
+        int len = (int)(eol - p);
+        if (len > 0 && len < OW_FT8_MAX_MESSAGE_LEN)
+        {
+            char text[OW_FT8_MAX_MESSAGE_LEN];
+            memcpy(text, p, (size_t)len);
+            text[len] = '\0';
+
+            ftx_message_t msg;
+            if (ftx_message_encode(&msg, &hash_if, text) == FTX_MESSAGE_RC_OK
+                && ftx_codeword_bits(is_ft4, msg.payload, hints[count].bits) == 0)
+            {
+                memcpy(hints[count].text, text, (size_t)len + 1);
+                memcpy(hints[count].payload, msg.payload, FTX_PAYLOAD_LENGTH_BYTES);
+                ++count;
+            }
+        }
+        p = eol;
+    }
+    return count;
+}
+
+/* 1 when the hypothesized bits agree with the LLRs, weighted by how sure each bit is. */
+static float ap_quality(const float* llr, const uint8_t* bits, int* usable)
+{
+    float agree = 0.0f;
+    float energy = 0.0f;
+    int n = 0;
+    for (int i = 0; i < FTX_LDPC_N; ++i)
+    {
+        float x = llr[i];
+        if (x == 0.0f)
+            continue;
+        ++n;
+        energy += fabsf(x);
+        agree += bits[i] ? x : -x;
+    }
+    *usable = n;
+    if (energy < 1.0f)
+        return -1.0f;
+    return agree / energy;
+}
+
+static int text_already_decoded(const ow_ft8_decode_t* decoded, int count, const char* text)
+{
+    for (int i = 0; i < count; ++i)
+    {
+        if (strcmp(decoded[i].text, text) == 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* One FT4 transmission is about 80 Hz wide. A hinted message inside that
+   patch, at the same moment, is the same energy read a second way. */
+#define kApBurstHz 100.0f
+#define kApBurstSec 0.30f
+
+static int burst_already_decoded(
+    const ow_ft8_decode_t* decoded, int count, float freq_hz, float time_sec)
+{
+    if (!decoded || count <= 0)
+        return 0;
+    for (int i = 0; i < count; ++i)
+    {
+        if (fabsf(decoded[i].freq_hz - freq_hz) <= kApBurstHz
+            && fabsf(decoded[i].time_sec - time_sec) <= kApBurstSec)
+            return 1;
+    }
+    return 0;
+}
+
+/* A strong trace is rebuilt and taken out of the audio so a weaker one on the
+   same frequency can be decoded. The carrier phase is fitted; a poor fit is
+   left alone so a bad alignment cannot dig a hole in the neighbour. */
+#define kSubDelayRadius 1800
+#define kSubDelayStep 24
+#define kSubFreqRadius 12.0f
+#define kSubFreqStep 0.5f
+/* Most of the sample energy is noise outside the trace, so a weak but real
+   alignment explains only a few thousandths of it. A chance delay stays near
+   0.001. Anything above this is the signal we just decoded. */
+#define kSubMinExplained 0.004f
+
+typedef struct
+{
+    float freq_hz;
+    float time_sec;
+    float snr;
+    int n_sym;
+    uint8_t tones[FT4_NN];
+} sub_job_t;
+
+static int gfsk_baseband(
+    const uint8_t* symbols,
+    int n_sym,
+    float symbol_bt,
+    float symbol_period,
+    int rate,
+    float* phase,
+    float* env)
+{
+    int n_spsym = (int)(0.5f + rate * symbol_period);
+    int n_wave = n_sym * n_spsym;
+    float dphi_peak = 2 * (float)M_PI / n_spsym;
+
+    float* dphi = (float*)calloc((size_t)(n_wave + 2 * n_spsym), sizeof(float));
+    float* pulse_storage = NULL;
+    const float* pulse;
+    if (n_spsym == 576 && rate == 12000
+        && symbol_bt == FT4_SYMBOL_BT
+        && fabsf(symbol_period - FT4_SYMBOL_PERIOD) < 1e-6f)
+    {
+        pulse = ft4_pulse_12k();
+    }
+    else
+    {
+        pulse_storage = (float*)malloc((size_t)(3 * n_spsym) * sizeof(float));
+        if (pulse_storage)
+            gfsk_pulse(n_spsym, symbol_bt, pulse_storage);
+        pulse = pulse_storage;
+    }
+
+    if (!dphi || !pulse)
+    {
+        free(dphi);
+        free(pulse_storage);
+        return -1;
+    }
+
+    for (int i = 0; i < n_sym; ++i)
+    {
+        int ib = i * n_spsym;
+        for (int j = 0; j < 3 * n_spsym; ++j)
+            dphi[j + ib] += dphi_peak * symbols[i] * pulse[j];
+    }
+
+    for (int j = 0; j < 2 * n_spsym; ++j)
+    {
+        dphi[j] += dphi_peak * pulse[j + n_spsym] * symbols[0];
+        dphi[j + n_sym * n_spsym] += dphi_peak * pulse[j] * symbols[n_sym - 1];
+    }
+
+    float phi = 0.0f;
+    for (int k = 0; k < n_wave; ++k)
+    {
+        phase[k] = phi;
+        env[k] = 1.0f;
+        phi = fmodf(phi + dphi[k + n_spsym], 2 * (float)M_PI);
+    }
+
+    int n_ramp = n_spsym / 8;
+    for (int i = 0; i < n_ramp; ++i)
+    {
+        float e = (1.0f - cosf(2 * (float)M_PI * i / (2 * n_ramp))) / 2.0f;
+        env[i] *= e;
+        env[n_wave - 1 - i] *= e;
+    }
+
+    free(dphi);
+    free(pulse_storage);
+    return n_wave;
+}
+
+/* Correlation of the baseband waveform against the audio at this start and carrier.
+   stride > 1 is for the search. When subtract is set, a*sin + b*cos is removed. */
+static float match_and_maybe_subtract(
+    float* samples,
+    int num_samples,
+    const float* phase,
+    const float* env,
+    int n_wave,
+    int start,
+    float freq_hz,
+    int rate,
+    int stride,
+    int subtract)
+{
+    if (stride < 1)
+        stride = 1;
+
+    double w = 2.0 * M_PI * (double)freq_hz / (double)rate;
+    double rot_re = cos(w * (double)stride);
+    double rot_im = sin(w * (double)stride);
+    double cs = 1.0;
+    double sn = 0.0;
+    double sii = 0.0, sqq = 0.0, siq = 0.0, six = 0.0, sqx = 0.0, energy = 0.0;
+    int used = 0;
+
+    for (int k = 0; k < n_wave; k += stride)
+    {
+        int n = start + k;
+        if (n >= 0 && n < num_samples)
+        {
+            float bb_s = sinf(phase[k]);
+            float bb_c = cosf(phase[k]);
+            float s = env[k] * (float)(bb_s * cs + bb_c * sn);
+            float c = env[k] * (float)(bb_c * cs - bb_s * sn);
+            float x = samples[n];
+            sii += (double)s * s;
+            sqq += (double)c * c;
+            siq += (double)s * c;
+            six += (double)s * x;
+            sqx += (double)c * x;
+            energy += (double)x * x;
+            ++used;
+        }
+
+        double next_cs = cs * rot_re - sn * rot_im;
+        double next_sn = cs * rot_im + sn * rot_re;
+        cs = next_cs;
+        sn = next_sn;
+        if ((k & 255) == 0)
+        {
+            double mag = sqrt(cs * cs + sn * sn);
+            if (mag > 0.0)
+            {
+                cs /= mag;
+                sn /= mag;
+            }
+        }
+    }
+
+    double det = sii * sqq - siq * siq;
+    if (used < 1000 || !(det > 1e-6) || !(energy > 1e-8))
+        return -1.0f;
+
+    double a = (sqq * six - siq * sqx) / det;
+    double b = (sii * sqx - siq * six) / det;
+    double explained = a * six + b * sqx;
+    float frac = (float)(explained / energy);
+    if (!subtract || frac < kSubMinExplained)
+        return frac;
+
+    if (stride != 1)
+        return match_and_maybe_subtract(samples, num_samples, phase, env, n_wave, start, freq_hz, rate, 1, 1);
+
+    w = 2.0 * M_PI * (double)freq_hz / (double)rate;
+    rot_re = cos(w);
+    rot_im = sin(w);
+    cs = 1.0;
+    sn = 0.0;
+    for (int k = 0; k < n_wave; ++k)
+    {
+        int n = start + k;
+        if (n >= 0 && n < num_samples)
+        {
+            float bb_s = sinf(phase[k]);
+            float bb_c = cosf(phase[k]);
+            float s = env[k] * (float)(bb_s * cs + bb_c * sn);
+            float c = env[k] * (float)(bb_c * cs - bb_s * sn);
+            samples[n] -= (float)(a * s + b * c);
+        }
+        double next_cs = cs * rot_re - sn * rot_im;
+        double next_sn = cs * rot_im + sn * rot_re;
+        cs = next_cs;
+        sn = next_sn;
+    }
+    return frac;
+}
+
+static int subtract_job(float* samples, int num_samples, int rate, int is_ft4, const sub_job_t* job)
+{
+    float symbol_period = is_ft4 ? FT4_SYMBOL_PERIOD : FT8_SYMBOL_PERIOD;
+    float symbol_bt = is_ft4 ? FT4_SYMBOL_BT : FT8_SYMBOL_BT;
+    int n_spsym = (int)(0.5f + rate * symbol_period);
+    int n_wave = job->n_sym * n_spsym;
+    float* phase = (float*)malloc((size_t)n_wave * sizeof(float));
+    float* env = (float*)malloc((size_t)n_wave * sizeof(float));
+    if (!phase || !env)
+    {
+        free(phase);
+        free(env);
+        return 0;
+    }
+
+    int built = gfsk_baseband(job->tones, job->n_sym, symbol_bt, symbol_period, rate, phase, env);
+    if (built != n_wave)
+    {
+        free(phase);
+        free(env);
+        return 0;
+    }
+
+    int origin = (int)(job->time_sec * (float)rate + 0.5f);
+    int best_delay = 0;
+    float best_frac = -1.0f;
+    for (int delay = -kSubDelayRadius; delay <= kSubDelayRadius; delay += kSubDelayStep)
+    {
+        float frac = match_and_maybe_subtract(
+            samples, num_samples, phase, env, n_wave, origin + delay, job->freq_hz, rate, 4, 0);
+        if (frac > best_frac)
+        {
+            best_frac = frac;
+            best_delay = delay;
+        }
+    }
+
+    for (int delay = best_delay - kSubDelayStep; delay <= best_delay + kSubDelayStep; delay += 2)
+    {
+        float frac = match_and_maybe_subtract(
+            samples, num_samples, phase, env, n_wave, origin + delay, job->freq_hz, rate, 4, 0);
+        if (frac > best_frac)
+        {
+            best_frac = frac;
+            best_delay = delay;
+        }
+    }
+
+    float best_freq = job->freq_hz;
+    for (float df = -kSubFreqRadius; df <= kSubFreqRadius + 0.01f; df += kSubFreqStep)
+    {
+        float frac = match_and_maybe_subtract(
+            samples, num_samples, phase, env, n_wave, origin + best_delay, job->freq_hz + df, rate, 4, 0);
+        if (frac > best_frac)
+        {
+            best_frac = frac;
+            best_freq = job->freq_hz + df;
+        }
+    }
+
+    int removed = 0;
+    if (best_frac >= kSubMinExplained)
+    {
+        float frac = match_and_maybe_subtract(
+            samples, num_samples, phase, env, n_wave, origin + best_delay, best_freq, rate, 1, 1);
+        removed = frac >= kSubMinExplained;
+    }
+
+    free(phase);
+    free(env);
+    return removed;
+}
+
+static int decode_slot(
     const float* samples,
     int num_samples,
     int sample_rate,
@@ -398,7 +867,14 @@ OW_FT8_API int ow_ft8_decode_pcm(
     float f_min_hz,
     float f_max_hz,
     ow_ft8_decode_t* out_decodes,
-    int out_capacity)
+    int out_capacity,
+    int deep,
+    const char* hints_nl,
+    float hint_hz,
+    float hint_half_hz,
+    int do_subtract,
+    const ow_ft8_decode_t* occupied,
+    int occupied_count)
 {
     ensure_hashtable();
     if (!samples || num_samples <= 0 || sample_rate <= 0 || !out_decodes || out_capacity <= 0)
@@ -425,10 +901,20 @@ OW_FT8_API int ow_ft8_decode_pcm(
         pos += block_size;
     }
 
-    ftx_candidate_t candidate_list[kMax_candidates];
-    int num_candidates = ftx_find_candidates(&mon->wf, kMax_candidates, candidate_list, kMin_score);
+    int deep_pass = deep != 0;
+    int max_candidates = deep_pass ? kMax_candidates_deep : kMax_candidates;
+    int min_score = deep_pass ? kMin_score_deep : kMin_score;
+    int ldpc_fast = deep_pass ? kLDPC_iterations_deep_fast : kLDPC_iterations_fast;
+    int ldpc_full = deep_pass ? kLDPC_iterations_deep : kLDPC_iterations;
+
+    ftx_candidate_t candidate_list[kMax_candidates_deep];
+    int num_candidates = ftx_find_candidates(&mon->wf, max_candidates, candidate_list, min_score);
+    uint8_t candidate_decoded[kMax_candidates_deep];
+    memset(candidate_decoded, 0, (size_t)num_candidates);
 
     int num_decoded = 0;
+    sub_job_t jobs[OW_FT8_MAX_DECODES];
+    int n_jobs = 0;
     ftx_message_t decoded[OW_FT8_MAX_DECODES];
     ftx_message_t* decoded_hashtable[OW_FT8_MAX_DECODES];
     for (int i = 0; i < OW_FT8_MAX_DECODES; ++i)
@@ -443,11 +929,13 @@ OW_FT8_API int ow_ft8_decode_pcm(
         ftx_message_t message;
         ftx_decode_status_t status;
         /* Sparse satellite slots rarely need full LDPC; try a short pass first. */
-        if (!ftx_decode_candidate(&mon->wf, cand, kLDPC_iterations_fast, &message, &status)
-            && !ftx_decode_candidate(&mon->wf, cand, kLDPC_iterations, &message, &status))
+        if (!ftx_decode_candidate(&mon->wf, cand, ldpc_fast, &message, &status)
+            && !ftx_decode_candidate(&mon->wf, cand, ldpc_full, &message, &status))
         {
             continue;
         }
+
+        candidate_decoded[idx] = 1;
 
         int idx_hash = message.hash % OW_FT8_MAX_DECODES;
         bool found_empty_slot = false;
@@ -475,13 +963,197 @@ OW_FT8_API int ow_ft8_decode_pcm(
         if (unpack_status != FTX_MESSAGE_RC_OK)
             snprintf(text, sizeof(text), "ERR%d", (int)unpack_status);
 
+        uint8_t tones[FT4_NN];
+        int nsym;
+        int nfsk;
+        int skip_ends;
+        if (is_ft4)
+        {
+            ft4_encode(message.payload, tones);
+            nsym = FT4_NN;
+            nfsk = 4;
+            skip_ends = 1; /* first and last symbols are ramps, not full power */
+        }
+        else
+        {
+            ft8_encode(message.payload, tones);
+            nsym = FT8_NN;
+            nfsk = 8;
+            skip_ends = 0;
+        }
+
         ow_ft8_decode_t* out = &out_decodes[num_decoded++];
         out->freq_hz = freq_hz;
         out->time_sec = time_sec;
-        out->snr = cand->score * 0.5f;
+        out->snr = estimate_snr_db(mon, cand, tones, nsym, nfsk, skip_ends);
         strncpy(out->text, text, OW_FT8_MAX_MESSAGE_LEN - 1);
         out->text[OW_FT8_MAX_MESSAGE_LEN - 1] = '\0';
+        out->ap = 0;
+
+        if (do_subtract && n_jobs < OW_FT8_MAX_DECODES && unpack_status == FTX_MESSAGE_RC_OK)
+        {
+            sub_job_t* job = &jobs[n_jobs++];
+            job->freq_hz = freq_hz;
+            job->time_sec = time_sec;
+            job->snr = out->snr;
+            job->n_sym = nsym;
+            memset(job->tones, 0, sizeof(job->tones));
+            memcpy(job->tones, tones, (size_t)nsym);
+        }
+    }
+
+    /* A priori: both calls are known, so try the report / RR73 / 73 list
+       against candidates the CRC decode missed. One winner per slot. */
+    if (is_ft4 && hints_nl && hints_nl[0] != '\0' && num_decoded < out_capacity)
+    {
+        ap_hint_t* hints = (ap_hint_t*)malloc((size_t)kApMaxHints * sizeof(ap_hint_t));
+        if (hints)
+        {
+            int hint_count = build_ap_hints(hints_nl, 1, hints, kApMaxHints);
+            float best_q = -1.0f;
+            int best_hint = -1;
+            int best_cand = -1;
+
+            for (int idx = 0; idx < num_candidates && hint_count > 0; ++idx)
+            {
+                if (candidate_decoded[idx])
+                    continue;
+
+                const ftx_candidate_t* cand = &candidate_list[idx];
+                float freq_hz = (mon->min_bin + cand->freq_offset + (float)cand->freq_sub / mon->wf.freq_osr) / mon->symbol_period;
+                float cand_time = (cand->time_offset + (float)cand->time_sub / mon->wf.time_osr) * mon->symbol_period;
+                if (hint_half_hz > 0.0f && fabsf(freq_hz - hint_hz) > hint_half_hz)
+                    continue;
+                /* The CRC pass already explained this burst. Do not also
+                   accept a hinted message to a different station. */
+                if (burst_already_decoded(out_decodes, num_decoded, freq_hz, cand_time)
+                    || burst_already_decoded(occupied, occupied_count, freq_hz, cand_time))
+                    continue;
+
+                float llr[FTX_LDPC_N];
+                ftx_candidate_llr(&mon->wf, cand, llr);
+
+                float local_best = -1.0f;
+                int local_hint = -1;
+                for (int h = 0; h < hint_count; ++h)
+                {
+                    int usable = 0;
+                    float q = ap_quality(llr, hints[h].bits, &usable);
+                    if (usable < kApMinBits)
+                        continue;
+                    if (q > local_best)
+                    {
+                        local_best = q;
+                        local_hint = h;
+                    }
+                }
+
+                if (local_hint < 0 || local_best < kApQualityMin)
+                    continue;
+                if (local_best <= best_q)
+                    continue;
+
+                best_q = local_best;
+                best_hint = local_hint;
+                best_cand = idx;
+            }
+
+            if (best_hint >= 0
+                && !text_already_decoded(out_decodes, num_decoded, hints[best_hint].text))
+            {
+                const ftx_candidate_t* cand = &candidate_list[best_cand];
+                uint8_t tones[FT4_NN];
+                ft4_encode(hints[best_hint].payload, tones);
+
+                ow_ft8_decode_t* out = &out_decodes[num_decoded++];
+                out->freq_hz = (mon->min_bin + cand->freq_offset + (float)cand->freq_sub / mon->wf.freq_osr) / mon->symbol_period;
+                out->time_sec = (cand->time_offset + (float)cand->time_sub / mon->wf.time_osr) * mon->symbol_period;
+                out->snr = estimate_snr_db(mon, cand, tones, FT4_NN, 4, 1);
+                strncpy(out->text, hints[best_hint].text, OW_FT8_MAX_MESSAGE_LEN - 1);
+                out->text[OW_FT8_MAX_MESSAGE_LEN - 1] = '\0';
+                out->ap = 1;
+            }
+            free(hints);
+        }
+    }
+
+    /* One extra pass after the strong traces are removed. A single isolated
+       signal still costs the search, and is left in place when the fit is poor. */
+    if (do_subtract && n_jobs > 0 && num_decoded < out_capacity)
+    {
+        float* residual = (float*)malloc((size_t)num_samples * sizeof(float));
+        if (residual)
+        {
+            memcpy(residual, samples, (size_t)num_samples * sizeof(float));
+            int removed = 0;
+            int used[OW_FT8_MAX_DECODES];
+            memset(used, 0, sizeof(used));
+            for (int n = 0; n < n_jobs; ++n)
+            {
+                int best = -1;
+                for (int j = 0; j < n_jobs; ++j)
+                {
+                    if (used[j])
+                        continue;
+                    if (best < 0 || jobs[j].snr > jobs[best].snr)
+                        best = j;
+                }
+                if (best < 0)
+                    break;
+                used[best] = 1;
+                removed += subtract_job(residual, num_samples, sample_rate, is_ft4, &jobs[best]);
+            }
+
+            if (removed > 0)
+            {
+                ow_ft8_decode_t extra[OW_FT8_MAX_DECODES];
+                int n_extra = decode_slot(
+                    residual, num_samples, sample_rate, is_ft4, f_min_hz, f_max_hz,
+                    extra, OW_FT8_MAX_DECODES, deep, hints_nl, hint_hz, hint_half_hz, 0,
+                    out_decodes, num_decoded);
+                for (int i = 0; i < n_extra && num_decoded < out_capacity; ++i)
+                {
+                    if (text_already_decoded(out_decodes, num_decoded, extra[i].text))
+                        continue;
+                    out_decodes[num_decoded++] = extra[i];
+                }
+            }
+            free(residual);
+        }
     }
 
     return num_decoded;
+}
+
+OW_FT8_API int ow_ft8_decode_pcm(
+    const float* samples,
+    int num_samples,
+    int sample_rate,
+    int is_ft4,
+    float f_min_hz,
+    float f_max_hz,
+    ow_ft8_decode_t* out_decodes,
+    int out_capacity,
+    int deep)
+{
+    return decode_slot(samples, num_samples, sample_rate, is_ft4, f_min_hz, f_max_hz,
+        out_decodes, out_capacity, deep, NULL, 0.0f, 0.0f, 1, NULL, 0);
+}
+
+OW_FT8_API int ow_ft8_decode_pcm_ap(
+    const float* samples,
+    int num_samples,
+    int sample_rate,
+    int is_ft4,
+    float f_min_hz,
+    float f_max_hz,
+    ow_ft8_decode_t* out_decodes,
+    int out_capacity,
+    int deep,
+    const char* hints_nl,
+    float hint_hz,
+    float hint_half_hz)
+{
+    return decode_slot(samples, num_samples, sample_rate, is_ft4, f_min_hz, f_max_hz,
+        out_decodes, out_capacity, deep, hints_nl, hint_hz, hint_half_hz, 1, NULL, 0);
 }

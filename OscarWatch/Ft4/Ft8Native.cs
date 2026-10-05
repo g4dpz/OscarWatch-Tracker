@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Text;
+using OscarWatch.Core.Ft4;
 
 namespace OscarWatch.Ft4;
 
@@ -48,11 +49,12 @@ internal static class Ft8Native
 
     private static string GetRid()
     {
+        var arm64 = RuntimeInformation.ProcessArchitecture == Architecture.Arm64;
         if (OperatingSystem.IsWindows())
-            return Environment.Is64BitProcess ? "win-x64" : "win-x86";
+            return arm64 ? "win-arm64" : "win-x64";
         if (OperatingSystem.IsMacOS())
-            return RuntimeInformation.ProcessArchitecture == Architecture.Arm64 ? "osx-arm64" : "osx-x64";
-        return RuntimeInformation.ProcessArchitecture == Architecture.Arm64 ? "linux-arm64" : "linux-x64";
+            return arm64 ? "osx-arm64" : "osx-x64";
+        return arm64 ? "linux-arm64" : "linux-x64";
     }
 
     public static bool IsAvailable
@@ -84,6 +86,8 @@ internal static class Ft8Native
         public float snr;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 48)]
         public string text;
+        /// <summary>Non-zero when the text is a hinted reply, not a CRC decode.</summary>
+        public int ap;
     }
 
     [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
@@ -105,7 +109,23 @@ internal static class Ft8Native
         float fMinHz,
         float fMaxHz,
         [Out] Decode[] outDecodes,
-        int outCapacity);
+        int outCapacity,
+        int deep);
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+    private static extern int ow_ft8_decode_pcm_ap(
+        float[] samples,
+        int numSamples,
+        int sampleRate,
+        int isFt4,
+        float fMinHz,
+        float fMaxHz,
+        [Out] Decode[] outDecodes,
+        int outCapacity,
+        int deep,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string? hints,
+        float hintHz,
+        float hintHalfHz);
 
     [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
     private static extern void ow_ft8_remember_callsign(
@@ -218,11 +238,18 @@ internal static class Ft8Native
         }
     }
 
-    /// <summary>Half-width pad around RX/TX audio when building the Costas search band (Hz).</summary>
+    /// <summary>Half-width pad around the TX tone when searching for our own echo (Hz).</summary>
     public const double DefaultSearchHalfWidthHz = 700;
 
+    /// <summary>Decode search covering the whole waterfall, independent of the RX and TX brackets.</summary>
+    public static void ResolveWaterfallSearchBand(out float fMinHz, out float fMaxHz)
+    {
+        fMinHz = (float)Ft4SpectrumAnalyzer.DefaultMinHz;
+        fMaxHz = (float)Ft4SpectrumAnalyzer.DefaultMaxHz;
+    }
+
     /// <summary>
-    /// Search band covering both RX and TX tones (plus pad), clamped to the USB passband.
+    /// Narrow search around the TX tone for own-echo recovery.
     /// </summary>
     public static void ResolveSearchBand(double rxHz, double txHz, out float fMinHz, out float fMaxHz)
     {
@@ -242,21 +269,57 @@ internal static class Ft8Native
     {
         var fMin = (float)Math.Clamp(centreHz - halfWidthHz, 100, 2900);
         var fMax = (float)Math.Clamp(centreHz + halfWidthHz, fMin + 100, 3000);
-        return DecodeFt4(samples, sampleRate, fMin, fMax);
+        return DecodeFt4(samples, sampleRate, fMin, fMax, deep: false);
     }
 
-    public static Decode[] DecodeFt4(float[] samples, int sampleRate, float fMinHz, float fMaxHz)
+    /// <summary>Half-width around the station we are working when trying hinted messages (Hz).</summary>
+    public const float ApSearchHalfWidthHz = 200;
+
+    public static Decode[] DecodeFt4(float[] samples, int sampleRate, float fMinHz, float fMaxHz) =>
+        DecodeFt4(samples, sampleRate, fMinHz, fMaxHz, deep: false);
+
+    public static Decode[] DecodeFt4(
+        float[] samples,
+        int sampleRate,
+        float fMinHz,
+        float fMaxHz,
+        bool deep) =>
+        DecodeFt4(samples, sampleRate, fMinHz, fMaxHz, deep, apHints: null, apCentreHz: 0);
+
+    public static Decode[] DecodeFt4(
+        float[] samples,
+        int sampleRate,
+        float fMinHz,
+        float fMaxHz,
+        bool deep,
+        string? apHints,
+        float apCentreHz)
     {
         var output = new Decode[50];
-        var n = ow_ft8_decode_pcm(
-            samples,
-            samples.Length,
-            sampleRate,
-            isFt4: 1,
-            fMinHz,
-            fMaxHz,
-            output,
-            output.Length);
+        var n = string.IsNullOrEmpty(apHints)
+            ? ow_ft8_decode_pcm(
+                samples,
+                samples.Length,
+                sampleRate,
+                isFt4: 1,
+                fMinHz,
+                fMaxHz,
+                output,
+                output.Length,
+                deep ? 1 : 0)
+            : ow_ft8_decode_pcm_ap(
+                samples,
+                samples.Length,
+                sampleRate,
+                isFt4: 1,
+                fMinHz,
+                fMaxHz,
+                output,
+                output.Length,
+                deep ? 1 : 0,
+                apHints,
+                apCentreHz,
+                ApSearchHalfWidthHz);
         if (n <= 0)
             return [];
         var result = new Decode[n];

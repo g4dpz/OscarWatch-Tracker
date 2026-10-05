@@ -46,7 +46,7 @@ public sealed class Ft8NativeRoundTripTests
 
         var decoded = Ft8Native.DecodeFt4(pcm);
         Assert.NotEmpty(decoded);
-        Assert.Contains(decoded, d => d.text.Contains("MM9SQL", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(decoded, d => d.text.Contains("MM9SQL", StringComparison.OrdinalIgnoreCase) && d.ap == 0);
         Assert.Contains(decoded, d => d.text.Contains("CQ", StringComparison.OrdinalIgnoreCase));
     }
 
@@ -110,6 +110,14 @@ public sealed class Ft8NativeRoundTripTests
         // Far from the tone: Costas search must not see 1500 Hz.
         var outOfBand = Ft8Native.DecodeFt4(pcm!, 12000, centreHz: 2800, halfWidthHz: 150);
         Assert.DoesNotContain(outOfBand, d => d.text.Contains("MM9SQL", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Waterfall_search_covers_the_whole_display()
+    {
+        Ft8Native.ResolveWaterfallSearchBand(out var fMin, out var fMax);
+        Assert.Equal(200, fMin);
+        Assert.Equal(3000, fMax);
     }
 
     [Fact]
@@ -182,5 +190,247 @@ public sealed class Ft8NativeRoundTripTests
 
         Assert.Contains(textA, d => d.text.Contains("MM9SQL", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(textB, d => d.text.Contains("G4ABC", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Theory]
+    [InlineData(-12)]
+    [InlineData(0)]
+    [InlineData(10)]
+    public void Decoded_snr_follows_2500_hz_reference(int snrDb)
+    {
+        if (!RequireNativeOrReturn())
+            return;
+
+        const int rate = 12000;
+        var pcm = Ft8Native.EncodeFt4("CQ MM9SQL IO85", freqHz: 1500f);
+        Assert.NotNull(pcm);
+
+        var noisy = AddWhiteNoise(pcm!, rate, snrDb, seed: 7);
+        var decoded = Ft8Native.DecodeFt4(noisy, rate, 200f, 2800f);
+        var hit = Assert.Single(decoded, d => d.text.Contains("MM9SQL", StringComparison.OrdinalIgnoreCase));
+        Assert.InRange(hit.snr, snrDb - 3f, snrDb + 3f);
+    }
+
+    private static float[] AddWhiteNoise(float[] pcm, int rate, int snrDb, int seed)
+    {
+        double power = 0;
+        var active = 0;
+        foreach (var sample in pcm)
+        {
+            if (Math.Abs(sample) <= 1e-4f)
+                continue;
+            power += sample * (double)sample;
+            active++;
+        }
+
+        power /= active;
+        var snrLin = Math.Pow(10.0, snrDb / 10.0);
+        var sigma = Math.Sqrt(power * rate / (snrLin * 5000.0));
+        var rng = new Random(seed);
+        var mixed = new float[pcm.Length];
+        for (var i = 0; i < pcm.Length; i++)
+        {
+            var u1 = 1.0 - rng.NextDouble();
+            var u2 = 1.0 - rng.NextDouble();
+            var gauss = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Cos(2.0 * Math.PI * u2);
+            mixed[i] = pcm[i] + (float)(sigma * gauss);
+        }
+
+        return mixed;
+    }
+
+    [Fact]
+    public void Ap_hints_recover_a_weak_message_plain_decode_misses()
+    {
+        if (!RequireNativeOrReturn())
+            return;
+
+        const int rate = 12000;
+        const string message = "MM9SQL G4ABC RR73";
+        var pcm = Ft8Native.EncodeFt4(message, freqHz: 1500f);
+        Assert.NotNull(pcm);
+
+        var hints = ApHintsFor("MM9SQL", "G4ABC");
+        var recovered = 0;
+        var plainHits = 0;
+        for (var seed = 1; seed <= 6; seed++)
+        {
+            var noisy = AddWhiteNoise(pcm!, rate, snrDb: -18, seed);
+            var plain = Ft8Native.DecodeFt4(noisy, rate, 200f, 2800f);
+            if (plain.Any(d => d.text.Contains("RR73", StringComparison.Ordinal)))
+                plainHits++;
+
+            var hinted = Ft8Native.DecodeFt4(noisy, rate, 200f, 2800f, deep: false, hints, apCentreHz: 1500f);
+            if (hinted.Any(d => d.text.Contains("RR73", StringComparison.Ordinal) && d.ap != 0))
+                recovered++;
+        }
+
+        Assert.True(recovered >= 4, $"a priori recovered {recovered}/6 at -18 dB (plain {plainHits}/6)");
+        Assert.True(plainHits <= 2, $"plain decode was unexpectedly reliable at -18 dB ({plainHits}/6)");
+    }
+
+    [Fact]
+    public void Ap_hints_do_not_invent_a_message_from_noise()
+    {
+        if (!RequireNativeOrReturn())
+            return;
+
+        var hints = ApHintsFor("MM9SQL", "G4ABC");
+        for (var seed = 1; seed <= 4; seed++)
+        {
+            var noise = UnitNoise(12000 * 15 / 2, seed);
+            var decoded = Ft8Native.DecodeFt4(noise, 12000, 200f, 2800f, deep: false, hints, apCentreHz: 1500f);
+            Assert.Empty(decoded);
+        }
+    }
+
+    [Fact]
+    public void Ap_hints_do_not_invent_a_second_message_on_a_decoded_burst()
+    {
+        if (!RequireNativeOrReturn())
+            return;
+
+        const int rate = 12000;
+        var pcm = Ft8Native.EncodeFt4("R5AO R8CEL -11", freqHz: 1500f);
+        Assert.NotNull(pcm);
+        var hints = ApHintsFor("GW4VXE", "R8CEL");
+
+        for (var seed = 1; seed <= 4; seed++)
+        {
+            var noisy = AddWhiteNoise(pcm!, rate, snrDb: -8, seed);
+            var decoded = Ft8Native.DecodeFt4(noisy, rate, 200f, 2800f, deep: false, hints, apCentreHz: 1500f);
+            Assert.Contains(decoded, d => d.text.Contains("R5AO", StringComparison.Ordinal));
+            Assert.DoesNotContain(decoded, d => d.text.Contains("GW4VXE", StringComparison.Ordinal));
+        }
+    }
+
+    [Fact]
+    public void Weak_station_under_a_decoded_burst_still_appears_when_hints_are_on()
+    {
+        if (!RequireNativeOrReturn())
+            return;
+
+        var strong = Ft8Native.EncodeFt4("R5AO R8CEL -11", freqHz: 1500f);
+        var weak = Ft8Native.EncodeFt4("CQ G4ABC IO91", freqHz: 1500f);
+        Assert.NotNull(strong);
+        Assert.NotNull(weak);
+
+        var length = Math.Min(strong!.Length, weak!.Length);
+        var mixed = new float[length];
+        for (var i = 0; i < length; i++)
+            mixed[i] = strong[i] + 0.5f * weak[i];
+
+        var noisy = AddWhiteNoise(mixed, 12000, snrDb: 0, seed: 11);
+        var hints = ApHintsFor("GW4VXE", "R8CEL");
+        var decoded = Ft8Native.DecodeFt4(noisy, 12000, 200f, 2800f, deep: false, hints, apCentreHz: 1500f);
+        Assert.Contains(decoded, d => d.text.Contains("R5AO", StringComparison.Ordinal));
+        Assert.Contains(decoded, d => d.text.Contains("G4ABC", StringComparison.Ordinal));
+        Assert.DoesNotContain(decoded, d => d.text.Contains("GW4VXE", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Ap_hints_do_not_replace_a_different_station()
+    {
+        if (!RequireNativeOrReturn())
+            return;
+
+        const int rate = 12000;
+        var pcm = Ft8Native.EncodeFt4("CQ M0XYZ IO91", freqHz: 1500f);
+        Assert.NotNull(pcm);
+        var noisy = AddWhiteNoise(pcm!, rate, snrDb: -8, seed: 3);
+        var hints = ApHintsFor("MM9SQL", "G4ABC");
+        var decoded = Ft8Native.DecodeFt4(noisy, rate, 200f, 2800f, deep: false, hints, apCentreHz: 1500f);
+        Assert.Contains(decoded, d => d.text.Contains("M0XYZ", StringComparison.Ordinal));
+        Assert.DoesNotContain(decoded, d => d.text.Contains("G4ABC", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Ap_hints_ignore_a_signal_away_from_the_contact()
+    {
+        if (!RequireNativeOrReturn())
+            return;
+
+        const int rate = 12000;
+        var pcm = Ft8Native.EncodeFt4("MM9SQL G4ABC RR73", freqHz: 1500f);
+        Assert.NotNull(pcm);
+        var noisy = AddWhiteNoise(pcm!, rate, snrDb: -18, seed: 2);
+        var hints = ApHintsFor("MM9SQL", "G4ABC");
+        var plain = Ft8Native.DecodeFt4(noisy, rate, 200f, 2800f);
+        var hinted = Ft8Native.DecodeFt4(noisy, rate, 200f, 2800f, deep: false, hints, apCentreHz: 2400f);
+        var plainRr73 = plain.Any(d => d.text.Contains("RR73", StringComparison.Ordinal));
+        var hintedRr73 = hinted.Any(d => d.text.Contains("RR73", StringComparison.Ordinal));
+        Assert.Equal(plainRr73, hintedRr73);
+    }
+
+    [Fact]
+    public void Strong_signal_is_removed_so_a_weaker_one_underneath_decodes()
+    {
+        if (!RequireNativeOrReturn())
+            return;
+
+        var strong = Ft8Native.EncodeFt4("CQ MM9SQL IO85", freqHz: 1500f);
+        var weak = Ft8Native.EncodeFt4("CQ G4ABC IO91", freqHz: 1500f);
+        Assert.NotNull(strong);
+        Assert.NotNull(weak);
+
+        var length = Math.Min(strong!.Length, weak!.Length);
+        var mixed = new float[length];
+        for (var i = 0; i < length; i++)
+            mixed[i] = strong[i] + 0.12f * weak[i];
+
+        var decoded = Ft8Native.DecodeFt4(mixed, 12000, 200f, 2800f);
+        Assert.Contains(decoded, d => d.text.Contains("MM9SQL", StringComparison.Ordinal));
+        Assert.Contains(decoded, d => d.text.Contains("G4ABC", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Noisy_strong_signal_is_removed_so_a_weaker_one_underneath_decodes()
+    {
+        if (!RequireNativeOrReturn())
+            return;
+
+        var strong = Ft8Native.EncodeFt4("CQ MM9SQL IO85", freqHz: 1500f);
+        var weak = Ft8Native.EncodeFt4("CQ G4ABC IO91", freqHz: 1500f);
+        Assert.NotNull(strong);
+        Assert.NotNull(weak);
+
+        var length = Math.Min(strong!.Length, weak!.Length);
+        var mixed = new float[length];
+        for (var i = 0; i < length; i++)
+            mixed[i] = strong[i] + 0.5f * weak[i];
+
+        var noisy = AddWhiteNoise(mixed, 12000, snrDb: 0, seed: 11);
+        var decoded = Ft8Native.DecodeFt4(noisy, 12000, 200f, 2800f);
+        Assert.Contains(decoded, d => d.text.Contains("MM9SQL", StringComparison.Ordinal));
+        Assert.Contains(decoded, d => d.text.Contains("G4ABC", StringComparison.Ordinal));
+    }
+
+    private static string ApHintsFor(string myCall, string theirCall)
+    {
+        var lines = new List<string>();
+        for (var snr = -30; snr <= 40; snr++)
+        {
+            var report = Ft4MessageCodec.FormatSnrReport(snr);
+            lines.Add(Ft4MessageCodec.BuildReport(myCall, theirCall, report));
+            lines.Add(Ft4MessageCodec.BuildReport(myCall, theirCall, Ft4MessageCodec.FormatRogerReport(snr)));
+        }
+
+        lines.Add(Ft4MessageCodec.BuildRr73(myCall, theirCall));
+        lines.Add(Ft4MessageCodec.Build73(myCall, theirCall));
+        return string.Join('\n', lines);
+    }
+
+    private static float[] UnitNoise(int sampleCount, int seed)
+    {
+        var rng = new Random(seed);
+        var noise = new float[sampleCount];
+        for (var i = 0; i < noise.Length; i++)
+        {
+            var u1 = 1.0 - rng.NextDouble();
+            var u2 = 1.0 - rng.NextDouble();
+            noise[i] = (float)(Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Cos(2.0 * Math.PI * u2));
+        }
+
+        return noise;
     }
 }

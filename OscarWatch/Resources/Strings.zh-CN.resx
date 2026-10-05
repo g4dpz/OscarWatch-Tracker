@@ -825,6 +825,9 @@
   <data name="Status.TleReloadFailed">
     <value>TLE 重新加载失败：{0}</value>
   </data>
+  <data name="Status.TleDownloadBlocked">
+    <value>{0} 正在拒绝下载（请求过多）。将继续使用上次保存的卫星数据。请稍后重试，或在 设置 → TLE 中选择 OscarWatch 来源。</value>
+  </data>
   <data name="Status.TransponderChecking">
     <value>正在检查转发器数据库…</value>
   </data>
@@ -2230,7 +2233,7 @@
     <value>启用电台控制</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>双电台（独立的下行和上行: FT-817/818、FT-991(A)、IC-705、IC-7300、IC-905、IC-7100、IC-706 系列、TH-D74/D75 或混合）</value>
+    <value>双电台（独立的下行和上行: FT-817/818、FT-857、FT-991(A)、IC-705、IC-7300、IC-905、IC-7100、IC-706 系列、TH-D74/D75 或混合）</value>
   </data>
   <data name="Settings.Radio.DualIncompleteBoth">
     <value>请为下行和上行电台选择 COM 端口。</value>
@@ -2424,6 +2427,9 @@
   <data name="Settings.Radio.RefreshComPorts">
     <value>刷新 COM 端口</value>
   </data>
+  <data name="Settings.Radio.Ft857Hint">
+    <value>FT-857 / FT-857D：使用背面 CAT/LINEAR 接口（CT-62 或同类线缆）。将菜单 019 设为 CAT（不是 LIN 或 TUN），菜单 020 CAT RATE 设为 4800 波特（9600 和 38400 亦可）。8N2 CAT，每台电台一个 COM 口。覆盖 HF/6 m、2 m 和 70 cm（AO-07 Mode A 10 m 下行），不支持 23 cm。线性模式：旋转下行旋钮调谐过境频段；FM 跟踪时锁定旋钮。请在电台上设置发射功率（CAT 无法更改）。</value>
+  </data>
   <data name="Settings.Radio.Ft817Hint">
     <value>FT-817 / FT-818：在每台电台上将菜单 #14 设为 4800 波特（38400 亦可）。8N2 CAT — 每台电台一个 COM 口。覆盖 HF/6 m、2m 和 70cm（AO-07 Mode A 10m 下行）。线性模式：旋转下行旋钮调谐过境频段；FM 锁定时跟踪。</value>
   </data>
@@ -2503,7 +2509,7 @@
     <value>为多普勒 CAT 延迟做超前补偿</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadNote">
-    <value>启用后，CAT 与 Radio 行在陡变及过顶后区段预测超前多普勒；过顶附近随距离变化率趋近零而减弱。可在下方微调超前时间与强度。</value>
+    <value>启用后，CAT 与 Radio 行在陡变及过顶后区段预测超前多普勒；过顶附近随距离变化率趋近零而减弱。可在下方微调超前时间与强度。DATA-USB、DATA-LSB 和 DATA-FM 使用当前变化率，不使用超前。SSB、CW 和 FM 仍遵循此复选框。</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadMs">
     <value>超前时间 (ms)</value>
@@ -3984,6 +3990,12 @@
   <data name="Ft4.AutoReply.Note">
     <value>呼叫 CQ 时，应答第一个呼叫您的电台。取消后会继续呼叫 CQ，直到您点击某个电台。再次勾选后，将应答下一个呼叫，包括几秒前的呼叫。</value>
   </data>
+  <data name="Ft4.AutoLowerRfPower">
+    <value>将射频功率降到 30 W</value>
+  </data>
+  <data name="Ft4.AutoLowerRfPower.Note">
+    <value>当电台报告功率超过 30 W 时，OscarWatch 会在发射前将其设为 30 W。适用于 ICOM、Yaesu FT-991 和 FT-991A，以及 Kenwood TS-2000。电台会保持该设置。如果无法更改，发射仍然被阻止。</value>
+  </data>
   <data name="Ft4.CloseWhileTx.Title">
     <value>正在发射时关闭 FT4</value>
   </data>
@@ -3994,7 +4006,7 @@
     <value>保持 TX 频率</value>
   </data>
   <data name="Ft4.HoldTxFrequency.Note">
-    <value>应答时保持您的 TX 音频 Hz（WSJT-X 风格）。取消选中则跳到解码频率。</value>
+    <value>应答时保持您的 TX 音频 Hz（WSJT-X 风格）。取消选中则跳到解码频率。勾选后，左键单击瀑布图移动 RX，右键单击移动 TX。</value>
   </data>
   <data name="Ft4.AudioDopplerTx">
     <value>TX 音频多普勒</value>
@@ -4008,11 +4020,29 @@
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>在发射时隙同时运行正常解码与迟到回波处理，以便更快显示本台回波。该时隙会占用更多 CPU。除非电脑吃力，否则请保持开启。</value>
   </data>
+  <data name="Ft4.ApEnabled">
+    <value>推测弱回复 (AP)</value>
+  </data>
+  <data name="Ft4.ApEnabled.Note">
+    <value>联络进行中时，会再次尝试首次解码错过的信号报告、RR73 或 73。这些行标为 AP。取消勾选则只显示直接解出的内容。</value>
+  </data>
+  <data name="Ft4.TxWatchdogMinutes">
+    <value>发射看门狗（分钟）</value>
+  </data>
+  <data name="Ft4.TxWatchdogMinutes.Note">
+    <value>若在这段时间内没有人应答您，则停止发射。其他电台和您自己的回波不算。0 表示关闭。</value>
+  </data>
   <data name="Ft4.PskReporter">
     <value>向 PSK Reporter 报告解码</value>
   </data>
   <data name="Ft4.PskReporter.Note">
     <value>大约每五分钟使用本台呼号和网格，将解码到的电台发送到 pskreporter.info。报告使用上行频率，卫星名称作为天线信息发送。</value>
+  </data>
+  <data name="Ft4.OscarWatchSpots">
+    <value>向 OscarWatch.org 发送 FT4 通联报告</value>
+  </data>
+  <data name="Ft4.OscarWatchSpots.Note">
+    <value>将解码到的电台发送到 oscarwatch.org，使用“设置 → OscarWatch”中的 API 令牌。保存该令牌之前无法使用。网站个人资料需要呼号和网格。</value>
   </data>
   <data name="Ft4.DecodeFontSize">
     <value>解码文字大小</value>
@@ -4020,14 +4050,29 @@
   <data name="Ft4.DecodeFontSize.Note">
     <value>解码列表字体大小（10–28）。较大字号便于视力较弱时阅读。</value>
   </data>
+  <data name="Ft4.WaterfallRange">
+    <value>瀑布图范围</value>
+  </data>
+  <data name="Ft4.WaterfallRange.Note">
+    <value>自动噪声底之上显示的分贝数。范围越小，信号越突出。默认值为 40 dB。</value>
+  </data>
   <data name="Ft4.Decode.CallingMe">
     <value>呼叫我</value>
   </data>
   <data name="Ft4.Decode.Replying">
     <value>正在回复</value>
   </data>
+  <data name="Ft4.Decode.Cq">
+    <value>CQ</value>
+  </data>
+  <data name="Ft4.Decode.Background">
+    <value>背景</value>
+  </data>
+  <data name="Ft4.Decode.Text">
+    <value>文字</value>
+  </data>
   <data name="Ft4.Decode.ColourNote">
-    <value>解码行背景色：发给你的、当前QSO对方、日志中尚无的呼号、尚未记录的4字符网格。用颜色选择器设置；透明度越低颜色越深。</value>
+    <value>解码行背景色：发给你的、当前QSO对方、CQ、日志中尚无的呼号、尚未记录的4字符网格。用颜色选择器设置；透明度越低颜色越深。文字颜色在你选择之前跟随主题。回波行保持原有颜色。你可以设置自己发射文字的颜色。</value>
   </data>
   <data name="Ft4.Decode.NewCall">
     <value>新呼号</value>
@@ -4037,6 +4082,27 @@
   </data>
   <data name="Ft4.Settings.EchoSection">
     <value>回波校准</value>
+  </data>
+  <data name="Ft4.Settings.Group.Contacts">
+    <value>联络</value>
+  </data>
+  <data name="Ft4.Settings.Group.Doppler">
+    <value>多普勒</value>
+  </data>
+  <data name="Ft4.Settings.Group.DopplerNote">
+    <value>请保持开启。它们校正每个 FT4 时隙内的漂移，并更快寻找本台回波。</value>
+  </data>
+  <data name="Ft4.Settings.Group.Reporting">
+    <value>报告</value>
+  </data>
+  <data name="Ft4.Settings.Group.Waterfall">
+    <value>瀑布图</value>
+  </data>
+  <data name="Ft4.Settings.Group.DecodeList">
+    <value>解码列表</value>
+  </data>
+  <data name="Ft4.Settings.Group.ControlLine">
+    <value>控制线</value>
   </data>
   <data name="Ft4.EchoCalibration.Note">
     <value>解码到您自己的上行回波时，OscarWatch 会自动调整此按卫星的微调。可在此编辑或清除。</value>
@@ -4137,9 +4203,6 @@
   <data name="Ft4.Status.Tuning">
     <value>调谐中 {0} Hz</value>
   </data>
-  <data name="Ft4.Status.TuneCalibrationFailed">
-    <value>调谐未能在下行中找到自己的音调，已恢复上行微调。请改为呼叫 CQ，用回波进行校准。</value>
-  </data>
   <data name="Ft4.Status.TuneStopped">
     <value>调谐已停止</value>
   </data>
@@ -4168,7 +4231,7 @@
     <value>请先输入或生成 TX 消息</value>
   </data>
   <data name="Ft4.Status.WatchdogStopped">
-    <value>发射已停止（看门狗）</value>
+    <value>发射已停止：{0} 分钟内无人应答</value>
   </data>
   <data name="Ft4.Status.ModemError">
     <value>调制解调器错误：{0}</value>
@@ -4187,9 +4250,6 @@
   </data>
   <data name="Ft4.Status.NothingToLog">
     <value>没有可记录的内容。请先应答一条解码或开始一次通联。</value>
-  </data>
-  <data name="Ft4.Status.NeedLogbook">
-    <value>请先在“工具 → OscarWatch Logbook”中创建日志本。</value>
   </data>
   <data name="Ft4.Status.LoggedManual">
     <value>已记录与 {0} 的通联（手动）</value>
@@ -4304,6 +4364,9 @@
   </data>
   <data name="Ft4.Decodes.Echo">
     <value>回波</value>
+  </data>
+  <data name="Ft4.Decodes.Ap">
+    <value>AP</value>
   </data>
   <data name="Ft4.TxMessage">
     <value>TX 消息</value>

@@ -209,6 +209,25 @@ public sealed class RigController : IRigController, IDisposable
         return true;
     }
 
+    public bool TrySetUplinkRfPowerWatts(double watts)
+    {
+        var command = new RigCommand(RigCommandKind.SetUplinkRfPower)
+        {
+            RfPowerWatts = watts
+        };
+        try
+        {
+            EnqueueAndWait(command, TimeSpan.FromSeconds(2));
+        }
+        catch (TimeoutException ex)
+        {
+            Log.Debug(ex, "RF power set timed out");
+            return false;
+        }
+
+        return command.Succeeded;
+    }
+
     public void Disconnect()
     {
         _disconnectRequested = true;
@@ -389,6 +408,11 @@ public sealed class RigController : IRigController, IDisposable
 
                 case RigCommandKind.ReadUplinkRfPower:
                     command.RfPowerWatts = TryReadUplinkRfPowerWattsOnWorker();
+                    break;
+
+                case RigCommandKind.SetUplinkRfPower:
+                    command.Succeeded = command.RfPowerWatts is { } target
+                        && TrySetUplinkRfPowerWattsOnWorker(target);
                     break;
 
                 case RigCommandKind.Disconnect:
@@ -1531,7 +1555,7 @@ public sealed class RigController : IRigController, IDisposable
         _interactive = setup.Interactive;
         _knobTuneThresholdHz = KnobTuneCapturePolicy.Resolve(context.EffectiveDownlinkMode);
 
-        // FT-847 can revert to narrow FM when SAT frequencies/CTCSS are programmed after mode.
+        // FT-847 can revert to narrow FM when SAT frequencies or the CTCSS tone are programmed after mode.
         // Flex SmartSDR must defer modes until after slice pan bind, tune, and pan centre.
         var deferModeSetup = settings.Type is RigType.YaesuFt847 or RigType.FlexSmartSdr;
         var isKenwoodSat = settings.Type == RigType.KenwoodTs2000 && _useMainSub;
@@ -1574,7 +1598,12 @@ public sealed class RigController : IRigController, IDisposable
             ApplyCtcss(settings, context, force: true);
 
         if (deferModeSetup && settings.Type == RigType.YaesuFt847)
+        {
             ConfigureVfoModes(context);
+            // The SAT TX mode command clears the encoder. Tone frequency stays before mode
+            // (programming it afterwards can force narrow FM); only the encoder is repeated.
+            ReassertFt847CtcssEncoder(settings, context);
+        }
 
         if (initResult.RxWritten)
             _lastRigRxHz = rxHz;
@@ -1936,6 +1965,30 @@ public sealed class RigController : IRigController, IDisposable
         _driver.SetMode(context.EffectiveUplinkMode);
     }
 
+    /// <summary>
+    /// FT-847 SAT mode setup runs after the tone frequency so wide FM sticks.
+    /// That mode command turns the SAT TX encoder off, so switch it back on.
+    /// </summary>
+    private void ReassertFt847CtcssEncoder(RigSettings settings, RigTrackingContext context)
+    {
+        var driver = TxDriver();
+        if (driver is null
+            || settings.Uplink.Type == RigType.Dummy
+            || _isBeaconOnly
+            || context.SelectedCtcssHz is not > 0)
+        {
+            return;
+        }
+
+        var uplinkType = settings.DualRadioEnabled ? settings.Uplink.Type : settings.Type;
+        var squelch = !UsesEncodeOnlyUplinkCtcss(uplinkType) && settings.TransmitRegion() == RigRegion.USA;
+        driver.SelectVfo(UplinkVfoForCtcss(settings, context), force: true);
+        if (squelch)
+            driver.SetToneSquelchOn(true);
+        else
+            driver.SetToneOn(true);
+    }
+
     private void ApplyCtcss(RigSettings settings, RigTrackingContext context, bool force)
     {
         var driver = TxDriver();
@@ -2283,7 +2336,9 @@ public sealed class RigController : IRigController, IDisposable
             _cachedSettings,
             site,
             context.TrackState,
-            DateTime.UtcNow);
+            DateTime.UtcNow,
+            context.Mode.DownlinkMode,
+            context.Mode.UplinkMode);
     }
 
     private int ResolveWriteThresholdHz(RigSettings settings, RigTrackingContext context)
@@ -2693,7 +2748,7 @@ public sealed class RigController : IRigController, IDisposable
             if (driver is null || !driver.SupportsRfPowerRead)
                 return null;
 
-            // Yaesu FT-991 / FT-991A (and shared newcat): PC; returns watts directly.
+            // Yaesu FT-991 / FT-991A and Kenwood TS-2000: PC; returns watts directly.
             if (driver.TryReadRfPowerWatts(out var wattsDirect))
                 return wattsDirect;
 
@@ -2714,6 +2769,44 @@ public sealed class RigController : IRigController, IDisposable
         {
             Log.Debug(ex, "Uplink RF power read failed");
             return null;
+        }
+    }
+
+    private bool TrySetUplinkRfPowerWattsOnWorker(double watts)
+    {
+        try
+        {
+            var driver = TxDriver();
+            if (driver is null || !driver.SupportsRfPowerWrite)
+                return false;
+
+            if (driver.TrySetRfPowerWatts(watts))
+            {
+                Log.Information("Set uplink RF power to {Watts:0} W on {Rig}", watts, driver.RigType);
+                return true;
+            }
+
+            var hz = _lastRigTxHz;
+            if (_cachedContext is { Corrected.RadioTransmitKHz: var txKHz } && txKHz > 0)
+                hz = (long)Math.Round(txKHz * 1000.0);
+
+            if (!IcomRfPowerEstimator.TryLevelForWatts(driver.RigType, hz, watts, out var level))
+                return false;
+
+            if (!driver.TrySetRfPowerLevel(level))
+                return false;
+
+            Log.Information(
+                "Set uplink RF power to {Watts:0} W (CI-V level {Level}) on {Rig}",
+                watts,
+                level,
+                driver.RigType);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Debug(ex, "Uplink RF power set failed");
+            return false;
         }
     }
 
@@ -2758,6 +2851,7 @@ public sealed class RigController : IRigController, IDisposable
         SetFt4SlotGatedDoppler,
         ForceFt4DopplerStep,
         ReadUplinkRfPower,
+        SetUplinkRfPower,
         Disconnect,
         Drain,
         Shutdown
@@ -2797,6 +2891,7 @@ public sealed class RigController : IRigController, IDisposable
         public bool HandshakeAssert { get; }
         public bool Ft4HoldDoppler { get; }
         public double? RfPowerWatts { get; set; }
+        public bool Succeeded { get; set; }
         public ManualResetEventSlim? Completed { get; set; }
     }
 }

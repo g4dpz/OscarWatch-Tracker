@@ -732,6 +732,9 @@
   <data name="Status.TleReloadFailed">
     <value>TLEの再読み込みに失敗: {0}</value>
   </data>
+  <data name="Status.TleDownloadBlocked">
+    <value>{0} がダウンロードを拒否しています（リクエストが多すぎます）。最後に保存した衛星データを引き続き使用します。後で再試行するか、設定 → TLE で OscarWatch ソースを選択してください。</value>
+  </data>
   <data name="Status.NoTle">
     <value>TLEデータなし — 設定→TLEを確認するか、衛星→TLEを更新</value>
   </data>
@@ -1366,7 +1369,7 @@
     <value>無線機制御を有効</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>デュアル無線機（ダウン/アップリンク別: FT-817/818、FT-991(A)、IC-705、IC-7300、IC-905、IC-7100、IC-706シリーズ、TH-D74/D75、または混合）</value>
+    <value>デュアル無線機（ダウン/アップリンク別: FT-817/818、FT-857、FT-991(A)、IC-705、IC-7300、IC-905、IC-7100、IC-706シリーズ、TH-D74/D75、または混合）</value>
   </data>
   <data name="Settings.Radio.DualIncompleteBoth">
     <value>ダウンリンクとアップリンクの両方の無線機にCOMポートを選択してください。</value>
@@ -1563,6 +1566,9 @@
   <data name="Settings.Radio.RefreshComPorts">
     <value>COMポートを更新</value>
   </data>
+  <data name="Settings.Radio.Ft857Hint">
+    <value>FT-857 / FT-857D: 背面のCAT/LINEAR端子（CT-62または同等品）を使用。メニュー019をCAT（LINやTUNではない）、メニュー020 CAT RATEを4800に（9600、38400も可）。8N2 CAT、レッグごとに1 COM。HF/6m、2m、70cm対応（AO-07 Mode Aの10mダウンリンク可）、23cmは非対応。リニア: ダウンリンクでパスバンド調整。FMは追跡中ダイヤル固定。送信出力は無線機で設定（CATでは変更不可）。</value>
+  </data>
   <data name="Settings.Radio.Ft817Hint">
     <value>FT-817 / FT-818: 各無線機でメニュー#14を4800に（38400も可）。8N2 CAT — レッグごとに1 COM。HF/6m、2m、70cm対応（AO-07 Mode Aの10mダウンリンク可）。リニア: ダウンリンクでパスバンド調整。FMは追跡中ダイヤル固定。</value>
   </data>
@@ -1642,7 +1648,7 @@
     <value>CAT遅延に合わせてドップラーを先行</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadNote">
-    <value>有効時、急な区間とTCA後でCAT/Radio行がドップラーを先読みします。TCA付近はレンジレートがゼロに近づくと先読みを弱めます。下で先読み時間と強度を微調整できます。</value>
+    <value>有効時、急な区間とTCA後でCAT/Radio行がドップラーを先読みします。TCA付近はレンジレートがゼロに近づくと先読みを弱めます。下で先読み時間と強度を微調整できます。DATA-USB、DATA-LSB、DATA-FM は先読みせず現在のレートを使います。SSB、CW、FM はこのチェックのままです。</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadMs">
     <value>先読み時間 (ms)</value>
@@ -3984,6 +3990,12 @@
   <data name="Ft4.AutoReply.Note">
     <value>CQ中は、最初に呼んできた局に応答します。オフにすると、局をクリックするまでCQを続けます。再度オンにすると、直前数秒の呼び出しを含め、次の局に応答します。</value>
   </data>
+  <data name="Ft4.AutoLowerRfPower">
+    <value>RF出力を30 Wまで下げる</value>
+  </data>
+  <data name="Ft4.AutoLowerRfPower.Note">
+    <value>無線機が30 Wを超えると報告した場合、送信前に30 Wへ設定します。ICOM、Yaesu FT-991 / FT-991A、Kenwood TS-2000で動作します。無線機はその出力のままです。変更できない場合、送信はブロックされたままです。</value>
+  </data>
   <data name="Ft4.CloseWhileTx.Title">
     <value>送信中に FT4 を閉じる</value>
   </data>
@@ -3994,7 +4006,7 @@
     <value>TX周波数保持</value>
   </data>
   <data name="Ft4.HoldTxFrequency.Note">
-    <value>応答時に自分のTX音声Hzを維持します（WSJT-Xと同様）。オフにするとデコード周波数へ移動します。</value>
+    <value>応答時に自分のTX音声Hzを維持します（WSJT-Xと同様）。オフにするとデコード周波数へ移動します。オンのとき、ウォーターフォールの左クリックでRX、右クリックでTXを移動します。</value>
   </data>
   <data name="Ft4.AudioDopplerTx">
     <value>TXオーディオドップラー</value>
@@ -4008,11 +4020,29 @@
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>送信スロットでは通常デコードと遅延エコー処理を同時に行い、自分のコピーを早く表示します。そのスロットのCPU使用量が増えます。PCが厳しいとき以外はオンのままにしてください。</value>
   </data>
+  <data name="Ft4.ApEnabled">
+    <value>弱い返信を補完 (AP)</value>
+  </data>
+  <data name="Ft4.ApEnabled.Note">
+    <value>交信中は、最初のデコードで読めなかったレポート、RR73、73をもう一度試します。その行は AP と表示されます。直接読めたものだけにするにはオフにします。</value>
+  </data>
+  <data name="Ft4.TxWatchdogMinutes">
+    <value>TXウォッチドッグ（分）</value>
+  </data>
+  <data name="Ft4.TxWatchdogMinutes.Note">
+    <value>この分数のあいだ自分宛の応答がなければ送信を止めます。他局と自分のエコーは数えません。0 で無効です。</value>
+  </data>
   <data name="Ft4.PskReporter">
     <value>デコードをPSK Reporterに報告</value>
   </data>
   <data name="Ft4.PskReporter.Note">
     <value>デコードした局を、局のコールサインとグリッドを使って約5分ごとにpskreporter.infoへ送信します。スポットにはアップリンク周波数を使い、衛星名はアンテナとして送信されます。</value>
+  </data>
+  <data name="Ft4.OscarWatchSpots">
+    <value>FT4スポットをOscarWatch.orgへ送信</value>
+  </data>
+  <data name="Ft4.OscarWatchSpots.Note">
+    <value>デコードした局を oscarwatch.org に送ります。設定 → OscarWatch の API トークンを使います。トークンを保存するまで使えません。ウェブサイトのプロフィールにコールサインとグリッドスクエアが必要です。</value>
   </data>
   <data name="Ft4.DecodeFontSize">
     <value>デコード文字サイズ</value>
@@ -4020,14 +4050,29 @@
   <data name="Ft4.DecodeFontSize.Note">
     <value>デコード一覧のフォントサイズ（10–28）。大きいほど見やすくなります。</value>
   </data>
+  <data name="Ft4.WaterfallRange">
+    <value>ウォーターフォールの範囲</value>
+  </data>
+  <data name="Ft4.WaterfallRange.Note">
+    <value>自動で追従するノイズフロアからのデシベル幅です。範囲を狭くすると信号が目立ちます。初期値は 40 dB です。</value>
+  </data>
   <data name="Ft4.Decode.CallingMe">
     <value>自分宛て</value>
   </data>
   <data name="Ft4.Decode.Replying">
     <value>応答中</value>
   </data>
+  <data name="Ft4.Decode.Cq">
+    <value>CQ</value>
+  </data>
+  <data name="Ft4.Decode.Background">
+    <value>背景</value>
+  </data>
+  <data name="Ft4.Decode.Text">
+    <value>文字</value>
+  </data>
   <data name="Ft4.Decode.ColourNote">
-    <value>デコード行の背景色: 自局宛て、現在のQSO相手、ログにないコールサイン、未ログの4文字グリッド。色選択で設定。透明度を下げると濃くなります。</value>
+    <value>デコード行の背景色: 自局宛て、現在のQSO相手、CQ、ログにないコールサイン、未ログの4文字グリッド。色選択で設定。透明度を下げると濃くなります。文字色は選ぶまでテーマに従います。エコー行は専用の色のままです。送信した文字の色は選べます。</value>
   </data>
   <data name="Ft4.Decode.NewCall">
     <value>新規コール</value>
@@ -4037,6 +4082,27 @@
   </data>
   <data name="Ft4.Settings.EchoSection">
     <value>エコー校正</value>
+  </data>
+  <data name="Ft4.Settings.Group.Contacts">
+    <value>交信</value>
+  </data>
+  <data name="Ft4.Settings.Group.Doppler">
+    <value>ドップラー</value>
+  </data>
+  <data name="Ft4.Settings.Group.DopplerNote">
+    <value>オンのままにしてください。各FT4スロット内のずれを補正し、自分のエコーを早く探します。</value>
+  </data>
+  <data name="Ft4.Settings.Group.Reporting">
+    <value>レポート</value>
+  </data>
+  <data name="Ft4.Settings.Group.Waterfall">
+    <value>ウォーターフォール</value>
+  </data>
+  <data name="Ft4.Settings.Group.DecodeList">
+    <value>デコード一覧</value>
+  </data>
+  <data name="Ft4.Settings.Group.ControlLine">
+    <value>制御線</value>
   </data>
   <data name="Ft4.EchoCalibration.Note">
     <value>自分のアップリンクエコーが復号されると、OscarWatchはこの衛星ごとのトリムを自動調整します。ここで編集または消去できます。</value>
@@ -4137,9 +4203,6 @@
   <data name="Ft4.Status.Tuning">
     <value>チューン中 {0} Hz</value>
   </data>
-  <data name="Ft4.Status.TuneCalibrationFailed">
-    <value>チューンでダウンリンク上の自局トーンを見つけられなかったため、アップリンク補正を元に戻しました。代わりに CQ を出してエコーで校正してください。</value>
-  </data>
   <data name="Ft4.Status.TuneStopped">
     <value>チューン停止</value>
   </data>
@@ -4168,7 +4231,7 @@
     <value>先にTXメッセージを入力または生成してください</value>
   </data>
   <data name="Ft4.Status.WatchdogStopped">
-    <value>送信停止（ウォッチドッグ）</value>
+    <value>{0} 分間応答がないため送信を停止しました</value>
   </data>
   <data name="Ft4.Status.ModemError">
     <value>モデムエラー: {0}</value>
@@ -4187,9 +4250,6 @@
   </data>
   <data name="Ft4.Status.NothingToLog">
     <value>記録するものがありません。デコードに応答するか、まずQSOを開始してください。</value>
-  </data>
-  <data name="Ft4.Status.NeedLogbook">
-    <value>先にツール → OscarWatch Logbook でログブックを作成してください。</value>
   </data>
   <data name="Ft4.Status.LoggedManual">
     <value>{0} とのQSOを記録しました（手動）</value>
@@ -4304,6 +4364,9 @@
   </data>
   <data name="Ft4.Decodes.Echo">
     <value>エコー</value>
+  </data>
+  <data name="Ft4.Decodes.Ap">
+    <value>AP</value>
   </data>
   <data name="Ft4.TxMessage">
     <value>TXメッセージ</value>

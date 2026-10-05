@@ -26,6 +26,8 @@ typedef struct
     float time_sec;
     float snr;
     char text[OW_FT8_MAX_MESSAGE_LEN];
+    /// Non-zero when the text is a hinted reply, not a CRC decode.
+    int ap;
 } ow_ft8_decode_t;
 
 /// Encode a plain FT4/FT8 message text to a 12 kHz float PCM buffer (slot-length with silence padding).
@@ -55,6 +57,7 @@ OW_FT8_API int ow_ft8_encode_pcm(
 /// @param f_max_hz upper audio search bound (Hz)
 /// @param out_decodes output array
 /// @param out_capacity max entries in out_decodes
+/// @param deep non-zero for the horizon budget (more candidates, longer LDPC)
 /// @return number of decoded messages, or negative on error
 OW_FT8_API int ow_ft8_decode_pcm(
     const float* samples,
@@ -64,7 +67,26 @@ OW_FT8_API int ow_ft8_decode_pcm(
     float f_min_hz,
     float f_max_hz,
     ow_ft8_decode_t* out_decodes,
-    int out_capacity);
+    int out_capacity,
+    int deep);
+
+/// Decode one slot, then try newline-separated hint messages on candidates the
+/// CRC decode missed. Hints are the report, RRR, RR73 and 73 for a contact
+/// whose calls are already known. hint_half_hz <= 0 searches every candidate.
+/// @return number of decoded messages, or negative on error
+OW_FT8_API int ow_ft8_decode_pcm_ap(
+    const float* samples,
+    int num_samples,
+    int sample_rate,
+    int is_ft4,
+    float f_min_hz,
+    float f_max_hz,
+    ow_ft8_decode_t* out_decodes,
+    int out_capacity,
+    int deep,
+    const char* hints_nl,
+    float hint_hz,
+    float hint_half_hz);
 
 /// Remember a callsign for hash-table resolution during later decodes.
 OW_FT8_API void ow_ft8_remember_callsign(const char* callsign);

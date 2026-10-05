@@ -5,6 +5,9 @@ namespace OscarWatch.Tests;
 
 internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
 {
+    /// <summary>Watts returned for <c>PC;</c> reads (TS-2000 transmit power, 005–100).</summary>
+    public int RfPowerWatts { get; set; } = 50;
+
     public long FaHz { get; set; } = 435_750_000;
     public long FbHz { get; set; } = 145_900_000;
     public bool SatelliteStatusOn { get; set; } = true;
@@ -76,11 +79,22 @@ internal sealed class RecordingKenwoodCatTransport : IKenwoodCatTransport
             "FR;" => $"FR{(_ctrlOnSubReceiver ? SubVfoSelect : MainVfoSelect)};",
             "FA;" => KenwoodCatCodec.BuildSetFrequencyCommand('A', FaHz),
             "FB;" => KenwoodCatCodec.BuildSetFrequencyCommand('B', FbHz),
+            "PC;" => $"PC{RfPowerWatts:D3};",
+            _ when TryRememberPowerSet(normalized) => normalized,
             _ => KenwoodCatCodec.IsReadCommand(normalized) ? null : normalized
         };
     }
 
     public void Dispose() => IsOpen = false;
+
+    private bool TryRememberPowerSet(string normalized)
+    {
+        if (!normalized.StartsWith("PC", StringComparison.OrdinalIgnoreCase) || normalized == "PC;")
+            return false;
+        if (KenwoodCatCodec.TryParsePowerWatts(normalized, out var watts))
+            RfPowerWatts = watts;
+        return true;
+    }
 
     private void ApplySatelliteModeCommand(string normalized)
     {

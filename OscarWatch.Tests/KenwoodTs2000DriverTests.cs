@@ -62,6 +62,49 @@ public sealed class KenwoodTs2000DriverTests
     }
 
     [Fact]
+    public void TryReadRfPowerWatts_reads_pc_command()
+    {
+        var transport = new RecordingKenwoodCatTransport { RfPowerWatts = 25 };
+        var driver = new KenwoodTs2000Driver(transport);
+        driver.Open();
+        transport.SentCommands.Clear();
+
+        Assert.True(driver.SupportsRfPowerRead);
+        Assert.True(driver.TryReadRfPowerWatts(out var watts));
+        Assert.Equal(25.0, watts);
+        Assert.Contains("PC;", transport.SentCommands);
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("PC", StringComparison.Ordinal) && c != "PC;");
+    }
+
+    [Fact]
+    public void TrySetRfPowerWatts_sends_pc_command()
+    {
+        var transport = new RecordingKenwoodCatTransport { RfPowerWatts = 50 };
+        var driver = new KenwoodTs2000Driver(transport);
+        driver.Open();
+        transport.SentCommands.Clear();
+
+        Assert.True(driver.SupportsRfPowerWrite);
+        Assert.True(driver.TrySetRfPowerWatts(30));
+        Assert.Contains("PC030;", transport.SentCommands);
+        Assert.True(driver.TryReadRfPowerWatts(out var watts));
+        Assert.Equal(30.0, watts);
+    }
+
+    [Fact]
+    public void TrySetRfPowerWatts_rejects_out_of_range()
+    {
+        var transport = new RecordingKenwoodCatTransport();
+        var driver = new KenwoodTs2000Driver(transport);
+        driver.Open();
+        transport.SentCommands.Clear();
+
+        Assert.False(driver.TrySetRfPowerWatts(4));
+        Assert.False(driver.TrySetRfPowerWatts(101));
+        Assert.DoesNotContain(transport.SentCommands, c => c.StartsWith("PC", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void ApplySatellitePassFrequencies_sends_pass_programming_and_hold_polls()
     {
         var transport = new RecordingKenwoodCatTransport();

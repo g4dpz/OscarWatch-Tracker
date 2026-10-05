@@ -54,7 +54,7 @@ public sealed class Ft4DecodeHighlightTests
     [Fact]
     public void Unworked_callsign_is_new_call()
     {
-        var msg = Line("CQ G4ABC JO01", "CQ", "G4ABC", "JO01");
+        var msg = Line("K2MO G4ABC JO01", "K2MO", "G4ABC", "JO01");
         Assert.Equal(
             Ft4DecodeHighlightKind.NewCall,
             Ft4DecodeHighlight.Classify(msg, "MM9SQL", null, Calls(), Grids()));
@@ -66,10 +66,41 @@ public sealed class Ft4DecodeHighlightTests
     [Fact]
     public void Worked_call_with_new_grid_is_new_grid()
     {
-        var msg = Line("CQ G4ABC JO01", "CQ", "G4ABC", "JO01");
+        var msg = Line("M0XYZ G4ABC JO01", "M0XYZ", "G4ABC", "JO01");
         Assert.Equal(
             Ft4DecodeHighlightKind.NewGrid,
             Ft4DecodeHighlight.Classify(msg, "MM9SQL", null, Calls("G4ABC"), Grids("IO91")));
+    }
+
+    [Fact]
+    public void Cq_from_an_unlogged_call_is_a_new_call()
+    {
+        var msg = Line("CQ KC1WAY FN42", "CQ", "KC1WAY", "FN42");
+        Assert.Equal(
+            Ft4DecodeHighlightKind.NewCall,
+            Ft4DecodeHighlight.Classify(msg, "MM9SQL", null, Calls(), Grids()));
+        Assert.Equal(
+            Ft4DecodeHighlightKind.Cq,
+            Ft4DecodeHighlight.Classify(msg, "MM9SQL", null, Calls("KC1WAY"), Grids("FN42")));
+    }
+
+    [Fact]
+    public void Finished_partner_stays_replying_when_the_contact_ends()
+    {
+        var msg = Line("MM9SQL VE6HQ DO32", "MM9SQL", "VE6HQ", "DO32");
+        var finished = new HashSet<string>(StringComparer.Ordinal) { "VE6HQ" };
+        Assert.Equal(
+            Ft4DecodeHighlightKind.Replying,
+            Ft4DecodeHighlight.Classify(msg, "MM9SQL", null, Calls(), Grids(), finished));
+        Assert.Equal(
+            Ft4DecodeHighlightKind.CallingMe,
+            Ft4DecodeHighlight.Classify(
+                Line("MM9SQL KC1WAY FN42", "MM9SQL", "KC1WAY", "FN42"),
+                "MM9SQL",
+                null,
+                Calls(),
+                Grids(),
+                finished));
     }
 
     [Fact]

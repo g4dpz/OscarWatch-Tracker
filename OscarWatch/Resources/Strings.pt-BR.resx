@@ -825,6 +825,9 @@ Continuar?</value>
   <data name="Status.TleReloadFailed">
     <value>Falha ao recarregar TLE: {0}</value>
   </data>
+  <data name="Status.TleDownloadBlocked">
+    <value>{0} está recusando downloads (muitas solicitações). Os últimos dados de satélites salvos foram mantidos. Tente novamente mais tarde ou escolha a fonte OscarWatch em Configurações → TLE.</value>
+  </data>
   <data name="Status.TransponderChecking">
     <value>Verificando o banco de dados de transmissores/transponders…</value>
   </data>
@@ -2230,7 +2233,7 @@ Continuar?</value>
     <value>Habilitar controle de rádio</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>Dois rádios (downlink e uplink separados: FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, IC-7100, série IC-706, TH-D74/D75 ou misto)</value>
+    <value>Dois rádios (downlink e uplink separados: FT-817/818, FT-857, FT-991(A), IC-705, IC-7300, IC-905, IC-7100, série IC-706, TH-D74/D75 ou misto)</value>
   </data>
   <data name="Settings.Radio.DualIncompleteBoth">
     <value>Selecione portas COM para os rádios de downlink e uplink.</value>
@@ -2424,6 +2427,9 @@ Continuar?</value>
   <data name="Settings.Radio.RefreshComPorts">
     <value>Atualizar portas COM</value>
   </data>
+  <data name="Settings.Radio.Ft857Hint">
+    <value>FT-857 / FT-857D: Use o conector traseiro CAT/LINEAR (CT-62 ou equivalente). Defina o menu 019 como CAT (não LIN nem TUN) e o menu 020 CAT RATE para 4800 baud (9600 e 38400 também funcionam). CAT 8N2, uma COM por perna. Cobre HF/6 m, 2 m e 70 cm (downlink AO-07 Modo A em 10 m); sem 23 cm. Linear: gire o downlink para a passband; FM trava o dial durante o rastreamento. Ajuste a potência no rádio (o CAT não pode alterá-la).</value>
+  </data>
   <data name="Settings.Radio.Ft817Hint">
     <value>FT-817 / FT-818: Defina o menu #14 para 4800 baud em cada rádio (38400 também funciona). CAT 8N2 — uma COM por perna. Cobre HF/6 m, 2 m e 70 cm (downlink AO-07 Modo A em 10 m). Linear: gire o downlink para a passband; FM trava o dial durante o rastreamento.</value>
   </data>
@@ -2503,7 +2509,7 @@ Continuar?</value>
     <value>Antecipar Doppler para latência CAT</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadNote">
-    <value>Quando ativado, o CAT e a linha Rádio preveem o Doppler à frente nos trechos íngremes e pós-TCA. Perto do TCA, a antecipação reduz quando a taxa de distância se aproxima de zero. Ajuste fino com tempo e intensidade abaixo.</value>
+    <value>Quando ativado, o CAT e a linha Rádio preveem o Doppler à frente nos trechos íngremes e pós-TCA. Perto do TCA, a antecipação reduz quando a taxa de distância se aproxima de zero. Ajuste fino com tempo e intensidade abaixo. DATA-USB, DATA-LSB e DATA-FM usam a taxa atual em vez da antecipação. SSB, CW e FM mantêm esta caixa.</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadMs">
     <value>Tempo de antecipação (ms)</value>
@@ -3984,6 +3990,12 @@ Mais recente: {1} ({2})</value>
   <data name="Ft4.AutoReply.Note">
     <value>Ao chamar CQ, responde à primeira estação que o chamar. Desmarque para continuar chamando CQ até clicar numa estação. Marque de novo para responder à próxima, inclusive uma dos últimos segundos.</value>
   </data>
+  <data name="Ft4.AutoLowerRfPower">
+    <value>Reduzir a potência de RF para 30 W</value>
+  </data>
+  <data name="Ft4.AutoLowerRfPower.Note">
+    <value>Quando o rádio indica mais de 30 W, o OscarWatch define 30 W antes de transmitir. Funciona em rádios ICOM, Yaesu FT-991 e FT-991A, e Kenwood TS-2000. O rádio permanece nesse ajuste. Se não for possível alterar, a transmissão continua bloqueada.</value>
+  </data>
   <data name="Ft4.CloseWhileTx.Title">
     <value>Fechar o FT4 durante a transmissão</value>
   </data>
@@ -3994,7 +4006,7 @@ Mais recente: {1} ({2})</value>
     <value>Manter freq. TX</value>
   </data>
   <data name="Ft4.HoldTxFrequency.Note">
-    <value>Mantém o Hz de áudio TX ao responder (estilo WSJT-X). Desmarque para saltar à frequência do decode.</value>
+    <value>Mantém o Hz de áudio TX ao responder (estilo WSJT-X). Desmarque para saltar à frequência do decode. Com a opção marcada, clique esquerdo na cascata move o RX e clique direito move o TX.</value>
   </data>
   <data name="Ft4.AudioDopplerTx">
     <value>Doppler de áudio no TX</value>
@@ -4008,11 +4020,29 @@ Mais recente: {1} ({2})</value>
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>Nas janelas de transmissão, executa o decode normal e um passe de eco tardio juntos para a sua cópia aparecer mais cedo. Usa mais CPU nessa janela. Deixe ligado, a menos que o PC fique sobrecarregado.</value>
   </data>
+  <data name="Ft4.ApEnabled">
+    <value>Sugerir respostas fracas (AP)</value>
+  </data>
+  <data name="Ft4.ApEnabled.Note">
+    <value>Com um contato aberto, um reporte, RR73 ou 73 que a primeira decodificação não leu é tentado de novo. Essas linhas são marcadas AP. Desmarque para mostrar só o que foi lido diretamente.</value>
+  </data>
+  <data name="Ft4.TxWatchdogMinutes">
+    <value>Vigilância de TX (minutos)</value>
+  </data>
+  <data name="Ft4.TxWatchdogMinutes.Note">
+    <value>Interrompe a transmissão se ninguém responder a você por estes minutos. Outras estações e o seu próprio eco não contam. 0 desliga a vigilância.</value>
+  </data>
   <data name="Ft4.PskReporter">
     <value>Reportar decodificações ao PSK Reporter</value>
   </data>
   <data name="Ft4.PskReporter.Note">
     <value>Envia as estações que você decodifica ao pskreporter.info a cada cinco minutos, aproximadamente, usando o indicativo e o locator da estação. Os spots usam a frequência de subida, e o nome do satélite é enviado como sua antena.</value>
+  </data>
+  <data name="Ft4.OscarWatchSpots">
+    <value>Enviar spots FT4 para o OscarWatch.org</value>
+  </data>
+  <data name="Ft4.OscarWatchSpots.Note">
+    <value>Envia as estações que você decodifica ao oscarwatch.org, usando o token de API em Configurações → OscarWatch. Fica indisponível até esse token ser guardado. O perfil no site precisa de um indicativo e um locator.</value>
   </data>
   <data name="Ft4.DecodeFontSize">
     <value>Tamanho do texto de decode</value>
@@ -4020,14 +4050,29 @@ Mais recente: {1} ({2})</value>
   <data name="Ft4.DecodeFontSize.Note">
     <value>Tamanho da fonte da lista de decodes (10–28). Tamanhos maiores ajudam com visão reduzida.</value>
   </data>
+  <data name="Ft4.WaterfallRange">
+    <value>Faixa da cascata</value>
+  </data>
+  <data name="Ft4.WaterfallRange.Note">
+    <value>Decibéis acima do piso de ruído automático. Uma faixa menor faz os sinais se destacarem mais. O padrão é 40 dB.</value>
+  </data>
   <data name="Ft4.Decode.CallingMe">
     <value>Me chamando</value>
   </data>
   <data name="Ft4.Decode.Replying">
     <value>Respondendo</value>
   </data>
+  <data name="Ft4.Decode.Cq">
+    <value>CQ</value>
+  </data>
+  <data name="Ft4.Decode.Background">
+    <value>Fundo</value>
+  </data>
+  <data name="Ft4.Decode.Text">
+    <value>Texto</value>
+  </data>
   <data name="Ft4.Decode.ColourNote">
-    <value>Fundos das linhas de decodificação: dirigidas a você, a estação do QSO atual, um indicativo ainda não no logbook, ou um grid de 4 caracteres que você ainda não registrou. Use o seletor de cor; menos transparência deixa o tom mais forte.</value>
+    <value>Fundos das linhas de decodificação: dirigidas a você, a estação do QSO atual, chamadas CQ, um indicativo ainda não no logbook, ou um grid de 4 caracteres que você ainda não registrou. Use o seletor de cor; menos transparência deixa o tom mais forte. A cor do texto segue o tema até você escolher uma. As linhas de eco mantêm a própria cor. Você pode definir a cor do texto que transmite.</value>
   </data>
   <data name="Ft4.Decode.NewCall">
     <value>Indicativo novo</value>
@@ -4037,6 +4082,27 @@ Mais recente: {1} ({2})</value>
   </data>
   <data name="Ft4.Settings.EchoSection">
     <value>Calibração de eco</value>
+  </data>
+  <data name="Ft4.Settings.Group.Contacts">
+    <value>Contatos</value>
+  </data>
+  <data name="Ft4.Settings.Group.Doppler">
+    <value>Doppler</value>
+  </data>
+  <data name="Ft4.Settings.Group.DopplerNote">
+    <value>Deixe ligados. Corrigem o desvio dentro de cada janela FT4 e procuram o seu eco mais cedo.</value>
+  </data>
+  <data name="Ft4.Settings.Group.Reporting">
+    <value>Relatos</value>
+  </data>
+  <data name="Ft4.Settings.Group.Waterfall">
+    <value>Cascata</value>
+  </data>
+  <data name="Ft4.Settings.Group.DecodeList">
+    <value>Lista de decodes</value>
+  </data>
+  <data name="Ft4.Settings.Group.ControlLine">
+    <value>Linha de controle</value>
   </data>
   <data name="Ft4.EchoCalibration.Note">
     <value>Quando o eco do seu uplink é decodificado, o OscarWatch ajusta este trim por satélite automaticamente. Você pode editar ou limpar aqui.</value>
@@ -4137,9 +4203,6 @@ Mais recente: {1} ({2})</value>
   <data name="Ft4.Status.Tuning">
     <value>Sintonizando em {0} Hz</value>
   </data>
-  <data name="Ft4.Status.TuneCalibrationFailed">
-    <value>O Tune não encontrou o próprio tom no downlink, então o ajuste de uplink foi restaurado. Chame CQ para calibrar pelo seu eco.</value>
-  </data>
   <data name="Ft4.Status.TuneStopped">
     <value>Sintonização parada</value>
   </data>
@@ -4168,7 +4231,7 @@ Mais recente: {1} ({2})</value>
     <value>Digite ou gere uma mensagem TX primeiro</value>
   </data>
   <data name="Ft4.Status.WatchdogStopped">
-    <value>Transmissão parada (watchdog)</value>
+    <value>Transmissão parada: sem resposta por {0} minutos</value>
   </data>
   <data name="Ft4.Status.ModemError">
     <value>Erro do modem: {0}</value>
@@ -4187,9 +4250,6 @@ Mais recente: {1} ({2})</value>
   </data>
   <data name="Ft4.Status.NothingToLog">
     <value>Nada para registar. Responda a uma descodificação ou inicie um QSO primeiro.</value>
-  </data>
-  <data name="Ft4.Status.NeedLogbook">
-    <value>Crie um logbook em Ferramentas → OscarWatch Logbook primeiro.</value>
   </data>
   <data name="Ft4.Status.LoggedManual">
     <value>QSO com {0} registado (manual)</value>
@@ -4304,6 +4364,9 @@ Mais recente: {1} ({2})</value>
   </data>
   <data name="Ft4.Decodes.Echo">
     <value>Eco</value>
+  </data>
+  <data name="Ft4.Decodes.Ap">
+    <value>AP</value>
   </data>
   <data name="Ft4.TxMessage">
     <value>Mensagem TX</value>

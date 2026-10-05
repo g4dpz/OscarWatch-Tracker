@@ -77,10 +77,37 @@ public sealed class KenwoodTs2000Driver : IRigDriver
     /// <summary>True when cross-band FA/FB satellite tracking was requested (SATL confirmed or fallback).</summary>
     public bool UsesFaFbSatelliteTracking => _faFbSatelliteTracking;
     public bool SupportsVfoExchange => true;
+    public bool SupportsRfPowerRead => true;
 
     public void Open()
     {
         _transport.Open();
+    }
+
+    public bool TryReadRfPowerWatts(out double watts)
+    {
+        watts = 0;
+        if (!_transport.IsOpen)
+            return false;
+
+        var reply = _transport.Transact(KenwoodCatCodec.BuildReadPowerCommand(), _catDelayMs);
+        if (reply is null || !KenwoodCatCodec.TryParsePowerWatts(reply, out var value))
+            return false;
+
+        watts = value;
+        return true;
+    }
+
+    public bool SupportsRfPowerWrite => true;
+
+    public bool TrySetRfPowerWatts(double watts)
+    {
+        if (!_transport.IsOpen || !KenwoodCatCodec.TryBuildSetPowerCommand(watts, out var command))
+            return false;
+
+        var reply = _transport.Transact(command, _catDelayMs);
+        return !string.IsNullOrEmpty(reply)
+            && !reply.Contains('?', StringComparison.Ordinal);
     }
 
     public long? ReadFrequencyHz(RigVfo vfo)

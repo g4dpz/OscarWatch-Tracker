@@ -835,6 +835,9 @@ Lanjutkan?</value>
   <data name="Status.TleReloadFailed">
     <value>Muat ulang TLE gagal: {0}</value>
   </data>
+  <data name="Status.TleDownloadBlocked">
+    <value>{0} menolak unduhan (terlalu banyak permintaan). Data satelit terakhir yang tersimpan tetap digunakan. Coba lagi nanti, atau pilih sumber OscarWatch di Pengaturan → TLE.</value>
+  </data>
   <data name="Status.TransponderChecking">
     <value>Memeriksa basis data transponder…</value>
   </data>
@@ -2234,7 +2237,7 @@ Lanjutkan?</value>
     <value>Aktifkan kontrol radio</value>
   </data>
   <data name="Settings.Radio.DualEnable">
-    <value>Radio ganda (downlink dan uplink terpisah: FT-817/818, FT-991(A), IC-705, IC-7300, IC-905, IC-7100, seri IC-706, TH-D74/D75, atau campuran)</value>
+    <value>Radio ganda (downlink dan uplink terpisah: FT-817/818, FT-857, FT-991(A), IC-705, IC-7300, IC-905, IC-7100, seri IC-706, TH-D74/D75, atau campuran)</value>
   </data>
   <data name="Settings.Radio.DualIncompleteBoth">
     <value>Pilih port COM untuk radio downlink dan uplink.</value>
@@ -2428,6 +2431,9 @@ Lanjutkan?</value>
   <data name="Settings.Radio.RefreshComPorts">
     <value>Segarkan port COM</value>
   </data>
+  <data name="Settings.Radio.Ft857Hint">
+    <value>FT-857 / FT-857D: Pakai jack CAT/LINEAR di belakang (CT-62 atau setara). Setel menu 019 ke CAT (bukan LIN atau TUN) dan menu 020 CAT RATE ke 4800 baud (9600 dan 38400 juga jalan). CAT 8N2: satu COM per kaki. Mencakup HF/6 m, 2 m, dan 70 cm (downlink AO-07 Mode A di 10 m); tanpa 23 cm. Linear: putar downlink untuk passband; FM mengunci dial saat pelacakan. Atur daya di radio (CAT tidak bisa mengubahnya).</value>
+  </data>
   <data name="Settings.Radio.Ft817Hint">
     <value>FT-817 / FT-818: Setel menu #14 ke 4800 baud di tiap radio (38400 juga jalan). CAT 8N2: satu COM per kaki. Mencakup HF/6 m, 2m, dan 70cm (downlink AO-07 Mode A di 10 m). Linear: putar downlink untuk passband; FM mengunci dial saat pelacakan.</value>
   </data>
@@ -2507,7 +2513,7 @@ Lanjutkan?</value>
     <value>Lead Doppler untuk latensi CAT</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadNote">
-    <value>Jika aktif, CAT dan baris Radio memprediksi Doppler ke depan pada kaki curam dan pasca-TCA (saat laju jarak berubah cepat). Dekat TCA, lead mereda saat laju jarak mendekati nol. AOS yang landai memakai laju saat ini. Baris Sat tetap menampilkan frekuensi pesawat ruang angkasa saat ini. Haluskan dengan waktu dan kekuatan lead di bawah.</value>
+    <value>Jika aktif, CAT dan baris Radio memprediksi Doppler ke depan pada kaki curam dan pasca-TCA (saat laju jarak berubah cepat). Dekat TCA, lead mereda saat laju jarak mendekati nol. AOS yang landai memakai laju saat ini. Baris Sat tetap menampilkan frekuensi pesawat ruang angkasa saat ini. Haluskan dengan waktu dan kekuatan lead di bawah. DATA-USB, DATA-LSB, dan DATA-FM memakai laju saat ini, tanpa lead. SSB, CW, dan FM tetap mengikuti kotak ini.</value>
   </data>
   <data name="Settings.Radio.DopplerCatLeadMs">
     <value>Waktu lead (ms)</value>
@@ -3988,6 +3994,12 @@ Terbaru: {1} ({2})</value>
   <data name="Ft4.AutoReply.Note">
     <value>Saat memanggil CQ, jawab stasiun pertama yang memanggil Anda. Nonaktifkan untuk terus memanggil CQ sampai Anda mengklik stasiun. Aktifkan lagi untuk menjawab pemanggil berikutnya, termasuk yang memanggil beberapa detik lalu.</value>
   </data>
+  <data name="Ft4.AutoLowerRfPower">
+    <value>Turunkan daya RF ke 30 W</value>
+  </data>
+  <data name="Ft4.AutoLowerRfPower.Note">
+    <value>Jika radio melaporkan lebih dari 30 W, OscarWatch mengatur daya ke 30 W sebelum memancar. Ini berlaku untuk ICOM, Yaesu FT-991 dan FT-991A, serta Kenwood TS-2000. Radio tetap pada setelan itu. Jika daya tidak dapat diubah, pancaran tetap diblokir.</value>
+  </data>
   <data name="Ft4.CloseWhileTx.Title">
     <value>Tutup FT4 saat memancar</value>
   </data>
@@ -3998,7 +4010,7 @@ Terbaru: {1} ({2})</value>
     <value>Tahan frek. TX</value>
   </data>
   <data name="Ft4.HoldTxFrequency.Note">
-    <value>Pertahankan Hz audio TX saat menjawab (gaya WSJT-X). Nonaktifkan untuk lompat ke frekuensi decode.</value>
+    <value>Pertahankan Hz audio TX saat menjawab (gaya WSJT-X). Nonaktifkan untuk lompat ke frekuensi decode. Saat aktif, klik kiri pada waterfall memindahkan RX dan klik kanan memindahkan TX.</value>
   </data>
   <data name="Ft4.AudioDopplerTx">
     <value>Doppler audio pada TX</value>
@@ -4012,11 +4024,29 @@ Terbaru: {1} ({2})</value>
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>Pada slot TX, decode biasa dan pass gema terlambat dijalankan bersama agar salinan Anda muncul lebih cepat. Memakai lebih banyak CPU pada slot itu. Biarkan aktif kecuali PC kewalahan.</value>
   </data>
+  <data name="Ft4.ApEnabled">
+    <value>Tebak balasan lemah (AP)</value>
+  </data>
+  <data name="Ft4.ApEnabled.Note">
+    <value>Saat kontak terbuka, laporan, RR73, atau 73 yang terlewat pada decode pertama dicoba lagi. Baris itu ditandai AP. Hapus centang untuk menampilkan hanya yang terbaca langsung.</value>
+  </data>
+  <data name="Ft4.TxWatchdogMinutes">
+    <value>Pengawas TX (menit)</value>
+  </data>
+  <data name="Ft4.TxWatchdogMinutes.Note">
+    <value>Hentikan transmisi jika tidak ada yang membalas Anda selama menit ini. Stasiun lain dan gema Anda sendiri tidak dihitung. 0 mematikan pengawas.</value>
+  </data>
   <data name="Ft4.PskReporter">
     <value>Laporkan decode ke PSK Reporter</value>
   </data>
   <data name="Ft4.PskReporter.Note">
     <value>Mengirim stasiun yang Anda decode ke pskreporter.info kira-kira setiap lima menit, memakai callsign dan grid stasiun Anda. Spot memakai frekuensi uplink, dan nama satelit dikirim sebagai antena Anda.</value>
+  </data>
+  <data name="Ft4.OscarWatchSpots">
+    <value>Kirim spot FT4 ke OscarWatch.org</value>
+  </data>
+  <data name="Ft4.OscarWatchSpots.Note">
+    <value>Mengirim stasiun yang Anda decode ke oscarwatch.org, memakai token API dari Pengaturan → OscarWatch. Tidak tersedia sampai token itu disimpan. Profil situs web Anda perlu callsign dan gridsquare.</value>
   </data>
   <data name="Ft4.DecodeFontSize">
     <value>Ukuran teks decode</value>
@@ -4024,14 +4054,29 @@ Terbaru: {1} ({2})</value>
   <data name="Ft4.DecodeFontSize.Note">
     <value>Ukuran font daftar decode (10–28). Ukuran lebih besar membantu penglihatan lemah.</value>
   </data>
+  <data name="Ft4.WaterfallRange">
+    <value>Rentang waterfall</value>
+  </data>
+  <data name="Ft4.WaterfallRange.Note">
+    <value>Desibel di atas lantai derau otomatis. Rentang yang lebih kecil membuat sinyal lebih menonjol. Bawaan adalah 40 dB.</value>
+  </data>
   <data name="Ft4.Decode.CallingMe">
     <value>Memanggil saya</value>
   </data>
   <data name="Ft4.Decode.Replying">
     <value>Membalas</value>
   </data>
+  <data name="Ft4.Decode.Cq">
+    <value>CQ</value>
+  </data>
+  <data name="Ft4.Decode.Background">
+    <value>Latar</value>
+  </data>
+  <data name="Ft4.Decode.Text">
+    <value>Teks</value>
+  </data>
   <data name="Ft4.Decode.ColourNote">
-    <value>Latar baris decode: ditujukan kepada Anda, stasiun QSO saat ini, callsign yang belum ada di logbook, atau grid 4 karakter yang belum Anda catat. Gunakan pemilih warna; transparansi lebih rendah memberi warna lebih kuat.</value>
+    <value>Latar baris decode: ditujukan kepada Anda, stasiun QSO saat ini, panggilan CQ, callsign yang belum ada di logbook, atau grid 4 karakter yang belum Anda catat. Gunakan pemilih warna; transparansi lebih rendah memberi warna lebih kuat. Warna teks mengikuti tema sampai Anda memilihnya. Baris gema mempertahankan warnanya. Anda dapat mengatur warna teks yang dipancarkan.</value>
   </data>
   <data name="Ft4.Decode.NewCall">
     <value>Callsign baru</value>
@@ -4041,6 +4086,27 @@ Terbaru: {1} ({2})</value>
   </data>
   <data name="Ft4.Settings.EchoSection">
     <value>Kalibrasi gema</value>
+  </data>
+  <data name="Ft4.Settings.Group.Contacts">
+    <value>Kontak</value>
+  </data>
+  <data name="Ft4.Settings.Group.Doppler">
+    <value>Doppler</value>
+  </data>
+  <data name="Ft4.Settings.Group.DopplerNote">
+    <value>Biarkan aktif. Mereka mengoreksi drift di dalam setiap slot FT4 dan mencari gema Anda lebih cepat.</value>
+  </data>
+  <data name="Ft4.Settings.Group.Reporting">
+    <value>Laporan</value>
+  </data>
+  <data name="Ft4.Settings.Group.Waterfall">
+    <value>Waterfall</value>
+  </data>
+  <data name="Ft4.Settings.Group.DecodeList">
+    <value>Daftar decode</value>
+  </data>
+  <data name="Ft4.Settings.Group.ControlLine">
+    <value>Jalur kontrol</value>
   </data>
   <data name="Ft4.EchoCalibration.Note">
     <value>Saat gema uplink Anda sendiri didekode, OscarWatch menyesuaikan trim per satelit ini secara otomatis. Anda dapat mengedit atau menghapusnya di sini.</value>
@@ -4141,9 +4207,6 @@ Terbaru: {1} ({2})</value>
   <data name="Ft4.Status.Tuning">
     <value>Tune pada {0} Hz</value>
   </data>
-  <data name="Ft4.Status.TuneCalibrationFailed">
-    <value>Tune tidak menemukan nadanya sendiri di downlink, jadi koreksi uplink dikembalikan. Panggil CQ untuk kalibrasi dari echo Anda.</value>
-  </data>
   <data name="Ft4.Status.TuneStopped">
     <value>Tune dihentikan</value>
   </data>
@@ -4172,7 +4235,7 @@ Terbaru: {1} ({2})</value>
     <value>Masukkan atau buat pesan TX terlebih dahulu</value>
   </data>
   <data name="Ft4.Status.WatchdogStopped">
-    <value>Transmisi dihentikan (watchdog)</value>
+    <value>Transmisi dihentikan: tidak ada balasan selama {0} menit</value>
   </data>
   <data name="Ft4.Status.ModemError">
     <value>Kesalahan modem: {0}</value>
@@ -4191,9 +4254,6 @@ Terbaru: {1} ({2})</value>
   </data>
   <data name="Ft4.Status.NothingToLog">
     <value>Tidak ada yang dicatat. Jawab decode atau mulai QSO dulu.</value>
-  </data>
-  <data name="Ft4.Status.NeedLogbook">
-    <value>Buat logbook di Alat → OscarWatch Logbook terlebih dahulu.</value>
   </data>
   <data name="Ft4.Status.LoggedManual">
     <value>QSO dengan {0} dicatat (manual)</value>
@@ -4308,6 +4368,9 @@ Terbaru: {1} ({2})</value>
   </data>
   <data name="Ft4.Decodes.Echo">
     <value>Echo</value>
+  </data>
+  <data name="Ft4.Decodes.Ap">
+    <value>AP</value>
   </data>
   <data name="Ft4.TxMessage">
     <value>Pesan TX</value>
