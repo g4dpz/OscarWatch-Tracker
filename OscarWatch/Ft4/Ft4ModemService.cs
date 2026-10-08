@@ -1863,8 +1863,24 @@ public sealed class Ft4ModemService : IDisposable
             // Same text in one slot is the same transmission. A later pass often
             // reports it a few hertz away, which a 5 Hz bucket let through as a second line.
             var dedupeKey = slotStart.Ticks + "|" + d.text;
+            // A station sends one message per slot. Once a CRC decode from it is posted,
+            // a hinted line from the same call in that slot is its burst read as a reply to us.
+            // The native burst guard only sees one pass; the early and end-of-slot decodes are separate.
+            var senderKey = string.IsNullOrWhiteSpace(callDe)
+                ? null
+                : slotStart.Ticks + "|sender|" + callDe.ToUpperInvariant();
             lock (_decodePostGate)
             {
+                if (hinted && senderKey is not null && _postedDecodeKeys.Contains(senderKey))
+                {
+                    Log.Information(
+                        "FT4 hinted reply ignored, {Call} already decoded this slot with another message: {Text} at {Hz:0} Hz",
+                        callDe,
+                        d.text,
+                        d.freq_hz);
+                    continue;
+                }
+
                 if (guessed && !_callDt.AllowsHint(callDe, timeSec))
                 {
                     Log.Debug(
@@ -1879,7 +1895,11 @@ public sealed class Ft4ModemService : IDisposable
                     continue;
 
                 if (!hinted)
+                {
                     _callDt.NoteReliable(callDe, timeSec, d.snr);
+                    if (senderKey is not null)
+                        _postedDecodeKeys.Add(senderKey);
+                }
             }
 
             if (d.drift_hz_s != 0)
