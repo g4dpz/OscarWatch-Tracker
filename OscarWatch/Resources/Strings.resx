@@ -4026,6 +4026,18 @@ Latest: {1} ({2})</value>
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>On transmit slots, run the normal decode and a late-echo pass together so your own copy appears sooner. Uses more CPU for that slot. Leave on unless the PC struggles.</value>
   </data>
+  <data name="Ft4.Settings.Group.DecoderTesting">
+    <value>Decoder testing</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio">
+    <value>Save receive slot audio</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.Note">
+    <value>Keeps each receive slot as a WAV file with its decode results, so real passes can be replayed when the decoder is tuned. About 180 kB a slot; files older than 14 days are deleted.</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.OpenFolder">
+    <value>Open folder</value>
+  </data>
   <data name="Ft4.ApEnabled">
     <value>Hint weak replies (AP)</value>
   </data>

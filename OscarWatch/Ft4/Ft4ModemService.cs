@@ -30,6 +30,7 @@ public sealed class Ft4ModemService : IDisposable
     private readonly IGpsService _gps;
     private readonly Ft4AudioService _audio = new();
     private readonly Ft4PttKeyer _ptt;
+    private readonly Ft4SlotRecorder _slotRecorder;
     private readonly PskReporterClient _pskReporter = new();
     private readonly OscarWatchSpotReporter _spotReporter;
     private readonly string _spotClientId;
@@ -94,6 +95,7 @@ public sealed class Ft4ModemService : IDisposable
         _recording = recording;
         _gps = gps;
         _ptt = new Ft4PttKeyer(rig, settings);
+        _slotRecorder = new Ft4SlotRecorder(() => _settings.Current.Ft4.SaveSlotAudio);
         _pskReporter.Diagnostic += (message, ex) =>
         {
             if (ex is null)
@@ -348,6 +350,7 @@ public sealed class Ft4ModemService : IDisposable
 
         await _ptt.UnkeyAsync().ConfigureAwait(false);
         _ptt.ReleasePort();
+        _slotRecorder.FlushAll();
         _audio.StopOutput();
         _audio.StopCapture();
         _rig.SetFt4SlotGatedDoppler(false);
@@ -508,6 +511,9 @@ public sealed class Ft4ModemService : IDisposable
         HaltTx();
         _ptt.UnkeyNow();
     }
+
+    /// <summary>Folder for saved receive slots (Settings, Save slot audio).</summary>
+    public string SlotRecordingDirectory => _slotRecorder.Directory;
 
     /// <summary>Free the separate PTT COM port when the PTT method or port setting no longer uses it.</summary>
     public void OnPttSettingsChanged() => _ptt.ReleaseUnusedPort();
@@ -830,9 +836,10 @@ public sealed class Ft4ModemService : IDisposable
                         && Ft4DecodeDepth.UseFullSlotDecode(_snapshot.GetCurrent().ElevationDeg);
                     var needEndDecode = previousSlot != DateTime.MinValue
                         && (!_decodeQueuedThisSlot || previousWasTx || fullSlotPass);
+                    var recordSlot = previousSlot != DateTime.MinValue && !previousWasTx && _slotRecorder.Enabled;
                     lock (_gate)
                     {
-                        if (needEndDecode && _slotBuffer.Count >= (int)(12000 * Ft4SlotClock.Ft4SlotSeconds / 2))
+                        if ((needEndDecode || recordSlot) && _slotBuffer.Count >= (int)(12000 * Ft4SlotClock.Ft4SlotSeconds / 2))
                             previousSamples = _slotBuffer.ToArray();
                         _slotBuffer.Clear();
                     }
@@ -869,8 +876,17 @@ public sealed class Ft4ModemService : IDisposable
                     _rig.ForceFt4DopplerStep();
                     RefreshClockFromGps();
 
-                    if (previousSamples is not null)
+                    if (previousSamples is not null && recordSlot)
+                    {
+                        var snap = _snapshot.GetCurrent();
+                        _slotRecorder.SaveAudio(previousSlot, previousSamples, 12000, snap.SatelliteName, snap.ElevationDeg);
+                    }
+
+                    if (previousSamples is not null && needEndDecode)
                         QueueDecode(previousSlot, previousSamples, previousWasTx, fullSlotPass);
+
+                    // The slot before last has had its end-of-slot passes by now.
+                    _slotRecorder.Flush(previousSlot);
                 }
 
                 // Build the next TX burst before its slot, so the boundary only starts playback.
@@ -1579,6 +1595,7 @@ public sealed class Ft4ModemService : IDisposable
 
         var raw = samples;
         var corrected = raw;
+        var correctedSlope = 0.0;
         var drift = default(DriftRange);
         // Slope over the on-air burst: the symbols the decoder uses, not the quiet end of the slot.
         if (_settings.Current.Ft4.AudioDopplerRx
@@ -1590,7 +1607,10 @@ public sealed class Ft4ModemService : IDisposable
                 drift = new DriftRange(Ft4DriftSearch.MaxResidualHzPerSec(ul), Ft4DriftSearch.Steps(ul));
 
             if (Math.Abs(dl) >= 0.05)
+            {
                 corrected = Ft4AudioDoppler.RemoveLinearDrift(raw, 12000, dl);
+                correctedSlope = dl;
+            }
         }
 
         var txHz = _sequencer?.TxAudioHz ?? _settings.Current.Ft4.TxAudioHz;
@@ -1601,7 +1621,7 @@ public sealed class Ft4ModemService : IDisposable
             return;
         }
 
-        var foundOwn = PublishDecoded(slotStart, corrected, txSlot, timeShiftSec: 0, ownOnly: false, txHz, deep, out var decodedCount, drift);
+        var foundOwn = PublishDecoded(slotStart, corrected, txSlot, timeShiftSec: 0, ownOnly: false, txHz, deep, out var decodedCount, drift, correctedSlope);
         if (fullSlotPass && !txSlot && !ReferenceEquals(corrected, raw))
         {
             PublishDecoded(slotStart, raw, txSlot: false, timeShiftSec: 0, ownOnly: false, txHz, deep, out var rawCount);
@@ -1718,7 +1738,8 @@ public sealed class Ft4ModemService : IDisposable
         double txHz,
         bool deep,
         out int decodedCount,
-        DriftRange drift = default)
+        DriftRange drift = default,
+        double dopplerSlopeHzPerSec = 0)
     {
         float fMin, fMax;
         if (ownOnly)
@@ -1744,6 +1765,8 @@ public sealed class Ft4ModemService : IDisposable
             ? Ft8Native.DecodeFt4Drift(samples, 12000, fMin, fMax, deep, apHints, apHz, (float)drift.MaxResidualHzPerSec, drift.Steps)
             : Ft8Native.DecodeFt4(samples, 12000, fMin, fMax, deep, apHints, apHz);
         decodedCount = decoded.Length;
+        if (!ownOnly && !txSlot && timeShiftSec == 0)
+            RecordPass(slotStart, samples.Length, dopplerSlopeHzPerSec, deep, fMin, fMax, apHints, apHz, drift, decoded);
         var my = Ft4MessageCodec.NormalizeCall(_settings.Current.GroundStation.Callsign ?? "");
         var any = false;
         var foundOwn = false;
@@ -1976,6 +1999,44 @@ public sealed class Ft4ModemService : IDisposable
         if (any)
             Changed?.Invoke();
         return foundOwn;
+    }
+
+    private void RecordPass(
+        DateTime slotStart,
+        int sampleCount,
+        double dopplerSlopeHzPerSec,
+        bool deep,
+        float fMin,
+        float fMax,
+        string? apHints,
+        float apHz,
+        DriftRange drift,
+        Ft8Native.Decode[] decoded)
+    {
+        if (!_slotRecorder.Enabled)
+            return;
+
+        _slotRecorder.NotePass(slotStart, new Ft4RecordedPass
+        {
+            SampleCount = sampleCount,
+            DopplerSlopeHzPerSec = dopplerSlopeHzPerSec,
+            Deep = deep,
+            FMinHz = fMin,
+            FMaxHz = fMax,
+            ApHints = apHints,
+            ApHz = apHz,
+            DriftMaxHzPerSec = drift.IsActive ? drift.MaxResidualHzPerSec : 0,
+            DriftSteps = drift.IsActive ? drift.Steps : 0,
+            Decodes = decoded.Select(d => new Ft4RecordedDecode
+            {
+                Text = d.text,
+                FreqHz = d.freq_hz,
+                TimeSec = d.time_sec,
+                SnrDb = d.snr,
+                Ap = d.ap,
+                DriftHzPerSec = d.drift_hz_s,
+            }).ToList(),
+        });
     }
 
     /// <summary>

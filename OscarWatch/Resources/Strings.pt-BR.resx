@@ -4026,6 +4026,18 @@ Mais recente: {1} ({2})</value>
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>Nas janelas de transmissão, executa o decode normal e um passe de eco tardio juntos para a sua cópia aparecer mais cedo. Usa mais CPU nessa janela. Deixe ligado, a menos que o PC fique sobrecarregado.</value>
   </data>
+  <data name="Ft4.Settings.Group.DecoderTesting">
+    <value>Testes do decodificador</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio">
+    <value>Salvar o áudio dos intervalos de recepção</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.Note">
+    <value>Salva cada intervalo de recepção como arquivo WAV com os resultados da decodificação, para que passagens reais possam ser reproduzidas ao ajustar o decodificador. Cerca de 180 kB por intervalo; arquivos com mais de 14 dias são excluídos.</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.OpenFolder">
+    <value>Abrir pasta</value>
+  </data>
   <data name="Ft4.ApEnabled">
     <value>Sugerir respostas fracas (AP)</value>
   </data>

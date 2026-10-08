@@ -4030,6 +4030,18 @@ Aktuell: {1} ({2})</value>
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>In TX-Slots laufen normale Dekodierung und ein später Echo-Durchlauf zusammen, damit die eigene Kopie schneller erscheint. Nutzt mehr CPU in diesem Slot. An lassen, außer der PC kommt nicht mit.</value>
   </data>
+  <data name="Ft4.Settings.Group.DecoderTesting">
+    <value>Decodertests</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio">
+    <value>Audio der Empfangsslots speichern</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.Note">
+    <value>Speichert jeden Empfangsslot als WAV-Datei mit seinen Dekodierergebnissen, damit echte Überflüge beim Abstimmen des Decoders erneut abgespielt werden können. Etwa 180 kB pro Slot; Dateien, die älter als 14 Tage sind, werden gelöscht.</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.OpenFolder">
+    <value>Ordner öffnen</value>
+  </data>
   <data name="Ft4.ApEnabled">
     <value>Schwache Antworten ergänzen (AP)</value>
   </data>

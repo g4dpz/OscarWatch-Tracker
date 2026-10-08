@@ -4,6 +4,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OscarWatch.Controls;
+using OscarWatch.Core.Display;
 using OscarWatch.Core.Ft4;
 using OscarWatch.Core.Hardware;
 using OscarWatch.Core.Services;
@@ -76,6 +77,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         _audioDopplerTx = ft4.AudioDopplerTx;
         _audioDopplerRx = ft4.AudioDopplerRx;
         _parallelTxEchoDecode = ft4.ParallelTxEchoDecode;
+        _saveSlotAudio = ft4.SaveSlotAudio;
         _txWatchdogMinutes = Ft4TxWatchdog.ClampMinutes(ft4.TxWatchdogMinutes);
         _pskReporterEnabled = ft4.PskReporterEnabled;
         _oscarWatchSpotsTokenAvailable = Ft4OscarWatchSpots.HasApiToken(_settings.Current.SatelliteStatus.ApiToken);
@@ -208,6 +210,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     [ObservableProperty] private bool _audioDopplerTx = true;
     [ObservableProperty] private bool _audioDopplerRx = true;
     [ObservableProperty] private bool _parallelTxEchoDecode = true;
+    [ObservableProperty] private bool _saveSlotAudio;
 
     [ObservableProperty] private int _txWatchdogMinutes = Ft4TxWatchdog.DefaultMinutes;
     [ObservableProperty] private bool _pskReporterEnabled;
@@ -302,6 +305,25 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     {
         _settings.Current.Ft4.ParallelTxEchoDecode = value;
         _settings.RequestSave();
+    }
+
+    partial void OnSaveSlotAudioChanged(bool value)
+    {
+        _settings.Current.Ft4.SaveSlotAudio = value;
+        _settings.RequestSave();
+    }
+
+    [RelayCommand]
+    private void OpenSlotRecordingFolder()
+    {
+        try
+        {
+            DopplerPassLogFileNameFormat.OpenLogDirectory(_modem.SlotRecordingDirectory);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Could not open the FT4 slot recording folder");
+        }
     }
 
     partial void OnTxWatchdogMinutesChanged(int value)

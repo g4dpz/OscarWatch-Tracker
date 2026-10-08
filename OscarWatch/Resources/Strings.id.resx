@@ -4030,6 +4030,18 @@ Terbaru: {1} ({2})</value>
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>Pada slot TX, decode biasa dan pass gema terlambat dijalankan bersama agar salinan Anda muncul lebih cepat. Memakai lebih banyak CPU pada slot itu. Biarkan aktif kecuali PC kewalahan.</value>
   </data>
+  <data name="Ft4.Settings.Group.DecoderTesting">
+    <value>Pengujian dekoder</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio">
+    <value>Simpan audio slot penerimaan</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.Note">
+    <value>Menyimpan setiap slot penerimaan sebagai file WAV beserta hasil dekodenya, agar lintasan nyata dapat diputar ulang saat dekoder disetel. Sekitar 180 kB per slot; file yang lebih lama dari 14 hari dihapus.</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.OpenFolder">
+    <value>Buka folder</value>
+  </data>
   <data name="Ft4.ApEnabled">
     <value>Tebak balasan lemah (AP)</value>
   </data>

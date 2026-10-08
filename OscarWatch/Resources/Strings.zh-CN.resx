@@ -4026,6 +4026,18 @@
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>在发射时隙同时运行正常解码与迟到回波处理，以便更快显示本台回波。该时隙会占用更多 CPU。除非电脑吃力，否则请保持开启。</value>
   </data>
+  <data name="Ft4.Settings.Group.DecoderTesting">
+    <value>解码器测试</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio">
+    <value>保存接收时隙音频</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.Note">
+    <value>将每个接收时隙连同解码结果保存为 WAV 文件，以便调整解码器时回放真实过境。每个时隙约 180 kB；超过 14 天的文件会被删除。</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.OpenFolder">
+    <value>打开文件夹</value>
+  </data>
   <data name="Ft4.ApEnabled">
     <value>推测弱回复 (AP)</value>
   </data>

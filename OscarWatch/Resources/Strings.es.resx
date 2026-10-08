@@ -4026,6 +4026,18 @@ Está utilizando la versión {0}.
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>En ranuras de transmisión, ejecuta el decode normal y un pase de eco tardío juntos para que tu propia copia aparezca antes. Usa más CPU en esa ranura. Déjalo activo salvo que el PC vaya justo.</value>
   </data>
+  <data name="Ft4.Settings.Group.DecoderTesting">
+    <value>Pruebas del decodificador</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio">
+    <value>Guardar el audio de los intervalos de recepción</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.Note">
+    <value>Guarda cada intervalo de recepción como archivo WAV con sus resultados de decodificación, para poder reproducir pases reales al ajustar el decodificador. Unos 180 kB por intervalo; los archivos de más de 14 días se eliminan.</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.OpenFolder">
+    <value>Abrir carpeta</value>
+  </data>
   <data name="Ft4.ApEnabled">
     <value>Sugerir respuestas débiles (AP)</value>
   </data>

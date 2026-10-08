@@ -231,6 +231,18 @@
             <TextBlock Classes="ft4-note"
                        Margin="24,0,0,0"
                        Text="{loc:Localize Key=Ft4.ParallelTxEchoDecode.Note}" />
+
+            <Separator Classes="ft4-rule" />
+            <TextBlock Classes="ft4-section"
+                       Text="{loc:Localize Key=Ft4.Settings.Group.DecoderTesting}" />
+            <CheckBox Content="{loc:Localize Key=Ft4.SaveSlotAudio}"
+                      IsChecked="{Binding SaveSlotAudio}" />
+            <TextBlock Classes="ft4-note"
+                       Margin="24,0,0,0"
+                       Text="{loc:Localize Key=Ft4.SaveSlotAudio.Note}" />
+            <Button Margin="24,0,0,0"
+                    Content="{loc:Localize Key=Ft4.SaveSlotAudio.OpenFolder}"
+                    Command="{Binding OpenSlotRecordingFolderCommand}" />
           </StackPanel>
         </ScrollViewer>
       </TabItem>

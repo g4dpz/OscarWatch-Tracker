@@ -4030,6 +4030,18 @@ LOS: {2}
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>ในช่วงส่ง จะถอดรหัสปกติและรอบเอคโค่ที่มาช้าพร้อมกัน เพื่อให้เห็นสำเนาของตัวเองเร็วขึ้น ใช้ CPU มากขึ้นในช่วงนั้น เปิดไว้ได้ เว้นแต่เครื่องช้า</value>
   </data>
+  <data name="Ft4.Settings.Group.DecoderTesting">
+    <value>การทดสอบตัวถอดรหัส</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio">
+    <value>บันทึกเสียงของช่วงรับ</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.Note">
+    <value>เก็บแต่ละช่วงรับเป็นไฟล์ WAV พร้อมผลการถอดรหัส เพื่อให้เล่นซ้ำการโคจรผ่านจริงได้เมื่อปรับตัวถอดรหัส ประมาณ 180 kB ต่อช่วง ไฟล์ที่เก่ากว่า 14 วันจะถูกลบ</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.OpenFolder">
+    <value>เปิดโฟลเดอร์</value>
+  </data>
   <data name="Ft4.ApEnabled">
     <value>เดาข้อความตอบที่อ่อน (AP)</value>
   </data>

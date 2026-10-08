@@ -4026,6 +4026,18 @@
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>送信スロットでは通常デコードと遅延エコー処理を同時に行い、自分のコピーを早く表示します。そのスロットのCPU使用量が増えます。PCが厳しいとき以外はオンのままにしてください。</value>
   </data>
+  <data name="Ft4.Settings.Group.DecoderTesting">
+    <value>デコーダーのテスト</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio">
+    <value>受信スロットの音声を保存</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.Note">
+    <value>各受信スロットをデコード結果とともに WAV ファイルとして保存し、デコーダーを調整するときに実際のパスを再生できるようにします。1 スロットあたり約 180 kB で、14 日より古いファイルは削除されます。</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.OpenFolder">
+    <value>フォルダーを開く</value>
+  </data>
   <data name="Ft4.ApEnabled">
     <value>弱い返信を補完 (AP)</value>
   </data>
