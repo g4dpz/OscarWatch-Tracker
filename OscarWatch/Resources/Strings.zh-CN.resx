@@ -4377,6 +4377,9 @@
   <data name="Ft4.Decodes.Ap">
     <value>AP</value>
   </data>
+  <data name="Ft4.Decodes.ApRejected.Tip">
+    <value>已拒绝：后续解码显示该电台在此时隙发送的是另一条消息。</value>
+  </data>
   <data name="Ft4.TxMessage">
     <value>TX 消息</value>
   </data>

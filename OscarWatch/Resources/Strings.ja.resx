@@ -4377,6 +4377,9 @@
   <data name="Ft4.Decodes.Ap">
     <value>AP</value>
   </data>
+  <data name="Ft4.Decodes.ApRejected.Tip">
+    <value>却下: 後のデコードで、この局がこのスロットで別のメッセージを送信していたことが判明しました。</value>
+  </data>
   <data name="Ft4.TxMessage">
     <value>TXメッセージ</value>
   </data>

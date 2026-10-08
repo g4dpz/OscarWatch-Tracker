@@ -23,6 +23,7 @@ public sealed class Ft4QsoSequencer
     private bool? _autoReplyOverride;
     private bool _weSent73;
     private bool _theySent73;
+    private AprioriUndo? _aprioriUndo;
 
     public Ft4QsoSequencer(
         Func<string> myCall,
@@ -338,7 +339,89 @@ public sealed class Ft4QsoSequencer
     public bool OnDecoded(Ft4DecodedMessage decode)
     {
         lock (_gate)
-            return OnDecodedCore(decode);
+        {
+            var before = decode.IsApriori ? Capture() : null;
+            var finished = OnDecodedCore(decode);
+            if (before is not null)
+            {
+                var after = Capture();
+                _aprioriUndo = !finished
+                    && after != before
+                    && Ft4MessageCodec.TryParse(decode.Text, out _, out var callDe, out _)
+                    && !string.IsNullOrWhiteSpace(callDe)
+                        ? new AprioriUndo(decode.SlotUtc, Ft4MessageCodec.NormalizeCall(callDe), before, after)
+                        : null;
+            }
+
+            return finished;
+        }
+    }
+
+    /// <summary>
+    /// A later pass decoded <paramref name="callDe"/> sending something else in the slot of the
+    /// last hinted reply, so that reply was false. Put the contact back as it was before it.
+    /// Returns false when nothing was undone: another hint, a different slot, or the contact
+    /// has moved on since (operator action, another decode, or it finished and was logged).
+    /// </summary>
+    public bool RevertApriori(DateTime slotUtc, string callDe)
+    {
+        lock (_gate)
+        {
+            if (_aprioriUndo is not { } undo
+                || undo.SlotUtc != slotUtc
+                || !undo.CallDe.Equals(callDe, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            _aprioriUndo = null;
+            if (Capture() != undo.After)
+                return false;
+
+            Restore(undo.Before);
+            return true;
+        }
+    }
+
+    private sealed record State(
+        Ft4QsoPhase Phase,
+        string? TheirCall,
+        string? TheirGrid,
+        string? ReportSent,
+        string? ReportReceived,
+        string CurrentTxMessage,
+        bool TransmitEnabled,
+        double TheirAudioHz,
+        DateTime? QsoCompletedUtc,
+        bool WeSent73,
+        bool TheySent73);
+
+    private sealed record AprioriUndo(DateTime SlotUtc, string CallDe, State Before, State After);
+
+    private State Capture() => new(
+        Phase,
+        TheirCall,
+        TheirGrid,
+        ReportSent,
+        ReportReceived,
+        CurrentTxMessage,
+        TransmitEnabled,
+        TheirAudioHz,
+        QsoCompletedUtc,
+        _weSent73,
+        _theySent73);
+
+    private void Restore(State s)
+    {
+        Phase = s.Phase;
+        TheirCall = s.TheirCall;
+        TheirGrid = s.TheirGrid;
+        ReportSent = s.ReportSent;
+        ReportReceived = s.ReportReceived;
+        CurrentTxMessage = s.CurrentTxMessage;
+        TransmitEnabled = s.TransmitEnabled;
+        TheirAudioHz = s.TheirAudioHz;
+        QsoCompletedUtc = s.QsoCompletedUtc;
+        _weSent73 = s.WeSent73;
+        _theySent73 = s.TheySent73;
     }
 
     private bool OnDecodedCore(Ft4DecodedMessage decode)

@@ -4377,6 +4377,9 @@ Está utilizando la versión {0}.
   <data name="Ft4.Decodes.Ap">
     <value>AP</value>
   </data>
+  <data name="Ft4.Decodes.ApRejected.Tip">
+    <value>Descartado: una decodificación posterior mostró que esta estación envió otro mensaje en este intervalo.</value>
+  </data>
   <data name="Ft4.TxMessage">
     <value>Mensaje TX</value>
   </data>

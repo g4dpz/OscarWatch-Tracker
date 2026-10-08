@@ -4381,6 +4381,9 @@ LOS: {2}
   <data name="Ft4.Decodes.Ap">
     <value>AP</value>
   </data>
+  <data name="Ft4.Decodes.ApRejected.Tip">
+    <value>Отклонено: более поздняя декодировка показала, что эта станция передала в этом интервале другое сообщение.</value>
+  </data>
   <data name="Ft4.TxMessage">
     <value>TX-сообщение</value>
   </data>

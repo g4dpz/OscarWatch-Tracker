@@ -1873,6 +1873,8 @@ public sealed class Ft4ModemService : IDisposable
             var senderKey = string.IsNullOrWhiteSpace(callDe)
                 ? null
                 : slotStart.Ticks + "|sender|" + callDe.ToUpperInvariant();
+            var hintedKey = senderKey is null ? null : senderKey + "|ap";
+            var contradictsHint = false;
             lock (_decodePostGate)
             {
                 if (hinted && senderKey is not null && _postedDecodeKeys.Contains(senderKey))
@@ -1884,6 +1886,9 @@ public sealed class Ft4ModemService : IDisposable
                         d.freq_hz);
                     continue;
                 }
+
+                if (hinted && hintedKey is not null && _postedDecodeKeys.Contains(hintedKey))
+                    continue;
 
                 if (guessed && !_callDt.AllowsHint(callDe, timeSec))
                 {
@@ -1903,8 +1908,17 @@ public sealed class Ft4ModemService : IDisposable
                     _callDt.NoteReliable(callDe, timeSec, d.snr);
                     if (senderKey is not null)
                         _postedDecodeKeys.Add(senderKey);
+                    // The same text was dropped above as a duplicate, so this is a different message.
+                    contradictsHint = hintedKey is not null && _postedDecodeKeys.Remove(hintedKey);
+                }
+                else if (hintedKey is not null)
+                {
+                    _postedDecodeKeys.Add(hintedKey);
                 }
             }
+
+            if (contradictsHint)
+                RejectHintedReply(slotStart, callDe!, d.text);
 
             if (d.drift_hz_s != 0)
             {
@@ -1962,6 +1976,36 @@ public sealed class Ft4ModemService : IDisposable
         if (any)
             Changed?.Invoke();
         return foundOwn;
+    }
+
+    /// <summary>
+    /// A later pass decoded <paramref name="callDe"/> sending <paramref name="actualText"/> in a slot
+    /// where a hinted reply from that station was already posted. Undo what the hint did to the
+    /// contact and mark its line rejected. A transmission already built from it still goes out.
+    /// </summary>
+    private void RejectHintedReply(DateTime slotStart, string callDe, string actualText)
+    {
+        var reverted = _sequencer?.RevertApriori(slotStart, callDe) == true;
+        Log.Information(
+            "FT4 hinted reply from {Call} rejected, a later pass decoded {Text}; contact {Outcome}",
+            callDe,
+            actualText,
+            reverted ? "restored" : "unchanged (it had moved on)");
+
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            for (var i = 0; i < Decodes.Count; i++)
+            {
+                var row = Decodes[i];
+                if (row.SlotUtc == slotStart
+                    && row is { IsApriori: true, IsRejected: false }
+                    && string.Equals(row.CallDe, callDe, StringComparison.OrdinalIgnoreCase))
+                {
+                    Decodes[i] = row with { IsRejected = true };
+                }
+            }
+        });
+        Changed?.Invoke();
     }
 
     /// <summary>

@@ -38,7 +38,7 @@ public static class Ft4DecodeHighlight
         IReadOnlySet<string>? workedGridFields = null,
         IReadOnlySet<string>? finishedPartners = null)
     {
-        if (!message.IsReceiveActivity)
+        if (!message.IsReceiveActivity || message.IsRejected)
             return Ft4DecodeHighlightKind.None;
 
         var mine = Ft4MessageCodec.NormalizeCall(myCall ?? "");

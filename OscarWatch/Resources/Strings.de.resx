@@ -4381,6 +4381,9 @@ Aktuell: {1} ({2})</value>
   <data name="Ft4.Decodes.Ap">
     <value>AP</value>
   </data>
+  <data name="Ft4.Decodes.ApRejected.Tip">
+    <value>Verworfen: Eine spätere Dekodierung zeigte, dass diese Station in diesem Slot eine andere Nachricht gesendet hat.</value>
+  </data>
   <data name="Ft4.TxMessage">
     <value>TX-Nachricht</value>
   </data>

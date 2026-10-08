@@ -4374,6 +4374,9 @@ Latest: {1} ({2})</value>
   <data name="Ft4.Decodes.Ap">
     <value>AP</value>
   </data>
+  <data name="Ft4.Decodes.ApRejected.Tip">
+    <value>Rejected: a later decode showed this station sent a different message in this slot.</value>
+  </data>
   <data name="Ft4.Decodes.Message">
     <value>Message</value>
   </data>

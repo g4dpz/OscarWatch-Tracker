@@ -4381,6 +4381,9 @@ LOS: {2}
   <data name="Ft4.Decodes.Ap">
     <value>AP</value>
   </data>
+  <data name="Ft4.Decodes.ApRejected.Tip">
+    <value>ถูกปฏิเสธ: การถอดรหัสภายหลังแสดงว่าสถานีนี้ส่งข้อความอื่นในช่วงเวลานี้</value>
+  </data>
   <data name="Ft4.TxMessage">
     <value>ข้อความ TX</value>
   </data>

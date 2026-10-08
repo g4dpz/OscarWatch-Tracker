@@ -597,4 +597,58 @@ public sealed class Ft4QsoSequencerTests
         Assert.True(fresh.ForceReport(4f));
         Assert.Equal("G4ABC MM9SQL +04", fresh.CurrentTxMessage);
     }
+
+    private static readonly DateTime ApSlot = new(2026, 10, 7, 21, 49, 52, 500, DateTimeKind.Utc);
+
+    private static Ft4QsoSequencer AnsweringKk7mnc()
+    {
+        var seq = new Ft4QsoSequencer(() => "MM9SQL", () => "IO87", () => true);
+        seq.StartAnswer(Msg("CQ KK7MNC CN87", freq: 1990f), oppositeEvenSlot: true);
+        Assert.Equal("KK7MNC MM9SQL IO87", seq.CurrentTxMessage);
+        return seq;
+    }
+
+    private static Ft4DecodedMessage ApAt(DateTime slot, string text) =>
+        new(slot, text, 1969f, 0.5f, -16f, null, null, null, false, IsApriori: true);
+
+    [Fact]
+    public void Contradicted_hint_puts_the_contact_back()
+    {
+        var seq = AnsweringKk7mnc();
+        Assert.False(seq.OnDecoded(ApAt(ApSlot, "MM9SQL KK7MNC R+07")));
+        Assert.Equal("KK7MNC MM9SQL RR73", seq.CurrentTxMessage);
+        Assert.Equal("+07", seq.ReportReceived);
+
+        Assert.True(seq.RevertApriori(ApSlot, "kk7mnc"));
+        Assert.Equal("KK7MNC MM9SQL IO87", seq.CurrentTxMessage);
+        Assert.Null(seq.ReportReceived);
+        Assert.Null(seq.ReportSent);
+        Assert.Equal(Ft4QsoPhase.InQso, seq.Phase);
+        Assert.True(seq.TransmitEnabled);
+
+        // Undone once only.
+        Assert.False(seq.RevertApriori(ApSlot, "KK7MNC"));
+    }
+
+    [Fact]
+    public void Hint_is_not_undone_for_another_slot_or_station()
+    {
+        var seq = AnsweringKk7mnc();
+        seq.OnDecoded(ApAt(ApSlot, "MM9SQL KK7MNC R+07"));
+
+        Assert.False(seq.RevertApriori(ApSlot.AddSeconds(15), "KK7MNC"));
+        Assert.False(seq.RevertApriori(ApSlot, "KJ4SKO"));
+        Assert.Equal("KK7MNC MM9SQL RR73", seq.CurrentTxMessage);
+    }
+
+    [Fact]
+    public void Hint_is_not_undone_once_the_contact_has_moved_on()
+    {
+        var seq = AnsweringKk7mnc();
+        seq.OnDecoded(ApAt(ApSlot, "MM9SQL KK7MNC R+07"));
+        Assert.True(seq.Force73());
+
+        Assert.False(seq.RevertApriori(ApSlot, "KK7MNC"));
+        Assert.Equal("KK7MNC MM9SQL 73", seq.CurrentTxMessage);
+    }
 }
