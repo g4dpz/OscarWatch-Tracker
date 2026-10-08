@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OscarWatch.Core.Cloudlog;
 using OscarWatch.Core.Display;
+using OscarWatch.Core.Ft4;
 using OscarWatch.Core.Models;
 using OscarWatch.Core.Orbit;
 using OscarWatch.Core.Radio;
@@ -546,8 +547,7 @@ public partial class FrequencyOverlayViewModel : ViewModelBase
     private double GetEffectiveTransmitOffsetKHz()
     {
         var txOffset = TransmitOffsetKHz;
-        if (SelectedMode is not null
-            && SelectedMode.Type.Equals("FT4", StringComparison.OrdinalIgnoreCase)
+        if (Ft4SlotGate.IsFt4Transponder(SelectedMode)
             && !string.IsNullOrWhiteSpace(_currentSatelliteName))
         {
             txOffset += _settings.Current.Ft4.GetUplinkCalibrationKHz(_currentSatelliteName);

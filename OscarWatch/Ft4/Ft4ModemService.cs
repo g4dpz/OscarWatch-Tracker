@@ -191,6 +191,9 @@ public sealed class Ft4ModemService : IDisposable
     private string? _eligibilityBlockStatus;
     private Ft4PounceTarget? _pounceTarget;
     private Ft4DecodedMessage? _pouncedDecode;
+    private readonly object _slotGateLock = new();
+    private volatile bool _slotGateHeld;
+    private volatile bool _windowOpen;
 
     public IReadOnlyList<AudioInputDevice> GetInputDevices() => _audio.GetInputDevices();
 
@@ -319,9 +322,7 @@ public sealed class Ft4ModemService : IDisposable
         _rxHealth.Reset(DateTime.UtcNow);
         RefreshClockFromGps();
 
-        // OrbitDeck: hold CAT dial within each slot; audio-domain corrects within-slot drift.
-        _rig.SetFt4SlotGatedDoppler(true);
-        _rig.ForceFt4DopplerStep();
+        SyncSlotGate(sessionRunning: true);
 
         _loopCts = new CancellationTokenSource();
         // Long-running: capture/TX timing must not share the thread-pool with native decode.
@@ -334,6 +335,39 @@ public sealed class Ft4ModemService : IDisposable
         Status = _l.Get("Ft4.Status.Listening");
         Changed?.Invoke();
     }
+
+    /// <summary>The FT4 window is on screen. The session keeps running after it closes.</summary>
+    public void SetWindowOpen(bool open)
+    {
+        _windowOpen = open;
+        SyncSlotGate(IsRunning);
+    }
+
+    /// <summary>
+    /// OrbitDeck: hold the CAT dial within each slot while audio corrects within-slot drift.
+    /// Released when FT4 is not in use, so other transponders get continuous Doppler.
+    /// </summary>
+    private void SyncSlotGate(bool sessionRunning)
+    {
+        var hold = Ft4SlotGate.ShouldHold(sessionRunning, _windowOpen, _frequencies.SelectedMode);
+        lock (_slotGateLock)
+        {
+            if (hold == _slotGateHeld)
+                return;
+            _slotGateHeld = hold;
+            _rig.SetFt4SlotGatedDoppler(hold);
+            if (hold)
+                _rig.ForceFt4DopplerStep();
+        }
+
+        Log.Information("FT4 slot gate {State}", hold ? "held" : "released");
+    }
+
+    // Audio-domain Doppler assumes the dial is held for the slot. With continuous CAT
+    // Doppler it would correct the drift twice.
+    private bool UseAudioDopplerTx => _settings.Current.Ft4.AudioDopplerTx && _slotGateHeld;
+
+    private bool UseAudioDopplerRx => _settings.Current.Ft4.AudioDopplerRx && _slotGateHeld;
 
     public async Task StopAsync()
     {
@@ -355,7 +389,7 @@ public sealed class Ft4ModemService : IDisposable
         _slotRecorder.FlushAll();
         _audio.StopOutput();
         _audio.StopCapture();
-        _rig.SetFt4SlotGatedDoppler(false);
+        SyncSlotGate(sessionRunning: false);
         IsRunning = false;
         Status = _l.Get("Ft4.Status.Stopped");
         Changed?.Invoke();
@@ -927,6 +961,7 @@ public sealed class Ft4ModemService : IDisposable
                     // Audio first when the soft timer missed; Doppler can follow.
                     if (!alreadyTx && !IsTuning)
                         KickTransmit(slotStart, ct);
+                    SyncSlotGate(sessionRunning: true);
                     _rig.ForceFt4DopplerStep();
                     RefreshClockFromGps();
 
@@ -1351,7 +1386,7 @@ public sealed class Ft4ModemService : IDisposable
         var audioHz = (float)Math.Clamp(seq.TxAudioHz, 200, 3000);
         var level = _settings.Current.Ft4.TxLevel;
         var message = seq.CurrentTxMessage;
-        var doppler = _settings.Current.Ft4.AudioDopplerTx;
+        var doppler = UseAudioDopplerTx;
         var key = PrepareKey(next, message, audioHz, level, doppler);
 
         lock (_prepareGate)
@@ -1386,7 +1421,7 @@ public sealed class Ft4ModemService : IDisposable
                         nowSeq.CurrentTxMessage,
                         Math.Clamp(nowSeq.TxAudioHz, 200, 3000),
                         _settings.Current.Ft4.TxLevel,
-                        _settings.Current.Ft4.AudioDopplerTx);
+                        UseAudioDopplerTx);
                     if (!string.Equals(keyNow, key, StringComparison.Ordinal))
                         return;
 
@@ -1419,7 +1454,7 @@ public sealed class Ft4ModemService : IDisposable
             message,
             Math.Clamp(seq.TxAudioHz, 200, 3000),
             _settings.Current.Ft4.TxLevel,
-            _settings.Current.Ft4.AudioDopplerTx);
+            UseAudioDopplerTx);
 
         lock (_prepareGate)
         {
@@ -1486,7 +1521,7 @@ public sealed class Ft4ModemService : IDisposable
         out string encodeError)
     {
         var slope = 0.0;
-        if (_settings.Current.Ft4.AudioDopplerTx
+        if (UseAudioDopplerTx
             && TryGetDopplerSlopeHzPerSec(slotStart, Ft4SlotClock.Ft4SymbolBurstSeconds, out _, out var ulSlope))
         {
             var uplinkMode = _frequencies.SelectedMode is null
@@ -1646,7 +1681,7 @@ public sealed class Ft4ModemService : IDisposable
         var correctedSlope = 0.0;
         var drift = default(DriftRange);
         // Slope over the on-air burst: the symbols the decoder uses, not the quiet end of the slot.
-        if (_settings.Current.Ft4.AudioDopplerRx
+        if (UseAudioDopplerRx
             && TryGetDopplerSlopeHzPerSec(slotStart, Ft4SlotClock.Ft4SymbolBurstSeconds, out var dl, out var ul))
         {
             // Stations whose uplink slides while they transmit: one native pass searches the

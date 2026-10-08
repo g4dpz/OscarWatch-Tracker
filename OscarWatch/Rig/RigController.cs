@@ -701,7 +701,7 @@ public sealed class RigController : IRigController, IDisposable
         _suspendDopplerUntilUtc = DateTime.MinValue;
         _kenwoodFaFbBackoffUntilUtc = DateTime.MinValue;
         _kenwoodFaFbFailCount = 0;
-        _ft4SlotGatedDoppler = false;
+        // The hold belongs to the FT4 session, which does not resend it after a reconnect.
         _ft4ForceDopplerStep = false;
     }
 

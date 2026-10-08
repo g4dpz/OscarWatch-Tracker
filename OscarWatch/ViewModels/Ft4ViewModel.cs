@@ -779,6 +779,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         RefreshPttPorts();
         _uiTimer.Start();
         RefreshUiTick();
+        _modem.SetWindowOpen(true);
         if (!_modem.IsRunning)
             StartSession();
         return Task.CompletedTask;
@@ -787,6 +788,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     public Task OnWindowClosedAsync()
     {
         _uiTimer.Stop();
+        _modem.SetWindowOpen(false);
         return Task.CompletedTask;
     }
 
