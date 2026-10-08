@@ -838,5 +838,27 @@
         "doppler": "NOR"
       }
     ]
+  },
+  {
+    "name": "HADES-L",
+    "norad_id": "100909",
+    "modes": [
+      {
+        "type": "Voice A/U",
+        "downlink": 436665,
+        "uplink": 29472,
+        "downlink_mode": "FM",
+        "uplink_mode": "USB",
+        "doppler": "NOR"
+      },
+      {
+        "type": "800bps FSK Telemetry",
+        "downlink": 436665,
+        "uplink": 0,
+        "downlink_mode": "FM",
+        "uplink_mode": "FM",
+        "doppler": "NOR"
+      }
+    ]
   }
 ]
