@@ -675,17 +675,21 @@ public sealed class Ft4ModemService : IDisposable
     }
 
     /// <param name="rfPowerCheck">
-    /// RF power verdict already started before the slot (see <see cref="Ft4RfPowerLead"/>).
-    /// When null the CAT read runs here, synchronously.
+    /// RF power verdict started before the slot (see <see cref="Ft4RfPowerLead"/>).
+    /// When null, a check is started in the background and this slot transmits.
     /// </param>
     private bool EnsureTransmitAllowed(Task<bool>? rfPowerCheck = null)
     {
         if (!EnsureSatelliteAllowed())
             return false;
 
-        return rfPowerCheck is null
-            ? CheckRfPowerAllowed()
-            : Ft4RfPowerLead.AwaitVerdict(rfPowerCheck);
+        if (rfPowerCheck is null)
+        {
+            CheckRfPowerInBackground();
+            return true;
+        }
+
+        return Ft4RfPowerLead.AwaitVerdict(rfPowerCheck);
     }
 
     /// <summary>Satellite and mode eligibility only (no CAT I/O), halting TX when it fails.</summary>
@@ -706,8 +710,8 @@ public sealed class Ft4ModemService : IDisposable
 
     /// <summary>
     /// After a TX button: read RF power off the UI thread so the window does not wait on the rig.
-    /// It still halts TX (or lowers power) within a CAT round trip, and every slot checks again
-    /// before audio starts.
+    /// It still halts TX (or lowers power) once the radio answers. A slot whose read has not
+    /// answered yet transmits anyway.
     /// </summary>
     private void CheckRfPowerInBackground()
     {
@@ -1261,8 +1265,9 @@ public sealed class Ft4ModemService : IDisposable
             {
                 try
                 {
-                    // Start the CAT RF power read just before the slot so the boundary
-                    // only waits for it when the rig is slow to answer.
+                    // Start the CAT RF power read in the quiet tail after the receive
+                    // burst, so an ICOM band select does not fall on the other station.
+                    // If the rig has not answered, the slot transmits anyway.
                     Ft4SlotWait.UntilUtc(Ft4RfPowerLead.CheckAtUtc(slot), ct);
                     if (ct.IsCancellationRequested)
                         return;
