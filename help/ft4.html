@@ -384,6 +384,21 @@
         Leave it on.
       </p>
 
+      <h3 id="back-to-ssb">When the hold applies, and going back to SSB</h3>
+      <p>
+        Holding the radio still for each slot only suits FT4. It applies while FT4 is running and either:
+      </p>
+      <ul>
+        <li>the FT4 window is open, whichever transponder is selected, or</li>
+        <li>the <strong>FT4</strong> transponder is selected in the satellite panel, even with the FT4 window closed.</li>
+      </ul>
+      <p>
+        To go back to SSB, CW or any other mode, close the FT4 window and pick that transponder.
+        The hold is released straight away. The radio then follows Doppler continuously as normal,
+        and the audio correction above is switched off too. Open the FT4 window again, or pick the
+        FT4 transponder, and the hold comes back.
+      </p>
+
       <h3>Your echo</h3>
       <p>
         Doppler correction is not always exact. The satellite's own frequency can be a little off, so your echo
@@ -540,8 +555,8 @@
       <h2 id="advanced">More detail</h2>
       <h3>Doppler</h3>
       <p>
-        While FT4 is running, the radio is tuned at the slot boundary and then held, in the same way as
-        OrbitDeck for iOS. Inside the slot, the remaining drift is removed in the audio. Transmit audio
+        While the hold applies (see <a href="#back-to-ssb">When the hold applies</a>), the radio is tuned
+        at the slot boundary and then held, in the same way as OrbitDeck for iOS. Inside the slot, the remaining drift is removed in the audio. Transmit audio
         is shifted in advance. On a satellite that flips the sideband, that shift is applied the other way. Receive audio is
         shifted back before it is decoded.
       </p>
