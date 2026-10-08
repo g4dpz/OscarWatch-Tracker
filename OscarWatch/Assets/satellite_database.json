@@ -860,5 +860,35 @@
         "doppler": "NOR"
       }
     ]
+  },
+  {
+    "name": "Erminaz-2U",
+    "norad_id": "100915",
+    "modes": [
+      {
+        "type": "Digipeater (9k6 FSK)",
+        "downlink": 435900,
+        "uplink": 435900,
+        "downlink_mode": "FM",
+        "uplink_mode": "FM",
+        "doppler": "NOR"
+      },
+      {
+        "type": "9k6 GMSK Telemetry / SSDV",
+        "downlink": 435900,
+        "uplink": 0,
+        "downlink_mode": "FM",
+        "uplink_mode": "FM",
+        "doppler": "NOR"
+      },
+      {
+        "type": "CW",
+        "downlink": 435900,
+        "uplink": 0,
+        "downlink_mode": "CW",
+        "uplink_mode": "CW",
+        "doppler": "NOR"
+      }
+    ]
   }
 ]
