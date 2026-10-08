@@ -167,27 +167,29 @@ public sealed class Ft4PttKeyer : IDisposable
             port.DtrEnable = assert;
     }
 
-    public void Dispose()
+    /// <summary>
+    /// Drop PTT and close the separate PTT COM port so another application (MSHV, WSJT-X)
+    /// can open it. The next transmission opens it again.
+    /// </summary>
+    public void ReleasePort()
     {
-        try
-        {
-            if (_keyed)
-                UnkeyAsync().GetAwaiter().GetResult();
-        }
-        catch
-        {
-            // ignore
-        }
+        DropPtt();
 
-        try
-        {
-            _separatePort?.Dispose();
-        }
-        catch
-        {
-            // ignore
-        }
-
+        var port = _separatePort;
         _separatePort = null;
+        if (port is null)
+            return;
+
+        try
+        {
+            port.Dispose();
+            Log.Information("FT4 released PTT port {Port}", port.PortName);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "FT4 PTT port close failed");
+        }
     }
+
+    public void Dispose() => ReleasePort();
 }

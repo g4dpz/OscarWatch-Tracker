@@ -347,6 +347,7 @@ public sealed class Ft4ModemService : IDisposable
         }
 
         await _ptt.UnkeyAsync().ConfigureAwait(false);
+        _ptt.ReleasePort();
         _audio.StopOutput();
         _audio.StopCapture();
         _rig.SetFt4SlotGatedDoppler(false);
