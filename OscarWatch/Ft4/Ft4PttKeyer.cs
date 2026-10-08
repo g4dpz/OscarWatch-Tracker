@@ -14,6 +14,7 @@ public sealed class Ft4PttKeyer : IDisposable
 
     private readonly IRigController _rig;
     private readonly ISettingsService _settings;
+    private readonly object _portGate = new();
     private SerialPort? _separatePort;
     private bool _keyed;
     private Action<string>? _manualPrompt;
@@ -51,8 +52,11 @@ public sealed class Ft4PttKeyer : IDisposable
                 break;
 
             case Ft4PttMethod.SeparateComPort:
-                EnsureSeparatePort(ft4);
-                SetLine(_separatePort!, ft4.PttLine, assert: !ft4.PttInvert);
+                lock (_portGate)
+                {
+                    EnsureSeparatePort(ft4);
+                    SetLine(_separatePort!, ft4.PttLine, assert: !ft4.PttInvert);
+                }
                 _keyed = true;
                 break;
 
@@ -111,8 +115,11 @@ public sealed class Ft4PttKeyer : IDisposable
                     _rig.SetHandshakePtt(ft4.PttLine == Ft4PttLine.Rts, assert: ft4.PttInvert);
                     break;
                 case Ft4PttMethod.SeparateComPort:
-                    if (_separatePort is { IsOpen: true })
-                        SetLine(_separatePort, ft4.PttLine, assert: ft4.PttInvert);
+                    lock (_portGate)
+                    {
+                        if (_separatePort is { IsOpen: true })
+                            SetLine(_separatePort, ft4.PttLine, assert: ft4.PttInvert);
+                    }
                     break;
                 case Ft4PttMethod.Manual:
                     _manualPrompt?.Invoke("unkey");
@@ -174,7 +181,31 @@ public sealed class Ft4PttKeyer : IDisposable
     public void ReleasePort()
     {
         DropPtt();
+        lock (_portGate)
+            ClosePort();
+    }
 
+    /// <summary>
+    /// Close the separate PTT port when the settings no longer use it (another method,
+    /// or a different port), so the old port is free at once. Closing it also drops its lines.
+    /// </summary>
+    public void ReleaseUnusedPort()
+    {
+        var ft4 = _settings.Current.Ft4;
+        lock (_portGate)
+        {
+            if (_separatePort is null)
+                return;
+            if (ft4.PttMethod == Ft4PttMethod.SeparateComPort
+                && string.Equals(_separatePort.PortName, ft4.SeparatePttPort?.Trim(), StringComparison.OrdinalIgnoreCase))
+                return;
+
+            ClosePort();
+        }
+    }
+
+    private void ClosePort()
+    {
         var port = _separatePort;
         _separatePort = null;
         if (port is null)

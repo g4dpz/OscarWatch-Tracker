@@ -509,6 +509,9 @@ public sealed class Ft4ModemService : IDisposable
         _ptt.UnkeyNow();
     }
 
+    /// <summary>Free the separate PTT COM port when the PTT method or port setting no longer uses it.</summary>
+    public void OnPttSettingsChanged() => _ptt.ReleaseUnusedPort();
+
     /// <summary>
     /// WSJT-X-style Tune: continuous tone on the TX audio frequency with PTT.
     /// Call again (or Halt Tx) to stop. Tune does not change the stored uplink trim.

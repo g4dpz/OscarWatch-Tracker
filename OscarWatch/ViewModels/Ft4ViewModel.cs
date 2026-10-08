@@ -669,6 +669,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
             return;
         _settings.Current.Ft4.PttMethod = value.Value;
         _settings.RequestSave();
+        _modem.OnPttSettingsChanged();
         OnPropertyChanged(nameof(ShowHandshakePttOptions));
         OnPropertyChanged(nameof(ShowSeparatePttPort));
         RefreshSeparatePttConflict();
@@ -692,6 +693,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     {
         _settings.Current.Ft4.SeparatePttPort = value?.Trim() ?? "";
         _settings.RequestSave();
+        _modem.OnPttSettingsChanged();
         RefreshSeparatePttConflict();
     }
 
