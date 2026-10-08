@@ -4390,7 +4390,7 @@
     <value>AP</value>
   </data>
   <data name="Ft4.Decodes.ApRejected.Tip">
-    <value>却下: 後のデコードで、この局がこのスロットで別のメッセージを送信していたことが判明しました。</value>
+    <value>却下: このヒントは CRC を通過しなかったか、後のデコードでこの局が同じスロットで別のメッセージを送信していたことが判明しました。</value>
   </data>
   <data name="Ft4.TxMessage">
     <value>TXメッセージ</value>

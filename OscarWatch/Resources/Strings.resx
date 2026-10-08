@@ -4387,7 +4387,7 @@ Latest: {1} ({2})</value>
     <value>AP</value>
   </data>
   <data name="Ft4.Decodes.ApRejected.Tip">
-    <value>Rejected: a later decode showed this station sent a different message in this slot.</value>
+    <value>Rejected: this hint did not pass the CRC, or a later decode showed a different message from this station in the same slot.</value>
   </data>
   <data name="Ft4.Decodes.Message">
     <value>Message</value>

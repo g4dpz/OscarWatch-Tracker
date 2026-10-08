@@ -4394,7 +4394,7 @@ Aktuell: {1} ({2})</value>
     <value>AP</value>
   </data>
   <data name="Ft4.Decodes.ApRejected.Tip">
-    <value>Verworfen: Eine spätere Dekodierung zeigte, dass diese Station in diesem Slot eine andere Nachricht gesendet hat.</value>
+    <value>Verworfen: Dieser Hinweis hat die CRC nicht bestanden, oder eine spätere Dekodierung zeigte eine andere Nachricht dieser Station im selben Slot.</value>
   </data>
   <data name="Ft4.TxMessage">
     <value>TX-Nachricht</value>

@@ -4390,7 +4390,7 @@ Está utilizando la versión {0}.
     <value>AP</value>
   </data>
   <data name="Ft4.Decodes.ApRejected.Tip">
-    <value>Descartado: una decodificación posterior mostró que esta estación envió otro mensaje en este intervalo.</value>
+    <value>Descartado: esta pista no pasó el CRC, o una decodificación posterior mostró otro mensaje de esta estación en el mismo intervalo.</value>
   </data>
   <data name="Ft4.TxMessage">
     <value>Mensaje TX</value>

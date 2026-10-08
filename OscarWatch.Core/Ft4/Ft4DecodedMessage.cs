@@ -18,9 +18,12 @@ public sealed record Ft4DecodedMessage(
     /// <summary>True for ordinary RX lines (not our TX and not our own uplink echo).</summary>
     public bool IsReceiveActivity => !IsTransmitted && !IsOwnEcho;
 
-    /// <summary>A hinted reply still standing.</summary>
+    /// <summary>A hinted reply that passed the CRC and has not been contradicted.</summary>
     public bool IsAcceptedApriori => IsApriori && !IsRejected;
 
-    /// <summary>A hinted reply that a later decode of the same station in this slot contradicted.</summary>
+    /// <summary>
+    /// A hinted reply that is not used. The CRC did not confirm it, or a later decode
+    /// of the same station in this slot showed a different message.
+    /// </summary>
     public bool IsRejectedApriori => IsApriori && IsRejected;
 }

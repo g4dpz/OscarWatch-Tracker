@@ -612,6 +612,37 @@ public sealed class Ft4QsoSequencerTests
         new(slot, text, 1969f, 0.5f, -16f, null, null, null, false, IsApriori: true);
 
     [Fact]
+    public void Guessed_hint_does_not_move_the_contact()
+    {
+        var seq = new Ft4QsoSequencer(() => "GM4VXE", () => "IO81", () => false);
+        seq.StartAnswer(Msg("CQ JW7XK JQ78", freq: 1400f), oppositeEvenSlot: false);
+        Assert.True(seq.ForceReport(-13f));
+        Assert.Equal("JW7XK GM4VXE -13", seq.CurrentTxMessage);
+
+        // His -05 to someone else, read as a reply to us because the CRC was not checked.
+        var guess = new Ft4DecodedMessage(
+            ApSlot,
+            "GM4VXE JW7XK -05",
+            1400f,
+            0.5f,
+            -16f,
+            null,
+            null,
+            null,
+            false,
+            IsApriori: true,
+            IsRejected: true);
+        Assert.False(seq.OnDecoded(guess));
+        Assert.Equal("JW7XK GM4VXE -13", seq.CurrentTxMessage);
+        Assert.Null(seq.ReportReceived);
+
+        // The same text with the CRC checked still advances the contact.
+        Assert.False(seq.OnDecoded(ApAt(ApSlot.AddSeconds(15), "GM4VXE JW7XK -05")));
+        Assert.Equal("JW7XK GM4VXE RRR", seq.CurrentTxMessage);
+        Assert.Equal("-05", seq.ReportReceived);
+    }
+
+    [Fact]
     public void Contradicted_hint_puts_the_contact_back()
     {
         var seq = AnsweringKk7mnc();

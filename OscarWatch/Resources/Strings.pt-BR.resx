@@ -4390,7 +4390,7 @@ Mais recente: {1} ({2})</value>
     <value>AP</value>
   </data>
   <data name="Ft4.Decodes.ApRejected.Tip">
-    <value>Rejeitado: uma decodificação posterior mostrou que esta estação enviou outra mensagem neste intervalo.</value>
+    <value>Rejeitado: esta dica não passou no CRC, ou uma decodificação posterior mostrou outra mensagem desta estação no mesmo intervalo.</value>
   </data>
   <data name="Ft4.TxMessage">
     <value>Mensagem TX</value>

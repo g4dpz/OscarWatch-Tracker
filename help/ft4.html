@@ -129,7 +129,8 @@
           in the TX message, chooses the right slot, and turns transmit on.</li>
         <li>Leave it to run. Your sends are marked <strong>TX</strong>. Your signal back from the
           satellite is marked <strong>Echo</strong>. The other station's lines have a blank TX column.
-          A line marked <strong>AP</strong> is a guess at a weak reply. See
+          A line marked <strong>AP</strong> is a weak reply with the callsigns filled in.
+          Struck through means it was not used. See
           <a href="#reading">Reading a message</a>.</li>
         <li>When both signal reports have been exchanged and both stations have sent 73, the contact
           is saved to the <a href="qso-logbook.html">logbook</a>. RR73 counts as that station's 73.</li>
@@ -190,10 +191,11 @@
         prefer a separate RRR, then 73.
       </p>
       <p>
-        A very weak reply can be filled in from the message the contact is expecting next.
-        That line is marked <strong>AP</strong>. It is a hint, so treat it more carefully than a
-        normal decode. OscarWatch will not guess 73 or RR73 until a signal report has been
-        exchanged, so a noisy hint cannot end the contact early. Turn this off under
+        A very weak reply can be filled in once both callsigns are known.
+        That line is marked <strong>AP</strong>. OscarWatch uses it when the rest of the
+        message checks out. A struck-through AP did not check out: it stays on the list and
+        does not change the TX message. 73 and RR73 are not tried until a signal report has
+        been exchanged, so a noisy hint cannot end the contact early. Turn this off under
         <strong>Settings → Modem</strong> if you only want messages that were read directly.
         The limits are under <a href="#decoding">Decoding</a>.
       </p>
@@ -280,7 +282,7 @@
       <table>
         <tr><th>Column</th><th>Meaning</th></tr>
         <tr><td>UTC</td><td>When that slot started, in UTC.</td></tr>
-        <tr><td>TX</td><td>Blank when you heard someone else. <strong>TX</strong> is a message you sent. <strong>Echo</strong> is your own message back from the satellite. <strong>AP</strong> is a guessed weak reply.</td></tr>
+        <tr><td>TX</td><td>Blank when you heard someone else. <strong>TX</strong> is a message you sent. <strong>Echo</strong> is your own message back from the satellite. <strong>AP</strong> is a weak reply with the callsigns filled in. Struck through means it was not used.</td></tr>
         <tr><td>DT</td><td>How late the signal was, in seconds. About +0.5 is on time. Your echo is often a little later.</td></tr>
         <tr><td>SNR</td><td>How strong the signal is compared with the noise, in dB. Higher is stronger. Below zero is normal. This is the same scale WSJT-X uses.</td></tr>
         <tr><td>Message</td><td>The text that was decoded.</td></tr>
@@ -499,7 +501,7 @@
         <tr><td>RRR</td><td>All received.</td></tr>
         <tr><td>RR73</td><td>All received, and goodbye, in one message.</td></tr>
         <tr><td>73</td><td>Best wishes. The sign-off.</td></tr>
-        <tr><td>AP</td><td>A guessed reply. Both callsigns were already known, and this was the closest message the contact was expecting. Marked AP in the list.</td></tr>
+        <tr><td>AP</td><td>A reply with the callsigns filled in. A normal AP passed the check and is used. A struck-through AP did not, so it stays on the list and does not change the TX message.</td></tr>
         <tr><td>QSO</td><td>A contact between two stations.</td></tr>
         <tr><td>Slot</td><td>7.5 seconds. You transmit in one and listen in the next.</td></tr>
         <tr><td>Even / odd slot</td><td>The two turns. The stations in a contact use opposite ones, so one is always listening.</td></tr>
@@ -547,7 +549,9 @@
       </p>
       <p>
         During a contact, a reply the first pass missed can be tried again as a hint. The line is
-        marked <strong>AP</strong>. While you are still sending your opening grid, the hints are
+        marked <strong>AP</strong> when the rest of the message checks out. A hint that does not
+        pass that check is shown with AP struck through, and it does not change what you send.
+        While you are still sending your opening grid, the hints are
         that station's grid and a signal report. 73 and RR73 are added only after a report has
         been sent or received. RRR is never guessed, because a guessed one would start the goodbye.
         Once you are already sending 73 or RR73, only those two are tried, so a fresh report is

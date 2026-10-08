@@ -37,7 +37,9 @@ public static class Ft4PskReporterSpots
     public static bool TryCreateSpot(Ft4DecodedMessage decode, LiveTrackerSnapshot snapshot, out PskReporterSpot spot)
     {
         spot = null!;
-        if (!decode.IsReceiveActivity || !snapshot.IsAvailable || snapshot.UplinkHz <= 0 || snapshot.UplinkHz > uint.MaxValue)
+        if (!decode.IsReceiveActivity || decode.IsRejected)
+            return false;
+        if (!snapshot.IsAvailable || snapshot.UplinkHz <= 0 || snapshot.UplinkHz > uint.MaxValue)
             return false;
 
         var call = Ft4MessageCodec.NormalizeCall(decode.CallDe ?? "");

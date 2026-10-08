@@ -1004,7 +1004,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     [RelayCommand]
     private void AnswerDecode(Ft4DecodedMessage? decode)
     {
-        if (decode is null || decode.IsTransmitted || decode.IsOwnEcho)
+        if (decode is null || decode.IsTransmitted || decode.IsOwnEcho || decode.IsRejected)
             return;
         _modem.Answer(decode);
         CurrentTxMessage = _modem.Sequencer?.CurrentTxMessage ?? "";

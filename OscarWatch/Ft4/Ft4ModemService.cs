@@ -1890,7 +1890,9 @@ public sealed class Ft4ModemService : IDisposable
                     continue;
                 }
 
-                if (hinted && hintedKey is not null && _postedDecodeKeys.Contains(hintedKey))
+                // A second guess of this station in the slot is the same try. A CRC-checked
+                // hint is not dropped: the guess may have been the wrong message.
+                if (guessed && hintedKey is not null && _postedDecodeKeys.Contains(hintedKey))
                     continue;
 
                 if (guessed && !_callDt.AllowsHint(callDe, timeSec))
@@ -1903,7 +1905,9 @@ public sealed class Ft4ModemService : IDisposable
                     continue;
                 }
 
-                if (!_postedDecodeKeys.Add(dedupeKey))
+                // A guess does not take the text key. A later pass that confirms the same
+                // message, or reads a different one, still has to be posted.
+                if (!guessed && !_postedDecodeKeys.Add(dedupeKey))
                     continue;
 
                 if (!hinted)
@@ -1943,13 +1947,26 @@ public sealed class Ft4ModemService : IDisposable
                 callDe,
                 extra,
                 isOwn,
-                IsApriori: d.ap != 0);
+                IsApriori: hinted,
+                IsRejected: guessed);
 
             any = true;
             if (isOwn)
                 foundOwn = true;
-            ReportToPskReporter(msg);
-            ReportToOscarWatch(msg);
+            if (guessed)
+            {
+                Log.Information(
+                    "FT4 hinted reply not used, the CRC did not confirm it: {Text} at {Hz:0} Hz, SNR {Snr:0} dB",
+                    d.text,
+                    d.freq_hz,
+                    d.snr);
+            }
+            else
+            {
+                ReportToPskReporter(msg);
+                ReportToOscarWatch(msg);
+            }
+
             Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
                 Decodes.Insert(0, msg);
@@ -1957,7 +1974,7 @@ public sealed class Ft4ModemService : IDisposable
                     Decodes.RemoveAt(Decodes.Count - 1);
             });
 
-            if (_sequencer is not null && !isOwn)
+            if (_sequencer is not null && !isOwn && !guessed)
             {
                 var wasCallingCq = _sequencer.Phase == Ft4QsoPhase.CallingCq;
                 var finished = _sequencer.OnDecoded(msg);

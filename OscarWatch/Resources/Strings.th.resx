@@ -4394,7 +4394,7 @@ LOS: {2}
     <value>AP</value>
   </data>
   <data name="Ft4.Decodes.ApRejected.Tip">
-    <value>ถูกปฏิเสธ: การถอดรหัสภายหลังแสดงว่าสถานีนี้ส่งข้อความอื่นในช่วงเวลานี้</value>
+    <value>ถูกปฏิเสธ: คำใบ้นี้ไม่ผ่าน CRC หรือการถอดรหัสภายหลังแสดงว่าสถานีนี้ส่งข้อความอื่นในช่วงเวลาเดียวกัน</value>
   </data>
   <data name="Ft4.TxMessage">
     <value>ข้อความ TX</value>

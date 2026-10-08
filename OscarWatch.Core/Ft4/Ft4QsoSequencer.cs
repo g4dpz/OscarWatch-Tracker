@@ -340,6 +340,11 @@ public sealed class Ft4QsoSequencer
     {
         lock (_gate)
         {
+            // A guess that failed the CRC stays on screen. It must not move the contact:
+            // the closest hint can be his message to someone else with our call written in.
+            if (decode.IsRejected)
+                return false;
+
             var before = decode.IsApriori ? Capture() : null;
             var finished = OnDecodedCore(decode);
             if (before is not null)

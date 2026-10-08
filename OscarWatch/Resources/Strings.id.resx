@@ -4394,7 +4394,7 @@ Terbaru: {1} ({2})</value>
     <value>AP</value>
   </data>
   <data name="Ft4.Decodes.ApRejected.Tip">
-    <value>Ditolak: dekode berikutnya menunjukkan stasiun ini mengirim pesan lain pada slot ini.</value>
+    <value>Ditolak: petunjuk ini tidak lolos CRC, atau dekode berikutnya menunjukkan stasiun ini mengirim pesan lain pada slot yang sama.</value>
   </data>
   <data name="Ft4.TxMessage">
     <value>Pesan TX</value>
