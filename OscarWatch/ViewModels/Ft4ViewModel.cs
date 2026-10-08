@@ -1372,6 +1372,8 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
                 StatusLine = _modem.Status;
             CurrentTxMessage = _modem.Sequencer?.CurrentTxMessage ?? CurrentTxMessage;
             TxEnabled = _modem.Sequencer?.TransmitEnabled == true;
+            // Answering from a decode (pounce or auto reply) picks the slot opposite the caller.
+            PreferEvenSlot = _modem.Sequencer?.PreferEvenSlot ?? PreferEvenSlot;
             IsTuning = _modem.IsTuning;
             // Recolour rows already on screen when the QSO partner changes.
             QsoPartnerCall = _modem.Sequencer?.TheirCall;
