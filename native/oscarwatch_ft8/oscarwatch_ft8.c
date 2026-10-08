@@ -1387,11 +1387,16 @@ static int decode_slot(
 
                 uint8_t tones[FT4_NN];
                 ft4_encode(hint->payload, tones);
+                /* The SNR floor means the hint explains no more energy than the
+                   noise around it. Accepting it invents a report. */
+                float hinted_snr = estimate_snr_db(mon, cand, tones, FT4_NN, 4, 1);
+                if (hinted_snr <= kSnrFloorDb)
+                    continue;
 
                 ow_ft8_decode_t* out = &out_decodes[num_decoded++];
                 out->freq_hz = candidate_freq_hz(mon, cand);
                 out->time_sec = (cand->time_offset + (float)cand->time_sub / mon->wf.time_osr) * mon->symbol_period;
-                out->snr = estimate_snr_db(mon, cand, tones, FT4_NN, 4, 1);
+                out->snr = hinted_snr;
                 strncpy(out->text, hint->text, OW_FT8_MAX_MESSAGE_LEN - 1);
                 out->text[OW_FT8_MAX_MESSAGE_LEN - 1] = '\0';
                 out->ap = 1;
