@@ -229,16 +229,17 @@
       </p>
       <p>
         OscarWatch reads the power setting on ICOM radios that report it over CI-V (for example the
-        IC-9700), on the Yaesu FT-991 and FT-991A, and on the Kenwood TS-2000. It checks before every
-        transmission, so turning the power up during a contact stops transmit at the next slot.
-        Radios that cannot report their power are not checked, and OscarWatch cannot see an amplifier
-        after the radio. Please keep to the limit anyway.
+        IC-9700), on the Yaesu FT-991 and FT-991A, and on the Kenwood TS-2000. It checks when you
+        press <strong>Enable Tx</strong> or <strong>Tune</strong>. Tune waits for that reading
+        before it keys. Turning the power up after that is not seen until you press one of those
+        again. Radios that cannot report their power are not checked, and OscarWatch
+        cannot see an amplifier after the radio. Please keep to the limit anyway.
       </p>
       <p>
         If the power is too high, the status line says so and transmit stops. Turn the power down and
-        press <strong>CQ</strong> or click a station again. Or tick <strong>Lower RF power to 30 W</strong>
-        under <strong>Settings → Modem</strong>: OscarWatch then sets the radio to 30 W for you before it
-        transmits, and leaves it at that setting. If the radio will not change, transmit stays blocked.
+        press <strong>Enable Tx</strong> or <strong>Tune</strong> again. Or tick <strong>Lower RF power to 30 W</strong>
+        under <strong>Settings → Modem</strong>: OscarWatch then sets the radio to 30 W when you
+        press either of those, and leaves it at that setting. If the radio will not change, transmit stays blocked.
       </p>
       <p>A few habits make a pass better for everyone:</p>
       <ul>
@@ -444,7 +445,7 @@
         <li><strong>Auto reply</strong> and <strong>Hold Tx Freq</strong>: the same ticks as on the main FT4 window.</li>
         <li><strong>Hint weak replies (AP)</strong>: fill in a very weak reply from the message the contact is expecting. Untick it to show only what was read directly. See <a href="#decoding">Decoding</a>.</li>
         <li><strong>TX watchdog</strong>: minutes to keep calling if nobody answers. 0 leaves transmit on.</li>
-        <li><strong>Lower RF power to 30 W</strong>: sets the radio to 30 W before transmitting when it reports more. See <a href="#power">Power and good practice</a>.</li>
+        <li><strong>Lower RF power to 30 W</strong>: sets the radio to 30 W when you press <strong>Enable Tx</strong> or <strong>Tune</strong>, if it reports more. See <a href="#power">Power and good practice</a>.</li>
         <li><strong>Doppler</strong>: take the remaining frequency drift out of the transmit audio, and out of the receive audio. There is also a second look for your echo during a transmit slot. Turn that last one off only if the PC struggles for a moment at each slot.</li>
       </ul>
 

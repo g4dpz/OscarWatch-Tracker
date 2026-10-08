@@ -373,7 +373,6 @@ public sealed class Ft4ModemService : IDisposable
         else
             Status = _l.Get("Ft4.Status.Answering", answered);
         Changed?.Invoke();
-        CheckRfPowerInBackground();
     }
 
     /// <summary>
@@ -446,7 +445,6 @@ public sealed class Ft4ModemService : IDisposable
         _txWatchdogResetUtc = DateTime.UtcNow;
         Status = _l.Get("Ft4.Status.SendingReport", _sequencer.TheirCall);
         Changed?.Invoke();
-        CheckRfPowerInBackground();
         return true;
     }
 
@@ -463,7 +461,6 @@ public sealed class Ft4ModemService : IDisposable
         _txWatchdogResetUtc = DateTime.UtcNow;
         Status = _l.Get("Ft4.Status.Sending73", _sequencer.TheirCall);
         Changed?.Invoke();
-        CheckRfPowerInBackground();
         return true;
     }
 
@@ -552,6 +549,7 @@ public sealed class Ft4ModemService : IDisposable
                 if (!CheckRfPowerAllowed())
                 {
                     Volatile.Write(ref _tuning, 0);
+                    Changed?.Invoke();
                     return;
                 }
 
@@ -636,7 +634,6 @@ public sealed class Ft4ModemService : IDisposable
         _txWatchdogResetUtc = DateTime.UtcNow;
         Status = _l.Get("Ft4.Status.Answering", decode.Text);
         Changed?.Invoke();
-        CheckRfPowerInBackground();
     }
 
     /// <summary>
@@ -674,24 +671,6 @@ public sealed class Ft4ModemService : IDisposable
         Changed?.Invoke();
     }
 
-    /// <param name="rfPowerCheck">
-    /// RF power verdict started before the slot (see <see cref="Ft4RfPowerLead"/>).
-    /// When null, a check is started in the background and this slot transmits.
-    /// </param>
-    private bool EnsureTransmitAllowed(Task<bool>? rfPowerCheck = null)
-    {
-        if (!EnsureSatelliteAllowed())
-            return false;
-
-        if (rfPowerCheck is null)
-        {
-            CheckRfPowerInBackground();
-            return true;
-        }
-
-        return Ft4RfPowerLead.AwaitVerdict(rfPowerCheck);
-    }
-
     /// <summary>Satellite and mode eligibility only (no CAT I/O), halting TX when it fails.</summary>
     private bool EnsureSatelliteAllowed()
     {
@@ -709,9 +688,9 @@ public sealed class Ft4ModemService : IDisposable
     }
 
     /// <summary>
-    /// After a TX button: read RF power off the UI thread so the window does not wait on the rig.
-    /// It still halts TX (or lowers power) once the radio answers. A slot whose read has not
-    /// answered yet transmits anyway.
+    /// When the operator presses Enable Tx: read RF power off the UI thread so the window does not wait.
+    /// A reading over the limit halts TX or lowers the power once the radio answers. Later slots
+    /// do not ask again.
     /// </summary>
     private void CheckRfPowerInBackground()
     {
@@ -1011,7 +990,7 @@ public sealed class Ft4ModemService : IDisposable
             Log.Information("FT4 slot timing back on the PC clock (measured {PcErrorMs:0} ms)", pcErrorMs);
     }
 
-    private void KickTransmit(DateTime slotStart, CancellationToken loopCt, Task<bool>? rfPowerCheck = null)
+    private void KickTransmit(DateTime slotStart, CancellationToken loopCt)
     {
         if (IsTuning)
             return;
@@ -1020,7 +999,7 @@ public sealed class Ft4ModemService : IDisposable
         if (seq is null || !seq.TransmitEnabled || string.IsNullOrWhiteSpace(seq.CurrentTxMessage))
             return;
 
-        if (!EnsureTransmitAllowed(rfPowerCheck))
+        if (!EnsureSatelliteAllowed())
             return;
 
         if (Ft4SlotClock.IsEvenSlot(slotStart, Ft4SlotClock.Ft4SlotSeconds) != seq.PreferEvenSlot)
@@ -1265,17 +1244,10 @@ public sealed class Ft4ModemService : IDisposable
             {
                 try
                 {
-                    // Start the CAT RF power read in the quiet tail after the receive
-                    // burst, so an ICOM band select does not fall on the other station.
-                    // If the rig has not answered, the slot transmits anyway.
-                    Ft4SlotWait.UntilUtc(Ft4RfPowerLead.CheckAtUtc(slot), ct);
-                    if (ct.IsCancellationRequested)
-                        return;
-                    var rfPowerCheck = Task.Run(CheckRfPowerAllowed, CancellationToken.None);
                     Ft4SlotWait.UntilUtc(slot, ct);
                     if (ct.IsCancellationRequested)
                         return;
-                    KickTransmit(slot, loopCt, rfPowerCheck);
+                    KickTransmit(slot, loopCt);
                     _rig.ForceFt4DopplerStep();
                 }
                 catch (OperationCanceledException)
