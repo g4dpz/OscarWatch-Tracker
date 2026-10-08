@@ -1,9 +1,13 @@
 using System.Collections.Specialized;
+using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using OscarWatch.Core.Ft4;
 using OscarWatch.Localization;
 using OscarWatch.ViewModels;
 
@@ -13,6 +17,7 @@ public partial class Ft4Window : Window
 {
     private bool _closeConfirmed;
     private ScrollViewer? _decodeScroll;
+    private Ft4DecodeRowViewModel? _contextRow;
 
     public Ft4Window()
     {
@@ -89,5 +94,61 @@ public partial class Ft4Window : Window
 
         var dialog = new Ft4SettingsWindow { DataContext = vm };
         await dialog.ShowDialog(this).ConfigureAwait(true);
+    }
+
+    private void OnDecodeRowPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (!e.GetCurrentPoint(this).Properties.IsRightButtonPressed)
+            return;
+
+        _contextRow = (sender as Control)?.DataContext as Ft4DecodeRowViewModel;
+        // Selecting a row answers that station, so a right-click must not select it.
+        e.Handled = true;
+    }
+
+    private void OnDecodeContextMenuOpening(object? sender, CancelEventArgs e)
+    {
+        _contextRow ??= DecodeList.SelectedItem as Ft4DecodeRowViewModel;
+        if (_contextRow is null
+            || !_contextRow.Message.IsReceiveActivity
+            || string.IsNullOrWhiteSpace(_contextRow.Message.CallDe))
+        {
+            _contextRow = null;
+            e.Cancel = true;
+        }
+    }
+
+    private void OnDecodeContextMenuClosed(object? sender, RoutedEventArgs e)
+    {
+        // Click runs before Closed, so the row is still set when the item is chosen.
+        Dispatcher.UIThread.Post(() => _contextRow = null);
+    }
+
+    private void OnPounceOnStationClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is Ft4ViewModel vm && _contextRow is { } row)
+            vm.PounceOnDecodeCommand.Execute(row);
+        _contextRow = null;
+    }
+
+    private async void OnPounceCheckClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not Ft4ViewModel vm)
+            return;
+
+        if (vm.IsPounceArmed)
+        {
+            vm.CancelPounceCommand.Execute(null);
+        }
+        else
+        {
+            var dialog = new Ft4PounceWindow(vm.LastPounceInput);
+            var target = await dialog.ShowDialog<Ft4PounceTarget?>(this).ConfigureAwait(true);
+            if (target is not null)
+                vm.ArmPounce(target);
+        }
+
+        // The tick always shows whether pounce is armed, not what the click toggled it to.
+        PounceCheckBox.SetCurrentValue(ToggleButton.IsCheckedProperty, vm.IsPounceArmed);
     }
 }

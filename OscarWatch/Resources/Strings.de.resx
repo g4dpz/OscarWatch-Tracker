@@ -4432,5 +4432,47 @@ Aktuell: {1} ({2})</value>
   <data name="Ft4.TxAudioHz">
     <value>TX-Audio (Hz)</value>
   </data>
+  <data name="Ft4.Pounce">
+    <value>Lauern</value>
+  </data>
+  <data name="Ft4.Pounce.Note">
+    <value>Auf eine Station oder ein Locatorfeld warten und automatisch anrufen, sobald sie CQ ruft oder Sie anruft.</value>
+  </data>
+  <data name="Ft4.Pounce.Title">
+    <value>Warten und anrufen</value>
+  </data>
+  <data name="Ft4.Pounce.TargetLabel">
+    <value>Rufzeichen oder Locator</value>
+  </data>
+  <data name="Ft4.Pounce.Hint">
+    <value>OscarWatch antwortet einmal, sobald diese Station (oder eine Station in diesem Locatorfeld) CQ ruft oder Sie anruft. Während sie mit einer anderen Station arbeitet, wird weiter gewartet. Haken bei Lauern entfernen oder TX stoppen beendet das Warten.</value>
+  </data>
+  <data name="Ft4.Pounce.Arm">
+    <value>Aktivieren</value>
+  </data>
+  <data name="Ft4.Pounce.Armed">
+    <value>Lauere auf: {0}</value>
+  </data>
+  <data name="Ft4.Pounce.OnStation">
+    <value>Auf diese Station lauern</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce">
+    <value>Ziel</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce.Tip">
+    <value>Lauer-Ziel: OscarWatch ruft diese Station an, sobald sie CQ ruft oder Sie anruft.</value>
+  </data>
+  <data name="Ft4.Status.PounceWaiting">
+    <value>Lauern aktiv: warte auf {0}</value>
+  </data>
+  <data name="Ft4.Status.PounceFired">
+    <value>Rufe {0} an: {1}</value>
+  </data>
+  <data name="Ft4.Status.PounceCancelled">
+    <value>Lauern abgebrochen</value>
+  </data>
+  <data name="Ft4.Status.PounceInvalid">
+    <value>„{0}“ ist weder ein Rufzeichen noch ein Locator.</value>
+  </data>
 
 </root>

@@ -301,7 +301,8 @@
         <li>the station you are working, including after that contact has finished;</li>
         <li>a CQ from a station you have already logged;</li>
         <li>a callsign you have not logged, including when they are calling CQ;</li>
-        <li>a 4-character grid you have not logged.</li>
+        <li>a 4-character grid you have not logged;</li>
+        <li>the station you are waiting for with <a href="#pounce">Pounce</a>, marked <strong>Target</strong>.</li>
       </ul>
       <p>
         Change the background and the text colour under <strong>Settings → Appearance</strong>.
@@ -331,7 +332,26 @@
         <li><strong>Even TX slots</strong>: take the even turn instead of the odd one. When you answer someone, OscarWatch already picks the turn they are not using, so you rarely need this.</li>
         <li><strong>Hold Tx Freq</strong>: ticked by default. Clicking a station does not move where you transmit, which keeps you from landing on top of them. Untick it to transmit on the same audio frequency as the station you answer. While it is ticked, left-click the waterfall for receive and right-click for transmit.</li>
         <li><strong>Auto reply</strong>: ticked by default. While you are calling CQ, the first station that calls you is answered. Untick it to keep calling until you click the station you want. Tick it again and the next caller is answered, including someone who called in the last few seconds. A contact you have already started still runs through to the report and the goodbye on its own.</li>
+        <li><strong>Pounce</strong>: tick to wait for one station and call them automatically. See <a href="#pounce">Wait and pounce</a>.</li>
         <li><strong>TX audio (Hz)</strong>: your transmit position on the waterfall (the red bracket).</li>
+      </ul>
+
+      <h3 id="pounce">Wait and pounce</h3>
+      <p>
+        Use this for a sked, or for a station you need that only shows up for a moment. Tick
+        <strong>Pounce</strong>, type a callsign or a grid, and click <strong>Arm</strong>. Cancel leaves it unticked. The station
+        does not have to be in the list yet. You can also right-click a line and choose
+        <strong>Pounce on this station</strong>.
+      </p>
+      <ul>
+        <li>OscarWatch answers the first time that station calls CQ or calls you, exactly as if you had clicked the line. Then it stops waiting, so it never calls them twice.</li>
+        <li>While they are working someone else, it keeps waiting. It does not call over another contact.</li>
+        <li>A callsign matches with or without a portable part, so <code>MM0ABC</code> also matches <code>MM0ABC/P</code>.</li>
+        <li>A grid such as <code>IO85</code> matches any station sending that 4-character grid. FT4 only sends 4 characters, so a 6-character grid is matched on its first 4.</li>
+        <li>It does not fire while you are already in a contact. It waits until that contact has finished.</li>
+        <li>Lines from the station you are waiting for are shaded and marked <strong>Target</strong>.</li>
+        <li>While armed, the box stays ticked and reads <strong>Pouncing:</strong> and the target. Untick it to stop waiting. <strong>Halt Tx</strong> also stops it and unticks the box, and so does the pounce firing. To change the target, untick and tick again.</li>
+        <li>The target is not saved. It is cleared when you close OscarWatch.</li>
       </ul>
 
       <h3>Status line</h3>

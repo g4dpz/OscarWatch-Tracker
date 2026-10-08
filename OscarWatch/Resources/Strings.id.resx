@@ -4432,5 +4432,47 @@ Terbaru: {1} ({2})</value>
   <data name="Ft4.TxAudioHz">
     <value>Audio TX (Hz)</value>
   </data>
+  <data name="Ft4.Pounce">
+    <value>Intai</value>
+  </data>
+  <data name="Ft4.Pounce.Note">
+    <value>Tunggu satu stasiun atau grid, lalu panggil otomatis saat mereka memanggil CQ atau memanggil Anda.</value>
+  </data>
+  <data name="Ft4.Pounce.Title">
+    <value>Tunggu dan panggil</value>
+  </data>
+  <data name="Ft4.Pounce.TargetLabel">
+    <value>Callsign atau grid</value>
+  </data>
+  <data name="Ft4.Pounce.Hint">
+    <value>OscarWatch menjawab sekali, segera setelah stasiun ini (atau stasiun mana pun di grid ini) memanggil CQ atau memanggil Anda. Tetap menunggu selama mereka bekerja dengan stasiun lain. Hapus centang Intai, atau tekan Hentikan TX, untuk berhenti menunggu.</value>
+  </data>
+  <data name="Ft4.Pounce.Arm">
+    <value>Aktifkan</value>
+  </data>
+  <data name="Ft4.Pounce.Armed">
+    <value>Mengintai: {0}</value>
+  </data>
+  <data name="Ft4.Pounce.OnStation">
+    <value>Intai stasiun ini</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce">
+    <value>Target</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce.Tip">
+    <value>Target intai: OscarWatch memanggil stasiun ini saat mereka memanggil CQ atau memanggil Anda.</value>
+  </data>
+  <data name="Ft4.Status.PounceWaiting">
+    <value>Intai aktif: menunggu {0}</value>
+  </data>
+  <data name="Ft4.Status.PounceFired">
+    <value>Memanggil {0}: {1}</value>
+  </data>
+  <data name="Ft4.Status.PounceCancelled">
+    <value>Intai dibatalkan</value>
+  </data>
+  <data name="Ft4.Status.PounceInvalid">
+    <value>"{0}" bukan callsign atau grid.</value>
+  </data>
 
 </root>

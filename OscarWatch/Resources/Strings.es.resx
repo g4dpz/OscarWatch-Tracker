@@ -4428,4 +4428,46 @@ Está utilizando la versión {0}.
   <data name="Ft4.TxAudioHz">
     <value>Audio TX (Hz)</value>
   </data>
+  <data name="Ft4.Pounce">
+    <value>Al acecho</value>
+  </data>
+  <data name="Ft4.Pounce.Note">
+    <value>Espera a una estación o cuadrícula y llámala automáticamente cuando llame CQ o te llame.</value>
+  </data>
+  <data name="Ft4.Pounce.Title">
+    <value>Esperar y llamar</value>
+  </data>
+  <data name="Ft4.Pounce.TargetLabel">
+    <value>Indicativo o cuadrícula</value>
+  </data>
+  <data name="Ft4.Pounce.Hint">
+    <value>OscarWatch responde una vez, en cuanto esta estación (o cualquier estación de esta cuadrícula) llame CQ o te llame. Sigue esperando mientras trabaja con otra estación. Desmarca Al acecho, o pulsa Detener TX, para dejar de esperar.</value>
+  </data>
+  <data name="Ft4.Pounce.Arm">
+    <value>Activar</value>
+  </data>
+  <data name="Ft4.Pounce.Armed">
+    <value>Al acecho: {0}</value>
+  </data>
+  <data name="Ft4.Pounce.OnStation">
+    <value>Acechar a esta estación</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce">
+    <value>Obj.</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce.Tip">
+    <value>Objetivo al acecho: OscarWatch llama a esta estación cuando llame CQ o te llame.</value>
+  </data>
+  <data name="Ft4.Status.PounceWaiting">
+    <value>Acecho activado: esperando a {0}</value>
+  </data>
+  <data name="Ft4.Status.PounceFired">
+    <value>Llamando a {0}: {1}</value>
+  </data>
+  <data name="Ft4.Status.PounceCancelled">
+    <value>Acecho cancelado</value>
+  </data>
+  <data name="Ft4.Status.PounceInvalid">
+    <value>"{0}" no es un indicativo ni una cuadrícula.</value>
+  </data>
 </root>

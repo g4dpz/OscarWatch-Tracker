@@ -4432,5 +4432,47 @@ LOS: {2}
   <data name="Ft4.TxAudioHz">
     <value>TX-аудио (Гц)</value>
   </data>
+  <data name="Ft4.Pounce">
+    <value>Ожидание</value>
+  </data>
+  <data name="Ft4.Pounce.Note">
+    <value>Ждать одну станцию или квадрат и автоматически вызвать её, когда она даст CQ или позовёт вас.</value>
+  </data>
+  <data name="Ft4.Pounce.Title">
+    <value>Ждать и вызвать</value>
+  </data>
+  <data name="Ft4.Pounce.TargetLabel">
+    <value>Позывной или квадрат</value>
+  </data>
+  <data name="Ft4.Pounce.Hint">
+    <value>OscarWatch ответит один раз, как только эта станция (или любая станция из этого квадрата) даст CQ или позовёт вас. Пока она работает с другой станцией, ожидание продолжается. Снимите флажок «Ожидание» или остановите TX, чтобы прекратить ожидание.</value>
+  </data>
+  <data name="Ft4.Pounce.Arm">
+    <value>Включить</value>
+  </data>
+  <data name="Ft4.Pounce.Armed">
+    <value>Ожидание: {0}</value>
+  </data>
+  <data name="Ft4.Pounce.OnStation">
+    <value>Ждать эту станцию</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce">
+    <value>Цель</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce.Tip">
+    <value>Цель ожидания: OscarWatch вызовет эту станцию, когда она даст CQ или позовёт вас.</value>
+  </data>
+  <data name="Ft4.Status.PounceWaiting">
+    <value>Ожидание включено: ждём {0}</value>
+  </data>
+  <data name="Ft4.Status.PounceFired">
+    <value>Вызов {0}: {1}</value>
+  </data>
+  <data name="Ft4.Status.PounceCancelled">
+    <value>Ожидание отменено</value>
+  </data>
+  <data name="Ft4.Status.PounceInvalid">
+    <value>«{0}» не является позывным или квадратом.</value>
+  </data>
 
 </root>

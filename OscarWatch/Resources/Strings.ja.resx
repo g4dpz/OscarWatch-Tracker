@@ -4428,5 +4428,47 @@
   <data name="Ft4.TxAudioHz">
     <value>TX音声 (Hz)</value>
   </data>
+  <data name="Ft4.Pounce">
+    <value>待ち受け</value>
+  </data>
+  <data name="Ft4.Pounce.Note">
+    <value>指定した局またはグリッドを待ち、CQ を出すか自局を呼んだときに自動で呼び出します。</value>
+  </data>
+  <data name="Ft4.Pounce.Title">
+    <value>待ち受けて呼び出し</value>
+  </data>
+  <data name="Ft4.Pounce.TargetLabel">
+    <value>コールサインまたはグリッド</value>
+  </data>
+  <data name="Ft4.Pounce.Hint">
+    <value>この局（またはこのグリッド内の局）が CQ を出すか自局を呼んだ時点で、OscarWatch が一度だけ応答します。他局と交信中は待ち続けます。「待ち受け」のチェックを外すか、送信停止を押すと待機を終了します。</value>
+  </data>
+  <data name="Ft4.Pounce.Arm">
+    <value>開始</value>
+  </data>
+  <data name="Ft4.Pounce.Armed">
+    <value>待ち受け中: {0}</value>
+  </data>
+  <data name="Ft4.Pounce.OnStation">
+    <value>この局を待ち受け</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce">
+    <value>対象</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce.Tip">
+    <value>待ち受け対象: この局が CQ を出すか自局を呼ぶと OscarWatch が呼び出します。</value>
+  </data>
+  <data name="Ft4.Status.PounceWaiting">
+    <value>待ち受け開始: {0} を待っています</value>
+  </data>
+  <data name="Ft4.Status.PounceFired">
+    <value>{0} を呼び出し: {1}</value>
+  </data>
+  <data name="Ft4.Status.PounceCancelled">
+    <value>待ち受けを解除しました</value>
+  </data>
+  <data name="Ft4.Status.PounceInvalid">
+    <value>「{0}」はコールサインでもグリッドでもありません。</value>
+  </data>
 
 </root>

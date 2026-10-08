@@ -113,6 +113,30 @@ public sealed class Ft4DecodeHighlightTests
     }
 
     [Fact]
+    public void Pounce_target_outranks_new_call_and_cq()
+    {
+        Assert.True(Ft4PounceTarget.TryParse("G4ABC", out var target));
+        var cq = Line("CQ G4ABC IO91", "CQ", "G4ABC", "IO91");
+        var working = Line("K2MO G4ABC -05", "K2MO", "G4ABC", "-05");
+        Assert.Equal(
+            Ft4DecodeHighlightKind.PounceTarget,
+            Ft4DecodeHighlight.Classify(cq, "MM9SQL", null, Calls(), Grids(), pounceTarget: target));
+        Assert.Equal(
+            Ft4DecodeHighlightKind.PounceTarget,
+            Ft4DecodeHighlight.Classify(working, "MM9SQL", null, Calls("G4ABC"), Grids("IO91"), pounceTarget: target));
+    }
+
+    [Fact]
+    public void Calling_me_outranks_pounce_target()
+    {
+        Assert.True(Ft4PounceTarget.TryParse("G4ABC", out var target));
+        var msg = Line("MM9SQL G4ABC IO91", "MM9SQL", "G4ABC", "IO91");
+        Assert.Equal(
+            Ft4DecodeHighlightKind.CallingMe,
+            Ft4DecodeHighlight.Classify(msg, "MM9SQL", null, Calls(), Grids(), pounceTarget: target));
+    }
+
+    [Fact]
     public void Colour_text_normalises_to_eight_digits()
     {
         Assert.Equal("#FFE6B15A", Ft4DecodeHighlight.NormalizeColour("#e6b15a"));

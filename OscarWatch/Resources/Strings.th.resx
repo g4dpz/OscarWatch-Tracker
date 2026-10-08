@@ -4432,5 +4432,47 @@ LOS: {2}
   <data name="Ft4.TxAudioHz">
     <value>เสียง TX (Hz)</value>
   </data>
+  <data name="Ft4.Pounce">
+    <value>ดักรอ</value>
+  </data>
+  <data name="Ft4.Pounce.Note">
+    <value>รอสถานีหรือกริดที่ระบุ แล้วเรียกโดยอัตโนมัติเมื่อสถานีนั้นเรียก CQ หรือเรียกคุณ</value>
+  </data>
+  <data name="Ft4.Pounce.Title">
+    <value>รอแล้วเรียก</value>
+  </data>
+  <data name="Ft4.Pounce.TargetLabel">
+    <value>สัญญาณเรียกขานหรือกริด</value>
+  </data>
+  <data name="Ft4.Pounce.Hint">
+    <value>OscarWatch จะตอบหนึ่งครั้งทันทีที่สถานีนี้ (หรือสถานีใดก็ได้ในกริดนี้) เรียก CQ หรือเรียกคุณ ระหว่างที่สถานีนั้นติดต่อกับผู้อื่นจะรอต่อไป เอาเครื่องหมายถูกที่ดักรอออก หรือกดหยุด TX เพื่อหยุดการรอ</value>
+  </data>
+  <data name="Ft4.Pounce.Arm">
+    <value>เริ่มดักรอ</value>
+  </data>
+  <data name="Ft4.Pounce.Armed">
+    <value>กำลังดักรอ: {0}</value>
+  </data>
+  <data name="Ft4.Pounce.OnStation">
+    <value>ดักรอสถานีนี้</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce">
+    <value>เป้า</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce.Tip">
+    <value>เป้าหมายดักรอ: OscarWatch จะเรียกสถานีนี้เมื่อสถานีนั้นเรียก CQ หรือเรียกคุณ</value>
+  </data>
+  <data name="Ft4.Status.PounceWaiting">
+    <value>เริ่มดักรอ: กำลังรอ {0}</value>
+  </data>
+  <data name="Ft4.Status.PounceFired">
+    <value>กำลังเรียก {0}: {1}</value>
+  </data>
+  <data name="Ft4.Status.PounceCancelled">
+    <value>ยกเลิกการดักรอแล้ว</value>
+  </data>
+  <data name="Ft4.Status.PounceInvalid">
+    <value>"{0}" ไม่ใช่สัญญาณเรียกขานหรือกริด</value>
+  </data>
 
 </root>

@@ -189,6 +189,8 @@ public sealed class Ft4ModemService : IDisposable
 
     private string? _lastLoggedKey;
     private string? _eligibilityBlockStatus;
+    private Ft4PounceTarget? _pounceTarget;
+    private Ft4DecodedMessage? _pouncedDecode;
 
     public IReadOnlyList<AudioInputDevice> GetInputDevices() => _audio.GetInputDevices();
 
@@ -483,6 +485,7 @@ public sealed class Ft4ModemService : IDisposable
 
     public void HaltTx()
     {
+        Volatile.Write(ref _pounceTarget, null);
         StopTune();
         _sequencer?.HaltTx();
         CancelTxSchedule();
@@ -620,19 +623,84 @@ public sealed class Ft4ModemService : IDisposable
         return Math.Clamp(hz, 200, 3000).ToString("0", System.Globalization.CultureInfo.InvariantCulture);
     }
 
-    public void Answer(Ft4DecodedMessage decode)
+    public void Answer(Ft4DecodedMessage decode) => TryAnswer(decode);
+
+    private bool TryAnswer(Ft4DecodedMessage decode)
     {
         if (_sequencer is null)
-            return;
+            return false;
         StopTune();
         if (!EnsureSatelliteAllowed())
-            return;
+            return false;
 
         var even = Ft4SlotClock.IsEvenSlot(decode.SlotUtc, Ft4SlotClock.Ft4SlotSeconds);
         _sequencer.StartAnswer(decode, oppositeEvenSlot: !even);
         _lastLoggedKey = null;
         _txWatchdogResetUtc = DateTime.UtcNow;
         Status = _l.Get("Ft4.Status.Answering", decode.Text);
+        Changed?.Invoke();
+        return true;
+    }
+
+    /// <summary>The armed wait-and-pounce target, or null.</summary>
+    public Ft4PounceTarget? PounceTarget => Volatile.Read(ref _pounceTarget);
+
+    public bool IsPounceArmed => PounceTarget is not null;
+
+    public void ArmPounce(Ft4PounceTarget target)
+    {
+        Volatile.Write(ref _pounceTarget, target);
+        Status = _l.Get("Ft4.Status.PounceWaiting", target.Value);
+        Changed?.Invoke();
+    }
+
+    public void DisarmPounce()
+    {
+        if (Interlocked.Exchange(ref _pounceTarget, null) is null)
+            return;
+        Status = _l.Get("Ft4.Status.PounceCancelled");
+        Changed?.Invoke();
+    }
+
+    /// <summary>The decode pounce last answered, handed to the UI once so it can move the RX / TX brackets.</summary>
+    public Ft4DecodedMessage? TakePouncedDecode() => Interlocked.Exchange(ref _pouncedDecode, null);
+
+    private void TryPounce(Ft4DecodedMessage msg, string myCall)
+    {
+        var target = Volatile.Read(ref _pounceTarget);
+        var seq = _sequencer;
+        if (target is null || seq is null || !target.Matches(msg, myCall))
+            return;
+
+        if (seq.Phase == Ft4QsoPhase.InQso)
+        {
+            // Auto reply may already have taken the target from a CQ: nothing left to wait for.
+            var partner = Ft4PounceTarget.BaseCall(seq.TheirCall ?? "");
+            var from = Ft4PounceTarget.BaseCall(msg.CallDe ?? "");
+            if (partner.Length > 0
+                && partner.Equals(from, StringComparison.OrdinalIgnoreCase)
+                && Interlocked.CompareExchange(ref _pounceTarget, null, target) == target)
+            {
+                Status = _l.Get("Ft4.Status.PounceFired", msg.CallDe ?? target.Value, msg.Text);
+                Changed?.Invoke();
+            }
+
+            return;
+        }
+
+        // One shot: only the thread that clears the target answers.
+        if (Interlocked.CompareExchange(ref _pounceTarget, null, target) != target)
+            return;
+
+        Log.Information("FT4 pounce on {Target}: {Message}", target.Value, msg.Text);
+        if (!TryAnswer(msg))
+        {
+            Changed?.Invoke();
+            return;
+        }
+
+        Volatile.Write(ref _pouncedDecode, msg);
+        Status = _l.Get("Ft4.Status.PounceFired", msg.CallDe ?? target.Value, msg.Text);
         Changed?.Invoke();
     }
 
@@ -1990,6 +2058,8 @@ public sealed class Ft4ModemService : IDisposable
 
                 if (finished)
                     _ = TryLogAsync(manual: false);
+
+                TryPounce(msg, my);
             }
         }
 

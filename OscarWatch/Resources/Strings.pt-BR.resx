@@ -4428,4 +4428,46 @@ Mais recente: {1} ({2})</value>
   <data name="Ft4.TxAudioHz">
     <value>Áudio TX (Hz)</value>
   </data>
+  <data name="Ft4.Pounce">
+    <value>Espreitar</value>
+  </data>
+  <data name="Ft4.Pounce.Note">
+    <value>Aguarde uma estação ou grade e chame-a automaticamente quando ela chamar CQ ou chamar você.</value>
+  </data>
+  <data name="Ft4.Pounce.Title">
+    <value>Aguardar e chamar</value>
+  </data>
+  <data name="Ft4.Pounce.TargetLabel">
+    <value>Indicativo ou grade</value>
+  </data>
+  <data name="Ft4.Pounce.Hint">
+    <value>O OscarWatch responde uma vez, assim que esta estação (ou qualquer estação desta grade) chamar CQ ou chamar você. Continua aguardando enquanto ela trabalha outra estação. Desmarque Espreitar, ou pressione Parar TX, para encerrar a espera.</value>
+  </data>
+  <data name="Ft4.Pounce.Arm">
+    <value>Ativar</value>
+  </data>
+  <data name="Ft4.Pounce.Armed">
+    <value>Espreitando: {0}</value>
+  </data>
+  <data name="Ft4.Pounce.OnStation">
+    <value>Espreitar esta estação</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce">
+    <value>Alvo</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce.Tip">
+    <value>Alvo da espreita: o OscarWatch chama esta estação quando ela chamar CQ ou chamar você.</value>
+  </data>
+  <data name="Ft4.Status.PounceWaiting">
+    <value>Espreita ativada: aguardando {0}</value>
+  </data>
+  <data name="Ft4.Status.PounceFired">
+    <value>Chamando {0}: {1}</value>
+  </data>
+  <data name="Ft4.Status.PounceCancelled">
+    <value>Espreita cancelada</value>
+  </data>
+  <data name="Ft4.Status.PounceInvalid">
+    <value>"{0}" não é um indicativo nem uma grade.</value>
+  </data>
 </root>

@@ -4428,4 +4428,46 @@ Latest: {1} ({2})</value>
   <data name="Ft4.TxAudioHz">
     <value>TX audio (Hz)</value>
   </data>
+  <data name="Ft4.Pounce">
+    <value>Pounce</value>
+  </data>
+  <data name="Ft4.Pounce.Note">
+    <value>Wait for one station or grid, then call them automatically when they call CQ or call you.</value>
+  </data>
+  <data name="Ft4.Pounce.Title">
+    <value>Wait and pounce</value>
+  </data>
+  <data name="Ft4.Pounce.TargetLabel">
+    <value>Callsign or grid</value>
+  </data>
+  <data name="Ft4.Pounce.Hint">
+    <value>OscarWatch answers once, as soon as this station (or any station in this grid) calls CQ or calls you. It keeps waiting while they work someone else. Untick Pounce, or press Halt Tx, to stop waiting.</value>
+  </data>
+  <data name="Ft4.Pounce.Arm">
+    <value>Arm</value>
+  </data>
+  <data name="Ft4.Pounce.Armed">
+    <value>Pouncing: {0}</value>
+  </data>
+  <data name="Ft4.Pounce.OnStation">
+    <value>Pounce on this station</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce">
+    <value>Target</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce.Tip">
+    <value>Pounce target: OscarWatch calls this station when they call CQ or call you.</value>
+  </data>
+  <data name="Ft4.Status.PounceWaiting">
+    <value>Pounce armed: waiting for {0}</value>
+  </data>
+  <data name="Ft4.Status.PounceFired">
+    <value>Pounced on {0}: {1}</value>
+  </data>
+  <data name="Ft4.Status.PounceCancelled">
+    <value>Pounce cancelled</value>
+  </data>
+  <data name="Ft4.Status.PounceInvalid">
+    <value>"{0}" is not a callsign or grid.</value>
+  </data>
 </root>

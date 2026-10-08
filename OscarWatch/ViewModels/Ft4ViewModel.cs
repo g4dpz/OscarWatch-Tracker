@@ -34,6 +34,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     private IReadOnlySet<string> _workedGridFields = new HashSet<string>(StringComparer.Ordinal);
     private readonly HashSet<string> _finishedPartners = new(StringComparer.Ordinal);
     private string? _highlightPartner;
+    private Ft4PounceTarget? _highlightPounce;
 
     public Ft4ViewModel(
         ISettingsService settings,
@@ -118,6 +119,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         _separatePttPort = ft4.SeparatePttPort ?? "";
 
         StatusLine = _l.Get("Ft4.Status.Idle");
+        _pounceCheckLabel = _l.Get("Ft4.Pounce");
         WaterfallStatusText = _l.Get("Ft4.Waterfall.Unavailable");
         SlotClockText = "-";
         DopplerUplinkText = "-";
@@ -885,6 +887,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     private void HaltTx()
     {
         _modem.HaltTx();
+        SyncPounceState();
         TxEnabled = false;
         IsTuning = false;
         ManualPttPrompt = "";
@@ -1016,6 +1019,69 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         StatusLine = _l.Get("Ft4.Status.Answering", decode.Text);
         OnPropertyChanged(nameof(CanManualLog));
         ManualLogCommand.NotifyCanExecuteChanged();
+    }
+
+    /// <summary>The armed pounce target as shown on the TX panel, or empty.</summary>
+    [ObservableProperty] private string _pounceTargetText = "";
+
+    [ObservableProperty] private bool _isPounceArmed;
+
+    /// <summary>"Pounce" while off, "Pouncing: CALL" while armed.</summary>
+    [ObservableProperty] private string _pounceCheckLabel = "";
+
+    /// <summary>What the operator last entered in the pounce dialogue this session.</summary>
+    public string LastPounceInput { get; private set; } = "";
+
+    public void ArmPounce(Ft4PounceTarget target)
+    {
+        LastPounceInput = target.Value;
+        _modem.ArmPounce(target);
+        SyncPounceState();
+        StatusLine = _modem.Status;
+    }
+
+    [RelayCommand]
+    private void CancelPounce()
+    {
+        _modem.DisarmPounce();
+        SyncPounceState();
+        StatusLine = _modem.Status;
+    }
+
+    [RelayCommand]
+    private void PounceOnDecode(Ft4DecodeRowViewModel? row)
+    {
+        var call = row?.Message.CallDe;
+        if (row is null || !row.Message.IsReceiveActivity || string.IsNullOrWhiteSpace(call))
+            return;
+
+        if (!Ft4PounceTarget.TryParse(call, out var target))
+        {
+            StatusLine = _l.Get("Ft4.Status.PounceInvalid", call);
+            return;
+        }
+
+        ArmPounce(target);
+    }
+
+    private void SyncPounceState()
+    {
+        var target = _modem.PounceTarget;
+        IsPounceArmed = target is not null;
+        PounceTargetText = target?.Value ?? "";
+        PounceCheckLabel = target is null ? _l.Get("Ft4.Pounce") : _l.Get("Ft4.Pounce.Armed", target.Value);
+        if (!ReferenceEquals(_highlightPounce, target))
+        {
+            _highlightPounce = target;
+            RefreshDecodeHighlights();
+        }
+
+        if (_modem.TakePouncedDecode() is { } pounced)
+        {
+            if (!_settings.Current.Ft4.HoldTxFrequency)
+                TxAudioHz = pounced.FreqHz;
+            RxAudioHz = Math.Clamp(pounced.FreqHz, 200, 3000);
+        }
     }
 
     [RelayCommand]
@@ -1311,6 +1377,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
             QsoPartnerCall = _modem.Sequencer?.TheirCall;
             if (!string.IsNullOrEmpty(_modem.ManualPrompt))
                 SetManualPttPrompt(_modem.ManualPrompt);
+            SyncPounceState();
             OnPropertyChanged(nameof(CanManualLog));
             ManualLogCommand.NotifyCanExecuteChanged();
             SendReportCommand.NotifyCanExecuteChanged();
@@ -1398,7 +1465,8 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
             NewCallTextColour,
             NewGridTextColour,
             CqTextColour,
-            TxTextColour);
+            TxTextColour,
+            _highlightPounce);
 
     private void OnLogbookQsosChanged(long logbookId) => _ = RefreshWorkedSetsAsync();
 

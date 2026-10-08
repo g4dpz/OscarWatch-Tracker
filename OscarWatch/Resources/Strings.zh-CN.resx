@@ -4428,5 +4428,47 @@
   <data name="Ft4.TxAudioHz">
     <value>TX 音频 (Hz)</value>
   </data>
+  <data name="Ft4.Pounce">
+    <value>守候</value>
+  </data>
+  <data name="Ft4.Pounce.Note">
+    <value>守候某个电台或网格，当其呼叫 CQ 或呼叫你时自动呼叫对方。</value>
+  </data>
+  <data name="Ft4.Pounce.Title">
+    <value>守候并呼叫</value>
+  </data>
+  <data name="Ft4.Pounce.TargetLabel">
+    <value>呼号或网格</value>
+  </data>
+  <data name="Ft4.Pounce.Hint">
+    <value>一旦该电台（或该网格内任一电台）呼叫 CQ 或呼叫你，OscarWatch 将应答一次。对方与其他电台通联时会继续等待。取消勾选“守候”或按停止发射即可结束等待。</value>
+  </data>
+  <data name="Ft4.Pounce.Arm">
+    <value>开始守候</value>
+  </data>
+  <data name="Ft4.Pounce.Armed">
+    <value>正在守候：{0}</value>
+  </data>
+  <data name="Ft4.Pounce.OnStation">
+    <value>守候此电台</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce">
+    <value>目标</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce.Tip">
+    <value>守候目标：该电台呼叫 CQ 或呼叫你时，OscarWatch 将呼叫对方。</value>
+  </data>
+  <data name="Ft4.Status.PounceWaiting">
+    <value>守候已开启：等待 {0}</value>
+  </data>
+  <data name="Ft4.Status.PounceFired">
+    <value>正在呼叫 {0}：{1}</value>
+  </data>
+  <data name="Ft4.Status.PounceCancelled">
+    <value>已取消守候</value>
+  </data>
+  <data name="Ft4.Status.PounceInvalid">
+    <value>“{0}”不是呼号或网格。</value>
+  </data>
 
 </root>
