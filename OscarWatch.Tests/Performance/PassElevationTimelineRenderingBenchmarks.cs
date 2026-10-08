@@ -320,6 +320,9 @@ public sealed class PassElevationTimelineOptimizationEquivalenceTests
     [Fact]
     public void AccessibilityStringsAreConsistent()
     {
+        // The assertions read English text; a parallel localisation test can change the default UI culture.
+        using var culture = TestUiCulture.Apply();
+
         // Generate passes that will be visible in the time window
         var now = DateTime.UtcNow;
         var passes = new List<PassInfo>();
