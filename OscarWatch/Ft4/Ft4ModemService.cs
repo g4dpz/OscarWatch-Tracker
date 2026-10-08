@@ -113,6 +113,11 @@ public sealed class Ft4ModemService : IDisposable
             else
                 Log.Warning(ex, "{Message}", message);
         };
+        _frequencies.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(FrequencyOverlayViewModel.SelectedMode))
+                SyncSlotGate(IsRunning);
+        };
     }
 
     private bool OscarWatchSpotsActive() =>
