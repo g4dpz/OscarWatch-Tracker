@@ -78,6 +78,15 @@ public static class Ft4SlotRecordingFiles
 {
     public const int RetainedDays = 14;
 
+    /// <summary>
+    /// Lowest elevation recorded. A few degrees under the horizon gives noise-only slots
+    /// around AOS and LOS for false-decode tests, without hours of empty audio between passes.
+    /// </summary>
+    public const double MinElevationDeg = -2;
+
+    /// <summary>Record only while the tracked satellite is near or above the horizon; unknown elevation is skipped.</summary>
+    public static bool ShouldRecord(double? elevationDeg) => elevationDeg >= MinElevationDeg;
+
     private static readonly JsonSerializerOptions Json = new()
     {
         WriteIndented = true,

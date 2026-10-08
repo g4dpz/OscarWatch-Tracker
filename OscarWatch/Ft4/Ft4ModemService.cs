@@ -836,7 +836,10 @@ public sealed class Ft4ModemService : IDisposable
                         && Ft4DecodeDepth.UseFullSlotDecode(_snapshot.GetCurrent().ElevationDeg);
                     var needEndDecode = previousSlot != DateTime.MinValue
                         && (!_decodeQueuedThisSlot || previousWasTx || fullSlotPass);
-                    var recordSlot = previousSlot != DateTime.MinValue && !previousWasTx && _slotRecorder.Enabled;
+                    var recordSlot = previousSlot != DateTime.MinValue
+                        && !previousWasTx
+                        && _slotRecorder.Enabled
+                        && Ft4SlotRecordingFiles.ShouldRecord(_snapshot.GetCurrent().ElevationDeg);
                     lock (_gate)
                     {
                         if ((needEndDecode || recordSlot) && _slotBuffer.Count >= (int)(12000 * Ft4SlotClock.Ft4SlotSeconds / 2))

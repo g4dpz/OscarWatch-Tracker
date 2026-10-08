@@ -4037,7 +4037,7 @@ Aktuell: {1} ({2})</value>
     <value>Audio der Empfangsslots speichern</value>
   </data>
   <data name="Ft4.SaveSlotAudio.Note">
-    <value>Speichert jeden Empfangsslot als WAV-Datei mit seinen Dekodierergebnissen, damit echte Überflüge beim Abstimmen des Decoders erneut abgespielt werden können. Etwa 180 kB pro Slot; Dateien, die älter als 14 Tage sind, werden gelöscht.</value>
+    <value>Speichert jeden Empfangsslot als WAV-Datei mit seinen Dekodierergebnissen, damit echte Überflüge beim Abstimmen des Decoders erneut abgespielt werden können. Etwa 180 kB pro Slot; Dateien, die älter als 14 Tage sind, werden gelöscht. Gespeichert werden nur Slots ab 2° unter dem Horizont.</value>
   </data>
   <data name="Ft4.SaveSlotAudio.OpenFolder">
     <value>Ordner öffnen</value>

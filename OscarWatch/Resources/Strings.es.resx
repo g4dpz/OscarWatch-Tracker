@@ -4033,7 +4033,7 @@ Está utilizando la versión {0}.
     <value>Guardar el audio de los intervalos de recepción</value>
   </data>
   <data name="Ft4.SaveSlotAudio.Note">
-    <value>Guarda cada intervalo de recepción como archivo WAV con sus resultados de decodificación, para poder reproducir pases reales al ajustar el decodificador. Unos 180 kB por intervalo; los archivos de más de 14 días se eliminan.</value>
+    <value>Guarda cada intervalo de recepción como archivo WAV con sus resultados de decodificación, para poder reproducir pases reales al ajustar el decodificador. Unos 180 kB por intervalo; los archivos de más de 14 días se eliminan. Solo se guardan los intervalos desde 2° por debajo del horizonte.</value>
   </data>
   <data name="Ft4.SaveSlotAudio.OpenFolder">
     <value>Abrir carpeta</value>

@@ -4033,7 +4033,7 @@
     <value>保存接收时隙音频</value>
   </data>
   <data name="Ft4.SaveSlotAudio.Note">
-    <value>将每个接收时隙连同解码结果保存为 WAV 文件，以便调整解码器时回放真实过境。每个时隙约 180 kB；超过 14 天的文件会被删除。</value>
+    <value>将每个接收时隙连同解码结果保存为 WAV 文件，以便调整解码器时回放真实过境。每个时隙约 180 kB；超过 14 天的文件会被删除。仅保存卫星仰角高于地平线下 2° 的时隙。</value>
   </data>
   <data name="Ft4.SaveSlotAudio.OpenFolder">
     <value>打开文件夹</value>

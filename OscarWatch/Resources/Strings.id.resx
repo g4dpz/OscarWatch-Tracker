@@ -4037,7 +4037,7 @@ Terbaru: {1} ({2})</value>
     <value>Simpan audio slot penerimaan</value>
   </data>
   <data name="Ft4.SaveSlotAudio.Note">
-    <value>Menyimpan setiap slot penerimaan sebagai file WAV beserta hasil dekodenya, agar lintasan nyata dapat diputar ulang saat dekoder disetel. Sekitar 180 kB per slot; file yang lebih lama dari 14 hari dihapus.</value>
+    <value>Menyimpan setiap slot penerimaan sebagai file WAV beserta hasil dekodenya, agar lintasan nyata dapat diputar ulang saat dekoder disetel. Sekitar 180 kB per slot; file yang lebih lama dari 14 hari dihapus. Hanya slot dari 2° di bawah cakrawala ke atas yang disimpan.</value>
   </data>
   <data name="Ft4.SaveSlotAudio.OpenFolder">
     <value>Buka folder</value>

@@ -115,6 +115,16 @@ public sealed class Ft4SlotCorpusTests(ITestOutputHelper output)
         }
     }
 
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData(-10.0, false)]
+    [InlineData(-2.1, false)]
+    [InlineData(-2.0, true)]
+    [InlineData(0.0, true)]
+    [InlineData(45.0, true)]
+    public void Records_only_near_or_above_the_horizon(double? elevationDeg, bool expected) =>
+        Assert.Equal(expected, Ft4SlotRecordingFiles.ShouldRecord(elevationDeg));
+
     [Fact]
     public void Prune_deletes_only_old_recordings()
     {
