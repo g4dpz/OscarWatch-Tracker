@@ -438,13 +438,19 @@ Durasi: {4}</value>
     <value>Klik satelit untuk memilihnya, atau gunakan tombol panah saat terfokus. Garis menunjukkan jalur lintasannya; crosshair menandai arah rotator saat terhubung.</value>
   </data>
   <data name="Main.Standby.Hint">
-    <value>Hanya menjelajah: rotator diparkir, CAT dijeda</value>
+    <value>Mode siaga aktif. Rotator diparkir dan CAT dijeda sampai Anda melanjutkan pelacakan.</value>
   </data>
   <data name="Main.Standby.Pause">
     <value>Siaga</value>
   </data>
+  <data name="Main.Standby.PauseTip">
+    <value>Parkir rotator dan jeda CAT. Peta tetap langsung, tetapi stasiun berhenti melacak.</value>
+  </data>
   <data name="Main.Standby.Resume">
-    <value>Lanjutkan</value>
+    <value>Lanjutkan pelacakan</value>
+  </data>
+  <data name="Main.Standby.ResumeTip">
+    <value>Keluar dari siaga dan lanjutkan pelacakan rotator serta CAT.</value>
   </data>
   <data name="Main.Sunlight">
     <value>Cahaya matahari</value>
@@ -4024,6 +4030,18 @@ Terbaru: {1} ({2})</value>
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>Pada slot TX, decode biasa dan pass gema terlambat dijalankan bersama agar salinan Anda muncul lebih cepat. Memakai lebih banyak CPU pada slot itu. Biarkan aktif kecuali PC kewalahan.</value>
   </data>
+  <data name="Ft4.Settings.Group.DecoderTesting">
+    <value>Pengujian dekoder</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio">
+    <value>Simpan audio slot penerimaan</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.Note">
+    <value>Menyimpan setiap slot penerimaan sebagai file WAV beserta hasil dekodenya, agar lintasan nyata dapat diputar ulang saat dekoder disetel. Sekitar 180 kB per slot; file yang lebih lama dari 14 hari dihapus. Hanya slot dari 2° di bawah cakrawala ke atas yang disimpan.</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.OpenFolder">
+    <value>Buka folder</value>
+  </data>
   <data name="Ft4.ApEnabled">
     <value>Tebak balasan lemah (AP)</value>
   </data>
@@ -4312,6 +4330,9 @@ Terbaru: {1} ({2})</value>
   <data name="Ft4.NativeUnavailable">
     <value>Pustaka asli FT4 tidak ditemukan. Dekode dan generate tidak tersedia.</value>
   </data>
+  <data name="Ft4.NativeUnavailableWindows">
+    <value>Pustaka dekoder FT4 tidak dapat dimuat. Instal Microsoft Visual C++ Redistributable, lalu mulai ulang OscarWatch.</value>
+  </data>
   <data name="Ft4.Status.NeedStation">
     <value>Atur tanda panggilan dan grid di Pengaturan, Stasiun.</value>
   </data>
@@ -4372,6 +4393,9 @@ Terbaru: {1} ({2})</value>
   <data name="Ft4.Decodes.Ap">
     <value>AP</value>
   </data>
+  <data name="Ft4.Decodes.ApRejected.Tip">
+    <value>Ditolak: petunjuk ini tidak lolos CRC, atau dekode berikutnya menunjukkan stasiun ini mengirim pesan lain pada slot yang sama.</value>
+  </data>
   <data name="Ft4.TxMessage">
     <value>Pesan TX</value>
   </data>
@@ -4407,6 +4431,48 @@ Terbaru: {1} ({2})</value>
   </data>
   <data name="Ft4.TxAudioHz">
     <value>Audio TX (Hz)</value>
+  </data>
+  <data name="Ft4.Pounce">
+    <value>Intai</value>
+  </data>
+  <data name="Ft4.Pounce.Note">
+    <value>Tunggu satu stasiun atau grid, lalu panggil otomatis saat mereka memanggil CQ atau memanggil Anda.</value>
+  </data>
+  <data name="Ft4.Pounce.Title">
+    <value>Tunggu dan panggil</value>
+  </data>
+  <data name="Ft4.Pounce.TargetLabel">
+    <value>Callsign atau grid</value>
+  </data>
+  <data name="Ft4.Pounce.Hint">
+    <value>OscarWatch menjawab sekali, segera setelah stasiun ini (atau stasiun mana pun di grid ini) memanggil CQ atau memanggil Anda. Tetap menunggu selama mereka bekerja dengan stasiun lain. Hapus centang Intai, atau tekan Hentikan TX, untuk berhenti menunggu.</value>
+  </data>
+  <data name="Ft4.Pounce.Arm">
+    <value>Aktifkan</value>
+  </data>
+  <data name="Ft4.Pounce.Armed">
+    <value>Mengintai: {0}</value>
+  </data>
+  <data name="Ft4.Pounce.OnStation">
+    <value>Intai stasiun ini</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce">
+    <value>Target</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce.Tip">
+    <value>Target intai: OscarWatch memanggil stasiun ini saat mereka memanggil CQ atau memanggil Anda.</value>
+  </data>
+  <data name="Ft4.Status.PounceWaiting">
+    <value>Intai aktif: menunggu {0}</value>
+  </data>
+  <data name="Ft4.Status.PounceFired">
+    <value>Memanggil {0}: {1}</value>
+  </data>
+  <data name="Ft4.Status.PounceCancelled">
+    <value>Intai dibatalkan</value>
+  </data>
+  <data name="Ft4.Status.PounceInvalid">
+    <value>"{0}" bukan callsign atau grid.</value>
   </data>
 
 </root>

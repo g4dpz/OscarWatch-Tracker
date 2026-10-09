@@ -23,7 +23,7 @@ public static class Ft4OscarWatchSpots
         out OscarWatchSatelliteSpot spot)
     {
         spot = null!;
-        if (!decode.IsReceiveActivity)
+        if (!decode.IsReceiveActivity || decode.IsRejected)
             return false;
 
         var satellite = snapshot.SatelliteName?.Trim() ?? "";

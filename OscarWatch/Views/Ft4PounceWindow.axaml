@@ -1,0 +1,46 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:OscarWatch.Localization"
+        xmlns:ctrl="using:OscarWatch.Controls"
+        x:Class="OscarWatch.Views.Ft4PounceWindow"
+        Title="{loc:Localize Key=Ft4.Pounce.Title}"
+        Width="400"
+        SizeToContent="Height"
+        MinWidth="360"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="16">
+    <StackPanel DockPanel.Dock="Bottom" Spacing="8" Margin="0,16,0,0">
+      <TextBlock x:Name="ErrorText"
+                 TextWrapping="Wrap"
+                 Foreground="#FFC07070"
+                 IsVisible="False" />
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+        <Button Content="{loc:Localize Key=Common.Cancel}"
+                Classes="dialog-footer"
+                Click="OnCancelClick"
+                IsCancel="True" />
+        <Button Content="{loc:Localize Key=Ft4.Pounce.Arm}"
+                Classes="dialog-footer accent"
+                Click="OnArmClick"
+                IsDefault="True" />
+      </StackPanel>
+    </StackPanel>
+
+    <StackPanel Spacing="12">
+      <TextBlock Text="{loc:Localize Key=Ft4.Pounce.Hint}"
+                 TextWrapping="Wrap"
+                 Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+      <StackPanel Spacing="4">
+        <TextBlock Text="{loc:Localize Key=Ft4.Pounce.TargetLabel}"
+                   FontSize="12"
+                   Foreground="{DynamicResource ThemeSecondaryForegroundBrush}" />
+        <TextBox x:Name="TargetTextBox"
+                 ctrl:UppercaseTextInput.IsEnabled="True"
+                 FontFamily="Consolas,Courier New,monospace"
+                 MaxLength="16"
+                 AutomationProperties.Name="{loc:Localize Key=Ft4.Pounce.TargetLabel}" />
+      </StackPanel>
+    </StackPanel>
+  </DockPanel>
+</Window>

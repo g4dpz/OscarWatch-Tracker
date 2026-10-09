@@ -434,13 +434,19 @@
     <value>单击卫星进行选择，或在聚焦时使用方向键。线条显示其过境路径；连接时十字标记表示旋翼器指向。</value>
   </data>
   <data name="Main.Standby.Hint">
-    <value>浏览模式 — 旋转器已停靠，CAT 已暂停</value>
+    <value>待机已开启。在恢复跟踪之前，旋转器已停靠，CAT 已暂停。</value>
   </data>
   <data name="Main.Standby.Pause">
     <value>待机</value>
   </data>
+  <data name="Main.Standby.PauseTip">
+    <value>停靠旋转器并暂停 CAT。地图仍为实时，但电台停止跟踪。</value>
+  </data>
   <data name="Main.Standby.Resume">
-    <value>恢复</value>
+    <value>恢复跟踪</value>
+  </data>
+  <data name="Main.Standby.ResumeTip">
+    <value>退出待机，恢复旋转器和 CAT 跟踪。</value>
   </data>
   <data name="Main.Sunlight">
     <value>日照</value>
@@ -4020,6 +4026,18 @@
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>在发射时隙同时运行正常解码与迟到回波处理，以便更快显示本台回波。该时隙会占用更多 CPU。除非电脑吃力，否则请保持开启。</value>
   </data>
+  <data name="Ft4.Settings.Group.DecoderTesting">
+    <value>解码器测试</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio">
+    <value>保存接收时隙音频</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.Note">
+    <value>将每个接收时隙连同解码结果保存为 WAV 文件，以便调整解码器时回放真实过境。每个时隙约 180 kB；超过 14 天的文件会被删除。仅保存卫星仰角高于地平线下 2° 的时隙。</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.OpenFolder">
+    <value>打开文件夹</value>
+  </data>
   <data name="Ft4.ApEnabled">
     <value>推测弱回复 (AP)</value>
   </data>
@@ -4308,6 +4326,9 @@
   <data name="Ft4.NativeUnavailable">
     <value>未找到原生 FT4 库。解码与生成不可用。</value>
   </data>
+  <data name="Ft4.NativeUnavailableWindows">
+    <value>无法加载 FT4 解码库。请安装 Microsoft Visual C++ 可再发行组件包，然后重新启动 OscarWatch。</value>
+  </data>
   <data name="Ft4.Status.NeedStation">
     <value>请在设置、电台中设置呼号和网格。</value>
   </data>
@@ -4368,6 +4389,9 @@
   <data name="Ft4.Decodes.Ap">
     <value>AP</value>
   </data>
+  <data name="Ft4.Decodes.ApRejected.Tip">
+    <value>已拒绝：此提示未通过 CRC，或后续解码显示该电台在同一时隙发送的是另一条消息。</value>
+  </data>
   <data name="Ft4.TxMessage">
     <value>TX 消息</value>
   </data>
@@ -4403,6 +4427,48 @@
   </data>
   <data name="Ft4.TxAudioHz">
     <value>TX 音频 (Hz)</value>
+  </data>
+  <data name="Ft4.Pounce">
+    <value>守候</value>
+  </data>
+  <data name="Ft4.Pounce.Note">
+    <value>守候某个电台或网格，当其呼叫 CQ 或呼叫你时自动呼叫对方。</value>
+  </data>
+  <data name="Ft4.Pounce.Title">
+    <value>守候并呼叫</value>
+  </data>
+  <data name="Ft4.Pounce.TargetLabel">
+    <value>呼号或网格</value>
+  </data>
+  <data name="Ft4.Pounce.Hint">
+    <value>一旦该电台（或该网格内任一电台）呼叫 CQ 或呼叫你，OscarWatch 将应答一次。对方与其他电台通联时会继续等待。取消勾选“守候”或按停止发射即可结束等待。</value>
+  </data>
+  <data name="Ft4.Pounce.Arm">
+    <value>开始守候</value>
+  </data>
+  <data name="Ft4.Pounce.Armed">
+    <value>正在守候：{0}</value>
+  </data>
+  <data name="Ft4.Pounce.OnStation">
+    <value>守候此电台</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce">
+    <value>目标</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce.Tip">
+    <value>守候目标：该电台呼叫 CQ 或呼叫你时，OscarWatch 将呼叫对方。</value>
+  </data>
+  <data name="Ft4.Status.PounceWaiting">
+    <value>守候已开启：等待 {0}</value>
+  </data>
+  <data name="Ft4.Status.PounceFired">
+    <value>正在呼叫 {0}：{1}</value>
+  </data>
+  <data name="Ft4.Status.PounceCancelled">
+    <value>已取消守候</value>
+  </data>
+  <data name="Ft4.Status.PounceInvalid">
+    <value>“{0}”不是呼号或网格。</value>
   </data>
 
 </root>

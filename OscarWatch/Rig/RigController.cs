@@ -701,7 +701,7 @@ public sealed class RigController : IRigController, IDisposable
         _suspendDopplerUntilUtc = DateTime.MinValue;
         _kenwoodFaFbBackoffUntilUtc = DateTime.MinValue;
         _kenwoodFaFbFailCount = 0;
-        _ft4SlotGatedDoppler = false;
+        // The hold belongs to the FT4 session, which does not resend it after a reconnect.
         _ft4ForceDopplerStep = false;
     }
 
@@ -2753,7 +2753,7 @@ public sealed class RigController : IRigController, IDisposable
                 return wattsDirect;
 
             // ICOM CI-V: relative 0–255 mapped via band maximum.
-            if (!driver.TryReadRfPowerLevel(out var level))
+            if (!WithTransmitVfoSelected(driver, d => (d.TryReadRfPowerLevel(out var l), l), out var level))
                 return null;
 
             var hz = _lastRigTxHz;
@@ -2769,6 +2769,26 @@ public sealed class RigController : IRigController, IDisposable
         {
             Log.Debug(ex, "Uplink RF power read failed");
             return null;
+        }
+    }
+
+    /// <summary>
+    /// ICOM level commands act on the selected band, and the operator VFO is the receive band
+    /// on Main/Sub satellite layouts, so select the uplink first and restore afterwards.
+    /// </summary>
+    private bool WithTransmitVfoSelected<T>(IRigDriver driver, Func<IRigDriver, (bool Ok, T Value)> action, out T value)
+    {
+        driver.SelectVfo(TransmitVfoForWrite(_cachedSettings), force: true);
+        try
+        {
+            var (ok, result) = action(driver);
+            value = result;
+            return ok;
+        }
+        finally
+        {
+            if (!_cachedSettings.DualRadioEnabled)
+                driver.SelectVfo(ReceiveVfo(), force: true);
         }
     }
 
@@ -2793,7 +2813,7 @@ public sealed class RigController : IRigController, IDisposable
             if (!IcomRfPowerEstimator.TryLevelForWatts(driver.RigType, hz, watts, out var level))
                 return false;
 
-            if (!driver.TrySetRfPowerLevel(level))
+            if (!WithTransmitVfoSelected(driver, d => (d.TrySetRfPowerLevel(level), level), out _))
                 return false;
 
             Log.Information(

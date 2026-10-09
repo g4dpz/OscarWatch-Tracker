@@ -1,0 +1,37 @@
+using OscarWatch.Core.Ft4;
+using OscarWatch.Core.Models;
+
+namespace OscarWatch.Tests.Ft4;
+
+public sealed class Ft4SlotGateTests
+{
+    private static SatelliteTransponderMode Mode(string type) => new() { Type = type };
+
+    [Fact]
+    public void Ft4_window_open_holds_on_any_transponder()
+    {
+        Assert.True(Ft4SlotGate.ShouldHold(sessionRunning: true, windowOpen: true, Mode("SSB Transponder")));
+        Assert.True(Ft4SlotGate.ShouldHold(sessionRunning: true, windowOpen: true, null));
+    }
+
+    [Fact]
+    public void Ft4_transponder_holds_with_the_window_closed()
+    {
+        Assert.True(Ft4SlotGate.ShouldHold(sessionRunning: true, windowOpen: false, Mode("FT4")));
+        Assert.True(Ft4SlotGate.ShouldHold(sessionRunning: true, windowOpen: false, Mode(" ft4 ")));
+    }
+
+    [Fact]
+    public void Other_transponder_with_the_window_closed_releases()
+    {
+        Assert.False(Ft4SlotGate.ShouldHold(sessionRunning: true, windowOpen: false, Mode("SSB Transponder")));
+        Assert.False(Ft4SlotGate.ShouldHold(sessionRunning: true, windowOpen: false, Mode("CW TLM")));
+        Assert.False(Ft4SlotGate.ShouldHold(sessionRunning: true, windowOpen: false, null));
+    }
+
+    [Fact]
+    public void No_session_never_holds()
+    {
+        Assert.False(Ft4SlotGate.ShouldHold(sessionRunning: false, windowOpen: true, Mode("FT4")));
+    }
+}

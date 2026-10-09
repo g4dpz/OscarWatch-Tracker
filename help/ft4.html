@@ -129,7 +129,8 @@
           in the TX message, chooses the right slot, and turns transmit on.</li>
         <li>Leave it to run. Your sends are marked <strong>TX</strong>. Your signal back from the
           satellite is marked <strong>Echo</strong>. The other station's lines have a blank TX column.
-          A line marked <strong>AP</strong> is a guess at a weak reply. See
+          A line marked <strong>AP</strong> is a weak reply with the callsigns filled in.
+          Struck through means it was not used. See
           <a href="#reading">Reading a message</a>.</li>
         <li>When both signal reports have been exchanged and both stations have sent 73, the contact
           is saved to the <a href="qso-logbook.html">logbook</a>. RR73 counts as that station's 73.</li>
@@ -190,10 +191,11 @@
         prefer a separate RRR, then 73.
       </p>
       <p>
-        A very weak reply can be filled in from the message the contact is expecting next.
-        That line is marked <strong>AP</strong>. It is a hint, so treat it more carefully than a
-        normal decode. OscarWatch will not guess 73 or RR73 until a signal report has been
-        exchanged, so a noisy hint cannot end the contact early. Turn this off under
+        A very weak reply can be filled in once both callsigns are known.
+        That line is marked <strong>AP</strong>. OscarWatch uses it when the rest of the
+        message checks out. A struck-through AP did not check out: it stays on the list and
+        does not change the TX message. 73 and RR73 are not tried until a signal report has
+        been exchanged, so a noisy hint cannot end the contact early. Turn this off under
         <strong>Settings → Modem</strong> if you only want messages that were read directly.
         The limits are under <a href="#decoding">Decoding</a>.
       </p>
@@ -229,16 +231,17 @@
       </p>
       <p>
         OscarWatch reads the power setting on ICOM radios that report it over CI-V (for example the
-        IC-9700), on the Yaesu FT-991 and FT-991A, and on the Kenwood TS-2000. It checks before every
-        transmission, so turning the power up during a contact stops transmit at the next slot.
-        Radios that cannot report their power are not checked, and OscarWatch cannot see an amplifier
-        after the radio. Please keep to the limit anyway.
+        IC-9700), on the Yaesu FT-991 and FT-991A, and on the Kenwood TS-2000. It checks when you
+        press <strong>Enable Tx</strong> or <strong>Tune</strong>. Tune waits for that reading
+        before it keys. Turning the power up after that is not seen until you press one of those
+        again. Radios that cannot report their power are not checked, and OscarWatch
+        cannot see an amplifier after the radio. Please keep to the limit anyway.
       </p>
       <p>
         If the power is too high, the status line says so and transmit stops. Turn the power down and
-        press <strong>CQ</strong> or click a station again. Or tick <strong>Lower RF power to 30 W</strong>
-        under <strong>Settings → Modem</strong>: OscarWatch then sets the radio to 30 W for you before it
-        transmits, and leaves it at that setting. If the radio will not change, transmit stays blocked.
+        press <strong>Enable Tx</strong> or <strong>Tune</strong> again. Or tick <strong>Lower RF power to 30 W</strong>
+        under <strong>Settings → Modem</strong>: OscarWatch then sets the radio to 30 W when you
+        press either of those, and leaves it at that setting. If the radio will not change, transmit stays blocked.
       </p>
       <p>A few habits make a pass better for everyone:</p>
       <ul>
@@ -279,7 +282,7 @@
       <table>
         <tr><th>Column</th><th>Meaning</th></tr>
         <tr><td>UTC</td><td>When that slot started, in UTC.</td></tr>
-        <tr><td>TX</td><td>Blank when you heard someone else. <strong>TX</strong> is a message you sent. <strong>Echo</strong> is your own message back from the satellite. <strong>AP</strong> is a guessed weak reply.</td></tr>
+        <tr><td>TX</td><td>Blank when you heard someone else. <strong>TX</strong> is a message you sent. <strong>Echo</strong> is your own message back from the satellite. <strong>AP</strong> is a weak reply with the callsigns filled in. Struck through means it was not used.</td></tr>
         <tr><td>DT</td><td>How late the signal was, in seconds. About +0.5 is on time. Your echo is often a little later.</td></tr>
         <tr><td>SNR</td><td>How strong the signal is compared with the noise, in dB. Higher is stronger. Below zero is normal. This is the same scale WSJT-X uses.</td></tr>
         <tr><td>Message</td><td>The text that was decoded.</td></tr>
@@ -298,7 +301,8 @@
         <li>the station you are working, including after that contact has finished;</li>
         <li>a CQ from a station you have already logged;</li>
         <li>a callsign you have not logged, including when they are calling CQ;</li>
-        <li>a 4-character grid you have not logged.</li>
+        <li>a 4-character grid you have not logged;</li>
+        <li>the station you are waiting for with <a href="#pounce">Pounce</a>, marked <strong>Target</strong>.</li>
       </ul>
       <p>
         Change the background and the text colour under <strong>Settings → Appearance</strong>.
@@ -328,7 +332,26 @@
         <li><strong>Even TX slots</strong>: take the even turn instead of the odd one. When you answer someone, OscarWatch already picks the turn they are not using, so you rarely need this.</li>
         <li><strong>Hold Tx Freq</strong>: ticked by default. Clicking a station does not move where you transmit, which keeps you from landing on top of them. Untick it to transmit on the same audio frequency as the station you answer. While it is ticked, left-click the waterfall for receive and right-click for transmit.</li>
         <li><strong>Auto reply</strong>: ticked by default. While you are calling CQ, the first station that calls you is answered. Untick it to keep calling until you click the station you want. Tick it again and the next caller is answered, including someone who called in the last few seconds. A contact you have already started still runs through to the report and the goodbye on its own.</li>
+        <li><strong>Pounce</strong>: tick to wait for one station and call them automatically. See <a href="#pounce">Wait and pounce</a>.</li>
         <li><strong>TX audio (Hz)</strong>: your transmit position on the waterfall (the red bracket).</li>
+      </ul>
+
+      <h3 id="pounce">Wait and pounce</h3>
+      <p>
+        Use this for a sked, or for a station you need that only shows up for a moment. Tick
+        <strong>Pounce</strong>, type a callsign or a grid, and click <strong>Arm</strong>. Cancel leaves it unticked. The station
+        does not have to be in the list yet. You can also right-click a line and choose
+        <strong>Pounce on this station</strong>.
+      </p>
+      <ul>
+        <li>OscarWatch answers the first time that station calls CQ or calls you, exactly as if you had clicked the line. Then it stops waiting, so it never calls them twice.</li>
+        <li>While they are working someone else, it keeps waiting. It does not call over another contact.</li>
+        <li>A callsign matches with or without a portable part, so <code>MM0ABC</code> also matches <code>MM0ABC/P</code>.</li>
+        <li>A grid such as <code>IO85</code> matches any station sending that 4-character grid. FT4 only sends 4 characters, so a 6-character grid is matched on its first 4.</li>
+        <li>It does not fire while you are already in a contact. It waits until that contact has finished.</li>
+        <li>Lines from the station you are waiting for are shaded and marked <strong>Target</strong>.</li>
+        <li>While armed, the box stays ticked and reads <strong>Pouncing:</strong> and the target. Untick it to stop waiting. <strong>Halt Tx</strong> also stops it and unticks the box, and so does the pounce firing. To change the target, untick and tick again.</li>
+        <li>The target is not saved. It is cleared when you close OscarWatch.</li>
       </ul>
 
       <h3>Status line</h3>
@@ -359,6 +382,21 @@
         being tuned while a message is going out. The small drift inside the slot is taken out in the audio.
         You can turn that audio correction off for transmit or receive under <strong>Settings → Modem</strong>.
         Leave it on.
+      </p>
+
+      <h3 id="back-to-ssb">When the hold applies, and going back to SSB</h3>
+      <p>
+        Holding the radio still for each slot only suits FT4. It applies while FT4 is running and either:
+      </p>
+      <ul>
+        <li>the FT4 window is open, whichever transponder is selected, or</li>
+        <li>the <strong>FT4</strong> transponder is selected in the satellite panel, even with the FT4 window closed.</li>
+      </ul>
+      <p>
+        To go back to SSB, CW or any other mode, close the FT4 window and pick that transponder.
+        The hold is released straight away. The radio then follows Doppler continuously as normal,
+        and the audio correction above is switched off too. Open the FT4 window again, or pick the
+        FT4 transponder, and the hold comes back.
       </p>
 
       <h3>Your echo</h3>
@@ -444,7 +482,7 @@
         <li><strong>Auto reply</strong> and <strong>Hold Tx Freq</strong>: the same ticks as on the main FT4 window.</li>
         <li><strong>Hint weak replies (AP)</strong>: fill in a very weak reply from the message the contact is expecting. Untick it to show only what was read directly. See <a href="#decoding">Decoding</a>.</li>
         <li><strong>TX watchdog</strong>: minutes to keep calling if nobody answers. 0 leaves transmit on.</li>
-        <li><strong>Lower RF power to 30 W</strong>: sets the radio to 30 W before transmitting when it reports more. See <a href="#power">Power and good practice</a>.</li>
+        <li><strong>Lower RF power to 30 W</strong>: sets the radio to 30 W when you press <strong>Enable Tx</strong> or <strong>Tune</strong>, if it reports more. See <a href="#power">Power and good practice</a>.</li>
         <li><strong>Doppler</strong>: take the remaining frequency drift out of the transmit audio, and out of the receive audio. There is also a second look for your echo during a transmit slot. Turn that last one off only if the PC struggles for a moment at each slot.</li>
       </ul>
 
@@ -498,7 +536,7 @@
         <tr><td>RRR</td><td>All received.</td></tr>
         <tr><td>RR73</td><td>All received, and goodbye, in one message.</td></tr>
         <tr><td>73</td><td>Best wishes. The sign-off.</td></tr>
-        <tr><td>AP</td><td>A guessed reply. Both callsigns were already known, and this was the closest message the contact was expecting. Marked AP in the list.</td></tr>
+        <tr><td>AP</td><td>A reply with the callsigns filled in. A normal AP passed the check and is used. A struck-through AP did not, so it stays on the list and does not change the TX message.</td></tr>
         <tr><td>QSO</td><td>A contact between two stations.</td></tr>
         <tr><td>Slot</td><td>7.5 seconds. You transmit in one and listen in the next.</td></tr>
         <tr><td>Even / odd slot</td><td>The two turns. The stations in a contact use opposite ones, so one is always listening.</td></tr>
@@ -517,8 +555,8 @@
       <h2 id="advanced">More detail</h2>
       <h3>Doppler</h3>
       <p>
-        While FT4 is running, the radio is tuned at the slot boundary and then held, in the same way as
-        OrbitDeck for iOS. Inside the slot, the remaining drift is removed in the audio. Transmit audio
+        While the hold applies (see <a href="#back-to-ssb">When the hold applies</a>), the radio is tuned
+        at the slot boundary and then held, in the same way as OrbitDeck for iOS. Inside the slot, the remaining drift is removed in the audio. Transmit audio
         is shifted in advance. On a satellite that flips the sideband, that shift is applied the other way. Receive audio is
         shifted back before it is decoded.
       </p>
@@ -546,7 +584,9 @@
       </p>
       <p>
         During a contact, a reply the first pass missed can be tried again as a hint. The line is
-        marked <strong>AP</strong>. While you are still sending your opening grid, the hints are
+        marked <strong>AP</strong> when the rest of the message checks out. A hint that does not
+        pass that check is shown with AP struck through, and it does not change what you send.
+        While you are still sending your opening grid, the hints are
         that station's grid and a signal report. 73 and RR73 are added only after a report has
         been sent or received. RRR is never guessed, because a guessed one would start the goodbye.
         Once you are already sending 73 or RR73, only those two are tried, so a fresh report is

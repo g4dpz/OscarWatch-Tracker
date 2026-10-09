@@ -213,6 +213,13 @@
                 <StackPanel />
               </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
+            <ListBox.ContextMenu>
+              <ContextMenu Opening="OnDecodeContextMenuOpening"
+                           Closed="OnDecodeContextMenuClosed">
+                <MenuItem Header="{loc:Localize Key=Ft4.Pounce.OnStation}"
+                          Click="OnPounceOnStationClick" />
+              </ContextMenu>
+            </ListBox.ContextMenu>
             <ListBox.Styles>
               <Style Selector="ListBoxItem">
                 <Setter Property="Padding" Value="0" />
@@ -222,7 +229,8 @@
             <ListBox.ItemTemplate>
               <DataTemplate x:DataType="vm:Ft4DecodeRowViewModel">
                 <Grid ColumnDefinitions="76,48,48,72,*,52" ColumnSpacing="10" Margin="4,2"
-                      Background="{Binding RowBackground}">
+                      Background="{Binding RowBackground}"
+                      PointerPressed="OnDecodeRowPointerPressed">
                   <Grid.Styles>
                     <Style Selector="TextBlock.ft4-ink">
                       <Setter Property="Foreground" Value="{Binding RowForeground}" />
@@ -245,7 +253,22 @@
                              Text="{loc:Localize Key=Ft4.Decodes.Ap}"
                              FontWeight="SemiBold"
                              Foreground="#E0A84A"
-                             IsVisible="{Binding Message.IsApriori}" />
+                             IsVisible="{Binding Message.IsAcceptedApriori}" />
+                  <TextBlock Grid.Column="1"
+                             Text="{loc:Localize Key=Ft4.Decodes.Ap}"
+                             FontWeight="SemiBold"
+                             Foreground="#E0A84A"
+                             TextDecorations="Strikethrough"
+                             ToolTip.Tip="{loc:Localize Key=Ft4.Decodes.ApRejected.Tip}"
+                             AutomationProperties.Name="{loc:Localize Key=Ft4.Decodes.ApRejected.Tip}"
+                             IsVisible="{Binding Message.IsRejectedApriori}" />
+                  <TextBlock Grid.Column="1"
+                             Classes.ft4-ink="{Binding HasRowForeground}"
+                             Text="{loc:Localize Key=Ft4.Decodes.Pounce}"
+                             FontWeight="SemiBold"
+                             ToolTip.Tip="{loc:Localize Key=Ft4.Decodes.Pounce.Tip}"
+                             AutomationProperties.Name="{loc:Localize Key=Ft4.Decodes.Pounce.Tip}"
+                             IsVisible="{Binding IsPounceTarget}" />
                   <TextBlock Grid.Column="2"
                              Classes.ft4-ink="{Binding HasRowForeground}"
                              Text="{Binding Message.TimeSec, StringFormat={}{0:+0.0;-0.0;0.0}}"
@@ -355,6 +378,13 @@
               <CheckBox Content="{loc:Localize Key=Ft4.AutoReply}"
                         IsChecked="{Binding AutoReply, Mode=TwoWay}"
                         ToolTip.Tip="{loc:Localize Key=Ft4.AutoReply.Note}"
+                        VerticalAlignment="Center" />
+              <CheckBox x:Name="PounceCheckBox"
+                        Content="{Binding PounceCheckLabel}"
+                        IsChecked="{Binding IsPounceArmed, Mode=OneWay}"
+                        Click="OnPounceCheckClick"
+                        ToolTip.Tip="{loc:Localize Key=Ft4.Pounce.Note}"
+                        AutomationProperties.Name="{Binding PounceCheckLabel}"
                         VerticalAlignment="Center" />
             </StackPanel>
             <StackPanel DockPanel.Dock="Right"

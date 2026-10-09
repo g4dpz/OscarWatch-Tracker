@@ -434,13 +434,19 @@
     <value>Click a satellite to select it, or use arrow keys when focused. The line shows its pass path; the crosshair marks rotator aim when connected.</value>
   </data>
   <data name="Main.Standby.Hint">
-    <value>Browsing only — rotator parked, CAT paused</value>
+    <value>Standby is on. The rotator is parked and CAT is paused until you resume tracking.</value>
   </data>
   <data name="Main.Standby.Pause">
     <value>Standby</value>
   </data>
+  <data name="Main.Standby.PauseTip">
+    <value>Park the rotator and pause CAT. The map stays live, but the station stops tracking.</value>
+  </data>
   <data name="Main.Standby.Resume">
-    <value>Resume</value>
+    <value>Resume tracking</value>
+  </data>
+  <data name="Main.Standby.ResumeTip">
+    <value>Leave standby and resume rotator and CAT tracking.</value>
   </data>
   <data name="Main.Sunlight">
     <value>Sunlight</value>
@@ -4020,6 +4026,18 @@ Latest: {1} ({2})</value>
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>On transmit slots, run the normal decode and a late-echo pass together so your own copy appears sooner. Uses more CPU for that slot. Leave on unless the PC struggles.</value>
   </data>
+  <data name="Ft4.Settings.Group.DecoderTesting">
+    <value>Decoder testing</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio">
+    <value>Save receive slot audio</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.Note">
+    <value>Keeps each receive slot as a WAV file with its decode results, so real passes can be replayed when the decoder is tuned. About 180 kB a slot; files older than 14 days are deleted. Only slots from 2° below the horizon upwards are saved.</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.OpenFolder">
+    <value>Open folder</value>
+  </data>
   <data name="Ft4.ApEnabled">
     <value>Hint weak replies (AP)</value>
   </data>
@@ -4308,6 +4326,9 @@ Latest: {1} ({2})</value>
   <data name="Ft4.NativeUnavailable">
     <value>Native FT4 library not found. Decode and generate are unavailable.</value>
   </data>
+  <data name="Ft4.NativeUnavailableWindows">
+    <value>The FT4 decoder library could not load. Install the Microsoft Visual C++ Redistributable, then restart OscarWatch.</value>
+  </data>
   <data name="Ft4.Status.NeedStation">
     <value>Set your callsign and grid under Settings, Station.</value>
   </data>
@@ -4365,6 +4386,9 @@ Latest: {1} ({2})</value>
   <data name="Ft4.Decodes.Ap">
     <value>AP</value>
   </data>
+  <data name="Ft4.Decodes.ApRejected.Tip">
+    <value>Rejected: this hint did not pass the CRC, or a later decode showed a different message from this station in the same slot.</value>
+  </data>
   <data name="Ft4.Decodes.Message">
     <value>Message</value>
   </data>
@@ -4403,5 +4427,47 @@ Latest: {1} ({2})</value>
   </data>
   <data name="Ft4.TxAudioHz">
     <value>TX audio (Hz)</value>
+  </data>
+  <data name="Ft4.Pounce">
+    <value>Pounce</value>
+  </data>
+  <data name="Ft4.Pounce.Note">
+    <value>Wait for one station or grid, then call them automatically when they call CQ or call you.</value>
+  </data>
+  <data name="Ft4.Pounce.Title">
+    <value>Wait and pounce</value>
+  </data>
+  <data name="Ft4.Pounce.TargetLabel">
+    <value>Callsign or grid</value>
+  </data>
+  <data name="Ft4.Pounce.Hint">
+    <value>OscarWatch answers once, as soon as this station (or any station in this grid) calls CQ or calls you. It keeps waiting while they work someone else. Untick Pounce, or press Halt Tx, to stop waiting.</value>
+  </data>
+  <data name="Ft4.Pounce.Arm">
+    <value>Arm</value>
+  </data>
+  <data name="Ft4.Pounce.Armed">
+    <value>Pouncing: {0}</value>
+  </data>
+  <data name="Ft4.Pounce.OnStation">
+    <value>Pounce on this station</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce">
+    <value>Target</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce.Tip">
+    <value>Pounce target: OscarWatch calls this station when they call CQ or call you.</value>
+  </data>
+  <data name="Ft4.Status.PounceWaiting">
+    <value>Pounce armed: waiting for {0}</value>
+  </data>
+  <data name="Ft4.Status.PounceFired">
+    <value>Pounced on {0}: {1}</value>
+  </data>
+  <data name="Ft4.Status.PounceCancelled">
+    <value>Pounce cancelled</value>
+  </data>
+  <data name="Ft4.Status.PounceInvalid">
+    <value>"{0}" is not a callsign or grid.</value>
   </data>
 </root>

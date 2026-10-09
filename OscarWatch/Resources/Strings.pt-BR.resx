@@ -434,13 +434,19 @@
     <value>Clique em um satélite para selecioná-lo, ou use as teclas seta quando focado. A linha mostra a trajetória da passagem; a cruz marca a orientação do rotador quando conectado.</value>
   </data>
   <data name="Main.Standby.Hint">
-    <value>Apenas navegando — rotor estacionado, CAT pausado</value>
+    <value>O modo em espera está ativo. O rotor está estacionado e o CAT está pausado até você retomar o rastreamento.</value>
   </data>
   <data name="Main.Standby.Pause">
     <value>Em espera</value>
   </data>
+  <data name="Main.Standby.PauseTip">
+    <value>Estaciona o rotor e pausa o CAT. O mapa continua ao vivo, mas a estação para de rastrear.</value>
+  </data>
   <data name="Main.Standby.Resume">
-    <value>Retomar</value>
+    <value>Retomar rastreamento</value>
+  </data>
+  <data name="Main.Standby.ResumeTip">
+    <value>Saia do modo em espera e retome o rastreamento do rotor e do CAT.</value>
   </data>
   <data name="Main.Sunlight">
     <value>Luz solar</value>
@@ -4020,6 +4026,18 @@ Mais recente: {1} ({2})</value>
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>Nas janelas de transmissão, executa o decode normal e um passe de eco tardio juntos para a sua cópia aparecer mais cedo. Usa mais CPU nessa janela. Deixe ligado, a menos que o PC fique sobrecarregado.</value>
   </data>
+  <data name="Ft4.Settings.Group.DecoderTesting">
+    <value>Testes do decodificador</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio">
+    <value>Salvar o áudio dos intervalos de recepção</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.Note">
+    <value>Salva cada intervalo de recepção como arquivo WAV com os resultados da decodificação, para que passagens reais possam ser reproduzidas ao ajustar o decodificador. Cerca de 180 kB por intervalo; arquivos com mais de 14 dias são excluídos. Só são salvos os intervalos a partir de 2° abaixo do horizonte.</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.OpenFolder">
+    <value>Abrir pasta</value>
+  </data>
   <data name="Ft4.ApEnabled">
     <value>Sugerir respostas fracas (AP)</value>
   </data>
@@ -4308,6 +4326,9 @@ Mais recente: {1} ({2})</value>
   <data name="Ft4.NativeUnavailable">
     <value>Biblioteca nativa FT4 não encontrada. Decodificação e geração indisponíveis.</value>
   </data>
+  <data name="Ft4.NativeUnavailableWindows">
+    <value>Não foi possível carregar a biblioteca do decodificador FT4. Instale o Microsoft Visual C++ Redistributable e reinicie o OscarWatch.</value>
+  </data>
   <data name="Ft4.Status.NeedStation">
     <value>Defina seu indicativo e grid em Definições, Estação.</value>
   </data>
@@ -4368,6 +4389,9 @@ Mais recente: {1} ({2})</value>
   <data name="Ft4.Decodes.Ap">
     <value>AP</value>
   </data>
+  <data name="Ft4.Decodes.ApRejected.Tip">
+    <value>Rejeitado: esta dica não passou no CRC, ou uma decodificação posterior mostrou outra mensagem desta estação no mesmo intervalo.</value>
+  </data>
   <data name="Ft4.TxMessage">
     <value>Mensagem TX</value>
   </data>
@@ -4403,5 +4427,47 @@ Mais recente: {1} ({2})</value>
   </data>
   <data name="Ft4.TxAudioHz">
     <value>Áudio TX (Hz)</value>
+  </data>
+  <data name="Ft4.Pounce">
+    <value>Espreitar</value>
+  </data>
+  <data name="Ft4.Pounce.Note">
+    <value>Aguarde uma estação ou grade e chame-a automaticamente quando ela chamar CQ ou chamar você.</value>
+  </data>
+  <data name="Ft4.Pounce.Title">
+    <value>Aguardar e chamar</value>
+  </data>
+  <data name="Ft4.Pounce.TargetLabel">
+    <value>Indicativo ou grade</value>
+  </data>
+  <data name="Ft4.Pounce.Hint">
+    <value>O OscarWatch responde uma vez, assim que esta estação (ou qualquer estação desta grade) chamar CQ ou chamar você. Continua aguardando enquanto ela trabalha outra estação. Desmarque Espreitar, ou pressione Parar TX, para encerrar a espera.</value>
+  </data>
+  <data name="Ft4.Pounce.Arm">
+    <value>Ativar</value>
+  </data>
+  <data name="Ft4.Pounce.Armed">
+    <value>Espreitando: {0}</value>
+  </data>
+  <data name="Ft4.Pounce.OnStation">
+    <value>Espreitar esta estação</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce">
+    <value>Alvo</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce.Tip">
+    <value>Alvo da espreita: o OscarWatch chama esta estação quando ela chamar CQ ou chamar você.</value>
+  </data>
+  <data name="Ft4.Status.PounceWaiting">
+    <value>Espreita ativada: aguardando {0}</value>
+  </data>
+  <data name="Ft4.Status.PounceFired">
+    <value>Chamando {0}: {1}</value>
+  </data>
+  <data name="Ft4.Status.PounceCancelled">
+    <value>Espreita cancelada</value>
+  </data>
+  <data name="Ft4.Status.PounceInvalid">
+    <value>"{0}" não é um indicativo nem uma grade.</value>
   </data>
 </root>
