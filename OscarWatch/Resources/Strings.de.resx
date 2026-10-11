@@ -438,13 +438,19 @@ Dauer: {4}</value>
     <value>Klicken Sie auf einen Satelliten, um ihn auszuwählen, oder nutzen Sie die Pfeiltasten bei Fokus. Die Linie zeigt den Überflugpfad; das Fadenkreuz markiert die Rotorzielrichtung, wenn verbunden.</value>
   </data>
   <data name="Main.Standby.Hint">
-    <value>Nur Anzeige: Rotor geparkt, CAT pausiert</value>
+    <value>Bereitschaft ist aktiv. Der Rotor ist geparkt und CAT ist pausiert, bis Sie das Tracking fortsetzen.</value>
   </data>
   <data name="Main.Standby.Pause">
     <value>Bereitschaft</value>
   </data>
+  <data name="Main.Standby.PauseTip">
+    <value>Rotor parken und CAT pausieren. Die Karte bleibt live, aber die Station verfolgt nicht mehr.</value>
+  </data>
   <data name="Main.Standby.Resume">
-    <value>Fortsetzen</value>
+    <value>Tracking fortsetzen</value>
+  </data>
+  <data name="Main.Standby.ResumeTip">
+    <value>Bereitschaft beenden und Rotor- sowie CAT-Tracking fortsetzen.</value>
   </data>
   <data name="Main.Sunlight">
     <value>Sonnenlicht</value>
@@ -591,6 +597,288 @@ Fortfahren?</value>
   </data>
   <data name="Menu.Tools.Ft4">
     <value>_OscarWatch FT4</value>
+  </data>
+  <data name="Menu.Tools.Sstv">
+    <value>_OscarWatch SSTV</value>
+  </data>
+  <data name="Window.Sstv.Title">
+    <value>OscarWatch SSTV</value>
+  </data>
+  <data name="Sstv.Start">
+    <value>Start</value>
+  </data>
+  <data name="Sstv.Stop">
+    <value>Stopp</value>
+  </data>
+  <data name="Sstv.Input">
+    <value>Eingang</value>
+  </data>
+  <data name="Sstv.Refresh">
+    <value>Aktualisieren</value>
+  </data>
+  <data name="Sstv.Mode">
+    <value>Modus</value>
+  </data>
+  <data name="Sstv.Mode.Auto">
+    <value>Automatisch (VIS)</value>
+  </data>
+  <data name="Sstv.ReSync">
+    <value>Neu synchronisieren</value>
+  </data>
+  <data name="Sstv.ReSync.Tip">
+    <value>Bild mit dem über das ganze Bild gemessenen Zeilentakt neu zeichnen. Das entfernt Restschräglage vom Anfang.</value>
+  </data>
+  <data name="Sstv.Skip">
+    <value>Bild überspringen</value>
+  </data>
+  <data name="Sstv.Skip.Tip">
+    <value>Aktuelles Bild verwerfen und auf das nächste warten.</value>
+  </data>
+  <data name="Sstv.AutoSlant">
+    <value>Automatische Schräglagenkorrektur</value>
+  </data>
+  <data name="Sstv.AutoSlant.Tip">
+    <value>Zeilenperiode aus den Synchronimpulsen messen, damit Taktfehler von Sender oder Soundkarte das Bild nicht schräg machen.</value>
+  </data>
+  <data name="Sstv.SlantTrim">
+    <value>Taktkorrektur (ppm)</value>
+  </data>
+  <data name="Sstv.Afc">
+    <value>AFC</value>
+  </data>
+  <data name="Sstv.Afc.Tip">
+    <value>Frequenz des Synchrontons Zeile für Zeile verfolgen, damit Ablage und Doppler-Drift die Farben nicht verschieben.</value>
+  </data>
+  <data name="Sstv.CatFeedForward">
+    <value>Doppler-Korrektur vom Funkgerät (SSB)</value>
+  </data>
+  <data name="Sstv.CatFeedForward.Tip">
+    <value>Bei SSB den Audioversatz zwischen den Doppler-Schritten der Steuerung entfernen. FM braucht keine Korrektur.</value>
+  </data>
+  <data name="Sstv.DetectWithoutVis">
+    <value>Bilder ohne VIS-Kopf erkennen</value>
+  </data>
+  <data name="Sstv.DetectWithoutVis.Tip">
+    <value>Wenn der Kopf verloren ging (schwaches Signal zu Passbeginn), Bild und Modus an den regelmäßigen Synchronimpulsen erkennen.</value>
+  </data>
+  <data name="Sstv.Settings.AutoStart">
+    <value>Automatischer Start</value>
+  </data>
+  <data name="Sstv.AutoStart">
+    <value>Starten, wenn der gewählte Satellit aufgeht</value>
+  </data>
+  <data name="Sstv.AutoStart.Tip">
+    <value>Beginnt mit dem Empfang, wenn der im Hauptfenster gewählte Satellit über die unten angegebene Elevation steigt, und stoppt, wenn er untergeht. Funktioniert nur bei geöffnetem Fenster. Mit „Automatisch speichern“ bleiben die Bilder erhalten, wenn Sie das Fenster schließen.</value>
+  </data>
+  <data name="Sstv.AutoStart.Elevation">
+    <value>Start über (Grad)</value>
+  </data>
+  <data name="Sstv.AutoSave">
+    <value>Bilder automatisch speichern</value>
+  </data>
+  <data name="Sstv.SaveSessionAudio">
+    <value>Empfangsaudio speichern</value>
+  </data>
+  <data name="Sstv.SaveSessionAudio.Tip">
+    <value>Empfangsaudio als WAV-Datei (etwa 1,4 MB pro Minute) im SSTV-Ordner behalten, um einen Pass später erneut zu dekodieren.</value>
+  </data>
+  <data name="Sstv.Progress">
+    <value>Bildfortschritt</value>
+  </data>
+  <data name="Sstv.Level">
+    <value>Eingangspegel</value>
+  </data>
+  <data name="Sstv.Picture">
+    <value>SSTV-Bild</value>
+  </data>
+  <data name="Sstv.Gallery">
+    <value>Empfangene Bilder</value>
+  </data>
+  <data name="Sstv.SavePicture">
+    <value>Bild speichern</value>
+  </data>
+  <data name="Sstv.Picture.AlreadySaved">
+    <value>Gespeichert</value>
+  </data>
+  <data name="Sstv.SavePicture.SelectTip">
+    <value>Wählen Sie ein empfangenes Bild aus, um es zu speichern.</value>
+  </data>
+  <data name="Sstv.Signal">
+    <value>Signal</value>
+  </data>
+  <data name="Sstv.Signal.Tip">
+    <value>Spektrum und Wasserfall des Empfangsaudios. Markierungen zeigen Sync (1200 Hz), Schwarz (1500 Hz), den VIS-Vorspann (1900 Hz) und Weiß (2300 Hz). Ein gutes Bild zeigt eine stabile Linie bei 1200 Hz und Aktivität zwischen 1500 und 2300 Hz.</value>
+  </data>
+  <data name="Window.SstvSettings.Title">
+    <value>OscarWatch SSTV-Einstellungen</value>
+  </data>
+  <data name="Sstv.OpenSettings">
+    <value>Einstellungen</value>
+  </data>
+  <data name="Sstv.OpenSettings.Tip">
+    <value>Audioeingang, Dekodierung und Speicheroptionen.</value>
+  </data>
+  <data name="Sstv.Settings.Audio">
+    <value>Audio</value>
+  </data>
+  <data name="Sstv.Settings.Decoding">
+    <value>Dekodierung</value>
+  </data>
+  <data name="Sstv.Settings.Saving">
+    <value>Speichern</value>
+  </data>
+  <data name="Window.SstvLibrary.Title">
+    <value>OscarWatch SSTV-Bildarchiv</value>
+  </data>
+  <data name="Sstv.Library.OpenTip">
+    <value>Bildarchiv öffnen: alle gespeicherten Bilder nach Datum</value>
+  </data>
+  <data name="Sstv.Library.Period">
+    <value>Zeitraum</value>
+  </data>
+  <data name="Sstv.Library.Period.All">
+    <value>Alle Bilder</value>
+  </data>
+  <data name="Sstv.Library.Period.Today">
+    <value>Heute</value>
+  </data>
+  <data name="Sstv.Library.Period.Week">
+    <value>Letzte 7 Tage</value>
+  </data>
+  <data name="Sstv.Library.Period.Month">
+    <value>Letzte 30 Tage</value>
+  </data>
+  <data name="Sstv.Library.Period.Custom">
+    <value>Daten wählen</value>
+  </data>
+  <data name="Sstv.Library.From">
+    <value>Von</value>
+  </data>
+  <data name="Sstv.Library.To">
+    <value>Bis</value>
+  </data>
+  <data name="Sstv.Library.Satellite">
+    <value>Satellit</value>
+  </data>
+  <data name="Sstv.Library.AnySatellite">
+    <value>Alle Satelliten</value>
+  </data>
+  <data name="Sstv.Library.AnyMode">
+    <value>Alle Modi</value>
+  </data>
+  <data name="Sstv.Library.Empty">
+    <value>Keine gespeicherten Bilder passen zu diesen Filtern.</value>
+  </data>
+  <data name="Sstv.Library.SelectHint">
+    <value>Wählen Sie ein Bild, um es hier zu sehen. Doppelklick öffnet es.</value>
+  </data>
+  <data name="Sstv.Library.Received">
+    <value>Empfangen</value>
+  </data>
+  <data name="Sstv.Library.File">
+    <value>Datei</value>
+  </data>
+  <data name="Sstv.Library.Open">
+    <value>Öffnen</value>
+  </data>
+  <data name="Sstv.Library.ShowInFolder">
+    <value>Im Ordner zeigen</value>
+  </data>
+  <data name="Sstv.Library.Delete">
+    <value>Löschen</value>
+  </data>
+  <data name="Sstv.Library.DeleteConfirm.Title">
+    <value>Bild löschen</value>
+  </data>
+  <data name="Sstv.Library.DeleteConfirm">
+    <value>{0} löschen? Dies kann nicht rückgängig gemacht werden.</value>
+  </data>
+  <data name="Sstv.Library.Count">
+    <value>{0} Bilder</value>
+  </data>
+  <data name="Sstv.Library.CountOne">
+    <value>1 Bild</value>
+  </data>
+  <data name="Sstv.Library.Summary">
+    <value>{0} von {1} gespeicherten Bildern angezeigt</value>
+  </data>
+  <data name="Sstv.ShowLive">
+    <value>Live-Bild zeigen</value>
+  </data>
+  <data name="Sstv.DecodeRecording">
+    <value>Aufnahme dekodieren</value>
+  </data>
+  <data name="Sstv.DecodeRecording.Tip">
+    <value>WAV- oder MP3-Aufnahme eines Passes dekodieren. Andere Formate als WAV benötigen ffmpeg im PATH.</value>
+  </data>
+  <data name="Sstv.OpenFolder">
+    <value>SSTV-Ordner öffnen</value>
+  </data>
+  <data name="Sstv.Picker.Title">
+    <value>SSTV-Aufnahme auswählen</value>
+  </data>
+  <data name="Sstv.Picker.Audio">
+    <value>Audioaufnahmen</value>
+  </data>
+  <data name="Sstv.Status.Idle">
+    <value>Gestoppt. Start drücken, um auf Bilder zu warten.</value>
+  </data>
+  <data name="Sstv.Status.NoAudio">
+    <value>Kein Audioeingang verfügbar (PortAudio konnte nicht starten).</value>
+  </data>
+  <data name="Sstv.Status.Error">
+    <value>SSTV gestoppt: {0}</value>
+  </data>
+  <data name="Sstv.Status.Listening">
+    <value>Warte auf ein Bild</value>
+  </data>
+  <data name="Sstv.Status.ListeningSat">
+    <value>Warte auf ein Bild von {0}</value>
+  </data>
+  <data name="Sstv.Status.FromVis">
+    <value>VIS</value>
+  </data>
+  <data name="Sstv.Status.FromSync">
+    <value>über Synchronimpulse erkannt</value>
+  </data>
+  <data name="Sstv.Status.Receiving">
+    <value>Empfange {0} ({1})</value>
+  </data>
+  <data name="Sstv.Status.LoadingFile">
+    <value>Lade {0}</value>
+  </data>
+  <data name="Sstv.Status.DecodingFile">
+    <value>Dekodiere {0}: {1:0} %</value>
+  </data>
+  <data name="Sstv.Status.FileDone">
+    <value>{0} dekodiert: {1} Bilder</value>
+  </data>
+  <data name="Sstv.Line">
+    <value>Zeile {0} von {1}</value>
+  </data>
+  <data name="Sstv.Lock">
+    <value>Synchronisiert {0:0} %</value>
+  </data>
+  <data name="Sstv.Offset">
+    <value>Ablage {0:+0;-0;0} Hz</value>
+  </data>
+  <data name="Sstv.Clock">
+    <value>Takt {0:+0;-0;0} ppm</value>
+  </data>
+  <data name="Sstv.Doppler">
+    <value>Downlink-Doppler {0}</value>
+  </data>
+  <data name="Sstv.FeedForward">
+    <value>Gerätekorrektur {0:+0;-0;0} Hz</value>
+  </data>
+  <data name="Sstv.Picture.Saved">
+    <value>Gespeichert unter {0}</value>
+  </data>
+  <data name="Sstv.Picture.Partial">
+    <value>unvollständig</value>
+  </data>
+  <data name="Sstv.Gallery.Item">
+    <value>{0} um {1} UTC, synchronisiert {2:0} %</value>
   </data>
   <data name="Menu.Satellites">
     <value>_Satelliten</value>
@@ -918,6 +1206,9 @@ Fortfahren?</value>
   </data>
   <data name="Rig.NotConnectedPortDetail">
     <value>Funkgerät nicht verbunden ({0}): {1}</value>
+  </data>
+  <data name="Hardware.IdentityMismatch">
+    <value>{0} wurde geöffnet, hat aber nicht als {1} geantwortet.</value>
   </data>
   <data name="Rig.SerialPortNotFound">
     <value>Serieller Port nicht gefunden ({0}). USB-Kabel prüfen und Portliste aktualisieren.</value>
@@ -2271,6 +2562,36 @@ Fortfahren?</value>
   </data>
   <data name="Settings.Radio.CivHint">
     <value>IC-9700 Standard A2, IC-910 Standard 7C (hex). 60 verwenden, wenn das Funkgerät so im CI-V-Menü eingestellt ist.</value>
+  </data>
+  <data name="Settings.Radio.Ic910PowerClass">
+    <value>IC-910-Modell</value>
+  </data>
+  <data name="Settings.Radio.Ic910PowerClass.H">
+    <value>IC-910H (100 W auf 144 MHz, 75 W auf 430 MHz)</value>
+  </data>
+  <data name="Settings.Radio.Ic910PowerClass.D">
+    <value>IC-910D (50 W auf 144 und 430 MHz)</value>
+  </data>
+  <data name="Settings.Radio.Ic910PowerClass.Base">
+    <value>IC-910 (20 W auf 144 und 430 MHz)</value>
+  </data>
+  <data name="Settings.Radio.Ic910PowerClassHint">
+    <value>CI-V kann diese Modelle nicht unterscheiden. Die 144-MHz-Leistung am Funkgerät wählen. Ein gespeichertes IC-910 bleibt bei den H-Leistungen. Ein auf 100 W / 75 W geändertes Gerät nutzt IC-910H.</value>
+  </data>
+  <data name="Settings.Radio.Ic9700PowerClass">
+    <value>IC-9700-Modell</value>
+  </data>
+  <data name="Settings.Radio.Ic9700PowerClass.Export">
+    <value>IC-9700 (100 W auf 144 MHz, 75 W auf 430 MHz)</value>
+  </data>
+  <data name="Settings.Radio.Ic9700PowerClass.Japan">
+    <value>Japan IC-9700 (50 W auf 144 und 430 MHz)</value>
+  </data>
+  <data name="Settings.Radio.Ic9700PowerClass.JapanS">
+    <value>Japan IC-9700S (20 W auf 144 und 430 MHz)</value>
+  </data>
+  <data name="Settings.Radio.Ic9700PowerClassHint">
+    <value>CI-V kann diese Modelle nicht unterscheiden. Die 144-MHz-Leistung am Funkgerät wählen. Ein gespeichertes IC-9700 bleibt bei 100 W / 75 W. 1200 MHz ist bei allen drei 10 W.</value>
   </data>
   <data name="Settings.Radio.Ft847Hint">
     <value>FT-847: CAT-Baud im Funkmenü Nr. 37 einstellen (typisch 57600). CAT/LINEAR-Buchse mit Pegelwandler verwenden (z. B. CT-62).</value>
@@ -4024,6 +4345,18 @@ Aktuell: {1} ({2})</value>
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>In TX-Slots laufen normale Dekodierung und ein später Echo-Durchlauf zusammen, damit die eigene Kopie schneller erscheint. Nutzt mehr CPU in diesem Slot. An lassen, außer der PC kommt nicht mit.</value>
   </data>
+  <data name="Ft4.Settings.Group.DecoderTesting">
+    <value>Decodertests</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio">
+    <value>Audio der Empfangsslots speichern</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.Note">
+    <value>Speichert jeden Empfangsslot als WAV-Datei mit seinen Dekodierergebnissen, damit echte Überflüge beim Abstimmen des Decoders erneut abgespielt werden können. Etwa 180 kB pro Slot; Dateien, die älter als 14 Tage sind, werden gelöscht. Gespeichert werden nur Slots ab 2° unter dem Horizont.</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.OpenFolder">
+    <value>Ordner öffnen</value>
+  </data>
   <data name="Ft4.ApEnabled">
     <value>Schwache Antworten ergänzen (AP)</value>
   </data>
@@ -4312,8 +4645,14 @@ Aktuell: {1} ({2})</value>
   <data name="Ft4.NativeUnavailable">
     <value>Native FT4-Bibliothek nicht gefunden. Dekodierung und Erzeugung nicht verfügbar.</value>
   </data>
+  <data name="Ft4.NativeUnavailableWindows">
+    <value>Die FT4-Decoderbibliothek konnte nicht geladen werden. Installieren Sie das Microsoft Visual C++ Redistributable und starten Sie OscarWatch neu.</value>
+  </data>
   <data name="Ft4.Status.NeedStation">
     <value>Rufzeichen und Grid unter Einstellungen, Station festlegen.</value>
+  </data>
+  <data name="Ft4.Status.InputUnavailable">
+    <value>Die FT4-Eingangssoundkarte ist nicht verfügbar. Öffnen Sie die FT4-Einstellungen, klicken Sie auf Aktualisieren und wählen Sie den Eingang erneut.</value>
   </data>
   <data name="Ft4.Status.Answering">
     <value>Antworte auf {0}</value>
@@ -4372,6 +4711,9 @@ Aktuell: {1} ({2})</value>
   <data name="Ft4.Decodes.Ap">
     <value>AP</value>
   </data>
+  <data name="Ft4.Decodes.ApRejected.Tip">
+    <value>Verworfen: Dieser Hinweis hat die CRC nicht bestanden, oder eine spätere Dekodierung zeigte eine andere Nachricht dieser Station im selben Slot.</value>
+  </data>
   <data name="Ft4.TxMessage">
     <value>TX-Nachricht</value>
   </data>
@@ -4407,6 +4749,48 @@ Aktuell: {1} ({2})</value>
   </data>
   <data name="Ft4.TxAudioHz">
     <value>TX-Audio (Hz)</value>
+  </data>
+  <data name="Ft4.Pounce">
+    <value>Lauern</value>
+  </data>
+  <data name="Ft4.Pounce.Note">
+    <value>Auf eine Station oder ein Locatorfeld warten und automatisch anrufen, sobald sie CQ ruft oder Sie anruft.</value>
+  </data>
+  <data name="Ft4.Pounce.Title">
+    <value>Warten und anrufen</value>
+  </data>
+  <data name="Ft4.Pounce.TargetLabel">
+    <value>Rufzeichen oder Locator</value>
+  </data>
+  <data name="Ft4.Pounce.Hint">
+    <value>OscarWatch antwortet einmal, sobald diese Station (oder eine Station in diesem Locatorfeld) CQ ruft oder Sie anruft. Während sie mit einer anderen Station arbeitet, wird weiter gewartet. Haken bei Lauern entfernen oder TX stoppen beendet das Warten.</value>
+  </data>
+  <data name="Ft4.Pounce.Arm">
+    <value>Aktivieren</value>
+  </data>
+  <data name="Ft4.Pounce.Armed">
+    <value>Lauere auf: {0}</value>
+  </data>
+  <data name="Ft4.Pounce.OnStation">
+    <value>Auf diese Station lauern</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce">
+    <value>Ziel</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce.Tip">
+    <value>Lauer-Ziel: OscarWatch ruft diese Station an, sobald sie CQ ruft oder Sie anruft.</value>
+  </data>
+  <data name="Ft4.Status.PounceWaiting">
+    <value>Lauern aktiv: warte auf {0}</value>
+  </data>
+  <data name="Ft4.Status.PounceFired">
+    <value>Rufe {0} an: {1}</value>
+  </data>
+  <data name="Ft4.Status.PounceCancelled">
+    <value>Lauern abgebrochen</value>
+  </data>
+  <data name="Ft4.Status.PounceInvalid">
+    <value>„{0}“ ist weder ein Rufzeichen noch ein Locator.</value>
   </data>
 
 </root>

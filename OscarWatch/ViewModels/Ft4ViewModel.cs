@@ -4,6 +4,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OscarWatch.Controls;
+using OscarWatch.Core.Display;
 using OscarWatch.Core.Ft4;
 using OscarWatch.Core.Hardware;
 using OscarWatch.Core.Services;
@@ -29,10 +30,12 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     private bool _disposed;
     private bool _loadingDevices;
     private bool _loadingEchoCalibration;
+    private bool _windowOpen;
     private IReadOnlySet<string> _workedCalls = new HashSet<string>(StringComparer.Ordinal);
     private IReadOnlySet<string> _workedGridFields = new HashSet<string>(StringComparer.Ordinal);
     private readonly HashSet<string> _finishedPartners = new(StringComparer.Ordinal);
     private string? _highlightPartner;
+    private Ft4PounceTarget? _highlightPounce;
 
     public Ft4ViewModel(
         ISettingsService settings,
@@ -76,6 +79,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         _audioDopplerTx = ft4.AudioDopplerTx;
         _audioDopplerRx = ft4.AudioDopplerRx;
         _parallelTxEchoDecode = ft4.ParallelTxEchoDecode;
+        _saveSlotAudio = ft4.SaveSlotAudio;
         _txWatchdogMinutes = Ft4TxWatchdog.ClampMinutes(ft4.TxWatchdogMinutes);
         _pskReporterEnabled = ft4.PskReporterEnabled;
         _oscarWatchSpotsTokenAvailable = Ft4OscarWatchSpots.HasApiToken(_settings.Current.SatelliteStatus.ApiToken);
@@ -116,6 +120,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         _separatePttPort = ft4.SeparatePttPort ?? "";
 
         StatusLine = _l.Get("Ft4.Status.Idle");
+        _pounceCheckLabel = _l.Get("Ft4.Pounce");
         WaterfallStatusText = _l.Get("Ft4.Waterfall.Unavailable");
         SlotClockText = "-";
         DopplerUplinkText = "-";
@@ -208,6 +213,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     [ObservableProperty] private bool _audioDopplerTx = true;
     [ObservableProperty] private bool _audioDopplerRx = true;
     [ObservableProperty] private bool _parallelTxEchoDecode = true;
+    [ObservableProperty] private bool _saveSlotAudio;
 
     [ObservableProperty] private int _txWatchdogMinutes = Ft4TxWatchdog.DefaultMinutes;
     [ObservableProperty] private bool _pskReporterEnabled;
@@ -302,6 +308,25 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     {
         _settings.Current.Ft4.ParallelTxEchoDecode = value;
         _settings.RequestSave();
+    }
+
+    partial void OnSaveSlotAudioChanged(bool value)
+    {
+        _settings.Current.Ft4.SaveSlotAudio = value;
+        _settings.RequestSave();
+    }
+
+    [RelayCommand]
+    private void OpenSlotRecordingFolder()
+    {
+        try
+        {
+            DopplerPassLogFileNameFormat.OpenLogDirectory(_modem.SlotRecordingDirectory);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Could not open the FT4 slot recording folder");
+        }
     }
 
     partial void OnTxWatchdogMinutesChanged(int value)
@@ -669,6 +694,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
             return;
         _settings.Current.Ft4.PttMethod = value.Value;
         _settings.RequestSave();
+        _modem.OnPttSettingsChanged();
         OnPropertyChanged(nameof(ShowHandshakePttOptions));
         OnPropertyChanged(nameof(ShowSeparatePttPort));
         RefreshSeparatePttConflict();
@@ -692,6 +718,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     {
         _settings.Current.Ft4.SeparatePttPort = value?.Trim() ?? "";
         _settings.RequestSave();
+        _modem.OnPttSettingsChanged();
         RefreshSeparatePttConflict();
     }
 
@@ -727,7 +754,10 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         _settings.Current.Ft4.InputDeviceId = value.Id;
         _settings.Current.Ft4.InputDeviceDisplayName = value.DisplayName;
         _settings.RequestSave();
-        _modem.RestartCaptureFromSettings();
+        if (_modem.IsRunning)
+            _modem.RestartCaptureFromSettings();
+        else if (_windowOpen)
+            StartSession();
     }
 
     partial void OnSelectedOutputDeviceChanged(Ft4AudioDeviceOption? value)
@@ -749,18 +779,32 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
 
     public Task OnWindowOpenedAsync()
     {
-        RefreshAudioDevices();
-        RefreshPttPorts();
+        _windowOpen = true;
         _uiTimer.Start();
-        RefreshUiTick();
-        if (!_modem.IsRunning)
-            StartSession();
+        try
+        {
+            RefreshAudioDevices();
+            RefreshPttPorts();
+            RefreshUiTick();
+            _modem.SetWindowOpen(true);
+            if (!_modem.IsRunning)
+                StartSession();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "FT4 window open failed");
+            StatusLine = _l.Get("Ft4.Status.InputUnavailable");
+            WaterfallStatusText = _l.Get("Ft4.Waterfall.Unavailable");
+        }
+
         return Task.CompletedTask;
     }
 
     public Task OnWindowClosedAsync()
     {
+        _windowOpen = false;
         _uiTimer.Stop();
+        _modem.SetWindowOpen(false);
         return Task.CompletedTask;
     }
 
@@ -768,9 +812,9 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     {
         if (!_modem.NativeAvailable)
         {
-            StatusLine = _l.Get("Ft4.NativeUnavailable");
+            StatusLine = _l.Get(Ft8Native.UnavailableMessageKey);
             WaterfallStatusText = _l.Get("Ft4.Waterfall.Unavailable");
-            Log.Warning("FT4 native library unavailable");
+            Log.Warning("FT4 native library unavailable: {Error}", Ft8Native.LoadError);
             return;
         }
 
@@ -780,7 +824,29 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
             return;
         }
 
-        _modem.Start();
+        try
+        {
+            _modem.Start();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "FT4 session start failed");
+            StatusLine = _l.Get("Ft4.Status.InputUnavailable");
+            WaterfallStatusText = _l.Get("Ft4.Waterfall.Unavailable");
+            TuneCommand.NotifyCanExecuteChanged();
+            return;
+        }
+
+        if (!_modem.IsRunning)
+        {
+            StatusLine = string.IsNullOrWhiteSpace(_modem.Status)
+                ? _l.Get("Ft4.Status.InputUnavailable")
+                : _modem.Status;
+            WaterfallStatusText = _l.Get("Ft4.Waterfall.Unavailable");
+            TuneCommand.NotifyCanExecuteChanged();
+            return;
+        }
+
         StatusLine = string.IsNullOrWhiteSpace(_modem.Status)
             ? _l.Get("Ft4.Status.Ready")
             : _modem.Status;
@@ -861,6 +927,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     private void HaltTx()
     {
         _modem.HaltTx();
+        SyncPounceState();
         TxEnabled = false;
         IsTuning = false;
         ManualPttPrompt = "";
@@ -980,7 +1047,7 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
     [RelayCommand]
     private void AnswerDecode(Ft4DecodedMessage? decode)
     {
-        if (decode is null || decode.IsTransmitted || decode.IsOwnEcho)
+        if (decode is null || decode.IsTransmitted || decode.IsOwnEcho || decode.IsRejected)
             return;
         _modem.Answer(decode);
         CurrentTxMessage = _modem.Sequencer?.CurrentTxMessage ?? "";
@@ -992,6 +1059,69 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
         StatusLine = _l.Get("Ft4.Status.Answering", decode.Text);
         OnPropertyChanged(nameof(CanManualLog));
         ManualLogCommand.NotifyCanExecuteChanged();
+    }
+
+    /// <summary>The armed pounce target as shown on the TX panel, or empty.</summary>
+    [ObservableProperty] private string _pounceTargetText = "";
+
+    [ObservableProperty] private bool _isPounceArmed;
+
+    /// <summary>"Pounce" while off, "Pouncing: CALL" while armed.</summary>
+    [ObservableProperty] private string _pounceCheckLabel = "";
+
+    /// <summary>What the operator last entered in the pounce dialogue this session.</summary>
+    public string LastPounceInput { get; private set; } = "";
+
+    public void ArmPounce(Ft4PounceTarget target)
+    {
+        LastPounceInput = target.Value;
+        _modem.ArmPounce(target);
+        SyncPounceState();
+        StatusLine = _modem.Status;
+    }
+
+    [RelayCommand]
+    private void CancelPounce()
+    {
+        _modem.DisarmPounce();
+        SyncPounceState();
+        StatusLine = _modem.Status;
+    }
+
+    [RelayCommand]
+    private void PounceOnDecode(Ft4DecodeRowViewModel? row)
+    {
+        var call = row?.Message.CallDe;
+        if (row is null || !row.Message.IsReceiveActivity || string.IsNullOrWhiteSpace(call))
+            return;
+
+        if (!Ft4PounceTarget.TryParse(call, out var target))
+        {
+            StatusLine = _l.Get("Ft4.Status.PounceInvalid", call);
+            return;
+        }
+
+        ArmPounce(target);
+    }
+
+    private void SyncPounceState()
+    {
+        var target = _modem.PounceTarget;
+        IsPounceArmed = target is not null;
+        PounceTargetText = target?.Value ?? "";
+        PounceCheckLabel = target is null ? _l.Get("Ft4.Pounce") : _l.Get("Ft4.Pounce.Armed", target.Value);
+        if (!ReferenceEquals(_highlightPounce, target))
+        {
+            _highlightPounce = target;
+            RefreshDecodeHighlights();
+        }
+
+        if (_modem.TakePouncedDecode() is { } pounced)
+        {
+            if (!_settings.Current.Ft4.HoldTxFrequency)
+                TxAudioHz = pounced.FreqHz;
+            RxAudioHz = Math.Clamp(pounced.FreqHz, 200, 3000);
+        }
     }
 
     [RelayCommand]
@@ -1282,11 +1412,14 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
                 StatusLine = _modem.Status;
             CurrentTxMessage = _modem.Sequencer?.CurrentTxMessage ?? CurrentTxMessage;
             TxEnabled = _modem.Sequencer?.TransmitEnabled == true;
+            // Answering from a decode (pounce or auto reply) picks the slot opposite the caller.
+            PreferEvenSlot = _modem.Sequencer?.PreferEvenSlot ?? PreferEvenSlot;
             IsTuning = _modem.IsTuning;
             // Recolour rows already on screen when the QSO partner changes.
             QsoPartnerCall = _modem.Sequencer?.TheirCall;
             if (!string.IsNullOrEmpty(_modem.ManualPrompt))
                 SetManualPttPrompt(_modem.ManualPrompt);
+            SyncPounceState();
             OnPropertyChanged(nameof(CanManualLog));
             ManualLogCommand.NotifyCanExecuteChanged();
             SendReportCommand.NotifyCanExecuteChanged();
@@ -1374,7 +1507,8 @@ public partial class Ft4ViewModel : ViewModelBase, IDisposable
             NewCallTextColour,
             NewGridTextColour,
             CqTextColour,
-            TxTextColour);
+            TxTextColour,
+            _highlightPounce);
 
     private void OnLogbookQsosChanged(long logbookId) => _ = RefreshWorkedSetsAsync();
 

@@ -438,13 +438,19 @@ LOS: {2}
     <value>Щёлкните спутник, чтобы выбрать его, или используйте стрелки, когда график в фокусе. Линия показывает трассу пролёта; перекрестье отмечает наведение ротатора, если он подключён.</value>
   </data>
   <data name="Main.Standby.Hint">
-    <value>Только просмотр: ротатор припаркован, CAT на паузе</value>
+    <value>Режим ожидания включён. Ротатор припаркован, а CAT на паузе, пока вы не возобновите слежение.</value>
   </data>
   <data name="Main.Standby.Pause">
     <value>Ожидание</value>
   </data>
+  <data name="Main.Standby.PauseTip">
+    <value>Припарковать ротатор и поставить CAT на паузу. Карта остаётся живой, но станция перестаёт следить.</value>
+  </data>
   <data name="Main.Standby.Resume">
-    <value>Продолжить</value>
+    <value>Возобновить слежение</value>
+  </data>
+  <data name="Main.Standby.ResumeTip">
+    <value>Выйти из ожидания и возобновить слежение ротатора и CAT.</value>
   </data>
   <data name="Main.Sunlight">
     <value>Солнце</value>
@@ -591,6 +597,288 @@ LOS: {2}
   </data>
   <data name="Menu.Tools.Ft4">
     <value>_OscarWatch FT4</value>
+  </data>
+  <data name="Menu.Tools.Sstv">
+    <value>_OscarWatch SSTV</value>
+  </data>
+  <data name="Window.Sstv.Title">
+    <value>OscarWatch SSTV</value>
+  </data>
+  <data name="Sstv.Start">
+    <value>Старт</value>
+  </data>
+  <data name="Sstv.Stop">
+    <value>Стоп</value>
+  </data>
+  <data name="Sstv.Input">
+    <value>Вход</value>
+  </data>
+  <data name="Sstv.Refresh">
+    <value>Обновить</value>
+  </data>
+  <data name="Sstv.Mode">
+    <value>Режим</value>
+  </data>
+  <data name="Sstv.Mode.Auto">
+    <value>Авто (VIS)</value>
+  </data>
+  <data name="Sstv.ReSync">
+    <value>Пересинхр.</value>
+  </data>
+  <data name="Sstv.ReSync.Tip">
+    <value>Перерисовать изображение по периоду строк, измеренному по всему кадру. Убирает остаточный наклон.</value>
+  </data>
+  <data name="Sstv.Skip">
+    <value>Пропустить</value>
+  </data>
+  <data name="Sstv.Skip.Tip">
+    <value>Отбросить принимаемое изображение и ждать следующее.</value>
+  </data>
+  <data name="Sstv.AutoSlant">
+    <value>Автокоррекция наклона</value>
+  </data>
+  <data name="Sstv.AutoSlant.Tip">
+    <value>Измерять период строки по синхроимпульсам, чтобы ошибка часов не наклоняла изображение.</value>
+  </data>
+  <data name="Sstv.SlantTrim">
+    <value>Коррекция часов (ppm)</value>
+  </data>
+  <data name="Sstv.Afc">
+    <value>АПЧ</value>
+  </data>
+  <data name="Sstv.Afc.Tip">
+    <value>Отслеживать частоту синхротона по строкам, чтобы расстройка и доплеровский дрейф не искажали цвета.</value>
+  </data>
+  <data name="Sstv.CatFeedForward">
+    <value>Коррекция Доплера рации (SSB)</value>
+  </data>
+  <data name="Sstv.CatFeedForward.Tip">
+    <value>В SSB убирать звуковой сдвиг между шагами доплеровской подстройки. Для FM не нужно.</value>
+  </data>
+  <data name="Sstv.DetectWithoutVis">
+    <value>Искать изображения без VIS</value>
+  </data>
+  <data name="Sstv.DetectWithoutVis.Tip">
+    <value>Если заголовок потерян (слабый сигнал в начале пролёта), распознать изображение и режим по регулярным синхроимпульсам.</value>
+  </data>
+  <data name="Sstv.Settings.AutoStart">
+    <value>Автоматический запуск</value>
+  </data>
+  <data name="Sstv.AutoStart">
+    <value>Запускать, когда выбранный спутник восходит</value>
+  </data>
+  <data name="Sstv.AutoStart.Tip">
+    <value>Начинает приём, когда спутник, выбранный в главном окне, поднимается выше указанной ниже высоты, и останавливает приём, когда он заходит. Работает только при открытом окне. Автосохранение сохраняет снимки, даже если окно закрыто.</value>
+  </data>
+  <data name="Sstv.AutoStart.Elevation">
+    <value>Запуск выше (градусы)</value>
+  </data>
+  <data name="Sstv.AutoSave">
+    <value>Сохранять автоматически</value>
+  </data>
+  <data name="Sstv.SaveSessionAudio">
+    <value>Сохранять принятый звук</value>
+  </data>
+  <data name="Sstv.SaveSessionAudio.Tip">
+    <value>Сохранять принятый звук в WAV (около 1,4 МБ в минуту) в папке SSTV для повторного декодирования.</value>
+  </data>
+  <data name="Sstv.Progress">
+    <value>Ход приёма</value>
+  </data>
+  <data name="Sstv.Level">
+    <value>Уровень входа</value>
+  </data>
+  <data name="Sstv.Picture">
+    <value>Изображение SSTV</value>
+  </data>
+  <data name="Sstv.Gallery">
+    <value>Принятые изображения</value>
+  </data>
+  <data name="Sstv.SavePicture">
+    <value>Сохранить</value>
+  </data>
+  <data name="Sstv.Picture.AlreadySaved">
+    <value>Сохранено</value>
+  </data>
+  <data name="Sstv.SavePicture.SelectTip">
+    <value>Выберите принятое изображение, чтобы сохранить его.</value>
+  </data>
+  <data name="Sstv.Signal">
+    <value>Сигнал</value>
+  </data>
+  <data name="Sstv.Signal.Tip">
+    <value>Спектр и водопад принимаемого звука. Метки показывают синхроимпульс (1200 Гц), чёрный (1500 Гц), преамбулу VIS (1900 Гц) и белый (2300 Гц). Хорошая картинка даёт устойчивую линию на 1200 Гц и сигнал между 1500 и 2300 Гц.</value>
+  </data>
+  <data name="Window.SstvSettings.Title">
+    <value>Настройки OscarWatch SSTV</value>
+  </data>
+  <data name="Sstv.OpenSettings">
+    <value>Настройки</value>
+  </data>
+  <data name="Sstv.OpenSettings.Tip">
+    <value>Аудиовход, декодирование и параметры сохранения.</value>
+  </data>
+  <data name="Sstv.Settings.Audio">
+    <value>Звук</value>
+  </data>
+  <data name="Sstv.Settings.Decoding">
+    <value>Декодирование</value>
+  </data>
+  <data name="Sstv.Settings.Saving">
+    <value>Сохранение</value>
+  </data>
+  <data name="Window.SstvLibrary.Title">
+    <value>Библиотека изображений OscarWatch SSTV</value>
+  </data>
+  <data name="Sstv.Library.OpenTip">
+    <value>Открыть библиотеку: все сохранённые изображения по датам</value>
+  </data>
+  <data name="Sstv.Library.Period">
+    <value>Период</value>
+  </data>
+  <data name="Sstv.Library.Period.All">
+    <value>Все изображения</value>
+  </data>
+  <data name="Sstv.Library.Period.Today">
+    <value>Сегодня</value>
+  </data>
+  <data name="Sstv.Library.Period.Week">
+    <value>Последние 7 дней</value>
+  </data>
+  <data name="Sstv.Library.Period.Month">
+    <value>Последние 30 дней</value>
+  </data>
+  <data name="Sstv.Library.Period.Custom">
+    <value>Выбрать даты</value>
+  </data>
+  <data name="Sstv.Library.From">
+    <value>С</value>
+  </data>
+  <data name="Sstv.Library.To">
+    <value>По</value>
+  </data>
+  <data name="Sstv.Library.Satellite">
+    <value>Спутник</value>
+  </data>
+  <data name="Sstv.Library.AnySatellite">
+    <value>Все спутники</value>
+  </data>
+  <data name="Sstv.Library.AnyMode">
+    <value>Все режимы</value>
+  </data>
+  <data name="Sstv.Library.Empty">
+    <value>Нет сохранённых изображений, подходящих под фильтры.</value>
+  </data>
+  <data name="Sstv.Library.SelectHint">
+    <value>Выберите изображение, чтобы увидеть его здесь. Двойной щелчок открывает его.</value>
+  </data>
+  <data name="Sstv.Library.Received">
+    <value>Принято</value>
+  </data>
+  <data name="Sstv.Library.File">
+    <value>Файл</value>
+  </data>
+  <data name="Sstv.Library.Open">
+    <value>Открыть</value>
+  </data>
+  <data name="Sstv.Library.ShowInFolder">
+    <value>Показать в папке</value>
+  </data>
+  <data name="Sstv.Library.Delete">
+    <value>Удалить</value>
+  </data>
+  <data name="Sstv.Library.DeleteConfirm.Title">
+    <value>Удалить изображение</value>
+  </data>
+  <data name="Sstv.Library.DeleteConfirm">
+    <value>Удалить {0}? Это действие нельзя отменить.</value>
+  </data>
+  <data name="Sstv.Library.Count">
+    <value>Изображений: {0}</value>
+  </data>
+  <data name="Sstv.Library.CountOne">
+    <value>1 изображение</value>
+  </data>
+  <data name="Sstv.Library.Summary">
+    <value>Показано {0} из {1} сохранённых изображений</value>
+  </data>
+  <data name="Sstv.ShowLive">
+    <value>Показать текущее</value>
+  </data>
+  <data name="Sstv.DecodeRecording">
+    <value>Декодировать запись</value>
+  </data>
+  <data name="Sstv.DecodeRecording.Tip">
+    <value>Декодировать запись пролёта в WAV или MP3. Для форматов кроме WAV нужен ffmpeg в PATH.</value>
+  </data>
+  <data name="Sstv.OpenFolder">
+    <value>Открыть папку SSTV</value>
+  </data>
+  <data name="Sstv.Picker.Title">
+    <value>Выберите запись SSTV</value>
+  </data>
+  <data name="Sstv.Picker.Audio">
+    <value>Аудиозаписи</value>
+  </data>
+  <data name="Sstv.Status.Idle">
+    <value>Остановлено. Нажмите «Старт» для приёма.</value>
+  </data>
+  <data name="Sstv.Status.NoAudio">
+    <value>Нет аудиовхода (PortAudio не запустился).</value>
+  </data>
+  <data name="Sstv.Status.Error">
+    <value>SSTV остановлен: {0}</value>
+  </data>
+  <data name="Sstv.Status.Listening">
+    <value>Ожидание изображения</value>
+  </data>
+  <data name="Sstv.Status.ListeningSat">
+    <value>Ожидание изображения с {0}</value>
+  </data>
+  <data name="Sstv.Status.FromVis">
+    <value>VIS</value>
+  </data>
+  <data name="Sstv.Status.FromSync">
+    <value>найдено по синхро</value>
+  </data>
+  <data name="Sstv.Status.Receiving">
+    <value>Приём {0} ({1})</value>
+  </data>
+  <data name="Sstv.Status.LoadingFile">
+    <value>Загрузка {0}</value>
+  </data>
+  <data name="Sstv.Status.DecodingFile">
+    <value>Декодирование {0}: {1:0}%</value>
+  </data>
+  <data name="Sstv.Status.FileDone">
+    <value>{0} декодирован: изображений {1}</value>
+  </data>
+  <data name="Sstv.Line">
+    <value>Строка {0} из {1}</value>
+  </data>
+  <data name="Sstv.Lock">
+    <value>Синхро {0:0}%</value>
+  </data>
+  <data name="Sstv.Offset">
+    <value>Расстройка {0:+0;-0;0} Гц</value>
+  </data>
+  <data name="Sstv.Clock">
+    <value>Часы {0:+0;-0;0} ppm</value>
+  </data>
+  <data name="Sstv.Doppler">
+    <value>Доплер нисх. {0}</value>
+  </data>
+  <data name="Sstv.FeedForward">
+    <value>коррекция рации {0:+0;-0;0} Гц</value>
+  </data>
+  <data name="Sstv.Picture.Saved">
+    <value>Сохранено: {0}</value>
+  </data>
+  <data name="Sstv.Picture.Partial">
+    <value>частично</value>
+  </data>
+  <data name="Sstv.Gallery.Item">
+    <value>{0} в {1} UTC, синхро {2:0}%</value>
   </data>
   <data name="Menu.Satellites">
     <value>_Спутники</value>
@@ -918,6 +1206,9 @@ LOS: {2}
   </data>
   <data name="Rig.NotConnectedPortDetail">
     <value>Рация не подключена ({0}): {1}</value>
+  </data>
+  <data name="Hardware.IdentityMismatch">
+    <value>Порт {0} открыт, но устройство не ответило как {1}.</value>
   </data>
   <data name="Rig.SerialPortNotFound">
     <value>Последовательный порт не найден ({0}). Проверьте USB-кабель и обновите список портов.</value>
@@ -2271,6 +2562,36 @@ LOS: {2}
   </data>
   <data name="Settings.Radio.CivHint">
     <value>IC-9700 по умолчанию A2, IC-910 по умолчанию 7C (hex). Укажите 60, если так задано в меню CI-V рации.</value>
+  </data>
+  <data name="Settings.Radio.Ic910PowerClass">
+    <value>Модель IC-910</value>
+  </data>
+  <data name="Settings.Radio.Ic910PowerClass.H">
+    <value>IC-910H (100 Вт на 144 МГц, 75 Вт на 430 МГц)</value>
+  </data>
+  <data name="Settings.Radio.Ic910PowerClass.D">
+    <value>IC-910D (50 Вт на 144 и 430 МГц)</value>
+  </data>
+  <data name="Settings.Radio.Ic910PowerClass.Base">
+    <value>IC-910 (20 Вт на 144 и 430 МГц)</value>
+  </data>
+  <data name="Settings.Radio.Ic910PowerClassHint">
+    <value>CI-V не различает эти модели. Укажите мощность на 144 МГц по паспорту. Сохранённый IC-910 остаётся на мощностях H. Аппарат, доработанный до 100 Вт / 75 Вт, выбирайте как IC-910H.</value>
+  </data>
+  <data name="Settings.Radio.Ic9700PowerClass">
+    <value>Модель IC-9700</value>
+  </data>
+  <data name="Settings.Radio.Ic9700PowerClass.Export">
+    <value>IC-9700 (100 Вт на 144 МГц, 75 Вт на 430 МГц)</value>
+  </data>
+  <data name="Settings.Radio.Ic9700PowerClass.Japan">
+    <value>Япония IC-9700 (50 Вт на 144 и 430 МГц)</value>
+  </data>
+  <data name="Settings.Radio.Ic9700PowerClass.JapanS">
+    <value>Япония IC-9700S (20 Вт на 144 и 430 МГц)</value>
+  </data>
+  <data name="Settings.Radio.Ic9700PowerClassHint">
+    <value>CI-V не различает эти модели. Укажите мощность на 144 МГц по паспорту. Сохранённый IC-9700 остаётся на 100 Вт / 75 Вт. На 1200 МГц у всех трёх 10 Вт.</value>
   </data>
   <data name="Settings.Radio.Ft847Hint">
     <value>FT-847: скорость CAT в меню рации №37 (обычно 57600). Разъём CAT/LINEAR с преобразователем уровня (напр. CT-62).</value>
@@ -4024,6 +4345,18 @@ LOS: {2}
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>В TX-слотах обычная декодировка и поздний проход эха идут вместе, чтобы своя копия появлялась быстрее. Больше нагрузка на CPU в этом слоте. Оставляйте включённым, если ПК не слабый.</value>
   </data>
+  <data name="Ft4.Settings.Group.DecoderTesting">
+    <value>Тестирование декодера</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio">
+    <value>Сохранять звук интервалов приёма</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.Note">
+    <value>Сохраняет каждый интервал приёма в WAV-файл вместе с результатами декодирования, чтобы реальные пролёты можно было воспроизвести при настройке декодера. Около 180 кБ на интервал; файлы старше 14 дней удаляются. Сохраняются только интервалы от 2° ниже горизонта и выше.</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.OpenFolder">
+    <value>Открыть папку</value>
+  </data>
   <data name="Ft4.ApEnabled">
     <value>Подсказывать слабые ответы (AP)</value>
   </data>
@@ -4312,8 +4645,14 @@ LOS: {2}
   <data name="Ft4.NativeUnavailable">
     <value>Нативная библиотека FT4 не найдена. Декодирование и генерация недоступны.</value>
   </data>
+  <data name="Ft4.NativeUnavailableWindows">
+    <value>Не удалось загрузить библиотеку декодера FT4. Установите Microsoft Visual C++ Redistributable и перезапустите OscarWatch.</value>
+  </data>
   <data name="Ft4.Status.NeedStation">
     <value>Укажите позывной и грид в Настройки, Станция.</value>
+  </data>
+  <data name="Ft4.Status.InputUnavailable">
+    <value>Входная звуковая карта FT4 недоступна. Откройте настройки FT4, нажмите «Обновить» и снова выберите вход.</value>
   </data>
   <data name="Ft4.Status.Answering">
     <value>Ответ {0}</value>
@@ -4372,6 +4711,9 @@ LOS: {2}
   <data name="Ft4.Decodes.Ap">
     <value>AP</value>
   </data>
+  <data name="Ft4.Decodes.ApRejected.Tip">
+    <value>Отклонено: эта подсказка не прошла CRC, либо более поздняя декодировка показала другое сообщение этой станции в том же интервале.</value>
+  </data>
   <data name="Ft4.TxMessage">
     <value>TX-сообщение</value>
   </data>
@@ -4407,6 +4749,48 @@ LOS: {2}
   </data>
   <data name="Ft4.TxAudioHz">
     <value>TX-аудио (Гц)</value>
+  </data>
+  <data name="Ft4.Pounce">
+    <value>Ожидание</value>
+  </data>
+  <data name="Ft4.Pounce.Note">
+    <value>Ждать одну станцию или квадрат и автоматически вызвать её, когда она даст CQ или позовёт вас.</value>
+  </data>
+  <data name="Ft4.Pounce.Title">
+    <value>Ждать и вызвать</value>
+  </data>
+  <data name="Ft4.Pounce.TargetLabel">
+    <value>Позывной или квадрат</value>
+  </data>
+  <data name="Ft4.Pounce.Hint">
+    <value>OscarWatch ответит один раз, как только эта станция (или любая станция из этого квадрата) даст CQ или позовёт вас. Пока она работает с другой станцией, ожидание продолжается. Снимите флажок «Ожидание» или остановите TX, чтобы прекратить ожидание.</value>
+  </data>
+  <data name="Ft4.Pounce.Arm">
+    <value>Включить</value>
+  </data>
+  <data name="Ft4.Pounce.Armed">
+    <value>Ожидание: {0}</value>
+  </data>
+  <data name="Ft4.Pounce.OnStation">
+    <value>Ждать эту станцию</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce">
+    <value>Цель</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce.Tip">
+    <value>Цель ожидания: OscarWatch вызовет эту станцию, когда она даст CQ или позовёт вас.</value>
+  </data>
+  <data name="Ft4.Status.PounceWaiting">
+    <value>Ожидание включено: ждём {0}</value>
+  </data>
+  <data name="Ft4.Status.PounceFired">
+    <value>Вызов {0}: {1}</value>
+  </data>
+  <data name="Ft4.Status.PounceCancelled">
+    <value>Ожидание отменено</value>
+  </data>
+  <data name="Ft4.Status.PounceInvalid">
+    <value>«{0}» не является позывным или квадратом.</value>
   </data>
 
 </root>

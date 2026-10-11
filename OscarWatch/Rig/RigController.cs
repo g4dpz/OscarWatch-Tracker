@@ -100,6 +100,22 @@ public sealed class RigController : IRigController, IDisposable
     /// <summary>FT4 modem holds CAT Doppler between explicit slot-boundary steps.</summary>
     private bool _ft4SlotGatedDoppler;
     private bool _ft4ForceDopplerStep;
+    /// <summary>True while a forced FT4 step should write frequencies and skip the dial read.</summary>
+    private bool _ft4DirectDopplerStep;
+    /// <summary>When set, the forced step uses range rate at this instant rather than "now".</summary>
+    private DateTime? _ft4DopplerInstantUtc;
+    /// <summary>Set when CAT PTT (or handshake PTT) interrupts a Doppler write. Skip further CI-V.</summary>
+    private bool _dopplerPreempted;
+    private readonly object _urgentLock = new();
+    private const int UrgentNone = 0;
+    private const int UrgentPttOn = 1;
+    private const int UrgentPttOff = 2;
+    private const int UrgentHandshake = 3;
+    private int _urgentKind;
+    private int _urgentGeneration;
+    private int _appliedUrgentGeneration;
+    private bool _urgentHandshakeUseRts;
+    private bool _urgentHandshakeAssert;
     private DateTime _ignoreDialUntilUtc = DateTime.MinValue;
     private DateTime _lastDialChangeUtc = DateTime.MinValue;
     /// <summary>When the receive dial last became still (or first sampled). MinValue means not yet observed.</summary>
@@ -111,6 +127,8 @@ public sealed class RigController : IRigController, IDisposable
     private int _kenwoodFaFbFailCount;
     private DateTime _suspendConnectUntilUtc = DateTime.MinValue;
     private string? _lastConnectError;
+    private string? _identityMismatchDevice;
+    private volatile bool _forceIdentityRecheck;
     private SerialPortConnectErrorKind _lastConnectErrorKind = SerialPortConnectErrorKind.None;
     private string? _lastConnectErrorPort;
     private string? _lastConnectEndpoint;
@@ -173,20 +191,63 @@ public sealed class RigController : IRigController, IDisposable
         Enqueue(new RigCommand(RigCommandKind.ApplySelectedCtcss, settings, context));
     }
 
-    public void SetPtt(bool transmit) =>
-        Enqueue(new RigCommand(RigCommandKind.SetPtt, pttTransmit: transmit));
+    public void SetPtt(bool transmit)
+    {
+        var command = new RigCommand(RigCommandKind.SetPtt, pttTransmit: transmit);
+        lock (_urgentLock)
+        {
+            command.Generation = ++_urgentGeneration;
+            _urgentKind = transmit ? UrgentPttOn : UrgentPttOff;
+        }
 
-    public void SetHandshakePtt(bool useRts, bool assert) =>
-        Enqueue(new RigCommand(
+        Enqueue(command);
+    }
+
+    public void SetHandshakePtt(bool useRts, bool assert)
+    {
+        var command = new RigCommand(
             RigCommandKind.SetHandshakePtt,
             handshakeUseRts: useRts,
-            handshakeAssert: assert));
+            handshakeAssert: assert);
+        lock (_urgentLock)
+        {
+            command.Generation = ++_urgentGeneration;
+            _urgentKind = UrgentHandshake;
+            _urgentHandshakeUseRts = useRts;
+            _urgentHandshakeAssert = assert;
+        }
+
+        Enqueue(command);
+    }
 
     public void SetFt4SlotGatedDoppler(bool hold) =>
         Enqueue(new RigCommand(RigCommandKind.SetFt4SlotGatedDoppler, ft4HoldDoppler: hold));
 
     public void ForceFt4DopplerStep() =>
         Enqueue(new RigCommand(RigCommandKind.ForceFt4DopplerStep));
+
+    public bool TryForceFt4DopplerStep(DateTime frequencyAtUtc, TimeSpan timeout)
+    {
+        if (timeout <= TimeSpan.Zero)
+            return false;
+
+        using var done = new ManualResetEventSlim(false);
+        var command = new RigCommand(RigCommandKind.ForceFt4DopplerStep)
+        {
+            Completed = done,
+            DopplerAtUtc = frequencyAtUtc
+        };
+        try
+        {
+            Enqueue(command);
+        }
+        catch (ObjectDisposedException)
+        {
+            return false;
+        }
+
+        return done.Wait(timeout);
+    }
 
     public bool TryGetUplinkRfPowerWatts(out double watts)
     {
@@ -226,6 +287,12 @@ public sealed class RigController : IRigController, IDisposable
         }
 
         return command.Succeeded;
+    }
+
+    public void RequireIdentityRecheck()
+    {
+        _forceIdentityRecheck = true;
+        _suspendConnectUntilUtc = DateTime.MinValue;
     }
 
     public void Disconnect()
@@ -383,11 +450,14 @@ public sealed class RigController : IRigController, IDisposable
                     break;
 
                 case RigCommandKind.SetPtt:
-                    ApplyPttOnWorker(command.PttTransmit);
-                    break;
-
                 case RigCommandKind.SetHandshakePtt:
-                    ApplyHandshakePttOnWorker(command.HandshakeUseRts, command.HandshakeAssert);
+                    TryConsumeUrgentRigAction();
+                    if (command.Generation > _appliedUrgentGeneration)
+                    {
+                        ApplyQueuedRigAction(command);
+                        _appliedUrgentGeneration = command.Generation;
+                    }
+
                     break;
 
                 case RigCommandKind.SetFt4SlotGatedDoppler:
@@ -402,7 +472,17 @@ public sealed class RigController : IRigController, IDisposable
                     {
                         _ft4ForceDopplerStep = true;
                         _forceFrequencyApply = true;
-                        RunLoopIteration(ignoreDopplerSuspend: true);
+                        _ft4DirectDopplerStep = true;
+                        _ft4DopplerInstantUtc = command.DopplerAtUtc;
+                        try
+                        {
+                            RunLoopIteration(ignoreDopplerSuspend: true);
+                        }
+                        finally
+                        {
+                            _ft4DirectDopplerStep = false;
+                            _ft4DopplerInstantUtc = null;
+                        }
                     }
                     break;
 
@@ -446,7 +526,14 @@ public sealed class RigController : IRigController, IDisposable
         finally
         {
             RefreshStatusSnapshot();
-            command.Completed?.Set();
+            try
+            {
+                command.Completed?.Set();
+            }
+            catch (ObjectDisposedException)
+            {
+                // The waiter timed out and released the event. The command itself has finished.
+            }
         }
     }
 
@@ -701,7 +788,7 @@ public sealed class RigController : IRigController, IDisposable
         _suspendDopplerUntilUtc = DateTime.MinValue;
         _kenwoodFaFbBackoffUntilUtc = DateTime.MinValue;
         _kenwoodFaFbFailCount = 0;
-        _ft4SlotGatedDoppler = false;
+        // The hold belongs to the FT4 session, which does not resend it after a reconnect.
         _ft4ForceDopplerStep = false;
     }
 
@@ -724,10 +811,26 @@ public sealed class RigController : IRigController, IDisposable
         // OrbitDeck-style FT4: hold the dial within a slot; only write on ForceFt4DopplerStep.
         if (_ft4SlotGatedDoppler && !_ft4ForceDopplerStep)
             return;
+        var directStep = _ft4DirectDopplerStep;
         _ft4ForceDopplerStep = false;
+        _dopplerPreempted = false;
+
+        // CAT PTT shares this thread. Send it before a frequency write so a slow
+        // CI-V step cannot keep the radio in receive for the first seconds of an FT4 slot.
+        if (TryConsumeUrgentRigAction(duringDoppler: true))
+            return;
 
         if (_cachedContext.TrackState.LookAngles is null)
             return;
+
+        if (directStep)
+        {
+            // Skip the dial read and the second VFO select. Those extra CI-V turns are what
+            // pushed IC-9700 CAT PTT several seconds into the FT4 transmit slot.
+            WriteDopplerFrequencies(_cachedSettings, _cachedContext);
+            TryLogPeriodicSnapshot(_cachedSettings, _cachedContext);
+            return;
+        }
 
         TryClearPassbandOnOrbitalAos(_cachedSettings, _cachedContext);
 
@@ -860,6 +963,15 @@ public sealed class RigController : IRigController, IDisposable
     private bool HasNeutralPassbandTrim() =>
         Math.Abs(_passbandDownlinkAdjustKHz) < 0.0001 && Math.Abs(_passbandUplinkAdjustKHz) < 0.0001;
 
+    /// <summary>
+    /// Largest manual passband trim (per leg) that knob tuning can add. Larger values mean the
+    /// dial reading is not a real tune, and the trim would push the CAT frequency out of range.
+    /// </summary>
+    internal const double PassbandTrimLimitKHz = 100.0;
+
+    internal static double ClampPassbandTrimKHz(double trimKHz) =>
+        Math.Clamp(trimKHz, -PassbandTrimLimitKHz, PassbandTrimLimitKHz);
+
     private void ProcessAutomaticDoppler(RigSettings settings, RigTrackingContext context)
     {
         if (WriteDopplerFrequencies(settings, context))
@@ -939,6 +1051,9 @@ public sealed class RigController : IRigController, IDisposable
             newDown = _passbandDownlinkAdjustKHz + deltaKhz;
             newUp = _passbandUplinkAdjustKHz + deltaKhz;
         }
+
+        newDown = ClampPassbandTrimKHz(newDown);
+        newUp = ClampPassbandTrimKHz(newUp);
 
         if (NearlyEqual(newDown, _passbandDownlinkAdjustKHz) && NearlyEqual(newUp, _passbandUplinkAdjustKHz))
             return;
@@ -1188,6 +1303,9 @@ public sealed class RigController : IRigController, IDisposable
         if (!CanWriteDoppler(settings, writeRx, writeTx))
             return false;
 
+        if (TryConsumeUrgentRigAction(duringDoppler: true))
+            return false;
+
         var wroteRx = false;
         var wroteTx = false;
         if (settings.Type == RigType.KenwoodTs2000 && _useMainSub && _driver is KenwoodTs2000Driver kenwoodDoppler
@@ -1224,6 +1342,8 @@ public sealed class RigController : IRigController, IDisposable
         {
             if (writeRx)
                 wroteRx = WriteRx(settings, rxHz);
+            if (TryConsumeUrgentRigAction(duringDoppler: true))
+                writeTx = false;
             if (writeTx)
             {
                 wroteTx = WriteTx(settings, txHz);
@@ -1295,6 +1415,19 @@ public sealed class RigController : IRigController, IDisposable
         var key = RigSettings.IsFlexNetworkRadio(settings.Type)
             ? $"{settings.Type}|{settings.NetworkHost}|{settings.NetworkPort}|{settings.FlexRadioSerial}|{settings.CatDelayMs}"
             : $"{settings.Type}|{settings.Port}|{settings.BaudRate}|{settings.CivAddress}";
+        if (_forceIdentityRecheck)
+        {
+            _forceIdentityRecheck = false;
+            if (_driver is not null && _connectedKey == key && _driver.IsConnected)
+            {
+                if (ConfirmDriver(_driver, settings.Port, endpointLabel: null, settings.Type))
+                    return true;
+
+                TearDownRig();
+                return false;
+            }
+        }
+
         if (_driver is not null && _connectedKey == key && _driver.IsConnected)
             return true;
 
@@ -1305,14 +1438,21 @@ public sealed class RigController : IRigController, IDisposable
             _driver.Open();
             _connectedKey = key;
             ConfigureFlexPassInitCancellation(_driver);
-            if (_driver.IsConnected)
+            if (ConfirmDriver(_driver, settings.Port, endpointLabel: null, settings.Type))
             {
                 Log.Information("Rig connected: type={RigType}, endpoint={Endpoint}", settings.Type, FormatSingleEndpoint(settings));
                 _lastConnectError = null;
                 _lastConnectErrorKind = SerialPortConnectErrorKind.None;
                 _lastConnectErrorPort = null;
                 _lastConnectEndpoint = null;
+                _identityMismatchDevice = null;
                 return true;
+            }
+
+            if (_identityMismatchDevice is not null)
+            {
+                TearDownRig();
+                return false;
             }
 
             var endpoint = FormatSingleEndpoint(settings);
@@ -1357,6 +1497,31 @@ public sealed class RigController : IRigController, IDisposable
             && _uplinkConnectedKey == upKey
             && _uplinkDriver.IsConnected;
 
+        if (_forceIdentityRecheck)
+        {
+            _forceIdentityRecheck = false;
+            if (downOk && upOk)
+            {
+                if (ConfirmDriver(
+                        _downlinkDriver!,
+                        settings.Downlink.Port,
+                        SerialPortConnectErrorHelper.EndpointDownlink,
+                        settings.Downlink.Type)
+                    && ConfirmDriver(
+                        _uplinkDriver!,
+                        settings.Uplink.Port,
+                        SerialPortConnectErrorHelper.EndpointUplink,
+                        settings.Uplink.Type))
+                {
+                    _identityMismatchDevice = null;
+                    return true;
+                }
+
+                TearDownRig();
+                return false;
+            }
+        }
+
         if (downOk && upOk)
             return true;
 
@@ -1375,13 +1540,21 @@ public sealed class RigController : IRigController, IDisposable
             _downlinkDriver = CreateEndpointDriver(settings.Downlink);
             _downlinkDriver.Open();
             _downlinkConnectedKey = downKey;
-            if (!_downlinkDriver.IsConnected)
-            {
-                RecordConnectFailure(
-                    SerialPortConnectErrorKind.Generic,
+            if (!ConfirmDriver(
+                    _downlinkDriver,
                     settings.Downlink.Port,
                     SerialPortConnectErrorHelper.EndpointDownlink,
-                    $"Opened {FormatEndpointLabel(settings.Downlink)} but the link is not active");
+                    settings.Downlink.Type))
+            {
+                if (_identityMismatchDevice is null)
+                {
+                    RecordConnectFailure(
+                        SerialPortConnectErrorKind.Generic,
+                        settings.Downlink.Port,
+                        SerialPortConnectErrorHelper.EndpointDownlink,
+                        $"Opened {FormatEndpointLabel(settings.Downlink)} but the link is not active");
+                }
+
                 TearDownRig();
                 return false;
             }
@@ -1389,13 +1562,21 @@ public sealed class RigController : IRigController, IDisposable
             _uplinkDriver = CreateEndpointDriver(settings.Uplink);
             _uplinkDriver.Open();
             _uplinkConnectedKey = upKey;
-            if (!_uplinkDriver.IsConnected)
-            {
-                RecordConnectFailure(
-                    SerialPortConnectErrorKind.Generic,
+            if (!ConfirmDriver(
+                    _uplinkDriver,
                     settings.Uplink.Port,
                     SerialPortConnectErrorHelper.EndpointUplink,
-                    $"Opened {FormatEndpointLabel(settings.Uplink)} but the link is not active");
+                    settings.Uplink.Type))
+            {
+                if (_identityMismatchDevice is null)
+                {
+                    RecordConnectFailure(
+                        SerialPortConnectErrorKind.Generic,
+                        settings.Uplink.Port,
+                        SerialPortConnectErrorHelper.EndpointUplink,
+                        $"Opened {FormatEndpointLabel(settings.Uplink)} but the link is not active");
+                }
+
                 TearDownRig();
                 return false;
             }
@@ -1404,6 +1585,7 @@ public sealed class RigController : IRigController, IDisposable
             _lastConnectErrorKind = SerialPortConnectErrorKind.None;
             _lastConnectErrorPort = null;
             _lastConnectEndpoint = null;
+            _identityMismatchDevice = null;
             return true;
         }
         catch (Exception ex)
@@ -1424,12 +1606,43 @@ public sealed class RigController : IRigController, IDisposable
         }
     }
 
+    private bool ConfirmDriver(IRigDriver driver, string? port, string? endpointLabel, RigType type)
+    {
+        bool confirmed;
+        try
+        {
+            confirmed = driver.IsConnected && driver.TryConfirmIdentity();
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Rig identity check failed on {Port}", port);
+            confirmed = false;
+        }
+
+        if (confirmed)
+            return true;
+
+        if (!driver.IsConnected)
+            return false;
+
+        var name = DeviceIdentityNames.Radio(type);
+        Log.Warning("Rig on {Port} did not answer as {Radio}", port, name);
+        RecordConnectFailure(
+            SerialPortConnectErrorKind.Generic,
+            port,
+            endpointLabel,
+            $"Opened {port} but it did not answer as {name}.");
+        _identityMismatchDevice = name;
+        return false;
+    }
+
     private void RecordConnectFailure(
         SerialPortConnectErrorKind kind,
         string? port,
         string? endpointLabel,
         string? englishDetail = null)
     {
+        _identityMismatchDevice = null;
         _lastConnectErrorKind = kind;
         _lastConnectErrorPort = port;
         _lastConnectEndpoint = endpointLabel;
@@ -2217,12 +2430,17 @@ public sealed class RigController : IRigController, IDisposable
 
     private void RestoreOperatorVfo()
     {
+        if (_dopplerPreempted)
+            return;
+
         var driver = RxDriver();
         if (driver is null)
             return;
 
         driver.SelectVfo(ReceiveVfo(), force: _interactive);
-        if (!_interactive)
+        // The second select is a settle for the operator's dial. During an FT4 slot step it
+        // only adds CI-V time on the same port CAT PTT has to use.
+        if (!_interactive || _ft4DirectDopplerStep)
             return;
 
         var delayMs = Math.Clamp(_cachedSettings.ReceiveCatDelayMs(), 50, 200);
@@ -2331,6 +2549,19 @@ public sealed class RigController : IRigController, IDisposable
     private DopplerLeadRangeRates ResolveRangeRatesForDoppler(RigTrackingContext context)
     {
         var site = _settingsService?.Current.GroundStation ?? new GroundStation();
+        if (_ft4DopplerInstantUtc is { } at && _propagator is not null)
+        {
+            try
+            {
+                var rate = _propagator.GetLookAngles(context.TrackState.NoradId, site, at).RangeRateKmPerSec;
+                return new DopplerLeadRangeRates(rate, rate, 0);
+            }
+            catch (Exception ex)
+            {
+                Log.Debug(ex, "FT4 Doppler step could not propagate range rate at {Utc:o}", at);
+            }
+        }
+
         return DopplerCatLead.ResolveRangeRates(
             _propagator,
             _cachedSettings,
@@ -2712,6 +2943,64 @@ public sealed class RigController : IRigController, IDisposable
     private IRigDriver? TxDriver() =>
         _cachedSettings.DualRadioEnabled ? _uplinkDriver : _driver;
 
+    /// <summary>
+    /// Send a CAT or handshake PTT that arrived while this thread was inside a Doppler write.
+    /// Returns true when something was sent. The caller should not start another CI-V command:
+    /// many rigs ignore tuning while keyed, and the extra commands delay the unkey.
+    /// </summary>
+    private bool TryConsumeUrgentRigAction(bool duringDoppler = false)
+    {
+        int kind;
+        int generation;
+        bool useRts;
+        bool assert;
+        lock (_urgentLock)
+        {
+            kind = _urgentKind;
+            if (kind == UrgentNone)
+                return false;
+            generation = _urgentGeneration;
+            useRts = _urgentHandshakeUseRts;
+            assert = _urgentHandshakeAssert;
+            _urgentKind = UrgentNone;
+        }
+
+        if (generation <= _appliedUrgentGeneration)
+            return false;
+
+        switch (kind)
+        {
+            case UrgentPttOn:
+                ApplyPttOnWorker(true);
+                break;
+            case UrgentPttOff:
+                ApplyPttOnWorker(false);
+                break;
+            case UrgentHandshake:
+                ApplyHandshakePttOnWorker(useRts, assert);
+                break;
+            default:
+                return false;
+        }
+
+        _appliedUrgentGeneration = generation;
+        if (duringDoppler)
+        {
+            _dopplerPreempted = true;
+            Log.Information("FT4 PTT went out during a Doppler write, so the rest of that write was skipped");
+        }
+
+        return true;
+    }
+
+    private void ApplyQueuedRigAction(RigCommand command)
+    {
+        if (command.Kind == RigCommandKind.SetHandshakePtt)
+            ApplyHandshakePttOnWorker(command.HandshakeUseRts, command.HandshakeAssert);
+        else
+            ApplyPttOnWorker(command.PttTransmit);
+    }
+
     private void ApplyPttOnWorker(bool transmit)
     {
         try
@@ -2753,14 +3042,20 @@ public sealed class RigController : IRigController, IDisposable
                 return wattsDirect;
 
             // ICOM CI-V: relative 0–255 mapped via band maximum.
-            if (!driver.TryReadRfPowerLevel(out var level))
+            if (!WithTransmitVfoSelected(driver, d => (d.TryReadRfPowerLevel(out var l), l), out var level))
                 return null;
 
             var hz = _lastRigTxHz;
             if (_cachedContext is { Corrected.RadioTransmitKHz: var txKHz } && txKHz > 0)
                 hz = (long)Math.Round(txKHz * 1000.0);
 
-            if (!IcomRfPowerEstimator.TryEstimateWatts(driver.RigType, hz, level, out var watts))
+            if (!IcomRfPowerEstimator.TryEstimateWatts(
+                    driver.RigType,
+                    hz,
+                    level,
+                    out var watts,
+                    _cachedSettings.Ic910PowerClass,
+                    _cachedSettings.Ic9700PowerClass))
                 return null;
 
             return watts;
@@ -2769,6 +3064,26 @@ public sealed class RigController : IRigController, IDisposable
         {
             Log.Debug(ex, "Uplink RF power read failed");
             return null;
+        }
+    }
+
+    /// <summary>
+    /// ICOM level commands act on the selected band, and the operator VFO is the receive band
+    /// on Main/Sub satellite layouts, so select the uplink first and restore afterwards.
+    /// </summary>
+    private bool WithTransmitVfoSelected<T>(IRigDriver driver, Func<IRigDriver, (bool Ok, T Value)> action, out T value)
+    {
+        driver.SelectVfo(TransmitVfoForWrite(_cachedSettings), force: true);
+        try
+        {
+            var (ok, result) = action(driver);
+            value = result;
+            return ok;
+        }
+        finally
+        {
+            if (!_cachedSettings.DualRadioEnabled)
+                driver.SelectVfo(ReceiveVfo(), force: true);
         }
     }
 
@@ -2790,10 +3105,16 @@ public sealed class RigController : IRigController, IDisposable
             if (_cachedContext is { Corrected.RadioTransmitKHz: var txKHz } && txKHz > 0)
                 hz = (long)Math.Round(txKHz * 1000.0);
 
-            if (!IcomRfPowerEstimator.TryLevelForWatts(driver.RigType, hz, watts, out var level))
+            if (!IcomRfPowerEstimator.TryLevelForWatts(
+                    driver.RigType,
+                    hz,
+                    watts,
+                    out var level,
+                    _cachedSettings.Ic910PowerClass,
+                    _cachedSettings.Ic9700PowerClass))
                 return false;
 
-            if (!driver.TrySetRfPowerLevel(level))
+            if (!WithTransmitVfoSelected(driver, d => (d.TrySetRfPowerLevel(level), level), out _))
                 return false;
 
             Log.Information(
@@ -2812,6 +3133,9 @@ public sealed class RigController : IRigController, IDisposable
 
     private (RigStatusKind Kind, string? Port, string? Detail) DescribeConnectionFailure(RigSettings settings)
     {
+        if (_identityMismatchDevice is not null)
+            return (RigStatusKind.IdentityMismatch, _lastConnectErrorPort, _identityMismatchDevice);
+
         if (_lastConnectErrorKind == SerialPortConnectErrorKind.DualSamePort)
             return (RigStatusKind.DualRadioSamePort, _lastConnectErrorPort, null);
 
@@ -2890,6 +3214,8 @@ public sealed class RigController : IRigController, IDisposable
         public bool HandshakeUseRts { get; }
         public bool HandshakeAssert { get; }
         public bool Ft4HoldDoppler { get; }
+        public int Generation { get; set; }
+        public DateTime? DopplerAtUtc { get; set; }
         public double? RfPowerWatts { get; set; }
         public bool Succeeded { get; set; }
         public ManualResetEventSlim? Completed { get; set; }

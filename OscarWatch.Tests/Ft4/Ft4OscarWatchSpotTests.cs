@@ -59,11 +59,17 @@ public sealed class Ft4OscarWatchSpotTests
     }
 
     [Fact]
-    public void Own_station_transmit_and_echo_are_not_spotted()
+    public void Own_station_transmit_echo_and_rejected_hint_are_not_spotted()
     {
         Assert.False(Ft4OscarWatchSpots.TryCreate(Decode("CQ MM9SQL IO85"), Snapshot(), "mm9sql", "client", out _));
         Assert.False(Ft4OscarWatchSpots.TryCreate(Decode("CQ W1AW FN31", own: true), Snapshot(), "MM9SQL", "client", out _));
         Assert.False(Ft4OscarWatchSpots.TryCreate(Decode("CQ W1AW FN31", tx: true), Snapshot(), "MM9SQL", "client", out _));
+        Assert.False(Ft4OscarWatchSpots.TryCreate(
+            Decode("GM4VXE JW7XK -05") with { IsApriori = true, IsRejected = true },
+            Snapshot(),
+            "GM4VXE",
+            "client",
+            out _));
     }
 
     [Fact]

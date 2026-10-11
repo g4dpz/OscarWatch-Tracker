@@ -117,6 +117,9 @@ public partial class App : Application
         services.AddTransient<LogbookSettingsViewModel>();
         services.AddSingleton<Ft4ModemService>();
         services.AddSingleton<Ft4ViewModel>();
+        services.AddSingleton<OscarWatch.Sstv.SstvAudioService>();
+        services.AddSingleton<OscarWatch.Sstv.SstvReceiverService>();
+        services.AddSingleton<SstvViewModel>();
 
         Services = services.BuildServiceProvider();
 
@@ -131,8 +134,7 @@ public partial class App : Application
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var version = typeof(App).Assembly.GetName().Version?.ToString(3) ?? "dev";
-            Log.Information("OscarWatch {Version} starting", version);
+            Log.Information("OscarWatch {Version} starting", AppVersionHelper.GetDisplayVersionText());
 
             var startupStopwatch = Stopwatch.StartNew();
             var mainVm = Services.GetRequiredService<MainViewModel>();

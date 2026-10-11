@@ -84,6 +84,15 @@ public sealed class KenwoodTs2000Driver : IRigDriver
         _transport.Open();
     }
 
+    public bool TryConfirmIdentity()
+    {
+        if (!_transport.IsOpen)
+            return false;
+
+        var reply = _transport.Transact(KenwoodCatCodec.BuildReadFrequencyCommand('A'), _catDelayMs);
+        return KenwoodCatCodec.TryParseFrequencyHz(reply ?? "", out var hz) && hz is >= 100_000 and <= 1_300_000_000;
+    }
+
     public bool TryReadRfPowerWatts(out double watts)
     {
         watts = 0;

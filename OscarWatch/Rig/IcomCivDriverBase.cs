@@ -56,6 +56,22 @@ public abstract class IcomCivDriverBase : IRigDriver
     public bool IsConnected => _transport?.IsOpen == true;
     public abstract bool SupportsTracking { get; }
 
+    public bool TryConfirmIdentity()
+    {
+        if (_transport is null || !IsConnected)
+            return false;
+
+        // Operating-frequency read (0x03). Do not send 0x19 (transceiver ID): on an IC-910
+        // that reply is addressed to CI-V 0x00, and the radio can treat it as a command.
+        var response = _transport.WriteCommand([0x03], _catDelayMs);
+        var hz = IcomCivCodec.DecodeFrequencyFromResponse(response);
+        if (hz is >= 100_000 and <= 10_500_000_000)
+            return true;
+
+        Log.Warning("CI-V frequency read on {Port} did not return a frequency", Port);
+        return false;
+    }
+
     public void Open()
     {
         if (_injectedTransport is not null)

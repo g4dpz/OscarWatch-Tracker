@@ -14,6 +14,7 @@ public sealed class Ft4PttKeyer : IDisposable
 
     private readonly IRigController _rig;
     private readonly ISettingsService _settings;
+    private readonly object _portGate = new();
     private SerialPort? _separatePort;
     private bool _keyed;
     private Action<string>? _manualPrompt;
@@ -28,43 +29,61 @@ public sealed class Ft4PttKeyer : IDisposable
 
     public Ft4PttMethod Method => _settings.Current.Ft4.PttMethod;
 
+    /// <summary>
+    /// Assert PTT without the lead-in wait. CAT and the CAT-port handshake line share the
+    /// rig thread with Doppler, so the command has to be queued at the slot boundary,
+    /// before that write, or the radio stays in receive for the start of the burst.
+    /// </summary>
+    public void KeyNow() => TryAssert();
+
     public async Task KeyAsync(CancellationToken cancellationToken = default)
     {
-        if (_keyed)
+        if (!TryAssert())
             return;
+
+        // VOX keys from the audio itself. The lead wait is for CAT and hardware lines,
+        // and TryAssert already returned false for VOX on a fresh key (see below).
+        var lead = Math.Clamp(_settings.Current.Ft4.PttLeadMs, 0, 2000);
+        if (lead > 0)
+            await Task.Delay(lead, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>Returns false when PTT was already asserted, or when VOX needs no lead wait.</summary>
+    private bool TryAssert()
+    {
+        if (_keyed)
+            return false;
 
         var ft4 = _settings.Current.Ft4;
         switch (ft4.PttMethod)
         {
             case Ft4PttMethod.Vox:
                 _keyed = true;
-                return;
+                return false;
 
             case Ft4PttMethod.Cat:
                 _rig.SetPtt(true);
-                _keyed = true;
                 break;
 
             case Ft4PttMethod.CatPortHandshake:
                 _rig.SetHandshakePtt(ft4.PttLine == Ft4PttLine.Rts, assert: !ft4.PttInvert);
-                _keyed = true;
                 break;
 
             case Ft4PttMethod.SeparateComPort:
-                EnsureSeparatePort(ft4);
-                SetLine(_separatePort!, ft4.PttLine, assert: !ft4.PttInvert);
-                _keyed = true;
+                lock (_portGate)
+                {
+                    EnsureSeparatePort(ft4);
+                    SetLine(_separatePort!, ft4.PttLine, assert: !ft4.PttInvert);
+                }
                 break;
 
             case Ft4PttMethod.Manual:
                 _manualPrompt?.Invoke("key");
-                _keyed = true;
                 break;
         }
 
-        var lead = Math.Clamp(ft4.PttLeadMs, 0, 2000);
-        if (lead > 0)
-            await Task.Delay(lead, cancellationToken).ConfigureAwait(false);
+        _keyed = true;
+        return true;
     }
 
     public async Task UnkeyAsync(CancellationToken cancellationToken = default)
@@ -111,8 +130,11 @@ public sealed class Ft4PttKeyer : IDisposable
                     _rig.SetHandshakePtt(ft4.PttLine == Ft4PttLine.Rts, assert: ft4.PttInvert);
                     break;
                 case Ft4PttMethod.SeparateComPort:
-                    if (_separatePort is { IsOpen: true })
-                        SetLine(_separatePort, ft4.PttLine, assert: ft4.PttInvert);
+                    lock (_portGate)
+                    {
+                        if (_separatePort is { IsOpen: true })
+                            SetLine(_separatePort, ft4.PttLine, assert: ft4.PttInvert);
+                    }
                     break;
                 case Ft4PttMethod.Manual:
                     _manualPrompt?.Invoke("unkey");
@@ -167,27 +189,53 @@ public sealed class Ft4PttKeyer : IDisposable
             port.DtrEnable = assert;
     }
 
-    public void Dispose()
+    /// <summary>
+    /// Drop PTT and close the separate PTT COM port so another application (MSHV, WSJT-X)
+    /// can open it. The next transmission opens it again.
+    /// </summary>
+    public void ReleasePort()
     {
-        try
-        {
-            if (_keyed)
-                UnkeyAsync().GetAwaiter().GetResult();
-        }
-        catch
-        {
-            // ignore
-        }
-
-        try
-        {
-            _separatePort?.Dispose();
-        }
-        catch
-        {
-            // ignore
-        }
-
-        _separatePort = null;
+        DropPtt();
+        lock (_portGate)
+            ClosePort();
     }
+
+    /// <summary>
+    /// Close the separate PTT port when the settings no longer use it (another method,
+    /// or a different port), so the old port is free at once. Closing it also drops its lines.
+    /// </summary>
+    public void ReleaseUnusedPort()
+    {
+        var ft4 = _settings.Current.Ft4;
+        lock (_portGate)
+        {
+            if (_separatePort is null)
+                return;
+            if (ft4.PttMethod == Ft4PttMethod.SeparateComPort
+                && string.Equals(_separatePort.PortName, ft4.SeparatePttPort?.Trim(), StringComparison.OrdinalIgnoreCase))
+                return;
+
+            ClosePort();
+        }
+    }
+
+    private void ClosePort()
+    {
+        var port = _separatePort;
+        _separatePort = null;
+        if (port is null)
+            return;
+
+        try
+        {
+            port.Dispose();
+            Log.Information("FT4 released PTT port {Port}", port.PortName);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "FT4 PTT port close failed");
+        }
+    }
+
+    public void Dispose() => ReleasePort();
 }

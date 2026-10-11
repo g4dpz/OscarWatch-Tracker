@@ -7,7 +7,8 @@ public enum Ft4DecodeHighlightKind
     Replying,
     Cq,
     NewCall,
-    NewGrid
+    NewGrid,
+    PounceTarget
 }
 
 /// <summary>
@@ -18,6 +19,7 @@ public enum Ft4DecodeHighlightKind
 /// A callsign not yet in the logbook is "new call", including when they are calling CQ,
 /// so a first CQ is not lost among the others. A CQ from a logged station uses the CQ shade.
 /// A grid not yet in the logbook is "new grid".
+/// Lines from an armed wait-and-pounce target rank above new call and new grid.
 /// </summary>
 public static class Ft4DecodeHighlight
 {
@@ -26,6 +28,7 @@ public static class Ft4DecodeHighlight
     public const string DefaultNewCallColour = "#664D9DE8";
     public const string DefaultNewGridColour = "#66C07AD0";
     public const string DefaultCqColour = "#6678C8E0";
+    public const string DefaultPounceColour = "#66E06A8C";
 
     /// <summary>Text on a line this station transmitted. White, matching the previous fixed colour.</summary>
     public const string DefaultTxTextColour = "#FFFFFFFF";
@@ -36,9 +39,10 @@ public static class Ft4DecodeHighlight
         string? partnerCall,
         IReadOnlySet<string>? workedCalls = null,
         IReadOnlySet<string>? workedGridFields = null,
-        IReadOnlySet<string>? finishedPartners = null)
+        IReadOnlySet<string>? finishedPartners = null,
+        Ft4PounceTarget? pounceTarget = null)
     {
-        if (!message.IsReceiveActivity)
+        if (!message.IsReceiveActivity || message.IsRejected)
             return Ft4DecodeHighlightKind.None;
 
         var mine = Ft4MessageCodec.NormalizeCall(myCall ?? "");
@@ -68,6 +72,9 @@ public static class Ft4DecodeHighlight
         var de = Ft4MessageCodec.NormalizeCall(message.CallDe ?? "");
         if (de.Length == 0 || (mine.Length > 0 && de.Equals(mine, StringComparison.Ordinal)))
             return Ft4DecodeHighlightKind.None;
+
+        if (pounceTarget is not null && pounceTarget.IsFrom(message))
+            return Ft4DecodeHighlightKind.PounceTarget;
 
         if (workedCalls is not null && !workedCalls.Contains(de))
             return Ft4DecodeHighlightKind.NewCall;

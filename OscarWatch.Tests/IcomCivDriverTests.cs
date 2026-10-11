@@ -209,4 +209,26 @@ public sealed class IcomCivDriverTests
 
         Assert.Equal(["060501"], transport.SentCommandBodies);
     }
+
+    [Fact]
+    public void Ic910_identity_accepts_a_frequency_read()
+    {
+        var transport = new RecordingIcomCivTransport { MainHz = 145_990_000 };
+        var driver = new IcomIc910Driver(transport);
+        driver.Open();
+
+        Assert.True(driver.TryConfirmIdentity());
+        Assert.Equal("03", transport.SentCommandBodies[^1]);
+    }
+
+    [Fact]
+    public void Ic910_identity_rejects_ack_without_a_frequency()
+    {
+        var transport = new RecordingIcomCivTransport();
+        transport.CommandResponses.Enqueue([0xFE, 0xFE, 0x60, 0x00, 0xFB, 0xFD]);
+        var driver = new IcomIc910Driver(transport);
+        driver.Open();
+
+        Assert.False(driver.TryConfirmIdentity());
+    }
 }

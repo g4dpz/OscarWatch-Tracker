@@ -434,13 +434,19 @@
     <value>单击卫星进行选择，或在聚焦时使用方向键。线条显示其过境路径；连接时十字标记表示旋翼器指向。</value>
   </data>
   <data name="Main.Standby.Hint">
-    <value>浏览模式 — 旋转器已停靠，CAT 已暂停</value>
+    <value>待机已开启。在恢复跟踪之前，旋转器已停靠，CAT 已暂停。</value>
   </data>
   <data name="Main.Standby.Pause">
     <value>待机</value>
   </data>
+  <data name="Main.Standby.PauseTip">
+    <value>停靠旋转器并暂停 CAT。地图仍为实时，但电台停止跟踪。</value>
+  </data>
   <data name="Main.Standby.Resume">
-    <value>恢复</value>
+    <value>恢复跟踪</value>
+  </data>
+  <data name="Main.Standby.ResumeTip">
+    <value>退出待机，恢复旋转器和 CAT 跟踪。</value>
   </data>
   <data name="Main.Sunlight">
     <value>日照</value>
@@ -909,6 +915,9 @@
   <data name="Rig.NotConnectedPortDetail">
     <value>电台未连接 ({0}): {1}</value>
   </data>
+  <data name="Hardware.IdentityMismatch">
+    <value>已打开 {0}，但它没有以 {1} 的身份应答。</value>
+  </data>
   <data name="Rig.SerialPortNotFound">
     <value>未找到串口 ({0})。请检查 USB 连接并刷新端口列表。</value>
   </data>
@@ -935,6 +944,288 @@
   </data>
   <data name="Menu.Tools.Ft4">
     <value>_OscarWatch FT4</value>
+  </data>
+  <data name="Menu.Tools.Sstv">
+    <value>_OscarWatch SSTV</value>
+  </data>
+  <data name="Window.Sstv.Title">
+    <value>OscarWatch SSTV</value>
+  </data>
+  <data name="Sstv.Start">
+    <value>开始</value>
+  </data>
+  <data name="Sstv.Stop">
+    <value>停止</value>
+  </data>
+  <data name="Sstv.Input">
+    <value>输入</value>
+  </data>
+  <data name="Sstv.Refresh">
+    <value>刷新</value>
+  </data>
+  <data name="Sstv.Mode">
+    <value>模式</value>
+  </data>
+  <data name="Sstv.Mode.Auto">
+    <value>自动 (VIS)</value>
+  </data>
+  <data name="Sstv.ReSync">
+    <value>重新同步</value>
+  </data>
+  <data name="Sstv.ReSync.Tip">
+    <value>按整幅图像测得的行周期重新绘制，消除开头残留的倾斜。</value>
+  </data>
+  <data name="Sstv.Skip">
+    <value>跳过图像</value>
+  </data>
+  <data name="Sstv.Skip.Tip">
+    <value>丢弃正在接收的图像并等待下一幅。</value>
+  </data>
+  <data name="Sstv.AutoSlant">
+    <value>自动倾斜校正</value>
+  </data>
+  <data name="Sstv.AutoSlant.Tip">
+    <value>根据同步脉冲测量行周期，避免发送端或声卡时钟误差导致图像倾斜。</value>
+  </data>
+  <data name="Sstv.SlantTrim">
+    <value>时钟微调 (ppm)</value>
+  </data>
+  <data name="Sstv.Afc">
+    <value>AFC</value>
+  </data>
+  <data name="Sstv.Afc.Tip">
+    <value>逐行跟踪同步音频率，避免调谐误差和多普勒漂移使颜色偏移。</value>
+  </data>
+  <data name="Sstv.CatFeedForward">
+    <value>电台多普勒校正 (SSB)</value>
+  </data>
+  <data name="Sstv.CatFeedForward.Tip">
+    <value>SSB 时去除电台控制多普勒步进之间残留的音频偏移。FM 无需校正。</value>
+  </data>
+  <data name="Sstv.DetectWithoutVis">
+    <value>无 VIS 头时检测图像</value>
+  </data>
+  <data name="Sstv.DetectWithoutVis.Tip">
+    <value>如果丢失了头部（过境开始时信号弱），根据规律的同步脉冲识别图像及其模式。</value>
+  </data>
+  <data name="Sstv.Settings.AutoStart">
+    <value>自动开始</value>
+  </data>
+  <data name="Sstv.AutoStart">
+    <value>选定卫星升起时开始</value>
+  </data>
+  <data name="Sstv.AutoStart.Tip">
+    <value>当主窗口中选定的卫星升到下方仰角以上时开始接收，卫星落下时停止。仅在此窗口打开时工作。开启自动保存后，关闭窗口也会保留图片。</value>
+  </data>
+  <data name="Sstv.AutoStart.Elevation">
+    <value>开始仰角（度）以上</value>
+  </data>
+  <data name="Sstv.AutoSave">
+    <value>自动保存图像</value>
+  </data>
+  <data name="Sstv.SaveSessionAudio">
+    <value>保存接收音频</value>
+  </data>
+  <data name="Sstv.SaveSessionAudio.Tip">
+    <value>将接收音频保存为 WAV 文件（约每分钟 1.4 MB）到 SSTV 文件夹，以便之后重新解码。</value>
+  </data>
+  <data name="Sstv.Progress">
+    <value>图像进度</value>
+  </data>
+  <data name="Sstv.Level">
+    <value>输入电平</value>
+  </data>
+  <data name="Sstv.Picture">
+    <value>SSTV 图像</value>
+  </data>
+  <data name="Sstv.Gallery">
+    <value>已接收图像</value>
+  </data>
+  <data name="Sstv.SavePicture">
+    <value>保存图像</value>
+  </data>
+  <data name="Sstv.Picture.AlreadySaved">
+    <value>已保存</value>
+  </data>
+  <data name="Sstv.SavePicture.SelectTip">
+    <value>选择一张已接收的图像以保存。</value>
+  </data>
+  <data name="Sstv.Signal">
+    <value>信号</value>
+  </data>
+  <data name="Sstv.Signal.Tip">
+    <value>接收音频的频谱和瀑布图。标记分别表示同步 (1200 Hz)、黑色 (1500 Hz)、VIS 引导音 (1900 Hz) 和白色 (2300 Hz)。良好的图像会在 1200 Hz 处显示一条稳定的线，并在 1500 至 2300 Hz 之间有信号活动。</value>
+  </data>
+  <data name="Window.SstvSettings.Title">
+    <value>OscarWatch SSTV 设置</value>
+  </data>
+  <data name="Sstv.OpenSettings">
+    <value>设置</value>
+  </data>
+  <data name="Sstv.OpenSettings.Tip">
+    <value>音频输入、解码和保存选项。</value>
+  </data>
+  <data name="Sstv.Settings.Audio">
+    <value>音频</value>
+  </data>
+  <data name="Sstv.Settings.Decoding">
+    <value>解码</value>
+  </data>
+  <data name="Sstv.Settings.Saving">
+    <value>保存</value>
+  </data>
+  <data name="Window.SstvLibrary.Title">
+    <value>OscarWatch SSTV 图像库</value>
+  </data>
+  <data name="Sstv.Library.OpenTip">
+    <value>打开图像库：按日期查看所有已保存的图像</value>
+  </data>
+  <data name="Sstv.Library.Period">
+    <value>时间范围</value>
+  </data>
+  <data name="Sstv.Library.Period.All">
+    <value>全部图像</value>
+  </data>
+  <data name="Sstv.Library.Period.Today">
+    <value>今天</value>
+  </data>
+  <data name="Sstv.Library.Period.Week">
+    <value>最近 7 天</value>
+  </data>
+  <data name="Sstv.Library.Period.Month">
+    <value>最近 30 天</value>
+  </data>
+  <data name="Sstv.Library.Period.Custom">
+    <value>选择日期</value>
+  </data>
+  <data name="Sstv.Library.From">
+    <value>从</value>
+  </data>
+  <data name="Sstv.Library.To">
+    <value>到</value>
+  </data>
+  <data name="Sstv.Library.Satellite">
+    <value>卫星</value>
+  </data>
+  <data name="Sstv.Library.AnySatellite">
+    <value>全部卫星</value>
+  </data>
+  <data name="Sstv.Library.AnyMode">
+    <value>全部模式</value>
+  </data>
+  <data name="Sstv.Library.Empty">
+    <value>没有符合筛选条件的已保存图像。</value>
+  </data>
+  <data name="Sstv.Library.SelectHint">
+    <value>选择一张图像即可在此查看，双击可打开。</value>
+  </data>
+  <data name="Sstv.Library.Received">
+    <value>接收时间</value>
+  </data>
+  <data name="Sstv.Library.File">
+    <value>文件</value>
+  </data>
+  <data name="Sstv.Library.Open">
+    <value>打开</value>
+  </data>
+  <data name="Sstv.Library.ShowInFolder">
+    <value>在文件夹中显示</value>
+  </data>
+  <data name="Sstv.Library.Delete">
+    <value>删除</value>
+  </data>
+  <data name="Sstv.Library.DeleteConfirm.Title">
+    <value>删除图像</value>
+  </data>
+  <data name="Sstv.Library.DeleteConfirm">
+    <value>删除 {0}？此操作无法撤销。</value>
+  </data>
+  <data name="Sstv.Library.Count">
+    <value>{0} 张图像</value>
+  </data>
+  <data name="Sstv.Library.CountOne">
+    <value>1 张图像</value>
+  </data>
+  <data name="Sstv.Library.Summary">
+    <value>显示 {0} / {1} 张已保存图像</value>
+  </data>
+  <data name="Sstv.ShowLive">
+    <value>显示实时图像</value>
+  </data>
+  <data name="Sstv.DecodeRecording">
+    <value>解码录音</value>
+  </data>
+  <data name="Sstv.DecodeRecording.Tip">
+    <value>解码一次过境的 WAV 或 MP3 录音。WAV 以外的格式需要 PATH 中有 ffmpeg。</value>
+  </data>
+  <data name="Sstv.OpenFolder">
+    <value>打开 SSTV 文件夹</value>
+  </data>
+  <data name="Sstv.Picker.Title">
+    <value>选择 SSTV 录音</value>
+  </data>
+  <data name="Sstv.Picker.Audio">
+    <value>音频录音</value>
+  </data>
+  <data name="Sstv.Status.Idle">
+    <value>已停止。按开始以监听图像。</value>
+  </data>
+  <data name="Sstv.Status.NoAudio">
+    <value>没有可用的音频输入（PortAudio 无法启动）。</value>
+  </data>
+  <data name="Sstv.Status.Error">
+    <value>SSTV 已停止：{0}</value>
+  </data>
+  <data name="Sstv.Status.Listening">
+    <value>正在等待图像</value>
+  </data>
+  <data name="Sstv.Status.ListeningSat">
+    <value>正在等待来自 {0} 的图像</value>
+  </data>
+  <data name="Sstv.Status.FromVis">
+    <value>VIS</value>
+  </data>
+  <data name="Sstv.Status.FromSync">
+    <value>由同步检测</value>
+  </data>
+  <data name="Sstv.Status.Receiving">
+    <value>正在接收 {0}（{1}）</value>
+  </data>
+  <data name="Sstv.Status.LoadingFile">
+    <value>正在加载 {0}</value>
+  </data>
+  <data name="Sstv.Status.DecodingFile">
+    <value>正在解码 {0}：{1:0}%</value>
+  </data>
+  <data name="Sstv.Status.FileDone">
+    <value>{0} 解码完成：{1} 幅图像</value>
+  </data>
+  <data name="Sstv.Line">
+    <value>第 {0} 行，共 {1} 行</value>
+  </data>
+  <data name="Sstv.Lock">
+    <value>同步锁定 {0:0}%</value>
+  </data>
+  <data name="Sstv.Offset">
+    <value>调谐 {0:+0;-0;0} Hz</value>
+  </data>
+  <data name="Sstv.Clock">
+    <value>时钟 {0:+0;-0;0} ppm</value>
+  </data>
+  <data name="Sstv.Doppler">
+    <value>下行多普勒 {0}</value>
+  </data>
+  <data name="Sstv.FeedForward">
+    <value>电台校正 {0:+0;-0;0} Hz</value>
+  </data>
+  <data name="Sstv.Picture.Saved">
+    <value>已保存到 {0}</value>
+  </data>
+  <data name="Sstv.Picture.Partial">
+    <value>不完整</value>
+  </data>
+  <data name="Sstv.Gallery.Item">
+    <value>{0}，{1} UTC，同步锁定 {2:0}%</value>
   </data>
   <data name="Window.Logbook.Title">
     <value>OscarWatch 日志</value>
@@ -2267,6 +2558,36 @@
   </data>
   <data name="Settings.Radio.CivHint">
     <value>IC-9700 默认 A2，IC-910 默认 7C（十六进制）。如电台 CI-V 菜单中已更改，请使用对应地址（如 60）。</value>
+  </data>
+  <data name="Settings.Radio.Ic910PowerClass">
+    <value>IC-910 型号</value>
+  </data>
+  <data name="Settings.Radio.Ic910PowerClass.H">
+    <value>IC-910H（144 MHz 100 W，430 MHz 75 W）</value>
+  </data>
+  <data name="Settings.Radio.Ic910PowerClass.D">
+    <value>IC-910D（144 与 430 MHz 均为 50 W）</value>
+  </data>
+  <data name="Settings.Radio.Ic910PowerClass.Base">
+    <value>IC-910（144 与 430 MHz 均为 20 W）</value>
+  </data>
+  <data name="Settings.Radio.Ic910PowerClassHint">
+    <value>CI-V 无法区分这些型号。请按电台上的 144 MHz 额定功率选择。已保存的 IC-910 保持 H 的功率。改装为 100 W / 75 W 的电台请选 IC-910H。</value>
+  </data>
+  <data name="Settings.Radio.Ic9700PowerClass">
+    <value>IC-9700 型号</value>
+  </data>
+  <data name="Settings.Radio.Ic9700PowerClass.Export">
+    <value>IC-9700（144 MHz 100 W，430 MHz 75 W）</value>
+  </data>
+  <data name="Settings.Radio.Ic9700PowerClass.Japan">
+    <value>日本 IC-9700（144 与 430 MHz 均为 50 W）</value>
+  </data>
+  <data name="Settings.Radio.Ic9700PowerClass.JapanS">
+    <value>日本 IC-9700S（144 与 430 MHz 均为 20 W）</value>
+  </data>
+  <data name="Settings.Radio.Ic9700PowerClassHint">
+    <value>CI-V 无法区分这些型号。请按电台上的 144 MHz 额定功率选择。已保存的 IC-9700 保持 100 W / 75 W。1200 MHz 在三种型号上都是 10 W。</value>
   </data>
   <data name="Settings.Radio.Ft847Hint">
     <value>FT-847：在电台菜单 #37 中设置 CAT 波特率（通常为 57600）。使用带电平转换器的 CAT/LINEAR 接口（如 CT-62）。</value>
@@ -4020,6 +4341,18 @@
   <data name="Ft4.ParallelTxEchoDecode.Note">
     <value>在发射时隙同时运行正常解码与迟到回波处理，以便更快显示本台回波。该时隙会占用更多 CPU。除非电脑吃力，否则请保持开启。</value>
   </data>
+  <data name="Ft4.Settings.Group.DecoderTesting">
+    <value>解码器测试</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio">
+    <value>保存接收时隙音频</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.Note">
+    <value>将每个接收时隙连同解码结果保存为 WAV 文件，以便调整解码器时回放真实过境。每个时隙约 180 kB；超过 14 天的文件会被删除。仅保存卫星仰角高于地平线下 2° 的时隙。</value>
+  </data>
+  <data name="Ft4.SaveSlotAudio.OpenFolder">
+    <value>打开文件夹</value>
+  </data>
   <data name="Ft4.ApEnabled">
     <value>推测弱回复 (AP)</value>
   </data>
@@ -4308,8 +4641,14 @@
   <data name="Ft4.NativeUnavailable">
     <value>未找到原生 FT4 库。解码与生成不可用。</value>
   </data>
+  <data name="Ft4.NativeUnavailableWindows">
+    <value>无法加载 FT4 解码库。请安装 Microsoft Visual C++ 可再发行组件包，然后重新启动 OscarWatch。</value>
+  </data>
   <data name="Ft4.Status.NeedStation">
     <value>请在设置、电台中设置呼号和网格。</value>
+  </data>
+  <data name="Ft4.Status.InputUnavailable">
+    <value>FT4 输入声卡不可用。请打开 FT4 设置，点击刷新，然后重新选择输入。</value>
   </data>
   <data name="Ft4.Status.Answering">
     <value>正在应答 {0}</value>
@@ -4368,6 +4707,9 @@
   <data name="Ft4.Decodes.Ap">
     <value>AP</value>
   </data>
+  <data name="Ft4.Decodes.ApRejected.Tip">
+    <value>已拒绝：此提示未通过 CRC，或后续解码显示该电台在同一时隙发送的是另一条消息。</value>
+  </data>
   <data name="Ft4.TxMessage">
     <value>TX 消息</value>
   </data>
@@ -4403,6 +4745,48 @@
   </data>
   <data name="Ft4.TxAudioHz">
     <value>TX 音频 (Hz)</value>
+  </data>
+  <data name="Ft4.Pounce">
+    <value>守候</value>
+  </data>
+  <data name="Ft4.Pounce.Note">
+    <value>守候某个电台或网格，当其呼叫 CQ 或呼叫你时自动呼叫对方。</value>
+  </data>
+  <data name="Ft4.Pounce.Title">
+    <value>守候并呼叫</value>
+  </data>
+  <data name="Ft4.Pounce.TargetLabel">
+    <value>呼号或网格</value>
+  </data>
+  <data name="Ft4.Pounce.Hint">
+    <value>一旦该电台（或该网格内任一电台）呼叫 CQ 或呼叫你，OscarWatch 将应答一次。对方与其他电台通联时会继续等待。取消勾选“守候”或按停止发射即可结束等待。</value>
+  </data>
+  <data name="Ft4.Pounce.Arm">
+    <value>开始守候</value>
+  </data>
+  <data name="Ft4.Pounce.Armed">
+    <value>正在守候：{0}</value>
+  </data>
+  <data name="Ft4.Pounce.OnStation">
+    <value>守候此电台</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce">
+    <value>目标</value>
+  </data>
+  <data name="Ft4.Decodes.Pounce.Tip">
+    <value>守候目标：该电台呼叫 CQ 或呼叫你时，OscarWatch 将呼叫对方。</value>
+  </data>
+  <data name="Ft4.Status.PounceWaiting">
+    <value>守候已开启：等待 {0}</value>
+  </data>
+  <data name="Ft4.Status.PounceFired">
+    <value>正在呼叫 {0}：{1}</value>
+  </data>
+  <data name="Ft4.Status.PounceCancelled">
+    <value>已取消守候</value>
+  </data>
+  <data name="Ft4.Status.PounceInvalid">
+    <value>“{0}”不是呼号或网格。</value>
   </data>
 
 </root>

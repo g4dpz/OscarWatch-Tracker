@@ -118,6 +118,70 @@ public sealed class SettingsServiceTests
     }
 
     [Fact]
+    public void TryParse_missing_ic910_power_class_stays_on_h()
+    {
+        const string json = """
+            {
+              "rig": { "type": "icomIc910", "enabled": true }
+            }
+            """;
+
+        Assert.True(SettingsService.TryParse(json, out var parsed, out var error));
+        Assert.Null(error);
+        Assert.Equal(RigType.IcomIc910, parsed.Rig.Type);
+        Assert.Equal(Ic910PowerClass.H, parsed.Rig.Ic910PowerClass);
+    }
+
+    [Theory]
+    [InlineData("d", Ic910PowerClass.D)]
+    [InlineData("base", Ic910PowerClass.Base)]
+    [InlineData("h", Ic910PowerClass.H)]
+    public void TryParse_ic910_power_class_round_trips(string jsonValue, Ic910PowerClass expected)
+    {
+        var json = $$"""
+            {
+              "rig": { "type": "icomIc910", "ic910PowerClass": "{{jsonValue}}" }
+            }
+            """;
+
+        Assert.True(SettingsService.TryParse(json, out var parsed, out var error));
+        Assert.Null(error);
+        Assert.Equal(expected, parsed.Rig.Ic910PowerClass);
+    }
+
+    [Fact]
+    public void TryParse_missing_ic9700_power_class_stays_on_export()
+    {
+        const string json = """
+            {
+              "rig": { "type": "icomIc9700", "enabled": true }
+            }
+            """;
+
+        Assert.True(SettingsService.TryParse(json, out var parsed, out var error));
+        Assert.Null(error);
+        Assert.Equal(RigType.IcomIc9700, parsed.Rig.Type);
+        Assert.Equal(Ic9700PowerClass.Export, parsed.Rig.Ic9700PowerClass);
+    }
+
+    [Theory]
+    [InlineData("japan", Ic9700PowerClass.Japan)]
+    [InlineData("japanS", Ic9700PowerClass.JapanS)]
+    [InlineData("export", Ic9700PowerClass.Export)]
+    public void TryParse_ic9700_power_class_round_trips(string jsonValue, Ic9700PowerClass expected)
+    {
+        var json = $$"""
+            {
+              "rig": { "type": "icomIc9700", "ic9700PowerClass": "{{jsonValue}}" }
+            }
+            """;
+
+        Assert.True(SettingsService.TryParse(json, out var parsed, out var error));
+        Assert.Null(error);
+        Assert.Equal(expected, parsed.Rig.Ic9700PowerClass);
+    }
+
+    [Fact]
     public void TryParse_missing_horizon_mask_defaults_to_empty()
     {
         const string json = """

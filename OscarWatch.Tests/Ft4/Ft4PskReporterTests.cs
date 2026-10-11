@@ -49,6 +49,13 @@ public sealed class Ft4PskReporterTests
         Assert.False(Ft4PskReporterSpots.TryCreateSpot(Decode("CQ MM9SQL IO85", tx: true), Snapshot(), out _));
     }
 
+    [Fact]
+    public void Rejected_hint_is_not_spotted()
+    {
+        var decode = Decode("GM4VXE JW7XK -05") with { IsApriori = true, IsRejected = true };
+        Assert.False(Ft4PskReporterSpots.TryCreateSpot(decode, Snapshot(), out _));
+    }
+
     [Theory]
     [InlineData("CQ W1AW FN31", "FN31")]
     [InlineData("MM9SQL W1AW FN31", "FN31")]

@@ -19,15 +19,7 @@ internal static class Ft8Native
         if (!libraryName.Equals(LibraryName, StringComparison.OrdinalIgnoreCase))
             return IntPtr.Zero;
 
-        var baseDir = AppContext.BaseDirectory;
-        var candidates = new[]
-        {
-            Path.Combine(baseDir, GetFileName()),
-            Path.Combine(baseDir, "runtimes", GetRid(), "native", GetFileName()),
-            Path.Combine(baseDir, "native", GetFileName()),
-        };
-
-        foreach (var path in candidates)
+        foreach (var path in CandidatePaths())
         {
             if (File.Exists(path) && NativeLibrary.TryLoad(path, out var handle))
                 return handle;
@@ -37,6 +29,26 @@ internal static class Ft8Native
             ? fallback
             : IntPtr.Zero;
     }
+
+    private static string[] CandidatePaths()
+    {
+        var baseDir = AppContext.BaseDirectory;
+        return
+        [
+            Path.Combine(baseDir, GetFileName()),
+            Path.Combine(baseDir, "runtimes", GetRid(), "native", GetFileName()),
+            Path.Combine(baseDir, "native", GetFileName()),
+        ];
+    }
+
+    /// <summary>
+    /// Status text key when the library will not load. On Windows a library that is present
+    /// but will not load almost always means the Visual C++ runtime is missing.
+    /// </summary>
+    public static string UnavailableMessageKey =>
+        OperatingSystem.IsWindows() && CandidatePaths().Any(File.Exists)
+            ? "Ft4.NativeUnavailableWindows"
+            : "Ft4.NativeUnavailable";
 
     private static string GetFileName()
     {
@@ -57,6 +69,9 @@ internal static class Ft8Native
         return arm64 ? "linux-arm64" : "linux-x64";
     }
 
+    /// <summary>Why the last <see cref="IsAvailable"/> check failed, for the log.</summary>
+    public static string? LoadError { get; private set; }
+
     public static bool IsAvailable
     {
         get
@@ -67,12 +82,14 @@ internal static class Ft8Native
                 ow_ft8_remember_callsign("");
                 return true;
             }
-            catch (DllNotFoundException)
+            catch (DllNotFoundException ex)
             {
+                LoadError = ex.Message;
                 return false;
             }
-            catch (EntryPointNotFoundException)
+            catch (EntryPointNotFoundException ex)
             {
+                LoadError = ex.Message;
                 return false;
             }
         }
@@ -86,8 +103,14 @@ internal static class Ft8Native
         public float snr;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 48)]
         public string text;
-        /// <summary>Non-zero when the text is a hinted reply, not a CRC decode.</summary>
+        /// <summary>
+        /// Non-zero when the text is a hinted reply: <see cref="ApCrcChecked"/> when the
+        /// calls were supplied and the rest passed the CRC, <see cref="ApGuessed"/> when it
+        /// is only the closest message in the hint list.
+        /// </summary>
         public int ap;
+        /// <summary>Linear slide (Hz/s) the drift search matched; 0 for a steady signal.</summary>
+        public float drift_hz_s;
     }
 
     [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
@@ -95,6 +118,18 @@ internal static class Ft8Native
         [MarshalAs(UnmanagedType.LPUTF8Str)] string messageText,
         float freqHz,
         int isFt4,
+        float[] outSamples,
+        int outCapacity,
+        int sampleRate,
+        out int outCount);
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int ow_ft8_encode_pcm_ex(
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string messageText,
+        float freqHz,
+        int isFt4,
+        float slopeHzPerSec,
+        float gain,
         float[] outSamples,
         int outCapacity,
         int sampleRate,
@@ -128,6 +163,25 @@ internal static class Ft8Native
         float hintHalfHz);
 
     [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+    private static extern int ow_ft8_decode_pcm_drift(
+        float[] samples,
+        int numSamples,
+        int sampleRate,
+        int isFt4,
+        float fMinHz,
+        float fMaxHz,
+        [Out] Decode[] outDecodes,
+        int outCapacity,
+        int deep,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string? hints,
+        float hintHz,
+        float hintHalfHz,
+        float maxResidualHzPerSec,
+        int driftSteps,
+        float dtMinSec,
+        float dtMaxSec);
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
     private static extern void ow_ft8_remember_callsign(
         [MarshalAs(UnmanagedType.LPUTF8Str)] string callsign);
 
@@ -153,6 +207,20 @@ internal static class Ft8Native
         float freqHz,
         int sampleRate,
         out float[]? pcm,
+        out string error) =>
+        TryEncodeFt4(message, freqHz, sampleRate, 0f, 1f, out pcm, out error);
+
+    /// <summary>
+    /// Encode FT4 PCM whose tones move by <paramref name="slopeHzPerSec"/> from the slot start
+    /// (TX Doppler pre-compensation), scaled by <paramref name="gain"/>.
+    /// </summary>
+    public static bool TryEncodeFt4(
+        string message,
+        float freqHz,
+        int sampleRate,
+        float slopeHzPerSec,
+        float gain,
+        out float[]? pcm,
         out string error)
     {
         pcm = null;
@@ -175,7 +243,8 @@ internal static class Ft8Native
             // Hashed / portable callsigns (e.g. MM9SQL/M) need to be in the table first.
             // Native hashtable locking allows encode/decode to run on parallel TX slots.
             RememberHashedTokens(text);
-            rc = ow_ft8_encode_pcm(text, freqHz, isFt4: 1, buffer, capacity, sampleRate, out count);
+            rc = ow_ft8_encode_pcm_ex(
+                text, freqHz, isFt4: 1, slopeHzPerSec, gain, buffer, capacity, sampleRate, out count);
         }
         catch (DllNotFoundException)
         {
@@ -272,6 +341,12 @@ internal static class Ft8Native
         return DecodeFt4(samples, sampleRate, fMin, fMax, deep: false);
     }
 
+    /// <summary><see cref="Decode.ap"/> for a hint taken on agreement alone, without a CRC.</summary>
+    public const int ApGuessed = 1;
+
+    /// <summary><see cref="Decode.ap"/> for a hint whose report, CRC and parity came from the audio.</summary>
+    public const int ApCrcChecked = 2;
+
     /// <summary>Half-width around the station we are working when trying hinted messages (Hz).</summary>
     public const float ApSearchHalfWidthHz = 200;
 
@@ -320,6 +395,52 @@ internal static class Ft8Native
                 apHints,
                 apCentreHz,
                 ApSearchHalfWidthHz);
+        return Trim(output, n);
+    }
+
+    /// <summary>
+    /// One decode that also searches signals still sliding by up to
+    /// <paramref name="maxResidualHzPerSec"/> either way, in
+    /// <paramref name="driftSteps"/> steps each side. A drifting station is reported
+    /// at its mid-burst frequency.
+    /// </summary>
+    public static Decode[] DecodeFt4Drift(
+        float[] samples,
+        int sampleRate,
+        float fMinHz,
+        float fMaxHz,
+        bool deep,
+        string? apHints,
+        float apCentreHz,
+        float maxResidualHzPerSec,
+        int driftSteps)
+    {
+        if (driftSteps <= 0 || !(maxResidualHzPerSec > 0))
+            return DecodeFt4(samples, sampleRate, fMinHz, fMaxHz, deep, apHints, apCentreHz);
+
+        var output = new Decode[50];
+        var n = ow_ft8_decode_pcm_drift(
+            samples,
+            samples.Length,
+            sampleRate,
+            isFt4: 1,
+            fMinHz,
+            fMaxHz,
+            output,
+            output.Length,
+            deep ? 1 : 0,
+            string.IsNullOrEmpty(apHints) ? null : apHints,
+            apCentreHz,
+            string.IsNullOrEmpty(apHints) ? 0 : ApSearchHalfWidthHz,
+            maxResidualHzPerSec,
+            driftSteps,
+            0f,
+            0f);
+        return Trim(output, n);
+    }
+
+    private static Decode[] Trim(Decode[] output, int n)
+    {
         if (n <= 0)
             return [];
         var result = new Decode[n];

@@ -128,6 +128,12 @@ public partial class MainViewModel : ViewModelBase
     private string _rotatorElevationText = "—";
 
     [ObservableProperty]
+    private string _rotatorLinkStatusText = "";
+
+    [ObservableProperty]
+    private bool _showRotatorLinkStatus;
+
+    [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ParkRotatorCommand))]
     [NotifyPropertyChangedFor(nameof(RotatorParkButtonText))]
     private bool _isRotatorParked;
@@ -159,6 +165,8 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ParkRotatorCommand))]
     [NotifyPropertyChangedFor(nameof(StandbyButtonText))]
+    [NotifyPropertyChangedFor(nameof(StandbyButtonToolTip))]
+    [NotifyPropertyChangedFor(nameof(SidebarModeTitle))]
     [NotifyPropertyChangedFor(nameof(ShowRotatorMenuItem))]
     [NotifyCanExecuteChangedFor(nameof(ToggleRigCatPauseCommand))]
     [NotifyCanExecuteChangedFor(nameof(OpenRotatorManualCommand))]
@@ -167,6 +175,14 @@ public partial class MainViewModel : ViewModelBase
     public string StandbyButtonText => IsStandby
         ? _l.Get("Main.Standby.Resume")
         : _l.Get("Main.Standby.Pause");
+
+    public string StandbyButtonToolTip => IsStandby
+        ? _l.Get("Main.Standby.ResumeTip")
+        : _l.Get("Main.Standby.PauseTip");
+
+    public string SidebarModeTitle => IsStandby
+        ? _l.Get("Main.Standby.Pause")
+        : _l.Get("Main.Live");
 
     public bool ShowRotatorMenuItem => IsStandby && _settings.Current.Rotator.Enabled;
 
@@ -1407,6 +1423,14 @@ public partial class MainViewModel : ViewModelBase
         var status = _rotator.GetPositionStatus();
         RotatorAzimuthText = FormatRotatorAzimuthText(status);
         RotatorElevationText = FormatRotatorElevationText(status);
+        var rotatorIdentityMismatch = status.ConnectionKind == RotatorConnectionKind.IdentityMismatch;
+        ShowRotatorLinkStatus = rotatorIdentityMismatch;
+        RotatorLinkStatusText = rotatorIdentityMismatch
+            ? _l.Get(
+                "Hardware.IdentityMismatch",
+                status.ConnectionDetail ?? "",
+                DeviceIdentityNames.Rotator(_settings.Current.Rotator.Type))
+            : "";
         IsRotatorParked = status.IsParked;
         CanParkRotator = status.IsConnected;
         CanStopRotator = status.IsConnected;
@@ -1540,6 +1564,7 @@ public partial class MainViewModel : ViewModelBase
             var restorePaused = _rigCatPausedBeforeStandby ?? false;
             _rigCatPausedBeforeStandby = null;
             RigCatPaused = restorePaused;
+            _rig.RequireIdentityRecheck();
             _rotator.SetStandby(false, _settings.Current.Rotator);
             RefreshRigFromOverlay(reinitializePass: true);
         }
@@ -1883,14 +1908,18 @@ public partial class MainViewModel : ViewModelBase
         if (upcoming.Count == 0)
             return;
 
+        var now = DateTime.UtcNow;
         var due = _scheduledPassReminder.Process(
-            DateTime.UtcNow,
+            now,
             scheduled,
             upcoming,
             schedule.LeadMinutesBeforeAos);
 
         foreach (var pass in due)
+        {
+            _satelliteLink.PublishPassAlert(pass, now);
             ShowScheduledPassAlert(pass, schedule);
+        }
     }
 
     private void ShowScheduledPassAlert(PassInfo pass, PassScheduleSettings schedule)
@@ -2488,6 +2517,28 @@ public partial class MainViewModel : ViewModelBase
         window.Show(App.MainWindow);
     }
 
+    private static SstvWindow? _openSstvWindow;
+
+    [RelayCommand]
+    private void OpenSstv()
+    {
+        _trackerSnapshot.FocusedNoradId = FocusedNoradId;
+        if (_openSstvWindow is { IsVisible: true })
+        {
+            _openSstvWindow.Activate();
+            return;
+        }
+
+        var vm = App.Services.GetRequiredService<SstvViewModel>();
+        var window = new SstvWindow { DataContext = vm };
+        window.Closed += (_, _) => _openSstvWindow = null;
+        _openSstvWindow = window;
+        if (App.MainWindow is null)
+            return;
+
+        window.Show(App.MainWindow);
+    }
+
     private bool CanOpenFt4() =>
         Ft4SatelliteEligibility.IsAllowed(
             Frequencies.SatelliteName,
@@ -2945,7 +2996,16 @@ public partial class MainViewModel : ViewModelBase
         ShowGreylineOverlay = _settings.Current.ShowGreylineOverlay;
         ShowMultiTrackOverlay = _settings.Current.ShowMultiTrackOverlay;
         ApplyMapCentreFromSettings();
-        RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
+        if (IsStandby)
+        {
+            // Standby holds CAT paused without persisting it. Restore the saved choice on resume.
+            _rigCatPausedBeforeStandby = _settings.Current.Rig.CatUpdatesPaused;
+            SetRigCatPausedWithoutPersist(true);
+        }
+        else
+        {
+            RigCatPaused = _settings.Current.Rig.CatUpdatesPaused;
+        }
         Frequencies.RefreshSatelliteStatusReportAvailability();
         _liveDisplayTimer?.Start();
         Tick();

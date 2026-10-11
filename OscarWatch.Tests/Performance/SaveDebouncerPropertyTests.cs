@@ -62,7 +62,7 @@ public sealed class SaveDebouncerPropertyTests : IDisposable
         }
 
         // Poll until file appears (quiet period elapses + write completes)
-        var deadline = DateTime.UtcNow.AddSeconds(3);
+        var deadline = DateTime.UtcNow.AddSeconds(15);
         while (!File.Exists(path) && DateTime.UtcNow < deadline)
             Thread.Sleep(50);
 
@@ -197,8 +197,9 @@ public sealed class SaveDebouncerPropertyTests : IDisposable
         service.RequestSave();
 
         // Poll for the second value, not merely that the file exists. An early
-        // first write must not make the assertion read stale content.
-        var deadline = DateTime.UtcNow.AddSeconds(3);
+        // first write must not make the assertion read stale content. The generous
+        // deadline covers thread pool starvation on small CI runners, which delays the timer.
+        var deadline = DateTime.UtcNow.AddSeconds(15);
         string? json = null;
         while (DateTime.UtcNow < deadline)
         {

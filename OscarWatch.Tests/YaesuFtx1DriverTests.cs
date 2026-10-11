@@ -39,4 +39,15 @@ public sealed class YaesuFtx1DriverTests
         Assert.Contains("MD04;", transport.SentCommands);
         Assert.Contains("LK1;", transport.SentCommands);
     }
+
+    [Fact]
+    public void Identity_accepts_a_frequency_read()
+    {
+        var transport = new RecordingYaesuNewCatTransport();
+        var driver = new YaesuFtx1Driver(transport);
+        driver.Open();
+
+        Assert.True(driver.TryConfirmIdentity());
+        Assert.Contains("FA;", transport.SentCommands);
+    }
 }

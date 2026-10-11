@@ -23,6 +23,9 @@ public sealed partial class Ft4DecodeRowViewModel : ObservableObject
     /// <summary>Colour of the TX label and the message on a line this station sent.</summary>
     [ObservableProperty] private IBrush _txForeground = Brushes.White;
 
+    /// <summary>The line comes from the armed wait-and-pounce target. Shown as a text tag, not only colour.</summary>
+    [ObservableProperty] private bool _isPounceTarget;
+
     public bool HasRowForeground => RowForeground is not null;
 
     partial void OnRowForegroundChanged(IBrush? value) => OnPropertyChanged(nameof(HasRowForeground));
@@ -48,7 +51,8 @@ public sealed partial class Ft4DecodeRowViewModel : ObservableObject
         string? newCallText = null,
         string? newGridText = null,
         string? cqText = null,
-        string? txText = null)
+        string? txText = null,
+        Ft4PounceTarget? pounceTarget = null)
     {
         var kind = Ft4DecodeHighlight.Classify(
             Message,
@@ -56,9 +60,12 @@ public sealed partial class Ft4DecodeRowViewModel : ObservableObject
             partnerCall,
             workedCalls,
             workedGridFields,
-            finishedPartners);
+            finishedPartners,
+            pounceTarget);
+        IsPounceTarget = kind == Ft4DecodeHighlightKind.PounceTarget && !Message.IsApriori;
         var hex = kind switch
         {
+            Ft4DecodeHighlightKind.PounceTarget => Ft4DecodeHighlight.DefaultPounceColour,
             Ft4DecodeHighlightKind.Replying => replyingColour,
             Ft4DecodeHighlightKind.CallingMe => callingMeColour,
             Ft4DecodeHighlightKind.NewCall => newCallColour,

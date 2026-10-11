@@ -109,6 +109,12 @@ public sealed class Ft4Settings
     public bool ParallelTxEchoDecode { get; set; } = true;
 
     /// <summary>
+    /// When true, each receive slot's audio and decode passes are saved for decoder testing
+    /// (about 180 kB a slot, kept for <see cref="Ft4SlotRecordingFiles.RetainedDays"/> days). Off by default.
+    /// </summary>
+    public bool SaveSlotAudio { get; set; }
+
+    /// <summary>
     /// Minutes of transmit with no reply before TX is halted. 0 disables the watchdog.
     /// </summary>
     public int TxWatchdogMinutes { get; set; } = Ft4TxWatchdog.DefaultMinutes;
