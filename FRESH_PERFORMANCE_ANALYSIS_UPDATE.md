@@ -24,49 +24,37 @@ Following Peter's intensive development sprint of **146+ total commits** (includ
 
 **Performance Impact**: 60-80% reduction in spot processing overhead possible
 
-### **2. Enhanced QSO Logbook Performance** (Database Critical)
+### **2. Enhanced QSO Logbook Performance** (Minor Optimizations)
 **File**: `OscarWatch.Core/Logbook/QsoLogbookRepository.cs`
 
-**Database Bottlenecks:**
-- **No Connection Pooling**: Opens new connections frequently without reuse
-  - **Impact**: Database operation latency during logging
-  - **Optimization**: Implement connection pooling strategy
-  
-- **SQL String Concatenation** (Lines 25-35): Runtime concatenation of query constants
-  - **Impact**: Unnecessary string allocations on every query
-  - **Optimization**: Pre-compiled query strings as static readonly
-  
-- **Missing Async Optimization**: Some operations use blocking database calls
-  - **Impact**: UI thread blocking during QSO operations
-  - **Optimization**: Proper async/await with ConfigureAwait(false)
+**Note**: Microsoft.Data.Sqlite already provides connection pooling by default, and const query fragments are compile-time optimized.
 
-**Performance Impact**: 40-60% database operation improvement possible
+**Remaining Opportunities:**
+- **Missing Async Optimization**: Some operations could benefit from proper async/await with ConfigureAwait(false)
+  - **Impact**: UI thread blocking during QSO operations
+  - **Optimization**: Ensure consistent async patterns
+
+**Performance Impact**: 10-15% database operation improvement possible
 
 ### **3. Satellite Spot Service** (Network Performance)
 **File**: `OscarWatch.Core/Services/SatelliteSpotService.cs`
 
-**Network Inefficiencies:**
-- **JSON Options Recreation** (Line 58): New `JsonSerializerOptions` per HTTP request
-  - **Impact**: Serialization overhead on every spot submission
-  - **Optimization**: Static readonly JsonSerializerOptions instance
-  
-- **String Content Allocation** (Line 55): New `StringContent` for every HTTP call
-  - **Impact**: Memory pressure during spot reporting bursts
-  - **Optimization**: Content pooling for high-frequency operations
-  
-- **String Processing Overhead** (Lines 83-89): Multiple `Trim()` operations in `TrimToNull()`
-  - **Impact**: Allocation churn during request preparation
-  - **Optimization**: ReadOnlySpan<char> operations
+**Note**: JsonSerializerOptions is already static readonly and properly reused.
 
-**Performance Impact**: 30-50% network operation efficiency improvement
+**Remaining Opportunities:**
+- **String Processing Overhead** (Lines 83-89): Multiple `Trim()` operations in `TrimToNull()`
+  - **Impact**: Minor allocation churn during request preparation
+  - **Optimization**: ReadOnlySpan<char> operations if profiling shows benefit
+
+**Performance Impact**: 5-10% network operation efficiency improvement
 
 ### **4. FT4 Message Processing Enhancement** (Core Algorithm)
 **File**: `OscarWatch.Core/Ft4/Ft4MessageCodec.cs`
 
-**String Processing Bottlenecks:**
+**String Processing Optimizations:**
 - **Excessive String Operations**: Multiple `Trim()`, `ToUpperInvariant()` calls on same values
   - **Impact**: FT4 decode latency accumulation
-  - **Optimization**: Cache normalized callsigns and grid squares
+  - **Optimization**: Cache normalized callsigns and grid squares with bounded cache
   
 - **String.Split() Allocations** (Line 25): Array creation in message parsing
   - **Impact**: Memory allocations in real-time processing
@@ -74,15 +62,15 @@ Following Peter's intensive development sprint of **146+ total commits** (includ
   
 - **Unicode Normalization** (Lines 130-145): `NormalizeCall()` creates new strings repeatedly
   - **Impact**: Call processing overhead in FT4 pipeline
-  - **Optimization**: String interning for common callsigns
+  - **Optimization**: Bounded LRU cache for common callsigns (avoid unbounded interning)
 
-**Performance Impact**: 25-45% FT4 message processing improvement
+**Performance Impact**: 15-25% FT4 message processing improvement
 
 ### **5. UI Collection Management** (Responsiveness)
 **File**: `OscarWatch/ViewModels/MainViewModel.cs`
 
 **LINQ Performance Issues:**
-- **Frequent ToList() Calls**: 50+ instances in hot paths (Lines 1058, 1469, 1882, 2074)
+- **ToList() Calls**: 10 instances found in UI update paths
   - **Impact**: UI responsiveness during pass list updates
   - **Optimization**: Direct collection operations, pre-allocated lists
   
@@ -94,20 +82,22 @@ Following Peter's intensive development sprint of **146+ total commits** (includ
   - **Impact**: Collection resize overhead during growth
   - **Optimization**: Estimate collection sizes and pre-allocate
 
-**Performance Impact**: 20-40% UI responsiveness improvement
+**Performance Impact**: 10-20% UI responsiveness improvement
 
 ## 📊 Updated Performance Impact Matrix
 
 | System Component | Original Analysis | New Findings | Combined Potential |
 |------------------|-------------------|--------------|-------------------|
 | **FT4 Spot Reporting** | Not analyzed | 60-80% optimization | **🔥 NEW CRITICAL** |
-| **Enhanced QSO Logbook** | Basic coverage | 40-60% improvement | **🔥 MAJOR UPDATE** |
-| **Satellite Spot Service** | Not analyzed | 30-50% efficiency | **🔥 NEW HIGH IMPACT** |
-| **FT4 Message Processing** | Partial coverage | 25-45% optimization | **🔥 ENHANCED CRITICAL** |
-| **UI Collection Performance** | Limited analysis | 20-40% responsiveness | **🔥 WIDESPREAD** |
-| **Original FT4 System** | ✅ 50-80% potential | Previous findings | Already analyzed |
-| **Radio Control** | ✅ 20-30% potential | Previous findings | Already analyzed |
-| **Core Tracking** | ✅ 15-25% potential | Previous findings | Already analyzed |
+| **Enhanced QSO Logbook** | Basic coverage | 10-15% improvement | **Minor optimizations** |
+| **Satellite Spot Service** | Not analyzed | 5-10% efficiency | **Minor optimizations** |
+| **FT4 Message Processing** | Partial | 15-25% optimization | **🔥 ENHANCED** |
+| **UI Collections** | Limited | 10-20% responsiveness | **Moderate impact** |
+| **Original FT4 System** | ✅ Analyzed | Previous findings | Already covered |
+| **Radio Control** | ✅ Analyzed | Previous findings | Already covered |
+| **Core Tracking** | ✅ Analyzed | Previous findings | Already covered |
+
+**Note**: Performance estimates are hypothetical and require benchmarking for validation.
 
 ## 🎯 Updated Implementation Priority
 
