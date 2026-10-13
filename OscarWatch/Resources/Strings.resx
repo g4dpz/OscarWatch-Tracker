@@ -664,10 +664,10 @@ Continue?</value>
     <value>Start when the focused satellite rises</value>
   </data>
   <data name="Sstv.AutoStart.Tip">
-    <value>Starts listening when the satellite selected in the main window climbs above the elevation below, and stops when it sets. Only works while this window is open. Auto-save keeps the pictures if you close the window.</value>
+    <value>Starts listening when the satellite selected in the main window climbs above the elevation below, and stops when it sets. Use a negative value such as −5° to start a little before AOS so the radio and audio can settle. Only works while this window is open. Auto-save keeps the pictures if you close the window.</value>
   </data>
   <data name="Sstv.AutoStart.Elevation">
-    <value>Start above (degrees)</value>
+    <value>Start elevation (degrees)</value>
   </data>
   <data name="Sstv.AutoSave">
     <value>Save pictures automatically</value>
@@ -677,6 +677,42 @@ Continue?</value>
   </data>
   <data name="Sstv.SaveSessionAudio.Tip">
     <value>Keep the receive audio as a WAV file (about 1.4 MB a minute) in the SSTV folder, so a pass can be decoded again later.</value>
+  </data>
+  <data name="Sstv.Share">
+    <value>Share pictures with the OscarWatch.org SSTV gallery</value>
+  </data>
+  <data name="Sstv.Share.Tip">
+    <value>After the satellite sets, finished pictures with a sync lock of 50% or more are uploaded one at a time with your OscarWatch API token. Pictures from recordings are not shared. Your website profile needs a callsign.</value>
+  </data>
+  <data name="Sstv.Share.NeedsToken">
+    <value>Save your OscarWatch.org API token in Settings → OscarWatch to share pictures with the gallery.</value>
+  </data>
+  <data name="Sstv.Share.Status.On">
+    <value>Gallery sharing is on. Good pictures are shared after the pass.</value>
+  </data>
+  <data name="Sstv.Share.Status.Waiting">
+    <value>Pictures waiting to share after the pass: {0}</value>
+  </data>
+  <data name="Sstv.Share.Status.Uploading">
+    <value>Sharing a picture with the gallery. Waiting: {0}</value>
+  </data>
+  <data name="Sstv.Share.Status.Shared">
+    <value>Picture shared to the gallery. Still waiting: {0}</value>
+  </data>
+  <data name="Sstv.Share.Status.SharedPending">
+    <value>Picture sent to the gallery and waiting to be checked. Still waiting: {0}</value>
+  </data>
+  <data name="Sstv.Share.Status.Rejected">
+    <value>The gallery turned a picture away: {0}. Still waiting: {1}</value>
+  </data>
+  <data name="Sstv.Share.Status.Stopped">
+    <value>Gallery sharing stopped: {0}. Check the API token in Settings → OscarWatch.</value>
+  </data>
+  <data name="Sstv.Share.Status.RateLimited">
+    <value>Gallery limit reached (20 pictures an hour). Waiting to retry: {0}</value>
+  </data>
+  <data name="Sstv.Share.Status.Retrying">
+    <value>Could not reach OscarWatch.org. It will try again. Waiting: {0}</value>
   </data>
   <data name="Sstv.Progress">
     <value>Picture progress</value>
@@ -4652,6 +4688,9 @@ Latest: {1} ({2})</value>
   </data>
   <data name="Ft4.Status.Answering">
     <value>Answering {0}</value>
+  </data>
+  <data name="Ft4.Status.HashedCallUnknown">
+    <value>Callsign not known yet. It appears once the station sends its full call.</value>
   </data>
   <data name="Ft4.Waterfall">
     <value>Waterfall</value>

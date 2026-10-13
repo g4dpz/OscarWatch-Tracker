@@ -144,6 +144,57 @@ public sealed class IcomCivDriverTests
         Assert.Equal(["0605", "1a060101"], transport.SentCommandBodies);
     }
 
+    [Theory]
+    [InlineData("DATA-USB", new[] { "0601", "1a060101" })]
+    [InlineData("DATA-LSB", new[] { "0600", "1a060101" })]
+    [InlineData("USB", new[] { "0601", "1a060000" })]
+    public void Ic9100_SetMode_sets_data_mode_for_sideband(string mode, string[] expected)
+    {
+        var transport = new RecordingIcomCivTransport();
+        var driver = new IcomIc9100Driver(transport);
+        driver.Open();
+        driver.SelectVfo(RigVfo.Main);
+        transport.SentCommandBodies.Clear();
+        driver.SetMode(mode);
+
+        Assert.Equal(expected, transport.SentCommandBodies);
+    }
+
+    [Theory]
+    [InlineData(RigType.IcomIc705)]
+    [InlineData(RigType.IcomIc7300)]
+    [InlineData(RigType.IcomIc905)]
+    [InlineData(RigType.IcomIc7100)]
+    public void Dual_radio_leg_SetMode_DATA_USB_sends_base_mode_then_data_on(RigType rigType)
+    {
+        var transport = new RecordingIcomCivTransport();
+        IcomCivDriverBase driver = rigType switch
+        {
+            RigType.IcomIc705 => new IcomIc705Driver(transport),
+            RigType.IcomIc7300 => new IcomIc7300Driver(transport),
+            RigType.IcomIc905 => new IcomIc905Driver(transport),
+            _ => new IcomIc7100Driver(transport)
+        };
+        driver.Open();
+        transport.SentCommandBodies.Clear();
+        driver.SetMode("DATA-USB");
+        driver.SetMode("USB");
+
+        Assert.Equal(["0601", "1a060101", "0601", "1a060000"], transport.SentCommandBodies);
+    }
+
+    [Fact]
+    public void Ic706_SetMode_DATA_USB_sends_voice_usb_only()
+    {
+        var transport = new RecordingIcomCivTransport();
+        var driver = new IcomIc706SeriesDriver(RigType.IcomIc706MkiiG, transport);
+        driver.Open();
+        transport.SentCommandBodies.Clear();
+        driver.SetMode("DATA-USB");
+
+        Assert.Equal(["0601"], transport.SentCommandBodies);
+    }
+
     [Fact]
     public void Ic9700_TryReadRfPowerLevel_reads_civ_14_0a()
     {

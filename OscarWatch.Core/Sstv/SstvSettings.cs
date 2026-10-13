@@ -3,6 +3,10 @@ namespace OscarWatch.Core.Sstv;
 /// <summary>Persisted OscarWatch SSTV receive preferences.</summary>
 public sealed class SstvSettings
 {
+    public const double DefaultAutoStartElevationDeg = -5;
+    public const double MinAutoStartElevationDeg = -15;
+    public const double MaxAutoStartElevationDeg = 30;
+
     /// <summary>Durable PortAudio device name for capture. Empty = system default.</summary>
     public string InputDeviceId { get; set; } = "";
 
@@ -16,6 +20,12 @@ public sealed class SstvSettings
     /// (about 1.4 MB a minute) so a pass can be decoded again later.
     /// </summary>
     public bool SaveSessionAudio { get; set; } = true;
+
+    /// <summary>
+    /// When true, finished pictures with a good lock are shared to the OscarWatch.org SSTV
+    /// gallery after the satellite sets. Needs the OscarWatch API token. Default off.
+    /// </summary>
+    public bool SharePicturesWithOscarWatch { get; set; }
 
     /// <summary>Mode to decode as regardless of the VIS. Empty picks the mode automatically.</summary>
     public string ForcedMode { get; set; } = "";
@@ -44,8 +54,16 @@ public sealed class SstvSettings
     /// </summary>
     public bool AutoStartEnabled { get; set; }
 
-    /// <summary>Elevation the focused satellite must reach before an automatic start. Default 5 degrees.</summary>
-    public double AutoStartElevationDeg { get; set; } = 5;
+    /// <summary>
+    /// Elevation the focused satellite must reach before an automatic start.
+    /// Negative values start before AOS so the radio and audio can settle. Default −5°.
+    /// </summary>
+    public double AutoStartElevationDeg { get; set; } = DefaultAutoStartElevationDeg;
+
+    public static double ClampAutoStartElevationDeg(double value) =>
+        double.IsFinite(value)
+            ? Math.Clamp(value, MinAutoStartElevationDeg, MaxAutoStartElevationDeg)
+            : DefaultAutoStartElevationDeg;
 
     public int? WindowWidth { get; set; }
     public int? WindowHeight { get; set; }

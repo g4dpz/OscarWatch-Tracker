@@ -1015,10 +1015,10 @@
     <value>Empezar cuando el satélite seleccionado salga</value>
   </data>
   <data name="Sstv.AutoStart.Tip">
-    <value>Empieza a escuchar cuando el satélite seleccionado en la ventana principal supera la elevación indicada abajo, y se detiene cuando se pone. Solo funciona con esta ventana abierta. Con el guardado automático se conservan las imágenes si cierra la ventana.</value>
+    <value>Empieza a escuchar cuando el satélite seleccionado en la ventana principal supera la elevación indicada abajo, y se detiene cuando se pone. Use un valor negativo, por ejemplo −5°, para empezar un poco antes del AOS y dar tiempo a que la radio y el audio se estabilicen. Solo funciona con esta ventana abierta. Con el guardado automático se conservan las imágenes si cierra la ventana.</value>
   </data>
   <data name="Sstv.AutoStart.Elevation">
-    <value>Empezar por encima de (grados)</value>
+    <value>Elevación de inicio (grados)</value>
   </data>
   <data name="Sstv.AutoSave">
     <value>Guardar imágenes automáticamente</value>
@@ -1028,6 +1028,42 @@
   </data>
   <data name="Sstv.SaveSessionAudio.Tip">
     <value>Guarda el audio recibido como WAV (unos 1,4 MB por minuto) en la carpeta SSTV para poder decodificar el paso más tarde.</value>
+  </data>
+  <data name="Sstv.Share">
+    <value>Compartir imágenes con la galería SSTV de OscarWatch.org</value>
+  </data>
+  <data name="Sstv.Share.Tip">
+    <value>Cuando el satélite se pone, las imágenes completas con un sincronismo del 50 % o más se suben una a una con su token de API de OscarWatch. Las imágenes de grabaciones no se comparten. Su perfil web necesita un indicativo.</value>
+  </data>
+  <data name="Sstv.Share.NeedsToken">
+    <value>Guarde su token de API de OscarWatch.org en Ajustes → OscarWatch para compartir imágenes con la galería.</value>
+  </data>
+  <data name="Sstv.Share.Status.On">
+    <value>Compartir con la galería está activado. Las buenas imágenes se comparten tras el pase.</value>
+  </data>
+  <data name="Sstv.Share.Status.Waiting">
+    <value>Imágenes pendientes de compartir tras el pase: {0}</value>
+  </data>
+  <data name="Sstv.Share.Status.Uploading">
+    <value>Compartiendo una imagen con la galería. Pendientes: {0}</value>
+  </data>
+  <data name="Sstv.Share.Status.Shared">
+    <value>Imagen compartida en la galería. Pendientes: {0}</value>
+  </data>
+  <data name="Sstv.Share.Status.SharedPending">
+    <value>Imagen enviada a la galería, pendiente de revisión. Pendientes: {0}</value>
+  </data>
+  <data name="Sstv.Share.Status.Rejected">
+    <value>La galería rechazó una imagen: {0}. Pendientes: {1}</value>
+  </data>
+  <data name="Sstv.Share.Status.Stopped">
+    <value>Se detuvo el envío a la galería: {0}. Revise el token de API en Ajustes → OscarWatch.</value>
+  </data>
+  <data name="Sstv.Share.Status.RateLimited">
+    <value>Límite de la galería alcanzado (20 imágenes por hora). Pendientes de reintento: {0}</value>
+  </data>
+  <data name="Sstv.Share.Status.Retrying">
+    <value>No se pudo contactar con OscarWatch.org. Se volverá a intentar. Pendientes: {0}</value>
   </data>
   <data name="Sstv.Progress">
     <value>Progreso de la imagen</value>
@@ -4652,6 +4688,9 @@ Está utilizando la versión {0}.
   </data>
   <data name="Ft4.Status.Answering">
     <value>Respondiendo a {0}</value>
+  </data>
+  <data name="Ft4.Status.HashedCallUnknown">
+    <value>Indicativo aún desconocido. Aparecerá cuando la estación envíe su indicativo completo.</value>
   </data>
   <data name="Ft4.Waterfall">
     <value>Cascada</value>
