@@ -5,7 +5,14 @@ namespace OscarWatch.Controls;
 
 /// <summary>Colours the rasteriser needs. Resolved from the shared palette by the caller.</summary>
 /// <param name="SeaBgra">Fill used for the disc when the world map is not available.</param>
-internal readonly record struct GlobePalette(uint SeaBgra);
+internal readonly record struct GlobePalette(uint SeaBgra)
+{
+    /// <summary>Takes the fallback sea colour from the shared palette.</summary>
+    public static GlobePalette From(UiPalette palette) => new(ToBgra(palette.GlobeSeaFallback));
+
+    internal static uint ToBgra(Avalonia.Media.Color c) =>
+        ((uint)c.A << 24) | ((uint)c.R << 16) | ((uint)c.G << 8) | c.B;
+}
 
 /// <summary>
 /// Draws the globe as seen from a satellite into a square BGRA pixel buffer by casting a ray through
