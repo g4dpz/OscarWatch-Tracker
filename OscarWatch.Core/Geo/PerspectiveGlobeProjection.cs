@@ -107,10 +107,19 @@ public readonly struct GlobeBasis
     /// <summary>Radius of the limb circle on the projection plane, in Earth radii.</summary>
     public double LimbRadius => IsValid ? Math.Sqrt((_p - 1.0) / (_p + 1.0)) : 0;
 
-    public GlobePoint Project(double latDeg, double lonDeg)
+    /// <summary>
+    /// Converts a geographic position to the unit vector towards it in local axes (X east, Y north,
+    /// Z up at the subpoint). The Z component is the cosine of the central angle from the subpoint.
+    /// Also used to express the direction of the sun in the same axes as the surface normals.
+    /// All three are zero when the camera is not valid.
+    /// </summary>
+    public void GeoToLocal(double latDeg, double lonDeg, out double lx, out double ly, out double lz)
     {
         if (!IsValid)
-            return new GlobePoint(0, 0, false);
+        {
+            lx = ly = lz = 0;
+            return;
+        }
 
         var lat = latDeg * Math.PI / 180.0;
         var dLon = lonDeg * Math.PI / 180.0 - _lon0Rad;
@@ -118,10 +127,17 @@ public readonly struct GlobeBasis
         var cosLat = Math.Cos(lat);
         var cosD = Math.Cos(dLon);
 
-        // Local components of the unit vector to the point.
-        var lx = cosLat * Math.Sin(dLon);
-        var ly = _cosLat0 * sinLat - _sinLat0 * cosLat * cosD;
-        var lz = _sinLat0 * sinLat + _cosLat0 * cosLat * cosD; // cos of the central angle
+        lx = cosLat * Math.Sin(dLon);
+        ly = _cosLat0 * sinLat - _sinLat0 * cosLat * cosD;
+        lz = _sinLat0 * sinLat + _cosLat0 * cosLat * cosD;
+    }
+
+    public GlobePoint Project(double latDeg, double lonDeg)
+    {
+        if (!IsValid)
+            return new GlobePoint(0, 0, false);
+
+        GeoToLocal(latDeg, lonDeg, out var lx, out var ly, out var lz);
 
         // Visible when the point is above the satellite's horizon: cos c >= R / (R + h).
         // Written so that NaN input reports not visible.
