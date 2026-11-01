@@ -6,13 +6,65 @@ namespace OscarWatch.Tests;
 public sealed class GlobeViewMathTests
 {
     [Theory]
+    [InlineData(400.0)]
+    [InlineData(35_786.0)]
+    public void At_zero_elevation_the_footprint_is_the_horizon(double altitudeKm) =>
+        Assert.Equal(
+            FootprintGeometry.HorizonRadiusDeg(altitudeKm),
+            GlobeViewMath.FootprintRadiusDeg(altitudeKm, 0.0),
+            precision: 9);
+
+    // Worked from acos(R / (R + h) * cos(e)) - e with R = 6371 km. They agree with the review: about 7.9
+    // degrees for 400 km at 20 degrees, and about 15.4 at 5 degrees (the old code gave 0 and 14.8).
+    [Theory]
+    [InlineData(400.0, 20.0, 7.85, 0.02)]
+    [InlineData(400.0, 5.0, 15.39, 0.02)]
+    [InlineData(35_786.0, 10.0, 71.5, 0.2)]
+    public void Footprint_radius_matches_hand_worked_values(
+        double altitudeKm, double minimumElevationDeg, double expectedDeg, double toleranceDeg) =>
+        Assert.InRange(
+            GlobeViewMath.FootprintRadiusDeg(altitudeKm, minimumElevationDeg),
+            expectedDeg - toleranceDeg,
+            expectedDeg + toleranceDeg);
+
+    /// <summary>
+    /// The elevation of a satellite seen from a point on the ground at a given central angle, worked out a
+    /// different way (plane geometry, no inverse cosine): tan(el) = (cos(c) - R / (R + h)) / sin(c).
+    /// </summary>
+    private static double ElevationAtCentralAngleDeg(double altitudeKm, double centralAngleDeg)
+    {
+        const double r = 6371.0;
+        var c = centralAngleDeg * Math.PI / 180.0;
+        return Math.Atan2(Math.Cos(c) - r / (r + altitudeKm), Math.Sin(c)) * 180.0 / Math.PI;
+    }
+
+    [Theory]
     [InlineData(400.0, 0.0)]
     [InlineData(400.0, 5.0)]
-    [InlineData(35_786.0, 0.0)]
-    public void Footprint_radius_matches_the_footprint_geometry(double altitudeKm, double minimumElevationDeg) =>
+    [InlineData(400.0, 20.0)]
+    [InlineData(400.0, 60.0)]
+    [InlineData(800.0, 10.0)]
+    [InlineData(1_500.0, 45.0)]
+    [InlineData(35_786.0, 5.0)]
+    [InlineData(35_786.0, 10.0)]
+    public void The_satellite_is_exactly_at_the_minimum_elevation_on_the_ring(double altitudeKm, double minimumElevationDeg) =>
         Assert.Equal(
-            FootprintGeometry.HorizonRadiusDeg(altitudeKm, minimumElevationDeg),
-            GlobeViewMath.FootprintRadiusDeg(altitudeKm, minimumElevationDeg));
+            minimumElevationDeg,
+            ElevationAtCentralAngleDeg(altitudeKm, GlobeViewMath.FootprintRadiusDeg(altitudeKm, minimumElevationDeg)),
+            precision: 6);
+
+    [Theory]
+    [InlineData(400.0, 90.0)]
+    [InlineData(400.0, 120.0)]
+    [InlineData(400.0, double.NaN)]
+    public void No_ring_at_or_above_ninety_degrees_or_for_a_non_finite_elevation(double altitudeKm, double minimumElevationDeg) =>
+        Assert.Equal(0.0, GlobeViewMath.FootprintRadiusDeg(altitudeKm, minimumElevationDeg));
+
+    [Fact]
+    public void A_negative_minimum_elevation_is_treated_as_the_horizon() =>
+        Assert.Equal(
+            GlobeViewMath.FootprintRadiusDeg(800.0, 0.0),
+            GlobeViewMath.FootprintRadiusDeg(800.0, -10.0));
 
     [Fact]
     public void Higher_minimum_elevation_gives_a_smaller_footprint()

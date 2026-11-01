@@ -5,14 +5,33 @@ namespace OscarWatch.Core.Geo;
 /// <summary>Geometry helpers for the Earth View that are independent of any drawing code.</summary>
 public static class GlobeViewMath
 {
+    private const double EarthRadiusKm = 6371.0;
+
     /// <summary>
     /// Angular radius, in degrees, of the area from which a satellite at <paramref name="altitudeKm"/>
-    /// is above <paramref name="minimumElevationDeg"/>. Zero when the altitude is not positive.
+    /// is above <paramref name="minimumElevationDeg"/>. Zero when the altitude is not positive or the
+    /// elevation is 90 degrees or more.
     /// </summary>
-    public static double FootprintRadiusDeg(double altitudeKm, double minimumElevationDeg) =>
-        double.IsFinite(altitudeKm) && double.IsFinite(minimumElevationDeg)
-            ? FootprintGeometry.HorizonRadiusDeg(altitudeKm, minimumElevationDeg)
-            : 0;
+    /// <remarks>
+    /// The exact central angle at elevation e is acos(R / (R + h) * cos e) - e. At 0 degrees this is the
+    /// horizon, <see cref="FootprintGeometry.HorizonRadiusDeg"/>, but subtracting the elevation from the
+    /// horizon angle is not the same thing for any other elevation: for a 400 km satellite and a 20 degree
+    /// minimum it gives 0 where the true radius is about 7.9 degrees. The main map only draws the
+    /// 0 degree footprint, so only the Earth View needs this form.
+    /// </remarks>
+    public static double FootprintRadiusDeg(double altitudeKm, double minimumElevationDeg)
+    {
+        if (!double.IsFinite(altitudeKm) || !double.IsFinite(minimumElevationDeg) || altitudeKm <= 0)
+            return 0;
+
+        var elevationRad = Math.Max(minimumElevationDeg, 0.0) * Math.PI / 180.0;
+        if (elevationRad >= Math.PI / 2)
+            return 0;
+
+        var ratio = EarthRadiusKm / (EarthRadiusKm + altitudeKm);
+        var centralAngleRad = Math.Acos(Math.Clamp(ratio * Math.Cos(elevationRad), -1, 1)) - elevationRad;
+        return centralAngleRad > 0 ? centralAngleRad * 180.0 / Math.PI : 0;
+    }
 
     /// <summary>
     /// A closed ring of points at a fixed angular distance from the subpoint, in bearing order.

@@ -83,6 +83,23 @@ public sealed class EarthViewFrameBuilderTests
     }
 
     [Fact]
+    public void A_station_under_a_400_km_satellite_is_usable_with_a_20_degree_minimum()
+    {
+        // Review finding: this used to give a zero radius, hiding the ring and reporting "below minimum".
+        var state = State(altitudeKm: 400);
+        var frame = EarthViewFrameBuilder.Build(state, Home(0, 0), 20, Utc)!;
+
+        Assert.InRange(frame.MinimumElevationRadiusDeg, 7.8, 8.0);
+        Assert.Equal(EarthViewSituation.Usable, frame.HomeSituation);
+
+        // Just inside and just outside the 7.9 degree ring.
+        Assert.Equal(EarthViewSituation.Usable,
+            EarthViewFrameBuilder.Build(state, HomeAtDistance(state, 7.7), 20, Utc)!.HomeSituation);
+        Assert.Equal(EarthViewSituation.AboveHorizon,
+            EarthViewFrameBuilder.Build(state, HomeAtDistance(state, 8.2), 20, Utc)!.HomeSituation);
+    }
+
+    [Fact]
     public void Station_between_the_ring_and_the_horizon_is_above_the_horizon_only()
     {
         var state = State(altitudeKm: 800);
