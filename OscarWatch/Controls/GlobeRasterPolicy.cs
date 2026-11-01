@@ -17,11 +17,13 @@ internal static class GlobeRasterPolicy
     public const int MinRasterPx = 64;
 
     /// <summary>
-    /// Largest raster edge. Measured at 5.5 ms for 768 pixels on a fast machine, and the cached hit table
-    /// grows with the square of the size (about 9 MB at 768), so larger is not worth it. The raster is
-    /// stretched to the control, and the overlays are drawn at full resolution on top.
+    /// Largest raster edge. Measured on an Apple M4 Pro with a full-size map: about 5.7 ms for 768 pixels and
+    /// 9 to 11 ms for 1024, or about 45 ms for 1024 when limited to one CPU. The cached hit table grows with the
+    /// square of the size (about 17 MB at 1024, plus 4 MB each for the pixel buffer and the bitmap). 1024 was
+    /// chosen over 768 because the globe is visibly soft when a large window stretches a smaller raster. The
+    /// raster is stretched to the control, and the overlays are drawn at full resolution on top.
     /// </summary>
-    public const int MaxRasterPx = 768;
+    public const int MaxRasterPx = 1024;
 
     /// <summary>Sizes are rounded to this step, so dragging a window edge does not render for every pixel.</summary>
     public const int SizeStepPx = 32;

@@ -18,8 +18,9 @@ public sealed class GlobeRasterPolicyTests
     [InlineData(530.0, 1.0, 544)]
     [InlineData(300.0, 2.0, 608)]    // a 2x display needs twice the pixels
     [InlineData(10.0, 1.0, 64)]      // never below the minimum
-    [InlineData(5000.0, 1.0, 768)]   // never above the maximum
-    [InlineData(400.0, 2.0, 768)]    // 800 wanted, capped
+    [InlineData(5000.0, 1.0, 1024)]  // never above the maximum
+    [InlineData(400.0, 2.0, 800)]    // 800 wanted, under the cap
+    [InlineData(600.0, 2.0, 1024)]   // 1200 wanted, capped
     public void Raster_size_is_stepped_and_limited(double side, double scaling, int expected) =>
         Assert.Equal(expected, GlobeRasterPolicy.RasterSize(side, scaling));
 

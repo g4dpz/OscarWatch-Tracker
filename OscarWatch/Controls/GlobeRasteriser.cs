@@ -30,8 +30,11 @@ internal sealed class GlobeRasteriser
     /// <summary>Share of the half-width that the limb circle fills at zoom 1.</summary>
     public const double LimbFill = 0.92;
 
-    /// <summary>Brightness of the fully dark side of the globe (1 is unshaded).</summary>
-    public const double NightBrightness = 0.35;
+    /// <summary>
+    /// Brightness of the fully dark side of the globe (1 is unshaded). At 0.35 the night side was too dark to
+    /// read the land; 0.5 still reads clearly as night and keeps the terrain visible.
+    /// </summary>
+    public const double NightBrightness = 0.5;
 
     /// <summary>Brightness at the very edge of the disc. Rises to 1 at the centre. A gentle sphere cue.</summary>
     public const double LimbBrightness = 0.7;
