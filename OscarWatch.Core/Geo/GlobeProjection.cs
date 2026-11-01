@@ -7,53 +7,64 @@ public readonly record struct GlobeCamera(
     double AltitudeKm);
 
 /// <summary>
-/// A point on the projection plane, in Earth radii. X is to the right (east at the centre),
-/// Y is up (north at the centre), and the origin is the subpoint.
-/// <see cref="Visible"/> is false when the point is beyond the limb.
+/// A point on the projection plane, in radians of arc from the subpoint. X is to the right (east at the
+/// centre), Y is up (north at the centre), and the origin is the subpoint. The distance of the point from the
+/// origin is its ground distance from the subpoint. <see cref="Visible"/> is false when the point is beyond
+/// the limb.
 /// </summary>
 public readonly record struct GlobePoint(double X, double Y, bool Visible);
 
 /// <summary>
-/// True perspective projection of the Earth as seen from a satellite (the general perspective
-/// projection in Snyder, Map Projections: A Working Manual). The image plane is tangent to the
-/// globe at the subpoint, and all plane coordinates are in Earth radii.
+/// Azimuthal equidistant projection of the Earth centred on a satellite's subpoint. A point's distance from
+/// the centre of the picture is its ground distance from the subpoint, and its direction is the bearing from
+/// the subpoint, so the whole footprint is spread evenly. Plane coordinates are in radians of arc.
 /// </summary>
-public static class PerspectiveGlobeProjection
+/// <remarks>
+/// This replaced a true perspective view from the satellite. From a high orbit the perspective view
+/// squeezes the outer part of the footprint into a thin rim: for QO-100, 41 percent of the ground in
+/// the footprint (everything farther than 60 degrees from the subpoint) lands in the outer 14 percent of the
+/// picture, so it looks much smaller than the footprint on the world map. Here the same ground gets 46 percent.
+/// The price is that land near the edge is stretched sideways, by a factor of angle divided by sine of the
+/// angle: 1.2 at 60 degrees from the centre and about 1.4 at the horizon of a geostationary satellite, and
+/// almost nothing for a low orbit, whose horizon is only about 20 degrees away.
+/// <para>
+/// The distance of the camera from the Earth's centre (<see cref="Ratio"/>) is still needed to find the
+/// horizon, which is where the footprint ends: cos(horizon angle) = 1 / ratio.
+/// </para>
+/// </remarks>
+public static class GlobeProjection
 {
     public const double EarthRadiusKm = 6371.0;
 
-    /// <summary>Camera distance from the Earth's centre as a multiple of the Earth radius (P).</summary>
+    /// <summary>Satellite distance from the Earth's centre as a multiple of the Earth radius (P).</summary>
     public static double Ratio(double altitudeKm) => (EarthRadiusKm + altitudeKm) / EarthRadiusKm;
 
     /// <summary>
-    /// Radius of the limb circle on the projection plane, in Earth radii: sqrt((P - 1) / (P + 1)).
-    /// Zero when the altitude is not a finite positive number.
+    /// Radius of the limb circle on the projection plane: the horizon angle, acos(R / (R + h)), in radians.
+    /// The limb is the edge of the footprint at 0 degrees elevation. Zero when the altitude is not a finite
+    /// positive number.
     /// </summary>
     public static double LimbRadius(double altitudeKm)
     {
         if (!double.IsFinite(altitudeKm) || altitudeKm <= 0)
             return 0;
 
-        var p = Ratio(altitudeKm);
-        return Math.Sqrt((p - 1.0) / (p + 1.0));
+        return Math.Acos(1.0 / Ratio(altitudeKm));
     }
 
     /// <summary>
-    /// Radius, on the projection plane in Earth radii, of the circle of points that lie
-    /// <paramref name="centralAngleDeg"/> degrees of arc from the subpoint. Seen from the satellite, such a
-    /// circle projects to an exact circle centred on the origin, so rings like the minimum elevation footprint
-    /// can be drawn as ellipses. Angles beyond the horizon give the limb radius. Zero when the altitude or the
-    /// angle is not a usable number.
+    /// Radius, on the projection plane in radians, of the circle of points that lie
+    /// <paramref name="centralAngleDeg"/> degrees of arc from the subpoint. That is simply the angle itself, so
+    /// rings like the minimum elevation footprint are exact circles and can be drawn as ellipses. Angles beyond
+    /// the horizon give the limb radius. Zero when the altitude or the angle is not a usable number.
     /// </summary>
     public static double RingRadius(double altitudeKm, double centralAngleDeg)
     {
         if (!double.IsFinite(altitudeKm) || altitudeKm <= 0 || !double.IsFinite(centralAngleDeg) || centralAngleDeg <= 0)
             return 0;
 
-        var p = Ratio(altitudeKm);
-        var horizonRad = Math.Acos(1.0 / p);
-        var c = Math.Min(centralAngleDeg * Math.PI / 180.0, horizonRad);
-        return (p - 1.0) * Math.Sin(c) / (p - Math.Cos(c));
+        // Distance from the centre is simply the angle itself.
+        return Math.Min(centralAngleDeg * Math.PI / 180.0, LimbRadius(altitudeKm));
     }
 
     /// <summary>Projects a geographic point. See <see cref="GlobeBasis"/> to project many points.</summary>
@@ -70,7 +81,7 @@ public static class PerspectiveGlobeProjection
 }
 
 /// <summary>
-/// Precomputed trigonometry for one camera, so that many points (a ground track, or every pixel of
+/// Precomputed trigonometry for one satellite position, so that many points (a ground track, or every pixel of
 /// a raster) can be projected without repeating it. Local axes: X east, Y north, Z up (towards the
 /// satellite) at the subpoint.
 /// </summary>
@@ -80,6 +91,7 @@ public readonly struct GlobeBasis
     private readonly double _cosLat0;
     private readonly double _lon0Rad;
     private readonly double _p;
+    private readonly double _horizonRad;
 
     // Geographic (Earth-fixed) unit vectors of the local axes.
     private readonly double _eastX, _eastY;
@@ -96,7 +108,7 @@ public readonly struct GlobeBasis
         IsValid = valid;
         if (!valid)
         {
-            _sinLat0 = _cosLat0 = _lon0Rad = _p = 0;
+            _sinLat0 = _cosLat0 = _lon0Rad = _p = _horizonRad = 0;
             _eastX = _eastY = _northX = _northY = _northZ = _upX = _upY = _upZ = 0;
             return;
         }
@@ -105,7 +117,8 @@ public readonly struct GlobeBasis
         _lon0Rad = camera.SubpointLongitudeDeg * Math.PI / 180.0;
         _sinLat0 = Math.Sin(lat0);
         _cosLat0 = Math.Cos(lat0);
-        _p = PerspectiveGlobeProjection.Ratio(camera.AltitudeKm);
+        _p = GlobeProjection.Ratio(camera.AltitudeKm);
+        _horizonRad = Math.Acos(1.0 / _p);
 
         var sinLon0 = Math.Sin(_lon0Rad);
         var cosLon0 = Math.Cos(_lon0Rad);
@@ -122,8 +135,8 @@ public readonly struct GlobeBasis
     /// <summary>False when the camera altitude or position is not usable. Every method then reports a miss.</summary>
     public bool IsValid { get; }
 
-    /// <summary>Radius of the limb circle on the projection plane, in Earth radii.</summary>
-    public double LimbRadius => IsValid ? Math.Sqrt((_p - 1.0) / (_p + 1.0)) : 0;
+    /// <summary>Radius of the limb circle on the projection plane: the horizon angle in radians.</summary>
+    public double LimbRadius => IsValid ? _horizonRad : 0;
 
     /// <summary>
     /// Converts a geographic position to the unit vector towards it in local axes (X east, Y north,
@@ -160,14 +173,21 @@ public readonly struct GlobeBasis
         // Visible when the point is above the satellite's horizon: cos c >= R / (R + h).
         // Written so that NaN input reports not visible.
         var visible = lz >= 1.0 / _p;
-        var k = (_p - 1.0) / (_p - lz);
+
+        // Azimuthal equidistant: keep the direction, make the distance from the centre the angle c.
+        var sinC = Math.Sqrt(lx * lx + ly * ly);
+        if (sinC < 1e-12)
+            return new GlobePoint(0, 0, visible);
+
+        var k = Math.Atan2(sinC, lz) / sinC;
         return new GlobePoint(k * lx, k * ly, visible);
     }
 
     /// <summary>
-    /// Casts a ray from the satellite through the plane point and finds where it meets the globe.
-    /// The hit is returned as a unit vector in local axes (X east, Y north, Z up), which is also the
-    /// surface normal, so callers can light it directly.
+    /// Finds the point on the globe that a plane point shows. The plane point's distance from the centre is
+    /// the angle c from the subpoint, and its direction is the bearing. The hit is returned as a unit vector in
+    /// local axes (X east, Y north, Z up), which is also the surface normal, so callers can light it directly.
+    /// Returns false beyond the limb.
     /// </summary>
     public bool TryHitLocal(double x, double y, out double hitX, out double hitY, out double hitZ)
     {
@@ -175,22 +195,20 @@ public readonly struct GlobeBasis
         if (!IsValid || !double.IsFinite(x) || !double.IsFinite(y))
             return false;
 
-        // Camera at (0, 0, P); the image plane is z = 1; unit sphere at the origin.
-        var dz = 1.0 - _p;
-        var length = Math.Sqrt(x * x + y * y + dz * dz);
-        var dxn = x / length;
-        var dyn = y / length;
-        var dzn = dz / length;
-
-        var od = _p * dzn; // camera position dotted with the unit ray direction
-        var discriminant = od * od - (_p * _p - 1.0);
-        if (discriminant < 0)
+        var rho = Math.Sqrt(x * x + y * y);
+        if (rho > _horizonRad)
             return false;
 
-        var t = -od - Math.Sqrt(discriminant); // nearer of the two intersections
-        hitX = t * dxn;
-        hitY = t * dyn;
-        hitZ = _p + t * dzn;
+        if (rho < 1e-12)
+        {
+            hitZ = 1.0;
+            return true;
+        }
+
+        var scale = Math.Sin(rho) / rho;
+        hitX = x * scale;
+        hitY = y * scale;
+        hitZ = Math.Cos(rho);
         return true;
     }
 

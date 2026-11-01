@@ -97,11 +97,11 @@ public sealed class GlobeRasterPolicyTests
                         var shorter = Math.Min(w, h);
                         var raster = GlobeRasterPolicy.RasterSize(longer, scaling);
 
-                        // Pixels of the pane per Earth radius, as the stretched raster delivers them.
-                        var fromRaster = GlobeRasteriser.PixelsPerEarthRadius(
+                        // Pixels of the pane per radian of arc, as the stretched raster delivers them.
+                        var fromRaster = GlobeRasteriser.PixelsPerRadian(
                             raster, GlobeRasterPolicy.EffectiveZoom(zoom, w, h), altitude) * longer / raster;
                         // And as the overlays compute it.
-                        var fromOverlay = GlobeRasteriser.PixelsPerEarthRadius(shorter, zoom, altitude);
+                        var fromOverlay = GlobeRasteriser.PixelsPerRadian(shorter, zoom, altitude);
 
                         worst = Math.Max(worst, Math.Abs(fromRaster - fromOverlay) / fromOverlay);
                     }

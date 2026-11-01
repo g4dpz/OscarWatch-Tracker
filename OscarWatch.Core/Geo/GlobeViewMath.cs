@@ -73,7 +73,7 @@ public static class GlobeViewMath
     /// visible hemisphere. A run ends where the track passes the limb or where the input has a
     /// <see cref="double.NaN"/> latitude (the gap marker used by the ground track code), and a new
     /// run starts when it comes back into view. Runs with fewer than two points are dropped, as they
-    /// cannot be drawn as a line. Coordinates are in Earth radii on the projection plane.
+    /// cannot be drawn as a line. Coordinates are in radians of arc on the projection plane.
     /// </summary>
     /// <remarks>
     /// Runs end at the last visible sample rather than at the exact limb crossing. At the usual

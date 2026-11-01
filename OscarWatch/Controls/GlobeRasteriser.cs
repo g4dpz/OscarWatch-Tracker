@@ -15,13 +15,13 @@ internal readonly record struct GlobePalette(uint SeaBgra)
 }
 
 /// <summary>
-/// Draws the globe as seen from a satellite into a square BGRA pixel buffer by casting a ray through
-/// every pixel and sampling the equirectangular world map where it meets the Earth. Pixels that miss
-/// the Earth are left fully transparent (0).
+/// Draws the Earth centred on a satellite's subpoint into a square BGRA pixel buffer. For every pixel it finds
+/// the place on the Earth that the pixel shows (see <see cref="GlobeProjection"/>) and samples the
+/// equirectangular world map there. Pixels outside the footprint are left fully transparent (0).
 /// </summary>
 /// <remarks>
-/// For a given size, zoom and altitude, the surface point each pixel hits (in the camera's local
-/// axes) never changes, whatever the satellite's latitude and longitude. Those hit points are cached,
+/// For a given size, zoom and altitude, the surface point each pixel shows (in the local axes at the
+/// subpoint) never changes, whatever the satellite's latitude and longitude. Those points are cached,
 /// so a refresh only converts them to latitude and longitude, samples the map and shades. Renders are
 /// serialised by a lock, so one instance can be shared, but only one render runs at a time.
 /// </remarks>
@@ -50,18 +50,18 @@ internal sealed class GlobeRasteriser
     private HitTable? _table;
 
     /// <summary>
-    /// How many pixels one Earth radius spans on the projection plane at this size, zoom and altitude.
+    /// How many pixels one radian of arc spans on the projection plane at this size, zoom and altitude.
     /// Overlays drawn on top of the raster use this so they line up with it.
     /// </summary>
-    public static double PixelsPerEarthRadius(double sizePx, double zoom, double altitudeKm)
+    public static double PixelsPerRadian(double sizePx, double zoom, double altitudeKm)
     {
-        var limb = PerspectiveGlobeProjection.LimbRadius(altitudeKm);
+        var limb = GlobeProjection.LimbRadius(altitudeKm);
         return limb > 0 ? zoom * LimbFill * (sizePx / 2.0) / limb : 0;
     }
 
     /// <summary>
     /// Renders the globe into <paramref name="destination"/>, which must hold at least
-    /// <c>sizePx * sizePx</c> pixels. Does nothing useful and clears the buffer when the camera
+    /// <c>sizePx * sizePx</c> pixels. Does nothing useful and clears the buffer when the satellite
     /// altitude is not a positive number.
     /// </summary>
     /// <exception cref="OperationCanceledException">The token was cancelled. The buffer contents are then undefined.</exception>
@@ -198,8 +198,8 @@ internal sealed class GlobeRasteriser
             var limb = new float[count];
 
             var basis = new GlobeBasis(new GlobeCamera(0, 0, altitudeKm));
-            var p = PerspectiveGlobeProjection.Ratio(altitudeKm);
-            var pixelsPerRadius = PixelsPerEarthRadius(sizePx, zoom, altitudeKm);
+            var p = GlobeProjection.Ratio(altitudeKm);
+            var pixelsPerRadius = PixelsPerRadian(sizePx, zoom, altitudeKm);
             var centre = sizePx / 2.0;
 
             Parallel.For(0, sizePx, y =>
@@ -221,8 +221,9 @@ internal sealed class GlobeRasteriser
                     hy[i] = (float)y0;
                     hz[i] = (float)z0;
 
-                    // Cosine of the angle between the surface normal and the direction back to the camera:
-                    // 1 facing the camera, 0 at the limb. n.v = hz * P - 1 and |v| = sqrt(P^2 - 2 P hz + 1).
+                    // A gentle sphere cue, independent of how pixels are placed on the picture: the cosine of
+                    // the angle between the surface normal and the direction back to the satellite, 1 when
+                    // facing it and 0 at the limb. n.v = hz * P - 1 and |v| = sqrt(P^2 - 2 P hz + 1).
                     var toCameraLength = Math.Sqrt(p * p - 2.0 * p * z0 + 1.0);
                     var cosView = Math.Clamp((z0 * p - 1.0) / toCameraLength, 0.0, 1.0);
                     limb[i] = (float)(LimbBrightness + (1.0 - LimbBrightness) * Math.Sqrt(cosView));

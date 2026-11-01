@@ -69,7 +69,7 @@ public sealed class GlobeRasteriserTests
     /// </summary>
     private static uint Expected(GlobeCamera camera, int size, double zoom, int px, int py, BasemapPixels map)
     {
-        var ppr = GlobeRasteriser.PixelsPerEarthRadius(size, zoom, camera.AltitudeKm);
+        var ppr = GlobeRasteriser.PixelsPerRadian(size, zoom, camera.AltitudeKm);
         var planeX = (px + 0.5 - size / 2.0) / ppr;
         var planeY = (size / 2.0 - (py + 0.5)) / ppr;
 
@@ -77,7 +77,7 @@ public sealed class GlobeRasteriserTests
         Assert.True(basis.TryHitLocal(planeX, planeY, out var hx, out var hy, out var hz));
         basis.LocalToGeo(hx, hy, hz, out var lat, out var lon);
 
-        var p = PerspectiveGlobeProjection.Ratio(camera.AltitudeKm);
+        var p = GlobeProjection.Ratio(camera.AltitudeKm);
         var vx = -hx;
         var vy = -hy;
         var vz = p - hz;
@@ -155,8 +155,8 @@ public sealed class GlobeRasteriserTests
     {
         foreach (var altitude in new[] { 400.0, 800.0, 35_786.0 })
         {
-            var ppr = GlobeRasteriser.PixelsPerEarthRadius(200, 1.0, altitude);
-            var limbPx = ppr * PerspectiveGlobeProjection.LimbRadius(altitude);
+            var ppr = GlobeRasteriser.PixelsPerRadian(200, 1.0, altitude);
+            var limbPx = ppr * GlobeProjection.LimbRadius(altitude);
 
             Assert.Equal(GlobeRasteriser.LimbFill * 100.0, limbPx, precision: 9);
         }
@@ -165,8 +165,8 @@ public sealed class GlobeRasteriserTests
     [Fact]
     public void Doubling_the_zoom_doubles_the_pixel_scale()
     {
-        var one = GlobeRasteriser.PixelsPerEarthRadius(200, 1.0, 800);
-        var two = GlobeRasteriser.PixelsPerEarthRadius(200, 2.0, 800);
+        var one = GlobeRasteriser.PixelsPerRadian(200, 1.0, 800);
+        var two = GlobeRasteriser.PixelsPerRadian(200, 2.0, 800);
 
         Assert.Equal(2.0 * one, two, precision: 9);
     }

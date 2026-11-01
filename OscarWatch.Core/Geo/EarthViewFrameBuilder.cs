@@ -7,7 +7,7 @@ public static class EarthViewFrameBuilder
 {
     /// <summary>
     /// Builds a frame, or returns null when the state cannot be drawn: no usable altitude (the
-    /// perspective needs it) or a subpoint that is not a finite position.
+    /// horizon angle, which sets the size of the footprint, needs it) or a subpoint that is not a finite position.
     /// </summary>
     /// <remarks>
     /// "Below horizon" and "inside the ring" are decided from the same footprint geometry that the

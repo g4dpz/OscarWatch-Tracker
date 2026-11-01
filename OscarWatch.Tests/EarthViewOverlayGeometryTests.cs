@@ -18,8 +18,8 @@ public sealed class EarthViewOverlayGeometryTests
         var horizonDeg = FootprintGeometry.HorizonRadiusDeg(altitudeKm);
 
         Assert.Equal(
-            PerspectiveGlobeProjection.LimbRadius(altitudeKm),
-            PerspectiveGlobeProjection.RingRadius(altitudeKm, horizonDeg),
+            GlobeProjection.LimbRadius(altitudeKm),
+            GlobeProjection.RingRadius(altitudeKm, horizonDeg),
             precision: 9);
     }
 
@@ -27,8 +27,8 @@ public sealed class EarthViewOverlayGeometryTests
     public void Ring_beyond_the_horizon_is_clamped_to_the_limb()
     {
         Assert.Equal(
-            PerspectiveGlobeProjection.LimbRadius(800),
-            PerspectiveGlobeProjection.RingRadius(800, 89), precision: 9);
+            GlobeProjection.LimbRadius(800),
+            GlobeProjection.RingRadius(800, 89), precision: 9);
     }
 
     [Theory]
@@ -36,14 +36,14 @@ public sealed class EarthViewOverlayGeometryTests
     [InlineData(-3.0)]
     [InlineData(double.NaN)]
     public void Ring_with_an_unusable_angle_has_no_radius(double angleDeg) =>
-        Assert.Equal(0.0, PerspectiveGlobeProjection.RingRadius(800, angleDeg));
+        Assert.Equal(0.0, GlobeProjection.RingRadius(800, angleDeg));
 
     [Theory]
     [InlineData(0.0)]
     [InlineData(-1.0)]
     [InlineData(double.NaN)]
     public void Ring_with_an_unusable_altitude_has_no_radius(double altitudeKm) =>
-        Assert.Equal(0.0, PerspectiveGlobeProjection.RingRadius(altitudeKm, 10));
+        Assert.Equal(0.0, GlobeProjection.RingRadius(altitudeKm, 10));
 
     [Fact]
     public void Ring_radius_grows_with_the_angle()
@@ -51,7 +51,7 @@ public sealed class EarthViewOverlayGeometryTests
         var previous = 0.0;
         for (var angle = 1.0; angle <= 28; angle += 1)
         {
-            var r = PerspectiveGlobeProjection.RingRadius(800, angle);
+            var r = GlobeProjection.RingRadius(800, angle);
             Assert.True(r > previous, $"not increasing at {angle}");
             previous = r;
         }
@@ -77,20 +77,20 @@ public sealed class EarthViewOverlayGeometryTests
         var bearing = Math.Abs(rawBearing % 1.0) * 360;
 
         var (lat, lon) = GlobeViewMath.Destination(camera.SubpointLatitudeDeg, camera.SubpointLongitudeDeg, angle, bearing);
-        var point = PerspectiveGlobeProjection.Project(camera, lat, lon);
+        var point = GlobeProjection.Project(camera, lat, lon);
         if (!point.Visible)
             return false;
 
         var radius = Math.Sqrt(point.X * point.X + point.Y * point.Y);
-        return Math.Abs(radius - PerspectiveGlobeProjection.RingRadius(camera.AltitudeKm, angle)) < 1e-9;
+        return Math.Abs(radius - GlobeProjection.RingRadius(camera.AltitudeKm, angle)) < 1e-9;
     }
 
     [Fact]
     public void Minimum_elevation_ring_sits_inside_the_limb_and_shrinks_as_elevation_rises()
     {
-        var at5 = PerspectiveGlobeProjection.RingRadius(800, GlobeViewMath.FootprintRadiusDeg(800, 5));
-        var at20 = PerspectiveGlobeProjection.RingRadius(800, GlobeViewMath.FootprintRadiusDeg(800, 20));
-        var limb = PerspectiveGlobeProjection.LimbRadius(800);
+        var at5 = GlobeProjection.RingRadius(800, GlobeViewMath.FootprintRadiusDeg(800, 5));
+        var at20 = GlobeProjection.RingRadius(800, GlobeViewMath.FootprintRadiusDeg(800, 20));
+        var limb = GlobeProjection.LimbRadius(800);
 
         Assert.True(0 < at20 && at20 < at5 && at5 < limb, $"{at20} {at5} {limb}");
     }

@@ -210,11 +210,11 @@ public sealed class GlobeViewMathTests
         var camera = new GlobeCamera(35.0, -20.0, 800.0);
         var subpoint = new GeoCoordinate(camera.SubpointLatitudeDeg, camera.SubpointLongitudeDeg, camera.AltitudeKm);
         var radiusDeg = GlobeViewMath.FootprintRadiusDeg(camera.AltitudeKm, 0.0) - 1e-6;
-        var limb = PerspectiveGlobeProjection.LimbRadius(camera.AltitudeKm);
+        var limb = GlobeProjection.LimbRadius(camera.AltitudeKm);
 
         foreach (var p in GlobeViewMath.FootprintRing(subpoint, radiusDeg))
         {
-            var projected = PerspectiveGlobeProjection.Project(camera, p.LatitudeDeg, p.LongitudeDeg);
+            var projected = GlobeProjection.Project(camera, p.LatitudeDeg, p.LongitudeDeg);
             Assert.True(projected.Visible);
             Assert.Equal(limb, Math.Sqrt(projected.X * projected.X + projected.Y * projected.Y), precision: 5);
         }

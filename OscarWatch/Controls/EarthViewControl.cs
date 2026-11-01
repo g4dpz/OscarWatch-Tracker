@@ -27,7 +27,7 @@ namespace OscarWatch.Controls;
 /// <para>
 /// Layout: the globe's size is set by the shorter side of the control, and the raster covers the longer side,
 /// so a zoomed-in globe fills a window that is not square. Overlays use the same scale as the raster
-/// (<see cref="GlobeRasteriser.PixelsPerEarthRadius"/> for the shorter side), which keeps them aligned.
+/// (<see cref="GlobeRasteriser.PixelsPerRadian"/> for the shorter side), which keeps them aligned.
 /// </para>
 /// </remarks>
 public sealed class EarthViewControl : ThemeAwareControl
@@ -431,8 +431,8 @@ public sealed class EarthViewControl : ThemeAwareControl
     private void DrawFrame(DrawingContext context, UiPalette palette, EarthViewFrame frame, double w, double h)
     {
         var altitude = frame.Camera.AltitudeKm;
-        var scale = GlobeRasteriser.PixelsPerEarthRadius(Math.Min(w, h), ZoomFactor, altitude);
-        var limbPx = scale * PerspectiveGlobeProjection.LimbRadius(altitude);
+        var scale = GlobeRasteriser.PixelsPerRadian(Math.Min(w, h), ZoomFactor, altitude);
+        var limbPx = scale * GlobeProjection.LimbRadius(altitude);
         if (!double.IsFinite(limbPx) || limbPx <= 0)
             return;
 
@@ -472,13 +472,14 @@ public sealed class EarthViewControl : ThemeAwareControl
     }
 
     /// <summary>
-    /// The footprint at the operator's minimum elevation, as a dashed ring. Seen from the satellite it is an
-    /// exact circle, so no polyline is needed. Skipped when it would only trace the limb or the centre.
+    /// The footprint at the operator's minimum elevation, as a dashed ring. Every point at the same ground
+    /// distance from the subpoint is the same distance from the centre of the picture, so it is an exact
+    /// circle and no polyline is needed. Skipped when it would only trace the limb or the centre.
     /// </summary>
     private void DrawMinimumElevationRing(
         DrawingContext context, UiPalette palette, EarthViewFrame frame, Point centre, double scale, double limbPx)
     {
-        var ringPx = scale * PerspectiveGlobeProjection.RingRadius(frame.Camera.AltitudeKm, frame.MinimumElevationRadiusDeg);
+        var ringPx = scale * GlobeProjection.RingRadius(frame.Camera.AltitudeKm, frame.MinimumElevationRadiusDeg);
         if (!double.IsFinite(ringPx) || ringPx < RingMinGapPx || ringPx > limbPx - RingMinGapPx)
             return;
 
@@ -544,7 +545,7 @@ public sealed class EarthViewControl : ThemeAwareControl
     }
 
     /// <summary>
-    /// The satellite at the centre (it is straight below the camera) and the stations that are on the visible
+    /// The satellite at the centre (the picture is centred on its subpoint) and the stations that are on the visible
     /// side, each with a text label and a tool tip. A station beyond the limb is not drawn.
     /// </summary>
     private void DrawMarkers(
