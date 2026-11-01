@@ -50,6 +50,19 @@ internal static class GlobeRasterPolicy
         return Math.Clamp(stepped, MinRasterPx, MaxRasterPx);
     }
 
+    /// <summary>
+    /// The zoom to give the rasteriser for a control of the given size. The raster covers the longer side but
+    /// the globe's size follows the shorter side, so the zoom is scaled by shorter over longer. Rounded to four
+    /// decimals so a one pixel change in size does not rebuild the rasteriser's tables every time; the error
+    /// that introduces is under 0.05 percent, well under a pixel.
+    /// </summary>
+    public static double EffectiveZoom(double zoom, double width, double height)
+    {
+        var shorter = Math.Min(width, height);
+        var longer = Math.Max(width, height);
+        return longer > 0 && shorter > 0 ? Math.Round(zoom * shorter / longer, 4) : zoom;
+    }
+
     /// <summary>Whole minutes since the epoch. The night shading is redone when this changes.</summary>
     public static long UtcMinute(DateTime utc) => utc.Ticks / TimeSpan.TicksPerMinute;
 

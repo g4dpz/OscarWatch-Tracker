@@ -621,6 +621,21 @@ Continuar?</value>
   <data name="Window.EarthView.Title">
     <value>Visão da Terra</value>
   </data>
+  <data name="EarthView.ZoomIn">
+    <value>Aproximar</value>
+  </data>
+  <data name="EarthView.ZoomOut">
+    <value>Afastar</value>
+  </data>
+  <data name="EarthView.ResetView">
+    <value>Redefinir zoom</value>
+  </data>
+  <data name="EarthView.Zoom.Tip">
+    <value>Dê zoom com a roda do mouse ou pressione + e − enquanto o globo estiver em foco. Pressione 0 para ajustar o globo inteiro novamente.</value>
+  </data>
+  <data name="EarthView.Label.Station">
+    <value>Estação</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>Linha do tempo de elevação de passagens</value>
   </data>

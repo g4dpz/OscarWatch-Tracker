@@ -61,6 +61,56 @@ public sealed class GlobeRasterPolicyTests
         }
     }
 
+    [Theory]
+    [InlineData(1.0, 600.0, 660.0, 0.9091)]
+    [InlineData(2.5, 600.0, 660.0, 2.2727)]
+    [InlineData(1.0, 660.0, 600.0, 0.9091)]   // same either way round
+    [InlineData(1.0, 500.0, 500.0, 1.0)]
+    public void Effective_zoom_is_the_zoom_scaled_by_shorter_over_longer(double zoom, double w, double h, double expected) =>
+        Assert.Equal(expected, GlobeRasterPolicy.EffectiveZoom(zoom, w, h), precision: 4);
+
+    [Theory]
+    [InlineData(0.0, 500.0)]
+    [InlineData(500.0, 0.0)]
+    [InlineData(-5.0, 500.0)]
+    public void Effective_zoom_leaves_the_zoom_alone_for_an_unusable_size(double w, double h) =>
+        Assert.Equal(2.0, GlobeRasterPolicy.EffectiveZoom(2.0, w, h));
+
+    /// <summary>
+    /// The picture comes from the raster and the lines are drawn from the shorter side, so the two scales must
+    /// agree or the markers drift off the map. This is the contract between EarthViewControl's two paths.
+    /// </summary>
+    [Fact]
+    public void Raster_and_overlay_scales_agree_for_any_pane_zoom_altitude_and_display_scaling()
+    {
+        var worst = 0.0;
+        foreach (var (w, h) in new[] { (590.0, 650.0), (1190.0, 660.0), (300.0, 1200.0), (160.0, 160.0), (900.0, 880.0), (2000.0, 400.0) })
+        {
+            foreach (var zoom in new[] { 1.0, 1.7, 2.5, 4.0 })
+            {
+                foreach (var altitude in new[] { 400.0, 800.0, 35_786.0 })
+                {
+                    foreach (var scaling in new[] { 1.0, 2.0 })
+                    {
+                        var longer = Math.Max(w, h);
+                        var shorter = Math.Min(w, h);
+                        var raster = GlobeRasterPolicy.RasterSize(longer, scaling);
+
+                        // Pixels of the pane per Earth radius, as the stretched raster delivers them.
+                        var fromRaster = GlobeRasteriser.PixelsPerEarthRadius(
+                            raster, GlobeRasterPolicy.EffectiveZoom(zoom, w, h), altitude) * longer / raster;
+                        // And as the overlays compute it.
+                        var fromOverlay = GlobeRasteriser.PixelsPerEarthRadius(shorter, zoom, altitude);
+
+                        worst = Math.Max(worst, Math.Abs(fromRaster - fromOverlay) / fromOverlay);
+                    }
+                }
+            }
+        }
+
+        Assert.True(worst < 5e-4, $"worst relative disagreement {worst:P3}");
+    }
+
     [Fact]
     public void The_first_raster_is_always_needed() =>
         Assert.True(GlobeRasterPolicy.NeedsRender(null, Key()));

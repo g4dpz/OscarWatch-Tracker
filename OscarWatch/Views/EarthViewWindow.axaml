@@ -10,6 +10,20 @@
         MinWidth="480" MinHeight="360"
         WindowStartupLocation="CenterOwner">
   <DockPanel Margin="8">
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,0,0,8"
+                ToolTip.Tip="{loc:Localize Key=EarthView.Zoom.Tip}">
+      <Button x:Name="ZoomOutButton" Content="−" MinWidth="32" HorizontalContentAlignment="Center"
+              Click="OnZoomOutClick" IsEnabled="False"
+              ToolTip.Tip="{loc:Localize Key=EarthView.ZoomOut}"
+              AutomationProperties.Name="{loc:Localize Key=EarthView.ZoomOut}" />
+      <Button x:Name="ZoomInButton" Content="+" MinWidth="32" HorizontalContentAlignment="Center"
+              Click="OnZoomInClick"
+              ToolTip.Tip="{loc:Localize Key=EarthView.ZoomIn}"
+              AutomationProperties.Name="{loc:Localize Key=EarthView.ZoomIn}" />
+      <Button x:Name="ResetViewButton" Content="{loc:Localize Key=EarthView.ResetView}"
+              Click="OnResetViewClick" IsEnabled="False"
+              ToolTip.Tip="{loc:Localize Key=EarthView.Zoom.Tip}" />
+    </StackPanel>
     <Border DockPanel.Dock="Right" Width="280" Margin="8,0,0,0" Padding="10" CornerRadius="4"
             Background="{DynamicResource ThemeSubtlePanelBackgroundBrush}">
       <ScrollViewer>
@@ -19,6 +33,7 @@
     </Border>
     <Grid>
       <ctl:EarthViewControl x:Name="Globe"
+                            TabIndex="1"
                             Frame="{Binding Frame}"
                             AutomationProperties.Name="{Binding AccessibleName}"
                             AutomationProperties.HelpText="{Binding AccessibleSummary}" />

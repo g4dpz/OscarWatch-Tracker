@@ -38,6 +38,24 @@ public static class PerspectiveGlobeProjection
         return Math.Sqrt((p - 1.0) / (p + 1.0));
     }
 
+    /// <summary>
+    /// Radius, on the projection plane in Earth radii, of the circle of points that lie
+    /// <paramref name="centralAngleDeg"/> degrees of arc from the subpoint. Seen from the satellite, such a
+    /// circle projects to an exact circle centred on the origin, so rings like the minimum elevation footprint
+    /// can be drawn as ellipses. Angles beyond the horizon give the limb radius. Zero when the altitude or the
+    /// angle is not a usable number.
+    /// </summary>
+    public static double RingRadius(double altitudeKm, double centralAngleDeg)
+    {
+        if (!double.IsFinite(altitudeKm) || altitudeKm <= 0 || !double.IsFinite(centralAngleDeg) || centralAngleDeg <= 0)
+            return 0;
+
+        var p = Ratio(altitudeKm);
+        var horizonRad = Math.Acos(1.0 / p);
+        var c = Math.Min(centralAngleDeg * Math.PI / 180.0, horizonRad);
+        return (p - 1.0) * Math.Sin(c) / (p - Math.Cos(c));
+    }
+
     /// <summary>Projects a geographic point. See <see cref="GlobeBasis"/> to project many points.</summary>
     public static GlobePoint Project(GlobeCamera camera, double latDeg, double lonDeg) =>
         new GlobeBasis(camera).Project(latDeg, lonDeg);

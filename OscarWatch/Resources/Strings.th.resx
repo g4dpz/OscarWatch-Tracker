@@ -1045,6 +1045,21 @@ LOS: {2}
   <data name="Window.EarthView.Title">
     <value>มุมมองโลก</value>
   </data>
+  <data name="EarthView.ZoomIn">
+    <value>ขยาย</value>
+  </data>
+  <data name="EarthView.ZoomOut">
+    <value>ย่อ</value>
+  </data>
+  <data name="EarthView.ResetView">
+    <value>รีเซ็ตการซูม</value>
+  </data>
+  <data name="EarthView.Zoom.Tip">
+    <value>ซูมด้วยล้อเมาส์ หรือกด + และ − ขณะที่โฟกัสอยู่ที่ลูกโลก กด 0 เพื่อแสดงลูกโลกทั้งใบอีกครั้ง</value>
+  </data>
+  <data name="EarthView.Label.Station">
+    <value>สถานี</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>ไทม์ไลน์มุมเงยของพาส</value>
   </data>

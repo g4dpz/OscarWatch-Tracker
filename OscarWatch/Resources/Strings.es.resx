@@ -621,6 +621,21 @@
   <data name="Window.EarthView.Title">
     <value>Vista de la Tierra</value>
   </data>
+  <data name="EarthView.ZoomIn">
+    <value>Acercar</value>
+  </data>
+  <data name="EarthView.ZoomOut">
+    <value>Alejar</value>
+  </data>
+  <data name="EarthView.ResetView">
+    <value>Restablecer zoom</value>
+  </data>
+  <data name="EarthView.Zoom.Tip">
+    <value>Haz zoom con la rueda del ratón o pulsa + y − mientras el globo tiene el foco. Pulsa 0 para ajustar de nuevo todo el globo.</value>
+  </data>
+  <data name="EarthView.Label.Station">
+    <value>Estación</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>Cronograma de elevación de pases</value>
   </data>

@@ -603,6 +603,21 @@
   <data name="Window.EarthView.Title">
     <value>地球ビュー</value>
   </data>
+  <data name="EarthView.ZoomIn">
+    <value>拡大</value>
+  </data>
+  <data name="EarthView.ZoomOut">
+    <value>縮小</value>
+  </data>
+  <data name="EarthView.ResetView">
+    <value>ズームをリセット</value>
+  </data>
+  <data name="EarthView.Zoom.Tip">
+    <value>マウスホイールで拡大縮小するか、地球儀にフォーカスがある状態で + と − を押します。0 を押すと地球全体が収まる表示に戻ります。</value>
+  </data>
+  <data name="EarthView.Label.Station">
+    <value>局</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>パス仰角タイムライン</value>
   </data>

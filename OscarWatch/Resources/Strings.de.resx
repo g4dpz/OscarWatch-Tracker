@@ -1045,6 +1045,21 @@ Fortfahren?</value>
   <data name="Window.EarthView.Title">
     <value>Erdansicht</value>
   </data>
+  <data name="EarthView.ZoomIn">
+    <value>Vergrößern</value>
+  </data>
+  <data name="EarthView.ZoomOut">
+    <value>Verkleinern</value>
+  </data>
+  <data name="EarthView.ResetView">
+    <value>Zoom zurücksetzen</value>
+  </data>
+  <data name="EarthView.Zoom.Tip">
+    <value>Mit dem Mausrad zoomen oder + und − drücken, solange der Globus den Fokus hat. Mit 0 passt der ganze Globus wieder ins Fenster.</value>
+  </data>
+  <data name="EarthView.Label.Station">
+    <value>Station</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>Elevationsverlauf</value>
   </data>

@@ -1045,6 +1045,21 @@ Lanjutkan?</value>
   <data name="Window.EarthView.Title">
     <value>Tampilan Bumi</value>
   </data>
+  <data name="EarthView.ZoomIn">
+    <value>Perbesar</value>
+  </data>
+  <data name="EarthView.ZoomOut">
+    <value>Perkecil</value>
+  </data>
+  <data name="EarthView.ResetView">
+    <value>Setel ulang zoom</value>
+  </data>
+  <data name="EarthView.Zoom.Tip">
+    <value>Zoom dengan roda mouse, atau tekan + dan − saat globe sedang difokuskan. Tekan 0 untuk menyesuaikan seluruh globe lagi.</value>
+  </data>
+  <data name="EarthView.Label.Station">
+    <value>Stasiun</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>Timeline elevasi lintasan</value>
   </data>

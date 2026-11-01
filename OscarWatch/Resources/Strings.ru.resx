@@ -1045,6 +1045,21 @@ LOS: {2}
   <data name="Window.EarthView.Title">
     <value>Вид Земли</value>
   </data>
+  <data name="EarthView.ZoomIn">
+    <value>Приблизить</value>
+  </data>
+  <data name="EarthView.ZoomOut">
+    <value>Отдалить</value>
+  </data>
+  <data name="EarthView.ResetView">
+    <value>Сбросить масштаб</value>
+  </data>
+  <data name="EarthView.Zoom.Tip">
+    <value>Меняйте масштаб колесом мыши или клавишами + и −, когда глобус в фокусе. Клавиша 0 снова показывает глобус целиком.</value>
+  </data>
+  <data name="EarthView.Label.Station">
+    <value>Станция</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>Шкала угла места пролётов</value>
   </data>

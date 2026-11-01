@@ -621,6 +621,21 @@
   <data name="Window.EarthView.Title">
     <value>地球视图</value>
   </data>
+  <data name="EarthView.ZoomIn">
+    <value>放大</value>
+  </data>
+  <data name="EarthView.ZoomOut">
+    <value>缩小</value>
+  </data>
+  <data name="EarthView.ResetView">
+    <value>重置缩放</value>
+  </data>
+  <data name="EarthView.Zoom.Tip">
+    <value>使用鼠标滚轮缩放，或在地球视图获得焦点时按 + 和 −。按 0 可重新显示整个地球。</value>
+  </data>
+  <data name="EarthView.Label.Station">
+    <value>电台</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>过境仰角时间线</value>
   </data>

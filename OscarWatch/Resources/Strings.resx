@@ -1041,6 +1041,21 @@ Continue?</value>
   <data name="Window.EarthView.Title">
     <value>Earth View</value>
   </data>
+  <data name="EarthView.ZoomIn">
+    <value>Zoom in</value>
+  </data>
+  <data name="EarthView.ZoomOut">
+    <value>Zoom out</value>
+  </data>
+  <data name="EarthView.ResetView">
+    <value>Reset zoom</value>
+  </data>
+  <data name="EarthView.Zoom.Tip">
+    <value>Zoom with the mouse wheel, or press + and − while the globe has focus. Press 0 to fit the whole globe again.</value>
+  </data>
+  <data name="EarthView.Label.Station">
+    <value>Station</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>Pass elevation timeline</value>
   </data>
