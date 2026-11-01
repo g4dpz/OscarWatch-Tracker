@@ -1,5 +1,7 @@
 using System.Buffers;
 using Avalonia;
+using Avalonia.Automation;
+using Avalonia.Automation.Peers;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -96,6 +98,8 @@ public sealed class EarthViewControl : ThemeAwareControl
         Focusable = true;
         RenderOptions.SetBitmapInterpolationMode(this, BitmapInterpolationMode.HighQuality);
     }
+
+    protected override AutomationPeer OnCreateAutomationPeer() => new EarthViewAutomationPeer(this);
 
     /// <summary>Raised after the zoom changes, so the window can enable or disable its zoom buttons.</summary>
     public event EventHandler? ViewChanged;
@@ -618,4 +622,28 @@ public sealed class EarthViewControl : ThemeAwareControl
         context.DrawRectangle(null, _renderCache.GetPen(palette.MapGroundTrackOutline, 5), rect);
         context.DrawRectangle(null, _renderCache.GetPen(palette.GlobeLimbStroke, 2.5), rect);
     }
+}
+
+/// <summary>
+/// Exposes the globe to screen readers. Without a peer the control's <c>AutomationProperties.Name</c> and
+/// <c>HelpText</c> (bound to the view model) have nothing to carry them to the platform.
+/// </summary>
+internal sealed class EarthViewAutomationPeer : ControlAutomationPeer
+{
+    public EarthViewAutomationPeer(EarthViewControl owner) : base(owner)
+    {
+    }
+
+    protected override string? GetNameCore() =>
+        AutomationProperties.GetName(Owner) is { Length: > 0 } name
+            ? name
+            : LocalizationService.Instance.Get("Window.EarthView.Title");
+
+    protected override string? GetHelpTextCore() => AutomationProperties.GetHelpText(Owner);
+
+    protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Custom;
+
+    protected override bool IsContentElementCore() => true;
+
+    protected override bool IsControlElementCore() => true;
 }
