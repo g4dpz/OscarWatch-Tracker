@@ -49,3 +49,6 @@ testdata/
 
 # Dave, G4DPZ Exclusions
 .kiro/
+# Agent workflow run records (reports, PR records) and the worktrees workflows create
+.agents/
+.worktrees/
