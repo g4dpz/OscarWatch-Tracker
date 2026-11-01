@@ -380,12 +380,44 @@ public sealed class EarthViewViewModelTests
             key + "|" + string.Join("|", args.Select(a => Convert.ToString(a, CultureInfo.InvariantCulture)));
     }
 
+    [Fact]
+    public void The_displayed_time_is_the_time_the_snapshot_was_propagated_for()
+    {
+        // Review finding: the clock plus the map offset can differ from the snapshot's own time, for
+        // example after a GPS time correction, so the label and night shading would disagree with the position.
+        var h = new Harness();
+        h.Tracking.FocusedNoradId = "25544";
+        h.Tracking.Snapshot = [State()];
+        var propagatedFor = Now.AddSeconds(-7).AddMinutes(90);
+        h.Tracking.SnapshotUtcOverride = propagatedFor;
+
+        h.Vm.Refresh();
+
+        Assert.Equal(propagatedFor, h.Vm.Frame!.DisplayUtc);
+    }
+
+    [Fact]
+    public void Before_the_first_snapshot_the_time_falls_back_to_the_clock_and_map_offset()
+    {
+        var h = new Harness();
+        h.Tracking.FocusedNoradId = "25544";
+        h.Tracking.Snapshot = [State()];
+        h.Tracking.MapTimeOffset = TimeSpan.FromHours(2);
+        h.Tracking.SnapshotUtcOverride = DateTime.MinValue;
+
+        h.Vm.Refresh();
+
+        Assert.Equal(Now.AddHours(2), h.Vm.Frame!.DisplayUtc);
+    }
+
     private sealed class FakeTracking : ILiveTrackingService
     {
         public IReadOnlyList<SatelliteTrackState> Snapshot { get; set; } = [];
         public bool ThrowOnSnapshot { get; set; }
 
-        public DateTime SnapshotUtc => Now;
+        /// <summary>Like the real service: the time the snapshot was propagated for, including the map offset.</summary>
+        public DateTime SnapshotUtc => SnapshotUtcOverride ?? Now + MapTimeOffset;
+        public DateTime? SnapshotUtcOverride { get; set; }
         public TimeSpan MapTimeOffset { get; set; }
         public string? FocusedNoradId { get; set; }
         public DateTime LiveNowSnapshotUtc => Now;

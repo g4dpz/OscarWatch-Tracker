@@ -109,7 +109,10 @@ public sealed partial class EarthViewViewModel : ViewModelBase, IDisposable
                 return;
             }
 
-            var displayUtc = _utcNow() + _tracking.MapTimeOffset;
+            // The time the position was propagated for, which already includes the map offset and any GPS
+            // time correction. Falls back to the clock only before the first snapshot has been published.
+            var snapshotUtc = _tracking.SnapshotUtc;
+            var displayUtc = snapshotUtc > DateTime.MinValue ? snapshotUtc : _utcNow() + _tracking.MapTimeOffset;
             var settings = _settings.Current;
             var next = EarthViewFrameBuilder.Build(state, settings.GroundStation, settings.MinimumElevationDeg, displayUtc);
             if (next is null)
