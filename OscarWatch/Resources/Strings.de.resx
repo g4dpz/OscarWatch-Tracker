@@ -1066,32 +1066,65 @@ Fortfahren?</value>
   <data name="EarthView.Empty.NoPosition">
     <value>Die Position des gewählten Satelliten ist noch nicht verfügbar.</value>
   </data>
-  <data name="EarthView.Status.Satellite">
-    <value>{0}, Höhe {1:F0} km</value>
-  </data>
   <data name="EarthView.Status.Time">
     <value>{0} UTC</value>
   </data>
-  <data name="EarthView.Status.LookAngles">
-    <value>Von Ihrer Station: Azimut {0:F0}°, Elevation {1:F0}°, Entfernung {2:F0} km</value>
+  <data name="EarthView.Section.Satellite">
+    <value>Satellit</value>
+  </data>
+  <data name="EarthView.Section.Station">
+    <value>Ihre Station</value>
+  </data>
+  <data name="EarthView.Section.Coverage">
+    <value>Abdeckung</value>
+  </data>
+  <data name="EarthView.Label.Altitude">
+    <value>Höhe</value>
+  </data>
+  <data name="EarthView.Label.Time">
+    <value>Zeit</value>
+  </data>
+  <data name="EarthView.Label.Lighting">
+    <value>Beleuchtung</value>
+  </data>
+  <data name="EarthView.Label.Azimuth">
+    <value>Azimut</value>
+  </data>
+  <data name="EarthView.Label.Elevation">
+    <value>Elevation</value>
+  </data>
+  <data name="EarthView.Label.Range">
+    <value>Entfernung</value>
+  </data>
+  <data name="EarthView.Label.Footprint">
+    <value>Footprint</value>
+  </data>
+  <data name="EarthView.Label.MinElevation">
+    <value>Mindest-Elevation</value>
+  </data>
+  <data name="EarthView.Value.Kilometres">
+    <value>{0:F0} km</value>
+  </data>
+  <data name="EarthView.Value.Degrees">
+    <value>{0:F0}°</value>
   </data>
   <data name="EarthView.Status.BelowHorizon">
-    <value>Ihre Station liegt außerhalb des Footprints: Der Satellit ist unter dem Horizont.</value>
+    <value>Außerhalb: Satellit unter dem Horizont</value>
   </data>
   <data name="EarthView.Status.AboveHorizon">
-    <value>Ihre Station liegt innerhalb des Footprints: Der Satellit ist über dem Horizont.</value>
+    <value>Innerhalb: Satellit über dem Horizont</value>
   </data>
   <data name="EarthView.Status.InsideMinElevation">
-    <value>Der Satellit liegt über Ihrer Mindest-Elevation von {0:F0}°.</value>
+    <value>Satellit über {0:F0}°</value>
   </data>
   <data name="EarthView.Status.OutsideMinElevation">
-    <value>Der Satellit liegt unter Ihrer Mindest-Elevation von {0:F0}°.</value>
+    <value>Satellit unter {0:F0}°</value>
   </data>
   <data name="EarthView.Status.Sunlit">
-    <value>Der Satellit wird von der Sonne beschienen.</value>
+    <value>Im Sonnenlicht</value>
   </data>
   <data name="EarthView.Status.Eclipse">
-    <value>Der Satellit befindet sich im Erdschatten.</value>
+    <value>Im Erdschatten</value>
   </data>
   <data name="EarthView.Accessible.Name">
     <value>Erdansicht, {0}</value>

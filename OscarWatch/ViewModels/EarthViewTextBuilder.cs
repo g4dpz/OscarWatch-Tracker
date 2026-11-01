@@ -14,9 +14,20 @@ internal static class EarthViewTextBuilder
     public const string KeyWindowTitle = "Window.EarthView.Title";
     public const string KeyEmptyNoSatellite = "EarthView.Empty.NoSatellite";
     public const string KeyEmptyNoPosition = "EarthView.Empty.NoPosition";
-    public const string KeyStatusSatellite = "EarthView.Status.Satellite";
+    public const string KeySectionSatellite = "EarthView.Section.Satellite";
+    public const string KeySectionStation = "EarthView.Section.Station";
+    public const string KeySectionCoverage = "EarthView.Section.Coverage";
+    public const string KeyLabelAltitude = "EarthView.Label.Altitude";
+    public const string KeyLabelTime = "EarthView.Label.Time";
+    public const string KeyLabelLighting = "EarthView.Label.Lighting";
+    public const string KeyLabelAzimuth = "EarthView.Label.Azimuth";
+    public const string KeyLabelElevation = "EarthView.Label.Elevation";
+    public const string KeyLabelRange = "EarthView.Label.Range";
+    public const string KeyLabelFootprint = "EarthView.Label.Footprint";
+    public const string KeyLabelMinElevation = "EarthView.Label.MinElevation";
+    public const string KeyValueKilometres = "EarthView.Value.Kilometres";
+    public const string KeyValueDegrees = "EarthView.Value.Degrees";
     public const string KeyStatusTime = "EarthView.Status.Time";
-    public const string KeyStatusLookAngles = "EarthView.Status.LookAngles";
     public const string KeyStatusBelowHorizon = "EarthView.Status.BelowHorizon";
     public const string KeyStatusAboveHorizon = "EarthView.Status.AboveHorizon";
     public const string KeyStatusInsideMinElevation = "EarthView.Status.InsideMinElevation";
@@ -29,36 +40,59 @@ internal static class EarthViewTextBuilder
     public const string KeyAccessibleBelowHorizon = "EarthView.Accessible.Summary.BelowHorizon";
     public const string KeyAccessibleNoAngles = "EarthView.Accessible.Summary.NoAngles";
 
-    /// <summary>One line per fact, separated by new lines, for the text panel beside the globe.</summary>
-    public static string Status(ILocalizationService l, EarthViewFrame frame)
+    /// <summary>
+    /// The facts for the panel beside the globe, in sections: the satellite, your station, and how the two
+    /// relate. A section with nothing to say is left out.
+    /// </summary>
+    public static IReadOnlyList<EarthViewStatusSection> Sections(ILocalizationService l, EarthViewFrame frame)
     {
-        var lines = new List<string>
+        var satellite = new List<EarthViewStatusRow>
         {
-            l.Get(KeyStatusSatellite, frame.SatelliteName, frame.Camera.AltitudeKm),
-            l.Get(KeyStatusTime, frame.DisplayUtc.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture))
+            new(null, frame.SatelliteName),
+            new(l.Get(KeyLabelAltitude), l.Get(KeyValueKilometres, frame.Camera.AltitudeKm)),
+            new(l.Get(KeyLabelTime), l.Get(KeyStatusTime, frame.DisplayUtc.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture))),
+            new(l.Get(KeyLabelLighting), l.Get(frame.IsSunlit ? KeyStatusSunlit : KeyStatusEclipse))
         };
 
-        if (frame.LookFromHome is { } look)
-            lines.Add(l.Get(KeyStatusLookAngles, look.AzimuthDeg, look.ElevationDeg, look.RangeKm));
+        var sections = new List<EarthViewStatusSection> { new(l.Get(KeySectionSatellite), satellite) };
 
+        if (frame.LookFromHome is { } look)
+        {
+            sections.Add(new EarthViewStatusSection(l.Get(KeySectionStation),
+            [
+                new(l.Get(KeyLabelAzimuth), l.Get(KeyValueDegrees, look.AzimuthDeg)),
+                new(l.Get(KeyLabelElevation), l.Get(KeyValueDegrees, look.ElevationDeg)),
+                new(l.Get(KeyLabelRange), l.Get(KeyValueKilometres, look.RangeKm))
+            ]));
+        }
+
+        var coverage = new List<EarthViewStatusRow>();
         switch (frame.HomeSituation)
         {
             case EarthViewSituation.BelowHorizon:
-                lines.Add(l.Get(KeyStatusBelowHorizon));
+                coverage.Add(new(l.Get(KeyLabelFootprint), l.Get(KeyStatusBelowHorizon)));
                 break;
             case EarthViewSituation.AboveHorizon:
-                lines.Add(l.Get(KeyStatusAboveHorizon));
-                lines.Add(l.Get(KeyStatusOutsideMinElevation, frame.MinimumElevationDeg));
+                coverage.Add(new(l.Get(KeyLabelFootprint), l.Get(KeyStatusAboveHorizon)));
+                coverage.Add(new(l.Get(KeyLabelMinElevation), l.Get(KeyStatusOutsideMinElevation, frame.MinimumElevationDeg)));
                 break;
             case EarthViewSituation.Usable:
-                lines.Add(l.Get(KeyStatusAboveHorizon));
-                lines.Add(l.Get(KeyStatusInsideMinElevation, frame.MinimumElevationDeg));
+                coverage.Add(new(l.Get(KeyLabelFootprint), l.Get(KeyStatusAboveHorizon)));
+                coverage.Add(new(l.Get(KeyLabelMinElevation), l.Get(KeyStatusInsideMinElevation, frame.MinimumElevationDeg)));
                 break;
         }
 
-        lines.Add(l.Get(frame.IsSunlit ? KeyStatusSunlit : KeyStatusEclipse));
-        return string.Join("\n", lines);
+        if (coverage.Count > 0)
+            sections.Add(new EarthViewStatusSection(l.Get(KeySectionCoverage), coverage));
+
+        return sections;
     }
+
+    /// <summary>The same facts as plain text, one line per row, with each heading on its own line.</summary>
+    public static string Status(ILocalizationService l, EarthViewFrame frame) =>
+        string.Join("\n", Sections(l, frame).SelectMany(section => section.Rows
+            .Select(row => row.Label is null ? row.Value : $"{row.Label}: {row.Value}")
+            .Prepend(section.Heading)));
 
     /// <summary>
     /// The control's accessible name: short, and names the satellite. With no satellite it is just the window
@@ -89,4 +123,17 @@ internal static class EarthViewTextBuilder
             Math.Round(look.AzimuthDeg),
             frame.MinimumElevationDeg);
     }
+}
+
+/// <summary>One part of the status panel: a heading and the rows under it.</summary>
+public sealed record EarthViewStatusSection(string Heading, IReadOnlyList<EarthViewStatusRow> Rows);
+
+/// <summary>One fact in the status panel. With no label the value spans the whole row (the satellite's name).</summary>
+public sealed record EarthViewStatusRow(string? Label, string Value)
+{
+    /// <summary>The grid column the value starts in: the first when there is no label.</summary>
+    public int ValueColumn => Label is null ? 0 : 1;
+
+    /// <summary>How many grid columns the value spans.</summary>
+    public int ValueColumnSpan => Label is null ? 2 : 1;
 }

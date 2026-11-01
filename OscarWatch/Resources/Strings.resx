@@ -1062,32 +1062,65 @@ Continue?</value>
   <data name="EarthView.Empty.NoPosition">
     <value>The position of the selected satellite is not available yet.</value>
   </data>
-  <data name="EarthView.Status.Satellite">
-    <value>{0}, altitude {1:F0} km</value>
-  </data>
   <data name="EarthView.Status.Time">
     <value>{0} UTC</value>
   </data>
-  <data name="EarthView.Status.LookAngles">
-    <value>From your station: azimuth {0:F0}°, elevation {1:F0}°, range {2:F0} km</value>
+  <data name="EarthView.Section.Satellite">
+    <value>Satellite</value>
+  </data>
+  <data name="EarthView.Section.Station">
+    <value>Your station</value>
+  </data>
+  <data name="EarthView.Section.Coverage">
+    <value>Coverage</value>
+  </data>
+  <data name="EarthView.Label.Altitude">
+    <value>Altitude</value>
+  </data>
+  <data name="EarthView.Label.Time">
+    <value>Time</value>
+  </data>
+  <data name="EarthView.Label.Lighting">
+    <value>Lighting</value>
+  </data>
+  <data name="EarthView.Label.Azimuth">
+    <value>Azimuth</value>
+  </data>
+  <data name="EarthView.Label.Elevation">
+    <value>Elevation</value>
+  </data>
+  <data name="EarthView.Label.Range">
+    <value>Range</value>
+  </data>
+  <data name="EarthView.Label.Footprint">
+    <value>Footprint</value>
+  </data>
+  <data name="EarthView.Label.MinElevation">
+    <value>Minimum elevation</value>
+  </data>
+  <data name="EarthView.Value.Kilometres">
+    <value>{0:F0} km</value>
+  </data>
+  <data name="EarthView.Value.Degrees">
+    <value>{0:F0}°</value>
   </data>
   <data name="EarthView.Status.BelowHorizon">
-    <value>Your station is outside the footprint: the satellite is below your horizon.</value>
+    <value>Outside: satellite below your horizon</value>
   </data>
   <data name="EarthView.Status.AboveHorizon">
-    <value>Your station is inside the footprint: the satellite is above your horizon.</value>
+    <value>Inside: satellite above your horizon</value>
   </data>
   <data name="EarthView.Status.InsideMinElevation">
-    <value>The satellite is above your minimum elevation of {0:F0}°.</value>
+    <value>Satellite above {0:F0}°</value>
   </data>
   <data name="EarthView.Status.OutsideMinElevation">
-    <value>The satellite is below your minimum elevation of {0:F0}°.</value>
+    <value>Satellite below {0:F0}°</value>
   </data>
   <data name="EarthView.Status.Sunlit">
-    <value>The satellite is in sunlight.</value>
+    <value>In sunlight</value>
   </data>
   <data name="EarthView.Status.Eclipse">
-    <value>The satellite is in the Earth's shadow.</value>
+    <value>In the Earth's shadow</value>
   </data>
   <data name="EarthView.Accessible.Name">
     <value>Earth View, {0}</value>

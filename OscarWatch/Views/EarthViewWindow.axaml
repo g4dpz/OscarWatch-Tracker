@@ -27,8 +27,31 @@
     <Border DockPanel.Dock="Right" Width="280" Margin="8,0,0,0" Padding="10" CornerRadius="4"
             Background="{DynamicResource ThemeSubtlePanelBackgroundBrush}">
       <ScrollViewer>
-        <TextBlock Text="{Binding StatusText}" FontSize="13" TextWrapping="Wrap"
-                   Foreground="{DynamicResource ThemeForegroundBrush}" />
+        <ItemsControl ItemsSource="{Binding StatusSections}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:EarthViewStatusSection">
+              <StackPanel Margin="0,0,0,14" Spacing="4">
+                <TextBlock Text="{Binding Heading}" FontSize="13" FontWeight="SemiBold"
+                           AutomationProperties.HeadingLevel="2"
+                           Foreground="{DynamicResource ThemeForegroundBrush}" />
+                <Border Height="1" Margin="0,0,0,2" Background="{DynamicResource ThemeForegroundBrush}" Opacity="0.25" />
+                <ItemsControl ItemsSource="{Binding Rows}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:EarthViewStatusRow">
+                      <Grid ColumnDefinitions="104,*" Margin="0,2">
+                        <TextBlock Grid.Column="0" Text="{Binding Label}" IsVisible="{Binding Label, Converter={x:Static ObjectConverters.IsNotNull}}" FontSize="13" TextWrapping="Wrap"
+                                   Opacity="0.75" Margin="0,0,8,0"
+                                   Foreground="{DynamicResource ThemeForegroundBrush}" />
+                        <TextBlock Grid.Column="{Binding ValueColumn}" Grid.ColumnSpan="{Binding ValueColumnSpan}" Text="{Binding Value}" FontSize="13" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource ThemeForegroundBrush}" />
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
       </ScrollViewer>
     </Border>
     <Grid>

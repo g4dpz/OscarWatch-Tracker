@@ -50,7 +50,10 @@ public sealed partial class EarthViewViewModel : ViewModelBase, IDisposable
     /// <summary>True when there is a satellite and a position to show.</summary>
     [ObservableProperty] private bool _hasSatellite;
 
-    /// <summary>The facts beside the globe, as text.</summary>
+    /// <summary>The facts beside the globe, in sections. Empty while there is nothing to show.</summary>
+    [ObservableProperty] private IReadOnlyList<EarthViewStatusSection> _statusSections = [];
+
+    /// <summary>The same facts as plain text.</summary>
     [ObservableProperty] private string _statusText = "";
 
     /// <summary>Explains why there is no globe. Empty while there is one.</summary>
@@ -137,6 +140,7 @@ public sealed partial class EarthViewViewModel : ViewModelBase, IDisposable
 
         HasSatellite = true;
         EmptyMessage = "";
+        StatusSections = EarthViewTextBuilder.Sections(_l, next);
         StatusText = EarthViewTextBuilder.Status(_l, next);
 
         if (next.IsMaterialChange(_summaryFrame))
@@ -152,6 +156,7 @@ public sealed partial class EarthViewViewModel : ViewModelBase, IDisposable
         Frame = null;
         _summaryFrame = null;
         HasSatellite = false;
+        StatusSections = [];
         StatusText = "";
         EmptyMessage = _l.Get(messageKey);
         AccessibleName = EarthViewTextBuilder.AccessibleName(_l, null);

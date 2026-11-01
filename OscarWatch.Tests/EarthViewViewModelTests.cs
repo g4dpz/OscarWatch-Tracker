@@ -64,6 +64,7 @@ public sealed class EarthViewViewModelTests
         Assert.Null(h.Vm.Frame);
         Assert.Equal(EarthViewTextBuilder.KeyEmptyNoSatellite, h.Vm.EmptyMessage);
         Assert.Equal("", h.Vm.StatusText);
+        Assert.Empty(h.Vm.StatusSections);
     }
 
     [Fact]
@@ -92,7 +93,11 @@ public sealed class EarthViewViewModelTests
         Assert.NotNull(h.Vm.Frame);
         Assert.Equal("25544", h.Vm.Frame!.NoradId);
         Assert.Equal("", h.Vm.EmptyMessage);
-        Assert.Contains(EarthViewTextBuilder.KeyStatusSatellite + "|ISS|420", h.Vm.StatusText);
+        Assert.Contains("ISS", h.Vm.StatusText);
+        Assert.Contains(EarthViewTextBuilder.KeyValueKilometres + "|420", h.Vm.StatusText);
+        Assert.Equal(
+            [EarthViewTextBuilder.KeySectionSatellite, EarthViewTextBuilder.KeySectionStation, EarthViewTextBuilder.KeySectionCoverage],
+            h.Vm.StatusSections.Select(sec => sec.Heading));
         Assert.Contains(EarthViewTextBuilder.KeyStatusSunlit, h.Vm.StatusText);
     }
 
@@ -341,7 +346,8 @@ public sealed class EarthViewViewModelTests
 
         h.Vm.Refresh();
 
-        Assert.DoesNotContain(EarthViewTextBuilder.KeyStatusLookAngles, h.Vm.StatusText);
+        Assert.DoesNotContain(EarthViewTextBuilder.KeySectionStation, h.Vm.StatusText);
+        Assert.DoesNotContain(h.Vm.StatusSections, sec => sec.Heading == EarthViewTextBuilder.KeySectionStation);
         Assert.Contains(EarthViewTextBuilder.KeyAccessibleNoAngles, h.Vm.AccessibleSummary);
     }
 

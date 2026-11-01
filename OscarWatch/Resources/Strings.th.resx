@@ -1066,32 +1066,65 @@ LOS: {2}
   <data name="EarthView.Empty.NoPosition">
     <value>ยังไม่มีตำแหน่งของดาวเทียมที่เลือก</value>
   </data>
-  <data name="EarthView.Status.Satellite">
-    <value>{0} ความสูง {1:F0} กม.</value>
-  </data>
   <data name="EarthView.Status.Time">
     <value>{0} UTC</value>
   </data>
-  <data name="EarthView.Status.LookAngles">
-    <value>จากสถานีของคุณ: มุมอะซิมัท {0:F0}° มุมเงย {1:F0}° ระยะ {2:F0} กม.</value>
+  <data name="EarthView.Section.Satellite">
+    <value>ดาวเทียม</value>
+  </data>
+  <data name="EarthView.Section.Station">
+    <value>สถานีของคุณ</value>
+  </data>
+  <data name="EarthView.Section.Coverage">
+    <value>พื้นที่ครอบคลุม</value>
+  </data>
+  <data name="EarthView.Label.Altitude">
+    <value>ความสูง</value>
+  </data>
+  <data name="EarthView.Label.Time">
+    <value>เวลา</value>
+  </data>
+  <data name="EarthView.Label.Lighting">
+    <value>แสงอาทิตย์</value>
+  </data>
+  <data name="EarthView.Label.Azimuth">
+    <value>มุมอะซิมัท</value>
+  </data>
+  <data name="EarthView.Label.Elevation">
+    <value>มุมเงย</value>
+  </data>
+  <data name="EarthView.Label.Range">
+    <value>ระยะ</value>
+  </data>
+  <data name="EarthView.Label.Footprint">
+    <value>รอยครอบคลุม</value>
+  </data>
+  <data name="EarthView.Label.MinElevation">
+    <value>มุมเงยต่ำสุด</value>
+  </data>
+  <data name="EarthView.Value.Kilometres">
+    <value>{0:F0} กม.</value>
+  </data>
+  <data name="EarthView.Value.Degrees">
+    <value>{0:F0}°</value>
   </data>
   <data name="EarthView.Status.BelowHorizon">
-    <value>สถานีของคุณอยู่นอกรอยครอบคลุม: ดาวเทียมอยู่ต่ำกว่าขอบฟ้า</value>
+    <value>อยู่นอก: ดาวเทียมอยู่ต่ำกว่าขอบฟ้า</value>
   </data>
   <data name="EarthView.Status.AboveHorizon">
-    <value>สถานีของคุณอยู่ในรอยครอบคลุม: ดาวเทียมอยู่เหนือขอบฟ้า</value>
+    <value>อยู่ใน: ดาวเทียมอยู่เหนือขอบฟ้า</value>
   </data>
   <data name="EarthView.Status.InsideMinElevation">
-    <value>ดาวเทียมอยู่เหนือมุมเงยต่ำสุดของคุณที่ {0:F0}°</value>
+    <value>ดาวเทียมอยู่เหนือ {0:F0}°</value>
   </data>
   <data name="EarthView.Status.OutsideMinElevation">
-    <value>ดาวเทียมอยู่ต่ำกว่ามุมเงยต่ำสุดของคุณที่ {0:F0}°</value>
+    <value>ดาวเทียมอยู่ต่ำกว่า {0:F0}°</value>
   </data>
   <data name="EarthView.Status.Sunlit">
-    <value>ดาวเทียมอยู่ในแสงอาทิตย์</value>
+    <value>ได้รับแสงอาทิตย์</value>
   </data>
   <data name="EarthView.Status.Eclipse">
-    <value>ดาวเทียมอยู่ในเงาของโลก</value>
+    <value>อยู่ในเงาของโลก</value>
   </data>
   <data name="EarthView.Accessible.Name">
     <value>มุมมองโลก {0}</value>

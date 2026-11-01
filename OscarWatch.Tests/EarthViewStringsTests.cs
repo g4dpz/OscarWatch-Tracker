@@ -47,9 +47,20 @@ public sealed class EarthViewStringsTests
         [EarthViewTextBuilder.KeyWindowTitle] = 0,
         [EarthViewTextBuilder.KeyEmptyNoSatellite] = 0,
         [EarthViewTextBuilder.KeyEmptyNoPosition] = 0,
-        [EarthViewTextBuilder.KeyStatusSatellite] = 2,
+        [EarthViewTextBuilder.KeySectionSatellite] = 0,
+        [EarthViewTextBuilder.KeySectionStation] = 0,
+        [EarthViewTextBuilder.KeySectionCoverage] = 0,
+        [EarthViewTextBuilder.KeyLabelAltitude] = 0,
+        [EarthViewTextBuilder.KeyLabelTime] = 0,
+        [EarthViewTextBuilder.KeyLabelLighting] = 0,
+        [EarthViewTextBuilder.KeyLabelAzimuth] = 0,
+        [EarthViewTextBuilder.KeyLabelElevation] = 0,
+        [EarthViewTextBuilder.KeyLabelRange] = 0,
+        [EarthViewTextBuilder.KeyLabelFootprint] = 0,
+        [EarthViewTextBuilder.KeyLabelMinElevation] = 0,
+        [EarthViewTextBuilder.KeyValueKilometres] = 1,
+        [EarthViewTextBuilder.KeyValueDegrees] = 1,
         [EarthViewTextBuilder.KeyStatusTime] = 1,
-        [EarthViewTextBuilder.KeyStatusLookAngles] = 3,
         [EarthViewTextBuilder.KeyStatusBelowHorizon] = 0,
         [EarthViewTextBuilder.KeyStatusAboveHorizon] = 0,
         [EarthViewTextBuilder.KeyStatusInsideMinElevation] = 1,
@@ -133,9 +144,25 @@ public sealed class EarthViewStringsTests
 
         var english = Load("Strings.resx");
         var entries = Load(file);
+        // Units, "{0} UTC" and a few words that really are the same in a language (for example "Footprint" in German).
+        var sameInEveryLanguage = new HashSet<string>
+        {
+            EarthViewTextBuilder.KeyStatusTime,
+            EarthViewTextBuilder.KeyValueDegrees,
+            EarthViewTextBuilder.KeyValueKilometres
+        };
+        var sameInThisLanguage = new HashSet<(string File, string Key)>
+        {
+            ("Strings.de.resx", EarthViewTextBuilder.KeyLabelFootprint),
+            ("Strings.de.resx", EarthViewTextBuilder.KeyLabelElevation),
+            ("Strings.id.resx", EarthViewTextBuilder.KeyLabelFootprint),
+            ("Strings.it.resx", EarthViewTextBuilder.KeySectionSatellite),
+            ("Strings.pt-BR.resx", EarthViewTextBuilder.KeyLabelFootprint),
+            ("Strings.pt-BR.resx", EarthViewTextBuilder.KeyLabelAltitude)
+        };
         var untranslated = ArgumentCounts.Keys
-            .Where(k => k != EarthViewTextBuilder.KeyStatusTime) // "{0} UTC" is the same in every language
-            .Where(k => !(file == "Strings.pt-BR.resx" && k == EarthViewTextBuilder.KeyStatusSatellite)) // "altitude" is the Portuguese word too
+            .Where(k => !sameInEveryLanguage.Contains(k))
+            .Where(k => !sameInThisLanguage.Contains((file, k)))
             .Where(k => string.Equals(english[k], entries[k], StringComparison.Ordinal))
             .ToList();
 
@@ -181,17 +208,23 @@ public sealed class EarthViewStringsTests
 
     [Theory]
     [MemberData(nameof(AllLocales))]
-    public void Status_text_has_one_line_per_fact(string file, string culture)
+    public void Status_text_has_a_heading_and_one_line_per_row(string file, string culture)
     {
         var l = new ResxLocalizer(Load(file), CultureInfo.GetCultureInfo(culture));
 
-        // Satellite, time, look angles, horizon, minimum elevation, sunlight.
-        var usable = EarthViewTextBuilder.Status(l, Frame(EarthViewSituation.Usable, new LookAngles(100, 30, 900), true));
-        Assert.Equal(6, usable.Split('\n').Length);
+        // Satellite (heading, name, altitude, time, lighting), your station (heading, three angles),
+        // coverage (heading, footprint, minimum elevation).
+        var usable = EarthViewTextBuilder.Sections(l, Frame(EarthViewSituation.Usable, new LookAngles(100, 30, 900), true));
+        Assert.Equal([5, 4, 3], usable.Select(sec => 1 + sec.Rows.Count));
+        Assert.Equal(12, EarthViewTextBuilder.Status(l, Frame(EarthViewSituation.Usable, new LookAngles(100, 30, 900), true)).Split('\n').Length);
 
-        // Below the horizon there is no minimum elevation line.
-        var below = EarthViewTextBuilder.Status(l, Frame(EarthViewSituation.BelowHorizon, new LookAngles(100, -30, 4000), false));
-        Assert.Equal(5, below.Split('\n').Length);
+        // Below the horizon there is no minimum elevation row.
+        var below = EarthViewTextBuilder.Sections(l, Frame(EarthViewSituation.BelowHorizon, new LookAngles(100, -30, 4000), false));
+        Assert.Equal([5, 4, 2], below.Select(sec => 1 + sec.Rows.Count));
+
+        // With no look angles the station section is left out.
+        var none = EarthViewTextBuilder.Sections(l, Frame(EarthViewSituation.BelowHorizon, null, false));
+        Assert.Equal(2, none.Count);
     }
 
     [Fact]
@@ -202,12 +235,18 @@ public sealed class EarthViewStringsTests
 
         Assert.Equal(
             string.Join("\n",
-                "ISS, altitude 420 km",
-                "2026-06-21 12:05:09 UTC",
-                "From your station: azimuth 100°, elevation 30°, range 912 km",
-                "Your station is inside the footprint: the satellite is above your horizon.",
-                "The satellite is above your minimum elevation of 5°.",
-                "The satellite is in sunlight."),
+                "Satellite",
+                "ISS",
+                "Altitude: 420 km",
+                "Time: 2026-06-21 12:05:09 UTC",
+                "Lighting: In sunlight",
+                "Your station",
+                "Azimuth: 100°",
+                "Elevation: 30°",
+                "Range: 912 km",
+                "Coverage",
+                "Footprint: Inside: satellite above your horizon",
+                "Minimum elevation: Satellite above 5°"),
             EarthViewTextBuilder.Status(l, usable));
 
         Assert.Equal(
@@ -222,7 +261,7 @@ public sealed class EarthViewStringsTests
         Assert.Equal("ISS is above your horizon.", EarthViewTextBuilder.AccessibleSummary(l, usable with { LookFromHome = null }));
         Assert.Equal("Earth View, ISS", EarthViewTextBuilder.AccessibleName(l, usable));
         Assert.Equal("Earth View", EarthViewTextBuilder.AccessibleName(l, null));
-        Assert.Equal("The satellite is in the Earth's shadow.", l.Get(EarthViewTextBuilder.KeyStatusEclipse));
+        Assert.Equal("In the Earth's shadow", l.Get(EarthViewTextBuilder.KeyStatusEclipse));
     }
 
     [Fact]
