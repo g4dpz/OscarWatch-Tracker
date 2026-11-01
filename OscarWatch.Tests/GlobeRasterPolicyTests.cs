@@ -131,12 +131,46 @@ public sealed class GlobeRasterPolicyTests
     }
 
     [Fact]
-    public void Movement_is_measured_as_arc_so_longitude_matters_less_near_the_poles()
+    public void Near_a_pole_a_small_move_that_turns_the_picture_needs_a_new_raster()
     {
-        // 0.2 degrees of longitude at 89 degrees north is only about 0.003 degrees of arc.
+        // 0.2 degrees of longitude at 89 degrees north is only about 0.003 degrees of arc, but the
+        // north-up picture turns by about 0.2 degrees, which moves its edge by more than a pixel.
         var k = Key() with { Camera = new GlobeCamera(89, 0, 420) };
 
-        Assert.False(GlobeRasterPolicy.NeedsRender(k, k with { Camera = k.Camera with { SubpointLongitudeDeg = 0.2 } }));
+        Assert.True(GlobeRasterPolicy.NeedsRender(k, k with { Camera = k.Camera with { SubpointLongitudeDeg = 0.2 } }));
+    }
+
+    [Fact]
+    public void Swinging_across_a_pole_needs_a_new_raster_though_the_subpoint_barely_moves()
+    {
+        // Review finding: (89.99, 0) to (89.99, 180) is only 0.02 degrees of arc but turns the map half way round.
+        var k = Key() with { Camera = new GlobeCamera(89.99, 0, 420) };
+        var swung = k with { Camera = new GlobeCamera(89.99, 180, 420) };
+
+        Assert.True(GlobeViewMath.CentralAngleDeg(89.99, 0, 89.99, 180) < GlobeRasterPolicy.SubpointToleranceDeg);
+        Assert.True(GlobeRasterPolicy.NeedsRender(k, swung));
+        Assert.True(GlobeRasterPolicy.NeedsRender(swung, k));
+    }
+
+    [Fact]
+    public void Near_the_equator_a_small_longitude_change_does_not_turn_the_picture()
+    {
+        var k = Key() with { Camera = new GlobeCamera(0, 20, 420) };
+
+        Assert.Equal(0.0, GlobeRasterPolicy.RotationDeg(k.Camera, k.Camera with { SubpointLongitudeDeg = 20.04 }), precision: 9);
+        Assert.False(GlobeRasterPolicy.NeedsRender(k, k with { Camera = k.Camera with { SubpointLongitudeDeg = 20.04 } }));
+    }
+
+    [Theory]
+    [InlineData(179.9, -179.9, 0.2)]   // across the antimeridian
+    [InlineData(0.0, 360.0, 0.0)]      // a full turn is no turn
+    [InlineData(10.0, 190.0, 180.0)]
+    public void The_turn_uses_the_shortest_longitude_difference(double lonA, double lonB, double expectedDeltaDeg)
+    {
+        var a = new GlobeCamera(90, lonA, 420);
+        var b = new GlobeCamera(90, lonB, 420);
+
+        Assert.Equal(expectedDeltaDeg, GlobeRasterPolicy.RotationDeg(a, b), precision: 6);
     }
 
     [Fact]

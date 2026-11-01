@@ -82,6 +82,24 @@ internal static class GlobeRasterPolicy
             || Math.Abs(c.Camera.AltitudeKm - desired.Camera.AltitudeKm) > AltitudeToleranceKm
             || GlobeViewMath.CentralAngleDeg(
                    c.Camera.SubpointLatitudeDeg, c.Camera.SubpointLongitudeDeg,
-                   desired.Camera.SubpointLatitudeDeg, desired.Camera.SubpointLongitudeDeg) > SubpointToleranceDeg;
+                   desired.Camera.SubpointLatitudeDeg, desired.Camera.SubpointLongitudeDeg) > SubpointToleranceDeg
+            || RotationDeg(c.Camera, desired.Camera) > SubpointToleranceDeg;
+    }
+
+    /// <summary>
+    /// How far the north-up picture turns about its centre between two cameras, in degrees: the change in
+    /// longitude times the sine of the latitude. It is tiny except near a pole, where the subpoint can
+    /// swing from longitude 0 to 180 in a hair's breadth of arc and the whole map turns half way round.
+    /// Takes the higher latitude of the two, so the answer is never too small. At the tolerance the
+    /// edge of a 1024 pixel raster moves under one pixel.
+    /// </summary>
+    internal static double RotationDeg(GlobeCamera a, GlobeCamera b)
+    {
+        var deltaLon = Math.Abs((b.SubpointLongitudeDeg - a.SubpointLongitudeDeg) % 360.0);
+        if (deltaLon > 180.0)
+            deltaLon = 360.0 - deltaLon;
+
+        var latRad = Math.Max(Math.Abs(a.SubpointLatitudeDeg), Math.Abs(b.SubpointLatitudeDeg)) * Math.PI / 180.0;
+        return deltaLon * Math.Sin(latRad);
     }
 }
