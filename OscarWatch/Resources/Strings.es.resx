@@ -636,6 +636,54 @@
   <data name="EarthView.Label.Station">
     <value>Estación</value>
   </data>
+  <data name="EarthView.Empty.NoSatellite">
+    <value>Seleccione un satélite en la ventana principal para ver la Tierra desde él.</value>
+  </data>
+  <data name="EarthView.Empty.NoPosition">
+    <value>La posición del satélite seleccionado aún no está disponible.</value>
+  </data>
+  <data name="EarthView.Status.Satellite">
+    <value>{0}, altitud {1:F0} km</value>
+  </data>
+  <data name="EarthView.Status.Time">
+    <value>{0} UTC</value>
+  </data>
+  <data name="EarthView.Status.LookAngles">
+    <value>Desde su estación: acimut {0:F0}°, elevación {1:F0}°, distancia {2:F0} km</value>
+  </data>
+  <data name="EarthView.Status.BelowHorizon">
+    <value>Su estación está fuera de la huella: el satélite está por debajo del horizonte.</value>
+  </data>
+  <data name="EarthView.Status.AboveHorizon">
+    <value>Su estación está dentro de la huella: el satélite está por encima del horizonte.</value>
+  </data>
+  <data name="EarthView.Status.InsideMinElevation">
+    <value>El satélite está por encima de su elevación mínima de {0:F0}°.</value>
+  </data>
+  <data name="EarthView.Status.OutsideMinElevation">
+    <value>El satélite está por debajo de su elevación mínima de {0:F0}°.</value>
+  </data>
+  <data name="EarthView.Status.Sunlit">
+    <value>El satélite está iluminado por el Sol.</value>
+  </data>
+  <data name="EarthView.Status.Eclipse">
+    <value>El satélite está en la sombra de la Tierra.</value>
+  </data>
+  <data name="EarthView.Accessible.Name">
+    <value>Vista de la Tierra, {0}</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.Usable">
+    <value>{0} está {1:F0} grados por encima del horizonte, en acimut {2:F0} grados, por encima de su elevación mínima de {3:F0} grados.</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.AboveHorizon">
+    <value>{0} está {1:F0} grados por encima del horizonte, en acimut {2:F0} grados, por debajo de su elevación mínima de {3:F0} grados.</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.BelowHorizon">
+    <value>{0} está por debajo del horizonte.</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.NoAngles">
+    <value>{0} está por encima del horizonte.</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>Cronograma de elevación de pases</value>
   </data>

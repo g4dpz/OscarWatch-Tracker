@@ -636,6 +636,54 @@
   <data name="EarthView.Label.Station">
     <value>电台</value>
   </data>
+  <data name="EarthView.Empty.NoSatellite">
+    <value>请在主窗口中选择一颗卫星，以查看从该卫星看到的地球。</value>
+  </data>
+  <data name="EarthView.Empty.NoPosition">
+    <value>所选卫星的位置暂不可用。</value>
+  </data>
+  <data name="EarthView.Status.Satellite">
+    <value>{0}，高度 {1:F0} 千米</value>
+  </data>
+  <data name="EarthView.Status.Time">
+    <value>{0} UTC</value>
+  </data>
+  <data name="EarthView.Status.LookAngles">
+    <value>从您的电台看：方位角 {0:F0}°，仰角 {1:F0}°，距离 {2:F0} 千米</value>
+  </data>
+  <data name="EarthView.Status.BelowHorizon">
+    <value>您的电台位于足迹之外：卫星在地平线以下。</value>
+  </data>
+  <data name="EarthView.Status.AboveHorizon">
+    <value>您的电台位于足迹之内：卫星在地平线以上。</value>
+  </data>
+  <data name="EarthView.Status.InsideMinElevation">
+    <value>卫星高于您的最低仰角 {0:F0}°。</value>
+  </data>
+  <data name="EarthView.Status.OutsideMinElevation">
+    <value>卫星低于您的最低仰角 {0:F0}°。</value>
+  </data>
+  <data name="EarthView.Status.Sunlit">
+    <value>卫星处于日照中。</value>
+  </data>
+  <data name="EarthView.Status.Eclipse">
+    <value>卫星处于地球阴影中。</value>
+  </data>
+  <data name="EarthView.Accessible.Name">
+    <value>地球视图，{0}</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.Usable">
+    <value>{0} 在地平线以上 {1:F0} 度，方位角 {2:F0} 度，高于您的最低仰角 {3:F0} 度。</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.AboveHorizon">
+    <value>{0} 在地平线以上 {1:F0} 度，方位角 {2:F0} 度，低于您的最低仰角 {3:F0} 度。</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.BelowHorizon">
+    <value>{0} 在地平线以下。</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.NoAngles">
+    <value>{0} 在地平线以上。</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>过境仰角时间线</value>
   </data>

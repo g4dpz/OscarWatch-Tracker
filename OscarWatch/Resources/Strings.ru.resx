@@ -1060,6 +1060,54 @@ LOS: {2}
   <data name="EarthView.Label.Station">
     <value>Станция</value>
   </data>
+  <data name="EarthView.Empty.NoSatellite">
+    <value>Выберите спутник в главном окне, чтобы увидеть Землю с него.</value>
+  </data>
+  <data name="EarthView.Empty.NoPosition">
+    <value>Положение выбранного спутника пока недоступно.</value>
+  </data>
+  <data name="EarthView.Status.Satellite">
+    <value>{0}, высота {1:F0} км</value>
+  </data>
+  <data name="EarthView.Status.Time">
+    <value>{0} UTC</value>
+  </data>
+  <data name="EarthView.Status.LookAngles">
+    <value>С вашей станции: азимут {0:F0}°, угол места {1:F0}°, расстояние {2:F0} км</value>
+  </data>
+  <data name="EarthView.Status.BelowHorizon">
+    <value>Ваша станция вне зоны покрытия: спутник за горизонтом.</value>
+  </data>
+  <data name="EarthView.Status.AboveHorizon">
+    <value>Ваша станция в зоне покрытия: спутник над горизонтом.</value>
+  </data>
+  <data name="EarthView.Status.InsideMinElevation">
+    <value>Спутник выше вашего минимального угла места {0:F0}°.</value>
+  </data>
+  <data name="EarthView.Status.OutsideMinElevation">
+    <value>Спутник ниже вашего минимального угла места {0:F0}°.</value>
+  </data>
+  <data name="EarthView.Status.Sunlit">
+    <value>Спутник освещён Солнцем.</value>
+  </data>
+  <data name="EarthView.Status.Eclipse">
+    <value>Спутник в тени Земли.</value>
+  </data>
+  <data name="EarthView.Accessible.Name">
+    <value>Вид Земли, {0}</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.Usable">
+    <value>{0}: {1:F0}° над горизонтом, азимут {2:F0}°, выше вашего минимального угла места {3:F0}°.</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.AboveHorizon">
+    <value>{0}: {1:F0}° над горизонтом, азимут {2:F0}°, ниже вашего минимального угла места {3:F0}°.</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.BelowHorizon">
+    <value>{0} за горизонтом.</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.NoAngles">
+    <value>{0} над горизонтом.</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>Шкала угла места пролётов</value>
   </data>

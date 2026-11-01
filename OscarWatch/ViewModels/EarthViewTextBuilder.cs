@@ -11,6 +11,7 @@ namespace OscarWatch.ViewModels;
 /// </summary>
 internal static class EarthViewTextBuilder
 {
+    public const string KeyWindowTitle = "Window.EarthView.Title";
     public const string KeyEmptyNoSatellite = "EarthView.Empty.NoSatellite";
     public const string KeyEmptyNoPosition = "EarthView.Empty.NoPosition";
     public const string KeyStatusSatellite = "EarthView.Status.Satellite";
@@ -59,9 +60,14 @@ internal static class EarthViewTextBuilder
         return string.Join("\n", lines);
     }
 
-    /// <summary>The control's accessible name: short, and names the satellite.</summary>
+    /// <summary>
+    /// The control's accessible name: short, and names the satellite. With no satellite it is just the window
+    /// title, so it never reads "Earth View," with nothing after the comma.
+    /// </summary>
     public static string AccessibleName(ILocalizationService l, EarthViewFrame? frame) =>
-        l.Get(KeyAccessibleName, frame?.SatelliteName ?? "");
+        frame is null || string.IsNullOrWhiteSpace(frame.SatelliteName)
+            ? l.Get(KeyWindowTitle)
+            : l.Get(KeyAccessibleName, frame.SatelliteName);
 
     /// <summary>
     /// The control's accessible help text: the satellite, where it is in the sky, and whether the

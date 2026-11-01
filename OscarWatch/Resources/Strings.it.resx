@@ -1060,6 +1060,54 @@ Continuare?</value>
   <data name="EarthView.Label.Station">
     <value>Stazione</value>
   </data>
+  <data name="EarthView.Empty.NoSatellite">
+    <value>Seleziona un satellite nella finestra principale per vedere la Terra dal suo punto di vista.</value>
+  </data>
+  <data name="EarthView.Empty.NoPosition">
+    <value>La posizione del satellite selezionato non è ancora disponibile.</value>
+  </data>
+  <data name="EarthView.Status.Satellite">
+    <value>{0}, altitudine {1:F0} km</value>
+  </data>
+  <data name="EarthView.Status.Time">
+    <value>{0} UTC</value>
+  </data>
+  <data name="EarthView.Status.LookAngles">
+    <value>Dalla tua stazione: azimut {0:F0}°, elevazione {1:F0}°, distanza {2:F0} km</value>
+  </data>
+  <data name="EarthView.Status.BelowHorizon">
+    <value>La tua stazione è fuori dall'area di copertura: il satellite è sotto l'orizzonte.</value>
+  </data>
+  <data name="EarthView.Status.AboveHorizon">
+    <value>La tua stazione è dentro l'area di copertura: il satellite è sopra l'orizzonte.</value>
+  </data>
+  <data name="EarthView.Status.InsideMinElevation">
+    <value>Il satellite è sopra la tua elevazione minima di {0:F0}°.</value>
+  </data>
+  <data name="EarthView.Status.OutsideMinElevation">
+    <value>Il satellite è sotto la tua elevazione minima di {0:F0}°.</value>
+  </data>
+  <data name="EarthView.Status.Sunlit">
+    <value>Il satellite è illuminato dal Sole.</value>
+  </data>
+  <data name="EarthView.Status.Eclipse">
+    <value>Il satellite è nell'ombra della Terra.</value>
+  </data>
+  <data name="EarthView.Accessible.Name">
+    <value>Vista della Terra, {0}</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.Usable">
+    <value>{0} è a {1:F0} gradi sopra l'orizzonte, azimut {2:F0} gradi, sopra la tua elevazione minima di {3:F0} gradi.</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.AboveHorizon">
+    <value>{0} è a {1:F0} gradi sopra l'orizzonte, azimut {2:F0} gradi, sotto la tua elevazione minima di {3:F0} gradi.</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.BelowHorizon">
+    <value>{0} è sotto l'orizzonte.</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.NoAngles">
+    <value>{0} è sopra l'orizzonte.</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>Timeline di elevazione dei passaggi</value>
   </data>

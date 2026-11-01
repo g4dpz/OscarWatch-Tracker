@@ -618,6 +618,54 @@
   <data name="EarthView.Label.Station">
     <value>局</value>
   </data>
+  <data name="EarthView.Empty.NoSatellite">
+    <value>メイン ウィンドウで衛星を選択すると、その衛星から見た地球が表示されます。</value>
+  </data>
+  <data name="EarthView.Empty.NoPosition">
+    <value>選択した衛星の位置はまだ利用できません。</value>
+  </data>
+  <data name="EarthView.Status.Satellite">
+    <value>{0}、高度 {1:F0} km</value>
+  </data>
+  <data name="EarthView.Status.Time">
+    <value>{0} UTC</value>
+  </data>
+  <data name="EarthView.Status.LookAngles">
+    <value>自局から: 方位角 {0:F0}°、仰角 {1:F0}°、距離 {2:F0} km</value>
+  </data>
+  <data name="EarthView.Status.BelowHorizon">
+    <value>自局はフットプリントの外にあります。衛星は地平線の下にあります。</value>
+  </data>
+  <data name="EarthView.Status.AboveHorizon">
+    <value>自局はフットプリントの内側にあります。衛星は地平線の上にあります。</value>
+  </data>
+  <data name="EarthView.Status.InsideMinElevation">
+    <value>衛星は最低仰角 {0:F0}° より上にあります。</value>
+  </data>
+  <data name="EarthView.Status.OutsideMinElevation">
+    <value>衛星は最低仰角 {0:F0}° より下にあります。</value>
+  </data>
+  <data name="EarthView.Status.Sunlit">
+    <value>衛星は日照中です。</value>
+  </data>
+  <data name="EarthView.Status.Eclipse">
+    <value>衛星は地球の影の中にあります。</value>
+  </data>
+  <data name="EarthView.Accessible.Name">
+    <value>地球ビュー、{0}</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.Usable">
+    <value>{0} は地平線の上 {1:F0} 度、方位角 {2:F0} 度にあり、最低仰角 {3:F0} 度より上です。</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.AboveHorizon">
+    <value>{0} は地平線の上 {1:F0} 度、方位角 {2:F0} 度にあり、最低仰角 {3:F0} 度より下です。</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.BelowHorizon">
+    <value>{0} は地平線の下にあります。</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.NoAngles">
+    <value>{0} は地平線の上にあります。</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>パス仰角タイムライン</value>
   </data>

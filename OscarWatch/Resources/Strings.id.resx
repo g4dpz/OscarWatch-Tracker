@@ -1060,6 +1060,54 @@ Lanjutkan?</value>
   <data name="EarthView.Label.Station">
     <value>Stasiun</value>
   </data>
+  <data name="EarthView.Empty.NoSatellite">
+    <value>Pilih satelit di jendela utama untuk melihat Bumi dari satelit tersebut.</value>
+  </data>
+  <data name="EarthView.Empty.NoPosition">
+    <value>Posisi satelit yang dipilih belum tersedia.</value>
+  </data>
+  <data name="EarthView.Status.Satellite">
+    <value>{0}, ketinggian {1:F0} km</value>
+  </data>
+  <data name="EarthView.Status.Time">
+    <value>{0} UTC</value>
+  </data>
+  <data name="EarthView.Status.LookAngles">
+    <value>Dari stasiun Anda: azimut {0:F0}°, elevasi {1:F0}°, jarak {2:F0} km</value>
+  </data>
+  <data name="EarthView.Status.BelowHorizon">
+    <value>Stasiun Anda berada di luar footprint: satelit berada di bawah horizon.</value>
+  </data>
+  <data name="EarthView.Status.AboveHorizon">
+    <value>Stasiun Anda berada di dalam footprint: satelit berada di atas horizon.</value>
+  </data>
+  <data name="EarthView.Status.InsideMinElevation">
+    <value>Satelit berada di atas elevasi minimum Anda sebesar {0:F0}°.</value>
+  </data>
+  <data name="EarthView.Status.OutsideMinElevation">
+    <value>Satelit berada di bawah elevasi minimum Anda sebesar {0:F0}°.</value>
+  </data>
+  <data name="EarthView.Status.Sunlit">
+    <value>Satelit terkena sinar matahari.</value>
+  </data>
+  <data name="EarthView.Status.Eclipse">
+    <value>Satelit berada dalam bayangan Bumi.</value>
+  </data>
+  <data name="EarthView.Accessible.Name">
+    <value>Tampilan Bumi, {0}</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.Usable">
+    <value>{0} berada {1:F0} derajat di atas horizon pada azimut {2:F0} derajat, di atas elevasi minimum Anda sebesar {3:F0} derajat.</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.AboveHorizon">
+    <value>{0} berada {1:F0} derajat di atas horizon pada azimut {2:F0} derajat, di bawah elevasi minimum Anda sebesar {3:F0} derajat.</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.BelowHorizon">
+    <value>{0} berada di bawah horizon.</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.NoAngles">
+    <value>{0} berada di atas horizon.</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>Timeline elevasi lintasan</value>
   </data>

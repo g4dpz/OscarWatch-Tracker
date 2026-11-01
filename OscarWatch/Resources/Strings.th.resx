@@ -1060,6 +1060,54 @@ LOS: {2}
   <data name="EarthView.Label.Station">
     <value>สถานี</value>
   </data>
+  <data name="EarthView.Empty.NoSatellite">
+    <value>เลือกดาวเทียมในหน้าต่างหลักเพื่อดูโลกจากมุมมองของดาวเทียมดวงนั้น</value>
+  </data>
+  <data name="EarthView.Empty.NoPosition">
+    <value>ยังไม่มีตำแหน่งของดาวเทียมที่เลือก</value>
+  </data>
+  <data name="EarthView.Status.Satellite">
+    <value>{0} ความสูง {1:F0} กม.</value>
+  </data>
+  <data name="EarthView.Status.Time">
+    <value>{0} UTC</value>
+  </data>
+  <data name="EarthView.Status.LookAngles">
+    <value>จากสถานีของคุณ: มุมอะซิมัท {0:F0}° มุมเงย {1:F0}° ระยะ {2:F0} กม.</value>
+  </data>
+  <data name="EarthView.Status.BelowHorizon">
+    <value>สถานีของคุณอยู่นอกรอยครอบคลุม: ดาวเทียมอยู่ต่ำกว่าขอบฟ้า</value>
+  </data>
+  <data name="EarthView.Status.AboveHorizon">
+    <value>สถานีของคุณอยู่ในรอยครอบคลุม: ดาวเทียมอยู่เหนือขอบฟ้า</value>
+  </data>
+  <data name="EarthView.Status.InsideMinElevation">
+    <value>ดาวเทียมอยู่เหนือมุมเงยต่ำสุดของคุณที่ {0:F0}°</value>
+  </data>
+  <data name="EarthView.Status.OutsideMinElevation">
+    <value>ดาวเทียมอยู่ต่ำกว่ามุมเงยต่ำสุดของคุณที่ {0:F0}°</value>
+  </data>
+  <data name="EarthView.Status.Sunlit">
+    <value>ดาวเทียมอยู่ในแสงอาทิตย์</value>
+  </data>
+  <data name="EarthView.Status.Eclipse">
+    <value>ดาวเทียมอยู่ในเงาของโลก</value>
+  </data>
+  <data name="EarthView.Accessible.Name">
+    <value>มุมมองโลก {0}</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.Usable">
+    <value>{0} อยู่เหนือขอบฟ้า {1:F0} องศา ที่มุมอะซิมัท {2:F0} องศา เหนือมุมเงยต่ำสุดของคุณที่ {3:F0} องศา</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.AboveHorizon">
+    <value>{0} อยู่เหนือขอบฟ้า {1:F0} องศา ที่มุมอะซิมัท {2:F0} องศา ต่ำกว่ามุมเงยต่ำสุดของคุณที่ {3:F0} องศา</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.BelowHorizon">
+    <value>{0} อยู่ต่ำกว่าขอบฟ้า</value>
+  </data>
+  <data name="EarthView.Accessible.Summary.NoAngles">
+    <value>{0} อยู่เหนือขอบฟ้า</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>ไทม์ไลน์มุมเงยของพาส</value>
   </data>
