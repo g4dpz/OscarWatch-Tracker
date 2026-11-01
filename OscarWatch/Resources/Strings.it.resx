@@ -1039,6 +1039,12 @@ Continuare?</value>
   <data name="Menu.Window.PassElevationTimeline">
     <value>Timeline di _elevazione dei passaggi</value>
   </data>
+  <data name="Menu.Window.EarthView">
+    <value>_Vista della Terra</value>
+  </data>
+  <data name="Window.EarthView.Title">
+    <value>Vista della Terra</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>Timeline di elevazione dei passaggi</value>
   </data>

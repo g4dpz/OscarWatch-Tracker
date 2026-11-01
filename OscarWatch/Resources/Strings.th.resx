@@ -1039,6 +1039,12 @@ LOS: {2}
   <data name="Menu.Window.PassElevationTimeline">
     <value>ไทม์ไลน์มุมเงยของพาส(_E)</value>
   </data>
+  <data name="Menu.Window.EarthView">
+    <value>มุมมองโลก(_V)</value>
+  </data>
+  <data name="Window.EarthView.Title">
+    <value>มุมมองโลก</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>ไทม์ไลน์มุมเงยของพาส</value>
   </data>

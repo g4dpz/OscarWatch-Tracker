@@ -615,6 +615,12 @@ Continuar?</value>
   <data name="Menu.Window.PassElevationTimeline">
     <value>Linha do tempo de _elevação de passagens</value>
   </data>
+  <data name="Menu.Window.EarthView">
+    <value>_Visão da Terra</value>
+  </data>
+  <data name="Window.EarthView.Title">
+    <value>Visão da Terra</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>Linha do tempo de elevação de passagens</value>
   </data>

@@ -1039,6 +1039,12 @@ Lanjutkan?</value>
   <data name="Menu.Window.PassElevationTimeline">
     <value>Timeline _elevasi lintasan</value>
   </data>
+  <data name="Menu.Window.EarthView">
+    <value>Tampilan _Bumi</value>
+  </data>
+  <data name="Window.EarthView.Title">
+    <value>Tampilan Bumi</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>Timeline elevasi lintasan</value>
   </data>

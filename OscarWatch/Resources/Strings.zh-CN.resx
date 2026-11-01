@@ -615,6 +615,12 @@
   <data name="Menu.Window.PassElevationTimeline">
     <value>过境仰角_时间线</value>
   </data>
+  <data name="Menu.Window.EarthView">
+    <value>地球_视图</value>
+  </data>
+  <data name="Window.EarthView.Title">
+    <value>地球视图</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>过境仰角时间线</value>
   </data>

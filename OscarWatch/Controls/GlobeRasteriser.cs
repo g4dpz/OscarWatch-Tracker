@@ -50,7 +50,7 @@ internal sealed class GlobeRasteriser
     /// How many pixels one Earth radius spans on the projection plane at this size, zoom and altitude.
     /// Overlays drawn on top of the raster use this so they line up with it.
     /// </summary>
-    public static double PixelsPerEarthRadius(int sizePx, double zoom, double altitudeKm)
+    public static double PixelsPerEarthRadius(double sizePx, double zoom, double altitudeKm)
     {
         var limb = PerspectiveGlobeProjection.LimbRadius(altitudeKm);
         return limb > 0 ? zoom * LimbFill * (sizePx / 2.0) / limb : 0;

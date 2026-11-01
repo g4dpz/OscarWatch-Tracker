@@ -1039,6 +1039,12 @@ LOS: {2}
   <data name="Menu.Window.PassElevationTimeline">
     <value>Шкала _угла места пролётов</value>
   </data>
+  <data name="Menu.Window.EarthView">
+    <value>_Вид Земли</value>
+  </data>
+  <data name="Window.EarthView.Title">
+    <value>Вид Земли</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>Шкала угла места пролётов</value>
   </data>

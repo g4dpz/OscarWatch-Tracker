@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OscarWatch.ViewModels"
+        xmlns:loc="using:OscarWatch.Localization"
+        xmlns:ctl="using:OscarWatch.Controls"
+        x:Class="OscarWatch.Views.EarthViewWindow"
+        x:DataType="vm:EarthViewViewModel"
+        Title="{loc:Localize Key=Window.EarthView.Title}"
+        Width="900" Height="640"
+        MinWidth="480" MinHeight="360"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="8">
+    <Border DockPanel.Dock="Right" Width="280" Margin="8,0,0,0" Padding="10" CornerRadius="4"
+            Background="{DynamicResource ThemeSubtlePanelBackgroundBrush}">
+      <ScrollViewer>
+        <TextBlock Text="{Binding StatusText}" FontSize="13" TextWrapping="Wrap"
+                   Foreground="{DynamicResource ThemeForegroundBrush}" />
+      </ScrollViewer>
+    </Border>
+    <Grid>
+      <ctl:EarthViewControl x:Name="Globe"
+                            Frame="{Binding Frame}"
+                            AutomationProperties.Name="{Binding AccessibleName}"
+                            AutomationProperties.HelpText="{Binding AccessibleSummary}" />
+      <Border IsVisible="{Binding !HasSatellite}" IsHitTestVisible="False"
+              HorizontalAlignment="Center" VerticalAlignment="Center"
+              Background="{DynamicResource ThemeSubtlePanelBackgroundBrush}" CornerRadius="4" Padding="12,8">
+        <TextBlock Text="{Binding EmptyMessage}" FontSize="13" TextWrapping="Wrap" MaxWidth="420"
+                   Foreground="{DynamicResource ThemeForegroundBrush}" />
+      </Border>
+    </Grid>
+  </DockPanel>
+</Window>

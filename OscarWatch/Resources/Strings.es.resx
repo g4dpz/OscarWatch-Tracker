@@ -615,6 +615,12 @@
   <data name="Menu.Window.PassElevationTimeline">
     <value>Cronograma de _elevación de pases</value>
   </data>
+  <data name="Menu.Window.EarthView">
+    <value>_Vista de la Tierra</value>
+  </data>
+  <data name="Window.EarthView.Title">
+    <value>Vista de la Tierra</value>
+  </data>
   <data name="Window.PassElevationTimeline.Title">
     <value>Cronograma de elevación de pases</value>
   </data>
