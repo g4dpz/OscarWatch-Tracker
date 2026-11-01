@@ -94,6 +94,9 @@ internal sealed class GlobeRasteriser
 
         lock (_gate)
         {
+            // A render superseded while it waited for the lock must not build a table nobody wants.
+            cancellationToken.ThrowIfCancellationRequested();
+
             var table = GetTable(sizePx, zoom, camera.AltitudeKm);
 
             basis.GeoToLocal(subsolar.LatitudeDeg, subsolar.LongitudeDeg, out var sx, out var sy, out var sz);

@@ -315,6 +315,34 @@ public sealed class GlobeRasteriserTests
     }
 
     [Fact]
+    public async Task A_render_cancelled_while_waiting_for_the_lock_builds_no_table()
+    {
+        // Review finding: a superseded render used to get the lock and then build its full hit table.
+        var rasteriser = new GlobeRasteriser();
+        var type = typeof(GlobeRasteriser);
+        var gate = type.GetField("_gate", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .GetValue(rasteriser)!;
+        var tableField = type.GetField("_table", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+
+        using var cts = new CancellationTokenSource();
+        var buffer = new uint[Odd * Odd];
+        Task render;
+        lock (gate)
+        {
+            render = Task.Run(() => rasteriser.Render(
+                new GlobeCamera(0, 0, 800), Odd, 1.0, NoSun, false, Palette, GradientMap(), buffer, cts.Token));
+
+            // Give the task time to reach the lock, then cancel while it is waiting.
+            Thread.Sleep(200);
+            Assert.False(render.IsCompleted);
+            cts.Cancel();
+        }
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => render);
+        Assert.Null(tableField.GetValue(rasteriser));
+    }
+
+    [Fact]
     public void A_cancelled_token_stops_the_render()
     {
         using var cts = new CancellationTokenSource();
