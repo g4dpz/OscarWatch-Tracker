@@ -40,6 +40,15 @@ public sealed class EarthViewFrameTests
     }
 
     [Fact]
+    public void Changing_the_minimum_elevation_changes_the_spoken_summary()
+    {
+        // Review finding: on QO-100 the elevation does not move, so only the setting changes.
+        var frame = Frame();
+
+        Assert.True((frame with { MinimumElevationDeg = 10 }).IsMaterialChange(frame));
+    }
+
+    [Fact]
     public void Movement_below_the_tolerance_is_not_redrawn_but_above_it_is()
     {
         var frame = Frame();

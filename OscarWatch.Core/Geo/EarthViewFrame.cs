@@ -72,8 +72,8 @@ public sealed record EarthViewFrame(
 
     /// <summary>
     /// True when the spoken summary of this frame should replace the one for <paramref name="previous"/>:
-    /// a different satellite, a change in how the station sits against the coverage, or an elevation
-    /// change of at least <see cref="AccessibleElevationStepDeg"/>. Ordinary movement does not count,
+    /// a different satellite, a change in how the station sits against the coverage, a new minimum
+    /// elevation setting, or an elevation change of at least <see cref="AccessibleElevationStepDeg"/>. Ordinary movement does not count,
     /// so a screen reader is not given a new description on every redraw.
     /// </summary>
     public bool IsMaterialChange(EarthViewFrame? previous)
@@ -83,6 +83,7 @@ public sealed record EarthViewFrame(
 
         if (!string.Equals(NoradId, previous.NoradId, StringComparison.Ordinal)
             || HomeSituation != previous.HomeSituation
+            || MinimumElevationDeg != previous.MinimumElevationDeg
             || (LookFromHome is null) != (previous.LookFromHome is null))
         {
             return true;
